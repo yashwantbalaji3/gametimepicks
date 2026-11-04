@@ -186,6 +186,14 @@ export function gamePostPage(doc, eventId, perTeam = GAME_POST_PER_TEAM) {
   return [{ ...g, page: 1, pages: 1, awayPlayers: top(g.awayPlayers), homePlayers: top(g.homePlayers), selectionRule: GAME_POST_SELECTION_RULE }];
 }
 
+/** The founder's snapshot label (2026-11-04): each distinct capture time on the page, never "live". */
+export const SNAPSHOT_LABEL = "ODDS SNAPSHOT";
+const etTime = (iso) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(new Date(iso));
+export function snapshotLabelText(page) {
+  const times = [...new Set(pageComparedRows(page).map((r) => r.market.quotedAt.iso).sort().map(etTime))];
+  return `${SNAPSHOT_LABEL} · ${times.join(" / ")} ET`;
+}
+
 /** Every cell of a page in print order: [{ id, entry, cell }]. */
 export function pageCells(doc, page, o = {}) {
   return [...page.awayPlayers, ...page.homePlayers].flatMap((p) => BOX_FAMILIES.map((f) => {
@@ -300,6 +308,7 @@ ${test ? `<div class="watermark">${esc(TEST_WATERMARK)}</div>` : ""}
 <div class="top"><img class="logo" alt="GameTime Picks" src="${logoDataUri()}"><div class="chip">${esc(`NBA · ${tipEt(page.event.tipUtc)}`)}</div></div>
 <div class="kicker">Projections vs sportsbook lines</div>
 <div class="matchup">${esc(`${page.away} @ ${page.home}${page.pages > 1 ? ` · ${page.page} of ${page.pages}` : ""}`)}</div>
+${doc.snapshotException ? `<div class="matchup" data-snapshot="1" style="font-size:22px;letter-spacing:3px;color:#D4AF37">${esc(snapshotLabelText(page))}</div>` : ""}
 <section class="lines" data-event-id="${esc(eventId)}">
 ${panel(awayT, page.awayPlayers, o, doc, eventId)}
 ${panel(homeT, page.homePlayers, o, doc, eventId)}
@@ -359,7 +368,10 @@ export function verifyBoxScoreCardHtml(html, doc, page, o = {}) {
   for (const s of [BOX_FOOTER.disclaimer, FOOTER.responsible]) if (!text.includes(s)) v.push(`footer missing: ${s}`);
   for (const b of BOOK_LABELS) if (text.toLowerCase().includes(b.toLowerCase())) v.push(`book name on the card: ${b}`);
   for (const r of pageComparedRows(page)) if (r.market.book?.label && text.includes(r.market.book.label)) v.push(`book name on the card: ${r.market.book.label}`);
-  for (const w of JARGON) if (wordIn(text, w)) v.push(`internal term on the card: ${w}`);
+  const snap = doc.snapshotException ? snapshotLabelText(page) : null;
+  if (snap && !text.includes(snap)) v.push(`snapshot label missing: ${snap}`);
+  const plain = snap ? text.split(snap).join(" ") : text;
+  for (const w of JARGON) if (wordIn(plain, w)) v.push(`internal term on the card: ${w}`);
   if (/c-diff|class="diff|difference/i.test(html.replace(/<style>[\s\S]*?<\/style>/, ""))) v.push("a difference column is on the card");
   for (const w of BANNED_WORDS) if (wordIn(text, w)) v.push(`banned word on the card: ${w}`);
   if (doc.purpose === PURPOSE.FOUNDER_REVIEW && !text.includes(REVIEW_BANNER)) v.push("founder-review banner missing");

@@ -243,6 +243,9 @@ export const MATCHUP_GRAPHICS_PRICE_AUTHORIZATION = Object.freeze({
       captionDisclosure: "Odds shown are snapshots captured at the stated time and may have changed.",
       approvedBy: "founder",
       approvedAt: "2026-11-04",
+      // The 6-hour line-age rule judged at the capture window instead of the post time. OFF until the founder's explicit
+      // words are relayed verbatim; then a reviewed commit sets true and cites them here.
+      lineAgeExceptionApproved: false,
     }),
   ]),
 });

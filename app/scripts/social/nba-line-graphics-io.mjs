@@ -16,7 +16,7 @@ import { fileURLToPath } from "node:url";
 
 import { nbaExportArgs } from "./export-graphics.mjs";
 import { buildNbaLineGraphicsExport, lineGraphicsExportViolations, PURPOSE, serializeLineGraphicsExport } from "../../src/lib/social/nba-line-graphics-export.mjs";
-import { displayAuthorization } from "../../src/lib/odds/display-authorization.mjs";
+import { displayAuthorization, matchupGraphicsPriceAuthorization } from "../../src/lib/odds/display-authorization.mjs";
 import { readDisplayKey, ODDS_DISPLAY_KEY_ENV, ODDS_DISPLAY_ENC_EXT } from "../../src/lib/odds/display-crypto.mjs";
 import { nbaLinesDir, readNbaLinePublication } from "../../src/lib/sports/nba/public-line-records.mjs";
 
@@ -56,7 +56,7 @@ export function assertPrivateOutDir(dir) {
   return abs;
 }
 
-export const PURPOSE_ARG = Object.freeze({ "founder-review": PURPOSE.FOUNDER_REVIEW, social: PURPOSE.SOCIAL });
+export const PURPOSE_ARG = Object.freeze({ "founder-review": PURPOSE.FOUNDER_REVIEW, social: PURPOSE.SOCIAL, "matchup-snapshot": PURPOSE.MATCHUP_SNAPSHOT });
 
 /**
  * Build (and validate) the @2 line edition from the committed files.
@@ -66,7 +66,7 @@ export function loadNbaLineGraphicsExport({ date, asOf, purpose, env = process.e
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date ?? ""))) throw new Error("--date YYYY-MM-DD is required");
   if (!asOf || !Number.isFinite(Date.parse(asOf)) || !/T.*(Z|[+-]\d\d:\d\d)$/.test(asOf)) throw new Error("--as-of <ISO instant with zone> is required (no clock is read)");
   const base = nbaExportArgs({ date, asOf });
-  const needsValues = purpose === PURPOSE.FOUNDER_REVIEW || displayAuthorization("nba", "social").ok;
+  const needsValues = purpose === PURPOSE.FOUNDER_REVIEW || displayAuthorization("nba", "social").ok || (purpose === PURPOSE.MATCHUP_SNAPSHOT && matchupGraphicsPriceAuthorization("nba", date, "playerProps").ok);
   let artifact = null;
   let artifactRef = null;
   if (needsValues) {

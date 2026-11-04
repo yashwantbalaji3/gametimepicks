@@ -36,7 +36,7 @@
  * DETERMINISM: pure, no fs, no clock. Same inputs + asOf + purpose → byte-identical output (serializeLineGraphicsExport).
  */
 import { buildNbaGraphicsExport, ExportRefusal, instantMs, MODEL_STATUS } from "./graphics-export.mjs";
-import { DISPLAY_AUTHORIZATION, DISPLAY_AUTHORIZATION_RULE, displayAuthorization, directionAuthorization, publicDirectionGate } from "../odds/display-authorization.mjs";
+import { DISPLAY_AUTHORIZATION, DISPLAY_AUTHORIZATION_RULE, displayAuthorization, directionAuthorization, matchupGraphicsPriceAuthorization, MATCHUP_GRAPHICS_PRICE_AUTHORIZATION, publicDirectionGate } from "../odds/display-authorization.mjs";
 import { buildPropLineView, PROP_LINE_STATE, DISPLAY_ROUNDING_POLICY, fmt1, lineText, signedDifference, americanPrice, quoteTimeEt, SIDE_GLYPH, PROP_LINE_VIEW_RULE } from "../odds/prop-line-view.mjs";
 import { NBA_PROP_LINE_ADAPTER, NBA_MARKET_LABEL, nbaPropLineInputs } from "../sports/nba/prop-line-adapter.mjs";
 import { LINE_COMPARISON_RULE, LINE_MAX_AGE_HOURS, MARKET_KEYS, REFERENCE_BOOK_ORDER, COMPARISON_LEGEND } from "../sports/nba/line-comparison.mjs";
@@ -44,7 +44,16 @@ import { linePublicationToPriceRecords, validateNbaLinePublication, NBA_LINE_PUB
 
 export const LINE_GRAPHICS_SCHEMA = "gtp-graphics-export@2";
 export const LINE_GRAPHICS_EDITION = "NBA_LINE_COMPARISON";
-export const PURPOSE = Object.freeze({ SOCIAL: "SOCIAL", FOUNDER_REVIEW: "FOUNDER_REVIEW_ONLY" });
+export const PURPOSE = Object.freeze({ SOCIAL: "SOCIAL", FOUNDER_REVIEW: "FOUNDER_REVIEW_ONLY", MATCHUP_SNAPSHOT: "MATCHUP_GRAPHICS_SNAPSHOT" });
+/**
+ * MATCHUP_GRAPHICS_SNAPSHOT (founder 2026-11-04, receipts f529fa44fa + 41c421cf1d): values and prices on matchup social
+ * IMAGES only for an ET date with a matchupGraphicsPriceAuthorization entry; the social feed surfaces stay off. Captured
+ * lines are historical snapshots: staleness is judged at the artifact's own asOf (the capture window), not at the post
+ * time; the pregame rule (asOf before tip) is unchanged. socialAuthorized stays false (the founder approves each package).
+ */
+const matchupOk = (purpose, date) => purpose === PURPOSE.MATCHUP_SNAPSHOT && matchupGraphicsPriceAuthorization("nba", date, "playerProps").ok;
+/** The capture-window line-age exception: only with the dated entry's lineAgeExceptionApproved === true (off by default). */
+export const lineAgeExceptionOn = (purpose, date, record = MATCHUP_GRAPHICS_PRICE_AUTHORIZATION) => matchupOk(purpose, date) && matchupGraphicsPriceAuthorization("nba", date, "playerProps", record).entry?.lineAgeExceptionApproved === true;
 /** The artifact data class a real capture carries (line-publication-build.mjs). Anything else is test data (watermarked). */
 export const REAL_ARTIFACT_DATA_CLASS = "DISPLAY_ONLY_BUILD_INPUT";
 /** Family order on cards and in the export (the site's order). threePm is listed so its exclusion is explicit. */
@@ -76,7 +85,7 @@ const withheld = (reason) => ({ state: "WITHHELD", reason });
 
 /** Which families may carry a direction on this purpose's surface (founder review: the site surface). */
 export function lineFamilyGate(purpose, record = DISPLAY_AUTHORIZATION) {
-  const surface = purpose === PURPOSE.FOUNDER_REVIEW ? "site" : "social";
+  const surface = purpose === PURPOSE.FOUNDER_REVIEW || purpose === PURPOSE.MATCHUP_SNAPSHOT ? "site" : "social";
   const gate = publicDirectionGate("nba", surface, record);
   // Family qualification itself (independent of the surface switch) decides which families are listed at all.
   const qualified = LINE_FAMILY_ORDER.filter((f) => directionAuthorization("nba", f, "site", record).ok);
@@ -99,8 +108,10 @@ export function buildNbaLineGraphicsExport({ date, asOf, lane, laneSha256 = null
   const social = displayAuthorization("nba", "social", authorizationRecord);
   const socialPrices = displayAuthorization("nba", "socialPrices", authorizationRecord);
   const review = purpose === PURPOSE.FOUNDER_REVIEW;
-  const valuesAllowed = review || social.ok;
-  const pricesAllowed = review || socialPrices.ok;
+  const matchup = matchupOk(purpose, date);
+  if (purpose === PURPOSE.MATCHUP_SNAPSHOT && !matchup) throw new ExportRefusal(`no matchup-graphics price authorization for nba on ${date}`);
+  const valuesAllowed = review || matchup || social.ok;
+  const pricesAllowed = review || matchup || socialPrices.ok;
   const fam = lineFamilyGate(purpose, authorizationRecord);
   const baseRow = new Map(base.rows.map((r) => [r.rowId, r]));
   const excluded = {};
@@ -143,7 +154,7 @@ export function buildNbaLineGraphicsExport({ date, asOf, lane, laneSha256 = null
     const v = validateNbaLinePublication(artifact, { date, laneSha256 });
     if (!v.ok) throw new ExportRefusal(`line artifact for ${date} is invalid:\n  - ${v.errors.slice(0, 10).join("\n  - ")}`);
     const artRow = new Map((artifact.events ?? []).flatMap((e) => (e.rows ?? []).map((r) => [`${r.eventId}|${r.athleteId}|${r.family}`, r])));
-    const { inputs: pairs } = nbaPropLineInputs({ lane, priceRecords: linePublicationToPriceRecords(artifact), asOf });
+    const { inputs: pairs } = nbaPropLineInputs({ lane, priceRecords: linePublicationToPriceRecords(artifact), asOf: matchup && lineAgeExceptionOn(purpose, date) ? artifact.asOf : asOf });
     for (const i of pairs) {
       const f = i.marketKey;
       if (startedIds.has(i.eventId) || !(instantMs(tipOf.get(i.eventId)) > t)) { exclude(EXCLUSION.GAME_STARTED); continue; }
@@ -249,8 +260,9 @@ export function buildNbaLineGraphicsExport({ date, asOf, lane, laneSha256 = null
     sport: "nba",
     edition: { kind: LINE_GRAPHICS_EDITION, key: date, date },
     purpose,
-    socialAuthorized: review ? false : social.ok,
+    socialAuthorized: review || matchup ? false : social.ok,
     asOf,
+    ...(matchup ? { snapshotException: { ref: "2026-11-04-founder-odds-snapshot-override (f529fa44fa, 41c421cf1d)", label: "ODDS SNAPSHOT", lineAgeException: lineAgeExceptionOn(purpose, date), comparedAsOf: lineAgeExceptionOn(purpose, date) ? artifact.asOf : asOf } } : {}),
     publication: {
       status: base.publication.status !== "PUBLISHED" ? base.publication.status : !shown ? "LINES_WITHHELD" : rows.length ? "PUBLISHED" : "NO_COMPARISONS",
       lane: base.publication.lane, laneSha256,
@@ -302,11 +314,13 @@ export function lineGraphicsExportViolations(doc, { authorizationRecord = DISPLA
   if (doc?.edition?.kind !== LINE_GRAPHICS_EDITION) v.push("edition is not NBA_LINE_COMPARISON");
   if (!Object.values(PURPOSE).includes(doc?.purpose)) v.push(`purpose ${JSON.stringify(doc?.purpose)}`);
   const review = doc?.purpose === PURPOSE.FOUNDER_REVIEW;
-  if (review && doc.socialAuthorized !== false) v.push("a founder-review document must say socialAuthorized:false");
+  const matchup = matchupOk(doc?.purpose, doc?.edition?.date);
+  if (doc?.purpose === PURPOSE.MATCHUP_SNAPSHOT && !matchup) v.push(`no matchup-graphics price authorization for ${doc?.edition?.date}`);
+  if ((review || matchup) && doc.socialAuthorized !== false) v.push("a founder-review or matchup-snapshot document must say socialAuthorized:false");
   const social = displayAuthorization("nba", "social", authorizationRecord).ok;
   const prices = displayAuthorization("nba", "socialPrices", authorizationRecord).ok;
-  if (!review && doc?.socialAuthorized !== social) v.push("socialAuthorized disagrees with the authorization record");
-  const valuesOk = review || social, pricesOk = review || prices;
+  if (!review && !matchup && doc?.socialAuthorized !== social) v.push("socialAuthorized disagrees with the authorization record");
+  const valuesOk = review || matchup || social, pricesOk = review || matchup || prices;
   const asOf = Date.parse(doc?.asOf ?? "");
   if (!Number.isFinite(asOf)) v.push("asOf missing");
   const qualified = new Set(LINE_FAMILY_ORDER.filter((f) => directionAuthorization("nba", f, "site", authorizationRecord).ok));
@@ -337,7 +351,8 @@ export function lineGraphicsExportViolations(doc, { authorizationRecord = DISPLA
       const side = exact > 0 ? "OVER" : exact < 0 ? "UNDER" : "NEUTRAL";
       if (m.direction?.side !== side || m.direction?.word !== side || m.direction?.glyph !== SIDE_GLYPH[side]) v.push(`${id}: direction disagrees with the sign of the difference`);
       const cap = Date.parse(m.quotedAt?.iso ?? "");
-      if (!(cap < tip) || Math.min(asOf, tip) - cap > LINE_MAX_AGE_HOURS * 3600_000 || cap > asOf) v.push(`${id}: stale or post-tip line`);
+      const cmpAt = matchup ? Date.parse(doc.snapshotException?.comparedAsOf ?? "") : asOf;
+      if (!(cap < tip) || !Number.isFinite(cmpAt) || Math.min(cmpAt, tip) - cap > LINE_MAX_AGE_HOURS * 3600_000 || cap > cmpAt) v.push(`${id}: stale or post-tip line`);
       if (m.quotedAt?.et !== quoteTimeEt(m.quotedAt?.iso)) v.push(`${id}: quote time text`);
       if (m.overPrice?.state === "SHOWN" && m.overPrice.text !== americanPrice(m.overPrice.value).text) v.push(`${id}: over price text`);
       if (m.underPrice?.state === "SHOWN" && m.underPrice.text !== americanPrice(m.underPrice.value).text) v.push(`${id}: under price text`);
