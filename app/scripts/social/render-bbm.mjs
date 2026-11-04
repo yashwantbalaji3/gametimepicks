@@ -139,7 +139,10 @@ export function slateReader(files) {
 }
 
 const DAY = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" });
-const legLine = (l) => `${l.kind === "GAME_WINNER" ? `${l.team.name} to win` : `${l.player.name} ${l.marketLabel.toLowerCase()}${l.lineText ? ` ${l.lineText.toLowerCase()}` : ""}`}${(l.flagText ?? []).length ? ` (${l.flagText.join("; ")})` : ""}`;
+/** A caption leg: who, the model's own number, any flag. Never a line, odds, book or payout (PD 2026-11-04: image only). */
+const legLine = (l) => `${l.kind === "GAME_WINNER" ? `${l.team.name} to win · model win probability ${l.projectionText}` : `${l.player.name} ${l.marketLabel.toLowerCase()} · model projection ${l.projectionText}`}${(l.flagText ?? []).length ? ` (${l.flagText.join("; ")})` : ""}`;
+/** Odds, price, payout and book language a caption must never carry (the console refuses it). */
+export const CAPTION_PRICE_TEXT = /[+-]\d{3}\b|\bodds\b|\bpayout\b|\bprofit\b|\bparlay\b|leg product|\bline\b|\bover\b|\bunder\b|\bcaptured\b|\$\d[\d,.]*\s*(payout|profit|return)|draftkings|fanduel|betmgm|caesars|espn ?bet|bet365|fanatics|betrivers|hard rock/i;
 const title = (b) => b.charAt(0) + b.slice(1).toLowerCase();
 /** One lane's caption block: its step and public status stated separately, legs by name, no odds language. */
 export function laneCaption(p) {
@@ -183,6 +186,7 @@ export function stagingViolations(plans, outRoot, { displayRecord = undefined } 
   const v = [];
   const abs = path.resolve(outRoot);
   if (abs === LIVE_PACKAGES || abs.startsWith(LIVE_PACKAGES + path.sep) || LIVE_PACKAGES.startsWith(abs + path.sep)) v.push(`${abs}: V2 packages never go to the live packages folder before the cut-over is approved`);
+  for (const p of plans) if (CAPTION_PRICE_TEXT.test(p.caption)) v.push(`${p.packageId}: the caption carries price language (${p.caption.match(CAPTION_PRICE_TEXT)[0]}); prices appear only on the image`);
   for (const p of plans) for (const l of p.lanes) {
     if (l.card.samplePrice || l.view.payout?.fixture) v.push(`${p.packageId}/${l.laneId}: a fixture price never reaches a package`);
     if (l.testData || l.card.testData) v.push(`${p.packageId}/${l.laneId}: a TEST lane history never reaches a package`);
@@ -230,6 +234,8 @@ export async function writeStaging(plans, { outRoot, browser, commit = rendererC
         needsFounderReview: p.needsFounderReview, rendererCommit: commit, designVersion: BBM_DESIGN_VERSION,
         sources: p.lanes.map((l) => ({ laneId: l.laneId, laneLogRef: lanesRef[l.laneId] ?? null, projectionSha256: l.projectionSha256, runId: l.view.runId, eventSha256: drawnEventSha(l.view), suggestedCardsSha256: l.view.card?.suggestedCardsSha256 ?? null })),
         laneStatus: Object.fromEntries(p.lanes.map((l) => [l.laneId, l.view.view])),
+        // An early render is a PREVIEW in the console (no approval); the post-refresh re-render drops it, a new version.
+        preliminary: p.lanes.some((l) => l.view.payout?.preliminary === true),
         // Per lane: whether the printed price is preliminary (re-verified near the window; a changed image is a new version).
         pricing: Object.fromEntries(p.lanes.map((l) => [l.laneId, l.view.payout ? { state: l.view.payout.preliminary ? "PRELIMINARY" : "VERIFIED", capturedAt: l.view.payout.capturedAt, postScheduledAt: l.view.payout.postScheduledAt ?? null } : { state: l.view.view === VIEW.CARD ? "UNPRICED" : "NONE" }])),
         // The render-time availability input (PD 2026-11-04: fresh at render, never the morning build's).

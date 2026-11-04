@@ -24,7 +24,7 @@ import { laneProjection } from "../challenge-lanes/projection.mjs";
 import { laneDisplay } from "../challenge-lanes/display.mjs";
 import { eloWinProbabilityOf } from "../sports/nba/elo-win-probability.mjs";
 import { AWAITING, FACT_LINE, REMOVED_TEXT, SAMPLE_PRICE_RIBBON, TEST_RIBBON, bbmCard as bbmCardFor, verifyBbmCard } from "../../../scripts/social/bbm-cards.mjs";
-import { LIVE_PACKAGES, engineCardFor, packageCaption, planPackages, prepareLane, stagingViolations, writeStaging } from "../../../scripts/social/render-bbm.mjs";
+import { CAPTION_PRICE_TEXT, LIVE_PACKAGES, engineCardFor, packageCaption, planPackages, prepareLane, stagingViolations, writeStaging } from "../../../scripts/social/render-bbm.mjs";
 import { visibleText } from "../../../scripts/social/nba-line-cards.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -329,6 +329,13 @@ test("preliminary prices (founder P0 2026-11-04): tagged on the image, flagged o
   assert.match(verifyBbmCard({ ...p.card, preliminary: false }).join(";"), /preliminary tag on a verified price/);
   const [plan] = planPackages([p, prep(statusDoc("bb-b"))], DATE);
   assert.equal(plan.needsFounderReview, "preliminary-prices");
+  // Captions carry the model's numbers, never a price, payout, line or book (PD 2026-11-04).
+  assert.match(plan.caption, /to win · model win probability \d+%/); assert.match(plan.caption, /Tracked challenge, no real wager placed/);
+  assert.doesNotMatch(plan.caption, CAPTION_PRICE_TEXT);
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), "bbm-"));
+  assert.deepEqual(stagingViolations([plan], out, { displayRecord: SOCIAL_ON }), []);
+  assert.match(stagingViolations([{ ...plan, caption: `${plan.caption}\nDraftKings -128` }], out, { displayRecord: SOCIAL_ON }).join(";"), /caption carries price language/);
+  fs.rmSync(out, { recursive: true, force: true });
   const fin = pricedEvents("bb-a", { provider: "the-odds-api", book: "DraftKings" });
   const f = prep(laneProjection("bb-a", [fin.events]), { privateEvents: fin.events, displayRecord: SOCIAL_ON });
   assert.equal(f.view.payout.preliminary, false); assert.doesNotMatch(textOf(f.card), /PRELIMINARY/);
