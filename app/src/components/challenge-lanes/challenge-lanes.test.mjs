@@ -341,6 +341,30 @@ test("provisional prop analysis: a separate panel, labelled not a challenge leg,
   assert.doesNotMatch(read("src/components/challenge-lanes/prop-analysis-panel.tsx"), /^["']use client["']/m);
 });
 
+test("prop analysis presenter: COMPARED rows only, no side, counts for the rest, stale lines hide differences", async () => {
+  const { propAnalysisView } = await import("../../lib/products/challenge-lanes/prop-analysis.mjs");
+  const { default: PropAnalysisPanel } = await import("./prop-analysis-panel.tsx");
+  const doc = { schema: "gtp-nba-prop-provisional-analysis@1", label: "PROVISIONAL ANALYSIS — not a challenge leg; no prop passed the reliability gate (backtest 0ce4b94208)", date: "2026-11-04",
+    capture: { capturedAt: "2026-11-04T05:18:00Z" }, lineStaleAfter: "2026-11-04T11:18:00Z",
+    rows: [
+      { eventId: "e1", playerId: "p1", name: "Sample Player", team: "NY", game: "BKN @ NY", family: "pts", projection: 24.6, line: { book: "SAMPLE BOOK", line: 22.5, overPrice: -110, underPrice: -110, capturedAt: "2026-11-04T05:18:00Z" }, bookRange: { min: 22.5, max: 23.5, books: 3 }, difference: 2.1, side: "OVER", state: "COMPARED" },
+      { eventId: "e1", playerId: "p2", name: "Excluded Player", team: "NY", family: "reb", projection: 8.1, line: { book: "SAMPLE BOOK", line: 7.5 }, state: "EXCLUDED", side: null },
+      { eventId: "e1", playerId: "p3", name: "No Line", team: "BKN", family: "ast", projection: 5.0, line: null, state: "NO_LINE", side: null },
+    ] };
+  const fresh = propAnalysisView(doc, { now: Date.parse("2026-11-04T06:00:00Z") });
+  assert.deepEqual(fresh.rows.map((r) => [r.player, r.projection, r.line, r.difference, r.range]), [["Sample Player", "24.6", "22.5", "+2.1", "3 books, 22.5–23.5"]]);
+  const t = text(html(React.createElement(PropAnalysisPanel, { analysis: fresh })));
+  assert.doesNotMatch(t, /OVER|UNDER|probability|confiden|-110/i, "no side, no probability, no price on the panel");
+  assert.match(t, /Lines captured Nov 4, 12:18 AM ET; stale after Nov 4, 6:18 AM ET\./);
+  assert.match(t, /Also 1 excluded by the availability and minutes rules, 1 without a captured line; not listed\./);
+  assert.match(t, /PROVISIONAL ANALYSIS — not a challenge leg/);
+  const stale = propAnalysisView(doc, { now: Date.parse("2026-11-04T12:00:00Z") });
+  assert.deepEqual([stale.stale, stale.rows[0].line, stale.rows[0].difference], [true, null, null]);
+  assert.match(text(html(React.createElement(PropAnalysisPanel, { analysis: stale }))), /Lines stale — awaiting a fresher capture\./);
+  assert.equal(propAnalysisView(null), null);
+  assert.equal(propAnalysisView({ ...doc, schema: "other" }), null);
+});
+
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
   const css = read("src/app/globals.css");
   assert.match(css, /@keyframes cl-rung-in/);
