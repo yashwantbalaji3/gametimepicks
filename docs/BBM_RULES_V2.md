@@ -197,3 +197,43 @@ v2-only fields are added only to v2 runs, so v1 projections and the encrypted di
 - **Carry-forward:** `trackedBankrollCents` is the latest STEP_SETTLED gross. It is withheld in the public file after a priced win (P1) and shown in `pricedLaneDisplay`.
 - **Public status** gains `RETIRED` (a run superseded under new rules).
 - **Synthetic fixtures:** `app/scripts/challenge-lanes/v2-sample.mjs <outDir>` writes made-up v2 lanes (ms-a: v1 withdrawn and retired, then a v2 win, a HELD day and an in-play day; bb-a: a v2 single win, then a double loss).
+
+## 7. Recommendation classes (founder directive ~19:00Z) · `levels.mjs`
+
+The 300-game blanket gate is rejected. Each leg and card now carries a classification:
+
+- **LEVEL_A · MODEL-VALIDATED VALUE.** A validated p, with EV under uncertainty (§2). No NBA model is validated today, so there are no Level A cards.
+- **LEVEL_B · HISTORICAL HIT-RATE RESEARCH — no EV claim.** Every signal below passes. The card carries `probability: null`, `ev: null` and `evClaim: false`. It may appear only in an explicitly labelled research challenge, and only if the founder approves that product mode.
+- **HOLD.** Anything else, with every reason listed.
+
+The signals are separate inputs. They are never summed into a number shown as a probability:
+
+| Signal | Inputs | Refusal codes (PROPOSED thresholds) |
+|---|---|---|
+| A evidence strength | Hit-rate windows `{window, hits, n}` and the evaluator's shrunk rate | `A_NO_EVIDENCE`, `A_SMALL_SAMPLE` (longest n < 20), `A_NO_SHRUNK_RATE`, `A_WEAK_EVIDENCE` (shrunk < 0.60) |
+| B role / minutes | stable, games played, minutes SD / average | `B_NO_ROLE`, `B_ROLE_UNSTABLE`, `B_FEW_GAMES` (< 3), `B_MINUTES_VOLATILE` (CV > 0.25) |
+| C availability | Injury status | `C_AVAILABILITY` (only ACTIVE or PROBABLE pass) |
+| D data quality | ok, issues | `D_DATA_QUALITY` |
+| E market | The exact line at one book (fixed order), depth at that line, price bounds, quote age | `E_NO_SINGLE_BOOK_AT_EXACT_LINE`, `E_BAD_ODDS`, `E_PRICE_BOUNDS` [1.25, 4.0], `E_THIN_MARKET` (< 2 books at the line), `E_STALE_QUOTE` (> 90 min) |
+| F model validation | Calibration evidence | Level A only; none today |
+| Card | Leg count, correlation, band, diversification | `LEG_COUNT_EXCEEDED`, `CORRELATED_SAME_PLAYER`, `CORRELATED_SAME_GAME`, `OUT_OF_BAND`, `DIVERSIFICATION` |
+
+**Displaying hit rates.** A hit rate is displayed only as "hits of n" (`hitRateText`), never as a percentage chance. 5 of 5 is shown as "5 of 5", and it is also `A_SMALL_SAMPLE`.
+
+**Level B ranking.** The ranking is labelled "RULES-BASED RANKING — an ordering of evidence, not a probability; no EV claim". The keys, in order:
+1. the weakest leg's shrunk rate, in 0.05 buckets;
+2. fewer legs;
+3. the larger smallest denominator;
+4. lower minutes CV;
+5. closeness to the step target;
+6. freshness;
+7. id.
+
+Payout is never a key.
+
+**Inputs.**
+- Props: `gtp.nba.prop-price@1` records from the private props capture. The key is event, ESPN athlete id, family, line and book, and lines must match exactly (an exact match only, never a nearby line).
+- Moneylines: the h2h price snapshot.
+- Shortlist: `gtp.bbm.level-b-shortlist@1`, from nba-engine-eval, private.
+
+**Card record (`gtp.bbm.card@2`).** It holds the classification, the legs in the founder's schema (sport, game, player or team, market, exact line, side, book, price, quote time, forecast version, hit-rate windows with n, role, injury), the combined price ("calculated leg product") and the money. The receipts start empty and pending: `approvalStatus: PENDING_FOUNDER`, `priceEventSha256`, `graphicVersion`, `siteRecordVersion`, `xReceipt`.
