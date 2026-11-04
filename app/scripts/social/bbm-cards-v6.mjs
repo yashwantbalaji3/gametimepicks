@@ -185,6 +185,8 @@ const CSS = (P) => `<style>
 .pills5.three>b,.pills5.three>span{font-size:24px;padding:10px 14px 8px;letter-spacing:1px}
 .legs5:has(>.leg:only-child){justify-content:center}
 .legs5>.leg:not(:only-child) .who{gap:5px}.legs5>.leg:not(:only-child):not(.prop) .nm{font-size:44px}.legs5>.leg.prop:not(:only-child) .nm{font-size:40px}.legs5>.leg:not(:only-child) .evl{font-size:17px}.legs5>.leg:not(:only-child) .fl{font-size:15px}
+.leg:not(.prop) .evl{white-space:normal;line-height:1.15;font-size:18px}
+.legs5>.leg:not(:only-child):not(.prop){min-height:0;padding:10px 20px 10px}.legs5>.leg:not(:only-child):not(.prop) .nm{font-size:38px}.legs5>.leg:not(:only-child):not(.prop) .evl{font-size:15px}.legs5>.leg:not(:only-child):not(.prop) .fl{font-size:14px}.legs5>.leg:not(:only-child):not(.prop) .who{gap:4px}.legs5>.leg:not(:only-child):not(.prop) .n{font-size:62px}
 .legs5>.leg:only-child{min-height:186px;padding:22px 26px 20px}.legs5>.leg:only-child .nm{font-size:56px}.legs5>.leg:only-child .n{font-size:90px}.legs5>.leg:only-child .pv{font-size:84px}.legs5>.leg:only-child .who{gap:10px}
 .sel5{margin:18px auto 0;padding:8px 20px 6px;border-radius:999px;border:2px solid #FFC400;background:rgba(0,0,0,.85);box-shadow:0 0 12px rgba(255,196,0,.55);font:900 20px/1 var(--display);letter-spacing:2px;text-transform:uppercase;color:#FFE27A;white-space:nowrap}
 .legs5{flex:1;min-height:0;margin-top:24px;display:flex;flex-direction:column;justify-content:flex-start;gap:14px}
