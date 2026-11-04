@@ -53,6 +53,7 @@ function finalProblems(c) {
   return p;
 }
 
+if (FINAL && a.held) throw new Error("final mode takes held lanes only from the engine's HOLD records, never from --held");
 const HELD = new Set(String(a.held ?? "").split(",").filter(Boolean));
 // A preview record the engine classifies HOLD draws as held (never as a card); a final file with a HOLD lane is refused.
 // PD 2026-11-04: final mode draws a HOLD lane truthfully too, with the engine's own reason code in plain words.
