@@ -772,11 +772,15 @@ test("DIVERSIFICATION (founder 2026-11-04): the same combination in two lanes, a
   const card = (laneId, date, ...legIds) => ({ laneId, current: { date, legs: legIds.map((legId) => ({ legId })) } });
   const D = "2026-11-05";
   assert.deepEqual(lane.diversityViolations([card("bb-a", D, "x"), card("bb-b", D, "p1", "p2"), card("ms-a", D, "y"), card("ms-b", D, "p1", "p3")]), []);
-  assert.deepEqual(lane.diversityViolations([card("bb-a", D, "p1", "p2"), card("ms-b", D, "p2", "p1")]), ["SAME_COMBINATION bb-a ms-b"]);
-  assert.deepEqual(lane.diversityViolations([card("bb-a", D, "x"), card("ms-a", D, "x")]), ["SAME_COMBINATION bb-a ms-a (duplicate single)"]);
-  assert.deepEqual(lane.diversityViolations([card("bb-a", D, "x"), card("bb-b", D, "x", "p1"), card("ms-a", D, "x", "p2")]), ["LEG_IN_3_LANES x bb-a bb-b ms-a"]);
+  const dup = lane.diversityViolations([card("bb-a", D, "p1", "p2"), card("ms-b", D, "p2", "p1")]);
+  assert.equal(dup.length, 1); assert.match(dup[0], /^DIVERSITY_DUPLICATE_COMBINATION 2026-11-05: bb-a and ms-b/);
+  assert.match(lane.diversityViolations([card("bb-a", D, "x"), card("ms-a", D, "x")])[0], /^DIVERSITY_DUPLICATE_COMBINATION/, "a duplicate single");
+  const three = lane.diversityViolations([card("bb-a", D, "x"), card("bb-b", D, "x", "p1"), card("ms-a", D, "x", "p2")]);
+  assert.ok(three.some((v) => /^DIVERSITY_LEG_LIMIT 2026-11-05: x in 3 lanes/.test(v)), three.join(" | "));
   /* Other days and held lanes never collide. */
   assert.deepEqual(lane.diversityViolations([card("bb-a", D, "x"), card("ms-a", "2026-11-04", "x"), { laneId: "ms-b", current: null }]), []);
+  /* The site calls the engine's checker, not a copy. */
+  assert.match(read("src/lib/products/challenge-lanes/lane.mjs"), /diversityViolations as engineDiversity \} from "\.\.\/\.\.\/challenge-lanes\/card-fields\.mjs"/);
   /* The loader refuses a violating set whole, on both pages. */
   const { diversityParity } = await import("../../lib/products/challenge-lanes/parity.mjs");
   assert.equal(diversityParity([card("bb-a", D, "x"), card("ms-a", D, "x")])[0].ok, false);
