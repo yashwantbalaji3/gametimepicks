@@ -179,3 +179,15 @@ test("one disclosure per page", () => {
   }
   assert.match(text(html(React.createElement(ProductDisclosure, { productName: "Moonshot" }))), /paper-only and educational/);
 });
+
+test("the engine's leg kinds and unapproved methodology dependencies are stated plainly, in its own words", () => {
+  const board = view.tierBoardFromSuggestedCards(FIXTURE, "bank-builder", { allowFixture: true });
+  assert.deepEqual(board.legKinds, FIXTURE.nbaLegKinds);
+  assert.equal(board.pending.length, FIXTURE.methodologyDependencies.filter((m) => m.state !== "APPROVED").length);
+  const t = text(html(React.createElement(TierBoardSection, { board, productName: "Bank Builder" })));
+  assert.match(t, /Legs today: NBA game winners only\./);
+  assert.match(t, /What today.s card can.t include yet/);
+  for (const m of FIXTURE.methodologyDependencies) assert.ok(t.includes(m.effect.replace(/\s+/g, " ").slice(0, 60)), m.key);
+  assert.doesNotMatch(t, /proposedMethod|10,000 runs/, "the proposal text stays out of the public card");
+  assert.ok(FIXTURE.bankBuilder.nba.card.legs.every((l) => l.selection.teamAbbr), "the refreshed sample carries teamAbbr");
+});

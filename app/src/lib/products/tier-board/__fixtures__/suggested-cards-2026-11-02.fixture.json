@@ -1,14 +1,31 @@
 {
  "fixture": true,
- "fixtureNote": "TEST-ONLY. Engine replay sample for 2026-11-02 (claude/betting-engine-1104-02e05b @ 643543dcd8). Never rendered by a real page.",
+ "fixtureNote": "TEST-ONLY. Engine deterministic replay for 2026-11-02 (claude/betting-engine-1104-02e05b @ 380a6d98dc), trimmed. Never rendered by a real page.",
  "schema": "gtp.suggested-cards@1",
  "productDay": "2026-11-02",
- "evaluatedAt": "2026-11-02T12:00:00Z",
+ "evaluatedAt": "2026-11-02T05:58:41Z",
  "label": "Model suggestion — paper only. No sportsbook price, no payout, not a bet.",
  "pricing": {
   "state": "MODEL_ONLY",
   "note": "No fresh, permitted sportsbook odds are available, so every card is a model suggestion: no price, no payout, not a bet. Settles on the official final."
  },
+ "nbaLegKinds": [
+  "game-winner"
+ ],
+ "methodologyDependencies": [
+  {
+   "key": "nba-player-prop-probability",
+   "state": "NOT_APPROVED",
+   "effect": "NBA legs are game winners only. Player props are not legs: the official lane publishes medians only, and no over/under probability or threshold is derived from a median.",
+   "proposedMethod": "Publish a per-player, per-stat P(stat >= threshold) from the frozen v0.1 simulation draws (the same 10,000 runs the medians come from), for thresholds set by a rule fixed in advance, only after the band-80 coverage of those draws passes a preregistered check on graded 2026-27 games. Needs founder approval before any build reads it."
+  },
+  {
+   "key": "priced-cards",
+   "state": "NOT_AUTHORIZED",
+   "effect": "No card is qualified (bettable): no fresh, permitted sportsbook odds exist, and provider terms bar public price JSON.",
+   "proposedMethod": "An authorized NBA price feed with terms that permit display, then the established Level B gates."
+  }
+ ],
  "sports": {
   "mlb": {
    "state": "no-games",
@@ -112,7 +129,8 @@
       "market": "winner",
       "selection": {
        "code": "home",
-       "label": "ORL (official side)"
+       "label": "ORL (official side)",
+       "teamAbbr": "ORL"
       },
       "status": "MODEL_ONLY",
       "probability": 0.8522,
@@ -172,7 +190,8 @@
       "market": "winner",
       "selection": {
        "code": "home",
-       "label": "MIN (official side)"
+       "label": "MIN (official side)",
+       "teamAbbr": "MIN"
       },
       "status": "MODEL_ONLY",
       "probability": 0.7782,
@@ -257,7 +276,8 @@
       "market": "winner",
       "selection": {
        "code": "away",
-       "label": "OKC (official side)"
+       "label": "OKC (official side)",
+       "teamAbbr": "OKC"
       },
       "status": "MODEL_ONLY",
       "probability": 0.5678000000000001,
@@ -322,7 +342,8 @@
       "market": "winner",
       "selection": {
        "code": "home",
-       "label": "MIN (official side)"
+       "label": "MIN (official side)",
+       "teamAbbr": "MIN"
       },
       "status": "MODEL_ONLY",
       "probability": 0.7782,
@@ -367,7 +388,8 @@
       "market": "winner",
       "selection": {
        "code": "home",
-       "label": "GS (official side)"
+       "label": "GS (official side)",
+       "teamAbbr": "GS"
       },
       "status": "MODEL_ONLY",
       "probability": 0.54,
@@ -437,7 +459,8 @@
       "market": "winner",
       "selection": {
        "code": "home",
-       "label": "LAC (official side)"
+       "label": "LAC (official side)",
+       "teamAbbr": "LAC"
       },
       "status": "MODEL_ONLY",
       "probability": 0.5979,

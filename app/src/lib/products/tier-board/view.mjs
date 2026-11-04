@@ -182,6 +182,9 @@ export function tierBoardFromSuggestedCards(doc, product, { allowFixture = false
     featured: lead ? cardView(lead.card, { state: lead.state, productDay: doc.productDay, origin: "suggested-cards", players: doc.playerProjections?.nba ?? [] }) : null,
     reasons: slots.filter((s) => !s.card && s.reason).map((s) => ({ scope: s.scope, text: String(s.reason).replace(/\.$/, "") })),
     legPool: doc.sports?.nba?.legPool ?? null,
+    legKinds: Array.isArray(doc.nbaLegKinds) ? doc.nbaLegKinds.map(String) : [],
+    /* The engine's methodology dependencies that are not yet approved, in its own words (effect only). */
+    pending: (doc.methodologyDependencies ?? []).filter((m) => m && m.state !== "APPROVED" && m.effect).map((m) => ({ key: String(m.key), state: String(m.state), text: String(m.effect) })),
   };
 }
 
@@ -197,6 +200,8 @@ export function tierBoardFromLevelA(model, product) {
     featured: lead ? cardView(lead.card, { state: "model-only", productDay: model.productDay, origin: "level-a", players: (model.nbaProjections ?? []).map((p) => ({ ...p, eventId: p.eventId ?? null })) }) : null,
     reasons: [slot, gw].filter((s) => s && !s.card && s.reason).map((s, i) => ({ scope: i === 0 ? "cross" : "nba", text: s.reason })),
     legPool: null,
+    legKinds: [],
+    pending: [],
   };
 }
 
