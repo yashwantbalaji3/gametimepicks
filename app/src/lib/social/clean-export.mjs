@@ -2,7 +2,8 @@
  * CLEAN EXPORT RULES. PURE. A clean image is the reviewed card, same snapshot, without the review banner. Nothing here
  * posts anything. Eligibility: sportsbook data only on the moneyline winner cards (they carry no player projections, founder
  * authorization 2026-10-30), no estimate-labelled pass or rush yards, nothing under anomaly REVIEW, and no stat, Top 5 or
- * game-post package without a recorded anomaly check. Game posts stay on design 3, which is not yet allowed.
+ * game-post package without a recorded anomaly check. Game posts stay on design 3, which is not yet allowed, except the
+ * model-only game post (founder, 2026-11-04): design 3 is only its two-image layout, and both of its cards are design 2.
  */
 import { americanText } from "./nba-moneyline.mjs";
 
@@ -16,12 +17,18 @@ export function isMoneylinePackage(pkg) {
   return pkg.contentType === "NBA_GAME_WINNER" && /^\d+$/.test(String(pkg.content?.eventId)) && pkg.variant === `${pkg.content.eventId}-ml`;
 }
 
+/** The model-only NBA game post: two design-2 cards (winner, stat card), no market data, no lines. */
+export function isModelGamePost(pkg) {
+  return pkg.contentType === "NBA_GAME_POST" && pkg.variant === `${pkg.content?.eventId}-model` && pkg.content?.model === true && pkg.containsMarketData === false && pkg.content?.linesShown === 0
+    && String(pkg.designVersion) === "3" && Array.isArray(pkg.content?.sourceDesignVersions) && pkg.content.sourceDesignVersions.length === 2 && pkg.content.sourceDesignVersions.every((v) => CLEAN_DESIGN_VERSIONS.includes(String(v)));
+}
+
 /** Why a package may not leave review. [] = eligible. */
 export function cleanEligibilityProblems(pkg) {
   const p = [];
   const ml = isMoneylinePackage(pkg);
   if (pkg.containsMarketData !== ml) p.push("containsMarketData");
-  if (!CLEAN_DESIGN_VERSIONS.includes(String(pkg.designVersion))) p.push("design version not allowed");
+  if (!CLEAN_DESIGN_VERSIONS.includes(String(pkg.designVersion)) && !isModelGamePost(pkg)) p.push("design version not allowed");
   if (/top5_(pass|rush)_yds/.test(String(pkg.variant)) || (pkg.contentType === "NFL_PLAYER_STATS" && pkg.content?.estimate)) p.push("pass or rush estimate");
   if (pkg.anomalyCheck === "REVIEW") p.push("anomalyCheck REVIEW");
   else if (pkg.anomalyCheck == null && NEEDS_ANOMALY_CHECK.test(String(pkg.contentType))) p.push("anomalyCheck missing");

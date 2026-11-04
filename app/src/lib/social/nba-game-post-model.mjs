@@ -105,7 +105,7 @@ export function buildModelGamePost({ winner, stats, game, images, recommendedAt,
     ccCaption: caption, ccCaptionB: `🏀 ${game.awayName} vs ${game.homeName} tonight! Our model projects the ${game.winnerNickname} to win. Full predictions below 👇`,
     extraClaims: [...claims, ...extraClaims],
     content: {
-      eventId, model: true, containsLines: false, linesShown: 0, imageOrder: [winner.dedupeId, stats.dedupeId], sourceContentSha256: [winner.contentSha256, stats.contentSha256],
+      eventId, model: true, containsLines: false, linesShown: 0, sourceDesignVersions: [winner.designVersion, stats.designVersion], imageOrder: [winner.dedupeId, stats.dedupeId], sourceContentSha256: [winner.contentSha256, stats.contentSha256],
       captionPlayers: { rule: MODEL_CAPTION_RULE, players: players.map((p) => ({ playerId: p.id, name: p.name, pts: p.pts, reb: p.reb, ast: p.ast })) },
       winner: winner.content, stats: stats.content, ...(founderChoice ? { founderChoice } : {}), socialAuthorized: false,
     },

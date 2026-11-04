@@ -33,8 +33,9 @@ const log = (o: any) => { const line = JSON.stringify({ at: new Date().toISOStri
 if (!fs.existsSync(approvalsFile)) { console.log(`no approvals file at ${approvalsFile}; nothing to do`); process.exit(0); }
 const doc = JSON.parse(fs.readFileSync(approvalsFile, "utf8"));
 const entries: any[] = Array.isArray(doc) ? doc : doc.approved ?? doc.entries ?? [];
-// This slate's review packages, by dedupeId (the runner's variants: <id>-winner|props|projonly|winneronly, slate-today, slate-top5).
-const SUFFIX = /^(?:(\d+)-(winner|props|projonly|winneronly)|slate-(today|top5))$/;
+// This slate's review packages, by dedupeId (the runner's variants: <id>-winner|props|projonly|winneronly, slate-today, slate-top5,
+// and the model-only game post <id>-model: two images, the winner card then the stat card, each checked and cleaned on its own).
+const SUFFIX = /^(?:(\d+)-(winner|props|projonly|winneronly|model)|slate-(today|top5))$/;
 const mine = new Map<string, { file: string; pkg: any }>();
 // The review JSON is in packages/ until its clean copy is staged; after that it is in packages-review-archive/<date>/ (a pass
 // that died between the archive and the clean rename finds it there and finishes). packages/ wins when both hold one.
@@ -86,10 +87,10 @@ for (const e of todo) {
   const finalJson = path.join(pk, `${outName}.json`), staged = path.join(pk, `.${outName}.json.staged`), finalDir = path.join(pk, outName);
   const markClean = () => { status[sk] = { ...status[sk], dedupeId: e.dedupeId, contentSha256: pkg.contentSha256, state: "CLEAN", package: `${outName}.json`, at: status[sk]?.state === "CLEAN" ? status[sk].at : new Date().toISOString() }; };
   // (2) then (3): archive the review JSON, then publish the staged clean JSON.
-  const finish = (cleanSha: string) => {
+  const finish = (cleanSha: string | string[]) => {
     archiveReview(file, e.dedupeId, sk); crashAt("archive");
     fs.renameSync(staged, finalJson);
-    log({ dedupeId: e.dedupeId, outcome: "CLEAN", package: `${outName}.json`, reviewedSha256: pkg.images[0].sha256, cleanSha256: cleanSha });
+    log({ dedupeId: e.dedupeId, outcome: "CLEAN", package: `${outName}.json`, reviewedSha256: Array.isArray(cleanSha) ? pkg.images.map((i: any) => i.sha256) : pkg.images[0].sha256, cleanSha256: cleanSha });
     markClean();
   };
   if (fs.existsSync(finalJson)) { archiveReview(file, e.dedupeId, sk); markClean(); continue; } // done (an older pass may have left the review JSON)
@@ -105,7 +106,8 @@ for (const e of todo) {
   };
   const shas = new Map(pkg.images.map((i: any) => [i.path, fs.existsSync(i.path) ? sha(fs.readFileSync(i.path)) : null]));
   const problems = [...ce.cleanEligibilityProblems(pkg), ...ce.approvalMatchProblems(e, pkg, shas)];
-  if (pkg.images.length !== 1) problems.push(`expected 1 image, found ${pkg.images.length}`);
+  const pair = pkg.contentType === "NBA_GAME_POST" && ce.isModelGamePost(pkg);
+  if (pkg.images.length !== (pair ? 2 : 1)) problems.push(`expected ${pair ? "2 images" : "1 image"}, found ${pkg.images.length}`);
   const closes = Math.min(...[pkg.expiresAt, pkg.window?.closesAt, pkg.commandCenter?.firstStartUtc].filter(Boolean).map((t: string) => Date.parse(t)));
   if (!(nowMs < closes)) problems.push(`expired: window closed ${Number.isFinite(closes) ? new Date(closes).toISOString() : "(no expiry recorded)"}`);
   const changed = pkg.snapshotRefs.filter((r: any) => { const f = path.resolve(process.cwd(), "..", r.ref); return !fs.existsSync(f) || sha(fs.readFileSync(f)) !== r.sha256; }).map((r: any) => r.ref);
@@ -123,7 +125,7 @@ for (const e of todo) {
     try {
       const st = JSON.parse(fs.readFileSync(staged, "utf8"));
       const ok = st.sourceContentSha256 === pkg.contentSha256 && st.dedupeId === e.dedupeId && st.approval?.captionId === e.captionId && st.approval?.approvedAt === e.approvedAt && st.images.every((i: any) => fs.existsSync(i.path) && sha(fs.readFileSync(i.path)) === i.sha256);
-      if (ok) { finish(st.images[0].sha256); continue; }
+      if (ok) { finish(pair ? st.images.map((i: any) => i.sha256) : st.images[0].sha256); continue; }
       fs.rmSync(staged, { force: true }); // stale (another approval or a broken image): render again below
     } catch (err: any) { fs.rmSync(staged, { force: true }); }
   }
@@ -131,37 +133,48 @@ for (const e of todo) {
   if (!rebuilt.has(asOf)) rebuilt.set(asOf, m.prepareGameDay({ date, asOf }));
   const r = rebuilt.get(asOf);
   const [, id, gv, sv] = String(pkg.variant).match(SUFFIX)!;
-  const base = id ? r.posts.find((p: any) => p.contentType === pkg.contentType && p.variant === id)
-    : sv === "today" ? r.posts.find((p: any) => p.contentType === "NBA_TONIGHT")
-    : m.nbaTop5Carousel({ posts: r.posts.filter((p: any) => p.contentType === "NBA_DAILY_TOP5"), date, minRows: pkg.content?.minRows ?? 5 }).posts[0];
-  if (!base || base.cards.length !== 1) { refuse([`the ${gv ?? sv} card could not be rebuilt`]); continue; }
-  const reviewed = base.cards[0].html;
+  // One reviewed card per image: the model game post is its winner card then its stat card, as delivered for this game.
+  const bases = gv === "model" ? [r.posts.find((p: any) => p.contentType === "NBA_GAME_WINNER" && p.variant === id), r.posts.find((p: any) => p.contentType === "NBA_PLAYER_STATS" && p.variant === id)]
+    : [id ? r.posts.find((p: any) => p.contentType === pkg.contentType && p.variant === id)
+      : sv === "today" ? r.posts.find((p: any) => p.contentType === "NBA_TONIGHT")
+      : m.nbaTop5Carousel({ posts: r.posts.filter((p: any) => p.contentType === "NBA_DAILY_TOP5"), date, minRows: pkg.content?.minRows ?? 5 }).posts[0]];
+  if (bases.some((b: any) => !b || b.cards.length !== 1)) { refuse([`the ${gv ?? sv} card could not be rebuilt`]); continue; }
+  const reviewedPages = bases.map((b: any) => b.cards[0].html);
   if (pkg.anomalyCheck === "EXCEPTION") {
-    const cells = Object.entries(base.cards[0].cells ?? {}).map(([k, v]: any) => [k.replace(/^(pts|reb|ast)\.(\d+)\.num$/, "$2.$1"), v]);
+    const cells = bases.flatMap((b: any) => Object.entries(b.cards[0].cells ?? {}).map(([k, v]: any) => [k.replace(/^(pts|reb|ast)\.(\d+)\.num$/, "$2.$1"), v]));
     const shown = de.flaggedCellsShown(pkg.anomalies, cells);
     if (shown.length) { refuse([`flagged cells printed as numbers: ${shown.map((a: any) => `${a.playerId}.${a.market}`).join(", ")}`]); continue; }
   }
-  let clean: string;
-  try { clean = ce.withoutBanner(reviewed); } catch (err: any) { refuse([err.message]); continue; }
-  const bad = ce.sameDisplayProblems(reviewed, clean, DISCLOSURE);
-  if (bad.length) { refuse(bad); continue; }
+  // Every image must pass on its own; one failure refuses the whole package.
+  const cleanPages: string[] = []; const why: string[] = [];
+  for (const [k, reviewed] of reviewedPages.entries()) {
+    try { const clean = ce.withoutBanner(reviewed); const bad = ce.sameDisplayProblems(reviewed, clean, DISCLOSURE); if (bad.length) why.push(...bad.map((x: string) => (pair ? `image ${k + 1}: ${x}` : x))); else cleanPages.push(clean); }
+    catch (err: any) { why.push(pair ? `image ${k + 1}: ${err.message}` : err.message); }
+  }
+  if (why.length) { refuse(why); continue; }
   // The rebuilt review page must be the page approved: same pixels as the approved image.
   const tmp = path.join(pk, `.${outName}.${process.pid}`);
   fs.rmSync(tmp, { recursive: true, force: true });
   try {
-    const [again] = await renderCleanImages([{ name: "reviewed", html: reviewed }], path.join(tmp, "check"));
-    if (again.sha256 !== pkg.images[0].sha256) { refuse(["the rebuilt review card does not render to the approved image"]); fs.rmSync(tmp, { recursive: true, force: true }); continue; }
-    fs.rmSync(path.join(tmp, "check"), { recursive: true, force: true });
-    const name = path.basename(pkg.images[0].path, ".png");
-    const [img] = await renderCleanImages([{ name, html: clean }], tmp);
-    const finalImg = path.join(finalDir, "images", `${name}.png`);
-    const image = { ...img, path: finalImg };
-    const media = { file: finalImg, sha256: img.sha256 };
+    let mismatch = false;
+    for (const [k, reviewed] of reviewedPages.entries()) {
+      const [again] = await renderCleanImages([{ name: "reviewed", html: reviewed }], path.join(tmp, "check"));
+      fs.rmSync(path.join(tmp, "check"), { recursive: true, force: true });
+      if (again.sha256 !== pkg.images[k].sha256) { refuse([pair ? `image ${k + 1}: the rebuilt review card does not render to the approved image` : "the rebuilt review card does not render to the approved image"]); mismatch = true; break; }
+    }
+    if (mismatch) { fs.rmSync(tmp, { recursive: true, force: true }); continue; }
+    const images: any[] = [];
+    for (const [k, clean] of cleanPages.entries()) {
+      const name = path.basename(pkg.images[k].path, ".png");
+      const [img] = await renderCleanImages([{ name, html: clean }], tmp);
+      images.push({ ...img, path: path.join(finalDir, "images", `${name}.png`) });
+    }
+    const media = images.map((i) => ({ file: i.path, sha256: i.sha256 }));
     const out = {
-      ...pkg, caption: e.caption, images: [image], reviewedImages: pkg.images, mediaSha256: img.sha256, mediaSetSha256: sha(img.sha256),
+      ...pkg, caption: e.caption, images, reviewedImages: pkg.images, mediaSha256: images[0].sha256, mediaSetSha256: sha(images.map((i) => i.sha256).join("|")),
       clean: true, sourceContentSha256: pkg.contentSha256, dataChanged: false,
       approval: { status: "FOUNDER_APPROVED", socialAuthorized: true, approvedAt: e.approvedAt, captionId: e.captionId, decisionId: e.decisionId ?? null },
-      commandCenter: { ...pkg.commandCenter, media: { ...pkg.commandCenter.media, ...media }, mediaSet: [{ ...pkg.commandCenter.mediaSet[0], ...media }] },
+      commandCenter: { ...pkg.commandCenter, media: { ...pkg.commandCenter.media, ...media[0] }, mediaSet: media.map((x, k) => ({ ...pkg.commandCenter.mediaSet[k], ...x })) },
     };
     if (JSON.stringify(out).includes(tmp)) throw new Error("temp path left in the package");
     // (1) stage: the image folder (a folder, never read as a package) and the JSON under a name the importer ignores.
@@ -171,7 +184,7 @@ for (const e of todo) {
     fs.writeFileSync(jt, `${JSON.stringify(out, null, 2)}\n`);
     fs.renameSync(jt, staged);
     crashAt("stage");
-    finish(img.sha256);
+    finish(pair ? images.map((i) => i.sha256) : images[0].sha256);
   } catch (err: any) {
     fs.rmSync(tmp, { recursive: true, force: true });
     const attempts = (status[sk]?.attempts ?? 0) + 1;
