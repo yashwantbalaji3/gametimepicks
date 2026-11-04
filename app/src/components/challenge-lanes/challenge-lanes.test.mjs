@@ -341,35 +341,38 @@ test("provisional prop analysis: a separate panel, labelled not a challenge leg,
   assert.doesNotMatch(read("src/components/challenge-lanes/prop-analysis-panel.tsx"), /^["']use client["']/m);
 });
 
-test("PROP ANALYSIS end to end: nba-engine-eval's writer + reader → the panel: compared rows only, no side, no price, stale counted", async () => {
-  const { writePropAnalysisArtifacts } = await import("../../lib/odds/nba-prop-analysis.mjs");
+test("PROP ANALYSIS end to end: nba-engine-eval's writer + reader → the panel: compared rows only, no side, no price, stale hides lines", async () => {
+  const { writePropAnalysis, PROP_ANALYSIS_LABEL } = await import("../../lib/odds/nba-prop-analysis.mjs");
   const { loadPropAnalysis } = await import("../../lib/products/challenge-lanes/load.mjs");
   const { default: PropAnalysisPanel } = await import("./prop-analysis-panel.tsx");
   const KEY = crypto.randomBytes(32).toString("hex");
-  const row = (over) => ({ eventId: "401900001", game: "AAA @ BBB", tipUtc: "2099-01-15T06:00Z", playerId: "7", name: "Test Player", team: "BBB", family: "pts",
+  const row = (over) => ({ eventId: "401900001", game: "AAA @ BBB", tipUtc: "2099-01-15T00:00Z", playerId: "7", name: "Test Player", team: "BBB", family: "pts",
     projectionLabel: "MODEL PROJECTION", projection: 21.3, expectedMinutes: 32,
-    line: { book: "draftkings", line: 19.5, overPrice: -115, underPrice: -105, capturedAt: "2099-01-14T20:00:00.000Z" }, bookRange: { min: 19.5, max: 20.5, books: 3 }, state: "COMPARED", excluded: [], ...over });
-  const analysis = { schema: "gtp-nba-prop-provisional-analysis@1", date: "2099-01-15",
-    lane: { file: "x", generatedAt: "2099-01-15T06:00:00Z", family: "v0.1" }, capture: { file: "c", capturedAt: "2099-01-14T20:00:00.000Z" }, offerRule: "chooseOffer", lineMaxAgeHours: 6,
-    comparisonRule: "nba-line-comparison@1", guard: { rules: { R1: "status Out or Day-To-Day" } },
-    rows: [row(), row({ playerId: "8", name: "Guarded Player", state: "EXCLUDED", excluded: [{ rule: "R1", reason: "Day-To-Day" }] })] };
+    line: { book: "draftkings", line: 19.5, overPrice: -115, underPrice: -105, capturedAt: "2099-01-14T20:00:00.000Z" }, bookRange: { min: 19.5, max: 20.5, books: 3 },
+    difference: 1.8, differenceExact: 1.8000000000000007, side: "OVER", state: "COMPARED", comparisonReason: null, excluded: [], ...over });
+  const analysis = { schema: "gtp-nba-prop-provisional-analysis@1", dataClass: "PRIVATE_RESEARCH", label: PROP_ANALYSIS_LABEL, date: "2099-01-15", generatedAt: "2099-01-15T06:31:07.123Z", asOf: "2099-01-15T06:30:00Z",
+    lane: { file: "x", generatedAt: "2099-01-15T06:00:00Z", family: "v0.1" }, capture: { file: "c", capturedAt: "2099-01-14T20:00:00.000Z", records: 3, books: ["draftkings"] }, lineStaleAfter: "2099-01-15T02:00:00.000Z",
+    rows: [row(), row({ playerId: "8", name: "Guarded Player", state: "EXCLUDED", difference: null, differenceExact: null, side: null, excluded: [{ rule: "R1", reason: "Day-To-Day" }] })],
+    notProjected: [{}, {}], summary: { compared: 1, excluded: 1, notProjected: 2, linesOutOfScopeFamily: 3, topDifferences: [] } };
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), "pa-")); const app = path.join(repo, "app"); fs.mkdirSync(app);
-  writePropAnalysisArtifacts({ appDir: app, analysis, laneSha256: "ab".repeat(32), env: { GTP_ODDS_DISPLAY_KEY: KEY } });
+  writePropAnalysis({ appDir: app, analysis, env: { GTP_ODDS_DISPLAY_KEY: KEY } });
   const fresh = loadPropAnalysis({ appDir: app, date: "2099-01-15", env: { GTP_ODDS_DISPLAY_KEY: KEY }, asOf: "2099-01-14T21:00:00Z" });
   assert.deepEqual(fresh.rows.map((r) => [r.player, r.market, r.projection, r.line, r.difference, r.book, r.range]), [["Test Player", "Points", "21.3", "19.5", "+1.8", "draftkings", "3 books, 19.5–20.5"]]);
   const t = text(html(React.createElement(PropAnalysisPanel, { analysis: fresh })));
-  assert.match(t, /Provisional prop analysis · 2099-01-15 Not a challenge leg — no prop passed the reliability gate\./);
-  assert.match(t, /PROVISIONAL ANALYSIS — not a challenge leg/);
-  assert.match(t, /Also 1 excluded by the availability and minutes rules; not listed\./);
+  assert.match(t, /Provisional prop analysis · 2099-01-15 Not a challenge leg — no prop passed the reliability gate\. No NBA prop family passed the reliability gate/);
+  assert.match(t, /PROVISIONAL ANALYSIS — not a challenge leg; no prop passed the reliability gate \(backtest 0ce4b94208\)/);
+  assert.match(t, /Lines captured Jan 14, 3:00 PM ET; stale after Jan 14, 9:00 PM ET\./);
+  assert.match(t, /Also 1 excluded by the availability and minutes rules, 2 players not projected, 3 lines in markets outside points, rebounds and assists; not listed\./);
   assert.doesNotMatch(t, /OVER|UNDER|-115|-105|probability|confiden|Guarded Player/i, "no side, no price, no probability; excluded rows not listed");
-  // After the 6 h rule the lines are STALE: counted, not shown.
-  const stale = loadPropAnalysis({ appDir: app, date: "2099-01-15", env: { GTP_ODDS_DISPLAY_KEY: KEY }, asOf: "2099-01-15T02:30:00Z" });
-  assert.equal(stale.rows.length, 0); assert.equal(stale.stale, true);
-  assert.match(text(html(React.createElement(PropAnalysisPanel, { analysis: stale }))), /Lines stale — awaiting a fresher capture\..*with lines older than the 6-hour limit/);
-  // No key or another key: no prices, no panel. No file: no panel.
-  assert.equal(loadPropAnalysis({ appDir: app, date: "2099-01-15", env: {}, asOf: "2099-01-14T21:00:00Z" }), null);
+  // Built after lineStaleAfter: lines and differences hidden, the panel says so.
+  const stale = loadPropAnalysis({ appDir: app, date: "2099-01-15", env: { GTP_ODDS_DISPLAY_KEY: KEY }, asOf: "2099-01-15T03:00:00Z" });
+  assert.deepEqual([stale.stale, stale.rows[0].line, stale.rows[0].difference, stale.rows[0].projection], [true, null, null, "21.3"]);
+  assert.match(text(html(React.createElement(PropAnalysisPanel, { analysis: stale }))), /Lines stale — awaiting a fresher capture\./);
+  // No key or another key: no panel. No file: no panel.
+  assert.equal(loadPropAnalysis({ appDir: app, date: "2099-01-15", env: {} }), null);
   assert.equal(loadPropAnalysis({ appDir: app, date: "2099-01-15", env: { GTP_ODDS_DISPLAY_KEY: crypto.randomBytes(32).toString("hex") } }), null);
   assert.equal(loadPropAnalysis({ appDir: app, date: "2099-01-16", env: { GTP_ODDS_DISPLAY_KEY: KEY } }), null);
+  assert.doesNotMatch(fs.readFileSync(path.join(repo, "data", "odds-display", "nba", "prop-analysis", "2099-01-15.json.enc"), "utf8"), /draftkings|Test Player/);
   fs.rmSync(repo, { recursive: true, force: true });
   for (const f of ["src/app/bank-builder/page.tsx", "src/app/moonshot/page.tsx"]) {
     const src = read(f);
