@@ -225,3 +225,41 @@ export function directionAuthorization(sport, family, surface = "site", record =
 export function publicDirectionGate(sport, surface = "site", record = DISPLAY_AUTHORIZATION) {
   return Object.freeze({ scope: "public", shows: (family) => directionAuthorization(sport, family, surface, record).ok });
 }
+
+/**
+ * MATCHUP SOCIAL GRAPHICS, DATED (founder 2026-11-04, receipts f529fa44fa and 41c421cf1d on claude/bbm-v2-authorization,
+ * docs/receipts/FOUNDER_ODDS_SNAPSHOT_OVERRIDE_2026-11-04.md): already-captured moneyline and player-prop prices may print
+ * on NBA matchup social IMAGES for the listed ET date only, each labelled with its own capture time. It is NOT the
+ * "social" surface: the public social JSON feed stays off (provider terms forbid a price feed), and nothing here changes
+ * DISPLAY_AUTHORIZATION. It authorizes no capture and no spend. An entry missing a field refuses.
+ */
+export const MATCHUP_GRAPHICS_PRICE_AUTHORIZATION = Object.freeze({
+  nba: Object.freeze([
+    Object.freeze({
+      etDate: "2026-11-04",
+      markets: Object.freeze(["moneyline", "playerProps"]),
+      receiptRef: "docs/receipts/FOUNDER_ODDS_SNAPSHOT_OVERRIDE_2026-11-04.md (claude/bbm-v2-authorization f529fa44fa, amended 41c421cf1d)",
+      snapshotLabel: "ODDS SNAPSHOT",
+      captionDisclosure: "Odds shown are snapshots captured at the stated time and may have changed.",
+      approvedBy: "founder",
+      approvedAt: "2026-11-04",
+    }),
+  ]),
+});
+
+/**
+ * May captured prices of `market` print on `sport` matchup social graphics posted on `etDate`? Never throws.
+ * @returns {{ ok: boolean, reasons: string[], entry: object|null }}
+ */
+export function matchupGraphicsPriceAuthorization(sport, etDate, market, record = MATCHUP_GRAPHICS_PRICE_AUTHORIZATION) {
+  const list = record && Object.prototype.hasOwnProperty.call(record, sport) && Array.isArray(record[sport]) ? record[sport] : [];
+  const entry = list.find((e) => e?.etDate === etDate) ?? null;
+  const reasons = [];
+  if (!entry) reasons.push(`no matchup-graphics price authorization for ${sport} on ${etDate}`);
+  else {
+    for (const f of ["receiptRef", "snapshotLabel", "captionDisclosure", "approvedBy", "approvedAt"]) if (blank(entry[f])) reasons.push(`${f} is missing`);
+    if (!isDate(entry.etDate) || !isDate(entry.approvedAt)) reasons.push("etDate and approvedAt must be YYYY-MM-DD dates");
+    if (!Array.isArray(entry.markets) || !entry.markets.includes(market)) reasons.push(`${market} is not authorized for matchup graphics on ${etDate}`);
+  }
+  return { ok: reasons.length === 0, reasons, entry: reasons.length ? null : entry };
+}

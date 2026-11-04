@@ -144,3 +144,16 @@ test("direction qualification: needs the surface authorized AND a complete quali
   assert.equal(directionAuthorization("nba", "pts", "social", r(q(), { socialDisplay: false })).ok, false, "the social surface is gated on its own switch");
   assert.equal(directionAuthorization("nfl", "pts", "site", r(q())).ok, false, "an NBA qualification never carries over to NFL");
 });
+
+test("matchup graphics: dated Nov 4 NBA authorization only; the social surfaces stay off", async () => {
+  const { matchupGraphicsPriceAuthorization: m, displayAuthorization: d } = await import("./display-authorization.mjs");
+  assert.equal(m("nba", "2026-11-04", "moneyline").ok, true);
+  assert.equal(m("nba", "2026-11-04", "playerProps").ok, true);
+  assert.equal(m("nba", "2026-11-05", "moneyline").ok, false);
+  assert.equal(m("nba", "2026-11-03", "playerProps").ok, false);
+  assert.equal(m("nfl", "2026-11-04", "moneyline").ok, false);
+  assert.equal(m("nba", "2026-11-04", "spreads").ok, false);
+  assert.equal(m("nba", "2026-11-04", "moneyline", { nba: [{ etDate: "2026-11-04", markets: ["moneyline"], receiptRef: " ", snapshotLabel: "x", captionDisclosure: "x", approvedBy: "x", approvedAt: "2026-11-04" }] }).ok, false);
+  assert.equal(d("nba", "social").ok, false);
+  assert.equal(d("nba", "socialPrices").ok, false);
+});
