@@ -212,16 +212,33 @@ test("withheld and under-review player values are never displayed: only guard-pa
   }
 });
 
-test("pages read the daily file only through the founder switch (decision b), default OFF", async () => {
-  const { readSuggestedCards, PAGES_READ_DAILY_CARDS } = await import("../../lib/products/tier-board/load.ts");
-  assert.equal(PAGES_READ_DAILY_CARDS, false, "committed OFF until the founder approves");
+test("founder rule B: pages read the frozen daily file through the engine's verifying loader; anything else falls back", async () => {
+  const { readSuggestedCards } = await import("../../lib/products/tier-board/load.ts");
+  const { sealSuggestedCards } = await import("../../lib/products/leg-pool/daily-cards.mjs");
+  const { FROZEN_DAILY_CARDS_PUBLIC } = await import("../../lib/products/leg-pool/page-source.mjs");
+  assert.equal(FROZEN_DAILY_CARDS_PUBLIC, true, "rule B is on by default");
   const os = await import("node:os");
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "tb-"));
-  fs.mkdirSync(path.join(root, "suggested-cards"));
-  fs.writeFileSync(path.join(root, "suggested-cards", "2026-11-02.json"), JSON.stringify({ ...FIXTURE, fixture: false }));
-  assert.equal(readSuggestedCards("2026-11-02", root), null, "switch off → no file read, Level A renders");
-  assert.ok(readSuggestedCards("2026-11-02", root, true), "switch on → the day's file");
-  fs.rmSync(root, { recursive: true });
+  const appDir = fs.mkdtempSync(path.join(os.tmpdir(), "tb-"));
+  const dir = path.join(appDir, "public", "data", "suggested-cards");
+  fs.mkdirSync(dir, { recursive: true });
+  const { fixture: _f, fixtureNote: _n, ...real } = FIXTURE;
+  const write = (doc) => fs.writeFileSync(path.join(dir, "2026-11-02.json"), JSON.stringify(doc));
+  write(sealSuggestedCards(real));
+  const doc = readSuggestedCards("2026-11-02", appDir);
+  assert.ok(doc, "a sealed file for the day is read");
+  assert.equal(view.tierBoardFor("bank-builder", { suggestedCards: doc, productDay: "2026-11-02" }).origin, "suggested-cards");
+  write({ ...sealSuggestedCards(real), label: "tampered" });
+  assert.equal(readSuggestedCards("2026-11-02", appDir), null, "a file whose digest does not verify is refused");
+  write(FIXTURE);
+  assert.equal(readSuggestedCards("2026-11-02", appDir), null, "the trimmed test fixture can never pass the real loader");
+  write(sealSuggestedCards(FIXTURE));
+  const sealedFixture = readSuggestedCards("2026-11-02", appDir);
+  assert.equal(view.tierBoardFor("bank-builder", { suggestedCards: sealedFixture, levelAModel: { productDay: "2026-11-02", bankBuilder: { card: null, reason: "r" }, moonshot: { card: null, reason: "r" } }, productDay: "2026-11-02" }).origin, "level-a", "even a sealed fixture-tagged file falls back");
+  assert.equal(readSuggestedCards("2026-11-03", appDir), null, "no file for the day → fallback");
+  fs.rmSync(appDir, { recursive: true });
+  const load = read("src/lib/products/tier-board/load.ts");
+  assert.match(load, /loadFrozenDailyCards\(\{ appDir, date: productDay \}\)/);
+  assert.doesNotMatch(load, /readFileSync/, "no second reader of the daily file");
 });
 
 test("shared Predicted Player Statistics: guarded (fail closed) on /bank-builder and /moonshot, unchanged on /build and everywhere else", async () => {
@@ -256,15 +273,19 @@ test("shared Predicted Player Statistics: guarded (fail closed) on /bank-builder
 });
 
 test("rotation guard (engine a746932123): a flagged favourite reads as under review with its rotation players, never 'passed every guard'", () => {
-  const board = view.tierBoardFromSuggestedCards(FIXTURE, "bank-builder", { allowFixture: true });
-  const h = html(React.createElement(TierBoardSection, { board, productName: "Bank Builder" }));
-  for (const leg of FIXTURE.bankBuilder.nba.card.legs.filter((l) => l.guard.state === "review")) {
+  const board = view.tierBoardFromSuggestedCards(FIXTURE, "moonshot", { allowFixture: true });
+  const h = html(React.createElement(TierBoardSection, { board, productName: "Moonshot" }));
+  const flagged = FIXTURE.moonshot.nba.card.legs.filter((l) => l.guard.state === "review");
+  assert.ok(flagged.length > 0, "the Moonshot card carries a flagged (R1) leg, so this test can fail");
+  for (const leg of flagged) {
     const block = text(h.split('<li class="tb-leg"').find((x) => x.includes(`data-leg="${leg.legId}"`)));
     assert.doesNotMatch(block, /passed every guard/, leg.legId);
     assert.match(block, /Eligible with review flags/);
     for (const r of leg.guard.rotationFlagged.filter((x) => x.flag !== "ROTATION_FROM_LANE")) assert.ok(block.includes(`${r.name} (${r.status})`) || /\+\d+ more/.test(block), `${leg.legId}: ${r.name}`);
   }
   assert.ok(!text(h).includes("Cody Williams"), "a guard-blocked key player is absent");
+  // Rule A (engine 827bdc1ded): Bank Builder and the Low tier carry no flagged leg.
+  for (const c of [FIXTURE.bankBuilder.nba.card, FIXTURE.parlays.nba.find((t) => t.tier === "low").card]) assert.ok(c.legs.every((l) => l.guard.state === "pass"));
 });
 
 test("Parlay Lab: four tiers in band order, each a card or an explicit insufficient/blocked state with its reasons", async () => {
