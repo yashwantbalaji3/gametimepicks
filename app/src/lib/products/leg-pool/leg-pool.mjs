@@ -13,10 +13,11 @@
  *   2. FRESHNESS (NBA): the lane names this date, was generated at or before the evaluation instant and no more than
  *      24 h before it (one slate day), and each game carries its receipt hash.
  *   3. DUPLICATES: one leg per sport + event + market.
- *   4. AVAILABILITY (NBA game winner): the favoured team's five most-minuted projected players are checked against R1
- *      (frozen injury status). A hit marks the leg `review` — kept for Moonshot and the tiers, flagged, and kept OUT of
- *      Bank Builder (the conservative product). Players the lane already ruled Out are listed as context. The Elo side
- *      itself ignores availability; this flag says so rather than changing the side.
+ *   4. AVAILABILITY (NBA game winner): the favoured team's five highest-minute players THIS SEASON (box scores, Out or
+ *      not — see favouredAvailability) are checked against the frozen Out list and R1 status. A hit marks the leg
+ *      `review`: kept for Moonshot and the tiers with the flag shown, and kept out of Bank Builder when
+ *      BANK_BUILDER_EXCLUDES_FLAGGED is on. The Elo side itself ignores availability; the flag says so rather than
+ *      changing the side.
  *   5. TIERABILITY: a leg is usable in a card only with a published probability (NBA: the Elo display accessor, with
  *      its provenance cross-check, via nba-game-winner-tiers@1).
  * PLAYER PROJECTIONS (NBA) run the R1–R3 + readiness guard (nba-guard.mjs) and are listed with their verdict. They are
@@ -50,8 +51,12 @@ export const POOL_REFUSAL = Object.freeze({
   DUPLICATE: "A leg for this event and market is already in the pool.",
 });
 export const FLAG_TEXT = Object.freeze({
-  FAVOURED_ROTATION_R1: "A top-five-minutes player on the favoured team was listed Day-To-Day, Questionable, Doubtful or Out at freeze; the Elo side does not account for it.",
+  FAVOURED_ROTATION_OUT: "One of the favoured team's five highest-minute players this season is ruled Out; the Elo side does not account for it.",
+  FAVOURED_ROTATION_R1: "One of the favoured team's five highest-minute players this season was listed Day-To-Day, Questionable or Doubtful at freeze; the Elo side does not account for it.",
+  ROTATION_FROM_LANE: "No box scores yet this season for this team, so its rotation was read from projected minutes and a player ruled Out cannot be seen.",
 });
+/** Flags that put a leg under review. ROTATION_FROM_LANE alone does not: it says what could not be checked. */
+const REVIEW_FLAGS = new Set(["FAVOURED_ROTATION_OUT", "FAVOURED_ROTATION_R1"]);
 
 const sha256 = (buf) => createHash("sha256").update(buf).digest("hex");
 const readRaw = (f) => { try { return fs.readFileSync(f); } catch { return null; } };
@@ -67,13 +72,38 @@ export function laneFreshness(lane, { date, evaluatedAt }) {
   return out;
 }
 
-/** Availability context for one lane game's favoured side. */
-export function favouredAvailability(game, side) {
-  if (!side) return { flags: [], rotationFlagged: [], outAtFreeze: [] };
-  const rotation = [...(game.players?.[side] ?? [])].sort((a, b) => (b.expectedMinutes ?? 0) - (a.expectedMinutes ?? 0) || String(a.providerAthleteId).localeCompare(String(b.providerAthleteId))).slice(0, ROTATION_SIZE);
-  const rotationFlagged = rotation.filter((p) => p.injuryStatus && R1_STATUS.test(p.injuryStatus)).map((p) => ({ playerId: String(p.providerAthleteId), name: p.name, status: p.injuryStatus }));
-  const outAtFreeze = (game.players?.unavailable?.[side] ?? []).filter((p) => p.reason === "RULED_OUT").map((p) => ({ playerId: String(p.providerAthleteId), name: p.name, status: p.status ?? "Out" }));
-  return { flags: rotationFlagged.length ? ["FAVOURED_ROTATION_R1"] : [], rotationFlagged, outAtFreeze };
+/**
+ * Availability for one lane game's favoured side. THE ROTATION IS THE SEASON'S, NOT THE LANE'S: the lane drops every
+ * player ruled Out, so ranking its projected players can never see an absent star (2026-11-02: ORL without Banchero and
+ * Suggs, MIN without Edwards, both "passed"). The rotation is the favoured team's ROTATION_SIZE players with the most
+ * average minutes per game played in this season's committed box scores (before the slate), Out or not. A rotation
+ * player who is ruled Out at freeze flags FAVOURED_ROTATION_OUT; one with an R1 status (Day-To-Day, Questionable,
+ * Doubtful, …) flags FAVOURED_ROTATION_R1. With no box-score history for the team, the lane's projected minutes rank
+ * the rotation instead and ROTATION_FROM_LANE says so (an Out player then cannot be seen).
+ */
+export function favouredAvailability(game, side, teamHistory = null) {
+  if (!side) return { flags: [], rotation: [], rotationFlagged: [], outAtFreeze: [], rotationSource: null };
+  const projected = game.players?.[side] ?? [];
+  const unavailable = game.players?.unavailable?.[side] ?? [];
+  const outAtFreeze = unavailable.filter((p) => p.reason === "RULED_OUT").map((p) => ({ playerId: String(p.providerAthleteId), name: p.name, status: p.status ?? "Out" }));
+  const nameOf = new Map([...projected, ...unavailable].map((p) => [String(p.providerAthleteId), p.name]));
+  const hist = Object.entries(teamHistory?.players ?? {}).filter(([, rows]) => rows.length > 0);
+  const byId = (a, b) => String(a.playerId).localeCompare(String(b.playerId));
+  const rotation = hist.length
+    ? hist.map(([id, rows]) => ({ playerId: id, name: nameOf.get(id) ?? null, minutesAvg: Math.round((rows.reduce((n, r) => n + r.minutes, 0) / rows.length) * 10) / 10, gamesPlayed: rows.length }))
+      .sort((a, b) => b.minutesAvg - a.minutesAvg || byId(a, b)).slice(0, ROTATION_SIZE)
+    : [...projected].sort((a, b) => (b.expectedMinutes ?? 0) - (a.expectedMinutes ?? 0) || String(a.providerAthleteId).localeCompare(String(b.providerAthleteId))).slice(0, ROTATION_SIZE)
+      .map((p) => ({ playerId: String(p.providerAthleteId), name: p.name, minutesAvg: null, gamesPlayed: null }));
+  const out = new Map(outAtFreeze.map((p) => [p.playerId, p]));
+  const statusOf = new Map(projected.filter((p) => p.injuryStatus).map((p) => [String(p.providerAthleteId), p.injuryStatus]));
+  const rotationFlagged = [];
+  for (const r of rotation) {
+    if (out.has(r.playerId)) rotationFlagged.push({ ...r, name: r.name ?? out.get(r.playerId).name, status: out.get(r.playerId).status, flag: "FAVOURED_ROTATION_OUT" });
+    else if (statusOf.has(r.playerId) && R1_STATUS.test(statusOf.get(r.playerId))) rotationFlagged.push({ ...r, status: statusOf.get(r.playerId), flag: "FAVOURED_ROTATION_R1" });
+  }
+  const flags = [...new Set(rotationFlagged.map((r) => r.flag))].sort();
+  if (!hist.length) flags.push("ROTATION_FROM_LANE");
+  return { flags, rotation, rotationFlagged, outAtFreeze, rotationSource: hist.length ? "season-box-scores" : "lane-projected-minutes" };
 }
 
 /**
@@ -96,6 +126,8 @@ export function buildLegPool({ repoRoot, date, evaluatedAt, sources = null, lane
   const nbaGames = laneDoc?.date === date ? laneDoc.games ?? [] : [];
   const gameById = new Map(nbaGames.map((g) => [String(g.providerEventId), g]));
   const d = display ?? nbaGameWinnerDisplay({ repoRoot, date, lane: laneDoc });
+  const box = boxscores ?? (nbaGames.length ? loadSeasonBoxscores({ repoRoot, date, asOf: evaluatedAt }) : []);
+  const hist = seasonHistory(box);
   const nbaLegs = []; const refused = [];
   const seen = new Set();
   const nbaLevelA = answer.untiered.filter((l) => l.sport === "nba");
@@ -107,7 +139,7 @@ export function buildLegPool({ repoRoot, date, evaluatedAt, sources = null, lane
     if (seen.has(key)) reasons.push("DUPLICATE");
     if (reasons.length) { refused.push({ sport: "nba", eventId: l.eventId, eventLabel: l.eventLabel, market: l.market, reasons, text: reasons.map((r) => POOL_REFUSAL[r]) }); continue; }
     seen.add(key);
-    const avail = favouredAvailability(g, l.selection.code);
+    const avail = favouredAvailability(g, l.selection.code, hist[g[l.selection.code]?.abbr]);
     const shown = d.accessor?.(l.eventId) ?? null;
     nbaLegs.push({
       leg: l, // the Level A leg, unchanged, for the shared selection engine
@@ -117,14 +149,12 @@ export function buildLegPool({ repoRoot, date, evaluatedAt, sources = null, lane
       probability: shown ? (typeof g.elo?.winProbability?.[l.selection.code] === "number" ? g.elo.winProbability[l.selection.code] : l.selection.code === "home" ? shown.pHome : 1 - shown.pHome) : null,
       probabilityShown: shown?.shown?.[l.selection.code] ?? null,
       forecast: { ...l.forecast, receiptSha256: g.receipt.payloadSha256 },
-      guard: { state: avail.flags.length ? "review" : "pass", flags: avail.flags, flagText: avail.flags.map((f) => FLAG_TEXT[f]), rotationFlagged: avail.rotationFlagged, outAtFreeze: avail.outAtFreeze },
+      guard: { state: avail.flags.some((f) => REVIEW_FLAGS.has(f)) ? "review" : "pass", flags: avail.flags, flagText: avail.flags.map((f) => FLAG_TEXT[f]), rotation: avail.rotation, rotationSource: avail.rotationSource, rotationFlagged: avail.rotationFlagged, outAtFreeze: avail.outAtFreeze },
     });
   }
   for (const r of answer.refused.filter((x) => x.sport === "nba")) refused.push({ ...r, market: r.market ?? "winner" });
 
   // NBA player projections + guard
-  const box = boxscores ?? (nbaGames.length ? loadSeasonBoxscores({ repoRoot, date, asOf: evaluatedAt }) : []);
-  const hist = seasonHistory(box);
   const playerProjections = [];
   for (const g of nbaGames) for (const side of ["away", "home"]) for (const p of g.players?.[side] ?? []) {
     const team = g[side]?.abbr;

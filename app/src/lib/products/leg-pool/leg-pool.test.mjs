@@ -65,7 +65,7 @@ test("option (a) off by default: Bank Builder selects as the live page; on: it n
   const on = dailySuggestedCards(P, { bankBuilderExcludesFlagged: true });
   for (const l of on.bankBuilder.nba.card.legs) assert.ok(!review.has(l.legId));
   const flagged = [...D.parlays.nba.map((t) => t.card), D.moonshot.nba.card].filter(Boolean).flatMap((c) => c.legs).filter((l) => review.has(l.legId));
-  for (const l of flagged) assert.equal(l.guard.flags[0], "FAVOURED_ROTATION_R1");
+  for (const l of flagged) assert.ok(l.guard.flags.some((f) => f === "FAVOURED_ROTATION_OUT" || f === "FAVOURED_ROTATION_R1"));
 });
 
 test("option (b) off by default: nothing reads the frozen file", async () => {
@@ -74,11 +74,13 @@ test("option (b) off by default: nothing reads the frozen file", async () => {
   assert.equal(loadFrozenDailyCards({ appDir: path.join(REPO, "app"), date: DATE, enabled: false }), null);
 });
 
-test("availability context: Out players are listed, a Day-To-Day top-five player flags the side", () => {
+test("availability context: an Out season-rotation player and a Day-To-Day one flag the side; Out players are listed", () => {
   const g = { players: { home: [{ providerAthleteId: "1", name: "A", expectedMinutes: 34, injuryStatus: "Day-To-Day" }, { providerAthleteId: "2", name: "B", expectedMinutes: 10, injuryStatus: null }], unavailable: { home: [{ providerAthleteId: "3", name: "C", reason: "RULED_OUT", status: "Out" }] } } };
-  const a = favouredAvailability(g, "home");
-  assert.deepEqual(a.flags, ["FAVOURED_ROTATION_R1"]);
+  const hist = { players: { 1: [{ minutes: 30 }], 2: [{ minutes: 12 }], 3: [{ minutes: 36 }] } };
+  const a = favouredAvailability(g, "home", hist);
+  assert.deepEqual(a.flags, ["FAVOURED_ROTATION_OUT", "FAVOURED_ROTATION_R1"]);
   assert.equal(a.outAtFreeze[0].name, "C");
+  assert.equal(a.rotation[0].name, "C", "the Out star leads the season rotation");
 });
 
 test("stale, future-dated or missing lane: NBA blocked / no games, and no NBA card is ever forced", () => {
@@ -153,4 +155,25 @@ test("a leg's probability is the lane's stored value for its side, exactly", () 
     const g = LANE.games.find((x) => String(x.providerEventId) === l.eventId);
     assert.equal(l.probability, g.elo.winProbability[l.selection.code]);
   }
+});
+
+test("regression 2026-11-02: a favourite missing a season top-five player is flagged (ORL without Banchero/Suggs, MIN without Edwards)", () => {
+  const leg = (abbr) => P.nbaLegs.find((l) => l.selection.teamAbbr === abbr);
+  for (const [abbr, missing] of [["ORL", ["Paolo Banchero", "Jalen Suggs"]], ["MIN", ["Anthony Edwards"]]]) {
+    const l = leg(abbr);
+    assert.equal(l.guard.state, "review", `${abbr} must not pass`);
+    assert.ok(l.guard.flags.includes("FAVOURED_ROTATION_OUT"));
+    assert.equal(l.guard.rotationSource, "season-box-scores");
+    for (const n of missing) assert.ok(l.guard.rotationFlagged.some((r) => r.name === n && r.flag === "FAVOURED_ROTATION_OUT"), `${abbr}: ${n}`);
+  }
+  const on = dailySuggestedCards(P, { bankBuilderExcludesFlagged: true });
+  const ids = (on.bankBuilder.nba.card?.legs ?? []).map((l) => l.selection.teamAbbr);
+  assert.ok(!ids.includes("ORL") && !ids.includes("MIN"), "with (a) on, Bank Builder never builds on ORL or MIN");
+});
+
+test("rotation falls back to lane minutes only without season box scores, and says so", () => {
+  const g = LANE.games.find((x) => x.home.abbr === "ORL");
+  const a = favouredAvailability(g, "home", null);
+  assert.equal(a.rotationSource, "lane-projected-minutes");
+  assert.ok(a.flags.includes("ROTATION_FROM_LANE"));
 });
