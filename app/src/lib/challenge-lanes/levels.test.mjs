@@ -133,3 +133,23 @@ test("public/private split: a card@2 or research file in plain JSON carries no l
   const { researchDisplay } = await import("./research.mjs");
   assert.throws(() => researchDisplay(msb.research.public, { ...msb.research.prices, publicSha256: "0".repeat(64) }), /not made from/);
 });
+
+test("research files: written to the documented paths, read back verified; prices only with the key", async () => {
+  const fs = await import("node:fs"); const os = await import("node:os"); const path = await import("node:path");
+  const { sampleOutputs } = await import("../../../scripts/challenge-lanes/v2-sample.mjs");
+  const io = await import("./research-io.mjs");
+  const { research } = sampleOutputs().find((o) => o.laneId === "ms-b");
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "research-")); const appDir = path.join(root, "app");
+  const key = "ab".repeat(32);
+  fs.mkdirSync(path.join(appDir, io.RESEARCH_PUBLIC_DIR, "moonshot"), { recursive: true });
+  fs.mkdirSync(path.join(root, io.RESEARCH_PRICES_REPO_DIR, "moonshot"), { recursive: true });
+  fs.writeFileSync(path.join(appDir, io.RESEARCH_PUBLIC_DIR, "moonshot", "2030-01-01.json"), io.serializeResearch(research.public));
+  fs.writeFileSync(path.join(root, io.RESEARCH_PRICES_REPO_DIR, "moonshot", "2030-01-01.json.enc"), io.encryptResearchPrices("moonshot", research.prices, Buffer.from(key, "hex")));
+  const priced = io.readResearchDisplay({ appDir, product: "moonshot", date: "2030-01-01", env: { GTP_ODDS_DISPLAY_KEY: key } });
+  assert.equal(priced.priced, true);
+  assert.equal(priced.candidates[0].legs[0].price.line, 20.5);
+  const unpriced = io.readResearchDisplay({ appDir, product: "moonshot", date: "2030-01-01", env: {} });
+  assert.deepEqual([unpriced.priced, unpriced.candidates[0].legs[0].price], [false, null]);
+  assert.equal(io.readResearchDisplay({ appDir, product: "moonshot", date: "2030-01-02", env: {} }), null);
+  assert.ok(!fs.readFileSync(path.join(appDir, io.RESEARCH_PUBLIC_DIR, "moonshot", "2030-01-01.json"), "utf8").includes("20.5"));
+});
