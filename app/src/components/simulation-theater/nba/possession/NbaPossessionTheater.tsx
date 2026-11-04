@@ -229,11 +229,12 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
       <section className="nbp-stage" aria-label="Simulated game playback">
         <PossessionScoreboard teams={teams} palette={palette} frame={frame} />
         <PossessionIndicator teams={teams} frame={frame} />
-        <OnCourt on={onCourt} names={names} teams={teams} />
+        {/* broadcast order: score bug, then the floor, then who is on it (the court stays in the first phone screen) */}
         <div className="nbp-court">
           <NbaCourt palette={palette} teams={{ home: { ...teams.home, providerTeamId: null }, away: { ...teams.away, providerTeamId: null } }} idPrefix={`${uid}-court`} />
           <p className="nbp-court-note">Decorative court · player positions and shot locations are not modelled</p>
         </div>
+        <OnCourt on={onCourt} names={names} teams={teams} />
         <BreakNotice frame={frame} teams={teams} />
         {isFinal ? <EndCard run={run} teams={teams} official={payload.official} onReplay={() => act("RESTART")} boxHref={`#${uid}-box`} /> : null}
         <div className="nbp-transport" role="group" aria-label="Playback controls">
@@ -254,7 +255,7 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
             <span className="nbp-ptime">Playback {fmtPlay(tp.t)} / {fmtPlay(compiled.tEnd)}</span>
           </div>
         </div>
-        <p className="nbp-keys">{KEYBOARD_HELP}{reduced ? " · Reduced motion: playback steps one play at a time" : ""}</p>
+        <p className="nbp-keys"><span className="nbp-keys-help">{KEYBOARD_HELP}</span>{reduced ? " · Reduced motion: playback steps one play at a time" : ""}</p>
       </section>
 
       <div className="nbp-grid">

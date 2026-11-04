@@ -58,7 +58,7 @@
   transition:left var(--motion-state-change-duration) var(--motion-state-change-easing)}
 .nbp-poss-dot.is-home{left:50%}
 .nbp-poss-dot.is-none{opacity:0}
-.nbp-court{position:relative;margin-top:8px}
+.nbp-court{position:relative;margin-top:8px;container-type:inline-size} /* the court's text gates (nba-theater.css @container) measure this box */
 .nbp-court-note{margin:4px 0 0;font:400 11px/1.4 var(--font-mono);color:var(--st-faint)}
 .nbp-card{margin:8px 0 0;padding:10px 12px;border-radius:10px;border:2px solid var(--vault-crown);background:var(--st-panel-2)}
 .nbp-card h3{margin:0;font:800 15px var(--font-headline);letter-spacing:.04em;text-transform:uppercase;color:var(--st-text)}
@@ -76,6 +76,8 @@
 .nbp-seek{flex:1;min-width:0;min-height:44px;accent-color:var(--lava-heat)}
 .nbp-ptime{font:500 12px var(--font-mono);color:var(--st-mute);white-space:nowrap}
 .nbp-keys{margin:4px 0 0;font:400 11px/1.4 var(--font-mono);color:var(--st-faint)}
+/* keyboard shortcuts mean nothing on a touch-only phone: hidden there (the buttons carry every action) */
+@media (hover:none) and (pointer:coarse){.nbp-keys-help{display:none}}
 
 /* feed + progression */
 .nbp-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
