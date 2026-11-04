@@ -243,9 +243,11 @@ export const MATCHUP_GRAPHICS_PRICE_AUTHORIZATION = Object.freeze({
       captionDisclosure: "Odds shown are snapshots captured at the stated time and may have changed.",
       approvedBy: "founder",
       approvedAt: "2026-11-04",
-      // The 6-hour line-age rule judged at the capture window instead of the post time. OFF until the founder's explicit
-      // words are relayed verbatim; then a reviewed commit sets true and cites them here.
-      lineAgeExceptionApproved: false,
+      // Line age: founder 2026-11-04T22:30:09Z, verbatim (~/gtp-evidence/nov4-founder-decisions-2230Z.md, sha256 0bb0c75cc18f…):
+      // "For today's captured prices only, I approve extending the six-hour display-age rule to a maximum of nine hours
+      // where needed for late games". Capped at lineAgeMaxHours; this date only.
+      lineAgeExceptionApproved: true,
+      lineAgeMaxHours: 9,
     }),
   ]),
 });

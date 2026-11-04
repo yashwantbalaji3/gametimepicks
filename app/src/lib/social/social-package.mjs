@@ -235,6 +235,22 @@ export const dedupeSlug = ({ sport, date, contentType, variant = null }) => [spo
  * One package.
  * @param {{ sport: string, date: string, contentType: string, variant?: string|null, snapshotRefs: Array<{ref:string, sha256:string}>, images: Array<{path:string, width:number, height:number, scale:number, sha256:string}>, caption: string, verification: {passed:boolean, checks:string[], cellsVerified:number}, window: {opensAt:string, closesAt:string}, recommended: {recommendedAt:string}|null, recommendedNote?: string|null, freshness: object, content: object }} o
  */
+/**
+ * FINAL-COPY CANDIDATE (founder 2026-11-04T22:30:09Z, verbatim in ~/gtp-evidence/nov4-founder-decisions-2230Z.md): "I authorize
+ * marking successfully validated, banner-free packages as final-copy candidates rather than yellow-banner review drafts …
+ * It is not permission to fabricate my content approval … My approval of each final post in the Command Center remains
+ * mandatory." The ONLY case where socialAuthorized may be true without a clean export: an NBA_GAME_POST `<eventId>-priced`
+ * for 2026-11-04 carrying market data, status still FOUNDER_REVIEW_REQUIRED, contentApproval null, and this exact ref.
+ */
+export const FINAL_COPY_AUTHORIZATION_2026_11_04 = Object.freeze({
+  ref: "nov4-founder-decisions-2230Z.md section C", sha256: "0bb0c75cc18f77028fcb850fd60b5477a4c7b14383781ab647aabaed1981bbb3", at: "2026-11-04T22:30:09Z",
+});
+export function isFinalCopyCandidate(p) {
+  const a = p?.approval ?? {}, f = a.finalCopyAuthorization ?? {}, F = FINAL_COPY_AUTHORIZATION_2026_11_04;
+  return a.socialAuthorized === true && a.status === APPROVAL_STATUS && a.contentApproval === null && f.ref === F.ref && f.sha256 === F.sha256 && f.at === F.at
+    && p.sport === "nba" && p.date === "2026-11-04" && p.contentType === "NBA_GAME_POST" && /^\d+-priced$/.test(String(p.variant)) && p.containsMarketData === true;
+}
+
 export function buildSocialPackage(o0) {
   /* A recommended time past the window (a quote expiring before the slot) becomes no recommendation, with the reason. */
   const rec0 = o0.recommended?.recommendedAt, inWin = rec0 == null || (Date.parse(rec0) >= Date.parse(o0.window?.opensAt) && Date.parse(rec0) < Date.parse(o0.window?.closesAt));
@@ -295,7 +311,7 @@ export function socialPackageViolations(p) {
   if (p?.verification?.passed !== true) v.push("verification did not pass");
   if (!(instant(p?.window?.opensAt) < instant(p?.window?.closesAt))) v.push("window must open before it closes");
   if (p?.recommendedAt != null && !(instant(p.recommendedAt) >= instant(p.window?.opensAt) && instant(p.recommendedAt) < instant(p.window?.closesAt))) v.push("recommendedAt lies outside the window");
-  if (p?.approval?.status !== APPROVAL_STATUS || p?.approval?.socialAuthorized !== false) v.push("approval must stay FOUNDER_REVIEW_REQUIRED");
+  if (p?.approval?.status !== APPROVAL_STATUS || (p?.approval?.socialAuthorized !== false && !isFinalCopyCandidate(p))) v.push("approval must stay FOUNDER_REVIEW_REQUIRED");
   if (!Object.values(ELIGIBILITY).includes(p?.eligibilityClass)) v.push(`eligibilityClass ${p?.eligibilityClass}`);
   if (!p?.disclosures?.length) v.push("disclosures are required");
   if (!p?.idempotencyKey || !/^[0-9a-f]{64}$/.test(String(p?.mediaSha256)) || p?.expiresAt !== p?.window?.closesAt) v.push("idempotencyKey, mediaSha256 and expiresAt are required");

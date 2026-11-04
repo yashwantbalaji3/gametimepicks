@@ -40,3 +40,18 @@ test("the caption prints no price, line or odds word, and no em dash", () => {
   const c = pricedGamePostCaption(game);
   assert.doesNotMatch(c, /[+-]\d{3}|\d+\.5|\bodds\b|\bbet|[—–]/i);
 });
+
+test("final-copy marker: only the founder's Nov 4 ref on a priced Nov 4 game post, with no content approval", async () => {
+  const { socialPackageViolations, FINAL_COPY_AUTHORIZATION_2026_11_04: F } = await import("./social-package.mjs");
+  const p = buildPricedGamePost({ ...ok, renderSource: { path: "/x/rs.json", sha256: "r" }, game });
+  const fin = (o = {}, a = {}) => ({ ...p, ...o, approval: { ...p.approval, socialAuthorized: true, contentApproval: null, finalCopyAuthorization: { ...F }, ...a } });
+  const bad = (x) => socialPackageViolations(x).some((m) => /approval must stay/.test(m));
+  assert.equal(bad(fin()), false);
+  assert.equal(bad(fin({}, { contentApproval: { by: "x" } })), true);
+  assert.equal(bad(fin({}, { finalCopyAuthorization: { ...F, sha256: "0".repeat(64) } })), true);
+  assert.equal(bad(fin({}, { status: "FOUNDER_APPROVED" })), true);
+  assert.equal(bad(fin({ date: "2026-11-05" })), true);
+  assert.equal(bad(fin({ variant: "9-model" })), true);
+  assert.equal(bad(fin({ containsMarketData: false })), true);
+  assert.equal(bad({ ...p, approval: { ...p.approval, socialAuthorized: true } }), true);
+});

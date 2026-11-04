@@ -54,6 +54,17 @@ export const PURPOSE = Object.freeze({ SOCIAL: "SOCIAL", FOUNDER_REVIEW: "FOUNDE
 const matchupOk = (purpose, date) => purpose === PURPOSE.MATCHUP_SNAPSHOT && matchupGraphicsPriceAuthorization("nba", date, "playerProps").ok;
 /** The capture-window line-age exception: only with the dated entry's lineAgeExceptionApproved === true (off by default). */
 export const lineAgeExceptionOn = (purpose, date, record = MATCHUP_GRAPHICS_PRICE_AUTHORIZATION) => matchupOk(purpose, date) && matchupGraphicsPriceAuthorization("nba", date, "playerProps", record).entry?.lineAgeExceptionApproved === true;
+/**
+ * The instant lines are judged at. With the dated exception, a capture may be up to lineAgeMaxHours (≤ 9) old at the post
+ * time: judging at asOf - (max - 6 h) under the 6-hour rule is exactly that, and never earlier than the artifact's own asOf
+ * (so no capture is "after" the judging instant). The pregame rule always uses asOf itself.
+ */
+export function lineJudgedAt(purpose, date, asOf, artifactAsOf, record = MATCHUP_GRAPHICS_PRICE_AUTHORIZATION) {
+  if (!lineAgeExceptionOn(purpose, date, record)) return asOf;
+  const max = Math.min(9, Number(matchupGraphicsPriceAuthorization("nba", date, "playerProps", record).entry?.lineAgeMaxHours ?? 6));
+  const at = Math.max(Date.parse(asOf) - (max - LINE_MAX_AGE_HOURS) * 3600_000, Date.parse(artifactAsOf));
+  return new Date(Math.min(at, Date.parse(asOf))).toISOString();
+}
 /** The artifact data class a real capture carries (line-publication-build.mjs). Anything else is test data (watermarked). */
 export const REAL_ARTIFACT_DATA_CLASS = "DISPLAY_ONLY_BUILD_INPUT";
 /** Family order on cards and in the export (the site's order). threePm is listed so its exclusion is explicit. */
@@ -154,7 +165,7 @@ export function buildNbaLineGraphicsExport({ date, asOf, lane, laneSha256 = null
     const v = validateNbaLinePublication(artifact, { date, laneSha256 });
     if (!v.ok) throw new ExportRefusal(`line artifact for ${date} is invalid:\n  - ${v.errors.slice(0, 10).join("\n  - ")}`);
     const artRow = new Map((artifact.events ?? []).flatMap((e) => (e.rows ?? []).map((r) => [`${r.eventId}|${r.athleteId}|${r.family}`, r])));
-    const { inputs: pairs } = nbaPropLineInputs({ lane, priceRecords: linePublicationToPriceRecords(artifact), asOf: matchup && lineAgeExceptionOn(purpose, date) ? artifact.asOf : asOf });
+    const { inputs: pairs } = nbaPropLineInputs({ lane, priceRecords: linePublicationToPriceRecords(artifact), asOf: matchup ? lineJudgedAt(purpose, date, asOf, artifact.asOf) : asOf });
     for (const i of pairs) {
       const f = i.marketKey;
       if (startedIds.has(i.eventId) || !(instantMs(tipOf.get(i.eventId)) > t)) { exclude(EXCLUSION.GAME_STARTED); continue; }
@@ -262,7 +273,7 @@ export function buildNbaLineGraphicsExport({ date, asOf, lane, laneSha256 = null
     purpose,
     socialAuthorized: review || matchup ? false : social.ok,
     asOf,
-    ...(matchup ? { snapshotException: { ref: "2026-11-04-founder-odds-snapshot-override (f529fa44fa, 41c421cf1d)", label: "ODDS SNAPSHOT", lineAgeException: lineAgeExceptionOn(purpose, date), comparedAsOf: lineAgeExceptionOn(purpose, date) ? artifact.asOf : asOf } } : {}),
+    ...(matchup ? { snapshotException: { ref: "2026-11-04-founder-odds-snapshot-override (f529fa44fa, 41c421cf1d)", label: "ODDS SNAPSHOT", lineAgeException: lineAgeExceptionOn(purpose, date), comparedAsOf: lineJudgedAt(purpose, date, asOf, artifact.asOf) } } : {}),
     publication: {
       status: base.publication.status !== "PUBLISHED" ? base.publication.status : !shown ? "LINES_WITHHELD" : rows.length ? "PUBLISHED" : "NO_COMPARISONS",
       lane: base.publication.lane, laneSha256,
