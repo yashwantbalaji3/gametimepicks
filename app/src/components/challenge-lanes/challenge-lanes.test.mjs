@@ -466,6 +466,19 @@ test("PARITY: site vs the engine's raw record, fail-closed — green on a matchi
   assert.equal(parityReport([]).ok, false, "no lanes is not green");
 });
 
+test("PACE: the engine's flag verbatim — BELOW PACE when below, and never an \"on pace\" claim on any lane", async () => {
+  const { samplePrices } = await import("../../lib/products/challenge-lanes/__fixtures__/sample-prices.mjs");
+  const { pricedLaneDisplay } = await import("../../lib/challenge-lanes/display.mjs");
+  const doc = SYN["bb-a"]; const prices = samplePrices(doc);
+  const day = prices.runs[0].days[0];
+  const below = { ...prices, runs: [{ ...prices.runs[0], days: [{ ...day, pace: 4.0, belowPace: true }] }] };
+  const v = lane.laneView(doc, { display: pricedLaneDisplay(doc, below) });
+  assert.match(v.pace.text, /^BELOW PACE · This card 3\.67× · pace needs 4\.00×/);
+  const renders = [v, lane.laneView(doc, { display: pricedLaneDisplay(doc, prices) }),
+    ...Object.values(FIX).map((d) => lane.laneView(d)), ...Object.values(SYN).map((d) => lane.laneView(d))];
+  for (const r of renders) assert.doesNotMatch(text(html(React.createElement(LaneCard, { lane: r }))), /on pace/i, r.laneId);
+});
+
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
   const css = read("src/app/globals.css");
   assert.match(css, /@keyframes cl-rung-in/);
