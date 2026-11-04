@@ -39,7 +39,7 @@ const ALTS = String(a.alt ?? "").split(",").filter(Boolean).map((x) => {
 });
 const isMoneyline = (l) => ["winner", "moneyline", "h2h", "ml"].includes(String(l.market ?? l.family ?? "").toLowerCase());
 /** The engine's Level B leg flags in plain words (the record's flags[] codes). */
-const FLAG_WORDS = { B_ROLE_UNSTABLE: "Role unstable", B_MINUTES_VOLATILE: "Minutes volatile" };
+const FLAG_WORDS = { B_ROLE_UNSTABLE: "Role unstable", B_MINUTES_VOLATILE: "Minutes volatile", B_MINUTES_UNCERTAIN: "Minutes uncertain", B_MINUTES_DROP: "Minutes drop" };
 /** The lane's minutes disclosure from the record's role note ("lane projected 15.5 min; L5 mean 24.4"). */
 const minutesNote = (role) => { const m = /lane projected ([\d.]+) min; L5 mean ([\d.]+)/.exec(role?.note ?? ""); return m ? `Projected minutes ${m[1]} vs ${m[2]} recent` : null; };
 const models = [];
