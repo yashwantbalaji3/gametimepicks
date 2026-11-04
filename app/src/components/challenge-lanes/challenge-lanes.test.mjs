@@ -376,8 +376,15 @@ test("PROP ANALYSIS end to end: nba-engine-eval's writer + reader → the panel:
   assert.doesNotMatch(t, /OVER|UNDER|-115|-105|probability|confiden|Guarded Player/i, "no side, no price, no probability; excluded rows not listed");
   // Built after lineStaleAfter: lines and differences hidden, the panel says so.
   const stale = loadPropAnalysis({ appDir: app, date: "2099-01-15", env: { GTP_ODDS_DISPLAY_KEY: KEY }, asOf: "2099-01-15T03:00:00Z" });
-  assert.deepEqual([stale.stale, stale.rows[0].line, stale.rows[0].difference, stale.rows[0].projection], [true, null, null, "21.3"]);
-  assert.match(text(html(React.createElement(PropAnalysisPanel, { analysis: stale }))), /Lines stale — awaiting a fresher capture\./);
+  assert.deepEqual([stale.stale, stale.rows[0].line, stale.rows[0].difference, stale.rows[0].lineStale, stale.rows[0].projection], [true, "19.5", null, true, "21.3"]);
+  assert.match(text(html(React.createElement(PropAnalysisPanel, { analysis: stale }))), /These lines are stale, so no difference is shown.*Test Player BBB draftkings PTS 21\.3 19\.5 line stale/);
+  // The engine's own STALE rows (state UNAVAILABLE, comparisonReason STALE, difference null) show the same way, and an
+  // analysis with nothing compared still shows its panel.
+  const { propAnalysisView } = await import("../../lib/products/challenge-lanes/prop-analysis.mjs");
+  const engineStale = propAnalysisView({ schema: "gtp.prop-analysis.site@1", date: "2099-01-15", label: "L", capture: { capturedAt: "2099-01-14T20:00:00Z" },
+    rows: [{ ...analysis.rows[0], state: "UNAVAILABLE", comparisonReason: "STALE", difference: null, differenceExact: null }], summary: { excluded: 1, excludedByRule: { R1: 1, R3: 0 } } }, { now: Date.parse("2099-01-14T21:00:00Z") });
+  assert.deepEqual(engineStale.rows.map((r) => [r.difference, r.lineStale]), [[null, true]]);
+  assert.match(engineStale.others, /Also 1 excluded by the availability and minutes rules \(1 out or day-to-day\); not listed\./);
   // No key or another key: no panel. No file: no panel.
   assert.equal(loadPropAnalysis({ appDir: app, date: "2099-01-15", env: {} }), null);
   assert.equal(loadPropAnalysis({ appDir: app, date: "2099-01-15", env: { GTP_ODDS_DISPLAY_KEY: crypto.randomBytes(32).toString("hex") } }), null);

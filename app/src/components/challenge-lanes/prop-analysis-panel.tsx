@@ -4,7 +4,7 @@
    path (server-side), so this renders into HTML and is never a client prop. Renders nothing without an analysis. */
 export type PropAnalysisRow = {
   key: string; player: string; team: string | null; opponent: string | null; game?: string | null; market: string;
-  projection: string | null; line: string | null; difference: string | null; book: string | null; captured: string | null; range?: string | null;
+  projection: string | null; line: string | null; difference: string | null; lineStale?: boolean; book: string | null; captured: string | null; range?: string | null;
 };
 export type PropAnalysisView = {
   date: string; label?: string | null; gateReason: string | null; rows: PropAnalysisRow[];
@@ -28,7 +28,7 @@ export default function PropAnalysisPanel({ analysis }: { analysis: PropAnalysis
       </div>
       <p className="pa-label" data-prop-analysis-label="">{PROP_PANEL_LABEL}{analysis.gateReason ? `. ${analysis.gateReason}` : "."}</p>
       {analysis.label ? <p className="pa-src" data-prop-analysis-source-label="">{analysis.label}</p> : null}
-      {analysis.freshness ? <p className="pa-src" data-prop-analysis-freshness="">{analysis.freshness}{analysis.stale ? " Lines stale — awaiting a fresher capture." : ""}</p> : null}
+      {analysis.freshness ? <p className="pa-src" data-prop-analysis-freshness="">{analysis.freshness}{analysis.stale ? " These lines are stale, so no difference is shown — awaiting a fresher capture." : ""}</p> : null}
       {/* Grouped by game in tip-off order and folded, so a full slate stays short; never ranked by difference. */}
       {groups(analysis.rows).map(([game, rows]) => (
         <details key={game} className="pa-game" data-prop-game={game}>
@@ -39,7 +39,7 @@ export default function PropAnalysisPanel({ analysis }: { analysis: PropAnalysis
               {rows.map((r) => (
                 <tr key={r.key}>
                   <th scope="row">{r.player}{r.team ? <span className="pa-team"> {r.team}</span> : null}{r.book ? <span className="pa-book">{r.book}</span> : null}</th>
-                  <td>{r.market}</td><td>{r.projection ?? "—"}</td><td>{r.line ?? "—"}</td><td>{r.difference ?? "—"}</td>
+                  <td>{r.market}</td><td>{r.projection ?? "—"}</td><td>{r.line ?? "—"}</td><td>{r.difference ?? (r.lineStale ? <span className="pa-stale">line stale</span> : "—")}</td>
                 </tr>
               ))}
             </tbody>
