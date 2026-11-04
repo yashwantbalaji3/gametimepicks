@@ -140,12 +140,14 @@ function cleanLeg(cells, l, i, ctx) {
   const k = `leg${i + 1}`;
   const t = teamOf(l.team.abbr, l.team.name);
   const odds = ctx.price && american(ctx.price.price) ? cell(cells, `${k}.odds`, american(ctx.price.price), "chip odds") : "";
-  const rec = l.recordText ? `<div class="rec">${cell(cells, `${k}.record`, l.recordText)}</div>` : "";
+  // Founder 2026-11-04 (v2): a compact record panel on the right; the engine's counts with their true sample labels.
+  const stats = (l.recordStats ?? []).map((r, n) => `<div class="st5">${cell(cells, `${k}.r${n + 1}l`, r.label, "sl")}${cell(cells, `${k}.r${n + 1}v`, r.value, "sv")}</div>`).join("");
+  const right = stats ? `<div class="rp5">${stats}</div>` : "";
   if (l.kind === "PROP") {
     const [dir, ...rest] = String(l.lineWords).split(" ");
-    return `<div class="leg clean prop" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, l.player.name)}</span><div class="dir">${cell(cells, `${k}.dir`, dir, dir.toLowerCase())} ${cell(cells, `${k}.line`, rest.join(" "))}</div><div class="mt">${cell(cells, `${k}.game`, `${l.gameLabel} | ${tipText(l.tipUtc)}`)}<span class="sep5">|</span>${odds}</div>${rec}</div></div>`;
+    return `<div class="leg clean prop" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, l.player.name)}</span><div class="dir">${cell(cells, `${k}.dir`, dir, dir.toLowerCase())} ${cell(cells, `${k}.line`, rest.join(" "))}</div><div class="mt">${cell(cells, `${k}.game`, `${l.gameLabel} · ${tipText(l.tipUtc)}`)}<span class="sep5">·</span>${odds}</div></div>${right}</div>`;
   }
-  return `<div class="leg clean mlc" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit><span class="selt">${cell(cells, `${k}.name`, l.team.name)}</span> ML</span><div class="opp5">${cell(cells, `${k}.opp`, `${l.home ? "vs" : "at"} ${l.opponent.name ?? l.opponent.abbr}`)}</div><div class="mt">${cell(cells, `${k}.game`, tipText(l.tipUtc))}<span class="sep5">|</span>${odds}</div>${rec}</div></div>`;
+  return `<div class="leg clean mlc" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit><span class="selt">${cell(cells, `${k}.name`, l.team.name)}</span> ML</span><div class="opp5">${cell(cells, `${k}.opp`, `${l.home ? "vs" : "at"} ${l.opponent.name ?? l.opponent.abbr}`)}</div><div class="mt">${cell(cells, `${k}.game`, tipText(l.tipUtc))}<span class="sep5">·</span>${odds}</div></div>${right}</div>`;
 }
 
 function legPanel(cells, l, i, ctx) {
@@ -285,7 +287,7 @@ export function heldReasonText(reason) {
 }
 const CLEAN_CSS = `<style>
 .v5.clean .legs5{margin-top:30px;gap:16px;justify-content:flex-start}
-.v5.clean .leg.clean{grid-template-columns:60px 1fr;min-height:0;padding:16px 24px 14px;background:linear-gradient(100deg,color-mix(in srgb,var(--c) 55%,#05070a) 0%,color-mix(in srgb,var(--c) 22%,#05070a) 70%,#05070a);border:3px solid color-mix(in srgb,var(--c) 55%,#fff);box-shadow:0 0 14px color-mix(in srgb,var(--c) 60%,transparent),inset 0 2px 0 rgba(255,255,255,.25)}
+.v5.clean .leg.clean{grid-template-columns:60px 1fr auto;min-height:0;padding:16px 24px 14px;background:linear-gradient(100deg,color-mix(in srgb,var(--c) 55%,#05070a) 0%,color-mix(in srgb,var(--c) 22%,#05070a) 70%,#05070a);border:3px solid color-mix(in srgb,var(--c) 55%,#fff);box-shadow:0 0 14px color-mix(in srgb,var(--c) 60%,transparent),inset 0 2px 0 rgba(255,255,255,.25)}
 .v5.clean .leg.clean .n{font-size:64px;filter:none}
 .v5.clean .leg.clean .who{gap:6px}
 .v5.clean .leg.clean .nm{font:900 44px/1.02 var(--headline);color:#FFFFFF;text-shadow:0 2px 0 rgba(0,0,0,.85);white-space:nowrap}
@@ -302,6 +304,12 @@ const CLEAN_CSS = `<style>
 .v5.clean .legs5>.leg.clean:not(:only-child){padding:10px 20px 9px}.v5.clean .legs5>.leg.clean:not(:only-child) .nm{font-size:36px}.v5.clean .legs5>.leg.clean:not(:only-child) .who{gap:4px}.v5.clean .legs5>.leg.clean:not(:only-child) .opp5{font-size:22px}.v5.clean .legs5>.leg.clean:not(:only-child) .mt{font-size:21px}.v5.clean .legs5>.leg.clean:not(:only-child) .chip.odds{font-size:24px;padding:4px 10px 3px}.v5.clean .legs5>.leg.clean:not(:only-child) .rec{font-size:19px}.v5.clean .legs5>.leg.clean:not(:only-child) .n{font-size:54px}
 .v5.clean:has(.leg.clean:nth-child(2)) .legs5{margin-top:22px;gap:12px}.v5.clean:has(.leg.clean:nth-child(2)) .tgt5{margin-top:14px;padding:8px 22px 6px}
 .v5.clean .legs5>.leg.clean:only-child{min-height:0;padding:22px 26px 20px}.v5.clean .legs5>.leg.clean:only-child .nm{font-size:52px}
+.v5.clean .rp5{display:flex;flex-direction:column;justify-content:center;gap:10px;padding-left:18px;border-left:2px solid rgba(255,255,255,.28);min-width:148px}
+.v5.clean .st5{display:flex;flex-direction:column;align-items:center}
+.v5.clean .st5 .sl{font:800 16px/1 var(--display);letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.78)}
+.v5.clean .st5 .sv{margin-top:3px;font:900 38px/1 var(--display);color:#FFE27A;-webkit-text-stroke:1px rgba(0,0,0,.55);white-space:nowrap}
+.v5.clean .legs5>.leg.clean:not(:only-child) .rp5{gap:6px;min-width:132px}.v5.clean .legs5>.leg.clean:not(:only-child) .st5 .sv{font-size:30px}.v5.clean .legs5>.leg.clean:not(:only-child) .st5 .sl{font-size:14px}
+.v5.clean .money5.clean .vm.snap{font-size:13px;letter-spacing:1px;color:rgba(255,255,255,.85);white-space:normal;line-height:1.15}
 .v5.clean .tgt5{margin-top:20px;align-self:center;display:flex;align-items:center;gap:16px;padding:10px 24px 8px;border-radius:999px;border:2px solid var(--neon);background:rgba(0,0,0,.85);white-space:nowrap}
 .v5.clean .tgt5 span{font:800 22px/1 var(--display);letter-spacing:2px;text-transform:uppercase;color:#FFFFFF}
 .v5.clean .tgt5 .to{font:900 36px/1 var(--display);color:#FFE27A}
@@ -357,7 +365,8 @@ export function bbmCardV6(model, { testData = false } = {}) {
       // Separated ODDS · TRACKED STAKE · POTENTIAL PAYOUT (focal) · PROFIT. The verified mark only on a passing, unexpired price check.
       const n = model.legs.length;
       const kind = model.payout.combinedLabel === "book-quoted parlay" ? "Book parlay" : n === 1 ? "Selection" : "Leg product";
-      const mark = model.payout.verifiedMark ? `<div class="vm">${CHECK}${cell(cells, "price.verified", "Verified odds")}</div>` : "";
+      // Founder override 2026-11-04 (odds snapshot): captured odds with their capture time; may have changed, not a live offer.
+      const mark = model.payout.snapshotText ? `<div class="vm snap">${cell(cells, "price.snapshot", model.payout.snapshotText)}</div>` : model.payout.verifiedMark ? `<div class="vm">${CHECK}${cell(cells, "price.verified", "Verified odds")}</div>` : "";
       bottom += `<div class="money5 clean"><div class="odds"><div class="k">Odds</div>${cell(cells, "price.combined", american(model.payout.combinedAmerican), "v")}<div class="sub">${cell(cells, "price.kind", kind)}</div>${mark}</div><div><div class="k">Tracked stake</div>${cell(cells, "money.wager", cents(model.bankrollCents), "v")}</div><div class="pay" data-money="payout"><div class="k">Potential payout</div>${cell(cells, "money.payout", cents(model.payout.grossCents), "v")}</div><div class="pro"><div class="k">Profit</div>${cell(cells, "money.profit", cents(model.payout.profitCents), "v")}</div></div>`;
     } else if (model.view === VIEW.CARD) {
       const stepTarget = model.rungs[model.step - 1]?.milestoneCents;

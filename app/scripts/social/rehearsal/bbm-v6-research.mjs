@@ -75,6 +75,8 @@ const ALTS = String(a.alt ?? "").split(",").filter(Boolean).map((x) => {
 const flagWords = (code) => { const t = code.replace(/^[A-Z]+_/, "").replace(/_/g, " ").toLowerCase(); return t.charAt(0).toUpperCase() + t.slice(1); };
 /** The clean card's verified-odds mark: FINAL = the run-2 PRICE_VERIFIED event; CANDIDATE = every price check PASS and unexpired at render. */
 const verifiedMarkOf = (c) => (FINAL ? Boolean(c.priceEventSha256) : CANDIDATE ? c.priceCheckAll === "PASS" && c.legs.every((l) => l.priceCheck?.result === "PASS" && Date.parse(l.priceCheck.expiresAt) > RENDER_AT) : false);
+/** The card's odds capture time in ET (the latest leg fetch; founder odds-snapshot override 2026-11-04). */
+const captureEt = (c) => `${new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(new Date(Math.max(...c.legs.map((l) => Date.parse(l.priceCheck?.fetchedAt ?? l.fetchedAt)))))} ET`;
 const winsLosses = (w) => `${w.hits}-${w.n - w.hits}`;
 /** The clean leg from the record: the engine's display strings, each cross-checked against the raw hit-rate windows (fail-closed). */
 function cleanLegOf(l, base, name) {
@@ -88,14 +90,16 @@ function cleanLegOf(l, base, name) {
     if (d.last10 && !String(d.last10).startsWith(winsLosses(w10))) bad(`display last10 ${d.last10} is not ${winsLosses(w10)}`);
     if (d.season && d.season !== winsLosses(ws)) bad(`display season ${d.season} is not ${winsLosses(ws)}`);
     const recordText = `Last ${w5.n}: ${winsLosses(w5)} | Last ${w10.n}: ${winsLosses(w10)} | Season: ${winsLosses(ws)}`;
-    return { ...base, team: { abbr: base.team.abbr, name: d.team ?? base.team.name }, opponent: { abbr: base.opponent.abbr, name: d.opponent ?? teamName(base.opponent.abbr) }, home: d.venue ? d.venue === "vs" : base.home, recordText, level: "B", evidenceText: undefined, flagText: [] };
+    const recordStats = [{ label: `Last ${w5.n}`, value: winsLosses(w5) }, { label: `Last ${w10.n}`, value: winsLosses(w10) }];
+    return { ...base, recordStats, team: { abbr: base.team.abbr, name: d.team ?? base.team.name }, opponent: { abbr: base.opponent.abbr, name: d.opponent ?? teamName(base.opponent.abbr) }, home: d.venue ? d.venue === "vs" : base.home, recordText, level: "B", evidenceText: undefined, flagText: [] };
   }
   const w5 = win("last5"); const w10 = win("last10");
   if (!w5 || !w10) bad("missing L5 / L10 hit counts");
   if (d.last5 && d.last5 !== `${w5.hits}/${w5.n}`) bad(`display last5 ${d.last5} is not ${w5.hits}/${w5.n}`);
   if (d.last10 && d.last10 !== `${w10.hits}/${w10.n}`) bad(`display last10 ${d.last10} is not ${w10.hits}/${w10.n}`);
   const stat = d.stat ?? WORD[l.market] ?? l.family;
-  return { ...base, lineWords: `${l.side.toUpperCase()} ${l.line} ${String(stat).toUpperCase()}`, gameLabel: d.matchup ?? l.eventLabel, recordText: `Last ${w5.n}: ${w5.hits}/${w5.n} | Last ${w10.n}: ${w10.hits}/${w10.n}`, evidenceText: null, evidenceBig: null, flagText: [] };
+  const recordStats = [{ label: `L${w5.n} hits`, value: `${w5.hits}/${w5.n}` }, { label: `L${w10.n} hits`, value: `${w10.hits}/${w10.n}` }];
+  return { ...base, recordStats, lineWords: `${l.side.toUpperCase()} ${l.line} ${String(stat).toUpperCase()}`, gameLabel: d.matchup ?? l.eventLabel, recordText: `Last ${w5.n}: ${w5.hits}/${w5.n} | Last ${w10.n}: ${w10.hits}/${w10.n}`, evidenceText: null, evidenceBig: null, flagText: [] };
 }
 const isMoneyline = (l) => ["winner", "moneyline", "h2h", "ml"].includes(String(l.market ?? l.family ?? "").toLowerCase());
 /** The engine's Level B leg flags in plain words (the record's flags[] codes). */
@@ -153,7 +157,7 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
   models.push({ laneId, name, alt: alt === true, sourceFile: srcFile, record: c, legsRaw: c.legs, model: {
     product, letter: L.letter, laneId, date: c.date, step: 1, steps: 5, rungs, ...TERMS[product], bankrollCents: c.money.stakeCents, badge: BADGE.ACTIVE, view: VIEW.CARD, template: false,
     laneType: c.laneType ?? lane.laneType ?? undefined, legs: CLEAN ? c.legs.map((l, i) => cleanLegOf(l, legs[i], name)) : legs, clean: CLEAN, selectionLabel: CLEAN ? null : c.selectionLabel ?? (c.classification === "LEVEL_B" ? "Research selection — no validated edge claim" : null), reviewRibbon: REVIEW, showStepTarget: !CLEAN,
-    payout: { verifiedMark: verifiedMarkOf(c), combinedLabel: c.combinedLabel ?? c.combined?.label ?? null, combinedAmerican: c.combined.american, grossCents: c.money.grossPayoutCents, profitCents: c.money.profitCents, stakeCents: c.money.stakeCents, preliminary: !verified, fixture: false, estimate: false, legs: Object.fromEntries(c.legs.map((l) => [l.legId, { price: l.price, oddsFormat: "american", line: l.line }])) },
+    payout: { verifiedMark: CLEAN ? false : verifiedMarkOf(c), snapshotText: CLEAN ? `Odds snapshot · ${captureEt(c)}` : null, combinedLabel: c.combinedLabel ?? c.combined?.label ?? null, combinedAmerican: c.combined.american, grossCents: c.money.grossPayoutCents, profitCents: c.money.profitCents, stakeCents: c.money.stakeCents, preliminary: !verified, fixture: false, estimate: false, legs: Object.fromEntries(c.legs.map((l) => [l.legId, { price: l.price, oddsFormat: "american", line: l.line }])) },
   } });
 }
 // Founder 2026-11-04, diversity@2: no leg repeats across the day's four lanes. Identity is the underlying selection
@@ -173,14 +177,16 @@ if (repeats.length) console.log(`DIVERSITY WARNING (a final render would refuse)
 const cards = models.map((m) => ({ ...m, card: { ...bbmCardV6(m.model), name: m.name } }));
 const bad = cards.flatMap((m) => verifyBbmCardV6(m.card).map((e) => `${m.name}: ${e}`));
 
+/** Founder override 2026-11-04: "Odds as captured <time> ET; may have changed." (each distinct capture time in the package). */
+const captureSentence = (pair) => { const ts = [...new Set(pair.filter((m) => m.record).map((m) => captureEt(m.record)))]; return ts.length ? `Odds as captured ${ts.join(" and ")}; may have changed.` : ""; };
 function caption(product, pair) {
   const head = product === "bank-builder" ? "🏦 Bank Builder · Nov 4" : "🚀 Moonshot · Nov 4";
   const lanes = pair.map((m) => (m.held ? `Lane ${BBM_LANES[m.laneId].letter} · Held · Step 1 of 5` : `Lane ${BBM_LANES[m.laneId].letter} · Step 1 of 5\n${m.legsRaw.map((l) => (isMoneyline(l) ? `${l.teamName ?? teamName(l.selection?.teamAbbr ?? l.team)} to win` : `${l.player.name} · ${WORD[l.market] ?? l.family}`)).join("\n")}`));
   const t = pair.every((m) => m.held)
     ? [head, ...lanes, "No card tonight; both lanes hold their place and tracked bankroll. Tracked challenge, no real wager placed. #NBA"].join("\n\n")
-    : CLEAN ? [head, ...lanes, "Research selections from historical data · no validated edge · 21+", "Tracked challenge, no real wager placed. #NBA"].join("\n\n")
+    : CLEAN ? [head, ...lanes, "Research selections from historical data · no validated edge · 21+", `${captureSentence(pair)} Tracked challenge, no real wager placed. #NBA`].join("\n\n")
     : [head, ...(pair.some((m) => m.record?.classification === "LEVEL_B") ? ["Research selection · no validated edge claim"] : []), ...lanes, `${pair.every((m) => m.record?.classification === "LEVEL_A") ? "Model probabilities" : "Research evidence"} on the graphic. Tracked challenge, no real wager placed. #NBA`].join("\n\n");
-  if (xWeighted(t) > X_LIMIT || CAPTION_PRICE_TEXT.test(t)) throw new Error(`${product}: caption fails (${xWeighted(t)} X-weighted; ${t.match(CAPTION_PRICE_TEXT)?.[0] ?? "no price text"})`);
+  if (xWeighted(t) > X_LIMIT || CAPTION_PRICE_TEXT.test(t.replace(captureSentence(pair), ""))) throw new Error(`${product}: caption fails (${xWeighted(t)} X-weighted; ${t.match(CAPTION_PRICE_TEXT)?.[0] ?? "no price text"})`);
   return t;
 }
 
@@ -188,11 +194,12 @@ function caption(product, pair) {
 function parity(m) {
   const c = m.record; const cells = m.card.cells; const mis = [];
   const want = { "money.wager": cents(c.money.stakeCents), "money.payout": cents(c.money.grossPayoutCents), "money.profit": cents(c.money.profitCents), "price.combined": american(c.combined.american) };
-  if (CLEAN) c.legs.forEach((l, i) => Object.assign(want, { [`leg${i + 1}.odds`]: american(l.price), [`leg${i + 1}.record`]: m.model.legs[i].recordText, ...(isMoneyline(l) ? { [`leg${i + 1}.name`]: m.model.legs[i].team.name } : { [`leg${i + 1}.name`]: l.player.name, [`leg${i + 1}.line`]: m.model.legs[i].lineWords.split(" ").slice(1).join(" ") }) }));
+  if (CLEAN) c.legs.forEach((l, i) => Object.assign(want, { [`leg${i + 1}.odds`]: american(l.price), ...Object.fromEntries(m.model.legs[i].recordStats.flatMap((r, n) => [[`leg${i + 1}.r${n + 1}l`, r.label], [`leg${i + 1}.r${n + 1}v`, r.value]])), ...(isMoneyline(l) ? { [`leg${i + 1}.name`]: m.model.legs[i].team.name } : { [`leg${i + 1}.name`]: l.player.name, [`leg${i + 1}.line`]: m.model.legs[i].lineWords.split(" ").slice(1).join(" ") }) }));
   else c.legs.forEach((l, i) => Object.assign(want, isMoneyline(l) ? { [`leg${i + 1}.team`]: m.model.legs[i].team.abbr, [`leg${i + 1}.odds`]: american(l.price), ...(m.model.legs[i].level === "A" ? { [`leg${i + 1}.proj`]: m.model.legs[i].projectionText } : { [`leg${i + 1}.evidence`]: m.model.legs[i].evidenceText }) } : { [`leg${i + 1}.name`]: l.player.name, [`leg${i + 1}.odds`]: american(l.price), [`leg${i + 1}.line`]: m.model.legs[i].lineText, [`leg${i + 1}.evidence`]: evidenceLine(l) }));
   for (const [k, v] of Object.entries(want)) if (cells[k] !== v) mis.push(`${k}: printed ${cells[k]} record ${v}`);
   if (c.classification === "LEVEL_B" && Object.keys(cells).some((k) => /\.proj$/.test(k))) mis.push("a Level B card with a probability row");
-  if (("price.verified" in cells) !== (CLEAN ? verifiedMarkOf(c) : c.priceEventSha256 != null)) mis.push("the verified mark does not match the record's price verification");
+  if (("price.verified" in cells) !== (CLEAN ? false : c.priceEventSha256 != null)) mis.push("the verified mark does not match the record's price verification");
+  if (CLEAN && cells["price.snapshot"] !== `Odds snapshot · ${captureEt(c)}`) mis.push(`snapshot ${cells["price.snapshot"]} is not the record's capture time`);
   return mis;
 }
 
