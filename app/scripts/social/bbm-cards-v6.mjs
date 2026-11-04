@@ -299,9 +299,10 @@ const CLEAN_CSS = `<style>
 .v5.clean .leg.clean .mt .sep5{color:rgba(255,255,255,.6);font:800 24px/1 var(--display)}
 .v5.clean .leg.clean.mlc .nm,.v5.clean .leg.clean.mlc .opp5,.v5.clean .leg.clean.mlc .mt,.v5.clean .leg.clean.mlc .rec{letter-spacing:0;text-transform:none;text-align:left}.v5.clean .leg.clean.mlc .nm{text-transform:uppercase}
 .v5.clean .legs5:has(>.leg.clean:only-child){justify-content:center}
-.v5.clean .leg.clean .chip.odds{font:900 28px/1 var(--display);padding:6px 12px 4px;background:#FFFFFF;color:#050706;letter-spacing:1px}
+/* Founder 2026-11-04 (v3): odds badges are plain high-contrast numerals on a mint badge: no text shadow, glow, bloom or outline on the digits. */
+.v5.clean .leg.clean .chip.odds{font:800 28px/1 var(--body);padding:6px 12px 5px;background:#D8F8E6;color:#04140A;letter-spacing:.5px;text-shadow:none;-webkit-text-stroke:0;filter:none;border-radius:8px;box-shadow:0 0 0 2px rgba(255,255,255,.75),0 0 8px color-mix(in srgb,var(--neon) 35%,transparent)}
 .v5.clean .leg.clean .rec{font:800 22px/1.15 var(--display);color:#FFE27A;text-shadow:0 1px 2px #000;white-space:nowrap}
-.v5.clean .legs5>.leg.clean:not(:only-child){padding:10px 20px 9px}.v5.clean .legs5>.leg.clean:not(:only-child) .nm{font-size:36px}.v5.clean .legs5>.leg.clean:not(:only-child) .who{gap:4px}.v5.clean .legs5>.leg.clean:not(:only-child) .opp5{font-size:22px}.v5.clean .legs5>.leg.clean:not(:only-child) .mt{font-size:21px}.v5.clean .legs5>.leg.clean:not(:only-child) .chip.odds{font-size:24px;padding:4px 10px 3px}.v5.clean .legs5>.leg.clean:not(:only-child) .rec{font-size:19px}.v5.clean .legs5>.leg.clean:not(:only-child) .n{font-size:54px}
+.v5.clean .legs5>.leg.clean:not(:only-child){padding:10px 20px 9px}.v5.clean .legs5>.leg.clean:not(:only-child) .nm{font-size:36px}.v5.clean .legs5>.leg.clean:not(:only-child) .who{gap:4px}.v5.clean .legs5>.leg.clean:not(:only-child) .opp5{font-size:22px}.v5.clean .legs5>.leg.clean:not(:only-child) .mt{font-size:21px}.v5.clean .legs5>.leg.clean:not(:only-child) .chip.odds{font-size:25px;padding:5px 10px 4px}.v5.clean .legs5>.leg.clean:not(:only-child) .rec{font-size:19px}.v5.clean .legs5>.leg.clean:not(:only-child) .n{font-size:54px}
 .v5.clean:has(.leg.clean:nth-child(2)) .legs5{margin-top:22px;gap:12px}.v5.clean:has(.leg.clean:nth-child(2)) .tgt5{margin-top:14px;padding:8px 22px 6px}
 .v5.clean .legs5>.leg.clean:only-child{min-height:0;padding:22px 26px 20px}.v5.clean .legs5>.leg.clean:only-child .nm{font-size:52px}
 .v5.clean .rp5{display:flex;flex-direction:column;justify-content:center;gap:10px;padding-left:18px;border-left:2px solid rgba(255,255,255,.28);min-width:148px}
@@ -316,14 +317,14 @@ const CLEAN_CSS = `<style>
 .v5.clean .money5.clean{top:948px;height:214px;grid-template-columns:1fr 1fr 1.35fr 1fr;gap:10px}
 .v5.clean .money5.clean>div{padding:12px 8px;border:2px solid rgba(255,255,255,.5);background:linear-gradient(180deg,rgba(255,255,255,.1),rgba(0,0,0,.92) 45%);box-shadow:none}
 .v5.clean .money5.clean .k{font:800 20px/1.1 var(--display);letter-spacing:1px}
-.v5.clean .money5.clean .v{margin-top:10px;font:900 46px/1 var(--display);color:#FFFFFF;text-shadow:none;filter:none;-webkit-text-stroke:1px rgba(0,0,0,.5)}
+.v5.clean .money5.clean .v{margin-top:10px;font:900 46px/1 var(--display);color:#FFFFFF;text-shadow:0 2px 0 rgba(0,0,0,.6);filter:none;-webkit-text-stroke:0}
 .v5.clean .money5.clean .odds .v{color:#FFFFFF}
 .v5.clean .money5.clean .sub{margin-top:8px;font:800 15px/1 var(--display);letter-spacing:2px;color:rgba(255,255,255,.7);text-transform:uppercase}
 .v5.clean .money5.clean .vm{margin-top:8px;display:flex;align-items:center;justify-content:center;gap:6px;color:var(--neon);font:900 14px/1 var(--display);letter-spacing:1px;text-transform:uppercase}.v5.clean .money5.clean .vm svg{width:20px;height:20px}
 .v5.clean .money5.clean .pay{border:4px solid #FFD54A;background:radial-gradient(130% 120% at 50% 20%,rgba(255,215,80,.45),rgba(25,12,0,.95) 65%);box-shadow:0 0 0 1px #FFF3C0,0 0 22px rgba(255,180,0,.55)}
 .v5.clean .money5.clean .pay .k{color:#FFFFFF;text-shadow:none}
-.v5.clean .money5.clean .pay .v{font-size:58px;background:none;color:#FFD84A;-webkit-text-fill-color:#FFD84A;-webkit-text-stroke:1.5px #5A2A00;filter:none}
-.v5.clean .money5.clean .pro .v{color:var(--neon);text-shadow:none}
+.v5.clean .money5.clean .pay .v{font-size:58px;background:none;color:#FFD84A;-webkit-text-fill-color:#FFD84A;-webkit-text-stroke:0;text-shadow:0 2px 0 #5A2A00,0 0 10px rgba(255,190,40,.35);filter:none}
+.v5.clean .money5.clean .pro .v{color:var(--neon);text-shadow:0 2px 0 rgba(0,0,0,.6)}
 .v5.clean .cp .m{filter:none}.v5.clean .cp.active .m{filter:none}
 .v5.clean .rt5{bottom:440px}
 </style>`;

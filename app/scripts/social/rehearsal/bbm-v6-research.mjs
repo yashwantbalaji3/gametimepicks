@@ -178,7 +178,8 @@ const cards = models.map((m) => ({ ...m, card: { ...bbmCardV6(m.model), name: m.
 const bad = cards.flatMap((m) => verifyBbmCardV6(m.card).map((e) => `${m.name}: ${e}`));
 
 /** Founder override 2026-11-04: "Odds as captured <time> ET; may have changed." (each distinct capture time in the package). */
-const captureSentence = (pair) => { const ts = [...new Set(pair.filter((m) => m.record).map((m) => captureEt(m.record)))]; return ts.length ? `Odds as captured ${ts.join(" and ")}; may have changed.` : ""; };
+// Founder 2026-11-04 (v3), verbatim: the odds-snapshot disclosure (exempt from the caption's odds-word rule).
+const captureSentence = () => "Odds shown are snapshots captured at the stated time and may have changed.";
 function caption(product, pair) {
   const head = product === "bank-builder" ? "🏦 Bank Builder · Nov 4" : "🚀 Moonshot · Nov 4";
   const lanes = pair.map((m) => (m.held ? `Lane ${BBM_LANES[m.laneId].letter} · Held · Step 1 of 5` : `Lane ${BBM_LANES[m.laneId].letter} · Step 1 of 5\n${m.legsRaw.map((l) => (isMoneyline(l) ? `${l.teamName ?? teamName(l.selection?.teamAbbr ?? l.team)} to win` : `${l.player.name} · ${WORD[l.market] ?? l.family}`)).join("\n")}`));
@@ -209,12 +210,15 @@ const browser = await chromium.launch();
 const layout = await bbmV6LayoutErrors(browser, cards.map((m) => m.card));
 const full = await browser.newPage({ viewport: { width: 1080, height: 1350 } });
 const mobile = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 400 / 1080 });
+// Phone and X-feed checks (founder 2026-11-04): 390 px wide and a 600 px timeline preview.
+const p390 = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 390 / 1080 });
+const pX = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 600 / 1080 });
 const rows = [];
 try {
-  for (const d of ["full", "mobile", "captions"]) fs.mkdirSync(path.join(out, d), { recursive: true });
+  for (const d of ["full", "mobile", "captions", "check"]) fs.mkdirSync(path.join(out, d), { recursive: true });
   const shoot = async (m) => {
     const shots = {};
-    for (const [pg, d, suf] of [[full, "full", ""], [mobile, "mobile", "-400w"]]) {
+    for (const [pg, d, suf] of [[full, "full", ""], [mobile, "mobile", "-400w"], [p390, "check", "-390w"], [pX, "check", "-x600w"]]) {
       await pg.setContent(m.card.html, { waitUntil: "load" });
       await pg.evaluate(() => document.fonts.ready); // eslint-disable-line no-undef
       const b = await pg.screenshot({ type: "png" });
