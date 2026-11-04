@@ -43,7 +43,10 @@ for (const [pkg, lanes] of [["bb", ["bb-a", "bb-b"]], ["ms", ["ms-a", "ms-b"]]])
     caption = cap;
     media.push({ order: i + 1, laneId: lane, laneType: lane.endsWith("-a") ? "NBA_MONEYLINE" : "NBA_PLAYER_PROPS", file: `${i + 1}-${lane}.png`, sha256: r.imageSha256, width: 1080, height: 1350, png,
       lane: { recordSha256: rec.recordSha256, candidateRecordSha256: rec.candidateRecordSha256, approvalStatus: rec.approvalStatus, approvalRef: rec.approvalRef ?? null, priceEventSha256: rec.priceEventSha256, payoutEventSha256: rec.payoutEventSha256, cardEventSha256: rec.cardEventSha256, run2HeadSha256: rec.run2HeadSha256 ?? null,
-        stakeCents: rec.money.stakeCents, grossPayoutCents: rec.money.grossPayoutCents, profitCents: rec.money.profitCents, combinedAmerican: rec.combined.american, legs: r.legs } });
+        stakeCents: rec.money.stakeCents, grossPayoutCents: rec.money.grossPayoutCents, profitCents: rec.money.profitCents, combinedAmerican: rec.combined.american,
+        // Each leg carries its tip (the console's firstStartUtc is the earliest), taken from the sealed record.
+        legs: r.legs.map((l) => ({ ...l, startUtc: rec.legs.find((x) => x.legId === l.legId)?.startUtc ?? null })) } });
+    if (media.at(-1).lane.legs.some((l) => !l.startUtc)) problems.push(`${lane}: a leg has no startUtc in the record`);
   }
   packages.push({ packageId: `${pkg}-2026-11-04`, product: pkg === "bb" ? "bank-builder" : "moonshot", media, caption });
 }
