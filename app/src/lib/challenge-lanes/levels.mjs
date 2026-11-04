@@ -25,6 +25,7 @@ export const SHORTLIST_SCHEMA = "gtp.bbm.level-b-shortlist@1";
 export const LEVEL = Object.freeze({ A: "LEVEL_A", B: "LEVEL_B", HOLD: "HOLD" });
 export const LEVEL_LABEL = Object.freeze({ LEVEL_A: "MODEL-VALIDATED VALUE", LEVEL_B: "HISTORICAL HIT-RATE RESEARCH — no EV claim", HOLD: "HOLD" });
 export const RANKING_LABEL = "RULES-BASED RANKING — an ordering of evidence, not a probability; no EV claim";
+export const NOV4_SNAPSHOT_OVERRIDE = Object.freeze({ id: "2026-11-04-founder-odds-snapshot-override", capturedFrom: "2026-11-04T21:05:00Z", capturedTo: "2026-11-04T21:07:00Z", expiresAt: "2026-11-05T04:59:59Z", label: "ODDS SNAPSHOT · 4:05 PM ET", receipt: "docs/receipts/FOUNDER_ODDS_SNAPSHOT_OVERRIDE_2026-11-04.md (f529fa44fa)" });
 export const PROP_FAMILIES = Object.freeze({ pts: "player_points", reb: "player_rebounds", ast: "player_assists" });
 
 export const LEVEL_B_PARAMS = Object.freeze({
@@ -51,6 +52,10 @@ export const LEVEL_B_PARAMS = Object.freeze({
   minutesDropPct: Object.freeze({ value: 0.20, state: "PROPOSED" }),
   minutesConditioned: Object.freeze({ value: null, state: "PROPOSED", note: "{ legId: { hits, n, note } } from the evaluator: games within ±4 of tonight's projected minutes" }),
   /* Founder ~19:55Z lane specialization (bbm-rules@2 laneType): A lanes moneylines only, B lanes player props only. */
+  /* FOUNDER EXCEPTION, dated and expiring (receipt docs/receipts/FOUNDER_ODDS_SNAPSHOT_OVERRIDE_2026-11-04.md, commit
+     f529fa44fa on claude/bbm-v2-authorization): the 21:05–21:06Z captures may be displayed past 90 min as a disclosed
+     historical snapshot, until 2026-11-04 23:59 ET, pregame only. Not a global change; pass it explicitly. */
+  freshnessOverride: Object.freeze({ value: null, state: "FOUNDER_EXCEPTION_DATED", note: "pass NOV4_SNAPSHOT_OVERRIDE for 2026-11-04 only" }),
   diversity: Object.freeze({ value: null, state: "PROPOSED", note: "diversity@1 (founder ~21:12Z): no identical combinations across the four lanes; a leg in at most two lanes; never a duplicate fallback" }),
   laneTypes: Object.freeze({ value: null, state: "PROPOSED", note: '{ "bb-a": "moneyline", "ms-a": "moneyline", "bb-b": "props", "ms-b": "props" }' }),
   legDecimalRange: Object.freeze({ value: Object.freeze([1.25, 4.0]), state: "PROPOSED" }),
@@ -268,7 +273,14 @@ export function evaluateLevelSet(set, { laneType = null, position, now, propIx, 
     const depth = booksQuoting(l, bookmakers, q); x.booksAtLine = depth;
     if (depth < P("minBooksAtLine", params)) reasons.push(`E_THIN_MARKET ${l.legId}: ${depth} books at this exact line`);
     const age = Date.parse(now) - Date.parse(x.fetchedAt);
-    if (!(age >= 0 && age <= P("maxQuoteAgeMs", params))) reasons.push(`E_STALE_QUOTE ${l.legId}: fetched ${x.fetchedAt}`);
+    if (!(age >= 0 && age <= P("maxQuoteAgeMs", params))) {
+      /* Dated founder exception (2026-11-04-founder-odds-snapshot-override): quotes fetched inside its capture window may be
+         used past 90 minutes until its expiry, as a disclosed historical snapshot. Pregame only (STARTED still refuses). */
+      const ov = P("freshnessOverride", params);
+      const f = Date.parse(x.fetchedAt); const n = Date.parse(now);
+      if (ov && f >= Date.parse(ov.capturedFrom) && f <= Date.parse(ov.capturedTo) && n < Date.parse(ov.expiresAt) && age >= 0) flags.push(`E_SNAPSHOT_OVERRIDE ${l.legId}: ${ov.id}; odds snapshot fetched ${x.fetchedAt}, may have changed`);
+      else reasons.push(`E_STALE_QUOTE ${l.legId}: fetched ${x.fetchedAt}`);
+    }
     ratio = { n: ratio.n * BigInt(r.n), d: ratio.d * BigInt(r.d) };
   });
   const D = Number(ratio.n) / Number(ratio.d);

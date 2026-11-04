@@ -365,3 +365,16 @@ test("diversity@2 ruling: OVER and UNDER of one player-stat, or both teams' mone
   assert.match(diversityRefusal([{ legs: [{ legId: "x", ...over }] }], { legs: [{ legId: "y", ...under }] }, { maxLegUse: 1 }), /^DIVERSITY_OPPOSING_SIDES/);
   assert.deepEqual(diversityViolations([{ laneId: "bb-b", date: d, legs: [over] }, { laneId: "ms-b", date: d, legs: [{ ...over, family: "reb", side: "under" }] }], { maxLegUse: 1 }), [], "another stat of the same player is a different proposition");
 });
+
+test("Nov 4 snapshot override: past 90 min only inside its capture window, before expiry and tip; disclosed; off by default", async () => {
+  const { NOV4_SNAPSHOT_OVERRIDE } = await import("./levels.mjs");
+  const F = "2026-11-04T21:06:40Z";
+  const capF = capture([["1", "p1", "pts", 20.5, 100, -120]], F);
+  const at = (now, params) => evaluateLevelSet([legFromShortlist(row({ startUtc: "2026-11-05T03:30Z" }))], { position: MS1, now, propIx: indexPropCapture(capF), params });
+  assert.ok(at("2026-11-04T22:50:00Z", null).reasons.some((x) => x.startsWith("E_STALE_QUOTE")), "off by default");
+  const ok = at("2026-11-04T22:50:00Z", { freshnessOverride: NOV4_SNAPSHOT_OVERRIDE });
+  assert.ok(!ok.reasons.some((x) => x.startsWith("E_STALE_QUOTE")) && ok.flags.some((x) => x.startsWith("E_SNAPSHOT_OVERRIDE")));
+  assert.ok(at("2026-11-05T05:10:00Z", { freshnessOverride: NOV4_SNAPSHOT_OVERRIDE }).reasons.some((x) => x.startsWith("E_STALE_QUOTE") || x.startsWith("STARTED")), "expired / after tip");
+  const capOther = capture([["1", "p1", "pts", 20.5, 100, -120]], "2026-11-04T19:05:00Z");
+  assert.ok(evaluateLevelSet([legFromShortlist(row({ startUtc: "2026-11-05T03:30Z" }))], { position: MS1, now: "2026-11-04T22:50:00Z", propIx: indexPropCapture(capOther), params: { freshnessOverride: NOV4_SNAPSHOT_OVERRIDE } }).reasons.some((x) => x.startsWith("E_STALE_QUOTE")), "a 19:05Z quote is outside the window");
+});

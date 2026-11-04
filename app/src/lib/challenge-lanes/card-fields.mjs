@@ -20,7 +20,7 @@ export const COMBINED_LABEL = Object.freeze({ LEG_PRODUCT: "calculated leg produ
 /** Founder 2026-11-04 ~19:40Z: the label on every DAILY RESEARCH SELECTION card, verbatim. */
 export const SELECTION_LABEL = Object.freeze({ RESEARCH: "RESEARCH SELECTION — NO VALIDATED EDGE CLAIM", STRICT: null });
 /** Disclosed-limitation flag codes (public: codes only; the full text carries line-dependent counts and stays encrypted). */
-export const FLAG_CODES = Object.freeze(["B_ROLE_UNSTABLE", "B_MINUTES_VOLATILE", "B_MINUTES_DROP", "B_MINUTES_UNCERTAIN", "C_LINEUP_UNCERTAIN", "C_LINEUP_MEDIUM", "C_LINEUP_HIGH", "ML_SMALL_SAMPLE", "ML_ROSTER_TURNOVER", "ML_KEY_OUT", "ML_KEY_DTD", "ML_TOP5_OUT", "ML_KEY_UNCERTAIN", "ML_BACK_TO_BACK"]);
+export const FLAG_CODES = Object.freeze(["B_ROLE_UNSTABLE", "B_MINUTES_VOLATILE", "B_MINUTES_DROP", "B_MINUTES_UNCERTAIN", "C_LINEUP_UNCERTAIN", "C_LINEUP_MEDIUM", "C_LINEUP_HIGH", "ML_SMALL_SAMPLE", "ML_ROSTER_TURNOVER", "ML_KEY_OUT", "ML_KEY_DTD", "ML_TOP5_OUT", "ML_KEY_UNCERTAIN", "ML_BACK_TO_BACK", "E_SNAPSHOT_OVERRIDE"]);
 /** Flag strings ("CODE legId: text") → public [{ legId, code, level }]; the internal HIGH ranking weight is dropped. */
 export function publicFlags(flags = []) {
   const out = [];
