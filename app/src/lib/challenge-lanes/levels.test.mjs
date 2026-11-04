@@ -301,3 +301,20 @@ test("research-band@2 (founder 20:45Z): strict ±10% gross band, both products, 
   assert.ok(!refused(g(-110, step2)), "$52.40 at −110 → $100.03: inside [$90, $110] for the settled bankroll");
   void at;
 });
+
+test("diversity@1: identical combinations refused (order-insensitive), a leg in ≤ 2 lanes, no duplicate fallback; approval binds the exact record", async () => {
+  const { diversityRefusal, approvalValid, assignFourLanes } = await import("./levels.mjs");
+  const L1 = { legs: [{ legId: "a" }, { legId: "b" }] }; const L1r = { legs: [{ legId: "b" }, { legId: "a" }] };
+  assert.equal(diversityRefusal([L1], L1r), "DIVERSITY_DUPLICATE_COMBINATION");
+  assert.equal(diversityRefusal([L1], { legs: [{ legId: "a" }, { legId: "c" }] }), null, "a leg shared twice is fine");
+  assert.match(diversityRefusal([L1, { legs: [{ legId: "a" }, { legId: "c" }] }], { legs: [{ legId: "a" }, { legId: "d" }] }), /DIVERSITY_LEG_LIMIT a/);
+  assert.equal(diversityRefusal([], { legs: [{ legId: "a" }] }), null);
+  assert.equal(diversityRefusal([{ legs: [{ legId: "a" }] }], { legs: [{ legId: "a" }] }), "DIVERSITY_DUPLICATE_COMBINATION", "duplicate single refused");
+  const cap = capture([["1", "p1", "pts", 20.5, 100, -120]]);
+  const one = assignFourLanes({ legs: [legFromShortlist(row())], now: NOW, propCapture: cap, params: { diversity: "diversity@1", laneTypes: { "bb-b": "NBA_PLAYER_PROPS", "ms-b": "NBA_PLAYER_PROPS", "bb-a": "NBA_MONEYLINE", "ms-a": "NBA_MONEYLINE" } } });
+  assert.equal(one.lanes["bb-b"].status, "READY_FOR_APPROVAL");
+  assert.deepEqual([one.lanes["ms-b"].status, one.lanes["ms-b"].code], ["HELD", "NO_QUALIFIED_CARD"], "one card only: the second props lane is HELD, never a duplicate");
+  const rec = { candidateId: "c1", recordSha256: "s1" };
+  assert.equal(approvalValid(rec, { candidateId: "c1", recordSha256: "s1" }), true);
+  assert.equal(approvalValid({ ...rec, recordSha256: "s2" }, { candidateId: "c1", recordSha256: "s1" }), false, "a replaced leg or price invalidates the approval");
+});
