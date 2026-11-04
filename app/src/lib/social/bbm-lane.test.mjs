@@ -255,11 +255,11 @@ test("BUSTED: the losing card prints with its leg results and BUSTED AT STEP k O
 });
 
 /** The engine's own price step on a lane log (priceLane): it computes stake, combined price, payout and profit. */
-const pricedEvents = (laneId, { provider = "FIXTURE-NOT-A-BOOK", book = "SAMPLE BOOK", odds = [-150, -200], events = null } = {}) => {
+const pricedEvents = (laneId, { provider = "FIXTURE-NOT-A-BOOK", book = "SAMPLE BOOK", odds = [-150, -200], events = null, preliminary = false } = {}) => {
   const ev = (events ?? [frozen(laneId)]).reduce((acc, e) => append(acc, e), [runStarted({ laneId, runId: "run-1", startedAt: LANE.generatedAt, approvedBy: "test" })]);
   const card = laneState(ev).open.cardEvent.card;
   const fetchedAt = new Date(FIRST - 2 * 3.6e6).toISOString().replace(".000Z", "Z");
-  const price = { legs: card.legs.map((l, i) => ({ legId: l.legId, selectionCode: l.selection.code, provider, book, oddsFormat: "american", price: odds[i], fetchedAt })), parlay: { method: "LEG_PRODUCT", fetchedAt }, priceSnapshotSha256: "f".repeat(64) };
+  const price = { legs: card.legs.map((l, i) => ({ legId: l.legId, selectionCode: l.selection.code, provider, book, oddsFormat: "american", price: odds[i], fetchedAt })), parlay: { method: "LEG_PRODUCT", fetchedAt }, priceSnapshotSha256: "f".repeat(64), ...(preliminary ? { preliminary: true } : {}) };
   const r = priceLane(ev, { date: DATE, at: fetchedAt, price, suggestedCards: FILE, permittedProviders: [provider], eligibleBooks: [book] });
   return { events: [...ev, ...r.events], action: r.action, payout: r.payout };
 };
@@ -316,4 +316,21 @@ test("priced refusals: another run's log, a refused payout, a broken chain, pric
   const v = { ...p.view, payout: { ...p.view.payout, estimate: true, method: "SAME_GAME_ESTIMATE" } };
   const est = bbmCardFor(v, p.combo);
   assert.match(est.cells["price.combined"], /^Estimate \+\d+$/); assert.ok(!est.cells["price.combined"].includes("leg product"));
+});
+
+test("preliminary prices (founder P0 2026-11-04): tagged on the image, flagged on the package, never shown as final", () => {
+  const pre = pricedEvents("bb-a", { provider: "the-odds-api", book: "DraftKings", preliminary: true });
+  assert.equal(pre.action, "PAYOUT_COMPUTED");
+  const p = prep(laneProjection("bb-a", [pre.events]), { privateEvents: pre.events, displayRecord: SOCIAL_ON });
+  assert.equal(p.refused, undefined, p.refused);
+  assert.equal(p.view.payout.preliminary, true);
+  assert.match(textOf(p.card), /PRELIMINARY PRICES · RE-VERIFIED BEFORE POSTING/);
+  assert.deepEqual(verifyBbmCard(p.card), []);
+  assert.match(verifyBbmCard({ ...p.card, preliminary: false }).join(";"), /preliminary tag on a verified price/);
+  const [plan] = planPackages([p, prep(statusDoc("bb-b"))], DATE);
+  assert.equal(plan.needsFounderReview, "preliminary-prices");
+  const fin = pricedEvents("bb-a", { provider: "the-odds-api", book: "DraftKings" });
+  const f = prep(laneProjection("bb-a", [fin.events]), { privateEvents: fin.events, displayRecord: SOCIAL_ON });
+  assert.equal(f.view.payout.preliminary, false); assert.doesNotMatch(textOf(f.card), /PRELIMINARY/);
+  assert.equal(planPackages([f, prep(statusDoc("bb-b"))], DATE)[0].needsFounderReview, null);
 });

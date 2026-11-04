@@ -10,7 +10,7 @@
 import { canonical, sha256, verifyChain } from "../challenge-lanes/chain.mjs";
 import { laneDisplay, RUNG } from "../challenge-lanes/display.mjs";
 import { LANES, laneState } from "../challenge-lanes/lanes.mjs";
-import { decimalToAmerican } from "../challenge-lanes/payout.mjs";
+import { decimalToAmerican, PRICE_WINDOW_MS } from "../challenge-lanes/payout.mjs";
 import { lanePriceDisplay, socialPricesAuthorized } from "../challenge-lanes/price-display.mjs";
 import { verifyLaneProjection } from "../challenge-lanes/projection.mjs";
 
@@ -112,7 +112,14 @@ export function pricedDay(events, { date, doc = null }) {
   const books = day.book ? [day.book] : [...new Set((pv?.price?.legs ?? []).map((l) => l.book))];
   if (books.length !== 1) return { refused: `every leg must come from one book (got ${books.length})` };
   const fetched = day.legs.map((l) => l.fetchedAt).filter(Boolean).sort();
+  // PRELIMINARY (founder P0 2026-11-04): an early price, captured more than the SPEC §7 window (90 min) before the lane's
+  // scheduled post, or flagged so by the engine. It prints with its tag and is re-verified near the window.
+  const stake = events.findLast((e) => e.type === "STAKE_SET" && e.date === date && e.step === card.step);
+  const postAt = stake?.postScheduledAt ?? null;
+  const early = postAt && fetched[0] ? Date.parse(fetched[0]) < Date.parse(postAt) - PRICE_WINDOW_MS : false;
+  const flagged = pv?.price?.preliminary === true || events.some((e) => e.type === "PAYOUT_COMPUTED" && e.date === date && e.inputs?.preliminary === true);
   return {
+    preliminary: early || flagged, postScheduledAt: postAt,
     stakeCents: day.stakeCents, grossCents: day.grossPayoutCents, profitCents: day.profitCents,
     decimalPrice: day.decimalPrice, combinedAmerican: decimalToAmerican(day.decimalPrice), method: day.method,
     // Anything but one book's product over different games carries its label (SPEC §7); lanes never produce it.

@@ -25,6 +25,8 @@ export const BBM_DESIGN_VERSION = "bbm-v2";
 export const FACT_LINE = "Tracked challenge · no real wager placed";
 /** Terms review 2026-11-04 (docs/odds/ODDS_API_CHALLENGE_GRAPHICS_TERMS_2026-11-04.md): beside the fact line, US audience. */
 export const RG_LINE = "21+ · Gamble responsibly";
+/** An early price's tag (founder P0 2026-11-04): small and honest, never a banner. */
+export const PRELIMINARY_TAG = "Preliminary prices · re-verified before posting";
 const FOOTER = `${FACT_LINE} · ${RG_LINE}`;
 export const MODEL_LABEL = "MODEL PROJECTION";
 export const WIN_LABEL = "MODEL WIN PROBABILITY";
@@ -115,6 +117,7 @@ const CSS = `<style>
 .bv-src{flex:none;margin-top:10px;display:flex;justify-content:center;align-items:center;gap:14px;white-space:nowrap;overflow:hidden}
 .bv-src .cp{font:900 22px/1 var(--headline);letter-spacing:2px;padding:6px 12px 4px;border-radius:8px;background:var(--acc);color:#050706;text-transform:uppercase}
 .bv-src .cp.est{background:#FFB23F}
+.bv-pre{flex:none;margin-top:6px;text-align:center;font:800 16px/1 var(--display);letter-spacing:2px;color:#FFB23F;white-space:nowrap}
 .bv-src .sr{font:700 16px/1 var(--display);letter-spacing:2px;color:rgba(247,247,242,.66);text-transform:uppercase}
 .lg .ln{font:900 20px/1 var(--headline);letter-spacing:1px;padding:5px 8px 3px;border-radius:6px;border:2px solid var(--acc);color:var(--acc)}
 .bv-burst{position:absolute;left:50%;top:330px;width:1400px;height:1400px;margin-left:-700px;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(255,122,46,.10) 0 4deg,transparent 4deg 12deg);-webkit-mask:radial-gradient(circle,#000 0,#000 30%,transparent 62%);mask:radial-gradient(circle,#000 0,#000 30%,transparent 62%);pointer-events:none}
@@ -217,6 +220,7 @@ export function bbmCard(view, combo = null, { testData = false } = {}) {
       const books = (view.payout.books ?? []).map((b) => String(b).replace(/\s*[—–]\s*/g, " · ")).join(" · ");
       const src = books ? `Odds ${books}${view.payout.capturedAt ? ` · captured ${ET_CLOCK.format(new Date(Date.parse(view.payout.capturedAt)))} ET` : ""}` : null;
       if (combined || src) middle += `<div class="bv-src">${combined ? cell(cells, "price.combined", combined, `cp${view.payout.estimate ? " est" : ""}`) : ""}${src ? cell(cells, "price.source", src, "sr") : ""}</div>`;
+      if (view.payout.preliminary) middle += `<div class="bv-pre">${cell(cells, "price.preliminary", PRELIMINARY_TAG.toUpperCase())}</div>`;
     }
     moneyBlock = moneyHtml(cells, view);
   } else if (view.view === VIEW.BUSTED) {
@@ -251,7 +255,7 @@ ${ladderHtml(cells, view)}${bankHtml(cells, view)}${paceHtml(cells, view)}${midd
   const rib = [testData ? TEST_RIBBON : null, view.payout?.fixture ? SAMPLE_PRICE_RIBBON : null].filter(Boolean);
   const ribbons = rib.length ? `<div class="bv-rib ${testData ? "t" : "p"}">${esc(rib.join(" · "))}</div>` : "";
   if (ribbons) html = html.replace('<div class="frame"></div>', `${ribbons}<div class="frame"></div>`);
-  return { html, cells, laneId: view.laneId, view: view.view, badge: view.badge, testData, samplePrice: view.payout?.fixture === true, priced: view.payout != null, disclosure: FOOTER };
+  return { html, cells, laneId: view.laneId, view: view.view, badge: view.badge, preliminary: view.payout?.preliminary === true, testData, samplePrice: view.payout?.fixture === true, priced: view.payout != null, disclosure: FOOTER };
 }
 
 const cellsIn = (html) => Object.fromEntries([...html.matchAll(/data-cell="([^"]+)">([^<]*)</g)].map((m) => [m[1], m[2].replace(/&amp;/g, "&").replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, "<").replace(/&gt;/g, ">")]));
@@ -289,13 +293,14 @@ export function verifyBbmCard(card) {
   if (card.priced && !payoutShown) e.push("a verified payout is not shown");
   if (card.view === VIEW.CARD && !card.priced && got["money.payout"] !== AWAITING) e.push(`an unpriced card must say ${AWAITING}`);
   if (card.samplePrice && !text.includes(SAMPLE_PRICE_RIBBON)) e.push("fixture price without its SAMPLE PRICE ribbon");
+  if (card.preliminary !== text.includes(PRELIMINARY_TAG.toUpperCase())) e.push(card.preliminary ? "a preliminary price without its tag" : "a preliminary tag on a verified price");
   if (!card.samplePrice && text.includes(SAMPLE_PRICE_RIBBON)) e.push("SAMPLE PRICE ribbon without a fixture price");
   if (card.testData !== text.includes(TEST_RIBBON)) e.push(card.testData ? "test fixture without its TEST ribbon" : "TEST ribbon on real data");
   return e;
 }
 
 /** Stacked blocks, top to bottom; each must start below the one before it. */
-const STACK = ".bv-top,.bv-hero,.bv-sub,.bv-lad,.bv-bank,.bv-pace,.lg,.bv-src,.bv-stat,.bv-money,.social,.disclosure";
+const STACK = ".bv-top,.bv-hero,.bv-sub,.bv-lad,.bv-bank,.bv-pace,.lg,.bv-src,.bv-pre,.bv-stat,.bv-money,.social,.disclosure";
 /** Layout problems of each card in a real browser (`browser`: a Playwright browser). */
 export async function bbmLayoutErrors(browser, cards) {
   const page = await browser.newPage({ viewport: { width: 1080, height: 1350 } });

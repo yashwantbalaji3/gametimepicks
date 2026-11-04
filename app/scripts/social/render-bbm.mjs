@@ -173,7 +173,7 @@ export function planPackages(prepared, date) {
   return [...groups.values()].filter((g) => g.lanes.length === 2).map((g) => {
     g.lanes.sort((a, b) => a.laneId.localeCompare(b.laneId));
     const cards = g.lanes.filter((p) => p.view.view === VIEW.CARD);
-    const needsFounderReview = cards.some((p) => !p.view.payout) ? "unpriced" : cards.length === 0 ? "status-only" : null;
+    const needsFounderReview = cards.some((p) => !p.view.payout) ? "unpriced" : cards.some((p) => p.view.payout?.preliminary) ? "preliminary-prices" : cards.length === 0 ? "status-only" : null;
     return { ...g, kind: KIND[g.product], date, caption: packageCaption(g.product, g.lanes, date), needsFounderReview };
   });
 }
@@ -230,6 +230,8 @@ export async function writeStaging(plans, { outRoot, browser, commit = rendererC
         needsFounderReview: p.needsFounderReview, rendererCommit: commit, designVersion: BBM_DESIGN_VERSION,
         sources: p.lanes.map((l) => ({ laneId: l.laneId, laneLogRef: lanesRef[l.laneId] ?? null, projectionSha256: l.projectionSha256, runId: l.view.runId, eventSha256: drawnEventSha(l.view), suggestedCardsSha256: l.view.card?.suggestedCardsSha256 ?? null })),
         laneStatus: Object.fromEntries(p.lanes.map((l) => [l.laneId, l.view.view])),
+        // Per lane: whether the printed price is preliminary (re-verified near the window; a changed image is a new version).
+        pricing: Object.fromEntries(p.lanes.map((l) => [l.laneId, l.view.payout ? { state: l.view.payout.preliminary ? "PRELIMINARY" : "VERIFIED", capturedAt: l.view.payout.capturedAt, postScheduledAt: l.view.payout.postScheduledAt ?? null } : { state: l.view.view === VIEW.CARD ? "UNPRICED" : "NONE" }])),
         // The render-time availability input (PD 2026-11-04: fresh at render, never the morning build's).
         roster: rosterRef,
         testData: false,
@@ -302,7 +304,9 @@ async function main(argv) {
   const refused = prepared.filter((p) => p.refused).map((p) => ({ laneId: p.laneId, reason: p.refused }));
   const report = path.join(a.out, date, `bbm-run-${asOf.replace(/[:]/g, "")}.json`);
   fs.mkdirSync(path.dirname(report), { recursive: true });
-  fs.writeFileSync(report, `${JSON.stringify({ date, asOf, packages: done.map((d) => d.manifest.packageId), refused }, null, 2)}\n`);
+  // Each run's report keeps that version's image and caption shas: a re-render that changes a visible value is a new
+  // version the founder approves again (the staging folder holds only the latest).
+  fs.writeFileSync(report, `${JSON.stringify({ date, asOf, roster: rosterRef, packages: done.map((d) => ({ packageId: d.manifest.packageId, pricing: d.manifest.pricing, captionSha256: d.manifest.caption.sha256, media: d.manifest.media.map((m) => ({ laneId: m.laneId, sha256: m.sha256 })) })), refused }, null, 2)}\n`);
   for (const d of done) console.log(`${d.manifest.packageId} · ${d.manifest.media.length} image(s) · ${Object.entries(d.manifest.laneStatus).map(([k, v]) => `${k}=${v}`).join(" ")} · review ${d.manifest.needsFounderReview ?? "none"}`);
   for (const r of refused) console.log(`REFUSED ${r.laneId}: ${r.reason}`);
   console.log(report);
