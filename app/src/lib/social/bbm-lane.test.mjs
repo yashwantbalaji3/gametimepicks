@@ -325,7 +325,7 @@ test("preliminary prices (founder P0 2026-11-04): tagged on the image, flagged o
   const p = prep(laneProjection("bb-a", [pre.events]), { privateEvents: pre.events, displayRecord: SOCIAL_ON });
   assert.equal(p.refused, undefined, p.refused);
   assert.equal(p.view.payout.preliminary, true);
-  assert.equal(p.card.cells["money.wagerState"], "Tracked stake once verified");
+  assert.equal(p.card.cells["money.wagerState"], "Stake once verified");
   // The near-window refresh (a VERIFIED price on the same day) supersedes it: the tag goes, the stake is real.
   const card = laneState(pre.events).open.cardEvent.card;
   const at2 = new Date(FIRST - 1 * 3.6e6).toISOString().replace(".000Z", "Z");

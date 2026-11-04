@@ -194,7 +194,7 @@ function statusMoneyHtml(cells, v) {
 function moneyHtml(cells, v) {
   const progress = `<div><div class="k">Ladder progress</div>${cell(cells, "money.progress", `${v.cleared} OF ${v.steps}`, "v")}<div class="c">Steps cleared</div></div>`;
   // All-in ladder (SPEC §2 STAKE_SET): the tracked stake is the tracked bankroll; an unpriced card is never staked.
-  const wager = `<div><div class="k">Wager</div>${cell(cells, "money.wager", v.bankrollCents == null ? "WITHHELD" : cents(v.bankrollCents), "v")}<div class="c">${cell(cells, "money.wagerState", v.staked ? "Tracked stake" : v.stakePending ? "Tracked stake once verified" : "Not staked until priced")}</div></div>`;
+  const wager = `<div><div class="k">Wager</div>${cell(cells, "money.wager", v.bankrollCents == null ? "WITHHELD" : cents(v.bankrollCents), "v")}<div class="c">${cell(cells, "money.wagerState", v.staked ? "Tracked stake" : v.stakePending ? "Stake once verified" : "Not staked until priced")}</div></div>`;
   if (!v.payout) return `<div class="bv-money">${wager}<div class="pend aw" data-money="awaiting"><div class="k">Potential payout · profit</div>${cell(cells, "money.payout", AWAITING, "v")}</div>${progress}</div>`;
   const fx = v.payout.fixture ? '<span class="fx">SAMPLE</span>' : "";
   // Combined price: one book's leg product, or (same game) an estimate that is never a book's offer (SPEC §7).
