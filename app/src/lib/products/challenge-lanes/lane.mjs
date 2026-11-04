@@ -111,6 +111,14 @@ const american = (n) => (typeof n === "number" && Number.isFinite(n) ? (n > 0 ? 
 const ET_STAMP = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 const etStamp = (iso) => { const t = Date.parse(String(iso ?? "")); return Number.isFinite(t) ? `${ET_STAMP.format(t)} ET` : null; };
 
+/**
+ * PRICE VERIFICATION STATE (founder P0, 2026-11-04): the engine prices a frozen lane from the early snapshot first
+ * (PRELIMINARY) and re-verifies near the posting window. The site shows the engine's own state field; it never infers
+ * one. VERIFIED (or no field) shows no extra label.
+ */
+export const VERIFICATION_LABEL = Object.freeze({ PRELIMINARY: "PRELIMINARY", AWAITING_VERIFICATION: "AWAITING VERIFICATION" });
+const verificationOf = (p) => VERIFICATION_LABEL[p?.verification ?? p?.verificationState ?? ""] ?? null;
+
 /** The engine's day price (pricedLaneDisplay `day.price`), only when that day's payout was VERIFIED. */
 const verified = (price) => (PRICES_ON_SITE && price?.result === "VERIFIED" ? price : null);
 /** A frozen leg price as the engine carries it (`price` in its `oddsFormat`): odds, line, book, capture time. */
@@ -128,6 +136,7 @@ function priceOf(day) {
     stake: money(p.stakeCents), payout: money(p.grossPayoutCents), profit: money(p.profitCents),
     requiredMultiple: typeof p.pace === "number" ? p.pace : null, belowPace: p.belowPace ?? null,
     captured: etStamp([...(p.legs ?? [])].map((l) => l.fetchedAt).filter(Boolean).sort().at(-1)),
+    verification: verificationOf(p),
   };
 }
 

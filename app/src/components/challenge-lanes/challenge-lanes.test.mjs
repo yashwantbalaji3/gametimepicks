@@ -312,6 +312,35 @@ test("decrypted prices reach only server-rendered HTML: no client component, no 
   assert.doesNotMatch(read("src/lib/products/challenge-lanes/load.mjs"), /writeFileSync/);
 });
 
+test("PRELIMINARY / AWAITING VERIFICATION come from the engine's day price field, never inferred", () => {
+  const doc = SYN["bb-a"];
+  const d = samplePricedDisplay(doc);
+  const at = (verification) => lane.laneView(doc, { display: { ...d, day: { ...d.day, price: { ...d.day.price, verification } } } });
+  const t = (v) => text(html(React.createElement(LaneCard, { lane: v })));
+  assert.match(t(at("PRELIMINARY")), /● ACTIVE ◷ PRELIMINARY/);
+  assert.match(t(at("PRELIMINARY")), /priced from the early snapshot; re-verified near the posting window/);
+  assert.match(t(at("AWAITING_VERIFICATION")), /◷ AWAITING VERIFICATION/);
+  assert.doesNotMatch(t(at("VERIFIED")), /PRELIMINARY|AWAITING VERIFICATION/);
+  assert.doesNotMatch(t(lane.laneView(doc, { display: d })), /PRELIMINARY|AWAITING VERIFICATION/, "no field, no label");
+});
+
+test("provisional prop analysis: a separate panel, labelled not a challenge leg, with no probability or confidence words", async () => {
+  const { default: PropAnalysisPanel, PROP_PANEL_LABEL } = await import("./prop-analysis-panel.tsx");
+  assert.equal(html(React.createElement(PropAnalysisPanel, { analysis: null })), "");
+  const analysis = { date: "2026-11-04", gateReason: "No prop met the reliability bar today", rows: [
+    { key: "p1:points", player: "Sample Player", team: "NY", opponent: "BKN", market: "Points", projection: "24.6", line: "22.5", difference: "+2.1", book: "SAMPLE BOOK", captured: "Nov 4, 12:18 AM ET" },
+  ] };
+  const h = html(React.createElement(PropAnalysisPanel, { analysis }));
+  const t = text(h);
+  assert.equal(PROP_PANEL_LABEL, "Not a challenge leg — no prop passed the reliability gate");
+  assert.match(t, /Provisional prop analysis · 2026-11-04/);
+  assert.match(t, /Not a challenge leg — no prop passed the reliability gate\. No prop met the reliability bar today/);
+  assert.match(t, /MODEL PROJECTION 24\.6 Line 22\.5 Difference \+2\.1 SAMPLE BOOK · captured Nov 4, 12:18 AM ET/);
+  assert.doesNotMatch(t, /probability|%|confiden|lock|best bet|high/i);
+  assert.doesNotMatch(h, /data-lane-leg=/, "never rendered as a challenge leg");
+  assert.doesNotMatch(read("src/components/challenge-lanes/prop-analysis-panel.tsx"), /^["']use client["']/m);
+});
+
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
   const css = read("src/app/globals.css");
   assert.match(css, /@keyframes cl-rung-in/);

@@ -6269,6 +6269,8 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 .cl-status { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; padding: 2px 12px; border-radius: 9999px; font-size: 12px; font-weight: 800; letter-spacing: .08em; border: 1px solid var(--vault-border-strong); color: var(--vault-text-mute); }
 .cl-status--active { color: var(--vault-success); border-color: color-mix(in srgb, var(--vault-success) 55%, transparent); background: color-mix(in srgb, var(--vault-success) 10%, transparent); }
 .cl-status--won { color: var(--vault-gold-bright); border-color: color-mix(in srgb, var(--vault-gold) 60%, transparent); background: color-mix(in srgb, var(--vault-gold) 10%, transparent); }
+.cl-badges { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.cl-status--prelim { color: var(--vault-gold-bright); border-style: dashed; border-color: color-mix(in srgb, var(--vault-gold) 60%, transparent); }
 .cl-status--lost { color: var(--vault-danger); border-color: color-mix(in srgb, var(--vault-danger) 55%, transparent); background: color-mix(in srgb, var(--vault-danger) 10%, transparent); }
 .cl-step { margin: 2px 0 0; text-align: center; font-size: clamp(40px, 11vw, 64px); font-weight: 900; line-height: .95; letter-spacing: -.01em; color: var(--vault-text); text-transform: uppercase; }
 .cl-step-k { color: var(--cl-accent); text-shadow: 0 0 24px color-mix(in srgb, var(--cl-accent) 55%, transparent); }
@@ -6371,3 +6373,17 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 .cl-graphic a { color: var(--cl-accent); text-decoration: underline; display: inline-flex; align-items: center; min-height: 24px; }
 .cl-fact { margin: 0; text-align: center; font-family: var(--font-mono, ui-monospace, monospace); font-size: 12px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--vault-text-mute); }
 @media (min-width: 768px) { .cl-lane { padding: 22px 20px 18px; gap: 16px; } .cl-leg-name { font-size: 19px; } }
+/* Provisional prop analysis (components/challenge-lanes/prop-analysis-panel): plainly not a challenge leg. */
+.pa-section { display: flex; flex-direction: column; gap: 10px; margin: 24px 0; min-width: 0; }
+.pa-label { margin: 0; padding: 8px 12px; border-radius: 10px; border: 1px dashed var(--vault-border-strong); font-size: 13px; font-weight: 700; color: var(--vault-text-mute); }
+.pa-rows { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: minmax(0, 1fr); gap: 8px; }
+@media (min-width: 900px) { .pa-rows { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); } }
+.pa-row { display: flex; flex-direction: column; gap: 8px; min-width: 0; padding: 12px; border-radius: 12px; border: 1px solid var(--vault-border); background: var(--vault-panel); }
+.pa-who { display: flex; flex-direction: column; gap: 2px; }
+.pa-player { font-weight: 800; color: var(--vault-text); }
+.pa-meta { font-size: 12.5px; color: var(--vault-text-mute); }
+.pa-nums { margin: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 6px; }
+.pa-nums div { margin: 0; min-width: 0; }
+.pa-nums dt { font-family: var(--font-mono, ui-monospace, monospace); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--vault-text-mute); }
+.pa-nums dd { margin: 2px 0 0; font-size: 16px; font-weight: 900; color: var(--vault-text); overflow-wrap: anywhere; }
+.pa-src { margin: 0; font-size: 12px; color: var(--vault-text-mute); }

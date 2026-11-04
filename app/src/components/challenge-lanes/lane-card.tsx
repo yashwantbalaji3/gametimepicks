@@ -11,7 +11,7 @@ export type LaneLeg = {
   matchup: string | null; time: string | null; projectionLabel: string; projection: string | null; flags: string[]; outcome: string | null;
   price: { odds: string | null; line: number | string | null; book: string | null; captured: string | null } | null;
 };
-export type LanePrice = { method: string; estimate: boolean; combinedLabel: string; combined: string; book: string | null; stake: string | null; payout: string | null; profit: string | null; captured: string | null };
+export type LanePrice = { method: string; estimate: boolean; combinedLabel: string; combined: string; decimal?: number | null; book: string | null; stake: string | null; payout: string | null; profit: string | null; captured: string | null; requiredMultiple?: number | null; belowPace?: boolean | null; verification?: string | null };
 export type LaneDay = {
   date: string; step: number; internalStatus: string | null; statusText: string; tone: string; reason: string | null; staked: boolean;
   legs: LaneLeg[]; hasCard: boolean; modelCardResult: string | null; stepOutcome: string | null; result: string | null; price: LanePrice | null;
@@ -91,8 +91,15 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
           <span className="cl-lane-chip">{lane.name}</span>
           {lane.runId ? <span className="cl-lane-run">{lane.runId}</span> : null}
         </h3>
-        <span className={`cl-status cl-status--${lane.tone}`} data-lane-status-badge="">
-          <span aria-hidden>{lane.statusGlyph}</span> {lane.statusLabel}
+        <span className="cl-badges">
+          <span className={`cl-status cl-status--${lane.tone}`} data-lane-status-badge="">
+            <span aria-hidden>{lane.statusGlyph}</span> {lane.statusLabel}
+          </span>
+          {lane.current?.price?.verification ? (
+            <span className="cl-status cl-status--prelim" data-lane-verification={lane.current.price.verification}>
+              <span aria-hidden>◷</span> {lane.current.price.verification}
+            </span>
+          ) : null}
         </span>
       </header>
 
@@ -133,7 +140,7 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
             <p className={`cl-combined${lane.current.price.estimate ? " cl-combined--estimate" : ""}`} data-lane-combined={lane.current.price.method}>
               <span className="cl-label cl-label--accent">{lane.current.price.combinedLabel}</span>
               <strong>{lane.current.price.combined}</strong>
-              <span className="cl-combined-src">{[lane.current.price.book, lane.current.price.captured ? `captured ${lane.current.price.captured}` : null].filter(Boolean).join(" · ")}</span>
+              <span className="cl-combined-src">{[lane.current.price.book, lane.current.price.captured ? `captured ${lane.current.price.captured}` : null, lane.current.price.verification === "PRELIMINARY" ? "priced from the early snapshot; re-verified near the posting window" : lane.current.price.verification === "AWAITING VERIFICATION" ? "awaiting the near-window price check" : null].filter(Boolean).join(" · ")}</span>
             </p>
           ) : null}
         </section>
