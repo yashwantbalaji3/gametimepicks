@@ -37,6 +37,8 @@ export const CONTENT_TYPE = Object.freeze({
   RESULTS_RECAP: "RESULTS_RECAP",
   UFC_PRELIMS: "UFC_PRELIMS",
   UFC_MAIN_CARD: "UFC_MAIN_CARD",
+  NBA_BANK_BUILDER: "NBA_BANK_BUILDER",
+  NBA_MOONSHOT: "NBA_MOONSHOT",
 });
 export const ELIGIBILITY = Object.freeze({ OFFICIAL: "OFFICIAL", ESTIMATE: "ESTIMATE" });
 /**
@@ -45,12 +47,12 @@ export const ELIGIBILITY = Object.freeze({ OFFICIAL: "OFFICIAL", ESTIMATE: "ESTI
  */
 export const CC_KIND = Object.freeze({
   NFL_SUNDAY_WINNERS: null, NFL_GAME_PLAYERS: null, NFL_MNF_WINNER: "pregame-forecast", NFL_GAME_WINNER: "pregame-forecast", NBA_TONIGHT: null, NBA_GAME_WINNER: null, NBA_GAME_POST: null, NFL_GAME_POST: null, NBA_BOXSCORE: null, NBA_PLAYER_STATS: null, NFL_PLAYER_STATS: null,
-  NFL_WEEKLY_TOP5: "top5-weekly", NBA_DAILY_TOP5: "top5-daily", NBA_TOP5_CAROUSEL: null, RESULTS_RECAP: "results-recap", UFC_PRELIMS: null, UFC_MAIN_CARD: null,
+  NFL_WEEKLY_TOP5: "top5-weekly", NBA_DAILY_TOP5: "top5-daily", NBA_TOP5_CAROUSEL: null, RESULTS_RECAP: "results-recap", UFC_PRELIMS: null, UFC_MAIN_CARD: null, NBA_BANK_BUILDER: null, NBA_MOONSHOT: null,
 });
 /** One row per content type: the queue kind, and what the Command Center lacks when there is none. */
 export const CC_KIND_MAP = Object.freeze(Object.entries(CC_KIND).map(([contentType, kind]) => Object.freeze({
   contentType, kind,
-  gap: kind ? null : /BOXSCORE|PLAYER_STATS|GAME_WINNER|GAME_POST/.test(contentType) ? "no kind; nearest is nba-game, which needs a pre + players pair and is not in POST_KINDS" : "no slate-level winner kind",
+  gap: kind ? null : /BANK_BUILDER|MOONSHOT/.test(contentType) ? "no combination kind in POST_KINDS yet" : /BOXSCORE|PLAYER_STATS|GAME_WINNER|GAME_POST/.test(contentType) ? "no kind; nearest is nba-game, which needs a pre + players pair and is not in POST_KINDS" : "no slate-level winner kind",
 })));
 export const CC_ACCOUNT = "@GameTimePicksHQ";
 export const CC_MAX_CAPTION = 280;

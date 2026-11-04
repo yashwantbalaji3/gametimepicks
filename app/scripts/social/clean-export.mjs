@@ -16,16 +16,19 @@ import { approvalMatchProblems, cleanEligibilityProblems, isMoneylinePackage, ma
 import { dedupeSlug } from "../../src/lib/social/social-package.mjs";
 import { loadMoneyline, prepareGameDay, prepareNbaRecap, prepareNflGameWinners, prepareNflPlayerStats, prepareNflRecap, prepareNflTop5, prepareNflWinners } from "./render-social-pack.mjs";
 import { DISCLOSURE, NFL_DISCLOSURE } from "./game-day-cards.mjs";
+import { COMBO_DISCLOSURE } from "./combo-cards.mjs";
+import { COMBO_TYPES, prepareCombo } from "./render-combo-cards.mjs";
 import { SIZE } from "./social-pack-cards.mjs";
 
 const sha = (b) => crypto.createHash("sha256").update(b).digest("hex");
 export const APPROVALS = path.join(DEFAULT_PRIVATE_ROOT, "approvals", "approved-for-clean-export.json");
 
 /** Repo snapshots sit beside app/; saved captures sit under the home directory. */
-const snapshotPath = (r) => (r.startsWith("gtp-private/") ? path.join(os.homedir(), r) : path.join(APP, "..", r));
+const snapshotPath = (r) => (/^gtp-(private|evidence)\//.test(r) ? path.join(os.homedir(), r) : path.join(APP, "..", r));
 
 function rebuild(pkg) {
   const asOf = pkg.freshness.asOf;
+  if (COMBO_TYPES.includes(pkg.contentType)) return prepareCombo({ comboPath: snapshotPath(pkg.content.sources.combo), rosterPath: pkg.content.sources.roster ? snapshotPath(pkg.content.sources.roster) : null, asOf }).posts;
   if (isMoneylinePackage(pkg)) return prepareGameDay({ date: pkg.date, asOf, moneyline: loadMoneyline(snapshotPath(pkg.content.sourceFile)) }).posts;
   if (pkg.sport === "nba") return pkg.contentType === "RESULTS_RECAP" ? prepareNbaRecap({ date: pkg.date, asOf }).posts : prepareGameDay({ date: pkg.date, asOf }).posts;
   if (pkg.contentType === "RESULTS_RECAP") return prepareNflRecap({ week: pkg.content.period.week, asOf }).posts;
@@ -45,7 +48,7 @@ export function prepareClean(slug, entry, { packages = path.join(DEFAULT_PRIVATE
   if (problems.length) return { refused: problems };
   const post = rebuild(pkg).find((p) => dedupeSlug(p) === slug);
   if (!post) return { refused: ["the card could not be rebuilt"] };
-  const disclosure = pkg.sport === "nfl" ? NFL_DISCLOSURE : DISCLOSURE;
+  const disclosure = COMBO_TYPES.includes(pkg.contentType) ? COMBO_DISCLOSURE : pkg.sport === "nfl" ? NFL_DISCLOSURE : DISCLOSURE;
   const cards = post.cards.map((c) => ({ name: c.name, html: withoutBanner(c.html), reviewed: c.html }));
   const bad = [...cards.flatMap((c) => sameDisplayProblems(c.reviewed, c.html, disclosure)), ...marketValueProblems(pkg, post.content, cards.map((c) => c.html).join(""))];
   return bad.length ? { refused: bad } : { cards, pkg };
