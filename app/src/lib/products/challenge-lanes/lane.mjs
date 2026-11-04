@@ -9,7 +9,7 @@
  * a price event must be the engine's withheld stub, no price/odds/book/payout/profit key appears anywhere, and a
  * withheld bankroll is null. A file that fails any of these is refused whole, never filtered.
  */
-import { verifyLaneProjection } from "../../challenge-lanes/projection.mjs";
+import { verifyLaneProjection, IMAGE_PATH } from "../../challenge-lanes/projection.mjs";
 import { LANES as ENGINE_LANES, STATUS } from "../../challenge-lanes/lanes.mjs";
 
 export const LANE_IDS = Object.freeze(Object.keys(ENGINE_LANES));
@@ -143,7 +143,8 @@ export function laneView(doc) {
     const post = receipts.find((r) => r.type === "POSTED" && same(r));
     return {
       date: g.date, step: g.step, packageId: g.packageId ?? null, imageSha256: g.imageSha256 ?? null,
-      imagePath: typeof g.imagePath === "string" && g.imagePath.startsWith("/data/challenge-lanes/") ? g.imagePath : null,
+      /* The engine's own image-path rule, re-applied: a file edited after projection still cannot point anywhere else. */
+      imagePath: typeof g.imagePath === "string" && IMAGE_PATH.test(g.imagePath) && !g.imagePath.includes("..") ? g.imagePath : null,
       approved: receipts.some((r) => r.type === "APPROVED" && same(r)), postUrl: xUrl(post?.url), postedAt: post?.postedAt ?? null,
     };
   });

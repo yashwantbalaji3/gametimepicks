@@ -175,14 +175,21 @@ test("graphic history: every rendered graphic newest first, an X link only for a
       { seq: 21, type: "APPROVED", date: day.date, step: 1, at: "x", source: "x", sha256: "c", packageId: "ms-b-2026-11-02" },
       { seq: 22, type: "POSTED", date: day.date, step: 1, at: "x", source: "x", sha256: "d", packageId: "ms-b-2026-11-02", xPostId: "1", url: "https://x.com/i/status/1", postedAt: "2026-11-02T20:00:03Z" },
     ];
-    d.runs[0].days[1].receipts = [{ seq: 23, type: "GRAPHIC_RENDERED", date: "2026-11-03", step: 1, at: "x", source: "x", sha256: "e", packageId: "ms-b-2026-11-03", imagePath: "https://evil.example/x.png" }];
+    d.runs[0].days[1].receipts = [
+      { seq: 23, type: "GRAPHIC_RENDERED", date: "2026-11-03", step: 1, at: "x", source: "x", sha256: "e", packageId: "ms-b-2026-11-03", imagePath: "https://evil.example/x.png" },
+      { seq: 24, type: "GRAPHIC_RENDERED", date: "2026-11-03", step: 1, at: "x", source: "x", sha256: "f", packageId: "ms-b-2026-11-03b", imagePath: "/data/challenge-lanes/other.png" },
+      { seq: 25, type: "GRAPHIC_RENDERED", date: "2026-11-03", step: 1, at: "x", source: "x", sha256: "g", packageId: "ms-b-2026-11-03c", imagePath: "/data/challenge-lanes/graphics/..x.png" },
+    ];
     return d;
   });
   const v = lane.laneView(doc);
   assert.deepEqual(v.graphics.map((g) => [g.date, g.approved, g.postUrl, g.imagePath]), [
     ["2026-11-02", true, "https://x.com/i/status/1", "/data/challenge-lanes/graphics/ms-b-2026-11-02.png"],
     ["2026-11-03", false, null, null],
+    ["2026-11-03", false, null, null],
+    ["2026-11-03", false, null, null],
   ]);
+  assert.match(read("src/lib/products/challenge-lanes/lane.mjs"), /IMAGE_PATH\.test\(g\.imagePath\)/, "the site reuses the engine's image-path rule");
   const h = html(React.createElement(LaneCard, { lane: v }));
   assert.ok(h.indexOf("<strong>2026-11-03") < h.indexOf("<strong>2026-11-02"));
   assert.equal((h.match(/href="https:\/\/x\.com\/i\/status\/1"/g) ?? []).length, 1);
@@ -215,7 +222,7 @@ test("pages: /bank-builder and /moonshot read their lanes only through loadProdu
   }
   const loader = read("src/lib/products/challenge-lanes/load.mjs");
   assert.match(loader, /acceptLaneProjection\(doc, \{ laneId \}\)/);
-  assert.match(read("src/lib/products/challenge-lanes/lane.mjs"), /import \{ verifyLaneProjection \} from "\.\.\/\.\.\/challenge-lanes\/projection\.mjs";/);
+  assert.match(read("src/lib/products/challenge-lanes/lane.mjs"), /import \{ verifyLaneProjection, IMAGE_PATH \} from "\.\.\/\.\.\/challenge-lanes\/projection\.mjs";/);
   assert.doesNotMatch(read("src/lib/products/challenge-lanes/lane.mjs"), /node:fs|readFileSync/);
   const dev = read("src/app/dev/challenge-lanes-fixture/page.tsx");
   assert.ok(dev.indexOf("if (!parlayFixtureRouteEnabled()) notFound();") < dev.indexOf("view(bbA)"));
