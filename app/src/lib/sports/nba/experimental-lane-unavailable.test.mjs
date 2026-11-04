@@ -11,7 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { buildExperimentalSnapshot, snapshotMatchesSource, laneUnavailable, unavailablePlayersForPublish, rosterPositions, rosterFacts, UNAVAILABLE_PLAYERS, UNAVAILABLE_STATE, UNAVAILABLE_REASONS, MIN_EXPECTED_MINUTES } from "./experimental-public-lane.mjs";
 import { loadRosterIndex } from "./roster-index.mjs";
-import { eloWinProbabilityForPublish } from "./elo-win-probability.mjs";
+import { eloWinProbabilityForPublish, eloSourceForPublish } from "./elo-win-probability.mjs";
 
 const APP = process.cwd(), REPO = path.resolve(APP, "..");
 const LANE_DIR = path.join(APP, "public/data/nba/experimental-public");
@@ -19,7 +19,7 @@ const DATED = fs.readdirSync(LANE_DIR).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/
 const doc = (d) => JSON.parse(fs.readFileSync(path.join(REPO, `data/internal/research/nba/experimental-v0.1/forecasts/${d}.json`), "utf8"));
 const day = (d) => JSON.parse(fs.readFileSync(path.join(LANE_DIR, `${d}.json`), "utf8"));
 const ROSTERS = loadRosterIndex(REPO);
-const build = (d, unavailablePlayers, pub = day(d), rosters = ROSTERS) => buildExperimentalSnapshot({ forecastDoc: doc(d), sourceFile: pub.source.file, sourceCommit: pub.source.commit, generatedAt: pub.generatedAt, eloWinProbability: eloWinProbabilityForPublish(pub), unavailablePlayers, rosters });
+const build = (d, unavailablePlayers, pub = day(d), rosters = ROSTERS) => buildExperimentalSnapshot({ forecastDoc: doc(d), sourceFile: pub.source.file, sourceCommit: pub.source.commit, generatedAt: pub.generatedAt, eloWinProbability: eloWinProbabilityForPublish(pub), eloSource: eloSourceForPublish(pub), unavailablePlayers, rosters });
 
 test("whatever the switch (OFF by default; the release owner flips it in a vehicle), every committed slate rebuilds byte-for-byte under the publisher's rule", () => {
   assert.equal(typeof UNAVAILABLE_PLAYERS.enabled, "boolean");

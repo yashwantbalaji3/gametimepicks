@@ -9,6 +9,7 @@ import { Fragment } from "react";
 import type { CSSProperties } from "react";
 import type { NbaPalette, NbaSide } from "../nba-types";
 import { teamStyle } from "../nba-parts";
+import ForecastKindChip from "@/components/forecast-kind-chip";
 import type { PbOfficial, PbPayload, PbRun, PbUnavailable } from "./possession-types";
 import { BOX_COLUMNS, fmtMinutes } from "@/lib/simulation-theater/nba/possession/box.mjs";
 import { fmtClockDs, periodLabel } from "@/lib/simulation-theater/nba/possession/playback.mjs";
@@ -21,6 +22,9 @@ import {
 type Teams = PbPayload["teams"];
 const COLS = BOX_COLUMNS as unknown as [string, string][];
 const SIDES: NbaSide[] = ["away", "home"];
+/* the phone box score's default columns; the shooting splits, stocks, turnovers and fouls sit behind "Full box" */
+const CORE_COLS = new Set(["min", "pts", "reb", "ast", "threePm"]);
+const colClass = (key: string) => (CORE_COLS.has(key) ? undefined : "is-split");
 const fmt1 = (v: number | null | undefined) => (typeof v === "number" && Number.isFinite(v) ? v.toFixed(1) : "—");
 const fmtUtc = (iso: string | null) => (iso ? `${iso.replace("T", " ").replace(/\.\d+Z$/, "Z").replace(/:\d\dZ$/, "Z").replace("Z", " UTC")}` : "—");
 /* Reader-facing instants in ET, as the Official Forecast section below prints them; the exact UTC stays in Technical details. */
@@ -65,7 +69,7 @@ export function OfficialProjectionPanel({ official, teams, unavailable = null, d
   const noneCount = none("away").length + none("home").length;
   return (
     <section className="nbp-panel is-official" aria-label={OFFICIAL_PANEL_TITLE} data-nbp-official={official.snapshotId}>
-      <h2>{OFFICIAL_PANEL_TITLE}</h2>
+      <h2>{OFFICIAL_PANEL_TITLE} <ForecastKindChip kind="official" /></h2>
       <p className="nbp-note" style={{ marginTop: 0 }}>{OFFICIAL_PANEL_NOTE}</p>
       <dl className="nbp-kv">
         <dt>Favoured side</dt><dd data-nbp-official-side="">{fav ? `${fav.name} (${fav.abbr}, ${official.favouredSide === "HOME" ? "home" : "away"}) · Elo rating` : WITHHELD}</dd>
@@ -142,16 +146,23 @@ export function RunRole({ run, central = null, teams = null }: { run: PbRun; cen
     return (
       <div className="nbp-role" role="note" data-nbp-role="central">
         <p><b>{DEFAULT_RUN_TITLE} · run {run.runIndex}</b> · {DEFAULT_RUN_SUBTITLE}</p>
-        <p className="nbp-note">Chosen by rule, not by hand: {central?.rule ?? run.rule}.</p>
-        {share ? <p className="nbp-note" data-nbp-pool-share="">{share}</p> : null}
+        <details className="nbp-details" data-nbp-run-rule="">
+          <summary>How this run was chosen</summary>
+          <p className="nbp-note">Chosen by rule, not by hand: {central?.rule ?? run.rule}.</p>
+          {share ? <p className="nbp-note" data-nbp-pool-share="">{share}</p> : null}
+        </details>
       </div>
     );
   }
   return (
     <div className="nbp-role is-whatif" role="note" data-nbp-role="what-if">
       <p className="nbp-whatif-banner" data-nbp-whatif-banner="">{WHAT_IF_BANNER}</p>
-      <p><b>{SCENARIO_LABEL} · {run.title}</b> · one stored run, picked by rule: {run.rule}.</p>
-      {share ? <p className="nbp-note" data-nbp-pool-share="">{share}</p> : null}
+      <p><b>{SCENARIO_LABEL} · {run.title}</b> · one stored run, picked by rule.</p>
+      <details className="nbp-details" data-nbp-run-rule="">
+        <summary>How this run was chosen</summary>
+        <p className="nbp-note">Picked by rule: {run.rule}.</p>
+        {share ? <p className="nbp-note" data-nbp-pool-share="">{share}</p> : null}
+      </details>
     </div>
   );
 }
@@ -238,14 +249,14 @@ export function ScoringProgression({ compiled, k, teams, palette }: { compiled: 
   const maxS = Math.max(compiled.final.home, compiled.final.away, 10);
   const x = (t: number) => P + (t / compiled.tEnd) * (W - P - 8);
   const y = (s: number) => H - 20 - (s / maxS) * (H - 34);
-  const pts = (side: 0 | 1) => {
+  const pts = (side: 0 | 1, upTo = k) => {
     const out: string[] = [`${x(0).toFixed(1)},${y(0).toFixed(1)}`];
     let prev = 0;
-    for (let j = 0; j <= k && j < compiled.events.length; j += 1) {
+    for (let j = 0; j <= upTo && j < compiled.events.length; j += 1) {
       const e = compiled.events[j];
       if (e.s[side] !== prev) { out.push(`${x(e.t).toFixed(1)},${y(prev).toFixed(1)}`, `${x(e.t).toFixed(1)},${y(e.s[side]).toFixed(1)}`); prev = e.s[side]; }
     }
-    const last = compiled.events[Math.min(k, compiled.events.length - 1)];
+    const last = compiled.events[Math.min(upTo, compiled.events.length - 1)];
     out.push(`${x(last.t).toFixed(1)},${y(prev).toFixed(1)}`);
     return out.join(" ");
   };
@@ -258,11 +269,14 @@ export function ScoringProgression({ compiled, k, teams, palette }: { compiled: 
         {compiled.periods.map((p) => (
           <g key={p.label}><line className="nbp-prog-axis" x1={x(p.startT)} y1={8} x2={x(p.startT)} y2={H - 20} /><text x={x(p.startT) + 3} y={H - 6}>{p.label}</text></g>
         ))}
+        {/* the whole run, faint, so the chart has shape before play; the bright lines follow the playhead */}
+        <polyline className="nbp-prog-away is-ghost" points={pts(1, compiled.events.length - 1)} aria-hidden="true" />
+        <polyline className="nbp-prog-home is-ghost" points={pts(0, compiled.events.length - 1)} aria-hidden="true" />
         <polyline className="nbp-prog-away" points={pts(1)} />
         <polyline className="nbp-prog-home" points={pts(0)} />
         <text x={4} y={14}>{maxS}</text>
       </svg>
-      <figcaption className="nbp-note">Solid line {teams.home.abbr} · dashed line {teams.away.abbr} · steps at every made basket and free throw of this run.</figcaption>
+      <figcaption className="nbp-note">Solid line {teams.home.abbr} · dashed line {teams.away.abbr} · steps at every made basket and free throw of this run; the faint lines are the rest of this run.</figcaption>
     </figure>
   );
 }
@@ -284,24 +298,41 @@ export function PlayByPlay({ items, teams, newest, motion }: { items: FeedItem[]
 
 type Row = { providerAthleteId: string; name: string | null; ds: number; [k: string]: number | string | null };
 type Rows = { home: Row[]; away: Row[]; totals: { home: Record<string, number>; away: Record<string, number> } };
-export function PossessionBoxScore({ rows, teams, final, idBase }: { rows: Rows; teams: Teams; final: boolean; idBase: string }) {
+/**
+ * The run's box score. Every player's row is always in the markup (the reconciliation tests read them all); the BENCH —
+ * players with no minutes yet who are not on the floor (at the final: who did not play) — is `hidden` until "Show bench".
+ * On a phone the table shows MIN/PTS/REB/AST/3PM until "Full box" (CSS hides `.is-split` cells under 720px); the player
+ * column stays pinned while the table scrolls sideways.
+ */
+export function PossessionBoxScore({ rows, teams, final, idBase, onCourt = null, showBench = false, fullBox = false, onToggleBench, onToggleFull }: {
+  rows: Rows; teams: Teams; final: boolean; idBase: string; onCourt?: Set<string> | null; showBench?: boolean; fullBox?: boolean;
+  onToggleBench?: () => void; onToggleFull?: () => void;
+}) {
+  const isBench = (r: Row) => r.ds === 0 && !(onCourt?.has(r.providerAthleteId) ?? false);
+  const benchCount = rows.away.filter(isBench).length + rows.home.filter(isBench).length;
   return (
-    <div data-nbp-box={final ? "final" : "live"} id={`${idBase}-box`}>
+    <div className={`nbp-box${fullBox ? "" : " is-core"}`} data-nbp-box={final ? "final" : "live"} data-nbp-box-cols={fullBox ? "full" : "core"} data-nbp-box-bench={showBench ? "shown" : "hidden"} id={`${idBase}-box`}>
+      {onToggleBench || onToggleFull ? (
+        <div className="nbp-box-tools" role="group" aria-label="Box score view">
+          {onToggleFull ? <button type="button" className="nbp-ctl nbp-box-full" aria-pressed={fullBox} aria-controls={`${idBase}-box`} onClick={onToggleFull} data-nbp-box-full-toggle="">{fullBox ? "Core stats" : "Full box"}</button> : null}
+          {onToggleBench && benchCount ? <button type="button" className="nbp-ctl" aria-pressed={showBench} aria-controls={`${idBase}-box`} onClick={onToggleBench} data-nbp-bench-toggle="">{showBench ? "Hide bench" : `Show bench (${benchCount})`}</button> : null}
+        </div>
+      ) : null}
       {SIDES.map((side) => (
         <div key={side} className="nbp-scroll" role="region" aria-label={`${SIM_BOX_TITLE} · ${teams[side].name}`} tabIndex={0}>
           <table className="nbp-table" data-nbp-box-team={side}>
             <caption>{SIM_BOX_TITLE} · {teams[side].name} · {final ? "final" : "so far"} · simulated game, not the Official Forecast</caption>
-            <thead><tr><th scope="col">Player</th>{COLS.map(([, label]) => <th key={label} scope="col">{label}</th>)}</tr></thead>
+            <thead><tr><th scope="col">Player</th>{COLS.map(([key, label]) => <th key={label} className={colClass(key)} scope="col">{label}</th>)}</tr></thead>
             <tbody>
               {rows[side].map((r) => (
-                <tr key={r.providerAthleteId} data-nbp-player={r.providerAthleteId}>
+                <tr key={r.providerAthleteId} data-nbp-player={r.providerAthleteId} hidden={!showBench && isBench(r) ? true : undefined}>
                   <td>{r.name ?? r.providerAthleteId}</td>
-                  {r.ds === 0 && final ? <td colSpan={COLS.length}>did not play in this run</td> : COLS.map(([key]) => <td key={key}>{key === "min" ? fmtMinutes(r.ds) : String(r[key])}</td>)}
+                  {r.ds === 0 && final ? <td colSpan={COLS.length}>did not play in this run</td> : COLS.map(([key]) => <td key={key} className={colClass(key)}>{key === "min" ? fmtMinutes(r.ds) : String(r[key])}</td>)}
                 </tr>
               ))}
             </tbody>
             <tfoot>
-              <tr><td>Team</td>{COLS.map(([key]) => <td key={key}>{key === "min" ? String(Math.round(rows.totals[side].ds / 600)) : String(rows.totals[side][key])}</td>)}</tr>
+              <tr><td>Team</td>{COLS.map(([key]) => <td key={key} className={colClass(key)}>{key === "min" ? String(Math.round(rows.totals[side].ds / 600)) : String(rows.totals[side][key])}</td>)}</tr>
             </tfoot>
           </table>
           <p className="nbp-note">Team rebounds (not credited to a player): {rows.totals[side].teamRebounds}. REB = offensive + defensive player rebounds.</p>
@@ -326,8 +357,11 @@ type Cmp = { playerId: string; team: string | null; name: string | null; familie
 export function OfficialComparison({ rows, teams }: { rows: Cmp[]; teams: Teams }) {
   return (
     <div className="nbp-scroll" role="region" aria-label={COMPARE_TITLE} tabIndex={0}>
+      {/* the section's h3 is the visible title; the caption names the table for screen readers only (it repeated the h3
+          and ran off a 390px screen), and the cell key sits above the table where it fits */}
+      <p className="nbp-note" style={{ marginTop: 0 }}>Each cell: this run / official median. MIN is official expected minutes.</p>
       <table className="nbp-table" data-nbp-compare="">
-        <caption>{COMPARE_TITLE}, per player: this run&apos;s number / the Official Forecast&apos;s median (MIN is the official expected minutes)</caption>
+        <caption className="st-sr">{COMPARE_TITLE}, per player: this run&apos;s number / the Official Forecast&apos;s median (MIN is the official expected minutes)</caption>
         <thead><tr><th scope="col">Player</th>{rows[0]?.families.map((f) => <th key={f.family} scope="col">{f.label} run / official</th>)}</tr></thead>
         <tbody>
           {rows.map((r) => (

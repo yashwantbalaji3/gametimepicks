@@ -37,7 +37,7 @@ export const nbaGameWinnerTiersEnabled = (env = { [NBA_GW_FLAG]: process.env.NEX
 
 export const NBA_GW_REFUSAL = Object.freeze({
   NOT_NBA_GAME_WINNER: "not an NBA game-winner leg",
-  NO_PUBLISHED_PROBABILITY: "Untiered: no published Elo-derived game-winner estimate",
+  NO_PUBLISHED_PROBABILITY: "Untiered: no published MODEL PROJECTION win chance",
   PROVENANCE_MISMATCH: "the published probability is not from the same frozen forecast as the side",
   SIDE_DISAGREES: "the official side is not the team the published probability favours",
   BAD_PROBABILITY: "the published probability is not a valid probability",
@@ -95,7 +95,7 @@ function cardOf(legs, tier, policy) {
     jointProbability: joint, jointShown: jointShownFor(joint, tierForJoint(joint)),
     dependency: NBA_GW_DEPENDENCY,
     label: legs[0].label,
-    whySelected: `Each leg is the official NBA side with its published Elo-derived game-winner estimate; this is the combination with the highest joint probability in the ${PUBLIC_RISK_LABELS[tier]} band (${legs.length} legs).`,
+    whySelected: `Each leg is the official NBA side with its MODEL PROJECTION win chance from the frozen Elo team rating; this is the combination with the highest joint probability in the ${PUBLIC_RISK_LABELS[tier]} band (${legs.length} legs).`,
     priced: false, price: null, payout: null,
   };
 }

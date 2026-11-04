@@ -44,6 +44,7 @@ import { PLAYER_FAMILIES as NFL_VIEW_FAMILIES, MARKET_KEY as NFL_MARKET_KEY, for
 import { estimateLabel as nflEstimateLabel } from "../sports/nfl/family-publication.mjs";
 import { DISPLAY_AUTHORIZATION, DISPLAY_AUTHORIZATION_RULE, displayAuthorization, directionAuthorization } from "../odds/display-authorization.mjs";
 import { NBA_LINE_DISPLAY } from "../sports/nba/line-board.mjs";
+import { ELO_WIN_PROBABILITY_LABEL } from "../sports/nba/elo-win-probability.mjs";
 import { buildNbaSocialDay, PLAYER_FAMILIES as NBA_FAMILIES } from "./nba-social.mjs";
 
 export const GRAPHICS_EXPORT_SCHEMA = "gtp-graphics-export@1";
@@ -359,7 +360,7 @@ export function buildNbaGraphicsExport({ date, asOf, lane, snapshots = new Map()
     const estStatus = est ? MODEL_STATUS.OFFICIAL_ESTIMATE : MODEL_STATUS.UNAVAILABLE;
     push({
       rowId: `nba:${date}:${e.eventId}:game:elo_win_estimate`, kind: "GAME_WIN_ESTIMATE",
-      identity: identity({ market: "elo_win_estimate", marketLabel: est?.label ?? "Elo-derived game-winner estimate" }),
+      identity: identity({ market: "elo_win_estimate", marketLabel: est?.label ?? ELO_WIN_PROBABILITY_LABEL }),
       officialForecast: official({ rule: g?.elo?.rule ?? null }),
       snapshot: snapBlock,
       model: { status: estStatus, value: est ? est.home : null, kind: "probability_home", display: est ? `${e.home.abbr} ${est.homePct}% · ${e.away.abbr} ${est.awayPct}%` : null, accuracyEstablished: false },

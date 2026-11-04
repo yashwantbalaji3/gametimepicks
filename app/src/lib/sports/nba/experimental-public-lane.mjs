@@ -237,7 +237,7 @@ export function comboReconciliation(player) {
  * @param {string|null} a.sourceCommit  the git commit that holds that file, when known
  * @param {string} a.generatedAt  when this snapshot was assembled (never a forecast time)
  */
-function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCommit = null, generatedAt, eloWinProbability = ELO_WIN_PROBABILITY.enabled, unavailablePlayers = UNAVAILABLE_PLAYERS.enabled, rosters = null }) {
+function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCommit = null, generatedAt, eloWinProbability = ELO_WIN_PROBABILITY.enabled, unavailablePlayers = UNAVAILABLE_PLAYERS.enabled, rosters = null, eloSource = ELO_SOURCE_WITH_PROBABILITY }) {
   if (forecastDoc?.family !== LANE.sourceFamily) throw new Error(`REFUSED: lane reads family ${LANE.sourceFamily}, got ${JSON.stringify(forecastDoc?.family)}`);
   const games = [];
   const excluded = [];
@@ -282,7 +282,7 @@ function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCom
         favoured: side?.abbr ?? null,
         state: side ? "FAVOURED" : "TOO_CLOSE",
         rule: f.sideRule?.id ?? null,
-        source: wp ? ELO_SOURCE_WITH_PROBABILITY : "Elo team rating — the published winner side (founder N2); no probability is shown",
+        source: wp ? eloSource : "Elo team rating — the published winner side (founder N2); no probability is shown",
         ...(wp ? { winProbability: wp } : {}),
       },
       teamScores: { state: "WITHHELD", reason: WITHHELD.teamScores },

@@ -22,6 +22,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent } from "react";
 import NbaCourt from "../NbaCourt";
+import ForecastKindChip from "@/components/forecast-kind-chip";
 import { NBA_THEATER_VARS } from "../nba-theater-css";
 import type { NbaPalette } from "../nba-types";
 import type { PbPayload, PbUnavailable, PbWire } from "./possession-types";
@@ -77,6 +78,8 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
   const [ready, setReady] = useState(false);
   useEffect(() => { setReady(true); }, []);
   const [announce, setAnnounce] = useState("");
+  const [showBench, setShowBench] = useState(false);
+  const [fullBox, setFullBox] = useState(false);
 
   // rebuild the transport when the run changes (keeps the speed; back to tip-off, or a pending dev-hook seek)
   const lastCompiled = useRef(compiled);
@@ -139,6 +142,7 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
   const frame = compiled && tp ? frameAt(compiled, tp.t, { step: reduced }) : null;
   const k = frame?.k ?? 0;
   const onCourt = useMemo(() => (compiled ? onCourtAt(compiled, k) : [[], []]), [compiled, k]);
+  const onCourtIds = useMemo(() => new Set<string>((onCourt as string[][]).flat()), [onCourt]);
   const isFinal = frame?.phase === "FINAL";
   // the live box: the fold of the events played so far (the final box is the same fold over the whole log)
   const fold = useMemo(() => (run ? foldRun(run.events, rosters, k + 1) : null), [run, rosters, k]);
@@ -229,11 +233,12 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
       <section className="nbp-stage" aria-label="Simulated game playback">
         <PossessionScoreboard teams={teams} palette={palette} frame={frame} />
         <PossessionIndicator teams={teams} frame={frame} />
-        <OnCourt on={onCourt} names={names} teams={teams} />
+        {/* broadcast order: score bug, then the floor, then who is on it (the court stays in the first phone screen) */}
         <div className="nbp-court">
           <NbaCourt palette={palette} teams={{ home: { ...teams.home, providerTeamId: null }, away: { ...teams.away, providerTeamId: null } }} idPrefix={`${uid}-court`} />
           <p className="nbp-court-note">Decorative court · player positions and shot locations are not modelled</p>
         </div>
+        <OnCourt on={onCourt} names={names} teams={teams} />
         <BreakNotice frame={frame} teams={teams} />
         {isFinal ? <EndCard run={run} teams={teams} official={payload.official} onReplay={() => act("RESTART")} boxHref={`#${uid}-box`} /> : null}
         <div className="nbp-transport" role="group" aria-label="Playback controls">
@@ -254,7 +259,7 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
             <span className="nbp-ptime">Playback {fmtPlay(tp.t)} / {fmtPlay(compiled.tEnd)}</span>
           </div>
         </div>
-        <p className="nbp-keys">{KEYBOARD_HELP}{reduced ? " · Reduced motion: playback steps one play at a time" : ""}</p>
+        <p className="nbp-keys"><span className="nbp-keys-help">{KEYBOARD_HELP}</span>{reduced ? " · Reduced motion: playback steps one play at a time" : ""}</p>
       </section>
 
       <div className="nbp-grid">
@@ -269,9 +274,10 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
       </div>
 
       <section className="nbp-panel is-outcome" style={{ marginTop: 12 }} aria-label="Simulation outcome box score" data-nbp-outcome-box={run.kind}>
-        <h2>{SIM_BOX_TITLE} <span className="nbp-h2-sub">· player contributions and box score of this run</span></h2>
+        <h2>{SIM_BOX_TITLE} <ForecastKindChip kind="simulated" /> <span className="nbp-h2-sub">· player contributions and box score of this run</span></h2>
         <p className="nbp-note" style={{ marginTop: 0 }} data-nbp-sim-box-note="">{SIM_BOX_NOTE}</p>
-        <PossessionBoxScore rows={isFinal ? boxRows(finalFold!, rosters, names) : rows} teams={teams} final={isFinal} idBase={uid} />
+        <PossessionBoxScore rows={isFinal ? boxRows(finalFold!, rosters, names) : rows} teams={teams} final={isFinal} idBase={uid}
+          onCourt={isFinal ? null : onCourtIds} showBench={showBench} fullBox={fullBox} onToggleBench={() => setShowBench((v) => !v)} onToggleFull={() => setFullBox((v) => !v)} />
         <h3 className="nba-h3">Reconciliation</h3>
         <ReconciliationChecks result={reconcile} />
         <h3 className="nba-h3">{COMPARE_TITLE}</h3>

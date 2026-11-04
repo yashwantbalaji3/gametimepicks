@@ -173,6 +173,9 @@ test("official predictions: side, models, freeze, the full player table; combos 
   assert.ok(h.includes(`<td>${String(p.comboMedians.pra)}</td>`), "the lane's own digits (laneDisplay), as Top Boards print them");
   assert.doesNotMatch(text(h), /\d\s?%/, "no win chance");
   assert.match(text(h), /Official Forecast .* Game Simulation .* Real Result/); // founder directive 2026-10-23 public readiness: registry terms
+  // one legend chip system (Theater P3, 2026-11-04): the card is chipped MODEL PROJECTION; the legend names all three kinds in order
+  assert.match(h, /<\/h2><p class="gtp-kind-legend"><span class="gtp-kind-chip is-official" data-forecast-kind="official">MODEL PROJECTION/);
+  assert.deepEqual([...h.matchAll(/class="nbx-legend">[\s\S]*?<\/ul>/g)].flatMap((m) => [...m[0].matchAll(/data-forecast-kind="(\w+)"/g)].map((x) => x[1])), ["official", "simulated", "final"]);
   // no lane (or a lane for another game / model) → combos missing, never 0
   for (const bad of [null, { ...lane, providerEventId: "x" }, { ...lane, receipt: { modelVersion: "other" } }]) {
     const h2 = renderToStaticMarkup(React.createElement(Official, { official, teams, lane: bad, finalNote: null, resultsHref: "/r" }));

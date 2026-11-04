@@ -7,7 +7,7 @@ import path from "node:path";
 import { spawnSync } from "node:child_process";
 import crypto from "node:crypto";
 import { PUBLISH, comparableSnapshot, decidePublish, manualWriteDecision } from "./experimental-lane-publish.mjs";
-import { ELO_WIN_PROBABILITY, eloWinProbabilityForPublish } from "./elo-win-probability.mjs";
+import { ELO_WIN_PROBABILITY, eloWinProbabilityForPublish, eloSourceForPublish } from "./elo-win-probability.mjs";
 import { loadRosterIndex } from "./roster-index.mjs";
 import { buildExperimentalSnapshot, snapshotMatchesSource, unavailablePlayersForPublish } from "./experimental-public-lane.mjs";
 import { etDateOf } from "./experimental-forecast.mjs";
@@ -87,7 +87,7 @@ test("EVERY committed slate rebuilds byte-for-byte under the publisher's rule, w
     const text = fs.readFileSync(path.join(LANE_DIR, f), "utf8");
     const day = JSON.parse(text);
     const doc = read(`data/internal/research/nba/experimental-v0.1/forecasts/${date}.json`);
-    const rebuilt = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: day.source.file, sourceCommit: day.source.commit, generatedAt: day.generatedAt, eloWinProbability: eloWinProbabilityForPublish(day), unavailablePlayers: unavailablePlayersForPublish(day), rosters: ROSTERS });
+    const rebuilt = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: day.source.file, sourceCommit: day.source.commit, generatedAt: day.generatedAt, eloWinProbability: eloWinProbabilityForPublish(day), eloSource: eloSourceForPublish(day), unavailablePlayers: unavailablePlayersForPublish(day), rosters: ROSTERS });
     assert.equal(`${JSON.stringify(rebuilt, null, 1)}\n`, text, `${date}: a published slate is exactly what the producer rebuilds`);
     assert.equal(manualWriteDecision({ committedDay: day, snapshot: rebuilt }).action, PUBLISH.NOOP, date);
   }

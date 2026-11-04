@@ -163,6 +163,21 @@ test("court: regulation SVG with both team ends, and NO player dots, ball, shot 
   assert.match(out, /fill="url\(#c-hatch-away\)"/);
 });
 
+test("court: centre court carries the committed official logo file (never a drawn or text stand-in), at its own proportions", () => {
+  const load = LOADS[1];
+  const out = html(React.createElement(NbaCourt, { palette: load.palettes.team, teams: load.manifest.teams, idPrefix: "c" }));
+  const img = /<image class="nba-center-logo" href="([^"]+)" x="([\d.]+)" y="([\d.]+)" width="([\d.]+)" height="([\d.]+)"/.exec(out);
+  assert.ok(img, "the court draws the logo as an <image>");
+  const [, href, x, y, w, h] = img;
+  assert.match(href, /^\/brand\/gametime-picks-logo\.(png|webp)$/, "the approved brand asset, by its committed name");
+  assert.ok(fs.existsSync(path.join(APP, "public", href)), `${href} is committed`);
+  const png = fs.readFileSync(path.join(APP, "public/brand/gametime-picks-logo.png"));
+  assert.ok(Math.abs(Number(w) / Number(h) - png.readUInt32BE(16) / png.readUInt32BE(20)) < 1e-6, "drawn at the asset's own aspect ratio");
+  // centred on the centre circle (47, 25 in court feet)
+  assert.ok(Math.abs(Number(x) + Number(w) / 2 - 47) < 1e-6 && Math.abs(Number(y) + Number(h) / 2 - 25) < 1e-6);
+  assert.doesNotMatch(out, />GTP</, "no text monogram at centre court");
+});
+
 test("stylesheet: tokens only (no colour literal) and no font under 11px except court SVG text gated by container width", () => {
   const css = fs.readFileSync(path.join(APP, "src/components/simulation-theater/nba/nba-theater.css"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
   assert.doesNotMatch(css, /#[0-9a-fA-F]{3,8}\b|rgba?\(/);

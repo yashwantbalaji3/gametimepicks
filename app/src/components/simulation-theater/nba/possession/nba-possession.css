@@ -58,7 +58,7 @@
   transition:left var(--motion-state-change-duration) var(--motion-state-change-easing)}
 .nbp-poss-dot.is-home{left:50%}
 .nbp-poss-dot.is-none{opacity:0}
-.nbp-court{position:relative;margin-top:8px}
+.nbp-court{position:relative;margin-top:8px;container-type:inline-size} /* the court's text gates (nba-theater.css @container) measure this box */
 .nbp-court-note{margin:4px 0 0;font:400 11px/1.4 var(--font-mono);color:var(--st-faint)}
 .nbp-card{margin:8px 0 0;padding:10px 12px;border-radius:10px;border:2px solid var(--vault-crown);background:var(--st-panel-2)}
 .nbp-card h3{margin:0;font:800 15px var(--font-headline);letter-spacing:.04em;text-transform:uppercase;color:var(--st-text)}
@@ -76,6 +76,8 @@
 .nbp-seek{flex:1;min-width:0;min-height:44px;accent-color:var(--lava-heat)}
 .nbp-ptime{font:500 12px var(--font-mono);color:var(--st-mute);white-space:nowrap}
 .nbp-keys{margin:4px 0 0;font:400 11px/1.4 var(--font-mono);color:var(--st-faint)}
+/* keyboard shortcuts mean nothing on a touch-only phone: hidden there (the buttons carry every action) */
+@media (hover:none) and (pointer:coarse){.nbp-keys-help{display:none}}
 
 /* feed + progression */
 .nbp-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
@@ -90,14 +92,19 @@
 @keyframes nbp-in{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
 .nbp-prog{display:block;width:100%;height:auto}
 .nbp-prog-axis{stroke:var(--st-edge);stroke-width:1}
-.nbp-prog-home{fill:none;stroke:var(--nbp-home, var(--lava-heat));stroke-width:2}
-.nbp-prog-away{fill:none;stroke:var(--nbp-away, var(--st-mute));stroke-width:2;stroke-dasharray:5 3}
+/* team colours lifted toward the text colour: a navy or forest-green team line is otherwise invisible on the dark panel */
+.nbp-prog-home{fill:none;stroke:color-mix(in srgb, var(--nbp-home, var(--lava-heat)) 55%, var(--st-text));stroke-width:2}
+.nbp-prog-away{fill:none;stroke:color-mix(in srgb, var(--nbp-away, var(--st-mute)) 55%, var(--st-text));stroke-width:2;stroke-dasharray:5 3}
+.nbp-prog .is-ghost{stroke-opacity:.3;stroke-width:1.5}
 .nbp-prog text{font:600 11px var(--font-mono);fill:var(--st-mute)}
 .nbp-checks{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:4px}
 .nbp-checks li{font:500 12px/1.45 var(--font-mono);color:var(--st-text)}
 .nbp-checks li.is-fail{color:var(--vault-risk);font-weight:700}
 .nbp-limits{margin:6px 0 0;padding-left:18px;font:400 12px/1.5 var(--font-display);color:var(--st-mute)}
 .nbp-details summary{min-height:44px;display:flex;align-items:center;cursor:pointer;font:600 12.5px var(--font-display);color:var(--st-text)}
+/* display:flex drops the native marker: draw it */
+.nbp-details summary::before{content:"▸";margin-right:6px;color:var(--st-mute)}
+.nbp-details[open]>summary::before{content:"▾"}
 .nbp-switch{display:inline-flex;align-items:center;min-height:44px;font:500 12.5px var(--font-display);color:var(--lava-heat)}
 .nbp-unavailable{padding:12px 14px;border-radius:12px;border:2px dashed var(--vault-risk);background:var(--st-panel)}
 .nbp-unavailable h2{margin:0;font:700 15px var(--font-headline)}
@@ -139,3 +146,15 @@
 .nbp-scenarios>p{margin:0 0 10px}
 .nbp-scenarios>.nbx-kind{color:var(--vault-text-mute)}
 .nbp-h2-sub{font-weight:500;color:var(--st-mute)}
+
+/* box score views: bench rows carry `hidden`; on a phone the core columns until "Full box"; the toggle is phone-only */
+.nbp-box-tools{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.nbp-box-tools .nbp-ctl{line-height:42px}
+.nbp-box-full{display:none}
+@media (max-width:719px){
+  .nbp-box-full{display:inline-flex}
+  .nbp-box.is-core .is-split{display:none}
+  .nbp-box .nbp-table th,.nbp-box .nbp-table td{padding:4px 5px}
+  .nbp-box .nbp-table th:first-child,.nbp-box .nbp-table td:first-child{max-width:128px}
+}
+.nbp-box tr[hidden]{display:none}

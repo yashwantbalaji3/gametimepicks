@@ -238,7 +238,7 @@ test("SWITCH FALSE ON AN ELO SLATE (H1 lands before the 10-24 publish): untiered
     for (const l of nba) {
       if (l.uncertainty?.kind !== "elo-win-probability") continue;
       assert.ok(text.includes(l.uncertainty.text), `${mode}: ${l.eventId} shows the display's Elo estimate text`);
-      assert.ok(text.includes("Untiered: the Elo-derived game-winner estimate is shown for information only and does not tier this leg."), `${mode}: the display's own untiered note, unchanged by this rule while it is off`);
+      assert.ok(text.includes("Untiered: the MODEL PROJECTION win chance is shown for information only and does not tier this leg."), `${mode}: the display's own untiered note, unchanged by this rule while it is off`);
       assert.equal(l.probability, null, "still untiered");
     }
     assert.ok(nba.some((l) => l.uncertainty?.kind === "elo-win-probability"), "the Elo field reached the rows");

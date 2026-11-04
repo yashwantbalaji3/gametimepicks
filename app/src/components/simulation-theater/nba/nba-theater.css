@@ -112,7 +112,9 @@
 .nba-rim{fill:none;stroke:var(--vault-risk);stroke-width:.22}
 .nba-center-fill{fill:color-mix(in srgb, var(--vault-crown) 30%, var(--bg))}
 .nba-wordmark{fill:var(--st-court-line);font:800 2.2px var(--font-headline);letter-spacing:.4px}
-.nba-wordmark.is-sub{font:700 1.3px var(--font-mono);letter-spacing:.35px;fill:var(--st-mute)}
+.nba-wordmark.is-sub{font:700 1.3px var(--font-mono);letter-spacing:.35px;fill:var(--st-mute);paint-order:stroke;stroke:var(--st-floor-a);stroke-width:.6px}
+/* the official logo, painted on the floor: the asset as committed (no filter, recolour or opacity) */
+.nba-center-logo{pointer-events:none}
 /* SVG text scales with the court: below these widths it would read under 11px, so it is not drawn (decorative) */
 @container (max-width:599px){.nba-band-abbr,.nba-wordmark{display:none}}
 @container (max-width:859px){.nba-wordmark.is-sub{display:none}}

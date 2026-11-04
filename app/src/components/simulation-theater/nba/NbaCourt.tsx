@@ -4,7 +4,10 @@
  * Geometry from lib/simulation-theater/nba/court-geometry.mjs (feet). The AWAY end is on the left, the HOME end on the
  * right (the scoreboard's order). Team treatments: the baseline band behind each basket in the team's court colour with
  * its abbreviation, the paint in the team's tint (court lines keep ≥ 3:1 on it, tested), a soft tint inside the arc.
- * A side carrying the clash cues (`patterned`) gets hatched paint and a striped band. Centre: a logo-free wordmark.
+ * A side carrying the clash cues (`patterned`) gets hatched paint and a striped band. Centre: the official GameTime Picks
+ * logo, the committed brand asset itself (never redrawn), painted flat on the floor like an arena centre-court logo: the
+ * court is drawn top-down, so the mark sits in the court's own plane, upright toward the near (bottom) sideline, centred
+ * on the centre circle and over its lines. "SIMULATED" is printed under the circle where the court is wide enough.
  * NO players, ball, shots or possession arrow: the simulation does not model them, so the court never shows them.
  */
 import type { CSSProperties } from "react";
@@ -12,6 +15,20 @@ import { VIEWBOX, courtGeometry } from "@/lib/simulation-theater/nba/court-geome
 import type { NbaPalette, NbaSide, NbaTeams } from "./nba-types";
 
 const G = courtGeometry();
+
+/*
+ * The official mark, as committed (app/public/brand/). The WebP is the same 600x450 mark BrandMark serves in the site
+ * header (brand-assets.test.mjs pins the two files to one image), so the court costs no extra download. A server
+ * component cannot read BrandMark's constants (a "use client" module), so the court keeps its own copy and
+ * nba-theater.test.mjs checks it names the committed file and the committed proportions.
+ */
+export const COURT_LOGO_SRC = "/brand/gametime-picks-logo.webp";
+const LOGO_W = 600;
+const LOGO_H = 450;
+/* Width in feet: the centre circle's diameter, so the mark fills the circle as an arena logo does (its shield corners
+   are transparent, so the circle line still reads around it). */
+const LOGO_FT_W = 2 * G.center.r;
+const LOGO_FT_H = (LOGO_FT_W * LOGO_H) / LOGO_W;
 
 type End = ReturnType<typeof courtGeometry>["left"];
 
@@ -46,7 +63,7 @@ export default function NbaCourt({ palette, teams, idPrefix }: { palette: NbaPal
       viewBox={G.viewBox}
       preserveAspectRatio="xMidYMid meet"
       role="img"
-      aria-label={`Basketball court, ${teams.away.abbr} end on the left, ${teams.home.abbr} end on the right. No players, ball or shots are drawn: the simulation does not model them.`}
+      aria-label={`Basketball court, ${teams.away.abbr} end on the left, ${teams.home.abbr} end on the right, the GameTime Picks logo at centre court. No players, ball or shots are drawn: the simulation does not model them.`}
       data-st-colors={palette.mode}
     >
       <defs>
@@ -75,8 +92,8 @@ export default function NbaCourt({ palette, teams, idPrefix }: { palette: NbaPal
       <line className="nba-line" x1={G.halfCourt.x1} y1={G.halfCourt.y1} x2={G.halfCourt.x2} y2={G.halfCourt.y2} />
       <circle className="nba-line" cx={c.cx} cy={c.cy} r={c.r} />
       <circle className="nba-line" cx={c.cx} cy={c.cy} r={c.inner} />
-      <text className="nba-wordmark" x={c.cx} y={c.cy - 3.9} textAnchor="middle" dominantBaseline="central" aria-hidden="true">GTP</text>
-      <text className="nba-wordmark is-sub" x={c.cx} y={c.cy + 3.9} textAnchor="middle" dominantBaseline="central" aria-hidden="true">SIMULATED</text>
+      <image className="nba-center-logo" href={COURT_LOGO_SRC} x={c.cx - LOGO_FT_W / 2} y={c.cy - LOGO_FT_H / 2} width={LOGO_FT_W} height={LOGO_FT_H} preserveAspectRatio="xMidYMid meet" aria-hidden="true" />
+      <text className="nba-wordmark is-sub" x={c.cx} y={c.cy + c.r + 2.2} textAnchor="middle" dominantBaseline="central" aria-hidden="true">SIMULATED</text>
       <rect className="nba-line nba-boundary" x={0} y={0} width={G.boundary.w} height={G.boundary.h} />
     </svg>
   );
