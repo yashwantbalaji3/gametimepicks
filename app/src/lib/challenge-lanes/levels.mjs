@@ -51,6 +51,7 @@ export const LEVEL_B_PARAMS = Object.freeze({
   minutesDropPct: Object.freeze({ value: 0.20, state: "PROPOSED" }),
   minutesConditioned: Object.freeze({ value: null, state: "PROPOSED", note: "{ legId: { hits, n, note } } from the evaluator: games within ±4 of tonight's projected minutes" }),
   /* Founder ~19:55Z lane specialization (bbm-rules@2 laneType): A lanes moneylines only, B lanes player props only. */
+  diversity: Object.freeze({ value: null, state: "PROPOSED", note: "diversity@1 (founder ~21:12Z): no identical combinations across the four lanes; a leg in at most two lanes; never a duplicate fallback" }),
   laneTypes: Object.freeze({ value: null, state: "PROPOSED", note: '{ "bb-a": "moneyline", "ms-a": "moneyline", "bb-b": "props", "ms-b": "props" }' }),
   legDecimalRange: Object.freeze({ value: Object.freeze([1.25, 4.0]), state: "PROPOSED" }),
   minBooksAtLine: Object.freeze({ value: 2, state: "PROPOSED" }),
@@ -365,6 +366,17 @@ const notWeaker = (x, y, bucket) => { const a = tierOf(x, bucket); const b = tie
  *   - no qualifying candidate → HELD.
  * Returns per lane: the assignment, the top 3 options under the lane's constraints, and the trade-offs.
  */
+/** diversity@1: why `card` may not join `assignedCards`, or null. Same combination (order-insensitive) → refused; a leg
+    already used by two lanes → refused. Legs compare by legId, which fixes game, market, player/team and side. */
+export function diversityRefusal(assignedCards, card) {
+  const key = legSetKey(card);
+  if (assignedCards.some((c) => legSetKey(c) === key)) return "DIVERSITY_DUPLICATE_COMBINATION";
+  for (const l of card.legs) if (assignedCards.filter((c) => c.legs.some((x) => x.legId === l.legId)).length >= 2) return `DIVERSITY_LEG_LIMIT ${l.legId}: already in two lanes`;
+  return null;
+}
+/** An approval binds one exact sealed record: any change to the card (legs, line, price, stake) invalidates it. */
+export const approvalValid = (record, approval) => !!approval && !!record?.recordSha256 && approval.recordSha256 === record.recordSha256 && approval.candidateId === record.candidateId;
+
 /** Option A = best single, Option B = best 2-leg, Option C = next best overall (rules-based order), each with the joint
     evidence lower bound (product of each leg's interval lower bound: no independence benefit is claimed) and the joint
     market no-vig (product of the quoting book's per-leg no-vig: disclosure, not a probability claim). */
@@ -389,9 +401,17 @@ export function assignFourLanes({ legs, now, propCapture, propCaptureSha256 = nu
       const laneLegs = laneType ? legs.filter((l) => !laneTypeRefusal(laneType, l)) : legs;
       const ev = evaluateLevelCandidates({ laneType, legs: laneLegs, position: pos, now, propCapture, propCaptureSha256, h2h, params, excludeGames: partner ? partner.legs.map((l) => l.gameId) : [] });
       const eligible = ev.ranked;
-      const identical = (c) => assigned.find((x) => x.product !== product && legSetKey(x.card) === legSetKey(c));
+      const identical = (c) => assigned.find((x) => legSetKey(x.card) === legSetKey(c));
+      const diversity = P("diversity", params);
       let pick = eligible[0] ?? null; let note = null;
-      if (pick && identical(pick)) {
+      if (diversity === "diversity@1") {
+        /* diversity@1 (founder ~21:12Z): no two lanes hold the same combination (order-insensitive) and a leg is used by
+           at most two lanes. A duplicate is never a fallback: the best candidate that satisfies both, or HELD. */
+        const blocked = (c) => diversityRefusal(assigned.map((x) => x.card), c);
+        const first = pick;
+        pick = eligible.find((c) => !blocked(c)) ?? null;
+        if (first && pick !== first) { note = `diversity@1: ${first.candidateId} ${blocked(first)}; ${pick ? `took ${pick.candidateId} (rank ${pick.rank})` : "no eligible distinct card: HELD"}`; tradeOffs.push({ laneId, note }); }
+      } else if (pick && identical(pick)) {
         const alt = eligible.find((c) => !identical(c) && notWeaker(c, pick, bucket));
         const twin = identical(pick).laneId;
         if (alt) { note = `diversified: ${legSetKey(pick)} is already ${twin}; took ${alt.candidateId} (same evidence tier, not weaker)`; pick = alt; }
