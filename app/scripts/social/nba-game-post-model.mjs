@@ -12,7 +12,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { teamOf } from "./game-day-cards.mjs";
-import { buildModelGamePost, modelGamePostSchedule } from "../../src/lib/social/nba-game-post-model.mjs";
+import { buildModelGamePost, modelForecastCells, modelGamePostSchedule } from "../../src/lib/social/nba-game-post-model.mjs";
 import { dedupeSlug, etLabel, socialPackageViolations } from "../../src/lib/social/social-package.mjs";
 
 const sha = (b) => crypto.createHash("sha256").update(b).digest("hex");
@@ -36,6 +36,7 @@ export function buildSlateGamePosts({ attempt, lane, out }) {
     return { ...i, path: to };
   });
   const put = (pkg) => { const slug = dedupeSlug(pkg); const v = socialPackageViolations(pkg); if (v.length) throw new Error(`${slug}: ${v.join("; ")}`); fs.writeFileSync(path.join(dir, `${slug}.json`), `${JSON.stringify(pkg, null, 2)}\n`); return slug; };
+  const roster = JSON.parse(fs.readFileSync(path.join(attempt, "roster", "roster.json"), "utf8"));
   const rows = [];
   for (const g of lane.games) {
     const id = String(g.providerEventId), matchup = `${g.away.abbr}@${g.home.abbr}`;
@@ -43,7 +44,12 @@ export function buildSlateGamePosts({ attempt, lane, out }) {
     const fav = g.elo.favoured === g.home.abbr ? g.home : g.away;
     const choice = thin.has(matchup) ? { eventId: id, note: "founder choice: schedule ONE of these two for this game", thin: thin.get(matchup), options: [`gtp-social:nba:${date}:NBA_GAME_POST:${id}-model`, winner.dedupeId] } : null;
     const slug0 = `nba-${date}-nba-game-post-${id}-model`;
+    const forecastCells = modelForecastCells([...(roster[g.away.abbr] ?? []), ...(roster[g.home.abbr] ?? [])], stats);
+    const rs = path.join(dir, slug0, "render-source.json");
+    const rsBody = `${JSON.stringify({ schema: "gtp-render-source@1", card: stats.dedupeId, image: stats.images[0].sha256, roster: sha(fs.readFileSync(path.join(attempt, "roster", "roster.json"))), displayedCells: forecastCells.map((c) => c.cellId) }, null, 2)}\n`;
+    fs.mkdirSync(path.dirname(rs), { recursive: true }); fs.writeFileSync(rs, rsBody);
     const pkg = buildModelGamePost({
+      forecastCells, renderSource: { path: rs, sha256: sha(rsBody) },
       winner, stats, images: [...copy(winner, slug0), ...copy(stats, slug0)], recommendedAt: slots.get(id), founderChoice: choice,
       game: { awayName: g.away.name, homeName: g.home.name, awayAbbr: g.away.abbr, homeAbbr: g.home.abbr, winnerNickname: teamOf(fav.abbr, fav.name).nickname, tipUtc: g.tipUtc },
     });
@@ -54,7 +60,7 @@ export function buildSlateGamePosts({ attempt, lane, out }) {
       w.commandCenter = { ...w.commandCenter, suggestedPublishAt: w.recommendedAt };
       slugs.push(put(w));
     }
-    rows.push({ matchup, eventId: id, tipUtc: g.tipUtc, packages: slugs, dedupeId: pkg.dedupeId, images: pkg.images.map((i) => i.sha256), caption: pkg.caption, scheduledFor: pkg.recommendedAt, scheduledForEt: pkg.recommendedAtEt, anomalyCheck: pkg.anomalyCheck, captionPlayers: pkg.content.captionPlayers.players.map((p) => p.name), founderChoice: Boolean(choice), thin: choice?.thin ?? [] });
+    rows.push({ matchup, eventId: id, tipUtc: g.tipUtc, packages: slugs, dedupeId: pkg.dedupeId, images: pkg.images.map((i) => i.sha256), caption: pkg.caption, scheduledFor: pkg.recommendedAt, scheduledForEt: pkg.recommendedAtEt, anomalyCheck: pkg.anomalyCheck, cells: { pass: forecastCells.filter((c) => c.state === "PASS").length, review: forecastCells.filter((c) => c.state === "REVIEW").length }, captionPlayers: pkg.content.captionPlayers.players.map((p) => p.name), founderChoice: Boolean(choice), thin: choice?.thin ?? [] });
   }
   const today = read(`nba-${date}-nba-tonight-slate-today`);
   const todaySlug = put({ ...today, images: copy(today, dedupeSlug(today)) });

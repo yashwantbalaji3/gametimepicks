@@ -6,7 +6,7 @@
 import { gamePostCaptionProblems, CAPTION_PLAYER_MARKETS } from "./nba-game-post.mjs";
 import { buildSocialPackage, socialPackageViolations, etLabel, toIso } from "./social-package.mjs";
 
-export const MODEL_GAME_POST = Object.freeze({ leadMin: 60, staggerMin: 2, minLeadMin: 55 });
+export const MODEL_GAME_POST = Object.freeze({ leadMin: 60, staggerMin: 2, minLeadMin: 55, designVersion: "3" });
 export const MODEL_CAPTION_RULE = "highest printed points among players whose pts, reb and ast are all printed on the stat card and none is flagged";
 
 /**
@@ -42,6 +42,23 @@ export function modelCaptionPlayers(statsPkg) {
     .slice(0, 2);
 }
 
+/**
+ * Per-cell states for the stat card, as the Command Center needs them (forecastCells + the render source's displayedCells).
+ * Every player row on the card has three cells: a printed number with no flag is PASS; anything drawn as Review, "-" or
+ * "Projection under model review" is REVIEW with the reason. A flagged number printed would be BLOCKED (EXCEPTION withholds them).
+ * @param {Array<string|{id:string}>} rows the card's rows for both teams, from the unified roster
+ */
+export function modelForecastCells(rows, statsPkg) {
+  const shown = new Map(statsPkg.commandCenter.claims.map((c) => [c.key, String(c.display)]));
+  const flagged = new Set((statsPkg.anomalies ?? []).map((a) => `${a.playerId}.${a.market}`));
+  return rows.flatMap((e) => CAPTION_PLAYER_MARKETS.map((m) => {
+    const id = String(e.id ?? e), cellId = `${id}.${m}`, text = shown.get(cellId);
+    if (typeof e === "object") return { cellId, playerId: id, market: m, state: "REVIEW", reason: "row under model review" };
+    if (/\d/.test(text ?? "")) return flagged.has(cellId) ? { cellId, playerId: id, market: m, state: "BLOCKED", reason: "flagged cell printed" } : { cellId, playerId: id, market: m, state: "PASS" };
+    return { cellId, playerId: id, market: m, state: "REVIEW", reason: flagged.has(cellId) ? "flagged, withheld" : "withheld by readiness" };
+  }));
+}
+
 export function modelGamePostCaption({ awayName, homeName, winnerNickname, players }) {
   const lead = players.length === 2 ? "Two players to watch:" : players.length === 1 ? "One player to watch:" : null;
   return [
@@ -56,7 +73,7 @@ export function modelGamePostCaption({ awayName, homeName, winnerNickname, playe
  * @param {{ winner:any, stats:any, game:{awayName:string, homeName:string, awayAbbr:string, homeAbbr:string, winnerNickname:string, tipUtc:string}, images:Array<any>, recommendedAt:string, founderChoice?:object|null }} o
  *   `images`: the two delivered images (winner first), copied byte-for-byte; same sha256 as the source packages.
  */
-export function buildModelGamePost({ winner, stats, game, images, recommendedAt, founderChoice = null }) {
+export function buildModelGamePost({ winner, stats, game, images, recommendedAt, founderChoice = null, forecastCells, renderSource }) {
   const problems = [];
   if (winner.contentType !== "NBA_GAME_WINNER" || winner.containsMarketData) problems.push("image 1 must be the model-only winner card");
   if (stats.contentType !== "NBA_PLAYER_STATS" || stats.containsMarketData || stats.content?.containsLines !== false) problems.push("image 2 must be the model-only stat card");
@@ -64,6 +81,8 @@ export function buildModelGamePost({ winner, stats, game, images, recommendedAt,
   if (!String(stats.variant).startsWith(`${eventId}-`)) problems.push("winner and stat cards are different games");
   const src = [...winner.images, ...stats.images].filter((i) => i.scale === 1).map((i) => i.sha256);
   if (JSON.stringify(images.map((i) => i.sha256)) !== JSON.stringify(src)) problems.push("images differ from the delivered cards");
+  if (!forecastCells?.length || !renderSource?.path) problems.push("forecastCells and renderSource are required");
+  else if (forecastCells.some((c) => c.state === "BLOCKED")) problems.push("a flagged cell is printed");
   if (problems.length) throw new Error(`${eventId}: ${problems.join("; ")}`);
   const players = modelCaptionPlayers(stats);
   const caption = modelGamePostCaption({ ...game, players });
@@ -76,7 +95,7 @@ export function buildModelGamePost({ winner, stats, game, images, recommendedAt,
   const opensAt = [winner.window.opensAt, stats.window.opensAt].sort().at(-1);
   const review = stats.anomalyCheck === "EXCEPTION" ? stats.reviewAnomalyCheck : stats.anomalyCheck;
   let pkg = buildSocialPackage({
-    sport: "nba", date: winner.date, contentType: "NBA_GAME_POST", variant: `${eventId}-model`, designVersion: winner.designVersion, containsMarketData: false,
+    sport: "nba", date: winner.date, contentType: "NBA_GAME_POST", variant: `${eventId}-model`, designVersion: MODEL_GAME_POST.designVersion, containsMarketData: false,
     anomalyCheck: review, anomalies: stats.anomalies, snapshotRefs: [...new Map([...winner.snapshotRefs, ...stats.snapshotRefs].map((r) => [r.ref, r])).values()],
     images, caption, verification: { passed: winner.verification.passed && stats.verification.passed, checks: [...new Set([...winner.verification.checks, ...stats.verification.checks, "images in order: winner card, model-projection stat card", "images byte-identical to the delivered cards", "caption numbers are printed, unflagged cells"])], cellsVerified: winner.verification.cellsVerified + stats.verification.cellsVerified },
     window: { opensAt, closesAt: closes },
@@ -86,11 +105,12 @@ export function buildModelGamePost({ winner, stats, game, images, recommendedAt,
     ccCaption: caption, ccCaptionB: `🏀 ${game.awayName} vs ${game.homeName} tonight! Our model projects the ${game.winnerNickname} to win. Full predictions below 👇`,
     extraClaims: [...claims, ...extraClaims],
     content: {
-      eventId, model: true, containsLines: false, imageOrder: [winner.dedupeId, stats.dedupeId], sourceContentSha256: [winner.contentSha256, stats.contentSha256],
+      eventId, model: true, containsLines: false, linesShown: 0, imageOrder: [winner.dedupeId, stats.dedupeId], sourceContentSha256: [winner.contentSha256, stats.contentSha256],
       captionPlayers: { rule: MODEL_CAPTION_RULE, players: players.map((p) => ({ playerId: p.id, name: p.name, pts: p.pts, reb: p.reb, ast: p.ast })) },
       winner: winner.content, stats: stats.content, ...(founderChoice ? { founderChoice } : {}), socialAuthorized: false,
     },
   });
+  pkg = { ...pkg, forecastCells, renderSource };
   if (stats.anomalyCheck === "EXCEPTION") {
     pkg = { ...pkg, anomalyCheck: "EXCEPTION", reviewAnomalyCheck: stats.reviewAnomalyCheck, publicationException: stats.publicationException };
     const v = socialPackageViolations(pkg);

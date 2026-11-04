@@ -27,3 +27,10 @@ test("caption: every number is a printed cell; fewer than two clean players neve
   assert.doesNotMatch(c, /B:|%|[—–]/);
   assert.doesNotMatch(modelGamePostCaption({ awayName: "X", homeName: "Z", winnerNickname: "W", players: [] }), /to watch/);
 });
+
+test("forecast cells: printed unflagged PASS, withheld or review rows REVIEW, a printed flagged number BLOCKED", async () => {
+  const { modelForecastCells } = await import("./nba-game-post-model.mjs");
+  const p = pkg([["1", "A", "30.1", "5.0", "-"], ["2", "B", undefined, "3.0", "2.0"]], [{ playerId: "1", market: "ast", verdict: "X" }, { playerId: "2", market: "reb", verdict: "X" }]);
+  const c = modelForecastCells(["1", "2", { id: "3", review: true }], p);
+  assert.deepEqual(c.map((x) => `${x.cellId}:${x.state}`), ["1.pts:PASS", "1.reb:PASS", "1.ast:REVIEW", "2.pts:REVIEW", "2.reb:BLOCKED", "2.ast:PASS", "3.pts:REVIEW", "3.reb:REVIEW", "3.ast:REVIEW"]);
+});
