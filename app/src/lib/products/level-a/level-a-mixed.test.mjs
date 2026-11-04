@@ -32,7 +32,7 @@ const sel = (sport, p, o = {}) => ({
   settlement: { grader: "fx", market: "1x2", side: "home" }, ...o,
 });
 /** FIXTURE NBA legs in the shape the NBA game-winner rule admits (exact p, the display's label and text). */
-const nba = (p, i) => ({ schema: "gtp.level-a.leg@1", levelA: true, sport: "nba", eventId: `4019${String(i).padStart(5, "0")}`, eventLabel: `AW${i} @ HM${i}`, market: "winner", startUtc: "2026-10-24T23:00Z", selection: { code: "home", label: `HM${i} (official side)` }, probability: p, shownPct: `${Math.round(p * 100)}%`, label: "Elo-derived game-winner estimate", tierable: true, forecast: { owner: "nba-official-composition@1", modelId: null, stampedAt: "2026-10-24T13:16:03Z", ref: null }, settlement: { grader: "nba-settlement-contract", market: "moneyline", side: "home" }, priced: false, price: null });
+const nba = (p, i) => ({ schema: "gtp.level-a.leg@1", levelA: true, sport: "nba", eventId: `4019${String(i).padStart(5, "0")}`, eventLabel: `AW${i} @ HM${i}`, market: "winner", startUtc: "2026-10-24T23:00Z", selection: { code: "home", label: `HM${i} (official side)` }, probability: p, shownPct: `${Math.round(p * 100)}%`, label: "MODEL PROJECTION (Elo win chance)", tierable: true, forecast: { owner: "nba-official-composition@1", modelId: null, stampedAt: "2026-10-24T13:16:03Z", ref: null }, settlement: { grader: "nba-settlement-contract", market: "moneyline", side: "home" }, priced: false, price: null });
 const crossSport = () => levelASuggestions({ selections: [sel("mlb", 0.62), sel("epl", 0.55), sel("ligue-1", 0.48), sel("epl", 0.44)], now: NOW, productDay: DAY }).legs;
 const NBA_LEGS = [nba(0.85, 1), nba(0.74, 2), nba(0.66, 3), nba(0.57, 4)];
 const DISCLOSURE = "DISPLAY DISCLOSURE (a real build prints the context text)";
@@ -96,7 +96,7 @@ test("RENDER + RECORDER: labels per leg, the disclosure once, exact card keys on
     assert.deepEqual([...html.matchAll(/data-level-a-card="([^"]+)"/g)].map((m) => m[1]), shown.filter(Boolean).map(levelACardKey), `${mode}: exactly the engine's cards`);
     for (const c of shown.filter(Boolean)) {
       assert.ok(text.includes(`model joint probability ${jointShownFor(c.jointProbability, c.tier)}`));
-      for (const l of c.legs) if (l.sport === "nba") assert.ok(text.includes(`Elo-derived game-winner estimate: ${l.shownPct}`), "the NBA leg keeps its own label");
+      for (const l of c.legs) if (l.sport === "nba") assert.ok(text.includes(`MODEL PROJECTION (Elo win chance): ${l.shownPct}`), "the NBA leg keeps its own label");
     }
     if (shown.some((c) => c?.legs.some((l) => l.sport === "nba"))) assert.equal(text.split(DISCLOSURE).length - 1, 1, `${mode}: the display's disclosure once`);
   }
@@ -121,7 +121,7 @@ test("RECORD, GRADE, COPY: recorded under level-a-mixed@1; each leg graded by it
   }
   const withNba = [...m.parlayLab.map((t) => t.card), m.bankBuilder.card, m.moonshot.card].find((c) => c?.legs.some((l) => l.sport === "nba"));
   const copy = cardCopyText(withNba);
-  for (const l of withNba.legs.filter((x) => x.sport === "nba")) assert.ok(copy.includes(`Elo-derived game-winner estimate: ${l.shownPct}`));
+  for (const l of withNba.legs.filter((x) => x.sport === "nba")) assert.ok(copy.includes(`MODEL PROJECTION (Elo win chance): ${l.shownPct}`));
   assert.ok(copy.includes(DISCLOSURE));
   assert.match(copy, /assumes the games are independent/i);
   assert.doesNotMatch(copy, /https?:\/\/|\$\d|[+-]\d{3}\b/);

@@ -23,7 +23,7 @@ import { buildExperimentalSnapshot, snapshotMatchesSource, unavailablePlayersFor
 import { decidePublish, PUBLISH } from "../../src/lib/sports/nba/experimental-lane-publish.mjs";
 import { etDateOf } from "../../src/lib/sports/nba/experimental-forecast.mjs";
 import { loadRosterIndex } from "../../src/lib/sports/nba/roster-index.mjs";
-import { eloWinProbabilityForPublish } from "../../src/lib/sports/nba/elo-win-probability.mjs";
+import { eloWinProbabilityForPublish, eloSourceForPublish } from "../../src/lib/sports/nba/elo-win-probability.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -52,7 +52,7 @@ if (forecastDoc?.family === "v0.1") {
   if (committedDay?.source?.file === `nba/experimental-v0.1/forecasts/${DATE}.json` && committedDay.source.commit) commit = committedDay.source.commit;
   // founder decision 2026-10-23: the Elo game-winner probability follows the switch for an unpublished slate only; a
   // published slate is rebuilt exactly as it was published (so a flip never makes it differ or rewrites it)
-  snapshot = buildExperimentalSnapshot({ forecastDoc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: NOW, eloWinProbability: eloWinProbabilityForPublish(committedDay), unavailablePlayers: unavailablePlayersForPublish(committedDay), rosters: ROSTERS });
+  snapshot = buildExperimentalSnapshot({ forecastDoc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: NOW, eloWinProbability: eloWinProbabilityForPublish(committedDay), eloSource: eloSourceForPublish(committedDay), unavailablePlayers: unavailablePlayersForPublish(committedDay), rosters: ROSTERS });
   const byId = new Map(forecastDoc.games.map((g) => [String(g.providerEventId), g]));
   rederivesOk = snapshot.games.every((g) => snapshotMatchesSource(g, byId.get(g.providerEventId), { rosters: ROSTERS }));
 }

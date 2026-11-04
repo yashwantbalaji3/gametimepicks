@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 import { buildExperimentalSnapshot, buildExperimentalAudit, snapshotMatchesSource, unavailablePlayersForPublish } from "../../src/lib/sports/nba/experimental-public-lane.mjs";
 import { manualWriteDecision, PUBLISH } from "../../src/lib/sports/nba/experimental-lane-publish.mjs";
 import { loadRosterIndex } from "../../src/lib/sports/nba/roster-index.mjs";
-import { eloWinProbabilityForPublish } from "../../src/lib/sports/nba/elo-win-probability.mjs";
+import { eloWinProbabilityForPublish, eloSourceForPublish } from "../../src/lib/sports/nba/elo-win-probability.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -45,7 +45,7 @@ const committedDay = (() => { try { return JSON.parse(fs.readFileSync(path.join(
 if (committedDay?.source?.commit) commit = committedDay.source.commit;
 let snap;
 try {
-  snap = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: committedDay?.generatedAt ?? NOW, eloWinProbability: eloWinProbabilityForPublish(committedDay), unavailablePlayers: unavailablePlayersForPublish(committedDay), rosters: ROSTERS });
+  snap = buildExperimentalSnapshot({ forecastDoc: doc, sourceFile: `nba/experimental-v0.1/forecasts/${DATE}.json`, sourceCommit: commit, generatedAt: committedDay?.generatedAt ?? NOW, eloWinProbability: eloWinProbabilityForPublish(committedDay), eloSource: eloSourceForPublish(committedDay), unavailablePlayers: unavailablePlayersForPublish(committedDay), rosters: ROSTERS });
 } catch (e) { console.error(e.message); process.exit(1); }
 const byId = new Map(doc.games.map((g) => [String(g.providerEventId), g]));
 for (const g of snap.games) {

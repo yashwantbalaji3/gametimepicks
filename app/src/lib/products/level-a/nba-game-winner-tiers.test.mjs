@@ -63,7 +63,7 @@ test("LEG REFUSALS: no published probability, provenance mismatch, side disagree
   assert.equal(legOf(l, d).ok, true);
   assert.equal(legOf(l, d).leg.probability, 0.7);
   assert.equal(legOf(l, null).code, "NO_PUBLISHED_PROBABILITY");
-  assert.equal(NBA_GW_REFUSAL.NO_PUBLISHED_PROBABILITY, "Untiered: no published Elo-derived game-winner estimate", "the display's own name for the number (founder wording): never called a probability");
+  assert.equal(NBA_GW_REFUSAL.NO_PUBLISHED_PROBABILITY, "Untiered: no published MODEL PROJECTION win chance", "the display's own name for the number (founder wording): never called a probability");
   assert.equal(legOf(l, { ...d, frozenAt: "2026-01-01T00:00:00Z" }).code, "PROVENANCE_MISMATCH");
   assert.equal(legOf(l, { ...d, payloadSha256: "0".repeat(64) }).code, "PROVENANCE_MISMATCH");
   assert.equal(legOf(l, { ...d, eventId: "999" }).code, "PROVENANCE_MISMATCH");

@@ -39,13 +39,19 @@ export const ELO_WIN_PROBABILITY = Object.freeze({
 export const ELO_WIN_PROBABILITY_SOURCE = "nba-winner-side@1 Elo";
 /** The one name the number is shown under, on every surface. */
 // U+2019 (’), not "'": React escapes "'" to &#x27; — 5 bytes per card on a page that sits at its weight budget
-// Founder wording (Release G, 2026-10-23): an Elo-DERIVED game-winner ESTIMATE — never named a "probability" (it is not an
-// independently validated probability) and never a simulation result. Shorter than the first label: byte-light per card.
-export const ELO_WIN_PROBABILITY_LABEL = "Elo-derived game-winner estimate";
+// Founder wording (Release G, 2026-10-23): never named a "probability" (it is not an independently validated probability)
+// and never a simulation result. Founder 2026-11-03 (Elo wording proposal): MODEL PROJECTION wording, never "estimate".
+export const ELO_WIN_PROBABILITY_LABEL = "MODEL PROJECTION (Elo win chance)";
 /** The lane's `elo.source` sentence for a slate that carries the field (a slate without it keeps its frozen sentence).
  * PUBLIC text (the /nba hub prints it): no ops language — the decision is cited in code, never on the page (the built-export
  * banned-string guard caught "founder decision 2026-10-23" here on the 2026-10-23 switch-ON build). */
-export const ELO_SOURCE_WITH_PROBABILITY = "Elo team rating — the published winner side (founder N2) and its Elo-derived game-winner estimate";
+export const ELO_SOURCE_WITH_PROBABILITY = "Elo team rating — the published winner side (founder N2) and its MODEL PROJECTION win chance";
+/** The sentence a slate is published with: a committed slate keeps the one it was published with (a wording change never
+ *  makes a published slate differ, so the publisher never REFUSEs or rewrites it); a new slate gets the current one. */
+export function eloSourceForPublish(committedDay) {
+  const g = (committedDay?.games ?? []).find((x) => x?.elo?.winProbability && typeof x.elo.source === "string");
+  return g ? g.elo.source : ELO_SOURCE_WITH_PROBABILITY;
+}
 
 const isP = (x) => typeof x === "number" && Number.isFinite(x) && x > 0 && x < 1;
 /** The receipt stores both numbers at 4 dp; they must be complements (allowing the rounding of each). */
@@ -141,7 +147,7 @@ export function eloWinProbabilityText(view) {
  */
 export function eloAccuracyDisclosure({ graded, minN }) {
   const n = Number.isInteger(graded) && graded >= 0 ? graded : 0;
-  return `Model Performance: the Elo rating\u2019s game-outcome accuracy is not yet established — ${n} regular-season game${n === 1 ? "" : "s"} graded so far; the preregistration requires ${minN} before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation.`;
+  return `Model Performance: the Elo rating\u2019s game-outcome accuracy is not yet established — ${n} regular-season game${n === 1 ? "" : "s"} graded so far; the preregistration requires ${minN} before any accuracy claim. A MODEL PROJECTION from the Elo team rating alone: it does not account for injuries or absences, and it is not an independently validated probability, not a simulation result, and not a betting recommendation.`;
 }
 
 /**
