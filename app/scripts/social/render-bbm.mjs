@@ -28,6 +28,7 @@ import { fileURLToPath } from "node:url";
 import { APP, assertPrivateOutDir } from "./nba-line-graphics-io.mjs";
 import { parseArgs } from "./render-social-pack.mjs";
 import { laneBytes } from "./render-combo-cards.mjs";
+import { BBM_V3_DESIGN_VERSION, bbmCardV3, bbmV3LayoutErrors, verifyBbmCardV3 } from "./bbm-cards-v3.mjs";
 import { BBM_DESIGN_VERSION, FACT_LINE, bbmCard, bbmLayoutErrors, cents, verifyBbmCard } from "./bbm-cards.mjs";
 import { BBM_LANES, VIEW, laneView, pricedDay, privateBankrollCents, socialPricesOk } from "../../src/lib/social/bbm-lane.mjs";
 import { readLaneProjection } from "../../src/lib/challenge-lanes/public-reader.mjs";
@@ -80,7 +81,7 @@ export function engineCardFor(dayCard, file, product) {
  * day's slate); `roster` is the render-time unified roster. Samples only: `testData` marks a fixture lane history and
  * `samplePayout` ({ grossCents, profitCents, fixture: true }) draws a labelled fixture price.
  */
-export function prepareLane({ doc, date, slate, roster, asOf, testData = false, samplePayout = null, privateEvents = null, displayRecord = undefined }) {
+export function prepareLane({ doc, date, slate, roster, asOf, testData = false, samplePayout = null, privateEvents = null, displayRecord = undefined, design = "v2" }) {
   const laneId = doc?.laneId ?? "?";
   const refuse = (reason) => ({ laneId, refused: reason });
   let view;
@@ -125,8 +126,9 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
     // A prop's line prints only once its price is verified (a labelled sample here); the leg carries side and line.
     if (view.payout) combo = { ...combo, legs: combo.legs.map((l) => ({ ...l, lineText: l.kind === "PLAYER_PROP" && l.prop?.line != null ? `${String(l.prop.side ?? "").toUpperCase()} ${l.prop.line} ${MARKET_SHORT[l.market]}`.trim() : null })) };
   }
-  const card = { ...bbmCard(view, combo, { testData }), name: `${laneId}-${date}` };
-  const errs = verifyBbmCard(card);
+  // V3 (founder design directive 2026-11-04): same view, legs and price; a different card and its own checker.
+  const card = { ...(design === "v3" ? bbmCardV3 : bbmCard)(view, combo, { testData }), name: `${laneId}-${date}` };
+  const errs = (design === "v3" ? verifyBbmCardV3 : verifyBbmCard)(card);
   if (errs.length) return refuse(`card failed validation: ${errs.join("; ")}`);
   const prepared = { laneId, view, combo, card, testData, projectionSha256: doc.contentSha256, fileLegs };
   // Founder 2026-11-04: website and X legs identical. Fail closed on any parity mismatch.
@@ -292,7 +294,8 @@ export function rendererCommit() {
 export async function writeStaging(plans, { outRoot, browser, commit = rendererCommit(), lanesRef = {}, displayRecord = undefined, rosterRef = null }) {
   const bad = stagingViolations(plans, outRoot, { displayRecord });
   if (bad.length) throw new Error(`staging refused:\n  - ${bad.join("\n  - ")}`);
-  const layout = await bbmLayoutErrors(browser, plans.flatMap((p) => p.lanes.map((l) => l.card)));
+  const cardsAll = plans.flatMap((p) => p.lanes.map((l) => l.card));
+  const layout = [...await bbmLayoutErrors(browser, cardsAll.filter((c) => c.design !== BBM_V3_DESIGN_VERSION)), ...await bbmV3LayoutErrors(browser, cardsAll.filter((c) => c.design === BBM_V3_DESIGN_VERSION))];
   if (layout.length) throw new Error(`layout check failed:\n  - ${layout.join("\n  - ")}`);
   const page = await browser.newPage({ viewport: { width: 1080, height: 1350 } });
   const out = [];
@@ -311,7 +314,7 @@ export async function writeStaging(plans, { outRoot, browser, commit = rendererC
       const manifest = {
         schema: BBM_PACKAGE_SCHEMA, packageId: p.packageId, kind: p.kind, date: p.date, lanes: p.lanes.map((l) => l.laneId), media,
         caption: { text: p.caption, sha256: sha(Buffer.from(p.caption, "utf8")), xWeighted: xWeighted(p.caption) },
-        needsFounderReview: p.needsFounderReview, rendererCommit: commit, designVersion: BBM_DESIGN_VERSION,
+        needsFounderReview: p.needsFounderReview, rendererCommit: commit, designVersion: p.lanes[0]?.card?.design ?? BBM_DESIGN_VERSION,
         sources: p.lanes.map((l) => ({ laneId: l.laneId, laneLogRef: lanesRef[l.laneId] ?? null, projectionSha256: l.projectionSha256, runId: l.view.runId, eventSha256: drawnEventSha(l.view), suggestedCardsSha256: l.view.card?.suggestedCardsSha256 ?? null })),
         laneStatus: Object.fromEntries(p.lanes.map((l) => [l.laneId, l.view.view])),
         // An early render is a PREVIEW in the console (no approval); the post-refresh re-render drops it, a new version.
@@ -344,7 +347,7 @@ export function altText(l) {
 /** Sample PNGs (labelled fixtures allowed) into a samples folder: no manifest, never a package. */
 export async function writeSamples(items, { outDir, browser, scales = [1], preview = false }) {
   if (path.resolve(outDir).startsWith(LIVE_PACKAGES)) throw new Error("samples never go to the live packages folder");
-  const layout = await bbmLayoutErrors(browser, items.map((i) => i.card));
+  const layout = [...await bbmLayoutErrors(browser, items.map((i) => i.card).filter((c) => c.design !== BBM_V3_DESIGN_VERSION)), ...await bbmV3LayoutErrors(browser, items.map((i) => i.card).filter((c) => c.design === BBM_V3_DESIGN_VERSION))];
   if (layout.length && !preview) throw new Error(`layout check failed:\n  - ${layout.join("\n  - ")}`);
   if (layout.length) console.log(`PREVIEW, layout errors:\n  - ${layout.join("\n  - ")}`);
   fs.mkdirSync(assertPrivateOutDir(outDir), { recursive: true });
@@ -382,7 +385,7 @@ async function main(argv) {
     const run = a["private-root"] ? currentRun(a["private-root"], laneId) : null;
     if (a["private-root"] && !run) { prepared.push({ laneId, refused: `no private run log for ${laneId} under ${a["private-root"]}` }); continue; }
     lanesRef[laneId] = run ? path.join(a["private-root"], laneId, run.file) : path.join(a.lanes, `${laneId}.json`);
-    prepared.push(prepareLane({ doc: r.doc, date, slate, roster, asOf, privateEvents: run?.events ?? null }));
+    prepared.push(prepareLane({ doc: r.doc, date, slate, roster, asOf, privateEvents: run?.events ?? null, design: a.design ?? "v2" }));
   }
   const plans = planPackages(prepared, date);
   const { chromium } = await import("playwright");
