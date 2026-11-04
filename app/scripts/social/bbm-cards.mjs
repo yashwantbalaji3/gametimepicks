@@ -108,6 +108,11 @@ const CSS = `<style>
 .bv-lad .rg.completed .m,.bv-lad .rg.active .m{color:var(--acc)}
 .bv-pace{margin-top:8px;text-align:center;font:800 22px/1 var(--display);letter-spacing:3px;text-transform:uppercase;white-space:nowrap}
 .bv-pace.ON_PACE{color:#7DFFB2}.bv-pace.BEHIND{color:#FFB23F}.bv-pace.WITHHELD{color:rgba(247,247,242,.7)}
+.lg .od{font:900 21px/1 var(--display);letter-spacing:1px;padding:5px 8px 3px;border-radius:6px;background:rgba(247,247,242,.92);color:#050706}
+.bv-src{flex:none;margin-top:10px;display:flex;justify-content:center;align-items:center;gap:14px;white-space:nowrap;overflow:hidden}
+.bv-src .cp{font:900 22px/1 var(--headline);letter-spacing:2px;padding:6px 12px 4px;border-radius:8px;background:var(--acc);color:#050706;text-transform:uppercase}
+.bv-src .cp.est{background:#FFB23F}
+.bv-src .sr{font:700 16px/1 var(--display);letter-spacing:2px;color:rgba(247,247,242,.66);text-transform:uppercase}
 .lg .ln{font:900 20px/1 var(--headline);letter-spacing:1px;padding:5px 8px 3px;border-radius:6px;border:2px solid var(--acc);color:var(--acc)}
 .bv-burst{position:absolute;left:50%;top:330px;width:1400px;height:1400px;margin-left:-700px;border-radius:50%;background:repeating-conic-gradient(from 0deg,rgba(255,122,46,.10) 0 4deg,transparent 4deg 12deg);-webkit-mask:radial-gradient(circle,#000 0,#000 30%,transparent 62%);mask:radial-gradient(circle,#000 0,#000 30%,transparent 62%);pointer-events:none}
 </style>`;
@@ -123,7 +128,11 @@ export const cents = (c) => money(c / 100);
 const money = (n) => `$${Number(n).toLocaleString("en-US", Number.isInteger(n) ? { maximumFractionDigits: 0 } : { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 const OUTCOME_TEXT = Object.freeze({ WIN: "LANDED", LOSS: "MISSED", VOID: "VOID", PUSH: "PUSH", PENDING: "PENDING" });
 
-function legHtml(cells, l, i, outcome) {
+/** American odds as printed: +264, -110 (ASCII hyphen: the house rule bans typographic dashes on images). */
+export const american = (n) => (Number.isFinite(n) ? `${n > 0 ? "+" : "-"}${Math.abs(Math.round(n))}` : null);
+const ET_CLOCK = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" });
+
+function legHtml(cells, l, i, outcome, price = null) {
   const t = teamOf(l.team.abbr, l.team.name);
   const k = `leg${i + 1}`;
   const winner = l.kind === "GAME_WINNER";
@@ -132,8 +141,10 @@ function legHtml(cells, l, i, outcome) {
   const oc = outcome ? cell(cells, `${k}.outcome`, OUTCOME_TEXT[outcome] ?? outcome, `oc ${outcome}`) : "";
   // A prop line prints only with a verified (or labelled sample) price: SPEC rev. 2 §1, no line is published before §7.
   const line = l.kind === "PLAYER_PROP" && l.lineText ? cell(cells, `${k}.line`, l.lineText, "ln") : "";
+  // The leg's verified American odds (SPEC §7), from the engine's PRICE_VERIFIED for this card.
+  const odds = price && price.oddsFormat === "american" && american(price.price) ? cell(cells, `${k}.odds`, american(price.price), "od") : "";
   const flag = (l.flagText ?? []).length ? `<div class="fl" data-flag><i>FLAG</i>${cell(cells, `${k}.flag`, l.flagText.join(" · "))}</div>` : "";
-  return `<div class="lg" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, who)}</span><div class="mt"><span class="tg">${cell(cells, `${k}.team`, t.abbr)}</span>${cell(cells, `${k}.game`, `${vs} · ${tipText(l.tipUtc)}`)}${line}${oc}</div></div><div class="pj"><span class="pk">${esc(winner ? WIN_LABEL : MODEL_LABEL)}</span>${cell(cells, `${k}.proj`, l.projectionText, "pv")}<span class="pm">${cell(cells, `${k}.market`, winner ? "to win" : l.kind === "PLAYER_PROP" ? `${l.marketLabel} chance` : l.marketLabel)}</span></div>${flag}</div>`;
+  return `<div class="lg" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, who)}</span><div class="mt"><span class="tg">${cell(cells, `${k}.team`, t.abbr)}</span>${cell(cells, `${k}.game`, `${vs} · ${tipText(l.tipUtc)}`)}${line}${odds}${oc}</div></div><div class="pj"><span class="pk">${esc(winner ? WIN_LABEL : MODEL_LABEL)}</span>${cell(cells, `${k}.proj`, l.projectionText, "pv")}<span class="pm">${cell(cells, `${k}.market`, winner ? "to win" : l.kind === "PLAYER_PROP" ? `${l.marketLabel} chance` : l.marketLabel)}</span></div>${flag}</div>`;
 }
 
 function ladderHtml(cells, v) {
@@ -154,7 +165,8 @@ const heldNote = (reason) => (/^NO_FROZEN_CARD_FILE/.test(String(reason ?? "")) 
 function paceHtml(cells, v) {
   if (!v.pace) return "";
   if (v.pace.state === "WITHHELD") return `<div class="bv-pace WITHHELD" data-pace="WITHHELD">${cell(cells, "pace", "PACE WITHHELD UNTIL VERIFIED PRICES")}</div>`;
-  const text = v.pace.state === "ON_PACE" ? `On pace · next milestone ${cents(v.pace.nextMilestoneCents)}` : `Behind pace by ${cents(v.pace.shortfallCents)} · milestone ${cents(v.pace.milestoneCents)}`;
+  const below = v.payout?.belowPace ? " · this card prices below pace" : "";
+  const text = (v.pace.state === "ON_PACE" ? `On pace · next milestone ${cents(v.pace.nextMilestoneCents)}` : `Behind pace by ${cents(v.pace.shortfallCents)} · milestone ${cents(v.pace.milestoneCents)}`) + below;
   return `<div class="bv-pace ${v.pace.state}" data-pace="${v.pace.state}">${cell(cells, "pace", text.toUpperCase())}</div>`;
 }
 
@@ -174,6 +186,7 @@ function moneyHtml(cells, v) {
   const wager = `<div><div class="k">Wager</div>${cell(cells, "money.wager", v.bankrollCents == null ? "WITHHELD" : cents(v.bankrollCents), "v")}<div class="c">${cell(cells, "money.wagerState", v.staked ? "Tracked stake" : "Not staked until priced")}</div></div>`;
   if (!v.payout) return `<div class="bv-money">${wager}<div class="pend aw" data-money="awaiting"><div class="k">Potential payout · profit</div>${cell(cells, "money.payout", AWAITING, "v")}</div>${progress}</div>`;
   const fx = v.payout.fixture ? '<span class="fx">SAMPLE</span>' : "";
+  // Combined price: one book's leg product, or (same game) an estimate that is never a book's offer (SPEC §7).
   return `<div class="bv-money pr">${wager}<div class="pend" data-money="payout">${fx}<div class="k">Potential payout</div>${cell(cells, "money.payout", cents(v.payout.grossCents), "v")}<div class="c">Pending</div></div><div class="pend" data-money="profit">${fx}<div class="k">Potential profit</div>${cell(cells, "money.profit", cents(v.payout.profitCents), "v")}<div class="c">Pending</div></div>${progress}</div>`;
 }
 
@@ -193,7 +206,15 @@ export function bbmCard(view, combo = null, { testData = false } = {}) {
     if (!combo) throw new Error(`${view.laneId}: a CARD view needs its resolved legs`);
     hero = `<div class="bv-hero">STEP <b>${cell(cells, "step", String(view.step))}</b> OF ${cell(cells, "steps", String(view.steps))}</div>`;
     sub = `${cell(cells, "legs", `${combo.legs.length} legs`)} · ${esc(MODEL_LABEL)}${ms ? ` · ${cell(cells, "risk", "Longshot")}` : ""}`;
-    middle = `<div class="bv-legs${combo.legs.length > 2 ? " d" : ""}">${combo.legs.map((l, i) => legHtml(cells, l, i, null)).join("")}</div>`;
+    middle = `<div class="bv-legs${combo.legs.length > 2 ? " d" : ""}">${combo.legs.map((l, i) => legHtml(cells, l, i, null, view.payout?.legs?.[l.legId] ?? null)).join("")}</div>`;
+    if (view.payout) {
+      // Combined price: one book's leg product, or (same game) an estimate that is never a book's offer (SPEC §7).
+      const am = american(view.payout.combinedAmerican);
+      const combined = am ? `${view.payout.estimate ? "Estimate" : "Combined"} ${am}${view.payout.estimate ? "" : " · leg product"}` : null;
+      const books = (view.payout.books ?? []).map((b) => String(b).replace(/\s*[—–]\s*/g, " · ")).join(" · ");
+      const src = books ? `Odds ${books}${view.payout.capturedAt ? ` · captured ${ET_CLOCK.format(new Date(Date.parse(view.payout.capturedAt)))} ET` : ""}` : null;
+      if (combined || src) middle += `<div class="bv-src">${combined ? cell(cells, "price.combined", combined, `cp${view.payout.estimate ? " est" : ""}`) : ""}${src ? cell(cells, "price.source", src, "sr") : ""}</div>`;
+    }
     moneyBlock = moneyHtml(cells, view);
   } else if (view.view === VIEW.BUSTED) {
     hero = `<div class="bv-hero s bust">${cell(cells, "status", `BUSTED AT STEP ${view.step} OF ${view.steps}`)}</div>`;
@@ -245,14 +266,20 @@ export function verifyBbmCard(card) {
   if (!text.includes(FACT_LINE)) e.push("the tracked-challenge line is missing");
   if (card.view === VIEW.CARD && !text.includes(MODEL_LABEL)) e.push("MODEL PROJECTION label missing");
   if (!card.badge || got.badge !== card.badge) e.push("status badge missing");
-  let t = text.replace(AWAITING, " ").replace(SAMPLE_PRICE_RIBBON, " ");
+  // Price cells (SPEC §7, socialFeedPrices ON for BBM V2): leg odds, prop lines, the combined price and the odds source.
+  const PRICE_CELL = /\.(odds|line)$|^price\./;
+  const priceCells = Object.entries(got).filter(([k]) => PRICE_CELL.test(k));
+  if (priceCells.length && !card.priced) e.push("price text prints without a verified price");
+  let shown = text;
+  for (const [, val] of priceCells) shown = shown.split(val).join(" ");
+  let t = shown.replace(AWAITING, " ").replace(SAMPLE_PRICE_RIBBON, " ");
   if (Object.keys(got).some((k) => /\.line$/.test(k)) && !card.priced) e.push("a prop line prints without a verified price");
   if (card.priced) for (const [k, v] of Object.entries(got)) if (/\.line$/.test(k)) t = t.replace(v, " ");
   if (PRICE_TEXT.test(t)) e.push(`price, line or odds text on image: ${t.match(PRICE_TEXT)[0]}`);
   if (HYPE.test(t)) e.push(`hype word on image: ${t.match(HYPE)[0]}`);
   if (/\bElo\b|[0-9a-f]{16,}/i.test(text)) e.push("internal text on image");
   if (/[—–]/.test(text)) e.push("dash on image");
-  e.push(...sourceTextProblems(text), ...statLabelProblems(text));
+  e.push(...sourceTextProblems(shown), ...statLabelProblems(shown));
   const payoutShown = "money.profit" in got;
   if (payoutShown && !card.priced) e.push("a payout prints without a verified PAYOUT_COMPUTED");
   if (card.priced && !payoutShown) e.push("a verified payout is not shown");
@@ -264,7 +291,7 @@ export function verifyBbmCard(card) {
 }
 
 /** Stacked blocks, top to bottom; each must start below the one before it. */
-const STACK = ".bv-top,.bv-hero,.bv-sub,.bv-lad,.bv-bank,.bv-pace,.lg,.bv-stat,.bv-money,.social,.disclosure";
+const STACK = ".bv-top,.bv-hero,.bv-sub,.bv-lad,.bv-bank,.bv-pace,.lg,.bv-src,.bv-stat,.bv-money,.social,.disclosure";
 /** Layout problems of each card in a real browser (`browser`: a Playwright browser). */
 export async function bbmLayoutErrors(browser, cards) {
   const page = await browser.newPage({ viewport: { width: 1080, height: 1350 } });
@@ -278,7 +305,7 @@ export async function bbmLayoutErrors(browser, cards) {
       for (let i = 1; i < boxes.length; i += 1) if (boxes[i].r.top < boxes[i - 1].r.bottom - 1) overlaps.push(`${boxes[i - 1].cls} / ${boxes[i].cls}`);
       const area = document.querySelector(".bv-legs")?.getBoundingClientRect();
       const outside = area ? [...document.querySelectorAll(".lg")].filter((e) => { const r = e.getBoundingClientRect(); return r.top < area.top - 1 || r.bottom > area.bottom + 1; }).length : 0;
-      const clipped = [...document.querySelectorAll(".bv-money .v,.bv-bank .v,.bv-hero,.bv-sub,.lg .pv,.lg .mt,.bv-lad .a")].filter((e) => e.scrollWidth > e.clientWidth + 1 || e.getBoundingClientRect().right > 1080 - 40).map((e) => e.textContent);
+      const clipped = [...document.querySelectorAll(".bv-money .v,.bv-money .c,.bv-bank .v,.bv-hero,.bv-sub,.lg .pv,.lg .mt,.bv-lad .a,.bv-src,.bv-pace")].filter((e) => e.scrollWidth > e.clientWidth + 1 || e.getBoundingClientRect().right > 1080 - 40).map((e) => e.textContent);
       const flags = [...document.querySelectorAll("[data-flag] span")].filter((e) => e.scrollWidth > e.clientWidth + 1 || parseFloat(getComputedStyle(e).fontSize) < 20).map((e) => e.textContent);
       return { overlaps, outside, clipped, flags, last: boxes.at(-1).r.bottom, fit: (window.__fit?.items ?? []).filter((i) => !i.fits).map((i) => i.text), page: window.__fit?.pageOverflow };
     }, STACK);

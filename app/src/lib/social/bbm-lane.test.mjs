@@ -13,8 +13,9 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { BADGE, BBM_LANES, RUNG, VIEW, laneView, projectionViolations, sealProjection } from "./bbm-lane.mjs";
-import { append, runStarted } from "../challenge-lanes/lanes.mjs";
+import { BADGE, BBM_LANES, RUNG, VIEW, laneView, pricedDay, projectionViolations, sealProjection } from "./bbm-lane.mjs";
+import { append, laneState, runStarted } from "../challenge-lanes/lanes.mjs";
+import { priceLane } from "../challenge-lanes/ops.mjs";
 import { laneProjection } from "../challenge-lanes/projection.mjs";
 import { laneDisplay } from "../challenge-lanes/display.mjs";
 import { eloWinProbabilityOf } from "../sports/nba/elo-win-probability.mjs";
@@ -247,4 +248,61 @@ test("BUSTED: the losing card prints with its leg results and BUSTED AT STEP k O
   const t = textOf(p.card);
   assert.match(t, /BUSTED AT STEP 1 OF 5/); assert.match(t, /LANDED/); assert.match(t, /MISSED/); assert.match(t, /\bLOST\b/);
   assert.deepEqual(verifyBbmCard(p.card), []);
+});
+
+/** The engine's own price step on a lane log (priceLane): it computes stake, combined price, payout and profit. */
+const pricedEvents = (laneId, { provider = "FIXTURE-NOT-A-BOOK", book = "SAMPLE BOOK", odds = [-150, -200], events = null } = {}) => {
+  const ev = (events ?? [frozen(laneId)]).reduce((acc, e) => append(acc, e), [runStarted({ laneId, runId: "run-1", startedAt: LANE.generatedAt, approvedBy: "test" })]);
+  const card = laneState(ev).open.cardEvent.card;
+  const fetchedAt = new Date(FIRST - 2 * 3.6e6).toISOString().replace(".000Z", "Z");
+  const price = { legs: card.legs.map((l, i) => ({ legId: l.legId, selectionCode: l.selection.code, provider, book, oddsFormat: "american", price: odds[i], fetchedAt })), parlay: { method: "LEG_PRODUCT", fetchedAt }, priceSnapshotSha256: "f".repeat(64) };
+  const r = priceLane(ev, { date: DATE, at: fetchedAt, price, suggestedCards: FILE, permittedProviders: [provider] });
+  return { events: [...ev, ...r.events], action: r.action, payout: r.payout };
+};
+
+test("priced (founder 2026-11-04): odds, book, capture time, leg-product combined price, wager, payout and profit come only from the engine's events", async () => {
+  const real = pricedEvents("bb-a", { provider: "the-odds-api", book: "DraftKings", odds: [-150, -200] });
+  assert.equal(real.action, "PAYOUT_COMPUTED");
+  const doc = laneProjection("bb-a", [real.events]);
+  const p = prep(doc, { privateEvents: real.events });
+  assert.equal(p.refused, undefined, p.refused);
+  const pc = real.events.findLast((e) => e.type === "PAYOUT_COMPUTED");
+  const t = textOf(p.card);
+  assert.equal(p.card.cells["money.wager"], "$100"); assert.equal(p.card.cells["money.wagerState"], "Tracked stake");
+  assert.equal(p.card.cells["money.payout"], `$${(pc.grossPayoutCents / 100).toFixed(2)}`.replace(/\.00$/, ""));
+  assert.equal(p.card.cells["money.profit"], `$${(pc.profitCents / 100).toFixed(2)}`.replace(/\.00$/, ""));
+  assert.match(p.card.cells["price.combined"], /^Combined \+\d+ · leg product$/);
+  assert.match(p.card.cells["price.source"], /^Odds DraftKings · captured \d{1,2}:\d\d [AP]M ET$/);
+  assert.deepEqual(Object.entries(p.card.cells).filter(([k]) => k.endsWith(".odds")).map(([, v]) => v).sort(), ["-150", "-200"]);
+  assert.equal(p.view.badge, BADGE.ACTIVE); assert.ok(!t.includes(SAMPLE_PRICE_RIBBON), "a real price carries no SAMPLE ribbon");
+  assert.equal(p.view.payout.belowPace, pc.inputs.decimalPrice < pc.inputs.pace);
+  if (p.view.payout.belowPace) assert.match(t, /THIS CARD PRICES BELOW PACE/);
+  assert.deepEqual(verifyBbmCard(p.card), []);
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), "bbm-"));
+  assert.deepEqual(stagingViolations(planPackages([p, prep(statusDoc("bb-b"))], DATE), out), [], "a verified real price may be packaged");
+  // The SAMPLE provider is a fixture: ribboned, and never packaged.
+  const fx = pricedEvents("bb-a");
+  const s = prep(laneProjection("bb-a", [fx.events]), { privateEvents: fx.events });
+  assert.ok(textOf(s.card).includes(SAMPLE_PRICE_RIBBON));
+  assert.match(stagingViolations(planPackages([s, prep(statusDoc("bb-b"))], DATE), out).join(";"), /fixture price never reaches a package/);
+  fs.rmSync(out, { recursive: true, force: true });
+});
+
+test("priced refusals: another run's log, a refused payout, a broken chain, price text without a price; a same-game estimate is labelled", () => {
+  const real = pricedEvents("bb-a", { provider: "the-odds-api", book: "DraftKings" });
+  const other = projection("bb-a", [frozen("bb-a"), unpriced()]);
+  assert.match(prep(other, { privateEvents: real.events }).refused, /not the run the public file projects/);
+  const tampered = structuredClone(real.events); tampered.at(-1).grossPayoutCents += 100;
+  assert.match(pricedDay(tampered, { date: DATE }).refused, /does not verify/);
+  const refusedLog = [frozen("bb-a")].reduce((acc, e) => append(acc, e), [runStarted({ laneId: "bb-a", runId: "run-1", startedAt: LANE.generatedAt, approvedBy: "test" })]);
+  const card = laneState(refusedLog).open.cardEvent.card;
+  const bad = priceLane(refusedLog, { date: DATE, at: AS_OF, price: { legs: card.legs.map((l) => ({ legId: l.legId, selectionCode: l.selection.code, provider: "unknown-book", book: "X", oddsFormat: "american", price: -110, fetchedAt: AS_OF })), parlay: { method: "LEG_PRODUCT", fetchedAt: AS_OF }, priceSnapshotSha256: "f".repeat(64) }, suggestedCards: FILE, permittedProviders: ["the-odds-api"] });
+  assert.equal(bad.action, "REFUSED");
+  const rl = [...refusedLog, ...bad.events];
+  assert.ok(pricedDay(rl, { date: DATE }).unpricedReason.startsWith("PAYOUT_COMPUTED REFUSED"));
+  const p = prep(laneProjection("bb-a", [real.events]), { privateEvents: real.events });
+  assert.match(verifyBbmCard({ ...p.card, priced: false }).join(";"), /price text prints without a verified price/);
+  const v = { ...p.view, payout: { ...p.view.payout, estimate: true, method: "SAME_GAME_ESTIMATE" } };
+  const est = bbmCardFor(v, p.combo);
+  assert.match(est.cells["price.combined"], /^Estimate \+\d+$/); assert.ok(!est.cells["price.combined"].includes("leg product"));
 });

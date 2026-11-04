@@ -17,7 +17,8 @@ import { parseArgs } from "../render-social-pack.mjs";
 import { planPackages, prepareLane, slateReader, writeSamples, writeStaging } from "../render-bbm.mjs";
 import { BBM_LANES, sealProjection } from "../../../src/lib/social/bbm-lane.mjs";
 import { parseEvents } from "../../../src/lib/challenge-lanes/chain.mjs";
-import { append, MILESTONES } from "../../../src/lib/challenge-lanes/lanes.mjs";
+import { append, laneState, MILESTONES } from "../../../src/lib/challenge-lanes/lanes.mjs";
+import { priceLane } from "../../../src/lib/challenge-lanes/ops.mjs";
 import { laneProjection } from "../../../src/lib/challenge-lanes/projection.mjs";
 
 const a = parseArgs(process.argv.slice(2));
@@ -61,9 +62,26 @@ function postP1(id, events, bankrollCents) {
   Object.assign(d.current, { trackedBankrollCents: bankrollCents, trackedBankrollWithheld: null, pace: r.pace });
   return sealProjection(d);
 }
+// SAMPLE prices go through the engine's own price step (priceLane) with a FIXTURE provider: the engine computes stake,
+// combined price, payout and profit; the graphic only prints its events. The book is named SAMPLE BOOK.
+const FIXTURE_PROVIDER = "FIXTURE-NOT-A-BOOK";
+function priced(events, date, at, odds, suggestedCards = file) {
+  const card = laneState(events).open?.cardEvent?.card;
+  if (!card) throw new Error("no open card to price");
+  const price = { legs: card.legs.map((l, i) => ({ legId: l.legId, selectionCode: l.selection.code, provider: FIXTURE_PROVIDER, book: "SAMPLE BOOK", oddsFormat: "american", price: odds[i] ?? -110, fetchedAt: at, ...(l.prop ? { line: l.prop.line } : {}) })), parlay: { method: "LEG_PRODUCT", fetchedAt: at }, priceSnapshotSha256: "f".repeat(64) };
+  const r = priceLane(events, { date, at, price, suggestedCards, permittedProviders: [FIXTURE_PROVIDER] });
+  if (r.action !== "PAYOUT_COMPUTED") throw new Error(`fixture price refused: ${JSON.stringify(r.payout?.refusals ?? r.action)}`);
+  return [...events, ...r.events];
+}
+const PRICE_AT = `${D}T21:30:00Z`;
+const before = (id) => logs[id].filter((e) => ms(e.at) < ms(PRICE_AT));
+const pricedLogs = {
+  // The real Nov 2 bb-a card, priced by the engine with sample odds (NY -600, DEN -190).
+  "bb-a-priced": priced(before("bb-a"), D, PRICE_AT, [-600, -190]),
+};
 const fx = {
   // Step 1 won ($100 → $300, on its milestone); step 2 is today's real lane B card, staked.
-  "bb-b-step2-active": postP1("bb-b", build("bb-b", [settled(1, 10000, 30000), { ...frozenOf("bb-b"), step: 2 }, payout(D, 2, 30000)]), 30000),
+  "bb-b-step2-active": null,
   // Two steps won below the milestones ($25 → $52.25 → $109.20 vs $180): behind pace, today's real card held (unpriced).
   "ms-b-step3": postP1("ms-b", build("ms-b", [settled(1, 2500, 5225, prev2), settled(2, 5225, 10920), { ...frozenOf("ms-b"), step: 3 }, ev("STATUS", D, 3, { status: "UNPRICED", reason: "TEST" })]), 10920),
   // LOST: step 1 won, step 2 is the real Nov 2 bb-a card, staked, settled on the real finals (NY won, DEN lost).
@@ -90,17 +108,22 @@ tf.legs = [...tf.legs, ...props];
 tf.contentSha256 = crypto.createHash("sha256").update(JSON.stringify(tf)).digest("hex");
 put("lanes/test/suggested-cards-props-TEST.json", `${JSON.stringify(tf, null, 2)}\n`);
 const propFrozen = { ...frozenOf("ms-a"), card: { ...frozenOf("ms-a").card, cardId: "test-props", sourceCardId: null, suggestedCardsSha256: tf.contentSha256, legs: props.map(({ sport: _s, eventId: _e, ...l }) => l) } };
-fx["ms-a-props"] = laneProjection("ms-a", [build("ms-a", [propFrozen, payout(D, 1, 2500)])]);
+// Step 1 won ($100 → $300, on its milestone); step 2 is today's real lane B card, priced by the engine (sample odds).
+pricedLogs["bb-b-step2-active"] = priced(build("bb-b", [settled(1, 10000, 30000), { ...frozenOf("bb-b"), step: 2 }]), D, PRICE_AT, [-150, -500]);
+fx["bb-b-step2-active"] = postP1("bb-b", pricedLogs["bb-b-step2-active"], 30000);
+// The TEST prop card, priced by the engine at each prop's line.
+pricedLogs["ms-a-props"] = priced(build("ms-a", [propFrozen]), D, PRICE_AT, [-115, +105, -120, +100], tf);
+fx["ms-a-props"] = laneProjection("ms-a", [pricedLogs["ms-a-props"]]);
 for (const [id, d] of Object.entries(fx)) put(`lanes/test/${id}.json`, `${JSON.stringify(d, null, 2)}\n`);
 
 const sample = (name, doc, date, o = {}) => { const p = prepareLane({ doc, date, slate, roster, asOf, ...o }); if (p.refused) throw new Error(`${name} refused: ${p.refused}`); return { name, card: p.card, p }; };
 const items = [
   ...Object.entries(real).flatMap(([date, ps]) => ps.map((p) => ({ name: `${p.laneId}-${date}-real`, card: p.card }))),
-  sample(`bb-a-${D}-priced-SAMPLE`, cut("bb-a", asOf), D, { samplePayout: { grossCents: 32800, profitCents: 22800, fixture: true } }),
-  sample(`bb-b-${D}-step2-active-TEST`, fx["bb-b-step2-active"], D, { testData: true, samplePayout: { grossCents: 90000, profitCents: 60000, fixture: true } }),
+  sample(`bb-a-${D}-priced-SAMPLE`, laneProjection("bb-a", [pricedLogs["bb-a-priced"]]), D, { privateEvents: pricedLogs["bb-a-priced"] }),
+  sample(`bb-b-${D}-step2-active-TEST`, fx["bb-b-step2-active"], D, { testData: true, privateEvents: pricedLogs["bb-b-step2-active"] }),
   sample(`ms-b-${D}-step3-behind-pace-TEST`, fx["ms-b-step3"], D, { testData: true }),
   sample(`bb-a-${next}-lost-TEST`, fx["bb-a-lost"], next, { testData: true }),
-  sample(`ms-a-${D}-props-priced-SAMPLE-TEST`, fx["ms-a-props"], D, { testData: true, slate: slateReader([tf]), samplePayout: { grossCents: 32500, profitCents: 30000, fixture: true } }),
+  sample(`ms-a-${D}-props-priced-SAMPLE-TEST`, fx["ms-a-props"], D, { testData: true, slate: slateReader([tf]), privateEvents: pricedLogs["ms-a-props"] }),
 ];
 
 const { chromium } = await import("playwright");

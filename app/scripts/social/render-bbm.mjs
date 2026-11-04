@@ -28,7 +28,7 @@ import { APP, assertPrivateOutDir } from "./nba-line-graphics-io.mjs";
 import { parseArgs } from "./render-social-pack.mjs";
 import { laneBytes } from "./render-combo-cards.mjs";
 import { BBM_DESIGN_VERSION, FACT_LINE, bbmCard, bbmLayoutErrors, cents, verifyBbmCard } from "./bbm-cards.mjs";
-import { BBM_LANES, P1_PRICE_SOURCE_DECIDED, VIEW, laneView } from "../../src/lib/social/bbm-lane.mjs";
+import { BBM_LANES, P1_PRICE_SOURCE_DECIDED, VIEW, laneView, pricedDay, privateBankrollCents } from "../../src/lib/social/bbm-lane.mjs";
 import { MARKET_SHORT, comboFromSuggestedCards, resolveCombo, suggestedCardsSealed } from "../../src/lib/social/combo-social.mjs";
 
 export const BBM_PACKAGE_SCHEMA = "gtp.bbm-package@1";
@@ -74,13 +74,25 @@ export function engineCardFor(dayCard, file, product) {
  * day's slate); `roster` is the render-time unified roster. Samples only: `testData` marks a fixture lane history and
  * `samplePayout` ({ grossCents, profitCents, fixture: true }) draws a labelled fixture price.
  */
-export function prepareLane({ doc, date, slate, roster, asOf, testData = false, samplePayout = null }) {
+export function prepareLane({ doc, date, slate, roster, asOf, testData = false, samplePayout = null, privateEvents = null }) {
   const laneId = doc?.laneId ?? "?";
   const refuse = (reason) => ({ laneId, refused: reason });
   let view;
   try { view = laneView(doc, date); } catch (e) { return refuse(e.message); }
   if (!view.view) return refuse(view.reason);
   if (view.view === VIEW.IN_PLAY) return refuse(`IN_PLAY: ${view.reason}; no new card (SPEC §3.2)`);
+  // Real prices (SPEC §7, founder 2026-11-04): only the engine's verified PAYOUT_COMPUTED for this day's card.
+  if (privateEvents && view.view === VIEW.CARD) {
+    const pr = pricedDay(privateEvents, { date, doc });
+    if (pr?.refused) return refuse(`price refused: ${pr.refused}`);
+    if (pr && !pr.unpricedReason) {
+      view = { ...view, payout: pr };
+      // A priced win withholds the public bankroll; the private log's own fold supplies it for the stake line.
+      if (view.bankrollCents == null) view = { ...view, bankrollCents: privateBankrollCents(privateEvents) };
+      if (pr.stakeCents !== view.bankrollCents) return refuse(`the verified stake ${pr.stakeCents} is not the tracked bankroll ${view.bankrollCents} (all-in ladder)`);
+      view = { ...view, staked: true };
+    }
+  }
   if (samplePayout) {
     if (samplePayout.fixture !== true) return refuse("a payout is drawn only as a labelled fixture until founder decision P1");
     if (view.view !== VIEW.CARD || samplePayout.grossCents - samplePayout.profitCents !== view.bankrollCents) return refuse("the sample payout does not fit the card's tracked stake (gross - profit = stake)");
@@ -99,7 +111,7 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
     if (max != null && combo.legs.length > max) return refuse(`${combo.legs.length} legs: ${laneId} takes at most ${max} (SPEC rev. 2 §1, hard)`);
     // A sample line rides only with the labelled fixture price.
     // A prop's line prints only once its price is verified (a labelled sample here); the leg carries side and line.
-    if (samplePayout) combo = { ...combo, legs: combo.legs.map((l) => ({ ...l, lineText: l.kind === "PLAYER_PROP" && l.prop?.line != null ? `${String(l.prop.side ?? "").toUpperCase()} ${l.prop.line} ${MARKET_SHORT[l.market]}`.trim() : null })) };
+    if (view.payout) combo = { ...combo, legs: combo.legs.map((l) => ({ ...l, lineText: l.kind === "PLAYER_PROP" && l.prop?.line != null ? `${String(l.prop.side ?? "").toUpperCase()} ${l.prop.line} ${MARKET_SHORT[l.market]}`.trim() : null })) };
   }
   const card = { ...bbmCard(view, combo, { testData }), name: `${laneId}-${date}` };
   const errs = verifyBbmCard(card);
