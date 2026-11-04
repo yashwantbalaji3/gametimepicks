@@ -542,9 +542,8 @@ test("PARITY on the engine's v2 sample: 4 states (retired+active, lost) green; a
     const productDay = o.pub.runs.at(-1).days.at(-1).date;
     const view = lane.laneView(o.pub, { display: o.priced, productDay });
     const rep = parityReport([laneParity({ doc: o.pub, prices: o.prices, view })]);
-    // The engine's SYNTHETIC sample prices its days without an odds snapshot sha (real records carry one, e.g. Nov 4);
-    // parity stays fail-closed and reports exactly that, nothing else. Asked the engine to add it to the sample.
-    assert.deepEqual(rep.failures.filter((f) => f !== `${o.laneId} odds snapshot sha (NOT_IN_RECORD)`), [], o.laneId);
+    assert.deepEqual(rep.failures, [], o.laneId);
+    assert.ok(rep.rows.some((r) => r.field === "odds snapshot sha" && r.ok && r.engine), `${o.laneId}: the sample's stand-in snapshot sha matches`);
     for (const f of ["rule version", "leg count", "leg cap", "step target"]) assert.ok(rep.rows.some((r) => r.field === f && r.ok), `${o.laneId} ${f}`);
   }
   const ms = sampleOutputs().find((o) => o.laneId === "ms-a");
