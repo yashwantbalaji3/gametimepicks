@@ -157,9 +157,9 @@ test("a leg's probability is the lane's stored value for its side, exactly", () 
   }
 });
 
-test("regression 2026-11-02: a favourite missing a season top-five player is flagged (ORL without Banchero/Suggs, MIN without Edwards)", () => {
+test("regression 2026-11-02: a favourite missing a season top-five player is flagged (ORL, MIN, GS)", () => {
   const leg = (abbr) => P.nbaLegs.find((l) => l.selection.teamAbbr === abbr);
-  for (const [abbr, missing] of [["ORL", ["Paolo Banchero", "Jalen Suggs"]], ["MIN", ["Anthony Edwards"]]]) {
+  for (const [abbr, missing] of [["ORL", ["Paolo Banchero", "Jalen Suggs"]], ["MIN", ["Anthony Edwards"]], ["GS", ["Stephen Curry", "Draymond Green"]]]) {
     const l = leg(abbr);
     assert.equal(l.guard.state, "review", `${abbr} must not pass`);
     assert.ok(l.guard.flags.includes("FAVOURED_ROTATION_OUT"));
