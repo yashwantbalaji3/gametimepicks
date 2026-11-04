@@ -36,7 +36,9 @@ export function publicFlags(flags = []) {
 /* ───────────────────────────── public / private split (the repo is public; a book line is price data) ───────────────────────────── */
 
 /** Book-derived or line-dependent leg fields: never in a plain public file, only in the encrypted display. */
-export const PRIVATE_LEG_FIELDS = Object.freeze(["line", "book", "price", "quotedAt", "fetchedAt", "hitRate", "quote", "flagText", "lineupContext", "evidenceLine"]);
+export const PRIVATE_LEG_FIELDS = Object.freeze(["line", "book", "price", "quotedAt", "fetchedAt", "hitRate", "quote", "flagText", "lineupContext", "evidenceLine", "priceCheck", "display", "espnNow"]);
+/** Card-level fields that carry prices, money or line-dependent counts: never in the public projection. */
+export const PRIVATE_CARD_FIELDS = Object.freeze(["combined", "money", "reasons", "displayCard", "priceCheckAll"]);
 /** The public view of a card@2 leg: identity, side, model projection and class; no line, price, book or hit rate. */
 export const publicLeg = (l) => Object.fromEntries(Object.entries(l).filter(([k]) => !PRIVATE_LEG_FIELDS.includes(k)));
 /** The private (encrypted-display) view of a card@2 leg: everything computed against the line. Hit rates as {window, k, n}. */

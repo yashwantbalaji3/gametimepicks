@@ -387,3 +387,15 @@ test("latestPostAt: earliest tip, and the exception's expiry instead of fetch + 
   assert.equal(latestPostAt([{ startUtc: "2026-11-05T06:00Z", fetchedAt: "2026-11-04T21:06:40Z" }], { freshnessOverride: NOV4_SNAPSHOT_OVERRIDE }), "2026-11-05T04:59:59.000Z", "a late tip is capped by the exception's expiry");
   assert.equal(latestPostAt([{ startUtc: "2026-11-05T01:00Z", fetchedAt: "2026-11-04T19:05:00Z" }], { freshnessOverride: NOV4_SNAPSHOT_OVERRIDE }), "2026-11-04T20:35:00.000Z", "a quote outside the window keeps the 90-minute limit");
 });
+
+test("public projection of a final-candidate card@2: no priceCheck, display counts, ESPN snapshot, displayCard or money", async () => {
+  const { runStartedV2 } = await import("./rules-v2.mjs");
+  const { laneProjection } = await import("./projection.mjs");
+  const { append } = await import("./lanes.mjs");
+  let ev = [runStartedV2({ laneId: "bb-b", runId: "run-2", startedAt: "2026-11-04T22:00:00Z", approvedBy: "TEST", laneType: "NBA_PLAYER_PROPS" })];
+  const leg = { ...legFromShortlist(row()), book: "draftkings", price: 107, line: 3.5, priceCheck: { book: "draftkings", line: 3.5, price: 107 }, display: { last5: "4/5", line: 3.5 }, espnNow: { status: "active" } };
+  const card = { classification: "LEVEL_B", candidateId: "c", legs: [leg], money: { grossPayoutCents: 20700 }, displayCard: { grossPayoutCents: 20700 }, combined: { american: 107 }, priceCheckAll: "PASS", caption: { disclosure: "x" } };
+  ev = append(ev, { type: "CARD_FROZEN", date: "2026-11-04", step: 1, at: "2026-11-04T22:01:00Z", source: "t", card });
+  const txt = JSON.stringify(laneProjection("bb-b", [ev]));
+  assert.ok(!/draftkings|"line":|priceCheck|displayCard|grossPayoutCents|"american"|espnNow|hitRate|"last5"/.test(txt), txt.slice(0, 300));
+});
