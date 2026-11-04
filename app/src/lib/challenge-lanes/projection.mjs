@@ -1,0 +1,71 @@
+/**
+ * CHALLENGE LANES · PUBLIC PROJECTION (`gtp.challenge-lane.public@1`). PURE and DETERMINISTIC: a function of the
+ * private run logs only (no clock), serialized canonically, so a re-run writes identical bytes.
+ *
+ * PRICES ARE WITHHELD (founder blocker P1, SPEC §6). The repo is public and the only odds source's terms forbid public
+ * price data, so nothing priced or price-derived is projected: no price, book, provider, fetch time, decimal, payout,
+ * profit or price snapshot, and no tracked bankroll once a priced step has settled (it would reveal the price). Price
+ * events appear only as `{ type, withheld: "P1" }`, without their hash. Model chances, legs, results, statuses and
+ * post receipts are public.
+ */
+import { canonical, sha256, verifyChain } from "./chain.mjs";
+import { LANES, laneState, inPlay } from "./lanes.mjs";
+
+export const LANE_PROJECTION_SCHEMA = "gtp.challenge-lane.public@1";
+export const PUBLIC_PRICES = Object.freeze({ state: "WITHHELD_P1", note: "Payouts and prices are withheld until the founder approves a price source whose terms permit display (P1)." });
+const PRICE_EVENTS = new Set(["PRICE_VERIFIED", "PAYOUT_COMPUTED"]);
+
+function publicEvent(e, withheldMoney) {
+  const head = { seq: e.seq, type: e.type, date: e.date ?? null, step: e.step ?? null, at: e.at, source: e.source };
+  if (PRICE_EVENTS.has(e.type)) return { ...head, withheld: "P1", ...(e.type === "PAYOUT_COMPUTED" ? { result: e.result, refusals: e.refusals?.map((r) => r.code) ?? null } : {}) };
+  switch (e.type) {
+    case "RUN_STARTED": return { ...head, sha256: e.sha256, laneId: e.laneId, runId: e.runId, product: e.product, baseCents: e.baseCents, targetCents: e.targetCents, steps: e.steps, startedAt: e.startedAt, approvedBy: e.approvedBy };
+    case "CARD_FROZEN": return { ...head, sha256: e.sha256, packageId: e.packageId, suggestedCards: e.suggestedCards, card: e.card };
+    case "STAKE_SET": return { ...head, withheld: withheldMoney ? "P1" : null, stakeCents: withheldMoney ? null : e.stakeCents, placedWager: e.placedWager };
+    case "LEG_SETTLED": return { ...head, sha256: e.sha256, legId: e.legId, gameId: e.gameId, outcome: e.outcome, final: e.final, resultSource: e.source };
+    case "STEP_SETTLED": return { ...head, sha256: withheldMoney ? null : e.sha256, outcome: e.outcome, bankrollAfterCents: withheldMoney ? null : e.bankrollAfterCents };
+    case "STATUS": return { ...head, sha256: e.sha256, status: e.status, reason: e.reason ?? null };
+    case "GRAPHIC_RENDERED": return { ...head, sha256: e.sha256, packageId: e.packageId ?? null, imageSha256: e.imageSha256 ?? null, captionSha256: e.captionSha256 ?? null, rendererCommit: e.rendererCommit ?? null };
+    case "APPROVED": return { ...head, sha256: e.sha256, packageId: e.packageId ?? null, approvedVersionSha256: e.approvedVersionSha256 ?? null };
+    case "POSTED": return { ...head, sha256: e.sha256, packageId: e.packageId ?? null, xPostId: e.xPostId ?? null, url: e.url ?? null, postedAt: e.postedAt ?? null };
+    default: return { ...head, sha256: e.sha256 };
+  }
+}
+
+function publicRun(events) {
+  const s = laneState(events);
+  const wins = events.filter((e) => e.type === "STEP_SETTLED" && e.outcome === "WIN").length;
+  const withheldMoney = wins > 0; // a settled priced win makes the bankroll price-derived
+  const receiptsFor = (date) => events.filter((e) => ["GRAPHIC_RENDERED", "APPROVED", "POSTED"].includes(e.type) && e.date === date).map((e) => publicEvent(e, withheldMoney));
+  return {
+    runId: s.runId, startedAt: s.startedAt, approvedBy: s.approvedBy, headSha256: events.at(-1).sha256, eventCount: events.length,
+    status: s.status, statusReason: s.statusReason, step: s.step, steps: s.steps, stepText: `STEP ${Math.min(s.step, s.steps)} OF ${s.steps}`,
+    inPlay: inPlay(s), stepsWon: wins,
+    trackedBankrollCents: withheldMoney ? null : s.bankrollCents, trackedBankrollWithheld: withheldMoney ? "P1" : null,
+    days: s.days.map((d) => ({
+      date: d.date, step: d.step, status: d.status, reason: d.reason, staked: d.staked,
+      card: d.card, cardEventSha256: d.cardEventSha256 ?? null,
+      legResults: d.card ? d.card.legs.map((l) => ({ legId: l.legId, outcome: d.legs[l.legId] ?? "PENDING" })) : [],
+      modelCardResult: !d.card ? null : Object.values(d.legs).includes("LOSS") ? "LOSS" : d.card.legs.every((l) => d.legs[l.legId] === "WIN") ? "WIN" : "PENDING",
+      stepOutcome: d.outcome ?? null, receipts: receiptsFor(d.date),
+    })),
+    events: events.map((e) => publicEvent(e, withheldMoney)),
+  };
+}
+
+/** The public file for one lane from its runs (oldest first). Refuses a run whose chain does not verify. */
+export function laneProjection(laneId, runs) {
+  const L = LANES[laneId];
+  for (const r of runs) { const v = verifyChain(r); if (!v.ok) throw new Error(`laneProjection: ${laneId} chain broken at ${v.seq} (${v.reason})`); }
+  const pub = runs.map(publicRun);
+  const cur = pub.at(-1) ?? null;
+  const doc = {
+    schema: LANE_PROJECTION_SCHEMA, laneId, product: L.product, slot: L.slot, baseCents: L.baseCents, targetCents: L.targetCents, steps: L.steps,
+    label: "Tracked challenge · no real wager placed", projectionLabel: "MODEL PROJECTION", prices: PUBLIC_PRICES,
+    current: cur && { runId: cur.runId, status: cur.status, statusReason: cur.statusReason, step: cur.step, stepText: cur.stepText, inPlay: cur.inPlay, trackedBankrollCents: cur.trackedBankrollCents, trackedBankrollWithheld: cur.trackedBankrollWithheld, headSha256: cur.headSha256 },
+    runs: pub,
+  };
+  return { ...doc, contentSha256: sha256(canonical(doc)) };
+}
+export const verifyLaneProjection = (doc) => { if (doc?.schema !== LANE_PROJECTION_SCHEMA) return false; const { contentSha256, ...rest } = doc; return contentSha256 === sha256(canonical(rest)); };
+export const serializeProjection = (doc) => `${canonical(doc)}\n`;
