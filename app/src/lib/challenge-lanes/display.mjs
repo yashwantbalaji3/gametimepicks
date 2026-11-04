@@ -30,23 +30,28 @@ const dayView = (d) => ({ date: d.date, step: d.step, status: d.status, reason: 
  */
 export function laneDisplay(doc, { date } = {}) {
   if (!verifyLaneProjection(doc)) throw new Error("laneDisplay: the lane file does not verify; refusing to display it");
+  const T = LANES[doc.laneId];
+  if (!T || doc.product !== T.product || doc.slot !== T.slot || doc.baseCents !== T.baseCents || doc.targetCents !== T.targetCents || doc.steps !== T.steps) throw new Error(`laneDisplay: ${doc.laneId} does not carry the lane's fixed terms; refusing to display it`);
   const run = doc.runs.at(-1);
   const day = date ? run.days.find((d) => d.date === date) ?? null : run.days.at(-1) ?? null;
   const frozen = day && run.events.find((e) => e.type === "CARD_FROZEN" && e.date === day.date);
+  /* The event an image of this day is drawn from: the day's CARD_FROZEN, else its latest STATUS (console refEventSha256). */
+  const status = day && run.events.filter((e) => e.type === "STATUS" && e.date === day.date).at(-1);
+  const milestones = doc.milestonesCents ?? [];
   const L = LANES[doc.laneId];
   const bankroll = run.trackedBankrollCents;
   const p = run.pace;
   return {
     laneId: doc.laneId, product: doc.product, slot: doc.slot, runId: run.runId, runNumber: runNumber(run.runId),
-    step: Math.min(run.step, run.steps), steps: run.steps, stepText: run.stepText,
+    step: Math.min(run.step, run.steps), steps: run.steps, stepText: run.stepText, cleared: run.stepsWon,
     status: run.publicStatus, internalStatus: run.status, reason: run.statusReason, inPlay: run.inPlay,
-    rungs: rungsOf(run, doc.milestonesCents ?? []),
+    rungs: rungsOf(run, milestones), // milestone after each step; the base is `baseCents`, not a rung
     baseCents: doc.baseCents, targetCents: doc.targetCents, maxLegs: doc.maxLegs,
     trackedBankrollCents: bankroll, trackedBankrollWithheld: run.trackedBankrollWithheld,
     distanceToTargetCents: bankroll == null ? null : Math.max(0, doc.targetCents - bankroll),
-    pace: p.withheld ? { state: "withheld", withheld: p.withheld, milestoneCents: p.milestoneCents, requiredMultiple: null, behindCents: null }
-      : { state: p.onPace ? "on" : "behind", withheld: null, milestoneCents: p.milestoneCents, requiredMultiple: p.requiredMultiplier, behindCents: p.behindByCents },
-    day: day && { ...dayView(day), packageId: frozen?.packageId ?? L.packageId(day.date), mediaIndex: frozen?.mediaIndex ?? L.mediaIndex },
+    pace: p.withheld ? { state: "withheld", withheld: p.withheld, milestoneCents: p.milestoneCents, nextMilestoneCents: milestones[run.stepsWon] ?? null, requiredMultiple: null, behindCents: null }
+      : { state: p.onPace ? "on" : "behind", withheld: null, milestoneCents: p.milestoneCents, nextMilestoneCents: milestones[run.stepsWon] ?? null, requiredMultiple: p.requiredMultiplier, behindCents: p.behindByCents },
+    day: day && { ...dayView(day), packageId: frozen?.packageId ?? L.packageId(day.date), mediaIndex: frozen?.mediaIndex ?? L.mediaIndex, sourceEventSha256: frozen?.sha256 ?? status?.sha256 ?? null, sourceEventType: frozen ? "CARD_FROZEN" : status ? "STATUS" : null },
     history: run.days.map(dayView),
     runs: doc.runs.map((r) => ({ runId: r.runId, startedAt: r.startedAt, approvedBy: r.approvedBy, endStatus: r.publicStatus, stepsWon: r.stepsWon })),
     prices: doc.prices, label: doc.label, projectionLabel: doc.projectionLabel,
