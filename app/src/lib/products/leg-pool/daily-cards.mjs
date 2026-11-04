@@ -6,8 +6,8 @@
  *   NBA-only   nba-game-winner-tiers@1 (nbaGameWinnerTiers): Bank Builder = 2 legs in Low/Medium; Moonshot = Longshot,
  *              3–5 legs; parlay tiers Low (2) / Medium (≤3) / High (≤4) / Longshot (≤5), the D2 bands of the joint.
  *   Cross      level-a-mixed@1 (levelAMixed): the same rules, legs from two or more sports.
- * The pool decides WHICH legs enter: Bank Builder (conservative) takes only guard `pass` legs; Moonshot and the parlay
- * tiers take `pass` and `review` legs, each review flag shown on the leg.
+ * The pool decides WHICH legs enter: guard `pass` and `review` legs, each review flag shown on the leg. With
+ * BANK_BUILDER_EXCLUDES_FLAGGED (off; founder decision pending) Bank Builder takes `pass` legs only.
  *
  * STATES. model-only (a card, no price) · insufficient (not enough eligible legs: the reason, never a forced card) ·
  * blocked (the sport's input failed freshness or is closed) · qualified (priced with fresh permitted odds — reserved,
@@ -86,12 +86,20 @@ const section = (r, policy, byKey, scope, blockedReason) => {
 };
 
 /**
- * @param {ReturnType<import("./leg-pool.mjs").buildLegPool>} pool
+ * FOUNDER DECISION PENDING (a), put to the founder by the Program Director 2026-11-03: keep favoured sides with an
+ * availability flag out of Bank Builder. OFF by default, so Bank Builder selects exactly as the live page does (guard
+ * `pass` and `review` legs alike); the flag still rides each leg. Rollout = set this to true in a reviewed commit.
  */
-export function dailySuggestedCards(pool) {
+export const BANK_BUILDER_EXCLUDES_FLAGGED = false;
+
+/**
+ * @param {ReturnType<import("./leg-pool.mjs").buildLegPool>} pool
+ * @param {{ bankBuilderExcludesFlagged?: boolean }} [options]
+ */
+export function dailySuggestedCards(pool, { bankBuilderExcludesFlagged = BANK_BUILDER_EXCLUDES_FLAGGED } = {}) {
   const byKey = new Map([...pool.nbaLegs, ...pool.crossLegs].map((l) => [l.legId, l]));
   const nbaAll = pool.nbaLegs.filter((l) => ["pass", "review"].includes(l.guard.state)).map((l) => l.leg);
-  const nbaPass = pool.nbaLegs.filter((l) => l.guard.state === "pass").map((l) => l.leg);
+  const nbaPass = bankBuilderExcludesFlagged ? pool.nbaLegs.filter((l) => l.guard.state === "pass").map((l) => l.leg) : nbaAll;
   const gw = (legs) => nbaGameWinnerTiers({ legs, accessor: pool.accessor, receiptOf: pool.receiptOf, disclosure: pool.display.disclosure, enabled: true });
   const nbaWide = gw(nbaAll);
   const nbaSafe = gw(nbaPass);
@@ -101,7 +109,7 @@ export function dailySuggestedCards(pool) {
 
   const nbaState = pool.sports.nba?.state;
   const nbaBlocked = nbaState === "blocked" ? `NBA input blocked: ${pool.sports.nba.reason}` : nbaState === "no-games" ? "No NBA games with an official forecast on this date." : null;
-  const excludedFromBank = pool.nbaLegs.length - nbaPass.length;
+  const excludedFromBank = nbaAll.length - nbaPass.length;
   const bankNba = section(nbaSafe.bankBuilder, `${NBA_GW_POLICY}/bank-builder`, byKey, "nba", nbaBlocked);
   if (bankNba.state === CARD_STATE.INSUFFICIENT && excludedFromBank) bankNba.reason += ` ${excludedFromBank} favoured side${excludedFromBank === 1 ? " was" : "s were"} kept out of Bank Builder by an availability flag.`;
 
@@ -113,7 +121,7 @@ export function dailySuggestedCards(pool) {
   return {
     schema: SUGGESTED_CARDS_SCHEMA,
     productDay: pool.productDay, evaluatedAt: pool.evaluatedAt, legPool: pool.version,
-    label: LEVEL_A_LABEL, pricing: PRICING,
+    label: LEVEL_A_LABEL, pricing: PRICING, options: { bankBuilderExcludesFlagged },
     nbaLegKinds: ["game-winner"], methodologyDependencies: METHODOLOGY_DEPENDENCIES,
     inputs: pool.inputs,
     sports: pool.sports,

@@ -56,12 +56,22 @@ test("NBA parlay tiers and Moonshot equal the shared engine on the same legs (on
   assert.equal(D.moonshot.nba.card.jointShown, "14.27%");
 });
 
-test("Bank Builder never uses a leg with an availability flag; the flag rides the leg elsewhere", () => {
+test("option (a) off by default: Bank Builder selects as the live page; on: it never uses a flagged leg", () => {
   const review = new Set(P.nbaLegs.filter((l) => l.guard.state === "review").map((l) => l.legId));
   assert.ok(review.size > 0, "Nov 2 has Day-To-Day rotation players on favoured teams");
-  for (const l of D.bankBuilder.nba.card.legs) assert.ok(!review.has(l.legId));
+  const ref = nbaGameWinnerTiers({ legs: P.nbaLegs.map((l) => l.leg), accessor: P.accessor, receiptOf: P.receiptOf, enabled: true });
+  assert.equal(D.options.bankBuilderExcludesFlagged, false);
+  assert.deepEqual(D.bankBuilder.nba.card.legs.map((l) => l.eventId), ref.bankBuilder.card.legs.map((l) => String(l.eventId)));
+  const on = dailySuggestedCards(P, { bankBuilderExcludesFlagged: true });
+  for (const l of on.bankBuilder.nba.card.legs) assert.ok(!review.has(l.legId));
   const flagged = [...D.parlays.nba.map((t) => t.card), D.moonshot.nba.card].filter(Boolean).flatMap((c) => c.legs).filter((l) => review.has(l.legId));
   for (const l of flagged) assert.equal(l.guard.flags[0], "FAVOURED_ROTATION_R1");
+});
+
+test("option (b) off by default: nothing reads the frozen file", async () => {
+  const { loadFrozenDailyCards, FROZEN_DAILY_CARDS_PUBLIC } = await import("./page-source.mjs");
+  assert.equal(FROZEN_DAILY_CARDS_PUBLIC, false);
+  assert.equal(loadFrozenDailyCards({ appDir: path.join(REPO, "app"), date: DATE, enabled: false }), null);
 });
 
 test("availability context: Out players are listed, a Day-To-Day top-five player flags the side", () => {
