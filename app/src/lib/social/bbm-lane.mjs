@@ -125,6 +125,8 @@ export function pricedDay(events, { date, doc = null }) {
     books, capturedAt: day.capturedAt ?? fetched[0] ?? null, belowPace: day.belowPace,
     fixture: providers.some((x) => isFixturePrice(x, null)) || books.some((b) => isFixturePrice(null, b)),
     priceSnapshotSha256: pv?.price?.priceSnapshotSha256 ?? null,
+    // The engine's payout event this image prints (the console records the post against it).
+    payoutEventSha256: events.findLast((e) => e.type === "PAYOUT_COMPUTED" && e.date === date && e.step === card.step && e.result === day.result)?.sha256 ?? null,
   };
 }
 

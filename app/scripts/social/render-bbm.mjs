@@ -317,7 +317,7 @@ export async function writeStaging(plans, { outRoot, browser, commit = rendererC
         // An early render is a PREVIEW in the console (no approval); the post-refresh re-render drops it, a new version.
         preliminary: p.lanes.some((l) => l.view.payout?.preliminary === true),
         // Per lane: whether the printed price is preliminary (re-verified near the window; a changed image is a new version).
-        pricing: Object.fromEntries(p.lanes.map((l) => [l.laneId, l.view.payout ? { state: l.view.payout.preliminary ? "PRELIMINARY" : "VERIFIED", capturedAt: l.view.payout.capturedAt, postScheduledAt: l.view.payout.postScheduledAt ?? null } : { state: l.view.view === VIEW.CARD ? "UNPRICED" : "NONE" }])),
+        pricing: Object.fromEntries(p.lanes.map((l) => [l.laneId, l.view.payout ? { state: l.view.payout.preliminary ? "PRELIMINARY" : "VERIFIED", payoutEventSha256: l.view.payout.payoutEventSha256 ?? null, capturedAt: l.view.payout.capturedAt, postScheduledAt: l.view.payout.postScheduledAt ?? null } : { state: l.view.view === VIEW.CARD ? "UNPRICED" : "NONE" }])),
         // Founder 2026-11-04: per-lane parity against the engine record (website = X); staging refuses any mismatch.
         parity: p.lanes.map((l) => ({ laneId: l.laneId, ok: l.parity?.ok === true, mismatches: l.parity?.mismatches ?? ["no parity row"], legs: l.parity?.rendered.legs, step: l.parity?.rendered.step, bankrollCents: l.parity?.rendered.bankrollCents, targetCents: l.parity?.rendered.targetCents, status: l.parity?.rendered.status, price: l.parity?.rendered.price })),
         // The render-time availability input (PD 2026-11-04: fresh at render, never the morning build's).
