@@ -227,7 +227,8 @@ test("LOSS → BUSTED, then AWAITING_RESTART_APPROVAL; never quietly reset", () 
   const ev = [...events, ...r.events];
   const next = prepareLane(ev, { date: "2026-11-04", at: AT, selection: SEL.bb });
   assert.equal(next.action, STATUS.AWAITING_RESTART_APPROVAL);
-  assert.match(next.reason, /^BUSTED AT STEP 1 OF 5 on 2026-11-02; a new run starts at \$100 only after a founder-approved restart/);
+  assert.equal(next.reason, "Busted at step 1 of 5 on 2026-11-02. A new run starts at $100 only after the founder approves a restart.");
+  assert.doesNotMatch(next.reason, /\(D\d\)/, "no internal decision id in a public reason");
   assert.equal(prepareLane([...ev, ...next.events], { date: "2026-11-05", at: AT, selection: SEL.bb }).action, "SKIP");
   assert.throws(() => runStarted({ laneId: "bb-a", runId: "run-2", startedAt: AT, approvedBy: null }), /founder approval/);
 });

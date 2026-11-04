@@ -33,7 +33,7 @@ export function prepareLane(events, { date, at, selection, file = null, docSha25
   const base = { date, step: s.step, at, source: "lanes-prepare" };
   if (s.status === STATUS.BUSTED) {
     const bust = s.days.findLast((d) => d.outcome === "LOSS");
-    const reason = `BUSTED AT STEP ${bust?.step ?? s.step} OF ${s.steps} on ${bust?.date ?? "?"}; a new run starts at ${dollars(s.baseCents)} only after a founder-approved restart (D2).`;
+    const reason = `Busted at step ${bust?.step ?? s.step} of ${s.steps} on ${bust?.date ?? "?"}. A new run starts at ${dollars(s.baseCents)} only after the founder approves a restart.`;
     return { events: append(events, { ...base, type: "STATUS", status: STATUS.AWAITING_RESTART_APPROVAL, reason }).slice(events.length), action: STATUS.AWAITING_RESTART_APPROVAL, reason };
   }
   if (inPlay(s)) return { events: [], action: "SKIP", reason: `IN_PLAY: ${stepText(s)} from ${s.open?.date ?? s.days.at(-1)?.date} is unsettled` };
@@ -114,7 +114,7 @@ export function reconcileLane(events, { finalsRecord, recordFile = FINALS_RECORD
     const base = { date: d.date, step: s.step, at, source: "lanes-reconcile" };
     if (!(Date.parse(payout.at) < firstStart)) { ev = append(ev, { ...base, type: "STATUS", status: STATUS.PAUSED, reason: "PAYOUT_AFTER_FIRST_START: the verified payout was recorded at or after the first leg started; the step cannot settle." }); continue; }
     const outcome = stepOutcome(day.legs);
-    if (outcome === "VOID_REVIEW") { ev = append(ev, { ...base, type: "STATUS", status: STATUS.PENDING_VOID_REVIEW, reason: "A leg was voided or pushed. The step settles on the remaining legs only with the book's own void price, verified by the founder (D4); legs are never substituted." }); continue; }
+    if (outcome === "VOID_REVIEW") { ev = append(ev, { ...base, type: "STATUS", status: STATUS.PENDING_VOID_REVIEW, reason: "A leg was voided or pushed. The step settles on the remaining legs only at the book's own void price, verified by the founder. Legs are never substituted." }); continue; }
     if (outcome === "LOSS") {
       ev = append(ev, { ...base, type: "STEP_SETTLED", outcome: "LOSS", payoutEventSha256: payout.sha256, bankrollBeforeCents: s.bankrollCents, bankrollAfterCents: 0 });
       ev = append(ev, { ...base, type: "STATUS", status: STATUS.BUSTED, reason: `LANE ${LANES[s.laneId].slot} — BUSTED AT STEP ${s.step} OF ${s.steps}` });
@@ -122,7 +122,7 @@ export function reconcileLane(events, { finalsRecord, recordFile = FINALS_RECORD
     }
     ev = append(ev, { ...base, type: "STEP_SETTLED", outcome: "WIN", payoutEventSha256: payout.sha256, bankrollBeforeCents: s.bankrollCents, bankrollAfterCents: payout.grossPayoutCents });
     if (payout.grossPayoutCents >= s.targetCents) ev = append(ev, { ...base, step: s.step + 1, type: "STATUS", status: STATUS.COMPLETE, reason: `Tracked bankroll reached the ${dollars(s.targetCents)} target.` });
-    else if (s.step >= s.steps) ev = append(ev, { ...base, step: s.step + 1, type: "STATUS", status: STATUS.FINISHED_SHORT, reason: `All ${s.steps} steps won, below the ${dollars(s.targetCents)} target; a 6th step or a new run is the founder's decision (D6).` });
+    else if (s.step >= s.steps) ev = append(ev, { ...base, step: s.step + 1, type: "STATUS", status: STATUS.FINISHED_SHORT, reason: `All ${s.steps} steps won, below the ${dollars(s.targetCents)} target. The founder decides whether a sixth step or a new run follows.` });
   }
   return { events: ev.slice(events.length), held };
 }
