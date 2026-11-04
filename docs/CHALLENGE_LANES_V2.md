@@ -128,7 +128,7 @@ What the projection hides:
 - **Price events:** `PRICE_VERIFIED` and `PAYOUT_COMPUTED` appear only as `{seq, type, date, step, at, source, withheld: "P1"}`, plus `result` and refusal codes on a payout. They carry no hash, no numbers, no provider and no book.
 - **Bankroll:** once a step has been won, the tracked bankroll, the stake and `bankrollAfterCents` become `null` with the marker `"P1"`, because those amounts reveal the price.
 
-**One reader for the site and the renderer:** `readLaneProjection({ appDir, laneId })` / `readAllLaneProjections()` in `public-reader.mjs`. It returns `{ ok: true, doc }` (verified, the right lane, base, target and steps) or `{ ok: false, refusal }` with MISSING, UNREADABLE, UNVERIFIED or WRONG_LANE. Neither surface keeps its own copy or recomputes a lane. Both then call **`laneDisplay(doc, { date })`** (`display.mjs`), which returns `{ laneId, product, slot, runId, runNumber, step (the busting step when LOST), steps, stepText, cleared, status (public), internalStatus, reason, inPlay, rungs[{step, state completed|active|failed|upcoming, milestoneCents}], baseCents, targetCents, maxLegs, trackedBankrollCents|null, trackedBankrollWithheld, distanceToTargetCents|null, pace{state on|behind|withheld, milestoneCents, nextMilestoneCents, requiredMultiple, behindCents}, day{…, packageId, mediaIndex, sourceEventSha256, sourceEventType CARD_FROZEN|STATUS}|null, history[], runs[{runId, startedAt, approvedBy, endStatus, stepsWon}], prices, label, projectionLabel, sourceSha256 }`. It throws on a file that does not verify, or one whose lane terms (product, slot, base, target, steps) differ from `lanes.mjs`. Rungs are the milestone after each step; the base is `baseCents`, not a rung.
+**One reader for the site and the renderer:** `readLaneProjection({ appDir, laneId })` / `readAllLaneProjections()` in `public-reader.mjs`. It returns `{ ok: true, doc }` (verified, the right lane, base, target and steps) or `{ ok: false, refusal }` with MISSING, UNREADABLE, UNVERIFIED or WRONG_LANE. Neither surface keeps its own copy or recomputes a lane. Both then call **`laneDisplay(doc, { date })`** (`display.mjs`), which returns `{ laneId, product, slot, runId, runNumber, step (the busting step when LOST), steps, stepText, cleared, status (public), internalStatus, reason, inPlay, rungs[{step, state completed|active|failed|upcoming, milestoneCents}], baseCents, targetCents, maxLegs, trackedBankrollCents|null, trackedBankrollWithheld, distanceToTargetCents|null, pace{state on|behind|withheld, milestoneCents, nextMilestoneCents, requiredMultiple, behindCents}, day{…, packageId, mediaIndex, cardEventSha256, statusEventSha256, sourceEventSha256, sourceEventType CARD_FROZEN|STATUS}|null, history[], runs[{runId, startedAt, approvedBy, endStatus, stepsWon}], prices, label, projectionLabel, sourceSha256 }`. It throws on a file that does not verify, or one whose lane terms (product, slot, base, target, steps) differ from `lanes.mjs`. Rungs are the milestone after each step; the base is `baseCents`, not a rung.
 
 ## 4. Receipts from other writers (console, renderer)
 
@@ -149,6 +149,22 @@ The public projection carries all of these except `approvedBy`, which stays in t
 - **RESTART_APPROVED** (console, founder only): `nextRunId` must be `run-N+1`, and `refEventSha256` must be the run's STATUS BUSTED, its STATUS AWAITING_RESTART_APPROVAL, or its STEP_SETTLED LOSS. It is accepted once per run and only while the lane is LOST, and `approvedBy` is required. The next `lanes-prepare` then opens `run-N+1` at base, with `approvedBy` = `"<approvedBy> via cc-console RESTART_APPROVED <receiptSha256>"`.
 - Receipts for an earlier run of the lane are skipped, because that run already holds them.
 
+## 4b. Real prices (founder decision 2026-11-04)
+
+The prices come from the existing paid The Odds API subscription (`odds.mjs`), under a committed BBM receipt that `parseBbmOddsReceipt` must accept. **That receipt is not committed yet; it needs the founder's own words (see the open blockers).**
+- **On demand only.** One run makes the free `/events` listing and then ONE bulk `h2h` call (`eventIds=` the events that hold a candidate leg). The nine eligible-operator keys count as 1 region-unit, so the worst case is **1 credit per run**.
+- **Before the paid call:** BBM day ≤ daily ceiling, BBM cumulative ≤ weekly ceiling, provider usage since the shared baseline ≤ shared weekly ceiling, balance − worst ≥ floor. An unreadable balance stops the run. Any 401/429/5xx stops it, with no retry.
+- **Storage.** The snapshot is PRIVATE at `<GTP_PRIVATE_DATA_DIR>/odds/nba/bbm/<date>/<fetchedAt>.json`. The ledger, with credits and status only, is `data/internal/research/odds/nba/bbm-ledger.json`. The key comes only from `ODDS_API_KEY`, only with `--apply`, and is never printed.
+- **Matching** (`priceForCard`) is exact: same game (the joined provider event, home and away aligned), market `h2h`, the selected side's outcome. **All legs come from ONE book**: the first eligible operator in the fixed allowlist order that prices every leg. Prices are never shopped across books.
+- **Payout refusals** add `BOOK_NOT_ELIGIBLE` and `CROSS_BOOK_MIX`. Freshness: every price must be fetched before the earliest leg's start and at most 90 minutes before `--post-at`.
+- **Same-game legs** are refused by default. With `allowSameGameEstimate`, the leg product is labelled `ESTIMATE — same-game leg product, not a book's offer` (method `LEG_PRODUCT_ESTIMATE`). Lanes never set it.
+- **Prop legs** are refused (`PROP_CAPTURE_NOT_APPROVED`) until an official prop probability is approved.
+- **Site display:** `lanes-display` writes `data/odds-display/challenge-lanes/<laneId>.json.enc` (`gtp.odds-display.enc@1`, aad `challenge-lanes/<laneId>`, key `GTP_ODDS_DISPLAY_KEY`). The site reads it with `readLanePriceDisplay(laneId, text, key)` (`price-display.mjs`) at build time. The plain projection stays price-free.
+- **Site reader and fold:** `readLanePrices({ appDir, laneId })` returns the decrypted prices, or null with no key, another key, no file, or NBA "site" display off (`lib/odds/display-authorization.mjs`). It throws on tampering. `pricedLaneDisplay(doc, prices)` (`display.mjs`) is `laneDisplay` with the withheld bankroll, distance, pace and per-day `price` filled in. It refuses prices whose `projectionSha256` is not this projection's `contentSha256`.
+- **Graphics** read the private run log (`store.mjs readRuns`) for the stake, prices, gross and profit. Prices on a social graphic also need the display record's NBA "social" surface, which is off today (`socialPricesAuthorized()`). Turning it on is a founder change to that record.
+
+`price.legs[]` fields: `legId, selectionCode, provider, book, market, oddsFormat, price, outcomeName, line, providerEventId, eventId, playerId, fetchedAt, bookLastUpdate`.
+
 ## 5. Runbook (branch code; nothing is installed)
 
 Run these from `app/`. Each CLI prints a JSON report and exits 1 if any lane was refused.
@@ -158,9 +174,14 @@ Run these from `app/`. Each CLI prints a JSON report and exits 1 if any lane was
    - Writes CARD_FROZEN for each lane that is not in play, or NO_ELIGIBLE_CARD when there is no file or no card.
    - The `at` field is the file's `evaluatedAt`. With no file, it is `--now` (default `D`T11:00Z).
    - The first run, or a restart after BUSTED (`--restart LANE`), needs `--approved-by "<founder approval ref>"`.
-2. **Price:** `lanes-price.mjs --root … --date D [--now ISO]`
-   - Today this writes STATUS UNPRICED for every frozen card. It contacts no provider.
-   - Once P1 is decided, the price path is `priceLane()` in `ops.mjs`, which needs a permitted provider.
+2. **Price:** `lanes-price.mjs --root … --date D --post-at-bb <ISO> --post-at-ms <ISO> --receipt docs/receipts/<BBM receipt>.md [--apply --env-file <repo>/.env]`
+   - Posts (PD 2026-11-04): bb-<date> at the slate's first tip − 60 min, and ms-<date> at first tip − 58 min. Capture within the 90 minutes before the earlier one.
+   - `--env-file` loads ODDS_API_KEY (or, for `lanes-display`, GTP_ODDS_DISPLAY_KEY) inside the process. It is never put in argv or printed, and is read only after the receipt parses and only with `--apply`.
+   - Without `--apply` it prints the plan (games, worst-case credits, ceilings). It spends nothing and touches no lane.
+   - With `--apply` (and `ODDS_API_KEY` and `GTP_PRIVATE_DATA_DIR` in the environment) it makes the one capture, then PRICE_VERIFIED + STAKE_SET + PAYOUT_COMPUTED for each open card. A refusal leaves the card open.
+   - `--snapshot FILE` prices from an existing private snapshot, with no call.
+   - `--close-unpriced "<reason>"` closes the day's still-unpriced cards as UNPRICED (HELD; no step consumed).
+   - Then `lanes-display.mjs --root …` (with `GTP_ODDS_DISPLAY_KEY`) refreshes the encrypted site prices.
 3. Render, then the console approves and posts. The console writes POSTED into its inbox (§4).
 4. **Next morning:** `lanes-reconcile.mjs --root … --date D [--finals FILE] --public-out public/data/challenge-lanes`
    - Reads the write-once NBA finals record (ESPN STATUS_FINAL rows) and appends LEG_SETTLED.

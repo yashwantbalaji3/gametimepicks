@@ -51,10 +51,33 @@ export function laneDisplay(doc, { date } = {}) {
     distanceToTargetCents: bankroll == null ? null : Math.max(0, doc.targetCents - bankroll),
     pace: p.withheld ? { state: "withheld", withheld: p.withheld, milestoneCents: p.milestoneCents, nextMilestoneCents: milestones[run.stepsWon] ?? null, requiredMultiple: null, behindCents: null }
       : { state: p.onPace ? "on" : "behind", withheld: null, milestoneCents: p.milestoneCents, nextMilestoneCents: milestones[run.stepsWon] ?? null, requiredMultiple: p.requiredMultiplier, behindCents: p.behindByCents },
-    day: day && { ...dayView(day), packageId: frozen?.packageId ?? L.packageId(day.date), mediaIndex: frozen?.mediaIndex ?? L.mediaIndex, sourceEventSha256: frozen?.sha256 ?? status?.sha256 ?? null, sourceEventType: frozen ? "CARD_FROZEN" : status ? "STATUS" : null },
+    day: day && { ...dayView(day), packageId: frozen?.packageId ?? L.packageId(day.date), mediaIndex: frozen?.mediaIndex ?? L.mediaIndex, cardEventSha256: frozen?.sha256 ?? null, statusEventSha256: status?.sha256 ?? null, sourceEventSha256: frozen?.sha256 ?? status?.sha256 ?? null, sourceEventType: frozen ? "CARD_FROZEN" : status ? "STATUS" : null },
     history: run.days.map(dayView),
     runs: doc.runs.map((r) => ({ runId: r.runId, startedAt: r.startedAt, approvedBy: r.approvedBy, endStatus: r.publicStatus, stepsWon: r.stepsWon })),
     prices: doc.prices, label: doc.label, projectionLabel: doc.projectionLabel,
     sourceSha256: doc.contentSha256,
+  };
+}
+
+/**
+ * laneDisplay with the withheld money filled in from the decrypted prices doc (price-display.mjs), for build-time HTML
+ * only. Refused (throws) unless the prices were made from the same logs as this projection. Without prices, it is
+ * exactly laneDisplay.
+ */
+export function pricedLaneDisplay(doc, prices, opts = {}) {
+  const v = laneDisplay(doc, opts);
+  if (prices == null) return { ...v, priced: false };
+  if (prices.schema !== "gtp.challenge-lane.prices@1" || prices.laneId !== doc.laneId || prices.projectionSha256 !== doc.contentSha256) throw new Error("pricedLaneDisplay: the prices file was not made from this lane projection; refusing to combine them");
+  const run = prices.runs.find((r) => r.runId === v.runId);
+  if (!run) return { ...v, priced: false };
+  const priceOf = (date) => run.days.filter((d) => d.date === date).at(-1) ?? null;
+  const p = run.pace;
+  return {
+    ...v, priced: true,
+    trackedBankrollCents: run.trackedBankrollCents, trackedBankrollWithheld: null,
+    distanceToTargetCents: Math.max(0, v.targetCents - run.trackedBankrollCents),
+    pace: { state: p.onPace ? "on" : "behind", withheld: null, milestoneCents: p.milestoneCents, nextMilestoneCents: v.pace.nextMilestoneCents, requiredMultiple: p.requiredMultiplier, behindCents: p.behindByCents },
+    day: v.day && { ...v.day, price: priceOf(v.day.date) },
+    history: v.history.map((d) => ({ ...d, price: priceOf(d.date) })),
   };
 }

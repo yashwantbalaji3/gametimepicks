@@ -33,7 +33,7 @@ export function prepareLane(events, { date, at, selection, file = null, docSha25
   const base = { date, step: s.step, at, source: "lanes-prepare" };
   if (s.status === STATUS.BUSTED) {
     const bust = s.days.findLast((d) => d.outcome === "LOSS");
-    const reason = `BUSTED AT STEP ${bust?.step ?? s.step} OF ${s.steps} on ${bust?.date ?? "?"}; a new run starts at ${dollars(s.baseCents)} only after a founder-approved restart (D2).`;
+    const reason = `Busted at step ${bust?.step ?? s.step} of ${s.steps} on ${bust?.date ?? "?"}. A new run starts at ${dollars(s.baseCents)} only after the founder approves a restart.`;
     return { events: append(events, { ...base, type: "STATUS", status: STATUS.AWAITING_RESTART_APPROVAL, reason }).slice(events.length), action: STATUS.AWAITING_RESTART_APPROVAL, reason };
   }
   if (inPlay(s)) return { events: [], action: "SKIP", reason: `IN_PLAY: ${stepText(s)} from ${s.open?.date ?? s.days.at(-1)?.date} is unsettled` };
@@ -51,13 +51,13 @@ export function prepareLane(events, { date, at, selection, file = null, docSha25
   return { events: append(events, body).slice(events.length), action: "CARD_FROZEN", reason: null };
 }
 
-export const P1_UNPRICED = "P1_PRICE_SOURCE_UNDECIDED: no price provider is permitted (founder decision P1), so no price was requested from anyone; the card is not staked and the step is unchanged.";
+export const P1_UNPRICED = "UNPRICED: no verified price was recorded for this card before it was closed, so it is not staked and the step is unchanged.";
 
 /** The price step today: every lane holding an unpriced card for `date` gets STATUS UNPRICED. No provider exists here. */
-export function unpricedLane(events, { date, at }) {
+export function unpricedLane(events, { date, at, reason = P1_UNPRICED }) {
   const s = laneState(events);
   if (s.open?.date !== date || s.open.payoutEvent) return { events: [], action: "SKIP" };
-  return { events: append(events, { type: "STATUS", status: STATUS.UNPRICED, reason: P1_UNPRICED, date, step: s.step, at, source: "lanes-price" }).slice(events.length), action: STATUS.UNPRICED };
+  return { events: append(events, { type: "STATUS", status: STATUS.UNPRICED, reason, date, step: s.step, at, source: "lanes-price" }).slice(events.length), action: STATUS.UNPRICED };
 }
 
 /**
@@ -66,14 +66,14 @@ export function unpricedLane(events, { date, at }) {
  * @param {{ date, at, price, suggestedCards, postScheduledAt?, permittedProviders?, strictPace? }} p
  *   price: { legs: [{ legId, selectionCode, provider, book, oddsFormat, price, fetchedAt }], parlay: { method, oddsFormat, price, provider?, fetchedAt? }, priceSnapshotSha256 }
  */
-export function priceLane(events, { date, at, price, suggestedCards, postScheduledAt = null, permittedProviders, strictPace }) {
+export function priceLane(events, { date, at, price, suggestedCards, postScheduledAt = null, permittedProviders, eligibleBooks, strictPace }) {
   const s = laneState(events);
   if (s.open?.date !== date || s.open.payoutEvent) return { events: [], action: "SKIP" };
   const card = s.open.cardEvent;
   let ev = append(events, { type: "PRICE_VERIFIED", date, step: s.step, at, source: "lanes-price", cardEventSha256: card.sha256, price });
   const priceEvent = ev.at(-1);
-  ev = append(ev, { type: "STAKE_SET", date, step: s.step, at, source: "lanes-price", stakeCents: s.bankrollCents, placedWager: false, basis: "all-in tracked bankroll (D1 proposed)" });
-  const r = computePayout({ events: ev, cardEvent: card, suggestedCards, priceEvent, stakeCents: s.bankrollCents, bankrollCents: s.bankrollCents, ladder: { targetCents: s.targetCents, stepsRemaining: s.steps - s.step + 1 }, postScheduledAt, permittedProviders, strictPace });
+  ev = append(ev, { type: "STAKE_SET", date, step: s.step, at, source: "lanes-price", stakeCents: s.bankrollCents, placedWager: false, basis: "all-in tracked bankroll (D1 proposed)", postScheduledAt });
+  const r = computePayout({ events: ev, cardEvent: card, suggestedCards, priceEvent, stakeCents: s.bankrollCents, bankrollCents: s.bankrollCents, ladder: { targetCents: s.targetCents, stepsRemaining: s.steps - s.step + 1 }, postScheduledAt, permittedProviders, eligibleBooks, strictPace });
   if (r.ok) {
     ev = append(ev, { type: "PAYOUT_COMPUTED", result: "VERIFIED", date, step: s.step, at, source: "lanes-price", inputs: r.inputs, grossPayoutCents: r.grossPayoutCents, profitCents: r.profitCents });
     return { events: ev.slice(events.length), action: "PAYOUT_COMPUTED", payout: r };
@@ -114,7 +114,7 @@ export function reconcileLane(events, { finalsRecord, recordFile = FINALS_RECORD
     const base = { date: d.date, step: s.step, at, source: "lanes-reconcile" };
     if (!(Date.parse(payout.at) < firstStart)) { ev = append(ev, { ...base, type: "STATUS", status: STATUS.PAUSED, reason: "PAYOUT_AFTER_FIRST_START: the verified payout was recorded at or after the first leg started; the step cannot settle." }); continue; }
     const outcome = stepOutcome(day.legs);
-    if (outcome === "VOID_REVIEW") { ev = append(ev, { ...base, type: "STATUS", status: STATUS.PENDING_VOID_REVIEW, reason: "A leg was voided or pushed. The step settles on the remaining legs only with the book's own void price, verified by the founder (D4); legs are never substituted." }); continue; }
+    if (outcome === "VOID_REVIEW") { ev = append(ev, { ...base, type: "STATUS", status: STATUS.PENDING_VOID_REVIEW, reason: "A leg was voided or pushed. The step settles on the remaining legs only at the book's own void price, verified by the founder. Legs are never substituted." }); continue; }
     if (outcome === "LOSS") {
       ev = append(ev, { ...base, type: "STEP_SETTLED", outcome: "LOSS", payoutEventSha256: payout.sha256, bankrollBeforeCents: s.bankrollCents, bankrollAfterCents: 0 });
       ev = append(ev, { ...base, type: "STATUS", status: STATUS.BUSTED, reason: `LANE ${LANES[s.laneId].slot} — BUSTED AT STEP ${s.step} OF ${s.steps}` });
@@ -122,7 +122,7 @@ export function reconcileLane(events, { finalsRecord, recordFile = FINALS_RECORD
     }
     ev = append(ev, { ...base, type: "STEP_SETTLED", outcome: "WIN", payoutEventSha256: payout.sha256, bankrollBeforeCents: s.bankrollCents, bankrollAfterCents: payout.grossPayoutCents });
     if (payout.grossPayoutCents >= s.targetCents) ev = append(ev, { ...base, step: s.step + 1, type: "STATUS", status: STATUS.COMPLETE, reason: `Tracked bankroll reached the ${dollars(s.targetCents)} target.` });
-    else if (s.step >= s.steps) ev = append(ev, { ...base, step: s.step + 1, type: "STATUS", status: STATUS.FINISHED_SHORT, reason: `All ${s.steps} steps won, below the ${dollars(s.targetCents)} target; a 6th step or a new run is the founder's decision (D6).` });
+    else if (s.step >= s.steps) ev = append(ev, { ...base, step: s.step + 1, type: "STATUS", status: STATUS.FINISHED_SHORT, reason: `All ${s.steps} steps won, below the ${dollars(s.targetCents)} target. The founder decides whether a sixth step or a new run follows.` });
   }
   return { events: ev.slice(events.length), held };
 }
