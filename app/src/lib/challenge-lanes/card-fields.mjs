@@ -7,6 +7,16 @@
 
 /** Verbatim public text for the site and graphics (the site never derives one). */
 export const EVIDENCE_LABEL = Object.freeze({ LEVEL_A: "Model-validated value", LEVEL_B: "Historical hit-rate research (experimental)" });
+/** Lane specialization (founder ~19:55Z, proposed): lane A = NBA moneylines, lane B = NBA player props, both products. */
+export const LANE_TYPE = Object.freeze({ NBA_MONEYLINE: "NBA_MONEYLINE", NBA_PLAYER_PROPS: "NBA_PLAYER_PROPS" });
+export const LANE_TYPE_LABEL = Object.freeze({ NBA_MONEYLINE: "NBA MONEYLINES", NBA_PLAYER_PROPS: "NBA PLAYER PROPS" });
+const LANE_ALIAS = { moneyline: "NBA_MONEYLINE", props: "NBA_PLAYER_PROPS", NBA_MONEYLINE: "NBA_MONEYLINE", NBA_PLAYER_PROPS: "NBA_PLAYER_PROPS" };
+export const laneTypeOf = (x) => LANE_ALIAS[x] ?? null;
+/** A leg's fit to a lane type: null when it fits (or the lane is untyped), else the refusal. */
+export const laneTypeRefusal = (laneType, leg) => { const t = laneTypeOf(laneType); if (!t) return null; const ml = leg.family === "winner" || leg.market === "winner" || leg.market === "h2h"; return (t === "NBA_MONEYLINE") === ml ? null : `LANE_TYPE_MISMATCH ${leg.legId}: a ${ml ? "moneyline" : "player-prop"} leg on a ${LANE_TYPE_LABEL[t]} lane`; };
+/** The combined-price label by pricing method (site prints it verbatim). */
+export const COMBINED_LABEL = Object.freeze({ LEG_PRODUCT: "calculated leg product", CALCULATED_LEG_PRODUCT: "calculated leg product", BOOK_QUOTED_PARLAY: "book-quoted parlay" });
+
 /** Founder 2026-11-04 ~19:40Z: the label on every DAILY RESEARCH SELECTION card, verbatim. */
 export const SELECTION_LABEL = Object.freeze({ RESEARCH: "RESEARCH SELECTION — NO VALIDATED EDGE CLAIM", STRICT: null });
 /** Disclosed-limitation flag codes (public: codes only; the full text carries line-dependent counts and stays encrypted). */

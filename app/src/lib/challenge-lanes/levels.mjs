@@ -18,7 +18,7 @@ import { canonical, sha256 } from "./chain.mjs";
 import { priceRatio, payoutCents, decimalToAmerican } from "./payout.mjs";
 import { stepPosition, RULES_VERSION } from "./rules-v2.mjs";
 import { ELIGIBLE_OPERATOR_KEYS } from "../sports/odds/eligible-operators.mjs";
-import { EVIDENCE_LABEL, SELECTION_LABEL, publicFlags } from "./card-fields.mjs";
+import { EVIDENCE_LABEL, SELECTION_LABEL, publicFlags, laneTypeOf, laneTypeRefusal } from "./card-fields.mjs";
 export { EVIDENCE_LABEL, PRIVATE_LEG_FIELDS, publicLeg, privateLeg } from "./card-fields.mjs";
 
 export const SHORTLIST_SCHEMA = "gtp.bbm.level-b-shortlist@1";
@@ -44,6 +44,7 @@ export const LEVEL_B_PARAMS = Object.freeze({
   lineupExcludeRate: Object.freeze({ value: 0.55, state: "PROPOSED" }),
   /* Founder ~19:55Z: a projected-minutes drop of ≥ 20% vs L5 is a flag, and the evidence is re-weighted to minutes-comparable games. */
   minutesDropPct: Object.freeze({ value: 0.20, state: "PROPOSED" }),
+  minutesConditioned: Object.freeze({ value: null, state: "PROPOSED", note: "{ legId: { hits, n, note } } from the evaluator: games within ±4 of tonight's projected minutes" }),
   /* Founder ~19:55Z lane specialization (bbm-rules@2 laneType): A lanes moneylines only, B lanes player props only. */
   laneTypes: Object.freeze({ value: null, state: "PROPOSED", note: '{ "bb-a": "moneyline", "ms-a": "moneyline", "bb-b": "props", "ms-b": "props" }' }),
   legDecimalRange: Object.freeze({ value: Object.freeze([1.25, 4.0]), state: "PROPOSED" }),
@@ -154,13 +155,25 @@ export function legSignals(leg, { params = null, now } = {}) {
     const m = String(ro.note ?? "").match(/lane projected ([\d.]+) min; L5 mean ([\d.]+)/);
     const proj = ro.laneProjected ?? (m ? Number(m[1]) : null); const l5 = ro.l5Mean ?? (m ? Number(m[2]) : null);
     if (proj != null && l5 > 0 && proj < l5 * (1 - P("minutesDropPct", params))) {
-      const mw = w.find((x) => x.window === "last20-minutes-within-4");
+      const mc = P("minutesConditioned", params)?.[leg.legId];
+      const mw = mc ? { window: "within ±4 of tonight's projection", hits: mc.hits, n: mc.n } : w.find((x) => x.window === "last20-minutes-within-4");
       const capped = mw && mw.n > 0 ? (mw.hits + 1) / (mw.n + 2) : null;
       (research ? f : r).push(`B_MINUTES_DROP ${leg.legId}: projected ${proj} min vs L5 ${l5}${mw ? ` · minutes-comparable ${mw.hits}/${mw.n}` : " · no minutes-comparable window"}`);
       if (research) f.push(`B_MINUTES_DROP_WEIGHT ${leg.legId}`);
       if (capped != null && A.shrunkRate != null && capped < A.shrunkRate) { A.uncappedRate = A.shrunkRate; A.shrunkRate = capped; A.basis = `${A.basis}; capped to minutes-comparable games`; }
       if (A.shrunkRate != null) { const floor = P("minShrunkRateByFamily", params)?.[leg.family] ?? P("minShrunkRate", params); if (A.shrunkRate < floor - 1e-9 && !r.some((x) => x.startsWith(`A_WEAK_EVIDENCE ${leg.legId}`))) r.push(`A_WEAK_EVIDENCE ${leg.legId}: minutes-comparable rate ${A.shrunkRate.toFixed(3)} < ${floor}`); }
     }
+  }
+  /* The evaluator's minutes-conditioned evidence (games within ±4 of tonight's projection): always a disclosed
+     MINUTES_UNCERTAIN flag, and the evidence rate is capped at its (k+1)/(n+2) when lower. */
+  const mcx = P("minutesConditioned", params)?.[leg.legId];
+  if (research && mcx && Number.isInteger(mcx.hits) && mcx.n > 0) {
+    f.push(`B_MINUTES_UNCERTAIN ${leg.legId}: within ±4 of the projection ${mcx.hits}/${mcx.n}${mcx.note ? ` · ${mcx.note}` : ""}`);
+    const capped = (mcx.hits + 1) / (mcx.n + 2);
+    if (A.shrunkRate != null && capped < A.shrunkRate) { A.uncappedRate = A.uncappedRate ?? A.shrunkRate; A.shrunkRate = capped; A.basis = `${A.basis}; capped to minutes-conditioned games`; }
+    const floor = P("minShrunkRateByFamily", params)?.[leg.family] ?? P("minShrunkRate", params);
+    for (let i = r.length - 1; i >= 0; i--) if (r[i].startsWith(`A_WEAK_EVIDENCE ${leg.legId}`)) r.splice(i, 1);
+    if (A.shrunkRate != null && A.shrunkRate < floor - 1e-9) r.push(`A_WEAK_EVIDENCE ${leg.legId}: minutes-conditioned rate ${A.shrunkRate.toFixed(3)} < ${floor}`);
   }
   const C = { status: leg.injury?.status ?? null, fetchedAt: leg.injury?.fetchedAt ?? null };
   if (leg.family !== "winner" && !P("allowedInjury", params).includes(C.status)) r.push(`C_AVAILABILITY ${leg.legId}: ${C.status ?? "unknown"}`);
@@ -198,12 +211,13 @@ export function legSignals(leg, { params = null, now } = {}) {
  * @param {object[]} set   legs from legFromShortlist
  * @param {{ position, now, propCapture?, propIx?, propCaptureSha256?, h2h?, params?, excludeGames?, bookmakers? }} ctx
  */
-export function evaluateLevelSet(set, { position, now, propIx, propCaptureSha256 = null, h2h = null, params = null, excludeGames = [], bookmakers = ELIGIBLE_OPERATOR_KEYS }) {
+export function evaluateLevelSet(set, { laneType = null, position, now, propIx, propCaptureSha256 = null, h2h = null, params = null, excludeGames = [], bookmakers = ELIGIBLE_OPERATOR_KEYS }) {
   const legs = [...set].sort((a, b) => String(a.startUtc).localeCompare(String(b.startUtc)) || a.legId.localeCompare(b.legId));
   const reasons = [];
   const flags = [];
   const perLeg = legs.map((l) => { const s = legSignals(l, { params, now }); reasons.push(...s.reasons); flags.push(...s.flags); return s.signals; });
   if (legs.length > 2) reasons.push("LEG_COUNT_EXCEEDED");
+  for (const l of legs) { const m = laneTypeRefusal(laneType, l); if (m) reasons.push(m); }
   const players = legs.filter((l) => l.player).map((l) => l.player.playerId);
   if (new Set(players).size !== players.length) reasons.push("CORRELATED_SAME_PLAYER: no dependence model for two lines of one player");
   if (new Set(legs.map((l) => l.gameId)).size !== legs.length) reasons.push("CORRELATED_SAME_GAME: no dependence model and no provider-quoted same-game price");
@@ -251,9 +265,9 @@ export function evaluateLevelSet(set, { position, now, propIx, propCaptureSha256
 }
 
 /** All 1- and 2-leg Level B candidates at one position, ranked by the rules-based order. */
-export function evaluateLevelCandidates({ legs, position, now, propCapture = null, propCaptureSha256 = null, h2h = null, params = null, excludeGames = [], bookmakers = ELIGIBLE_OPERATOR_KEYS }) {
+export function evaluateLevelCandidates({ laneType = null, legs, position, now, propCapture = null, propCaptureSha256 = null, h2h = null, params = null, excludeGames = [], bookmakers = ELIGIBLE_OPERATOR_KEYS }) {
   const propIx = indexPropCapture(propCapture);
-  const ctx = { position, now, propIx, propCaptureSha256, h2h, params, excludeGames, bookmakers };
+  const ctx = { laneType, position, now, propIx, propCaptureSha256, h2h, params, excludeGames, bookmakers };
   const sets = legs.map((l) => [l]);
   for (let i = 0; i < legs.length; i++) for (let j = i + 1; j < legs.length; j++) sets.push([legs[i], legs[j]]);
   const rows = sets.map((s) => evaluateLevelSet(s, ctx));
@@ -347,9 +361,9 @@ export function assignFourLanes({ legs, now, propCapture, propCaptureSha256 = nu
       const pos = stepPosition({ product, step: steps[laneId], bankrollCents: bankrolls[laneId], params: bandParams });
       if (!pos.ok) { out[laneId] = { laneId, status: "HELD", code: pos.refusal, options: [] }; continue; }
       const partner = laneId === b ? out[a]?.card : null;
-      const laneType = P("laneTypes", params)?.[laneId] ?? null;
-      const laneLegs = laneType === "moneyline" ? legs.filter((l) => l.family === "winner") : laneType === "props" ? legs.filter((l) => l.family !== "winner") : legs;
-      const ev = evaluateLevelCandidates({ legs: laneLegs, position: pos, now, propCapture, propCaptureSha256, h2h, params, excludeGames: partner ? partner.legs.map((l) => l.gameId) : [] });
+      const laneType = laneTypeOf(P("laneTypes", params)?.[laneId]);
+      const laneLegs = laneType ? legs.filter((l) => !laneTypeRefusal(laneType, l)) : legs;
+      const ev = evaluateLevelCandidates({ laneType, legs: laneLegs, position: pos, now, propCapture, propCaptureSha256, h2h, params, excludeGames: partner ? partner.legs.map((l) => l.gameId) : [] });
       const eligible = ev.ranked;
       const identical = (c) => assigned.find((x) => x.product !== product && legSetKey(x.card) === legSetKey(c));
       let pick = eligible[0] ?? null; let note = null;

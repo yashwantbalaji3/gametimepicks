@@ -48,7 +48,7 @@ export function laneDisplay(doc, { date } = {}) {
   const bankroll = run.trackedBankrollCents;
   const p = run.pace;
   return {
-    laneId: doc.laneId, product: doc.product, slot: doc.slot, runId: run.runId, runNumber: runNumber(run.runId), ruleVersion: run.ruleVersion ?? V1,
+    laneId: doc.laneId, product: doc.product, slot: doc.slot, runId: run.runId, runNumber: runNumber(run.runId), ruleVersion: run.ruleVersion ?? V1, laneType: run.laneType ?? doc.laneType ?? null, laneTypeLabel: run.laneTypeLabel ?? doc.laneTypeLabel ?? null,
     step: Math.min(run.step, run.steps), steps: run.steps, stepText: run.stepText, cleared: run.stepsWon,
     status: run.publicStatus, internalStatus: run.status, reason: run.statusReason, inPlay: run.inPlay,
     rungs: rungsOf(run, milestones), // milestone after each step; the base is `baseCents`, not a rung
@@ -59,7 +59,7 @@ export function laneDisplay(doc, { date } = {}) {
       : { state: p.onPace ? "on" : "behind", withheld: null, milestoneCents: p.milestoneCents, nextMilestoneCents: milestones[run.stepsWon] ?? null, requiredMultiple: p.requiredMultiplier, behindCents: p.behindByCents },
     day: day && { ...dayView(day), packageId: frozen?.packageId ?? L.packageId(day.date), mediaIndex: frozen?.mediaIndex ?? L.mediaIndex, priceVerification, awaitingVerification: priceVerification === "PRELIMINARY", cardEventSha256: frozen?.sha256 ?? null, statusEventSha256: status?.sha256 ?? null, sourceEventSha256: frozen?.sha256 ?? status?.sha256 ?? null, sourceEventType: frozen ? "CARD_FROZEN" : status ? "STATUS" : null },
     history: run.days.map(dayView),
-    runs: doc.runs.map((r) => ({ runId: r.runId, ruleVersion: r.ruleVersion ?? V1, steps: r.steps, maxLegs: r.maxLegs ?? doc.maxLegs, milestonesCents: r.milestonesCents ?? doc.milestonesCents, supersedes: r.supersedes ?? null, startedAt: r.startedAt, approvedBy: r.approvedBy, endStatus: r.publicStatus, stepsWon: r.stepsWon })),
+    runs: doc.runs.map((r) => ({ runId: r.runId, ruleVersion: r.ruleVersion ?? V1, laneType: r.laneType ?? null, laneTypeLabel: r.laneTypeLabel ?? null, steps: r.steps, maxLegs: r.maxLegs ?? doc.maxLegs, milestonesCents: r.milestonesCents ?? doc.milestonesCents, supersedes: r.supersedes ?? null, startedAt: r.startedAt, approvedBy: r.approvedBy, endStatus: r.publicStatus, stepsWon: r.stepsWon })),
     prices: doc.prices, label: doc.label, projectionLabel: doc.projectionLabel,
     sourceSha256: doc.contentSha256,
   };

@@ -21,6 +21,7 @@ import { priceRatio, payoutCents, decimalToAmerican } from "./payout.mjs";
 import { priceForCard } from "./odds.mjs";
 import { RULE_A_FOR_PRODUCT, LANES, STATUS, laneState, append } from "./lanes.mjs";
 import { chainEvent } from "./chain.mjs";
+import { laneTypeOf } from "./card-fields.mjs";
 import { ELIGIBLE_OPERATOR_KEYS } from "../sports/odds/eligible-operators.mjs";
 
 export const RULES_VERSION = "bbm-rules@2";
@@ -223,12 +224,12 @@ export function withdrawAndRetire(events, { date, at, approvalRef, nextRunId }) 
 }
 
 /** RUN_STARTED for a v2 run: carries the rules version and the run it supersedes (head sha), so history links both ways. */
-export function runStartedV2({ laneId, runId, startedAt, approvedBy, supersedes = null }) {
+export function runStartedV2({ laneId, runId, startedAt, approvedBy, supersedes = null, laneType = null }) {
   const L = LANES[laneId];
   if (!L) throw new Error(`unknown lane ${laneId}`);
   if (!approvedBy) throw new Error("a run starts only with a founder approval reference (approvedBy)");
   const R = RULES_V2.products[L.product];
-  return chainEvent([], { type: "RUN_STARTED", laneId, runId, product: L.product, slot: L.slot, baseCents: R.baseCents, targetCents: R.targetCents, steps: R.steps, maxLegs: R.maxLegs, stepTargetsCents: [...R.stepTargetsCents], rulesVersion: RULES_VERSION, supersedes, startedAt, approvedBy, at: startedAt, source: "lanes-prepare" });
+  return chainEvent([], { type: "RUN_STARTED", laneId, runId, product: L.product, slot: L.slot, baseCents: R.baseCents, targetCents: R.targetCents, steps: R.steps, maxLegs: R.maxLegs, stepTargetsCents: [...R.stepTargetsCents], rulesVersion: RULES_VERSION, supersedes, ...(laneType ? { laneType: laneTypeOf(laneType) ?? (() => { throw new Error(`unknown laneType ${laneType}`); })() } : {}), startedAt, approvedBy, at: startedAt, source: "lanes-prepare" });
 }
 
 /** The v2 position of a lane from its log: carry-forward bankroll, step, target, required multiplier, band. */
