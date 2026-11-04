@@ -20,3 +20,14 @@ export const privateLeg = (l, { maxQuoteAgeMs = 90 * 60 * 1000 } = {}) => ({
   staleAfter: l.fetchedAt ? new Date(Date.parse(l.fetchedAt) + maxQuoteAgeMs).toISOString() : null,
   hitRates: (l.hitRate?.windows ?? []).map((w) => ({ window: w.window, k: w.hits, n: w.n })), lineBasis: l.hitRate?.lineBasis ?? null,
 });
+
+/**
+ * The one evidence line for a graphic or caption: "Hit 8/10 L10 · 14/20 L20", from a card@2 leg's hitRate windows
+ * (`last10`, `last20`) or a price-display legDetails' hitRates. Counts only, never a percentage; null when a window is
+ * missing (the renderer then refuses the leg rather than inventing one).
+ */
+export function evidenceLine(leg, windows = ["last10", "last20"]) {
+  const rows = leg?.hitRate?.windows?.map((w) => ({ window: w.window, k: w.hits, n: w.n })) ?? leg?.hitRates ?? [];
+  const parts = windows.map((name) => { const w = rows.find((x) => x.window === name); return w && Number.isInteger(w.k) && Number.isInteger(w.n) ? `${w.k}/${w.n} L${name.replace(/^last/, "")}` : null; });
+  return parts.every(Boolean) ? `Hit ${parts.join(" · ")}` : null;
+}

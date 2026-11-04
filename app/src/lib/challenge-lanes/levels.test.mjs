@@ -190,3 +190,41 @@ test("rank buckets are exact at the boundary: 0.60 and 0.618 share the 0.60–0.
   assert.equal(ev.ranked.length, 2);
   assert.ok(ev.ranked[0].candidateId < ev.ranked[1].candidateId, "same tier and equal later keys: the id tie-break decides, not the 0.018 difference");
 });
+
+test("evidenceLine: counts only, from either leg shape; null when a window is missing", async () => {
+  const { evidenceLine } = await import("./card-fields.mjs");
+  const leg = legFromShortlist(row({ hitRate: { windows: [{ window: "last10", hits: 8, n: 10 }, { window: "last20", hits: 14, n: 20 }], shrunk: { rate: 0.62, nEffective: 84 } } }));
+  assert.equal(evidenceLine(leg), "Hit 8/10 L10 · 14/20 L20");
+  assert.equal(evidenceLine({ hitRates: [{ window: "last10", k: 8, n: 10 }, { window: "last20", k: 14, n: 20 }] }), "Hit 8/10 L10 · 14/20 L20");
+  assert.equal(evidenceLine({ hitRates: [{ window: "last10", k: 8, n: 10 }] }), null);
+});
+
+test("RESEARCH mode: role and lineup uncertainty are flags; a large lineup scenario against the side excludes; a guide window, not a band", () => {
+  const R = { mode: "RESEARCH", minShrunkRateByFamily: { pts: 0.6 } };
+  const cap = capture([["1", "p1", "pts", 20.5, -150, 120]]);
+  const ev = (o, params = R) => evaluateLevelSet([legFromShortlist(row(o))], ctx(cap, MS1, { params }));
+  const unstable = ev({ role: { minutesAvg: 30, minutesSd: 12, gamesPlayed: 8, stable: false } });
+  assert.equal(unstable.classification, LEVEL.B, unstable.reasons.join("; "));
+  assert.ok(unstable.flags.some((x) => x.startsWith("B_ROLE_UNSTABLE")) && unstable.flags.some((x) => x.startsWith("B_MINUTES_VOLATILE")));
+  const against = ev({ lineup: { tonightScenario: "Star out", tonight: { games: 61, hits: 32 }, scenarios: [], sensitive: true, baseRepresentative: false } });
+  assert.ok(against.reasons.some((x) => x.startsWith("C_LINEUP_EXCLUDED")), "61 games, 0.525: excluded");
+  const thin = ev({ lineup: { tonightScenario: "X out", tonight: { games: 4, hits: 3 }, scenarios: [], sensitive: true, baseRepresentative: false } });
+  assert.equal(thin.classification, LEVEL.B);
+  assert.ok(thin.flags.some((x) => /C_LINEUP_UNCERTAIN .*wide uncertainty/.test(x)));
+  assert.ok(ev({}).money.grossPayoutCents < 4500 && ev({}).classification === LEVEL.B, "−150 → $41.67: outside ±10% but inside the guide window");
+  assert.ok(ev({}, null).reasons.some((x) => x.startsWith("OUT_OF_BAND")), "STRICT keeps the band");
+  assert.ok(ev({ hitRate: { ...row().hitRate, shrunk: { rate: 0.58, nEffective: 84 } } }).reasons.some((x) => x.startsWith("A_WEAK_EVIDENCE")), "the family floor still applies");
+});
+
+test("RESEARCH with a contextual block: the contextual rate is the evidence; its exclude holds; MEDIUM/HIGH are flags", () => {
+  const R = { mode: "RESEARCH" };
+  const cap = capture([["1", "p1", "pts", 20.5, -150, 120]]);
+  const lu = (cx) => ({ ...row().lineup, sensitive: true, baseRepresentative: false, contextual: cx });
+  const ev = (cx) => evaluateLevelSet([legFromShortlist(row({ lineup: lu(cx) }))], ctx(cap, MS1, { params: R }));
+  const low = ev({ primary: { rate: 0.52, interval95: [0.4, 0.6], nEff: 70, exact: { hits: 30, games: 50 } }, flagLevel: "LOW", exclude: false });
+  assert.ok(low.reasons.some((x) => x.startsWith("A_WEAK_EVIDENCE")), "contextual 0.52 replaces the lineup-blind 0.64");
+  const high = ev({ primary: { rate: 0.66, interval95: [0.55, 0.75], nEff: 70, exact: { hits: 2, games: 2 } }, flagLevel: "HIGH", exclude: false });
+  assert.equal(high.classification, LEVEL.B);
+  assert.equal(high.rankKeys.flagCount, 2, "HIGH counts twice");
+  assert.ok(ev({ primary: { rate: 0.7 }, flagLevel: "LOW", exclude: true, excludeReason: "player himself DAY_TO_DAY" }).reasons.some((x) => x.startsWith("C_LINEUP_EXCLUDED")));
+});
