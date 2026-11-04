@@ -259,8 +259,8 @@ const pricedEvents = (laneId, { provider = "FIXTURE-NOT-A-BOOK", book = "SAMPLE 
   const ev = (events ?? [frozen(laneId)]).reduce((acc, e) => append(acc, e), [runStarted({ laneId, runId: "run-1", startedAt: LANE.generatedAt, approvedBy: "test" })]);
   const card = laneState(ev).open.cardEvent.card;
   const fetchedAt = new Date(FIRST - 2 * 3.6e6).toISOString().replace(".000Z", "Z");
-  const price = { legs: card.legs.map((l, i) => ({ legId: l.legId, selectionCode: l.selection.code, provider, book, oddsFormat: "american", price: odds[i], fetchedAt })), parlay: { method: "LEG_PRODUCT", fetchedAt }, priceSnapshotSha256: "f".repeat(64), ...(preliminary ? { preliminary: true } : {}) };
-  const r = priceLane(ev, { date: DATE, at: fetchedAt, price, suggestedCards: FILE, permittedProviders: [provider], eligibleBooks: [book] });
+  const price = { legs: card.legs.map((l, i) => ({ legId: l.legId, selectionCode: l.selection.code, provider, book, oddsFormat: "american", price: odds[i], fetchedAt })), parlay: { method: "LEG_PRODUCT", fetchedAt }, priceSnapshotSha256: "f".repeat(64) };
+  const r = priceLane(ev, { date: DATE, at: fetchedAt, price, suggestedCards: FILE, permittedProviders: [provider], eligibleBooks: [book], preliminary });
   return { events: [...ev, ...r.events], action: r.action, payout: r.payout };
 };
 
@@ -320,10 +320,21 @@ test("priced refusals: another run's log, a refused payout, a broken chain, pric
 
 test("preliminary prices (founder P0 2026-11-04): tagged on the image, flagged on the package, never shown as final", () => {
   const pre = pricedEvents("bb-a", { provider: "the-odds-api", book: "DraftKings", preliminary: true });
-  assert.equal(pre.action, "PAYOUT_COMPUTED");
+  assert.equal(pre.action, "PRELIMINARY");
   const p = prep(laneProjection("bb-a", [pre.events]), { privateEvents: pre.events, displayRecord: SOCIAL_ON });
   assert.equal(p.refused, undefined, p.refused);
   assert.equal(p.view.payout.preliminary, true);
+  assert.equal(p.card.cells["money.wagerState"], "Tracked stake once verified");
+  // The near-window refresh (a VERIFIED price on the same day) supersedes it: the tag goes, the stake is real.
+  const card = laneState(pre.events).open.cardEvent.card;
+  const at2 = new Date(FIRST - 1 * 3.6e6).toISOString().replace(".000Z", "Z");
+  const r2 = priceLane(pre.events, { date: DATE, at: at2, price: { legs: card.legs.map((l, i) => ({ legId: l.legId, selectionCode: l.selection.code, provider: "the-odds-api", book: "DraftKings", oddsFormat: "american", price: [-160, -200][i], fetchedAt: at2 })), parlay: { method: "LEG_PRODUCT", fetchedAt: at2 }, priceSnapshotSha256: "e".repeat(64) }, suggestedCards: FILE, permittedProviders: ["the-odds-api"], eligibleBooks: ["DraftKings"] });
+  assert.equal(r2.action, "PAYOUT_COMPUTED");
+  const ev2 = [...pre.events, ...r2.events];
+  const v2 = prep(laneProjection("bb-a", [ev2]), { privateEvents: ev2, displayRecord: SOCIAL_ON });
+  assert.equal(v2.refused, undefined, v2.refused);
+  assert.equal(v2.view.payout.preliminary, false); assert.doesNotMatch(textOf(v2.card), /PRELIMINARY/);
+  assert.notEqual(v2.card.html, p.card.html, "a changed price is a new image");
   assert.match(textOf(p.card), /PRELIMINARY PRICES · RE-VERIFIED BEFORE POSTING/);
   assert.deepEqual(verifyBbmCard(p.card), []);
   assert.match(verifyBbmCard({ ...p.card, preliminary: false }).join(";"), /preliminary tag on a verified price/);

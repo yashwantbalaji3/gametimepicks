@@ -10,7 +10,7 @@
 import { canonical, sha256, verifyChain } from "../challenge-lanes/chain.mjs";
 import { laneDisplay, RUNG } from "../challenge-lanes/display.mjs";
 import { LANES, laneState } from "../challenge-lanes/lanes.mjs";
-import { decimalToAmerican, PRICE_WINDOW_MS } from "../challenge-lanes/payout.mjs";
+import { decimalToAmerican } from "../challenge-lanes/payout.mjs";
 import { lanePriceDisplay, socialPricesAuthorized } from "../challenge-lanes/price-display.mjs";
 import { verifyLaneProjection } from "../challenge-lanes/projection.mjs";
 
@@ -103,29 +103,26 @@ export function pricedDay(events, { date, doc = null }) {
   if (!card) return null;
   const day = lanePriceDisplay(events[0].laneId, [events]).runs.at(-1).days.findLast((d) => d.date === date && d.step === card.step);
   if (!day) return null;
-  if (day.result !== "VERIFIED") return { unpricedReason: `PAYOUT_COMPUTED ${day.result}: ${(day.refusals ?? []).join(", ")}` };
+  // VERIFIED stakes the step; PRELIMINARY (an early build, engine 435b30cec8) prints with its tag and stakes nothing.
+  if (day.result !== "VERIFIED" && day.result !== "PRELIMINARY") return { unpricedReason: `PAYOUT_COMPUTED ${day.result}: ${(day.refusals ?? []).join(", ")}` };
   const legIds = card.card.legs.map((l) => String(l.legId)).sort();
   if (legIds.join() !== day.legs.map((l) => String(l.legId)).sort().join()) return { refused: "the price does not cover exactly the card's legs" };
   if (![day.stakeCents, day.grossPayoutCents, day.profitCents].every(Number.isInteger) || day.grossPayoutCents - day.profitCents !== day.stakeCents) return { refused: "the payout amounts do not hold (gross - profit = stake)" };
-  const pv = events.find((e) => e.type === "PRICE_VERIFIED" && e.cardEventSha256 === card.sha256);
+  const pv = events.findLast((e) => e.type === "PRICE_VERIFIED" && e.cardEventSha256 === card.sha256);
   const providers = (pv?.price?.legs ?? []).map((l) => l.provider);
   const books = day.book ? [day.book] : [...new Set((pv?.price?.legs ?? []).map((l) => l.book))];
   if (books.length !== 1) return { refused: `every leg must come from one book (got ${books.length})` };
   const fetched = day.legs.map((l) => l.fetchedAt).filter(Boolean).sort();
-  // PRELIMINARY (founder P0 2026-11-04): an early price, captured more than the SPEC §7 window (90 min) before the lane's
-  // scheduled post, or flagged so by the engine. It prints with its tag and is re-verified near the window.
+  // PRELIMINARY (founder P0 2026-11-04) is the engine's own verdict on the day's latest price (lanePriceDisplay).
   const stake = events.findLast((e) => e.type === "STAKE_SET" && e.date === date && e.step === card.step);
-  const postAt = stake?.postScheduledAt ?? null;
-  const early = postAt && fetched[0] ? Date.parse(fetched[0]) < Date.parse(postAt) - PRICE_WINDOW_MS : false;
-  const flagged = pv?.price?.preliminary === true || events.some((e) => e.type === "PAYOUT_COMPUTED" && e.date === date && e.inputs?.preliminary === true);
   return {
-    preliminary: early || flagged, postScheduledAt: postAt,
+    preliminary: day.verification === "PRELIMINARY", postScheduledAt: stake?.postScheduledAt ?? null, changedFromEarlier: day.changedFromEarlier ?? null,
     stakeCents: day.stakeCents, grossCents: day.grossPayoutCents, profitCents: day.profitCents,
     decimalPrice: day.decimalPrice, combinedAmerican: decimalToAmerican(day.decimalPrice), method: day.method,
     // Anything but one book's product over different games carries its label (SPEC §7); lanes never produce it.
     estimate: day.estimate === true || day.method !== "LEG_PRODUCT", label: day.label,
     legs: Object.fromEntries(day.legs.map((l) => [String(l.legId), { price: l.price, oddsFormat: l.oddsFormat, line: l.line, fetchedAt: l.fetchedAt }])),
-    books, capturedAt: fetched[0] ?? null, belowPace: day.belowPace,
+    books, capturedAt: day.capturedAt ?? fetched[0] ?? null, belowPace: day.belowPace,
     fixture: providers.some((x) => isFixturePrice(x, null)) || books.some((b) => isFixturePrice(null, b)),
   };
 }

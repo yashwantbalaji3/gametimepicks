@@ -95,7 +95,8 @@ export function prepareLane({ doc, date, slate, roster, asOf, testData = false, 
       // A priced win withholds the public bankroll; the private log's own fold supplies it for the stake line.
       if (view.bankrollCents == null) view = { ...view, bankrollCents: privateBankrollCents(privateEvents) };
       if (pr.stakeCents !== view.bankrollCents) return refuse(`the verified stake ${pr.stakeCents} is not the tracked bankroll ${view.bankrollCents} (all-in ladder)`);
-      view = { ...view, staked: true };
+      // A preliminary price stakes nothing (engine): the wager is what the verified price will stake.
+      view = { ...view, staked: !pr.preliminary, stakePending: pr.preliminary };
     }
   }
   if (samplePayout) {
