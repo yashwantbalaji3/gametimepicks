@@ -61,6 +61,17 @@ function publicLeg(poolLeg) {
   return { ...rest, settlement: leg?.settlement ?? null };
 }
 
+/* OUR OWN WORDS on every card (founder rule, relayed by the Program Director 2026-11-03: MODEL PROJECTION wording, never
+   "estimate", "est." or "projected median"). The engine's `whySelected` is the live page's text and is not reused here.
+   `disclosure` is the shared NBA Elo display's own text and is passed through verbatim (owned by that display). */
+const SPORT_NAME = { nba: "NBA", mlb: "MLB", epl: "Premier League", "ligue-1": "Ligue 1" };
+export const ACCURACY_NOTE = "MODEL PROJECTION accuracy is not yet established over a large forward sample.";
+function rationaleFor(card, n) {
+  const band = `${card.tierLabel} band (${n} legs)`;
+  if (card.sports.length === 1 && card.sports[0] === "nba") return `Each leg is the official NBA side with its MODEL PROJECTION win chance from the frozen Elo team rating; this is the combination with the highest joint chance in the ${band}.`;
+  return `Each leg is its sport's official pick with its published MODEL PROJECTION chance; this is the combination with the highest joint chance in the ${band}, from ${card.sports.map((x) => SPORT_NAME[x] ?? x).join(", ")}.`;
+}
+
 function publicCard(card, byKey, scope) {
   const legs = card.legs.map((l) => publicLeg(byKey.get(`${l.sport}:${l.eventId}:${l.market}`)));
   const flagged = legs.filter((l) => l.guard?.state === "review");
@@ -69,10 +80,10 @@ function publicCard(card, byKey, scope) {
     policy: card.policy, scope, tier: card.tier, tierLabel: card.tierLabel, sports: card.sports,
     legs, jointProbability: Math.round(card.jointProbability * 1e4) / 1e4, jointShown: card.jointShown,
     band: { tier: card.tier, rule: TIER_THRESHOLD[card.tier] ?? null, method: card.method ?? TIER_METHOD },
-    rationale: card.whySelected,
+    rationale: rationaleFor(card, legs.length),
     confidence: flagged.length
-      ? `${flagged.length} leg${flagged.length === 1 ? " carries" : "s carry"} an availability flag (shown on the leg). Model estimates are not yet validated over a large forward sample.`
-      : "Model estimates are not yet validated over a large forward sample.",
+      ? `${flagged.length} leg${flagged.length === 1 ? " carries" : "s carry"} an availability flag (shown on the leg). ${ACCURACY_NOTE}`
+      : ACCURACY_NOTE,
     dependency: card.dependency, disclosure: card.disclosure ?? null,
     status: "MODEL_ONLY", priced: false, price: null, payout: null,
   };

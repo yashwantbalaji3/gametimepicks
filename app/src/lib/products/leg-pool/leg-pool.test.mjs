@@ -177,3 +177,10 @@ test("rotation falls back to lane minutes only without season box scores, and sa
   assert.equal(a.rotationSource, "lane-projected-minutes");
   assert.ok(a.flags.includes("ROTATION_FROM_LANE"));
 });
+
+test("our own card text uses MODEL PROJECTION wording, never estimate / est. / projected median", () => {
+  for (const c of [D.bankBuilder.nba.card, D.moonshot.nba.card, ...D.parlays.nba.map((t) => t.card)].filter(Boolean)) {
+    for (const t of [c.rationale, c.confidence]) { assert.doesNotMatch(t, /estimate|\best\.|projected median/i); assert.match(t, /MODEL PROJECTION/); }
+  }
+  for (const m of D.methodologyDependencies) assert.doesNotMatch(m.effect, /estimate|\best\.|projected median/i);
+});
