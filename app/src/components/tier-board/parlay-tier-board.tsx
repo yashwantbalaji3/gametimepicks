@@ -35,7 +35,7 @@ export default function ParlayTierBoard({ board, checks }: { board: ParlayTiersV
     <section id="parlay-tiers" className="tb-section scroll-mt-24" aria-labelledby="parlay-tiers-h" data-parlay-tiers={board.origin}>
       <header className="tb-hero tb-hero--lab" style={{ marginBottom: 0 }}>
         <div className="flex flex-wrap items-center justify-between gap-2">
-          <span className="tb-eyebrow">Parlay Lab · four risk tiers</span>
+          <span className="tb-eyebrow">Parlay Center · four risk tiers</span>
           <StateBadge state={withCard ? "model-only" : board.tiers.some((t) => t.state === "blocked") ? "blocked" : "insufficient"} />
         </div>
         <h2 id="parlay-tiers-h" className="tb-hero-title" style={{ fontSize: "clamp(28px, 5vw, 44px)" }}>
@@ -56,7 +56,7 @@ export default function ParlayTierBoard({ board, checks }: { board: ParlayTiersV
           <span aria-hidden>◔</span> Every leg must win. The lower the band, the more often the model expects the card to lose, and
           even a Low Risk card is never a certainty.
         </p>
-        <nav className="tb-hero-links" aria-label="Parlay Lab shortcuts">
+        <nav className="tb-hero-links" aria-label="Parlay Center shortcuts">
           <Link className="tb-btn" href="/bank-builder/">Bank Builder</Link>
           <Link className="tb-btn" href="/moonshot/">Moonshot</Link>
         </nav>

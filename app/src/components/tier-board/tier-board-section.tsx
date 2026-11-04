@@ -42,7 +42,7 @@ export default function TierBoardSection({ board, checks, productName }: { board
             </ul>
           ) : null}
           <p className="tb-empty-text">
-            <Link className="tb-link" href="/build/#parlay-tiers">Explore every tier in the Parlay Lab →</Link>
+            <Link className="tb-link" href="/build/#parlay-tiers">Explore every tier in the Parlay Center →</Link>
           </p>
         </div>
       )}

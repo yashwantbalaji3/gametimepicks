@@ -137,7 +137,7 @@ export default function FeaturedParlay({ card, product, title, headingId = "tb-f
         </p>
         <div className="tb-card-actions">
           {keys.length ? <AddToSlip keys={keys} label="Add card to Smart Betslip" name={`${name} (${keys.length} legs)`} /> : null}
-          {product !== "tier" ? <Link className="tb-btn" href="/build/#parlay-tiers">Open in Parlay Lab</Link> : null}
+          {product !== "tier" ? <Link className="tb-btn" href="/build/#parlay-tiers">Open in Parlay Center</Link> : null}
         </div>
       </footer>
     </article>
