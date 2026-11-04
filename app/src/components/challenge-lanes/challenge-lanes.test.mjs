@@ -768,22 +768,39 @@ test("LANE SPECIALIZATION (proposed): the lane-type badge from the engine's disp
   assert.throws(() => lane.laneView(ms.pub, { display: typed(ms, "NBA_PLAYER_PROPS", "NBA PLAYER PROPS"), productDay: ms.priced.day.date }), /outside its lane type/);
 });
 
-test("DIVERSIFICATION (founder 2026-11-04): the same combination in two lanes, a duplicate single or a leg in three lanes refuses the whole set", async () => {
-  const card = (laneId, date, ...legIds) => ({ laneId, current: { date, legs: legIds.map((legId) => ({ legId })) } });
+test("DIVERSIFICATION diversity@2 (founder 2026-11-04): zero repeated selections across the four lanes — books, lines, snapshots and order never bypass it; opposing sides refused", async () => {
   const D = "2026-11-05";
-  assert.deepEqual(lane.diversityViolations([card("bb-a", D, "x"), card("bb-b", D, "p1", "p2"), card("ms-a", D, "y"), card("ms-b", D, "p1", "p3")]), []);
-  const dup = lane.diversityViolations([card("bb-a", D, "p1", "p2"), card("ms-b", D, "p2", "p1")]);
-  assert.equal(dup.length, 1); assert.match(dup[0], /^DIVERSITY_DUPLICATE_COMBINATION 2026-11-05: bb-a and ms-b/);
-  assert.match(lane.diversityViolations([card("bb-a", D, "x"), card("ms-a", D, "x")])[0], /^DIVERSITY_DUPLICATE_COMBINATION/, "a duplicate single");
-  const three = lane.diversityViolations([card("bb-a", D, "x"), card("bb-b", D, "x", "p1"), card("ms-a", D, "x", "p2")]);
-  assert.ok(three.some((v) => /^DIVERSITY_LEG_LIMIT 2026-11-05: x in 3 lanes/.test(v)), three.join(" | "));
-  /* Other days and held lanes never collide. */
-  assert.deepEqual(lane.diversityViolations([card("bb-a", D, "x"), card("ms-a", "2026-11-04", "x"), { laneId: "ms-b", current: null }]), []);
-  /* The site calls the engine's checker, not a copy. */
-  assert.match(read("src/lib/products/challenge-lanes/lane.mjs"), /diversityViolations as engineDiversity \} from "\.\.\/\.\.\/challenge-lanes\/card-fields\.mjs"/);
+  const ml = (gameId, side, extra = {}) => ({ legId: `nba:${gameId}:winner:${side}${extra.suffix ?? ""}`, selectionLeg: { sport: "nba", gameId, family: "winner", market: "h2h", side, player: null } });
+  const prop = (gameId, playerId, family, side, line) => ({ legId: `nba:${gameId}:${family}:${playerId}:${side}`, line, selectionLeg: { sport: "nba", gameId, family, market: null, player: { playerId }, side } });
+  const card = (laneId, ...legs) => ({ laneId, current: { date: D, ruleVersion: "bbm-rules@2", legs } });
+  /* Tonight's proposed shape: four lanes, no selection twice. */
+  assert.deepEqual(lane.diversityViolations([card("bb-a", ml("1", "home"), ml("2", "away")), card("ms-a", ml("3", "home"), ml("4", "home")), card("bb-b", prop("5", "p1", "ast", "over", 6.5)), card("ms-b", prop("6", "p2", "reb", "over", 11.5))]), []);
+  /* The same team moneyline in two lanes is one selection, whatever its legId suffix (book / snapshot / record id). */
+  const twice = lane.diversityViolations([card("bb-a", ml("1", "home")), card("ms-a", ml("1", "home", { suffix: ":fd" }), ml("3", "away"))]);
+  assert.ok(twice.some((v) => /^DIVERSITY_LEG_LIMIT/.test(v)), twice.join(" | "));
+  /* The same player-stat-side at another line is one selection. */
+  const lines = lane.diversityViolations([card("bb-b", prop("5", "p1", "pts", "over", 20.5)), card("ms-b", prop("5", "p1", "pts", "over", 22.5), prop("6", "p2", "reb", "over", 9.5))]);
+  assert.ok(lines.some((v) => /^DIVERSITY_LEG_LIMIT/.test(v)), lines.join(" | "));
+  /* Order never bypasses: a repeated combination in another order. */
+  const order = lane.diversityViolations([card("bb-a", ml("1", "home"), ml("2", "away")), card("ms-a", ml("2", "away"), ml("1", "home"))]);
+  assert.ok(order.some((v) => /^DIVERSITY_DUPLICATE_COMBINATION/.test(v)), order.join(" | "));
+  /* Opposing sides of one proposition across lanes: OVER and UNDER at any line; both teams' moneylines in one game. */
+  assert.ok(lane.diversityViolations([card("bb-b", prop("5", "p1", "reb", "over", 9.5)), card("ms-b", prop("5", "p1", "reb", "under", 10.5))]).some((v) => /^DIVERSITY_OPPOSING_SIDES/.test(v)));
+  assert.ok(lane.diversityViolations([card("bb-a", ml("1", "home")), card("ms-a", ml("1", "away"))]).some((v) => /^DIVERSITY_OPPOSING_SIDES/.test(v)));
+  /* Another stat of the same player is a different proposition; other days and held lanes never collide. */
+  assert.deepEqual(lane.diversityViolations([card("bb-b", prop("5", "p1", "pts", "over", 20.5)), card("ms-b", prop("5", "p1", "ast", "over", 6.5))]), []);
+  assert.deepEqual(lane.diversityViolations([card("bb-a", ml("1", "home")), { laneId: "ms-a", current: { date: "2026-11-04", ruleVersion: "bbm-rules@2", legs: [ml("1", "home")] } }, { laneId: "ms-b", current: null }]), []);
+  /* A v1 card (frozen before the rule) is history, never judged by it; the same pair under v2 is refused. */
+  const v1 = (laneId, ...legs) => ({ laneId, current: { date: D, ruleVersion: "bbm-rules@1", legs } });
+  assert.deepEqual(lane.diversityViolations([v1("bb-a", ml("1", "home")), v1("ms-a", ml("1", "home"), ml("3", "away"))]), []);
+  assert.ok(lane.diversityViolations([card("bb-a", ml("1", "home")), card("ms-a", ml("1", "home"), ml("3", "away"))]).length > 0);
+  /* Real views carry the identity fields: the engine's v2 sample prop legs and v1 moneyline legs. */
+  const bb = await v2Sample("bb-b");
+  const v = lane.laneView(bb.pub, { display: bb.priced, productDay: bb.priced.day.date });
+  assert.deepEqual(v.current.legs[0].selectionLeg, { legId: "nba:971:pts:s1:over", sport: "nba", gameId: "971", family: "pts", market: "player_points", player: { playerId: "s1" }, side: "over" });
+  assert.equal(lane.DIVERSITY_MAX_LEG_USE, 1);
+  assert.match(read("src/lib/products/challenge-lanes/lane.mjs"), /diversityViolations as engineDiversity \} from "\.\.\/\.\.\/challenge-lanes\/card-fields\.mjs"/, "the site calls the engine's checker");
   /* The loader refuses a violating set whole, on both pages. */
-  const { diversityParity } = await import("../../lib/products/challenge-lanes/parity.mjs");
-  assert.equal(diversityParity([card("bb-a", D, "x"), card("ms-a", D, "x")])[0].ok, false);
   assert.match(read("src/lib/products/challenge-lanes/load.mjs"), /const bad = diversityViolations\(all\);\n  if \(bad\.length\) return lanesOf\(product\)\.map\(\(laneId\) => unavailableLaneView/);
 });
 

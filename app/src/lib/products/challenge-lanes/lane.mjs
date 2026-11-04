@@ -235,6 +235,8 @@ function legsOf(day, projectionLabel, teams) {
       outcome: o && o !== "PENDING" ? o : null,
       price: legPrice(prices.get(l.legId), vp?.book, details.get(l.legId)),
       snapshotId: l.projection?.snapshotId ?? null,
+      /* The selection's identity fields for the engine's diversity check (no line, book, odds or snapshot). */
+      selectionLeg: { legId: l.legId, sport: l.sport ?? "nba", gameId: l.gameId, family: l.family ?? null, market: l.market ?? null, player: l.player?.playerId ? { playerId: l.player.playerId } : null, side: l.side ?? l.selection?.code ?? null },
     };
   });
 }
@@ -257,6 +259,7 @@ function dayPresent(day, projectionLabel, teams) {
     reason: reasonText(day.reason), staked: Boolean(day.staked), legs: day.card ? legsOf(day, projectionLabel, teams) : [], hasCard: Boolean(day.card),
     modelCardResult: day.modelCardResult ?? null, stepOutcome: day.stepOutcome ?? null, result,
     price: priceOf(day),
+    ruleVersion: day.ruleVersion ?? null,
     withdrawn: Boolean(day.withdrawn), legCount: day.legCount ?? null, maxLegs: day.maxLegs ?? null, evidence: evidenceOf(day), selection: selectionOf(day.card),
     stepTarget: typeof day.targetPayoutCents === "number" ? { label: day.targetPayoutLabel ?? "STEP TARGET", value: money(day.targetPayoutCents) } : null,
   };
@@ -366,12 +369,17 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
 
 /** The placeholder view for a lane whose public file is absent or refused: says so, invents nothing. */
 /**
- * DIVERSIFICATION (founder 2026-11-04, the engine's diversity@1): the engine's own checker (card-fields.mjs
- * diversityViolations) over the cards the site is about to render — same date only, held lanes skipped; a repeated
- * combination (order-insensitive, a duplicate single included) or a leg in more than two lanes. [] when the set passes.
- * @param {Array<{ laneId: string, current?: { date: string, legs: Array<{ legId: string }> } | null }>} views
+ * DIVERSIFICATION (founder 2026-11-04, the engine's diversity@2): the engine's own checker (card-fields.mjs
+ * diversityViolations, maxLegUse 1) over the cards the site is about to render — same date only, held lanes skipped.
+ * Identity is the underlying selection (team moneyline; player + stat + side whatever the line, book or odds): no
+ * selection in two lanes, no repeated combination, never both sides of one proposition. [] when the set passes.
+ * @param {Array<{ laneId: string, current?: { date: string, legs: Array<{ legId: string, selectionLeg?: any }> } | null }>} views
  */
-export const diversityViolations = (views) => engineDiversity(views.filter((v) => v?.current?.legs?.length).map((v) => ({ laneId: v.laneId, date: v.current.date, legIds: v.current.legs.map((l) => l.legId) })));
+export const DIVERSITY_MAX_LEG_USE = 1;
+/* Applies to cards frozen under bbm-rules@2 or later: a v1 card was frozen before the rule existed (its run is retired
+   or withdrawn under v2) and is shown as history, never judged by a later rule. */
+const underV2 = (v) => /@(\d+)$/.test(String(v?.current?.ruleVersion ?? "")) && Number(String(v.current.ruleVersion).match(/@(\d+)$/)[1]) >= 2;
+export const diversityViolations = (views) => engineDiversity(views.filter((v) => v?.current?.legs?.length && underV2(v)).map((v) => ({ laneId: v.laneId, date: v.current.date, legs: v.current.legs.map((l) => l.selectionLeg ?? { legId: l.legId }) })), { maxLegUse: DIVERSITY_MAX_LEG_USE });
 
 export function unavailableLaneView(laneId, reason) {
   const lane = ENGINE_LANES[laneId];

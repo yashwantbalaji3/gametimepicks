@@ -76,14 +76,46 @@ export function moneylineEvidenceLine(leg) {
 }
 
 /**
- * diversity@1 (founder 2026-11-04 ~21:12Z; PROPOSED until approved), one checker for engine and site. Pure.
+ * diversity@1 (founder ~21:12Z: a leg in ≤ 2 lanes) and diversity@2 (founder ~21:22Z: `{ maxLegUse: 1 }`, ZERO repeated
+ * selections per slate), one checker for engine and site. PROPOSED until approved. Pure. A selection is its legId, which
+ * carries game, market (family), player/team and side, and never book, odds, line, capture time or record id: the same
+ * player-stat-side at an alternate line is the same selection.
  * Scope: cards in play on the SAME date (held lanes hold no card and are skipped). Legs compare by legId, which fixes
  * game, market, player/team and side, so the same game in a different market is a different leg (allowed).
  * Rules: no two lanes with the same leg set (order-insensitive; a duplicate single counts); a leg in at most two lanes.
  * @param {{ laneId: string, date: string, legIds: string[] }[]} cards
  * @returns {string[]} violations, empty when compliant
  */
-export function diversityViolations(cards) {
+/**
+ * The underlying selection of a leg, independent of book, odds, line, capture time and record id:
+ * "<sport>:<gameId>:<family>:<playerId | team>:<side>". Moneyline: family "winner", the team/side. Same team ML = same
+ * selection; the same player-stat-side at another line = the same selection.
+ */
+export function selectionIdentity(leg) {
+  const family = leg.family ?? ({ h2h: "winner", winner: "winner", player_points: "pts", player_rebounds: "reb", player_assists: "ast" })[leg.market] ?? leg.market;
+  const who = family === "winner" ? leg.side ?? leg.selectionCode : leg.player?.playerId ?? leg.playerId;
+  return `${leg.sport ?? "nba"}:${leg.gameId ?? leg.eventId}:${family}:${who}:${family === "winner" ? "" : leg.side ?? ""}`.replace(/:$/, "");
+}
+
+/** The proposition a selection takes a side of (selection minus side): one game's moneyline, or one player's stat. */
+export function propositionIdentity(leg) {
+  const family = leg.family ?? ({ h2h: "winner", winner: "winner", player_points: "pts", player_rebounds: "reb", player_assists: "ast" })[leg.market] ?? leg.market;
+  return family === "winner" ? `${leg.sport ?? "nba"}:${leg.gameId ?? leg.eventId}:winner` : `${leg.sport ?? "nba"}:${leg.gameId ?? leg.eventId}:${family}:${leg.player?.playerId ?? leg.playerId}`;
+}
+const sideOf = (leg) => leg.side ?? leg.selectionCode ?? null;
+
+export function diversityViolations(cards, { maxLegUse = 2 } = {}) {
+  /* Opposing sides of one proposition across lanes (PD ruling ~21:27Z): OVER and UNDER of one player-stat, or both teams'
+     moneylines in one game, is incoherent and refused. Needs the legs (not just ids). */
+  const opposing = [];
+  const groups = new Map(); // no Object.groupBy: CI runs Node 20
+  for (const c of cards ?? []) if (c?.legs?.length) { if (!groups.has(c.date)) groups.set(c.date, []); groups.get(c.date).push(c); }
+  for (const [date, cs] of groups) {
+    const seen = new Map();
+    for (const c of cs) for (const l of c.legs) { const p = propositionIdentity(l); const s0 = seen.get(p); if (s0 && s0.side !== sideOf(l)) opposing.push(`DIVERSITY_OPPOSING_SIDES ${date}: ${p} ${s0.side} (${s0.laneId}) vs ${sideOf(l)} (${c.laneId})`); else if (!s0) seen.set(p, { side: sideOf(l), laneId: c.laneId }); }
+  }
+  /* cards: [{ laneId, date, legIds }] or [{ laneId, date, legs }] (legs → selectionIdentity). */
+  cards = (cards ?? []).map((c) => (c?.legs ? { ...c, legIds: c.legs.map(selectionIdentity) } : c));
   const out = [];
   const byDate = new Map();
   for (const c of cards ?? []) { if (!c?.legIds?.length) continue; if (!byDate.has(c.date)) byDate.set(c.date, []); byDate.get(c.date).push(c); }
@@ -92,7 +124,7 @@ export function diversityViolations(cards) {
     for (const c of cs) { const k = [...c.legIds].sort().join("+"); if (seen.has(k)) out.push(`DIVERSITY_DUPLICATE_COMBINATION ${date}: ${seen.get(k)} and ${c.laneId}`); else seen.set(k, c.laneId); }
     const use = new Map();
     for (const c of cs) for (const id of new Set(c.legIds)) use.set(id, [...(use.get(id) ?? []), c.laneId]);
-    for (const [id, lanes] of use) if (lanes.length > 2) out.push(`DIVERSITY_LEG_LIMIT ${date}: ${id} in ${lanes.length} lanes (${lanes.join(", ")})`);
+    for (const [id, lanes] of use) if (lanes.length > maxLegUse) out.push(`DIVERSITY_LEG_LIMIT ${date}: ${id} in ${lanes.length} lanes (${lanes.join(", ")})`);
   }
-  return out;
+  return [...out, ...opposing];
 }
