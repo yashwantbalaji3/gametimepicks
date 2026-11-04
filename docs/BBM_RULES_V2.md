@@ -257,3 +257,16 @@ How it is implemented (`levels.mjs` `guideWindow` = [0, 1.20], state FOUNDER_APP
 - **Next step:** the settled bankroll carries forward, so the next step's required multiplier rises after a short step. It is shown on each card.
 
 This is a parameter decision only. bbm-rules@2, the run-1 withdrawal and retirement, the run-2 start, each card, and the final graphics and captions remain separate approvals.
+
+### 8a. `research-band@2` (FOUNDER-APPROVED ~20:45Z; supersedes research-band@1)
+
+The founder's correction, verbatim, as relayed by the PD:
+
+> "I am superseding my earlier approval of 'no lower payout limit and +20% upper limit.'… I want a strict ±10% gross
+> payout band around the target for the current ladder step, applicable to BOTH Bank Builder and Moonshot, across BOTH
+> Lane A (moneylines) and Lane B (player props). This is an actual eligibility requirement, not a soft preference."
+
+- `guideWindow` = [0.90, 1.10] (FOUNDER_APPROVED, version `research-band@2`).
+- The band is computed per step from the step target, and the bankroll is the actual settled bankroll. Step 1: Bank Builder $180–$220, Moonshot $45–$55.
+- Out of band means refused. Inside the band, evidence ranks first and target proximity last.
+- Section 8 (`research-band@1`) is superseded. It is kept only as history.

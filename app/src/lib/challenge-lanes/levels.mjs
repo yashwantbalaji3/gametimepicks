@@ -39,11 +39,12 @@ export const LEVEL_B_PARAMS = Object.freeze({
      uncertainty become disclosed flags; the payout target is a guide (a wide window, ranked evidence-first). */
   mode: Object.freeze({ value: "STRICT", state: "PROPOSED", note: "STRICT | RESEARCH" }),
   minShrunkRateByFamily: Object.freeze({ value: null, state: "PROPOSED", note: "e.g. { pts: 0.60, reb: 0.60, ast: 0.57 } from nba-engine-eval's walk-forward (cc465d1a57)" }),
-  /* FOUNDER-APPROVED 2026-11-04 ~20:40Z (verbatim, relayed by the PD): "I approve the no-lower-payout-bound approach for
-     Level B research selections only… Maintain an upper payout tolerance of +20% in research mode. Continue to prioritize
-     the most defensible selection regardless of whether it is one or two legs, with a maximum of two." research-band@1:
-     no lower bound, upper target × 1.20; evidence ranks first; the actual payout and its shortfall are always disclosed. */
-  guideWindow: Object.freeze({ value: Object.freeze([0, 1.20]), state: "FOUNDER_APPROVED", version: "research-band@1", approvalRef: "founder 2026-11-04 ~20:40Z via PD (no lower payout bound; +20% upper; research mode only)", note: "RESEARCH: gross ≤ target × 1.20; no lower bound; evidence ranks first, target proximity later" }),
+  /* FOUNDER-APPROVED 2026-11-04 ~20:45Z, superseding research-band@1 (~20:40Z), verbatim via the PD: "I am superseding my
+     earlier approval of 'no lower payout limit and +20% upper limit.'… I want a strict ±10% gross payout band around the
+     target for the current ladder step, applicable to BOTH Bank Builder and Moonshot, across BOTH Lane A (moneylines) and
+     Lane B (player props). This is an actual eligibility requirement, not a soft preference." research-band@2: gross in
+     [target × 0.90, target × 1.10] for the current step (target from the step, bankroll = the actual settled bankroll). */
+  guideWindow: Object.freeze({ value: Object.freeze([0.90, 1.10]), state: "FOUNDER_APPROVED", version: "research-band@2", supersedes: "research-band@1 (no lower bound, +20%; founder ~20:40Z)", approvalRef: "founder 2026-11-04 ~20:45Z via PD (strict ±10% gross band, both products, both lanes; eligibility requirement)", note: "RESEARCH: gross within [target × 0.90, target × 1.10]" }),
   lineupExcludeMinN: Object.freeze({ value: 20, state: "PROPOSED", note: "RESEARCH: exclude when tonight's teammate scenario has n ≥ this and its side rate is below lineupExcludeRate" }),
   lineupExcludeRate: Object.freeze({ value: 0.55, state: "PROPOSED" }),
   /* Founder ~19:55Z: a projected-minutes drop of ≥ 20% vs L5 is a flag, and the evidence is re-weighted to minutes-comparable games. */
