@@ -15,7 +15,7 @@ type LegView = {
   market: string | null;
   game: { id: string | null; label: string | null; startUtc: string | null; href: string | null };
   playerHref: string | null;
-  players: Array<{ name: string; points: number | null; guard: string | null; href: string | null }>;
+  players: Array<{ name: string; points: number | null; href: string | null }>;
   projection: { label: string; text: string | null; value: number | null } | null;
   eligibility: { state: string; text: string; flags: string[] };
   availability: { state: string; text: string };
@@ -70,12 +70,12 @@ function Leg({ l, n }: { l: LegView; n: number }) {
           </dl>
           {l.players.length ? (
             <div className="tb-leg-players">
-              <p className="tb-proj-label m-0">Key players · MODEL PROJECTION (median points)</p>
+              <p className="tb-proj-label m-0">Key players · MODEL PROJECTION (points)</p>
               <ul className="tb-player-list">
                 {l.players.map((p) => (
                   <li key={p.name}>
                     {p.href ? <Link className="tb-link" href={p.href} data-leg-player-link="">{p.name}</Link> : <span>{p.name}</span>}
-                    <span className="tb-player-proj">{p.points != null ? `${p.points.toFixed(1)} pts` : "no projection"}{p.guard && p.guard !== "pass" ? ` · ${p.guard === "blocked" ? "withheld from cards" : "under review"}` : ""}</span>
+                    <span className="tb-player-proj">{p.points != null ? `${p.points.toFixed(1)} pts` : "No projection published"}</span>
                   </li>
                 ))}
               </ul>

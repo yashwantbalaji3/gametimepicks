@@ -191,3 +191,35 @@ test("the engine's leg kinds and unapproved methodology dependencies are stated 
   assert.doesNotMatch(t, /proposedMethod|10,000 runs/, "the proposal text stays out of the public card");
   assert.ok(FIXTURE.bankBuilder.nba.card.legs.every((l) => l.selection.teamAbbr), "the refreshed sample carries teamAbbr");
 });
+
+test("withheld and under-review player values are never displayed: only guard-pass players are listed, and none prints a non-pass figure", () => {
+  const nonPass = FIXTURE.playerProjections.nba.filter((p) => p.guard?.state !== "pass");
+  assert.ok(nonPass.length > 0, "the fixture holds blocked/review players, so the test can fail");
+  for (const product of ["bank-builder", "moonshot"]) {
+    const board = view.tierBoardFromSuggestedCards(FIXTURE, product, { allowFixture: true });
+    const h = html(React.createElement(TierBoardSection, { board, productName: product }));
+    const rows = [...h.matchAll(/<ul class="tb-player-list">([\s\S]*?)<\/ul>/g)].flatMap((m) => m[1].split("<li>").slice(1)).map(text);
+    assert.ok(rows.length > 0, `${product}: key players render`);
+    for (const p of nonPass) {
+      const row = rows.find((r) => r.includes(p.name));
+      if (row) assert.doesNotMatch(row, /\d/, `${p.name} (${p.guard.state}) prints no number`);
+      assert.ok(!row, `${p.name} (${p.guard.state}) is omitted`);
+    }
+    for (const l of board.featured.legs) for (const p of l.players) {
+      const src = FIXTURE.playerProjections.nba.find((x) => x.name === p.name && x.eventId === l.game.id);
+      assert.equal(src.guard.state, "pass", `${p.name} is a guard-pass player`);
+    }
+  }
+});
+
+test("pages read the daily file only through the founder switch (decision b), default OFF", async () => {
+  const { readSuggestedCards, PAGES_READ_DAILY_CARDS } = await import("../../lib/products/tier-board/load.ts");
+  assert.equal(PAGES_READ_DAILY_CARDS, false, "committed OFF until the founder approves");
+  const os = await import("node:os");
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "tb-"));
+  fs.mkdirSync(path.join(root, "suggested-cards"));
+  fs.writeFileSync(path.join(root, "suggested-cards", "2026-11-02.json"), JSON.stringify({ ...FIXTURE, fixture: false }));
+  assert.equal(readSuggestedCards("2026-11-02", root), null, "switch off → no file read, Level A renders");
+  assert.ok(readSuggestedCards("2026-11-02", root, true), "switch on → the day's file");
+  fs.rmSync(root, { recursive: true });
+});

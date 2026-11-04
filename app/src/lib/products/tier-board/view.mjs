@@ -95,16 +95,14 @@ export function legView(leg, { productDay = null, players = [] } = {}) {
   const out = (leg.guard?.outAtFreeze ?? []).map((p) => p.name).filter(Boolean);
   const rotation = (leg.guard?.rotationFlagged ?? []).map((p) => `${p.name} (${p.status})`);
   const playerHref = sport === "nba" && productDay ? slateHref(productDay) : null;
+  /* Founder rule (PD 2026-11-04): a withheld or under-review value is never displayed, anywhere. Only players whose
+     guard passed are listed (engine: "blocked" = R1–R3 or a readiness block, "review" = flagged); the rest are omitted,
+     never shown with a number. A Level A projection carries no guard and is shown as published. */
   const teamPlayers = isPlayer || !teamAbbr ? [] : players
-    .filter((p) => p.eventId === leg.eventId && p.team === teamAbbr)
+    .filter((p) => p.eventId === leg.eventId && p.team === teamAbbr && (p.guard ? p.guard.state === "pass" : true))
     .sort((a, b) => (b.expectedMinutes ?? 0) - (a.expectedMinutes ?? 0))
     .slice(0, 3)
-    .map((p) => ({
-      name: p.name,
-      points: p.medians?.pts ?? p.points?.median ?? null,
-      guard: p.guard?.state ?? null,
-      href: playerHref,
-    }));
+    .map((p) => ({ name: p.name, points: p.medians?.pts ?? p.points?.median ?? null, href: playerHref }));
   return {
     key: leg.legId ?? `${sport}:${leg.eventId}:${leg.selection?.code ?? ""}`,
     sport, sportLabel: sportLabel(sport),

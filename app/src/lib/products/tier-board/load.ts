@@ -8,7 +8,16 @@ import path from "node:path";
 import { tierBoardFor } from "@/lib/products/tier-board/view.mjs";
 import type { TierBoardView } from "@/components/tier-board/tier-board-section";
 
-export function readSuggestedCards(productDay: string | null, root = path.join(process.cwd(), "public", "data")): unknown | null {
+/**
+ * FOUNDER DECISION (b), default OFF: pages read the frozen daily file only once the founder says yes. The engine branch
+ * (claude/betting-engine-1104-02e05b) carries the owner of this switch, loadFrozenDailyCards in
+ * lib/products/leg-pool/page-source.mjs (FROZEN_DAILY_CARDS_PUBLIC); at integration this reader is replaced by that call.
+ * While false, the pages render the Level A model exactly as before.
+ */
+export const PAGES_READ_DAILY_CARDS = false;
+
+export function readSuggestedCards(productDay: string | null, root = path.join(process.cwd(), "public", "data"), enabled = PAGES_READ_DAILY_CARDS): unknown | null {
+  if (!enabled) return null;
   if (!productDay || !/^\d{4}-\d{2}-\d{2}$/.test(productDay)) return null;
   try {
     return JSON.parse(fs.readFileSync(path.join(root, "suggested-cards", `${productDay}.json`), "utf8"));
