@@ -68,8 +68,9 @@ export function captureWindow(scheduleRows, nowMs, { minLeadMinutes = 0, maxLead
 /** Provider event ids this ledger already holds a 200 event-odds response for (one snapshot per game). */
 export function capturedOddsEventIds(ledger, { phase = "pregame" } = {}) {
   const ids = new Set();
-  // One snapshot per game PER PHASE: the pregame capture's fingerprints start "nba|", an early snapshot's "nba-early|".
-  const re = phase === "early" ? /^nba-early\|([^|]+)\|/ : /^nba\|([^|]+)\|/;
+  // One snapshot per game PER PHASE: the pregame capture's fingerprints start "nba|", an early snapshot's "nba-early|",
+  // a final pre-publication re-quote's "nba-final|".
+  const re = phase === "early" ? /^nba-early\|([^|]+)\|/ : phase === "final" ? /^nba-final\|([^|]+)\|/ : /^nba\|([^|]+)\|/;
   for (const r of ledger?.requests ?? []) {
     const m = re.exec(String(r?.fingerprint ?? ""));
     if (m && r.status === 200) ids.add(m[1]);
@@ -113,8 +114,10 @@ export async function runNbaPropCapture({
   if (!markets.length || outside.length) return refused([`markets not on the receipt's authorization row: ${outside.join(", ") || "<none requested>"}`]);
   const authorization = { ok: true, ceiling: auth.ceiling };
   // An EARLY snapshot (a second capture per game, before the pregame one) is spent only when the receipt names it.
-  if (phase !== "pregame" && phase !== "early") return refused([`phase must be "pregame" or "early" (got ${phase})`]);
+  if (phase !== "pregame" && phase !== "early" && phase !== "final") return refused([`phase must be "pregame", "early" or "final" (got ${phase})`]);
   if (phase === "early" && !/^Early snapshot:/m.test(receiptText)) return refused(["phase early: the receipt does not authorize an early snapshot (no \"Early snapshot:\" term) — zero credits may be spent"]);
+  // A FINAL re-quote (one more capture per game, just before publication) is spent only when the receipt names it.
+  if (phase === "final" && !/^Final capture:/m.test(receiptText)) return refused(["phase final: the receipt does not authorize a final capture (no \"Final capture:\" term) — zero credits may be spent"]);
 
   let book = ledger ?? emptyLedger(receiptRel, { sport: "nba", program: "NBA" });
   if (!(Number.isInteger(maxEventsPerRun) && maxEventsPerRun >= 1)) return refused([`maxEventsPerRun must be a positive integer (got ${maxEventsPerRun})`]);
@@ -186,7 +189,7 @@ export async function runNbaPropCapture({
       skipped.push(...targets.slice(i).map((x) => ({ oddsEventId: x.oddsEventId, espnEventId: x.espnEventId, reason: "CREDIT_FLOOR" })));
       return finish(CAPTURE_STATE.CEILING_REACHED, `provider balance ${remaining} − worst case ${worst} would cross the ${minCreditsRemaining}-credit floor`);
     }
-    const fingerprint = `${phase === "early" ? "nba-early" : "nba"}|${t.oddsEventId}|${[...markets].sort().join(",")}|${[...bookmakers].sort().join(",")}`;
+    const fingerprint = `${phase === "early" ? "nba-early" : phase === "final" ? "nba-final" : "nba"}|${t.oddsEventId}|${[...markets].sort().join(",")}|${[...bookmakers].sort().join(",")}`;
     if (isDuplicateRequest(book, { fingerprint, nowIso: now, freshnessMinutes: 30 }).duplicate) { skipped.push({ ...t, reason: "DUPLICATE_WITHIN_30_MIN" }); continue; }
     const url = `${BASE}/sports/${PROVIDER_SPORT_KEY}/events/${encodeURIComponent(t.oddsEventId)}/odds?bookmakers=${bookmakers.join(",")}&markets=${markets.join(",")}&oddsFormat=american&dateFormat=iso`;
     const r = await call(url);

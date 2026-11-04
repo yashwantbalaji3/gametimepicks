@@ -28,3 +28,15 @@ test("an early snapshot refuses unless the receipt names it, and an unknown phas
   const ok = await runNbaPropCapture({ ...base, receiptText: `${base.receiptText}\nEarly snapshot: test\n`, phase: "early" });
   assert.notEqual(ok.state, "REFUSED", "with the term present the early phase plans normally");
 });
+
+test("a final re-quote has its own once-per-game slot and refuses unless the receipt names it", async () => {
+  const withFinal = { requests: [...ledger.requests, { fingerprint: "nba-final|evD|player_points|draftkings", status: 200 }] };
+  assert.deepEqual([...capturedOddsEventIds(withFinal, { phase: "final" })], ["evD"], "final sees only final captures");
+  assert.deepEqual([...capturedOddsEventIds(withFinal)], ["evA"], "pregame never counts a final capture");
+  const base = { now: "2026-10-29T20:30:00Z", receiptText: receipt.replace(/^Final capture:.*$/m, ""), markets: ["player_points"], apply: false };
+  const r = await runNbaPropCapture({ ...base, phase: "final" });
+  assert.equal(r.state, "REFUSED");
+  assert.match(r.reasons.join(" "), /does not authorize a final capture/);
+  const ok = await runNbaPropCapture({ ...base, receiptText: `${base.receiptText}\nFinal capture: test\n`, phase: "final" });
+  assert.notEqual(ok.state, "REFUSED", "with the term present the final phase plans normally");
+});
