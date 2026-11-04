@@ -215,3 +215,16 @@ test("RESEARCH mode: role and lineup uncertainty are flags; a large lineup scena
   assert.ok(ev({}, null).reasons.some((x) => x.startsWith("OUT_OF_BAND")), "STRICT keeps the band");
   assert.ok(ev({ hitRate: { ...row().hitRate, shrunk: { rate: 0.58, nEffective: 84 } } }).reasons.some((x) => x.startsWith("A_WEAK_EVIDENCE")), "the family floor still applies");
 });
+
+test("RESEARCH with a contextual block: the contextual rate is the evidence; its exclude holds; MEDIUM/HIGH are flags", () => {
+  const R = { mode: "RESEARCH" };
+  const cap = capture([["1", "p1", "pts", 20.5, -150, 120]]);
+  const lu = (cx) => ({ ...row().lineup, sensitive: true, baseRepresentative: false, contextual: cx });
+  const ev = (cx) => evaluateLevelSet([legFromShortlist(row({ lineup: lu(cx) }))], ctx(cap, MS1, { params: R }));
+  const low = ev({ primary: { rate: 0.52, interval95: [0.4, 0.6], nEff: 70, exact: { hits: 30, games: 50 } }, flagLevel: "LOW", exclude: false });
+  assert.ok(low.reasons.some((x) => x.startsWith("A_WEAK_EVIDENCE")), "contextual 0.52 replaces the lineup-blind 0.64");
+  const high = ev({ primary: { rate: 0.66, interval95: [0.55, 0.75], nEff: 70, exact: { hits: 2, games: 2 } }, flagLevel: "HIGH", exclude: false });
+  assert.equal(high.classification, LEVEL.B);
+  assert.equal(high.rankKeys.flagCount, 2, "HIGH counts twice");
+  assert.ok(ev({ primary: { rate: 0.7 }, flagLevel: "LOW", exclude: true, excludeReason: "player himself DAY_TO_DAY" }).reasons.some((x) => x.startsWith("C_LINEUP_EXCLUDED")));
+});

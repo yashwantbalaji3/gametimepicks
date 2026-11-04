@@ -121,7 +121,10 @@ export function legSignals(leg, { params = null, now } = {}) {
   const soft = (code) => (research ? f : r).push(code);
   const w = leg.hitRate?.windows ?? [];
   const longest = w.reduce((m, x) => Math.max(m, x.n), 0);
-  const A = { longestN: longest, windows: w.map((x) => x.text), shrunkRate: leg.hitRate?.shrunk?.rate ?? null, nEffective: leg.hitRate?.shrunk?.nEffective ?? null };
+  /* RESEARCH with the evaluator's contextual block: the evidence rate is the lineup-pooled, market-shrunk rate for
+     tonight's expected lineup (wider when relevant games are few), not the lineup-blind one. */
+  const ctxl = research ? leg.lineup?.contextual ?? null : null;
+  const A = { longestN: longest, windows: w.map((x) => x.text), shrunkRate: ctxl?.primary?.rate ?? leg.hitRate?.shrunk?.rate ?? null, nEffective: ctxl?.primary?.nEff ?? leg.hitRate?.shrunk?.nEffective ?? null, basis: ctxl ? "contextual (lineup-pooled)" : "lineup-blind", interval95: ctxl?.primary?.interval95 ?? leg.hitRate?.shrunk?.interval95 ?? null };
   if (!w.length) r.push(`A_NO_EVIDENCE ${leg.legId}: no hit-rate windows`);
   else if (longest < P("minLongestWindowN", params)) r.push(`A_SMALL_SAMPLE ${leg.legId}: longest window n ${longest} < ${P("minLongestWindowN", params)}`);
   if (!(typeof A.shrunkRate === "number")) r.push(`A_NO_SHRUNK_RATE ${leg.legId}`);
@@ -148,7 +151,15 @@ export function legSignals(leg, { params = null, now } = {}) {
   C.lineup = lu ? { tonightScenario: lu.tonightScenario ?? null, sensitive: lu.sensitive ?? null, baseRepresentative: lu.baseRepresentative ?? null, scenarios: (lu.scenarios ?? []).map((x) => `${x.label}: ${x.hits}/${x.games}${x.minutesAvg != null ? ` · ${x.minutesAvg} min` : ""}`), keyTeammates: (lu.keyTeammates ?? []).map((t) => `${t.name} ${t.statusNow}`) } : null;
   if (leg.family !== "winner" && P("requireLineup", params)) {
     if (!lu) r.push(`C_LINEUP_UNKNOWN ${leg.legId}: no teammate-scenario evidence`);
-    else if (research) {
+    else if (research && lu.contextual) {
+      const cx = lu.contextual;
+      if (cx.exclude) r.push(`C_LINEUP_EXCLUDED ${leg.legId}: ${cx.excludeReason ?? "lineup impact too uncertain to describe"}`);
+      else if (cx.flagLevel === "HIGH" || cx.flagLevel === "MEDIUM") {
+        const txt = `C_LINEUP_${cx.flagLevel} ${leg.legId}: tonight ${cx.expectedLineup ?? lu.tonightScenario ?? "?"} · exact ${cx.primary?.exact?.hits ?? "?"}/${cx.primary?.exact?.games ?? "?"} · contextual ${cx.primary?.rate} [${cx.primary?.interval95?.join(", ") ?? "?"}]${(cx.uncertainTeammates ?? []).length ? ` · uncertain: ${cx.uncertainTeammates.map((t) => t.name ?? t).join(", ")}` : ""}`;
+        f.push(txt);
+        if (cx.flagLevel === "HIGH") f.push(`C_LINEUP_HIGH_WEIGHT ${leg.legId}`); // a HIGH flag counts twice in ranking
+      }
+    } else if (research) {
       /* Contextual: exclude only when tonight's own teammate scenario is large and does not support the side (e.g. a
          starter's role jumps and the history points the other way); otherwise disclose the uncertainty. */
       const t = lu.tonight ?? (lu.scenarios ?? []).find((x) => x.label === lu.tonightScenario) ?? null;
