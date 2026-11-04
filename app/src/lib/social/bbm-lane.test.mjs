@@ -18,6 +18,7 @@ import { append, laneState, runStarted } from "../challenge-lanes/lanes.mjs";
 import { priceLane } from "../challenge-lanes/ops.mjs";
 import { DISPLAY_AUTHORIZATION } from "../odds/display-authorization.mjs";
 import { RULES_V2, bbmCardV4, verifyBbmCardV4 } from "../../../scripts/social/bbm-cards-v4.mjs";
+import { bbmCardV5, verifyBbmCardV5 } from "../../../scripts/social/bbm-cards-v5.mjs";
 /** The committed record (founder 2026-11-04: NBA challengeGraphicsPrices on), and the same record with that switch off. */
 const SOCIAL_ON = DISPLAY_AUTHORIZATION;
 const PRICES_OFF = { ...DISPLAY_AUTHORIZATION, nba: { ...DISPLAY_AUTHORIZATION.nba, challengeGraphicsPrices: false } };
@@ -410,4 +411,40 @@ test("V4 templates (founder rules v2): placeholders never look verified or carry
   // The rocket and battery both render all 5 segments.
   assert.equal((c.html.match(/class="sg /g) ?? []).length, 5);
   assert.equal((bbmCardV4({ ...model, product: "moonshot", laneId: "ms-a", rungs: RULES_V2.milestonesCents.moonshot.map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE })) }).html.match(/data-meter="rocket"/g) ?? []).length, 1);
+});
+
+test("V5 (reference composition): templates keep every placeholder gate, props never show a hit rate as a probability, the verified check needs a verified real price", () => {
+  const rungs = RULES_V2.milestonesCents["bank-builder"].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
+  const model = { product: "bank-builder", letter: "A", laneId: "bb-a", date: DATE, step: 1, steps: 5, rungs, baseCents: 10000, targetCents: 1000000, bankrollCents: 10000, badge: BADGE.ACTIVE, view: VIEW.CARD, legs: [{ placeholder: "required" }, { placeholder: "optional" }], payout: null, template: true };
+  const c = bbmCardV5(model);
+  assert.deepEqual(verifyBbmCardV5(c), []);
+  const t = textOf(c);
+  assert.match(t, /TEMPLATE PREVIEW · NOT A PICK · DO NOT POST/i); assert.match(t, /Awaiting qualified selection/); assert.match(t, /Price pending/); assert.match(t, /Potential payout\s*Pending/);
+  assert.ok(!("money.payout" in c.cells) && !("price.verified" in c.cells));
+  assert.match(verifyBbmCardV5({ ...c, html: c.html.replace(">Price pending<", ">Verified odds<") }).join(";"), /template carries VERIFIED/);
+  assert.match(verifyBbmCardV5({ ...c, priced: true }).join(";"), /template carries a price/);
+  assert.throws(() => bbmCardV5({ ...model, legs: [{ placeholder: "required" }, { placeholder: "optional" }, { placeholder: "optional" }] }), /at most 2/);
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), "bbm-"));
+  const fake = [{ packageId: `bb-${DATE}`, caption: "x", lanes: [{ laneId: "bb-a", card: c, view: { payout: null }, parity: { ok: true } }, { laneId: "bb-b", card: c, view: { payout: null }, parity: { ok: true } }] }];
+  assert.match(stagingViolations(fake, out).join(";"), /a template is never packaged/);
+  fs.rmSync(out, { recursive: true, force: true });
+  assert.equal((c.html.match(/data-rung=/g) ?? []).length, 5);
+  assert.equal((bbmCardV5({ ...model, product: "moonshot", laneId: "ms-a" }).html.match(/data-meter="rocket"/g) ?? []).length, 1);
+  // Props: Level B is research evidence only; a Level B leg carrying a probability is refused, and a hit rate is never a percentage.
+  const team = { abbr: "DET", name: "Detroit Pistons" }; const opp = { abbr: "PHI", name: "Philadelphia 76ers" };
+  const prop = (level, extra = {}) => ({ kind: "PROP", legId: "p1", player: { name: "Sample Player" }, team, opponent: opp, home: true, tipUtc: "2026-11-05T00:00:00Z", lineText: "Over 24.5 pts", level, evidence: { l10: "8/10", l20: "14/20" }, ...extra });
+  const b = bbmCardV5({ ...model, legs: [prop("B")] });
+  assert.deepEqual(verifyBbmCardV5(b), []);
+  assert.match(textOf(b), /Research \(Level B\)/); assert.match(textOf(b), /Hit 8\/10 L10 · 14\/20 L20/);
+  assert.throws(() => bbmCardV5({ ...model, legs: [prop("B", { projectionText: "80%" })] }), /never carries a probability/);
+  assert.match(verifyBbmCardV5({ ...b, html: b.html.replace(">8/10<", ">80%<"), cells: { ...b.cells, "leg1.evidenceBig": "80%" } }).join(";"), /hit rate shown as a percentage/);
+  assert.match(textOf(bbmCardV5({ ...model, legs: [prop("A", { projectionText: "61%" })] })), /Model value \(Level A\)/);
+  // A sample (fixture) price never earns the verified check; a verified real price must show it.
+  const leg = { legId: "l1", team, opponent: opp, home: true, tipUtc: "2026-11-05T00:00:00Z", projectionText: "70%" };
+  const priced = (p) => bbmCardV5({ ...model, template: false, legs: [leg], payout: { combinedAmerican: -150, grossCents: 16667, profitCents: 6667, legs: { l1: { price: -150, oddsFormat: "american" } }, ...p } });
+  const sample = priced({ fixture: true });
+  assert.deepEqual(verifyBbmCardV5(sample), []); assert.ok(!("price.verified" in sample.cells));
+  const real = priced({});
+  assert.deepEqual(verifyBbmCardV5(real), []); assert.ok("price.verified" in real.cells);
+  assert.match(verifyBbmCardV5({ ...real, preliminary: true }).join(";"), /verified badge without a verified real price/);
 });
