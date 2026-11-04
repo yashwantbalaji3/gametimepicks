@@ -5339,6 +5339,8 @@ a.nbx-lane-row:hover, a.nbx-lane-row:focus-visible { border-color: var(--sport-n
 .nbx-kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0.25rem 0.875rem; margin: 0; font-size: 13px; }
 .nbx-kv dt { color: var(--vault-text-mute); }
 .nbx-kv dd { margin: 0; overflow-wrap: anywhere; }
+/* phones: label above value, so a long value is not squeezed into a sliver beside a long label */
+@media (max-width: 519px) { .nbx-kv { grid-template-columns: minmax(0, 1fr); gap: 0 0; } .nbx-kv dd { margin-bottom: 0.5rem; } }
 .nbx-scroll { overflow-x: auto; max-width: 100%; }
 .nbx-ptable { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
 .nbx-ptable caption { text-align: left; font-weight: 700; padding: 0.25rem 0; }
