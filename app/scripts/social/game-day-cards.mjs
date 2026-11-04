@@ -127,7 +127,7 @@ const mbox = (t) => `<div class="mbox ${t.nickname.length > 11 ? "long" : ""}" s
 const slab = (t) => `<div class="slab" style="--c:${t.color};--a:${t.secondary};--cink:${t.ink}"><div class="city" data-fit>${esc(t.city)}</div><div class="nick" data-fit>${esc(t.nickname)}</div></div>`;
 
 /** Reference 1. `g`: { eventId, away, home, awayP, homeP, awayPct, homePct, winner (team|null), tipDay, tipTime, chip }. */
-export function winnerCard(g, { kicker = "GameTimePicks Prediction", meterLabel = "Model win probability", disclosure = DISCLOSURE } = {}) {
+export function winnerCard(g, { kicker = "GameTimePicks Prediction", meterLabel = "Model win probability", disclosure = DISCLOSURE, review = true } = {}) {
   const cells = {};
   const [ca, cb] = meterColours(g.away, g.home);
   const total = g.awayP + g.homeP;
@@ -135,8 +135,8 @@ export function winnerCard(g, { kicker = "GameTimePicks Prediction", meterLabel 
 <div class="meter" data-meter="elo"><div class="meter-k">${esc(meterLabel)}</div><div class="meter-labels"><div class="ml l">${bcell(cells, "away.pct", `${g.awayPct}%`)}<span data-fit>${esc(g.away.name)}</span></div><div class="ml r">${bcell(cells, "home.pct", `${g.homePct}%`)}<span data-fit>${esc(g.home.name)}</span></div></div>
 <div class="meter-bar"><i class="seg away" data-share="${g.awayP}" style="width:${((100 * g.awayP) / total).toFixed(3)}%;--c:${ca}"></i><i class="seg home" data-share="${g.homeP}" style="width:${((100 * g.homeP) / total).toFixed(3)}%;--c:${cb}"></i></div></div>
 <div class="winner2${g.market ? " mkw" : ""}"><div class="k">${g.winner ? "Predicted Winner" : "Too close to call"}</div>${g.winner ? slab(g.winner) : ""}</div>
-${g.market ? `<div class="mkp"><div class="mk">Price</div>${cell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, "mv")}</div>` : ""}<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>${g.startWord ?? "Tip-off"}</span></div><div>${bcell(cells, "time", g.tipTime, "data-fit")}<span>Eastern time</span></div></div>`;
-  return { html: shell({ away: g.away, home: g.home, chip: g.chip, body, disclosure }), cells, v2: true, disclosure };
+${g.market ? `<div class="mkp"><div class="mk">${esc(g.market.label ?? "Price")}</div>${cell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, "mv")}</div>` : ""}<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>${g.startWord ?? "Tip-off"}</span></div><div>${bcell(cells, "time", g.tipTime, "data-fit")}<span>Eastern time</span></div></div>`;
+  return { html: shell({ away: g.away, home: g.home, chip: g.chip, body, disclosure, review }), cells, v2: true, disclosure };
 }
 
 /** Image 1 of an NFL game post: predicted side, official chances, kickoff, the side's price, then the top anytime TD chances. */

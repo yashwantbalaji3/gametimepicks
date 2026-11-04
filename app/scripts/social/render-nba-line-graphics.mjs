@@ -62,7 +62,7 @@ export function parseArgs(argv) {
  */
 export const TEMPLATES = Object.freeze(["boxscore", "gamepost", "table"]);
 
-export function prepareNbaLineGraphics({ date, asOf, purpose, env = process.env, template = "boxscore" }) {
+export function prepareNbaLineGraphics({ date, asOf, purpose, env = process.env, template = "boxscore", flagged = null }) {
   if (!TEMPLATES.includes(template)) throw new Error(`--template ${TEMPLATES.join("|")}`);
   const { doc, lane, artifact } = loadNbaLineGraphicsExport({ date, asOf, purpose, env });
   if (!doc.authorization.valuesIncluded) {
@@ -72,7 +72,7 @@ export function prepareNbaLineGraphics({ date, asOf, purpose, env = process.env,
   const sourceErrors = verifyAgainstSources({ doc, lane, artifact });
   if (sourceErrors.length) throw new Error(`validation against the lane and the artifact failed:\n  - ${sourceErrors.slice(0, 20).join("\n  - ")}\nNothing written.`);
   if (template === "boxscore") return prepareBoxScore(doc);
-  if (template === "gamepost") return prepareBoxScore(doc, { pagesOf: gamePostPage, template: "gamepost" });
+  if (template === "gamepost") return prepareBoxScore(doc, { pagesOf: (d, id) => gamePostPage(d, id, undefined, flagged?.[id] ?? []), template: "gamepost" });
   const cards = [];
   for (const ev of doc.events.filter((e) => e.rows > 0)) {
     for (const size of Object.values(SIZES)) {
@@ -202,7 +202,8 @@ export async function renderNbaLineGraphics(args, env = process.env) {
   const outDir = assertPrivateOutDir(args.out ?? defaultOutDir(args.date));
   const scales = String(args.scales ?? "1,2").split(",").map(Number);
   if (!scales.length || scales.some((s) => !Number.isInteger(s) || s < 1 || s > 3)) throw new Error("--scales: comma-separated integers 1..3");
-  const { doc, cards, captions } = prepareNbaLineGraphics({ date: args.date, asOf: args["as-of"], purpose, env, template: args.template ?? "boxscore" });
+  const flagged = args["flagged-players"] ? JSON.parse(fs.readFileSync(args["flagged-players"], "utf8")) : null;
+  const { doc, cards, captions } = prepareNbaLineGraphics({ date: args.date, asOf: args["as-of"], purpose, env, template: args.template ?? "boxscore", flagged });
 
   const writeAll = async (browser) => {
     if (browser) {
