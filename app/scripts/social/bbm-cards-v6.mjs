@@ -309,7 +309,7 @@ const CLEAN_CSS = `<style>
 .v5.clean .st5 .sl{font:800 16px/1 var(--display);letter-spacing:2px;text-transform:uppercase;color:rgba(255,255,255,.78)}
 .v5.clean .st5 .sv{margin-top:3px;font:900 38px/1 var(--display);color:#FFE27A;-webkit-text-stroke:1px rgba(0,0,0,.55);white-space:nowrap}
 .v5.clean .legs5>.leg.clean:not(:only-child) .rp5{gap:6px;min-width:132px}.v5.clean .legs5>.leg.clean:not(:only-child) .st5 .sv{font-size:30px}.v5.clean .legs5>.leg.clean:not(:only-child) .st5 .sl{font-size:14px}
-.v5.clean .money5.clean .vm.snap{font-size:13px;letter-spacing:1px;color:rgba(255,255,255,.85);white-space:normal;line-height:1.15}
+.v5.clean .snap5{position:absolute;left:366px;right:22px;top:1170px;text-align:center;font:800 20px/1 var(--display);letter-spacing:3px;text-transform:uppercase;color:rgba(255,255,255,.9);text-shadow:0 1px 3px #000;white-space:nowrap}
 .v5.clean .tgt5{margin-top:20px;align-self:center;display:flex;align-items:center;gap:16px;padding:10px 24px 8px;border-radius:999px;border:2px solid var(--neon);background:rgba(0,0,0,.85);white-space:nowrap}
 .v5.clean .tgt5 span{font:800 22px/1 var(--display);letter-spacing:2px;text-transform:uppercase;color:#FFFFFF}
 .v5.clean .tgt5 .to{font:900 36px/1 var(--display);color:#FFE27A}
@@ -366,8 +366,9 @@ export function bbmCardV6(model, { testData = false } = {}) {
       const n = model.legs.length;
       const kind = model.payout.combinedLabel === "book-quoted parlay" ? "Book parlay" : n === 1 ? "Selection" : "Leg product";
       // Founder override 2026-11-04 (odds snapshot): captured odds with their capture time; may have changed, not a live offer.
-      const mark = model.payout.snapshotText ? `<div class="vm snap">${cell(cells, "price.snapshot", model.payout.snapshotText)}</div>` : model.payout.verifiedMark ? `<div class="vm">${CHECK}${cell(cells, "price.verified", "Verified odds")}</div>` : "";
-      bottom += `<div class="money5 clean"><div class="odds"><div class="k">Odds</div>${cell(cells, "price.combined", american(model.payout.combinedAmerican), "v")}<div class="sub">${cell(cells, "price.kind", kind)}</div>${mark}</div><div><div class="k">Tracked stake</div>${cell(cells, "money.wager", cents(model.bankrollCents), "v")}</div><div class="pay" data-money="payout"><div class="k">Potential payout</div>${cell(cells, "money.payout", cents(model.payout.grossCents), "v")}</div><div class="pro"><div class="k">Profit</div>${cell(cells, "money.profit", cents(model.payout.profitCents), "v")}</div></div>`;
+      const snap = model.payout.snapshotText ? `<div class="snap5">${cell(cells, "price.snapshot", model.payout.snapshotText)}</div>` : "";
+      const mark = model.payout.snapshotText ? "" : model.payout.verifiedMark ? `<div class="vm">${CHECK}${cell(cells, "price.verified", "Verified odds")}</div>` : "";
+      bottom += `<div class="money5 clean"><div class="odds"><div class="k">Odds</div>${cell(cells, "price.combined", american(model.payout.combinedAmerican), "v")}<div class="sub">${cell(cells, "price.kind", kind)}</div>${mark}</div><div><div class="k">Tracked stake</div>${cell(cells, "money.wager", cents(model.bankrollCents), "v")}</div><div class="pay" data-money="payout"><div class="k">Potential payout</div>${cell(cells, "money.payout", cents(model.payout.grossCents), "v")}</div><div class="pro"><div class="k">Profit</div>${cell(cells, "money.profit", cents(model.payout.profitCents), "v")}</div></div>${snap}`;
     } else if (model.view === VIEW.CARD) {
       const stepTarget = model.rungs[model.step - 1]?.milestoneCents;
       const am = model.payout ? american(model.payout.combinedAmerican) : null;
