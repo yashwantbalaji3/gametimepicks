@@ -50,16 +50,18 @@ for (const [product, ids] of [["bank-builder", ["A", "B"]], ["moonshot", ["A", "
 }
 for (const [product, legs, tag] of [["bank-builder", bbLegs, "bb"], ["moonshot", msLegs, "ms"]]) {
   const base = TERMS[product].baseCents;
-  add("variants", `${tag}-1-leg`, model(product, "A", { step: 1, rungs: rungsOf(product, 0, 1, RUNG.ACTIVE), bankrollCents: base, badge: BADGE.ACTIVE, view: VIEW.CARD, legs: legs.slice(0, 1) }));
-  add("variants", `${tag}-2-leg`, model(product, "A", { step: 1, rungs: rungsOf(product, 0, 1, RUNG.ACTIVE), bankrollCents: base, badge: BADGE.ACTIVE, view: VIEW.CARD, legs: legs.slice(0, 2) }));
-  // Props: a sample player (no real name carries invented evidence); the team and tip come from a real leg.
-  const prop = (l, level) => ({ kind: "PROP", legId: `${l.legId}-prop`, player: { name: "Sample Player" }, team: l.team, opponent: l.opponent, home: l.home, tipUtc: l.tipUtc, lineText: "Over 24.5 pts", level, evidence: { l10: "8/10", l20: "14/20" }, ...(level === "A" ? { projectionText: "61%" } : {}) });
-  add("variants", `${tag}-prop-level-a`, model(product, "A", { step: 1, rungs: rungsOf(product, 0, 1, RUNG.ACTIVE), bankrollCents: base, badge: BADGE.ACTIVE, view: VIEW.CARD, legs: [prop(legs[0], "A"), legs[1]] }));
-  add("variants", `${tag}-prop-level-b`, model(product, "B", { step: 1, rungs: rungsOf(product, 0, 1, RUNG.ACTIVE), bankrollCents: base, badge: BADGE.ACTIVE, view: VIEW.CARD, legs: [prop(legs[0], "B")] }));
-  // Sample prices (fixture, SAMPLE PRICE ribbon): shows the payout hierarchy. Never a package, never VERIFIED.
-  const two = legs.slice(0, 2);
-  const px = { [two[0].legId]: { price: -150, oddsFormat: "american" }, [two[1].legId]: { price: 120, oddsFormat: "american" } };
-  add("variants", `${tag}-2-leg-sample-priced`, model(product, "A", { template: false, step: 1, rungs: rungsOf(product, 0, 1, RUNG.ACTIVE), bankrollCents: base, badge: BADGE.ACTIVE, view: VIEW.CARD, legs: two, payout: { fixture: true, preliminary: false, combinedAmerican: 267, grossCents: Math.round(base * 3.667), profitCents: Math.round(base * 2.667), legs: px } }));
+  // Founder 2026-11-04: lane A = moneyline, lane B = player props. Templates (no prices) and labelled sample prices, 1 and 2 legs.
+  const at = { step: 1, rungs: rungsOf(product, 0, 1, RUNG.ACTIVE), bankrollCents: base, badge: BADGE.ACTIVE, view: VIEW.CARD };
+  // Props: sample players (no real name carries invented evidence); the team and tip come from a real leg.
+  const prop = (l, n, level, lineText, ev) => ({ kind: "PROP", legId: `${l.legId}-prop`, player: { name: `Sample Player ${n}` }, team: l.team, opponent: l.opponent, home: l.home, tipUtc: l.tipUtc, lineText, level, evidence: ev, ...(level === "A" ? { projectionText: "61%" } : {}) });
+  const props = [prop(legs[0], "One", "B", "OVER 24.5 PTS", { l10: "8/10", l20: "14/20" }), prop(legs[1], "Two", "A", "UNDER 8.5 REB", { l10: "7/10", l20: "15/20" })];
+  const priced = (ls, prices, comb) => ({ template: false, payout: { fixture: true, preliminary: false, combinedAmerican: comb, grossCents: Math.round(base * (1 + (comb > 0 ? comb / 100 : 100 / -comb))), profitCents: Math.round(base * (comb > 0 ? comb / 100 : 100 / -comb)), legs: Object.fromEntries(ls.map((l, i) => [l.legId, { price: prices[i], oddsFormat: "american" }])) } });
+  for (const [L, fam, ls] of [["A", "moneyline", legs.slice(0, 2)], ["B", "props", props]]) {
+    add("variants", `${tag}-${L.toLowerCase()}-${fam}-1-leg`, model(product, L, { ...at, legs: ls.slice(0, 1) }));
+    add("variants", `${tag}-${L.toLowerCase()}-${fam}-2-leg`, model(product, L, { ...at, legs: ls }));
+    add("variants", `${tag}-${L.toLowerCase()}-${fam}-1-leg-sample-priced`, model(product, L, { ...at, legs: ls.slice(0, 1), ...priced(ls.slice(0, 1), [-110], -110) }));
+    add("variants", `${tag}-${L.toLowerCase()}-${fam}-2-leg-sample-priced`, model(product, L, { ...at, legs: ls, ...priced(ls, [-150, 120], 267) }));
+  }
   const m = ms[product];
   const res = (outs) => legs.slice(0, 2).map((l, i) => ({ legId: l.legId, outcome: outs[i] }));
   add("matrix", `${tag}-step1-active`, model(product, "A", { step: 1, rungs: rungsOf(product, 0, 1, RUNG.ACTIVE), bankrollCents: base, badge: BADGE.ACTIVE, view: VIEW.CARD, legs: PH }));

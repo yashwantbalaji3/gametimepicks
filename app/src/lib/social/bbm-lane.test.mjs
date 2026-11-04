@@ -466,7 +466,13 @@ test("V6 (contrast pass): the same gates as V5, and the STEP n PLAN box comes fr
   const priced = (p) => bbmCardV6({ ...model, template: false, legs: [leg], payout: { combinedAmerican: -150, grossCents: 4167, profitCents: 1667, legs: { l1: { price: -150, oddsFormat: "american" } }, ...p } });
   assert.ok(!("price.verified" in priced({ fixture: true }).cells)); assert.ok("price.verified" in priced({}).cells);
   assert.deepEqual(verifyBbmCardV6(priced({})), []);
-  assert.throws(() => bbmCardV6({ ...model, legs: [{ kind: "PROP", legId: "p", player: { name: "Sample Player" }, team, opponent: opp, home: true, tipUtc: "2026-11-05T00:00:00Z", lineText: "Over 24.5 pts", level: "B", projectionText: "80%", evidence: { l10: "8/10", l20: "14/20" } }] }), /never carries a probability/);
+  const propB = { kind: "PROP", legId: "p", player: { name: "Sample Player" }, team, opponent: opp, home: true, tipUtc: "2026-11-05T00:00:00Z", lineText: "Over 24.5 pts", level: "B", evidence: { l10: "8/10", l20: "14/20" } };
+  assert.throws(() => bbmCardV6({ ...model, letter: "B", laneId: "ms-b", legs: [{ ...propB, projectionText: "80%" }] }), /never carries a probability/);
+  // Founder 2026-11-04: lane A is the moneyline challenge, lane B the player-prop challenge; a leg of the other type is refused.
+  assert.throws(() => bbmCardV6({ ...model, legs: [propB] }), /lane A is the Moneyline challenge/);
+  assert.throws(() => bbmCardV6({ ...model, letter: "B", laneId: "ms-b", legs: [leg] }), /lane B is the Player props challenge/);
+  assert.match(textOf(priced({})), /Lane A · Moneyline/); assert.match(textOf(priced({})), /Selection odds/);
+  assert.match(textOf(bbmCardV6({ ...model, template: false, legs: [leg, { ...leg, legId: "l2" }], payout: { combinedAmerican: 120, grossCents: 5500, profitCents: 3000, legs: { l1: { price: -150, oddsFormat: "american" }, l2: { price: 300, oddsFormat: "american" } } } })), /Combined odds \(leg product\)/);
 });
 
 test("V6 HELD (PD 2026-11-04): the engine's reason in plain words, no picks, no prices, never VERIFIED", () => {
@@ -491,7 +497,7 @@ test("V6 prop legs from the engine card: line and hit counts only when social pr
   assert.throws(() => propLegV6(l, { ...eng, hitRate: { windows: [{ window: "last10", hits: 7, n: 10 }] } }, { linesShown: true }), /hit counts are missing/);
   assert.throws(() => propLegV6(l, undefined, { linesShown: false }), /not on the engine's frozen card/);
   const rungs = RULES_V2.milestonesCents["bank-builder"].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
-  const model = { product: "bank-builder", letter: "A", laneId: "bb-a", date: DATE, step: 1, steps: 5, rungs, baseCents: 10000, targetCents: 1000000, bankrollCents: 10000, badge: BADGE.ACTIVE, view: VIEW.CARD, payout: null, template: false };
+  const model = { product: "bank-builder", letter: "B", laneId: "bb-b", date: DATE, step: 1, steps: 5, rungs, baseCents: 10000, targetCents: 1000000, bankrollCents: 10000, badge: BADGE.ACTIVE, view: VIEW.CARD, payout: null, template: false };
   for (const leg of [on, off]) { const c = bbmCardV6({ ...model, legs: [leg] }); assert.deepEqual(verifyBbmCardV6(c), []); assert.ok(!("leg1.proj" in c.cells)); }
   assert.ok(!("leg1.line" in bbmCardV6({ ...model, legs: [off] }).cells));
 });

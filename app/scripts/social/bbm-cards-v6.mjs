@@ -27,6 +27,8 @@ export const BBM_V6_DESIGN_VERSION = "bbm-v6";
 export const V6_FOOTER = "21+ · Gamble responsibly";
 export const V6_PLACEHOLDER = Object.freeze({ leg: "Awaiting qualified selection", price: "Price pending", payout: "Pending" });
 /** Prop legs: Level A carries the model's probability; Level B is research evidence, never a probability. */
+/** Founder 2026-11-04: the lane-type classification printed beside the lane letter. */
+export const LANE_TYPE = Object.freeze({ A: "Moneyline", B: "Player props" });
 export const PROP_LEVEL = Object.freeze({ A: "Model value (Level A)", B: "Research (Level B)" });
 export const V6_REMOVED = Object.freeze([/NO REAL WAGER/i, /\bCAPTURED\b/i, /NEXT MILESTONE/i, /BELOW PACE|ON PACE|BEHIND PACE/i, /FOUNDER REVIEW ONLY/i, /NOT A SPORTSBOOK OFFER/i, /must land/i, /betting advice/i, /\bACTIVE\b/]);
 const STATUS_WORD = Object.freeze({ [BADGE.WON]: "Won", [BADGE.LOST]: "Lost", [BADGE.HELD]: "Held", [BADGE.COMPLETED]: "Completed", [BADGE.FINISHED_SHORT]: "Finished short" });
@@ -177,8 +179,10 @@ const CSS = (P) => `<style>
 .pills5>b{padding:12px 26px 9px;font:900 italic 36px/1 var(--headline);letter-spacing:1px;text-transform:uppercase;color:#2a1200;background:linear-gradient(180deg,#FFFBD0,#FFD23A 45%,var(--g2) 80%,var(--g3));border-radius:999px;box-shadow:0 0 10px #FFC400,0 0 26px rgba(255,190,0,.7),inset 0 2px 0 rgba(255,255,255,.8)}
 .pills5>span{padding:12px 26px 9px;font:900 30px/1 var(--display);letter-spacing:3px;text-transform:uppercase;color:#F5F7F2}
 .pills5>.st{border-left:2px solid rgba(255,255,255,.2)}.pills5>.st.LOST{color:#FF6B7A}.pills5 .st.HELD{color:#FFC14D}.pills5 .st.WON,.pills5 .st.COMPLETED{color:var(--neon)}.pills5 .st.FINISHED{color:#D7DEE5}
+.pills5>b{font-size:30px;padding:12px 22px 9px}.pills5>span{font-size:27px;padding:12px 22px 9px}
 .pills5.three>b,.pills5.three>span{font-size:24px;padding:10px 14px 8px;letter-spacing:1px}
 .legs5:has(>.leg:only-child){justify-content:center}
+.legs5>.leg:only-child{min-height:186px;padding:22px 26px 20px}.legs5>.leg:only-child .nm{font-size:56px}.legs5>.leg:only-child .n{font-size:90px}.legs5>.leg:only-child .pv{font-size:84px}.legs5>.leg:only-child .who{gap:10px}
 .sel5{margin:18px auto 0;padding:8px 20px 6px;border-radius:999px;border:2px solid #FFC400;background:rgba(0,0,0,.85);box-shadow:0 0 12px rgba(255,196,0,.55);font:900 20px/1 var(--display);letter-spacing:2px;text-transform:uppercase;color:#FFE27A;white-space:nowrap}
 .legs5{flex:1;min-height:0;margin-top:24px;display:flex;flex-direction:column;justify-content:flex-start;gap:14px}
 .leg{position:relative;display:grid;grid-template-columns:58px 1fr auto;align-items:center;gap:6px 16px;flex:none;min-height:132px;padding:14px 22px 12px;border-radius:22px;border:4px solid color-mix(in srgb,var(--c) 45%,#fff);background:linear-gradient(100deg,color-mix(in srgb,var(--c) 92%,#fff 8%) 0%,var(--c) 38%,color-mix(in srgb,var(--c) 55%,#000) 72%,color-mix(in srgb,var(--c) 30%,#000) 100%);box-shadow:0 0 0 1px rgba(255,255,255,.6),0 0 8px color-mix(in srgb,var(--c) 90%,#fff),0 0 26px var(--c),0 0 54px color-mix(in srgb,var(--c) 60%,transparent),inset 0 3px 0 rgba(255,255,255,.35),inset 0 -14px 24px rgba(0,0,0,.35);min-width:0}
@@ -256,13 +260,15 @@ export function bbmCardV6(model, { testData = false } = {}) {
   const P = PRODUCT[model.product];
   if (!P) throw new Error(`no V6 design for ${model.product}`);
   if ((model.legs ?? []).length > RULES_V2.maxLegs) throw new Error(`${model.legs.length} legs: rules v2 take at most ${RULES_V2.maxLegs}`);
+  // Founder 2026-11-04: lanes specialize (A = moneyline, B = player props, both products); a leg of the other type is refused.
+  for (const l of model.legs ?? []) if (!l.placeholder && (l.kind === "PROP") !== (model.letter === "B")) throw new Error(`lane ${model.letter} is the ${LANE_TYPE[model.letter]} challenge: a ${l.kind === "PROP" ? "prop" : "moneyline"} leg is refused`);
   if (!Object.values(BADGE).includes(model.badge)) throw new Error(`status ${model.badge} is not in the public vocabulary`);
   for (const l of model.legs ?? []) if (l.kind === "PROP" && l.level === "B" && l.projectionText) throw new Error("a Level B prop never carries a probability");
   const cells = {};
   const tpl = model.template === true;
   const stepWord = model.view === VIEW.COMPLETE || model.view === VIEW.FINISHED_SHORT ? `${model.rungs.filter((r) => r.state === RUNG.COMPLETED).length} of ${model.steps} won` : `Step ${model.step} of ${model.steps}`;
   const status = model.badge === BADGE.ACTIVE ? "" : `<span class="st ${String(model.badge).split(" ")[0]}">${cell(cells, "status", STATUS_WORD[model.badge] ?? model.badge)}</span>`;
-  const head = `<img class="logo5" src="${logoDataUri()}" alt=""><div style="text-align:center"><span class="chip5" style="display:inline-block">${cell(cells, "chip", chipText(model.date))}</span></div><div class="title5">${esc(P.name)}</div><div class="goal5">${cell(cells, "goal", `${cents(model.baseCents)} → ${cents(model.targetCents)} challenge`)}</div><div style="text-align:center"><span class="pills5${status ? " three" : ""}" style="display:inline-flex"><b>${cell(cells, "lane", `Lane ${model.letter}`)}</b><span>${cell(cells, "step", stepWord)}</span>${status}</span></div>`;
+  const head = `<img class="logo5" src="${logoDataUri()}" alt=""><div style="text-align:center"><span class="chip5" style="display:inline-block">${cell(cells, "chip", chipText(model.date))}</span></div><div class="title5">${esc(P.name)}</div><div class="goal5">${cell(cells, "goal", `${cents(model.baseCents)} → ${cents(model.targetCents)} challenge`)}</div><div style="text-align:center"><span class="pills5${status ? " three" : ""}" style="display:inline-flex"><b>${cell(cells, "lane", `Lane ${model.letter}${LANE_TYPE[model.letter] ? ` · ${LANE_TYPE[model.letter]}` : ""}`)}</b><span>${cell(cells, "step", stepWord)}</span>${status}</span></div>`;
   const meter = model.product === "moonshot" ? rocket(cells, model.rungs, P) : battery(cells, model.rungs, P);
   const outs = Object.fromEntries((model.legResults ?? []).map((r) => [r.legId, r.outcome]));
   let mid; let bottom = "";
@@ -278,7 +284,7 @@ export function bbmCardV6(model, { testData = false } = {}) {
       const am = model.payout ? american(model.payout.combinedAmerican) : null;
       const verified = !tpl && model.payout && !model.payout.preliminary && !model.payout.fixture;
       const tag = verified ? `<span class="chk">${CHECK}${cell(cells, "price.verified", "Verified odds")}</span>` : model.payout?.preliminary ? `<span class="pre">${cell(cells, "price.preliminary", "Preliminary odds")}</span>` : "";
-      bottom += `<div class="comb5"><span class="k">${esc(model.payout?.estimate ? "Combined odds (estimate)" : "Combined odds (leg product)")}</span>${cell(cells, "price.combined", am ?? V6_PLACEHOLDER.price, "v")}${tag}</div>`;
+      bottom += `<div class="comb5"><span class="k">${esc(model.payout?.estimate ? "Combined odds (estimate)" : (model.legs ?? []).filter((l) => !l.placeholder).length === 1 || (model.legs ?? []).length === 1 ? "Selection odds" : "Combined odds (leg product)")}</span>${cell(cells, "price.combined", am ?? V6_PLACEHOLDER.price, "v")}${tag}</div>`;
       const stake = `<div><div class="k">Tracked stake</div>${cell(cells, "money.wager", model.bankrollCents == null ? "Withheld" : cents(model.bankrollCents), "v")}</div>`;
       if (tpl || !model.payout) bottom += `<div class="money5">${stake}<div class="pay"><div class="k">Potential payout</div>${cell(cells, "money.payoutPending", V6_PLACEHOLDER.payout, "v pend")}<div class="sub">${cell(cells, "money.targetNote", `Step ${model.step} target ~${cents(stepTarget)}`)}</div></div><div><div class="k">Potential profit</div>${cell(cells, "money.profitPending", V6_PLACEHOLDER.payout, "v pend")}</div></div>`;
       else bottom += `<div class="money5">${stake}<div class="pay" data-money="payout"><div class="k">Potential payout</div>${cell(cells, "money.payout", cents(model.payout.grossCents), "v")}${model.showStepTarget ? `<div class="sub">${cell(cells, "money.targetNote", `Step ${model.step} target ~${cents(stepTarget)}`)}</div>` : ""}</div><div class="pro"><div class="k">Potential profit</div>${cell(cells, "money.profit", cents(model.payout.profitCents), "v")}</div></div>`;
@@ -327,7 +333,7 @@ export function verifyBbmCardV6(card) {
   for (const [k, v] of Object.entries(got)) if (/\.(evidence|evidenceBig)$/.test(k) && /%/.test(v)) e.push(`${k}: a hit rate shown as a percentage`);
   const priceCells = Object.entries(got).filter(([k]) => /\.(odds|line)$|^price\.|^plan\.mult$/.test(k));
   let shown = text; for (const [, v] of priceCells) shown = shown.split(v).join(" ");
-  shown = shown.replace(/Combined odds \((leg product|estimate)\)/gi, " ").replace(SAMPLE_PRICE_RIBBON, " ");
+  shown = shown.replace(/Combined odds \((leg product|estimate)\)|Selection odds/gi, " ").replace(SAMPLE_PRICE_RIBBON, " ");
   if (PRICE_TEXT.test(shown)) e.push(`price text outside its cells: ${shown.match(PRICE_TEXT)[0]}`);
   if (/[—–]/.test(text)) e.push("dash on image");
   e.push(...sourceTextProblems(shown), ...statLabelProblems(shown));
