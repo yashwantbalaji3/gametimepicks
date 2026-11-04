@@ -378,3 +378,12 @@ test("Nov 4 snapshot override: past 90 min only inside its capture window, befor
   const capOther = capture([["1", "p1", "pts", 20.5, 100, -120]], "2026-11-04T19:05:00Z");
   assert.ok(evaluateLevelSet([legFromShortlist(row({ startUtc: "2026-11-05T03:30Z" }))], { position: MS1, now: "2026-11-04T22:50:00Z", propIx: indexPropCapture(capOther), params: { freshnessOverride: NOV4_SNAPSHOT_OVERRIDE } }).reasons.some((x) => x.startsWith("E_STALE_QUOTE")), "a 19:05Z quote is outside the window");
 });
+
+test("latestPostAt: earliest tip, and the exception's expiry instead of fetch + 90 min (never fetch + 90 under the Nov 4 exception)", async () => {
+  const { latestPostAt, NOV4_SNAPSHOT_OVERRIDE } = await import("./levels.mjs");
+  const legs = [{ startUtc: "2026-11-05T01:00Z", fetchedAt: "2026-11-04T21:05:12.990Z" }, { startUtc: "2026-11-05T01:30Z", fetchedAt: "2026-11-04T21:05:12.990Z" }];
+  assert.equal(latestPostAt(legs), "2026-11-04T22:35:12.990Z", "without the exception: fetch + 90 min");
+  assert.equal(latestPostAt(legs, { freshnessOverride: NOV4_SNAPSHOT_OVERRIDE }), "2026-11-05T01:00:00.000Z", "with it: the earliest tip");
+  assert.equal(latestPostAt([{ startUtc: "2026-11-05T06:00Z", fetchedAt: "2026-11-04T21:06:40Z" }], { freshnessOverride: NOV4_SNAPSHOT_OVERRIDE }), "2026-11-05T04:59:59.000Z", "a late tip is capped by the exception's expiry");
+  assert.equal(latestPostAt([{ startUtc: "2026-11-05T01:00Z", fetchedAt: "2026-11-04T19:05:00Z" }], { freshnessOverride: NOV4_SNAPSHOT_OVERRIDE }), "2026-11-04T20:35:00.000Z", "a quote outside the window keeps the 90-minute limit");
+});

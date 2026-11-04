@@ -26,6 +26,18 @@ export const LEVEL = Object.freeze({ A: "LEVEL_A", B: "LEVEL_B", HOLD: "HOLD" })
 export const LEVEL_LABEL = Object.freeze({ LEVEL_A: "MODEL-VALIDATED VALUE", LEVEL_B: "HISTORICAL HIT-RATE RESEARCH — no EV claim", HOLD: "HOLD" });
 export const RANKING_LABEL = "RULES-BASED RANKING — an ordering of evidence, not a probability; no EV claim";
 export const NOV4_SNAPSHOT_OVERRIDE = Object.freeze({ id: "2026-11-04-founder-odds-snapshot-override", capturedFrom: "2026-11-04T21:05:00Z", capturedTo: "2026-11-04T21:07:00Z", expiresAt: "2026-11-05T04:59:59Z", label: "ODDS SNAPSHOT · 4:05 PM ET", receipt: "docs/receipts/FOUNDER_ODDS_SNAPSHOT_OVERRIDE_2026-11-04.md (f529fa44fa)" });
+/**
+ * The latest instant a priced card may be posted: the earliest leg tip, and (without an exception) quote fetch + 90 min;
+ * under a dated freshness exception the 90-minute term is replaced by the exception's expiry. Never after a tip.
+ * @param {{ startUtc: string, fetchedAt?: string, quote?: { fetchedAt: string } }[]} legs
+ */
+export function latestPostAt(legs, { freshnessOverride = null, maxQuoteAgeMs = 90 * 60 * 1000 } = {}) {
+  const tip = Math.min(...legs.map((l) => Date.parse(l.startUtc)));
+  const fetched = Math.min(...legs.map((l) => Date.parse(l.fetchedAt ?? l.quote?.fetchedAt ?? l.priceCheck?.fetchedAt)));
+  const inWindow = freshnessOverride && legs.every((l) => { const f = Date.parse(l.fetchedAt ?? l.quote?.fetchedAt ?? l.priceCheck?.fetchedAt); return f >= Date.parse(freshnessOverride.capturedFrom) && f <= Date.parse(freshnessOverride.capturedTo); });
+  const quoteLimit = inWindow ? Date.parse(freshnessOverride.expiresAt) : fetched + maxQuoteAgeMs;
+  return new Date(Math.min(tip, quoteLimit)).toISOString();
+}
 export const PROP_FAMILIES = Object.freeze({ pts: "player_points", reb: "player_rebounds", ast: "player_assists" });
 
 export const LEVEL_B_PARAMS = Object.freeze({
