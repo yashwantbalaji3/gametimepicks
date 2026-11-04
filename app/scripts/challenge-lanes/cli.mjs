@@ -12,7 +12,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { LANE_IDS, LANES, laneState, selectLaneCards, runStarted, STATUS } from "../../src/lib/challenge-lanes/lanes.mjs";
-import { prepareLane, unpricedLane, reconcileLane, ingestReceipts, FINALS_RECORD } from "../../src/lib/challenge-lanes/ops.mjs";
+import { prepareLane, unpricedLane, reconcileLane, ingestReceipts, restartRun, FINALS_RECORD } from "../../src/lib/challenge-lanes/ops.mjs";
 import { laneProjection, serializeProjection } from "../../src/lib/challenge-lanes/projection.mjs";
 import { currentRun, appendEvents, readRuns, readInboxes, runFiles } from "../../src/lib/challenge-lanes/store.mjs";
 
@@ -61,6 +61,13 @@ export function main(command, argv = process.argv) {
       }
       ingest(laneId);
       run = currentRun(root, laneId);
+      /* A founder restart recorded by the console (RESTART_APPROVED, ingested above) opens the next run at base. */
+      const next = restartRun(run.events);
+      if (next && !runFiles(root, laneId).includes(`${next.runId}.jsonl`)) {
+        appendEvents(root, laneId, `${next.runId}.jsonl`, 0, [next]);
+        (report.restarts ??= []).push({ laneId, runId: next.runId, approvedBy: next.approvedBy });
+        run = { file: `${next.runId}.jsonl`, events: [next] };
+      }
       const r = prepareLane(run.events, { date: DATE, at, selection: selections?.[LANES[laneId].product] ?? null, file: doc ? rel : null, docSha256: doc?.contentSha256 ?? null });
       appendEvents(root, laneId, run.file, run.events.length, r.events);
       report.lanes[laneId] = { runId: run.file.replace(".jsonl", ""), action: r.action, reason: r.reason, card: r.events.find((e) => e.type === "CARD_FROZEN")?.card ? summary(r.events.find((e) => e.type === "CARD_FROZEN").card) : null };

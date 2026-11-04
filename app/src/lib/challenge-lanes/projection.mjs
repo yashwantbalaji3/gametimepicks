@@ -9,7 +9,7 @@
  * post receipts are public.
  */
 import { canonical, sha256, verifyChain } from "./chain.mjs";
-import { LANES, laneState, inPlay } from "./lanes.mjs";
+import { LANES, MILESTONES, laneState, inPlay, publicStatusOf } from "./lanes.mjs";
 
 export const LANE_PROJECTION_SCHEMA = "gtp.challenge-lane.public@1";
 export const PUBLIC_PRICES = Object.freeze({ state: "WITHHELD_P1", note: "Payouts and prices are withheld until the founder approves a price source whose terms permit display (P1)." });
@@ -27,13 +27,14 @@ function publicEvent(e, withheldMoney) {
   if (PRICE_EVENTS.has(e.type)) return { ...head, withheld: "P1", ...(e.type === "PAYOUT_COMPUTED" ? { result: e.result, refusals: e.refusals?.map((r) => r.code) ?? null } : {}) };
   switch (e.type) {
     case "RUN_STARTED": return { ...head, sha256: e.sha256, laneId: e.laneId, runId: e.runId, product: e.product, baseCents: e.baseCents, targetCents: e.targetCents, steps: e.steps, startedAt: e.startedAt, approvedBy: e.approvedBy };
-    case "CARD_FROZEN": return { ...head, sha256: e.sha256, packageId: e.packageId, suggestedCards: e.suggestedCards, card: e.card };
+    case "CARD_FROZEN": return { ...head, sha256: e.sha256, packageId: e.packageId, mediaIndex: e.mediaIndex ?? null, suggestedCards: e.suggestedCards, card: e.card };
     case "STAKE_SET": return { ...head, withheld: withheldMoney ? "P1" : null, stakeCents: withheldMoney ? null : e.stakeCents, placedWager: e.placedWager };
     case "LEG_SETTLED": return { ...head, sha256: e.sha256, legId: e.legId, gameId: e.gameId, outcome: e.outcome, final: e.final, resultSource: e.source };
     case "STEP_SETTLED": return { ...head, sha256: withheldMoney ? null : e.sha256, outcome: e.outcome, bankrollAfterCents: withheldMoney ? null : e.bankrollAfterCents };
     case "STATUS": return { ...head, sha256: e.sha256, status: e.status, reason: e.reason ?? null };
     case "GRAPHIC_RENDERED": return { ...head, sha256: e.sha256, packageId: e.packageId ?? null, imageSha256: e.imageSha256 ?? null, captionSha256: e.captionSha256 ?? null, rendererCommit: e.rendererCommit ?? null, imagePath: publicImagePath(e.imagePath) };
     case "APPROVED": return { ...head, sha256: e.sha256, ...post(e), approvedAt: e.approvedAt ?? null };
+    case "RESTART_APPROVED": return { ...head, sha256: e.sha256, nextRunId: e.nextRunId ?? null, refEventSha256: e.refEventSha256 ?? null };
     case "POSTED": return { ...head, sha256: e.sha256, ...post(e), xPostId: e.xPostId ?? null, url: e.url ?? null, postedAt: e.postedAt ?? null };
     default: return { ...head, sha256: e.sha256 };
   }
@@ -43,10 +44,17 @@ function publicRun(events) {
   const s = laneState(events);
   const wins = events.filter((e) => e.type === "STEP_SETTLED" && e.outcome === "WIN").length;
   const withheldMoney = wins > 0; // a settled priced win makes the bankroll price-derived
+  /* Pace vs the illustrative milestone of the steps already won (§2). Every number here comes from the bankroll, so it is
+     withheld exactly when the bankroll is. */
+  const remaining = Math.max(s.steps - s.step + 1, 0);
+  const milestone = wins > 0 ? MILESTONES[s.product][Math.min(wins, s.steps) - 1] : s.baseCents;
+  const pace = withheldMoney
+    ? { withheld: "P1", milestoneCents: milestone, requiredMultiplier: null, behindByCents: null, onPace: null }
+    : { withheld: null, milestoneCents: milestone, requiredMultiplier: remaining ? Math.round((s.targetCents / s.bankrollCents) ** (1 / remaining) * 1e4) / 1e4 : null, behindByCents: Math.max(0, milestone - s.bankrollCents), onPace: s.bankrollCents >= milestone };
   const receiptsFor = (date) => events.filter((e) => ["GRAPHIC_RENDERED", "APPROVED", "POSTED"].includes(e.type) && e.date === date).map((e) => publicEvent(e, withheldMoney));
   return {
     runId: s.runId, startedAt: s.startedAt, approvedBy: s.approvedBy, headSha256: events.at(-1).sha256, eventCount: events.length,
-    status: s.status, statusReason: s.statusReason, step: s.step, steps: s.steps, stepText: `STEP ${Math.min(s.step, s.steps)} OF ${s.steps}`,
+    status: s.status, publicStatus: publicStatusOf(s), statusReason: s.statusReason, pace, step: s.step, steps: s.steps, stepText: `STEP ${Math.min(s.step, s.steps)} OF ${s.steps}`,
     inPlay: inPlay(s), stepsWon: wins,
     trackedBankrollCents: withheldMoney ? null : s.bankrollCents, trackedBankrollWithheld: withheldMoney ? "P1" : null,
     days: s.days.map((d) => ({
@@ -67,9 +75,10 @@ export function laneProjection(laneId, runs) {
   const pub = runs.map(publicRun);
   const cur = pub.at(-1) ?? null;
   const doc = {
-    schema: LANE_PROJECTION_SCHEMA, laneId, product: L.product, slot: L.slot, baseCents: L.baseCents, targetCents: L.targetCents, steps: L.steps,
+    schema: LANE_PROJECTION_SCHEMA, laneId, product: L.product, slot: L.slot, baseCents: L.baseCents, targetCents: L.targetCents, steps: L.steps, maxLegs: L.maxLegs,
     label: "Tracked challenge · no real wager placed", projectionLabel: "MODEL PROJECTION", prices: PUBLIC_PRICES,
-    current: cur && { runId: cur.runId, status: cur.status, statusReason: cur.statusReason, step: cur.step, stepText: cur.stepText, inPlay: cur.inPlay, trackedBankrollCents: cur.trackedBankrollCents, trackedBankrollWithheld: cur.trackedBankrollWithheld, headSha256: cur.headSha256 },
+    milestonesCents: MILESTONES[L.product], milestonesNote: "Illustrative milestones after each step; founder-adjustable.",
+    current: cur && { runId: cur.runId, status: cur.status, publicStatus: cur.publicStatus, pace: cur.pace, statusReason: cur.statusReason, step: cur.step, stepText: cur.stepText, inPlay: cur.inPlay, trackedBankrollCents: cur.trackedBankrollCents, trackedBankrollWithheld: cur.trackedBankrollWithheld, headSha256: cur.headSha256 },
     runs: pub,
   };
   return { ...doc, contentSha256: sha256(canonical(doc)) };

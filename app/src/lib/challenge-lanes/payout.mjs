@@ -18,11 +18,14 @@
  *   MODEL_PROBABILITY_AS_PRICE   the "price" is a model number: a probability, a model provider, or 1/model chance
  *   BAD_PRICE                    not a valid American or decimal price, or the parlay price does not match its method
  *   STAKE_NOT_BANKROLL           the stake is not the current tracked bankroll (all-in ladder, D1 proposed)
- *   BELOW_PACE                   the parlay price is under the pace rule (D1 proposed; switchable)
+ *   LEG_COUNT_EXCEEDED           more legs than the product allows (Bank Builder: 2, hard)
+ *   SAME_GAME_NEEDS_PARLAY_PRICE two legs from one game without the book's own whole-parlay price (correlation is never assumed)
+ *   PROP_LINE_UNVERIFIED         a prop leg has no line, or the priced line is not the line the leg was evaluated against
+ *   BELOW_PACE                   only with `strictPace` (off: SPEC rev 2 allows a below-pace card and discloses the shortfall)
  */
 import { verifyChain } from "./chain.mjs";
 import { verifySuggestedCards } from "../products/leg-pool/daily-cards.mjs";
-import { RULE_A_FOR_PRODUCT } from "./lanes.mjs";
+import { RULE_A_FOR_PRODUCT, MAX_LEGS } from "./lanes.mjs";
 
 /** Founder decision P1: no provider is permitted until the founder names one and confirms its terms. */
 export const PERMITTED_PRICE_PROVIDERS = Object.freeze([]);
@@ -74,9 +77,9 @@ const legKey = (l) => `${l.legId}|${l.selection?.code ?? l.selectionCode}`;
  * @param {{ targetCents: number, stepsRemaining: number }} p.ladder
  * @param {string|null} [p.postScheduledAt]
  * @param {readonly string[]} [p.permittedProviders]
- * @param {boolean} [p.paceRule]
+ * @param {boolean} [p.strictPace]   refuse below pace (rev 1 behaviour); default: allow and disclose
  */
-export function computePayout({ events, cardEvent, suggestedCards, priceEvent, stakeCents, bankrollCents, ladder, postScheduledAt = null, permittedProviders = PERMITTED_PRICE_PROVIDERS, paceRule = true }) {
+export function computePayout({ events, cardEvent, suggestedCards, priceEvent, stakeCents, bankrollCents, ladder, postScheduledAt = null, permittedProviders = PERMITTED_PRICE_PROVIDERS, strictPace = false }) {
   const refusals = [];
   const add = (code, detail) => refusals.push(detail ? { code, detail } : { code });
   if (!verifyChain(events).ok) add("CHAIN_BROKEN");
@@ -84,6 +87,11 @@ export function computePayout({ events, cardEvent, suggestedCards, priceEvent, s
   if (!card || !verifySuggestedCards(suggestedCards) || suggestedCards.contentSha256 !== card.suggestedCardsSha256) add("CARD_SHA_UNVERIFIED");
   const excluded = RULE_A_FOR_PRODUCT[cardEvent?.product] ?? [];
   for (const l of card?.legs ?? []) for (const f of l.guard?.flags ?? []) if (excluded.includes(f)) add("LEG_INELIGIBLE_RULE_A", `${l.legId} ${f}`);
+  const max = MAX_LEGS[cardEvent?.product];
+  if (max != null && (card?.legs?.length ?? 0) > max) add("LEG_COUNT_EXCEEDED", `${card.legs.length} > ${max}`);
+  for (const l of card?.legs ?? []) if (l.market !== "winner" && typeof l.prop?.line !== "number") add("PROP_LINE_UNVERIFIED", `${l.legId} has no evaluated line`);
+  const games = (card?.legs ?? []).map((l) => l.gameId);
+  const sameGame = new Set(games).size !== games.length;
 
   let ratio = null;
   if (!priceEvent || priceEvent.type !== "PRICE_VERIFIED") add("NO_PRICE_VERIFIED");
@@ -100,14 +108,18 @@ export function computePayout({ events, cardEvent, suggestedCards, priceEvent, s
     if (!fetched.length || fetched.some((t) => !Number.isFinite(t) || !(t < firstStart))) add("PRICE_AFTER_FIRST_START");
     if (postScheduledAt && fetched.some((t) => t < Date.parse(postScheduledAt) - PRICE_WINDOW_MS)) add("PRICE_TOO_EARLY");
     const byLeg = new Map((card?.legs ?? []).map((l) => [l.legId, l]));
+    for (const l of legs) { const c = byLeg.get(l.legId); if (c && c.market !== "winner" && typeof c.prop?.line === "number" && l.line !== c.prop.line) add("PROP_LINE_UNVERIFIED", `${l.legId} priced at another line`); }
+    if (sameGame && pv.parlay?.method !== "BOOK_QUOTED_PARLAY") add("SAME_GAME_NEEDS_PARLAY_PRICE");
     const ratios = legs.map((l) => {
       const r = priceRatio(l.oddsFormat, l.price);
-      const p = byLeg.get(l.legId)?.probability;
       if (l.oddsFormat === "probability" || (typeof l.price === "number" && l.price > 0 && l.price < 1)) { add("MODEL_PROBABILITY_AS_PRICE", l.legId); return null; }
-      if (r && typeof p === "number" && Math.abs(r.n / r.d - 1 / p) < 5e-4) { add("MODEL_PROBABILITY_AS_PRICE", `${l.legId} equals 1/model chance`); return null; }
       if (!r) add("BAD_PRICE", l.legId);
       return r;
     });
+    /* A "price" that is the model's own chance inverted on EVERY leg is the model, not a book. One leg can match by chance
+       (−110 is 1/0.5238), so a single coincidence is not refused. */
+    const fair = legs.map((l, i) => { const p = byLeg.get(l.legId)?.probability; return ratios[i] && typeof p === "number" && Math.abs(ratios[i].n / ratios[i].d - 1 / p) < 5e-4; });
+    if (fair.length && fair.every(Boolean)) add("MODEL_PROBABILITY_AS_PRICE", "every leg equals 1 / its model chance");
     const parlay = pv.parlay ?? {};
     const quoted = priceRatio(parlay.oddsFormat, parlay.price);
     if (ratios.every(Boolean) && ratios.length) {
@@ -124,9 +136,10 @@ export function computePayout({ events, cardEvent, suggestedCards, priceEvent, s
   if (!(Number.isInteger(stakeCents) && stakeCents > 0 && stakeCents === bankrollCents)) add("STAKE_NOT_BANKROLL");
   const decimal = ratio ? Number(ratio.n) / Number(ratio.d) : null;
   const pace = ladder ? paceFor({ targetCents: ladder.targetCents, bankrollCents, stepsRemaining: ladder.stepsRemaining }) : null;
-  if (paceRule && decimal != null && pace != null && decimal + 1e-12 < pace) add("BELOW_PACE", `${decimal.toFixed(4)} < ${pace.toFixed(4)}`);
+  const belowPace = decimal != null && pace != null && decimal + 1e-12 < pace;
+  if (strictPace && belowPace) add("BELOW_PACE", `${decimal.toFixed(4)} < ${pace.toFixed(4)}`);
 
-  const inputs = { cardEventSha256: cardEvent?.sha256 ?? null, priceEventSha256: priceEvent?.sha256 ?? null, priceSnapshotSha256: priceEvent?.price?.priceSnapshotSha256 ?? null, stakeCents, bankrollCents, decimalPrice: decimal, method: priceEvent?.price?.parlay?.method ?? null, pace, paceRule };
+  const inputs = { cardEventSha256: cardEvent?.sha256 ?? null, priceEventSha256: priceEvent?.sha256 ?? null, priceSnapshotSha256: priceEvent?.price?.priceSnapshotSha256 ?? null, stakeCents, bankrollCents, decimalPrice: decimal, method: priceEvent?.price?.parlay?.method ?? null, pace, belowPace, strictPace };
   if (refusals.length) return { ok: false, refusals, inputs };
   return { ok: true, inputs, ...payoutCents(stakeCents, ratio) };
 }

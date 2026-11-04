@@ -8,8 +8,8 @@ Nothing here calls a price provider, and no price is written to any committed or
 
 | laneId | product | base | target | steps | card source in the frozen file |
 |---|---|---|---|---|---|
-| bb-a | bank-builder | $100 | $10,000 | 3 | `bankBuilder.nba.card` (the file's own card) |
-| bb-b | bank-builder | $100 | $10,000 | 3 | the engine's best card over the file's `legs`, sharing no game with bb-a |
+| bb-a | bank-builder | $100 | $10,000 | 5 (max 2 legs, hard) | `bankBuilder.nba.card` (the file's own card) |
+| bb-b | bank-builder | $100 | $10,000 | 5 (max 2 legs, hard) | the engine's best card over the file's `legs`, sharing no game with bb-a |
 | ms-a | moonshot | $25 | $1,000 | 5 | `moonshot.nba.card` |
 | ms-b | moonshot | $25 | $1,000 | 5 | the engine's best card, sharing no game with ms-a |
 
@@ -18,6 +18,14 @@ B uses the same function (`level-a/engine.mjs` `best`) and the same product rule
 - Moonshot: 3–5 legs in Longshot.
 
 Rule A applies to both lanes. OUT is excluded everywhere, and R1 is excluded from Bank Builder.
+
+This follows SPEC revision 2:
+- Packages: `bb-<date>` carries bb-a (mediaIndex 0) then bb-b (mediaIndex 1); `ms-<date>` carries ms-a then ms-b.
+- Elastic pace: the pace a step needs is (target ÷ bankroll)^(1 ÷ steps remaining). A below-pace card is allowed, with `belowPace` disclosed. `strictPace` (refuse) exists only for the founder's D1 choice.
+- Milestones (display defaults): Bank Builder $300 / $900 / $2,700 / $6,500 / $10,000; Moonshot $75 / $180 / $360 / $650 / $1,000.
+- Step 5 won below target → `FINISHED_SHORT`.
+- Prop legs are bound to their evaluated line (`prop.line`) and refused unpriced without one. None exist yet: the frozen file has no prop probability, and none is derived from a median.
+- Same-game legs need the book's whole-parlay price.
 
 Before it selects anything, the selector re-runs the engine on the file's legs. If that does not reproduce A exactly, it refuses (`SELECTION_MISMATCH`). Money is held as integer cents.
 
@@ -38,10 +46,10 @@ Every event carries `schema: "gtp.challenge-lane.event@1"`, `type`, `date`, `ste
 | type | extra fields |
 |---|---|
 | RUN_STARTED (line 0) | `laneId, runId, product, slot, baseCents, targetCents, steps, startedAt, approvedBy` |
-| CARD_FROZEN | `product, packageId, suggestedCards {file, contentSha256}, card` (see below) |
+| CARD_FROZEN | `product, packageId, mediaIndex, suggestedCards {file, contentSha256}, card` (see below) |
 | PRICE_VERIFIED (private only) | `cardEventSha256, price {legs[{legId, selectionCode, provider, book, oddsFormat, price, fetchedAt}], parlay {method: BOOK_QUOTED_PARLAY \| LEG_PRODUCT, oddsFormat?, price?, provider?, fetchedAt}, priceSnapshotSha256}` |
 | STAKE_SET | `stakeCents` (= tracked bankroll, all-in), `placedWager: false`, `basis` |
-| PAYOUT_COMPUTED | `result: VERIFIED \| REFUSED`, `inputs {cardEventSha256, priceEventSha256, priceSnapshotSha256, stakeCents, bankrollCents, decimalPrice, method, pace, paceRule}`, then `grossPayoutCents, profitCents` (VERIFIED) or `refusals[{code, detail?}]` (REFUSED) |
+| PAYOUT_COMPUTED | `result: VERIFIED \| REFUSED`, `inputs {cardEventSha256, priceEventSha256, priceSnapshotSha256, stakeCents, bankrollCents, decimalPrice, method, pace, belowPace, strictPace}`, then `grossPayoutCents, profitCents` (VERIFIED) or `refusals[{code, detail?}]` (REFUSED) |
 | LEG_SETTLED | `legId, gameId, outcome WIN\|LOSS\|VOID\|PUSH, final {home, away, ftHome, ftAway, winnerSide, statusRaw}, source {kind: "official-final", provider, record, providerEventId, recordedAt}`; `at` = the record's `firstRecordedAt` |
 | STEP_SETTLED | `outcome WIN\|LOSS, payoutEventSha256, bankrollBeforeCents, bankrollAfterCents` |
 | STATUS | `status, reason` |
@@ -67,7 +75,19 @@ These values are copied verbatim from the sealed file.
 - `PENDING_VOID_REVIEW`;
 - `BUSTED`;
 - `COMPLETE`;
+- `FINISHED_SHORT`;
 - `AWAITING_RESTART_APPROVAL`.
+
+**Public status** (`publicStatus`, from `publicStatusOf`):
+
+| Public | Internal |
+|---|---|
+| ACTIVE | a frozen card awaiting price or games, or IN_PLAY |
+| WON | READY after a won step, before the next card |
+| LOST | BUSTED, AWAITING_RESTART_APPROVAL |
+| HELD | UNPRICED, NO_ELIGIBLE_CARD, PENDING_VOID_REVIEW, PAUSED, or a run with no card yet |
+| COMPLETED | COMPLETE |
+| FINISHED SHORT | FINISHED_SHORT |
 
 **Payout refusal codes** (`payout.mjs`):
 - `CHAIN_BROKEN`
@@ -81,7 +101,10 @@ These values are copied verbatim from the sealed file.
 - `MODEL_PROBABILITY_AS_PRICE`
 - `BAD_PRICE`
 - `STAKE_NOT_BANKROLL`
-- `BELOW_PACE`
+- `LEG_COUNT_EXCEEDED`
+- `SAME_GAME_NEEDS_PARLAY_PRICE`
+- `PROP_LINE_UNVERIFIED`
+- `BELOW_PACE` (only with `strictPace`)
 
 **Payout arithmetic:** `gross = floor(stake × decimal)` to the cent, computed from the exact American ratio; `profit = gross − stake`.
 
@@ -90,10 +113,11 @@ These values are copied verbatim from the sealed file.
 The projection is canonical JSON plus `\n`, and a pure function of the logs, so re-runs are byte-identical.
 
 ```
-{ schema, laneId, product, slot, baseCents, targetCents, steps, label, projectionLabel: "MODEL PROJECTION",
-  prices: { state: "WITHHELD_P1", note },
-  current: { runId, status, statusReason, step, stepText "STEP k OF N", inPlay, trackedBankrollCents|null, trackedBankrollWithheld: "P1"|null, headSha256 },
-  runs: [{ runId, startedAt, approvedBy, headSha256, eventCount, status, statusReason, step, steps, stepText, inPlay, stepsWon,
+{ schema, laneId, product, slot, baseCents, targetCents, steps, maxLegs, label, projectionLabel: "MODEL PROJECTION",
+  prices: { state: "WITHHELD_P1", note }, milestonesCents[5], milestonesNote,
+  current: { runId, status, publicStatus, pace, statusReason, step, stepText "STEP k OF N", inPlay, trackedBankrollCents|null, trackedBankrollWithheld: "P1"|null, headSha256 },
+  runs: [{ runId, startedAt, approvedBy, headSha256, eventCount, status, publicStatus, statusReason,
+           pace: { withheld: "P1"|null, milestoneCents, requiredMultiplier|null, behindByCents|null, onPace|null }, step, steps, stepText, inPlay, stepsWon,
            trackedBankrollCents|null, trackedBankrollWithheld,
            days: [{ date, step, status, reason, staked, card, cardEventSha256, legResults[{legId, outcome}], modelCardResult WIN|LOSS|PENDING|null, stepOutcome, receipts[] }],
            events: [ public event (below) ] }],
@@ -122,6 +146,8 @@ The public projection carries all of these except `approvedBy`, which stays in t
 - A valid receipt is appended to the lane log once, keyed by `receiptSha256`.
 - A receipt for another lane or run, a receipt with an unknown reference, a receipt of another type, or an inbox whose chain is broken is reported and not appended.
 - WAGER_DOCUMENTED is refused here. It needs founder proof.
+- **RESTART_APPROVED** (console, founder only): `nextRunId` must be `run-N+1`, and `refEventSha256` must be the run's STATUS BUSTED, its STATUS AWAITING_RESTART_APPROVAL, or its STEP_SETTLED LOSS. It is accepted once per run and only while the lane is LOST, and `approvedBy` is required. The next `lanes-prepare` then opens `run-N+1` at base, with `approvedBy` = `"<approvedBy> via cc-console RESTART_APPROVED <receiptSha256>"`.
+- Receipts for an earlier run of the lane are skipped, because that run already holds them.
 
 ## 5. Runbook (branch code; nothing is installed)
 
