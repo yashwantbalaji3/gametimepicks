@@ -22,6 +22,7 @@
 import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent } from "react";
 import NbaCourt from "../NbaCourt";
+import ForecastKindChip from "@/components/forecast-kind-chip";
 import { NBA_THEATER_VARS } from "../nba-theater-css";
 import type { NbaPalette } from "../nba-types";
 import type { PbPayload, PbUnavailable, PbWire } from "./possession-types";
@@ -77,6 +78,8 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
   const [ready, setReady] = useState(false);
   useEffect(() => { setReady(true); }, []);
   const [announce, setAnnounce] = useState("");
+  const [showBench, setShowBench] = useState(false);
+  const [fullBox, setFullBox] = useState(false);
 
   // rebuild the transport when the run changes (keeps the speed; back to tip-off, or a pending dev-hook seek)
   const lastCompiled = useRef(compiled);
@@ -139,6 +142,7 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
   const frame = compiled && tp ? frameAt(compiled, tp.t, { step: reduced }) : null;
   const k = frame?.k ?? 0;
   const onCourt = useMemo(() => (compiled ? onCourtAt(compiled, k) : [[], []]), [compiled, k]);
+  const onCourtIds = useMemo(() => new Set<string>((onCourt as string[][]).flat()), [onCourt]);
   const isFinal = frame?.phase === "FINAL";
   // the live box: the fold of the events played so far (the final box is the same fold over the whole log)
   const fold = useMemo(() => (run ? foldRun(run.events, rosters, k + 1) : null), [run, rosters, k]);
@@ -270,9 +274,10 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
       </div>
 
       <section className="nbp-panel is-outcome" style={{ marginTop: 12 }} aria-label="Simulation outcome box score" data-nbp-outcome-box={run.kind}>
-        <h2>{SIM_BOX_TITLE} <span className="nbp-h2-sub">· player contributions and box score of this run</span></h2>
+        <h2>{SIM_BOX_TITLE} <ForecastKindChip kind="simulated" /> <span className="nbp-h2-sub">· player contributions and box score of this run</span></h2>
         <p className="nbp-note" style={{ marginTop: 0 }} data-nbp-sim-box-note="">{SIM_BOX_NOTE}</p>
-        <PossessionBoxScore rows={isFinal ? boxRows(finalFold!, rosters, names) : rows} teams={teams} final={isFinal} idBase={uid} />
+        <PossessionBoxScore rows={isFinal ? boxRows(finalFold!, rosters, names) : rows} teams={teams} final={isFinal} idBase={uid}
+          onCourt={isFinal ? null : onCourtIds} showBench={showBench} fullBox={fullBox} onToggleBench={() => setShowBench((v) => !v)} onToggleFull={() => setFullBox((v) => !v)} />
         <h3 className="nba-h3">Reconciliation</h3>
         <ReconciliationChecks result={reconcile} />
         <h3 className="nba-h3">{COMPARE_TITLE}</h3>

@@ -5328,6 +5328,14 @@ a.nbx-lane-row:hover, a.nbx-lane-row:focus-visible { border-color: var(--sport-n
 .nbx-official h3 { margin: 0.5rem 0 0; font-size: 14px; font-weight: 700; }
 .nbx-official p { margin: 0; }
 .nbx-kind { font-family: var(--font-mono); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.1em; color: var(--vault-crown); }
+/* Forecast-kind chips (components/forecast-kind-chip.tsx): gold solid = Official Forecast (MODEL PROJECTION), green dashed =
+   simulated, white solid = final / real result. The chip's words name the kind, so colour is never the only cue. */
+.gtp-kind-chip { display: inline-flex; align-items: center; gap: 2px; padding: 2px 8px; border-radius: 999px; border: 1.5px solid; font: 700 11px/1.4 var(--font-mono); letter-spacing: 0.08em; text-transform: uppercase; white-space: nowrap; vertical-align: middle; }
+.gtp-kind-chip.is-official { color: var(--vault-crown); border-color: var(--vault-crown); background: color-mix(in srgb, var(--vault-crown) 10%, transparent); }
+.gtp-kind-chip.is-simulated { color: var(--vault-accent-mint); border-color: var(--vault-accent); border-style: dashed; background: color-mix(in srgb, var(--vault-accent) 8%, transparent); }
+.gtp-kind-chip.is-final { color: var(--vault-text); border-color: var(--vault-text); }
+.gtp-kind-chip-detail { font-weight: 500; letter-spacing: 0.04em; text-transform: none; }
+.gtp-kind-legend { display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0; }
 .nbx-kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0.25rem 0.875rem; margin: 0; font-size: 13px; }
 .nbx-kv dt { color: var(--vault-text-mute); }
 .nbx-kv dd { margin: 0; overflow-wrap: anywhere; }

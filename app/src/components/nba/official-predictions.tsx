@@ -26,6 +26,7 @@ import { EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probabi
 import { eloWinProbabilityOf, ELO_WIN_PROBABILITY_LABEL } from "@/lib/sports/nba/elo-win-probability.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import NbaPropLines from "@/components/nba/nba-prop-lines";
+import ForecastKindChip from "@/components/forecast-kind-chip";
 
 /* The official panel's shape (possession-types PbOfficial — payload.mjs officialPanel), declared here structurally so
    this official component imports nothing from the research Theater library (public-theater-route research boundary). */
@@ -107,6 +108,7 @@ export default function NbaOfficialPredictions({ official, teams, lane, finalNot
     <section id={OFFICIAL_PREDICTIONS_ID} tabIndex={-1} className="nbx-official" aria-labelledby={`${OFFICIAL_PREDICTIONS_ID}-h`} data-nba-official-predictions={official?.snapshotId ?? "none"} data-theater-default="">
       <p className="nbx-kind">{OFFICIAL_DEFAULT_KIND}</p>
       <h2 id={`${OFFICIAL_PREDICTIONS_ID}-h`}>{OFFICIAL_PREDICTIONS_TITLE}</h2>
+      {official ? <p className="gtp-kind-legend"><ForecastKindChip kind="official" detail="frozen before tip-off" /></p> : null}
       {official ? <Official official={official} teams={teams} lane={lane} elo={elo} /> : (
         <p>{PUBLIC_TERMS.UNAVAILABLE}: no Official Forecast receipt for this game. Nothing on this page is an Official Forecast.</p>
       )}
@@ -114,9 +116,9 @@ export default function NbaOfficialPredictions({ official, teams, lane, finalNot
       {official ? <NbaPropLines eventId={official.eventId} id="nba-game-prop-lines" linesPage /> : null}
       <h3>What each part of this page is</h3>
       <ul className="nbx-legend">
-        <li><b>{PUBLIC_TERMS.OFFICIAL_FORECAST}</b> — this section: frozen before tip-off. It is what GameTimePicks forecasts.</li>
-        <li><b>{PUBLIC_TERMS.GAME_SIMULATION}</b> — the simulated scenarios below (playback and What-if): one possible game from the NBA possession engine, hypothetical. Its score and box score are not a forecast and never change this section.</li>
-        <li><b>Real Result</b> — {finalNote ? <>official final: <strong>{finalNote}</strong>.</> : "the official final, recorded after the game."} <Link href={resultsHref}>NBA {PUBLIC_TERMS.HISTORICAL_RESULTS} →</Link></li>
+        <li><ForecastKindChip kind="official" /> <b>{PUBLIC_TERMS.OFFICIAL_FORECAST}</b> — this section: frozen before tip-off. It is what GameTimePicks forecasts.</li>
+        <li><ForecastKindChip kind="simulated" /> <b>{PUBLIC_TERMS.GAME_SIMULATION}</b> — the simulated scenarios below (playback and What-if): one possible game from the NBA possession engine, hypothetical. Its score and box score are not a forecast and never change this section.</li>
+        <li><ForecastKindChip kind="final" /> <b>Real Result</b> — {finalNote ? <>official final: <strong>{finalNote}</strong>.</> : "the official final, recorded after the game."} <Link href={resultsHref}>NBA {PUBLIC_TERMS.HISTORICAL_RESULTS} →</Link></li>
       </ul>
     </section>
   );

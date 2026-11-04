@@ -94,6 +94,7 @@
 .nbp-prog-axis{stroke:var(--st-edge);stroke-width:1}
 .nbp-prog-home{fill:none;stroke:var(--nbp-home, var(--lava-heat));stroke-width:2}
 .nbp-prog-away{fill:none;stroke:var(--nbp-away, var(--st-mute));stroke-width:2;stroke-dasharray:5 3}
+.nbp-prog .is-ghost{stroke-opacity:.22;stroke-width:1.5}
 .nbp-prog text{font:600 11px var(--font-mono);fill:var(--st-mute)}
 .nbp-checks{margin:6px 0 0;padding:0;list-style:none;display:grid;gap:4px}
 .nbp-checks li{font:500 12px/1.45 var(--font-mono);color:var(--st-text)}
@@ -141,3 +142,12 @@
 .nbp-scenarios>p{margin:0 0 10px}
 .nbp-scenarios>.nbx-kind{color:var(--vault-text-mute)}
 .nbp-h2-sub{font-weight:500;color:var(--st-mute)}
+
+/* box score views: bench rows carry `hidden`; on a phone the core columns until "Full box"; the toggle is phone-only */
+.nbp-box-tools{display:flex;flex-wrap:wrap;gap:8px;margin:6px 0}
+.nbp-box-full{display:none}
+@media (max-width:719px){
+  .nbp-box-full{display:inline-flex}
+  .nbp-box.is-core .is-split{display:none}
+}
+.nbp-box tr[hidden]{display:none}

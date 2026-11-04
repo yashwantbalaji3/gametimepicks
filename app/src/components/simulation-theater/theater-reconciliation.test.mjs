@@ -124,10 +124,10 @@ test("NBA displayed box score, every stored run: every column the Theater prints
         // the printed table: each player's cells, and the footer = the column sums
         const tbl = h.slice(h.indexOf(`data-nbp-box-team="${side}"`));
         const foot = tbl.slice(tbl.indexOf("<tfoot>"), tbl.indexOf("</tfoot>"));
-        const footCells = [...foot.matchAll(/<td>([^<]*)<\/td>/g)].map((m) => m[1]).slice(1);
+        const footCells = [...foot.matchAll(/<td[^>]*>([^<]*)<\/td>/g)].map((m) => m[1]).slice(1);
         assert.deepEqual(footCells, BOX_COLUMNS.map(([k]) => (k === "min" ? String(Math.round(t.ds / 600)) : String(t[k]))), `${id} run ${r.runIndex} ${side}: printed team line`);
         for (const p of rows[side]) {
-          const m = tbl.match(new RegExp(`<tr data-nbp-player="${p.providerAthleteId}">([\\s\\S]*?)</tr>`));
+          const m = tbl.match(new RegExp(`<tr data-nbp-player="${p.providerAthleteId}"(?: hidden="")?>([\\s\\S]*?)</tr>`));
           assert.ok(m, `${id}: row ${p.providerAthleteId}`);
           const cells = [...m[1].matchAll(/<td[^>]*>([^<]*)<\/td>/g)].map((x) => x[1]).slice(1);
           const want = p.ds === 0 ? ["did not play in this run"] : BOX_COLUMNS.map(([k]) => (k === "min" ? fmtMinutes(p.ds) : String(p[k])));

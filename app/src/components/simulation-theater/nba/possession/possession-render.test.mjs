@@ -114,7 +114,7 @@ test("simulation outcome panel: box score has exactly the modelled columns; reco
     for (const id of ["R1-home", "R1-away", "R2-home", "R2-away", "R3-home", "R3-away", "R4-home", "R4-away", "R5"]) assert.match(h, new RegExp(`data-nbp-check="${id}"`));
     assert.match(h, /data-nbp-compare=""/);
     const head = h.slice(h.indexOf('data-nbp-box-team="away"'));
-    const ths = [...head.slice(0, head.indexOf("</thead>")).matchAll(/<th scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+    const ths = [...head.slice(0, head.indexOf("</thead>")).matchAll(/<th(?: class="[^"]*")? scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
     assert.deepEqual(ths, ["Player", ...BOX_COLUMNS.map(([, l]) => l)]);
     assert.doesNotMatch(text(h), /\bPRA\b|\bEFF\b|\+\/-/, "no column the engine does not model");
   }
@@ -300,4 +300,44 @@ test("consumer wording (founder mandate 2026-10-24): models named in words, exac
     }
     assert.ok(text(h).includes(LABELS.SIM_BOX_NOTE));
   }
+});
+
+test("box score views: before tip only the starters show; the bench is hidden until asked; phone core columns; every row stays in the markup", async () => {
+  const { PossessionBoxScore } = await import("./possession-parts.tsx");
+  for (const load of LOADS) {
+    const h = render(load);
+    for (const side of ["home", "away"]) {
+      const tbl = h.slice(h.indexOf(`data-nbp-box-team="${side}"`), h.indexOf("</table>", h.indexOf(`data-nbp-box-team="${side}"`)));
+      const shown = (tbl.match(/<tr data-nbp-player="[^"]+">/g) ?? []).length;
+      const hidden = (tbl.match(/<tr data-nbp-player="[^"]+" hidden="">/g) ?? []).length;
+      assert.equal(shown, 5, `${side}: the five on the floor at tip-off are shown`);
+      assert.equal(shown + hidden, load.payload.rosters[side].length, `${side}: every rostered player is still a row`);
+    }
+    assert.match(h, /data-nbp-bench-toggle="">Show bench \(\d+\)/);
+    assert.match(h, /class="nbp-box is-core"/, "phones start on the core columns");
+    // the split columns are exactly the ones beyond MIN/PTS/REB/AST/3PM
+    const head = h.slice(h.indexOf('data-nbp-box-team="away"'));
+    const split = [...head.slice(0, head.indexOf("</thead>")).matchAll(/<th class="is-split" scope="col">([^<]+)<\/th>/g)].map((m) => m[1]);
+    assert.deepEqual(split, BOX_COLUMNS.map(([, l]) => l).filter((l) => !["MIN", "PTS", "REB", "AST", "3PM"].includes(l)));
+  }
+  // a final box with the bench shown hides nobody; the Full box view drops the core class
+  const rows = { away: [{ providerAthleteId: "a", name: "A", ds: 0, pts: 0 }], home: [{ providerAthleteId: "b", name: "B", ds: 600, pts: 2 }], totals: { away: { ds: 0, teamRebounds: 0 }, home: { ds: 600, teamRebounds: 0 } } };
+  const teams = { home: { abbr: "H", name: "Home" }, away: { abbr: "A", name: "Away" } };
+  const closed = html(React.createElement(PossessionBoxScore, { rows, teams, final: true, idBase: "t" }));
+  assert.match(closed, /<tr data-nbp-player="a" hidden="">/, "did not play → bench, hidden");
+  assert.match(closed, /<tr data-nbp-player="b">/);
+  const open = html(React.createElement(PossessionBoxScore, { rows, teams, final: true, idBase: "t", showBench: true, fullBox: true }));
+  assert.doesNotMatch(open, /hidden=""/);
+  assert.match(open, /class="nbp-box"/);
+});
+
+test("legend chips: the official panel is MODEL PROJECTION, the run's box score is SIMULATED; selection rules fold under 'How this run was chosen'; the chart has the run's faint full lines", () => {
+  const h = render(LOADS[0]);
+  assert.match(officialSection(h), /data-forecast-kind="official">MODEL PROJECTION/);
+  assert.doesNotMatch(officialSection(h), /data-forecast-kind="simulated"/);
+  const box = h.slice(h.indexOf("data-nbp-outcome-box="));
+  assert.match(box.slice(0, box.indexOf("</h2>")), /data-forecast-kind="simulated">SIMULATED/);
+  assert.doesNotMatch(box.slice(0, box.indexOf("</h2>")), /data-forecast-kind="official"/, "a simulated box is never chipped official");
+  assert.match(h, /<details class="nbp-details" data-nbp-run-rule=""><summary>How this run was chosen<\/summary><p class="nbp-note">Chosen by rule, not by hand: /);
+  assert.equal((h.match(/class="nbp-prog-(?:home|away) is-ghost"/g) ?? []).length, 2);
 });
