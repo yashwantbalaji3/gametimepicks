@@ -8,7 +8,9 @@
  *
  *   data          schema, product policy, contentSha256 of the body, lane sha, leg count, one leg per game/team/player
  *   identity      game, tip, teams and player all from the lane; projection equals the lane value exactly
- *   availability  leg guard empty, lane injury not Out/Day-To-Day/Doubtful (R1), roster __guard (R1-R3) and __cells
+ *   availability  leg guard empty, lane injury not Out/Day-To-Day/Doubtful (R1), roster __guard (R1-R3) and __cells.
+ *                 Moonshot only: a day-to-day, questionable or doubtful rotation player may stay when the leg shows him
+ *                 as a flag (rule A as applied, PD 2026-11-03), and he is not out now (roster __status). Out never prints.
  *   freshness     lane.generatedAt <= combo.asOf <= asOf < first tip minus the 30-minute cutoff. There is no age cap: the
  *                 engine stamps a card with its lane's generatedAt so re-runs are byte-identical, and a model-only card
  *                 holds no price to go stale. What can change after the freeze is availability, so the render-time roster
@@ -46,6 +48,14 @@ export const MARKET_LABEL = Object.freeze({
 export const MARKET_SHORT = Object.freeze({ pts: "PTS", reb: "REB", ast: "AST", threePm: "3PM", pra: "PRA", ptsReb: "P+R", ptsAst: "P+A" });
 /** R1 statuses, the same pattern nba-unified-roster.mjs guardReasons applies. */
 const R1_STATUS = /^(out|day|doubtful|inactive|suspen|injured reserve)/i;
+/** Statuses no card may carry, flagged or not (rule A: an OUT-flagged favourite is in no card). */
+const OUT_STATUS = /^(out|inactive|suspen|injured reserve)/i;
+/** Flag statuses a Moonshot leg may show (rule A as applied, PD 2026-11-03): listed but not out. */
+const SHOWN_STATUS = /^(day-to-day|questionable|doubtful)$/i;
+/** Products whose legs may carry a shown flag. Bank Builder never does (R1 is excluded there). */
+export const FLAG_PRODUCTS = Object.freeze(["moonshot"]);
+/** The card's flag line, factual: "Joel Embiid listed day-to-day". */
+export const flagLine = (f) => `${f.name} listed ${String(f.status).toLowerCase()}`;
 
 const isHex64 = (s) => /^[0-9a-f]{64}$/.test(String(s ?? ""));
 const ms = (iso) => Date.parse(String(iso ?? "").replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"));
@@ -99,6 +109,10 @@ export function comboViolations(doc, { lane, laneSha256, asOf, roster = null }) 
     const sides = [g.away.abbr, g.home.abbr];
     if (!sides.includes(l.team) || !sides.includes(l.opponent) || l.team === l.opponent) v.push(`${id}: ${l.team} vs ${l.opponent} is not ${sides.join(" @ ")}`);
     if (l.availability?.guard?.length) v.push(`${id}: availability guard ${l.availability.guard.join(", ")}`);
+    const flags = l.availability?.flags ?? [];
+    if (flags.length && !FLAG_PRODUCTS.includes(doc.product)) v.push(`${id}: a ${policy.label} leg never carries a flag`);
+    for (const f of flags) if (!f?.name || !SHOWN_STATUS.test(String(f.status ?? ""))) v.push(`${id}: flag ${f?.name ?? "?"} ${f?.status ?? "?"} cannot be shown (only day-to-day, questionable or doubtful)`);
+    const flaggedIds = new Set(flags.map((f) => String(f.playerId)));
     if (l.target != null) {
       if (l.target.source !== "MODEL") v.push(`${id}: target source ${l.target.source}; only a model target prints (no sportsbook line on social graphics)`);
       if (!["AT_LEAST", "AT_MOST"].includes(l.target.direction) || !isNum(l.target.value)) v.push(`${id}: target needs a direction and a number`);
@@ -114,10 +128,18 @@ export function comboViolations(doc, { lane, laneSha256, asOf, roster = null }) 
       if (l.target != null) v.push(`${id}: a winner leg takes no target`);
       const side = l.team === g.home.abbr ? "home" : "away";
       const rotation = [...(g.players?.[side] ?? [])].sort((a, b) => b.expectedMinutes - a.expectedMinutes).slice(0, ROTATION_TOP);
+      // A listed rotation player passes only when the leg shows him as a flag and he is not out, at freeze or now.
       for (const r of rotation) {
         const rid = String(r.providerAthleteId);
-        if (r.injuryStatus && R1_STATUS.test(r.injuryStatus)) v.push(`${id}: rotation player ${r.name} R1 ${r.injuryStatus}`);
-        else if (roster?.__guard?.[rid]?.includes("R1")) v.push(`${id}: rotation player ${r.name} R1 on the current roster`);
+        const shown = flaggedIds.has(rid);
+        const now = roster?.__status?.[rid] ?? null;
+        if (r.injuryStatus && OUT_STATUS.test(r.injuryStatus)) v.push(`${id}: rotation player ${r.name} ${r.injuryStatus}`);
+        else if (r.injuryStatus && R1_STATUS.test(r.injuryStatus) && !shown) v.push(`${id}: rotation player ${r.name} R1 ${r.injuryStatus}`);
+        if (roster?.__guard?.[rid]?.includes("R1")) {
+          if (!shown) v.push(`${id}: rotation player ${r.name} R1 on the current roster`);
+          else if (!now) v.push(`${id}: flagged player ${r.name} has no current status on the roster`);
+          else if (OUT_STATUS.test(now)) v.push(`${id}: flagged player ${r.name} is now ${now}`);
+        }
       }
     } else if (l.kind === "PLAYER_PROJECTION") {
       const side = l.team === g.home.abbr ? "home" : "away";
@@ -163,6 +185,7 @@ export function resolveCombo(doc, ctx) {
       projection: l.projection,
       projectionText: wp ? `${l.team === g.home.abbr ? wp.homePct : wp.awayPct}%` : projectionText(l.projection),
       targetText: l.target ? targetText(l.target) : null,
+      flagText: (l.availability?.flags ?? []).map(flagLine),
     };
   }).sort((a, b) => ms(a.tipUtc) - ms(b.tipUtc) || a.team.abbr.localeCompare(b.team.abbr));
   const validated = doc.combination.legs.every((l) => l.probabilityBasis === "MODEL_VALIDATED") && isNum(doc.combination.risk.jointModelProbability);
@@ -196,6 +219,21 @@ export function suggestedCardsSealed(file) {
   return typeof want === "string" && createHash("sha256").update(JSON.stringify(rest)).digest("hex") === want;
 }
 
+/**
+ * Engine guard → social availability. FAVOURED_ROTATION_R1 players listed day-to-day, questionable or doubtful become
+ * shown flags; anything else (an OUT flag, an out status, an unknown flag) is a hard guard that refuses the leg.
+ */
+function availabilityOf(guard) {
+  const hard = []; const flags = [];
+  for (const f of guard?.flags ?? []) if (f !== "FAVOURED_ROTATION_R1") hard.push(f);
+  for (const r of guard?.rotationFlagged ?? []) {
+    if ((r.flag ?? "FAVOURED_ROTATION_R1") === "FAVOURED_ROTATION_R1" && SHOWN_STATUS.test(String(r.status ?? ""))) flags.push({ playerId: String(r.playerId), name: r.name, status: r.status });
+    else hard.push(`${r.flag ?? "FLAG"} ${r.name} ${r.status}`);
+  }
+  if ((guard?.flags ?? []).includes("FAVOURED_ROTATION_R1") && !flags.length) hard.push("FAVOURED_ROTATION_R1 without a named player to show");
+  return { status: guard?.state ?? null, guard: hard, flags };
+}
+
 /** Engine card tier → social risk tier. */
 const TIER_OF = Object.freeze({ low: "CONSERVATIVE", longshot: "LONGSHOT" });
 const opponentIn = (label, team) => { const m = /^(\S+) @ (\S+)$/.exec(String(label ?? "")); return m ? (m[1] === team ? m[2] : m[2] === team ? m[1] : null) : null; };
@@ -225,7 +263,7 @@ export function comboFromSuggestedCards(file, product, { testData = false } = {}
     team: l.selection?.teamAbbr ?? null, opponent: opponentIn(l.eventLabel, l.selection?.teamAbbr), player: null, market: l.market,
     projection: l.probability, projectionShown: l.probabilityShown ?? null, target: null,
     modelProbability: l.probability, probabilityBasis: "MODEL_UNVALIDATED",
-    availability: { status: l.guard?.state ?? null, guard: [...(l.guard?.flags ?? []), ...(l.guard?.rotationFlagged ?? []).map((r) => `R1 ${r.name} ${r.status}`)] },
+    availability: availabilityOf(l.guard),
   }));
   return sealCombo({ ...base, state: COMBO_STATE.CARD, reasons: [], engineCardId: c.id, combination: { legs, risk: { tier: TIER_OF[c.tier] ?? `UNKNOWN_${c.tier}`, jointModelProbability: c.jointProbability ?? null, basis: "independent" }, pricing: { state: "MODEL_ONLY" } } });
 }

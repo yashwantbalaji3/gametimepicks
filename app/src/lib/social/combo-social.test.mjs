@@ -236,11 +236,36 @@ test("suggested-cards adapter: no card, a priced card, an engine guard flag, a s
   const { contentSha256: _drop, ...unsealed } = suggested(two.map((x) => engineLeg(x)), null);
   assert.throws(() => comboFromSuggestedCards(unsealed, "bank-builder"), /contentSha256 is missing/);
   const flagged = comboFromSuggestedCards(suggested([engineLeg(two[0], { guard: { state: "review", flags: ["FAVOURED_ROTATION_R1"], rotationFlagged: [{ playerId: "1", name: "A Player", status: "Day-To-Day" }] } }), engineLeg(two[1])], null), "bank-builder");
-  has(comboViolations(flagged, ctx()), /availability guard FAVOURED_ROTATION_R1, R1 A Player Day-To-Day/);
+  has(comboViolations(flagged, ctx()), /a Bank Builder leg never carries a flag/);
+  const outFlag = comboFromSuggestedCards(suggested(null, [engineLeg(two[0], { guard: { state: "review", flags: ["FAVOURED_ROTATION_OUT"], rotationFlagged: [{ playerId: "1", name: "A Player", status: "Out", flag: "FAVOURED_ROTATION_OUT" }] } }), engineLeg(two[1])]), "moonshot");
+  has(comboViolations(outFlag, ctx()), /availability guard FAVOURED_ROTATION_OUT/);
   has(comboViolations(comboFromSuggestedCards(suggested([engineLeg(two[0], { probabilityShown: "99%" }), engineLeg(two[1])], null), "bank-builder"), ctx()), /the engine shows 99%/);
   const dtd = favoured.find((x) => !clearFav.includes(x));
   has(comboViolations(comboFromSuggestedCards(suggested([engineLeg(dtd), engineLeg(two.find((x) => x.g !== dtd.g))], null), "bank-builder"), ctx()), /rotation player .* R1 Day-To-Day/);
   const g = two[0].g; const side = g.elo.favoured === g.home.abbr ? "home" : "away";
   const top = [...g.players[side]].sort((a, b) => b.expectedMinutes - a.expectedMinutes)[0];
   has(comboViolations(comboFromSuggestedCards(suggested(two.map((x) => engineLeg(x)), null), "bank-builder"), ctx({ roster: { __guard: { [String(top.providerAthleteId)]: ["R1"] }, __cells: {} } })), /rotation player .* R1 on the current roster/);
+});
+
+test("Moonshot flag: a day-to-day rotation player stays when the leg shows him; out, unshown or now-out refuses", async () => {
+  const dtd = favoured.find((x) => !clearFav.includes(x));
+  const side = dtd.g.elo.favoured === dtd.g.home.abbr ? "home" : "away";
+  const p = [...dtd.g.players[side]].sort((a, b) => b.expectedMinutes - a.expectedMinutes).slice(0, 5).find((x) => x.injuryStatus);
+  const pid = String(p.providerAthleteId);
+  const flaggedLeg = engineLeg(dtd, { guard: { state: "review", flags: ["FAVOURED_ROTATION_R1"], rotationFlagged: [{ playerId: pid, name: p.name, status: p.injuryStatus, flag: "FAVOURED_ROTATION_R1" }] } });
+  const other = clearFav.find((x) => x.g !== dtd.g);
+  const doc = comboFromSuggestedCards(suggested(null, [flaggedLeg, engineLeg(other)]), "moonshot");
+  assert.deepEqual(doc.combination.legs.find((l) => l.eventId === String(dtd.g.providerEventId)).availability, { status: "review", guard: [], flags: [{ playerId: pid, name: p.name, status: p.injuryStatus }] });
+  assert.deepEqual(comboViolations(doc, ctx()), []);
+  const card = comboCard(resolveCombo(doc, ctx()));
+  assert.deepEqual(verifyComboCard(card), []);
+  assert.ok(visibleText(card.html).includes(`${p.name} listed ${p.injuryStatus.toLowerCase()}`));
+  // Render-time roster: still listed (allowed), now out (refused), listed with no status (refused).
+  assert.deepEqual(comboViolations(doc, ctx({ roster: { __guard: { [pid]: ["R1"] }, __cells: {}, __status: { [pid]: p.injuryStatus } } })), []);
+  has(comboViolations(doc, ctx({ roster: { __guard: { [pid]: ["R1"] }, __cells: {}, __status: { [pid]: "Out" } } })), /is now Out/);
+  has(comboViolations(doc, ctx({ roster: { __guard: { [pid]: ["R1"] }, __cells: {} } })), /has no current status/);
+  // The same leg without the flag shown is refused, and a flag naming an out status never prints.
+  has(comboViolations(comboFromSuggestedCards(suggested(null, [engineLeg(dtd), engineLeg(other)]), "moonshot"), ctx()), /rotation player .* R1/);
+  const outStatus = comboFromSuggestedCards(suggested(null, [engineLeg(dtd, { guard: { state: "review", flags: ["FAVOURED_ROTATION_R1"], rotationFlagged: [{ playerId: pid, name: p.name, status: "Out", flag: "FAVOURED_ROTATION_R1" }] } }), engineLeg(other)]), "moonshot");
+  has(comboViolations(outStatus, ctx()), /availability guard/);
 });

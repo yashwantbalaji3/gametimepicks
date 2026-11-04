@@ -103,7 +103,7 @@ export function unifiedRoster(I) {
       A[i] = { ...a, name: r.name, mu: r.mu, n: r.n, cur: r.cur && Number(r.cur.toFixed(1)) };
       const status = r.injStatus ?? t.injAll?.[i] ?? null;
       const g = guardReasons(r, status);
-      if (g.length) { A[i].guard = g; roster.__guard[i] = g; }
+      if (g.length) { A[i].guard = g; roster.__guard[i] = g; if (status) (roster.__status ??= {})[i] = status; }
       if (g.length || a.reasons.some((x) => HIDE_ROW.has(x))) A[i].hideAll = true;
       else { const h = ["pts", "reb", "ast"].filter((m) => a.cells[m].reasons.length); if (h.length) A[i].hideCells = h; }
     }

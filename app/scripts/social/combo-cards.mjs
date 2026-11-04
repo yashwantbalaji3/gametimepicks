@@ -1,4 +1,4 @@
-/* global document, window -- comboLayoutErrors evaluates in the Playwright browser page */
+/* global document, window, getComputedStyle -- comboLayoutErrors evaluates in the Playwright browser page */
 /**
  * BANK BUILDER and MOONSHOT CARDS on the established social stage (game-day-cards.mjs shell, 1080x1350). Script-only.
  * Input is a resolved combo (src/lib/social/combo-social.mjs resolveCombo): every leg already checked against the lane
@@ -46,6 +46,10 @@ const CSS = `<style>
 .lg .pr{display:flex;flex-wrap:wrap;row-gap:6px;justify-content:flex-end;align-items:center;gap:10px;margin-top:6px}
 .lg .pm{font:700 22px/1 var(--display);letter-spacing:2px;color:rgba(247,247,242,.78);white-space:nowrap}
 .lg .tt{font:800 22px/1 var(--display);letter-spacing:1px;padding:6px 9px 4px;border-radius:8px;border:2px solid var(--acc);color:var(--acc);white-space:nowrap}
+.lg .fl{grid-column:2 / 4;margin-top:2px;display:flex;align-items:center;gap:10px;min-width:0;font:800 24px/1.1 var(--display);letter-spacing:.5px;color:#FFD166;white-space:nowrap;overflow:hidden}
+.lg .fl i{flex:none;font:900 20px/1 var(--headline);font-style:normal;padding:4px 8px 2px;border-radius:6px;background:#FFD166;color:#050706;letter-spacing:1px}
+.lg .fl span{min-width:0;overflow:hidden}
+.ufl.d .lg .fl{font-size:22px}
 .cb-state{flex:none;margin-top:18px;padding:14px 18px 11px;border-radius:14px;text-align:center;font:900 32px/1 var(--display);letter-spacing:3px;color:#050706;background:var(--acc)}
 .cb-risk{flex:none;margin-top:12px;text-align:center;font:700 25px/1.25 var(--display);letter-spacing:1px;color:rgba(247,247,242,.86)}
 .cb.bb .ufl{gap:26px}.cb.bb .lg{padding:34px 28px}.cb.bb .nm{font-size:60px}
@@ -68,7 +72,7 @@ function legHtml(cells, l, i) {
   const who = l.kind === "GAME_WINNER" ? t.name : l.player.name;
   const what = l.kind === "GAME_WINNER" ? "to win" : l.marketLabel;
   const vs = `${l.home ? "vs" : "@"} ${l.opponent.abbr}`;
-  return `<div class="lg" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, who)}</span><div class="mt"><span class="tg">${cell(cells, `${k}.team`, t.abbr)}</span>${cell(cells, `${k}.game`, `${vs} · ${tipText(l.tipUtc)}`)}</div></div><div class="pj"><span class="pk">${esc(MODEL_LABEL)}</span>${cell(cells, `${k}.proj`, l.projectionText, "pv")}<div class="pr">${cell(cells, `${k}.market`, what, "pm")}${l.targetText ? cell(cells, `${k}.target`, `Model target ${l.targetText}`, "tt") : ""}</div></div></div>`;
+  return `<div class="lg" style="--c:${t.color};--cink:${t.ink}"><div class="n">${i + 1}</div><div class="who"><span class="nm" data-fit>${cell(cells, `${k}.name`, who)}</span><div class="mt"><span class="tg">${cell(cells, `${k}.team`, t.abbr)}</span>${cell(cells, `${k}.game`, `${vs} · ${tipText(l.tipUtc)}`)}</div></div><div class="pj"><span class="pk">${esc(MODEL_LABEL)}</span>${cell(cells, `${k}.proj`, l.projectionText, "pv")}<div class="pr">${cell(cells, `${k}.market`, what, "pm")}${l.targetText ? cell(cells, `${k}.target`, `Model target ${l.targetText}`, "tt") : ""}</div></div>${(l.flagText ?? []).length ? `<div class="fl" data-flag><i>FLAG</i>${cell(cells, `${k}.flag`, l.flagText.join(" · "))}</div>` : ""}</div>`;
 }
 
 /** Plain risk copy. A chance prints only when the combo carries a validated joint probability. */
@@ -128,9 +132,11 @@ export async function comboLayoutErrors(browser, cards) {
       const ufl = document.querySelector(".ufl").getBoundingClientRect();
       const outside = [...document.querySelectorAll(".lg")].filter((e) => { const r = e.getBoundingClientRect(); return r.top < ufl.top - 1 || r.bottom > ufl.bottom + 1; }).length;
       const last = boxes.at(-1).r.bottom;
-      return { overlaps, outside, last, fit: (window.__fit?.items ?? []).filter((i) => !i.fits).map((i) => i.text), page: window.__fit?.pageOverflow };
+      const flags = [...document.querySelectorAll("[data-flag] span")].filter((e) => e.scrollWidth > e.clientWidth + 1 || parseFloat(getComputedStyle(e).fontSize) < 20).map((e) => e.textContent);
+      return { overlaps, outside, last, flags, fit: (window.__fit?.items ?? []).filter((i) => !i.fits).map((i) => i.text), page: window.__fit?.pageOverflow };
     }, STACK);
     if (m.overlaps.length) errs.push(`${c.name}: blocks overlap: ${m.overlaps.join(", ")}`);
+    if (m.flags.length) errs.push(`${c.name}: flag text does not fit legibly: ${m.flags.join(" | ")}`);
     if (m.outside) errs.push(`${c.name}: ${m.outside} leg(s) spill out of the leg area`);
     if (m.last > 1350 - 8) errs.push(`${c.name}: footer at ${Math.round(m.last)}px`);
     if (m.fit.length || m.page) errs.push(`${c.name}: does not fit: ${m.fit.join(" | ")}`);
