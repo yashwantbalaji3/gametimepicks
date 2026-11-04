@@ -14,7 +14,8 @@ import ProductDisclosure from "@/components/tier-board/product-disclosure";
 import { loadTierBoard, playerGuardFor } from "@/lib/products/tier-board/load";
 import LanePair from "@/components/challenge-lanes/lane-pair";
 import type { LaneView } from "@/components/challenge-lanes/lane-card";
-import { loadProductLanes, loadPropAnalysis } from "@/lib/products/challenge-lanes/load.mjs";
+import { loadProductLanes, loadPropAnalysis, loadResearch, etProductDay } from "@/lib/products/challenge-lanes/load.mjs";
+import ResearchCandidates, { type ResearchView } from "@/components/challenge-lanes/research-candidates";
 import PropAnalysisPanel, { type PropAnalysisView } from "@/components/challenge-lanes/prop-analysis-panel";
 
 import PreviousHits from "@/components/bank-builder/previous-hits";
@@ -512,6 +513,8 @@ export default function BankBuilderPage() {
       {/* BBM V2 CHALLENGE LANES (founder, 2026-11-04) — lanes A and B, the same step, ladder, legs, settlements, status
           and graphics as the X posts, read through the ONE verifying loader of public/data/challenge-lanes/<laneId>.json. */}
       <LanePair product="bank-builder" lead lanes={loadProductLanes("bank-builder") as LaneView[]} />
+      {/* Research candidates (founder 2026-11-04): its own section under the lanes, never an official selection. */}
+      <ResearchCandidates research={loadResearch({ product: "bank-builder", date: etProductDay() }) as ResearchView | null} />
       {/* PROVISIONAL PROP ANALYSIS (founder P0, 2026-11-04): a separate panel, never a challenge leg. */}
       <PropAnalysisPanel summary analysis={loadPropAnalysis({ date: levelAModel?.productDay ?? currentEtDate() }) as PropAnalysisView | null} />
 

@@ -13,6 +13,7 @@ import { verifyLaneProjection, IMAGE_PATH } from "../../challenge-lanes/projecti
 import { LANES as ENGINE_LANES } from "../../challenge-lanes/lanes.mjs";
 import { laneDisplay } from "../../challenge-lanes/display.mjs";
 import { decimalToAmerican } from "../../challenge-lanes/payout.mjs";
+import { EVIDENCE_LABEL } from "../../challenge-lanes/card-fields.mjs";
 
 export const LANE_IDS = Object.freeze(Object.keys(ENGINE_LANES));
 export const lanesOf = (product) => LANE_IDS.filter((id) => ENGINE_LANES[id].product === product);
@@ -131,14 +132,21 @@ const verificationOf = (p) => (p?.verification === "PRELIMINARY" ? VERIFICATION_
 const verified = (price) => (PRICES_ON_SITE && ["VERIFIED", "PRELIMINARY"].includes(price?.result) && price?.verification !== "REFUSED" ? price : null);
 /** A frozen leg price as the engine carries it (`price` in its `oddsFormat`): odds, line, book, capture time. */
 /* Hit-rate windows (founder 2026-11-04): k of n, never a percent, never a probability. */
-export const hitRateText = (h) => (h && Number.isInteger(h.k) && Number.isInteger(h.n) && h.n > 0 ? `${h.k} of ${h.n}${h.window ? ` (${h.window})` : ""}` : null);
-const legPrice = (p, book) => (p ? {
-  odds: american(p.oddsFormat === "american" ? p.price : decimalToAmerican(p.price)), line: p.line ?? null, book: book ?? null, captured: etStamp(p.fetchedAt),
-  hitRates: (Array.isArray(p.hitRates) ? p.hitRates : []).map(hitRateText).filter(Boolean),
+const windowText = (w) => (w ? String(w).replace(/^last(\d+)$/, "last $1") : "");
+export const hitRateText = (h) => (h && Number.isInteger(h.k) && Number.isInteger(h.n) && h.n > 0 ? `${h.k} of ${h.n}${h.window ? ` (${windowText(h.window)})` : ""}` : null);
+/* `detail` is the engine's encrypted leg detail (price.legDetails[]: line, line-dependent hit rates) for a card@2 leg. */
+const legPrice = (p, book, detail = null) => (p ? {
+  odds: american(p.oddsFormat === "american" ? p.price : decimalToAmerican(p.price)), line: p.line ?? detail?.line ?? null, book: book ?? null, captured: etStamp(p.fetchedAt),
+  hitRates: (Array.isArray(detail?.hitRates) ? detail.hitRates : Array.isArray(p.hitRates) ? p.hitRates : []).map(hitRateText).filter(Boolean),
 } : null);
-/** The engine's evidence class for a day or a leg, printed with the engine's own label (never derived here). */
-export const evidenceOf = (x) => (x?.evidenceClass ? { class: x.evidenceClass, label: x.evidenceLabel ?? x.evidenceClass } : null);
-const PROP_MARKET = Object.freeze({ pts: "PTS", reb: "REB", ast: "AST", points: "PTS", rebounds: "REB", assists: "AST" });
+/** The engine's evidence class for a day or a leg (card@2 legs carry `classification`), with the engine's own label. */
+export const evidenceOf = (x) => {
+  const c = x?.evidenceClass ?? (x?.classification && x.classification !== "HOLD" ? x.classification : null);
+  return c ? { class: c, label: x.evidenceLabel ?? EVIDENCE_LABEL[c] ?? c } : null;
+};
+export const PROP_MARKET = Object.freeze({ pts: "PTS", reb: "REB", ast: "AST", player_points: "PTS", player_rebounds: "REB", player_assists: "AST" });
+/** A player-prop leg: card@2 `family` pts/reb/ast (or its `market` player_*); winner / h2h legs are not props. */
+export const isProp = (l) => !["winner", "h2h"].includes(l?.family ?? l?.market ?? "winner");
 
 /** The day's priced block (combined price, stake, payout, profit, pace), formatted; null without a VERIFIED price. */
 function priceOf(day) {
@@ -162,25 +170,28 @@ function legsOf(day, projectionLabel, teams) {
   const outcome = new Map((day.legResults ?? []).map((r) => [r.legId, r.outcome]));
   const vp = verified(day.price);
   const prices = new Map((vp?.legs ?? []).map((p) => [p.legId, p]));
+  const details = new Map((vp?.legDetails ?? []).map((p) => [p.legId, p]));
   return (day.card?.legs ?? []).map((l, i) => {
     const o = outcome.get(l.legId);
-    const abbr = l.selection?.teamAbbr ?? null;
+    /* card@1 legs name the side in `selection`; card@2 winner legs carry `team` and `side` (home/away). */
+    const abbr = l.selection?.teamAbbr ?? l.team ?? null;
+    const code = l.selection?.code ?? l.side ?? null;
     const [away, home] = String(l.eventLabel ?? "").split(" @ ");
-    const opponent = l.selection?.code === "home" ? away : l.selection?.code === "away" ? home : null;
-    const prop = l.market !== "winner";
+    const opponent = code === "home" ? away : code === "away" ? home : null;
+    const prop = isProp(l);
     /* A player-prop leg (pts/reb/ast): the player and side are public; the line and hit rates come only from the
        engine's encrypted price display (a book line never sits in plain public JSON). */
-    const player = prop && l.player ? { name: l.player.name ?? null, team: l.player.team ?? null, side: l.side ?? null, market: PROP_MARKET[l.market] ?? l.market } : null;
+    const player = prop && l.player ? { name: l.player.name ?? null, team: l.player.team ?? l.team ?? null, side: l.side ? String(l.side).toUpperCase() : null, market: PROP_MARKET[l.family] ?? PROP_MARKET[l.market] ?? l.market } : null;
     return {
       n: i + 1, legId: l.legId, gameId: l.gameId, game: l.eventLabel ?? l.gameId, market: l.market ?? null, prop,
       selection: player ? `${player.name ?? ""}` : l.selection?.label ?? abbr ?? "", teamAbbr: player ? player.team : abbr, team: teamOf(teams, player ? player.team : abbr), player,
-      matchup: opponent ? `${l.selection.code === "home" ? "vs" : "@"} ${opponent}` : l.eventLabel ?? null,
+      matchup: opponent ? `${code === "home" ? "vs" : "@"} ${opponent}` : l.eventLabel ?? null,
       time: etTime(l.startUtc),
-      projectionLabel: prop ? projectionLabel : "MODEL WIN PROBABILITY", projection: prop ? (typeof l.projection?.value === "number" ? l.projection.value.toFixed(1) : null) : l.probabilityShown ?? null,
+      projectionLabel: prop ? l.projection?.label ?? projectionLabel : "MODEL WIN PROBABILITY", projection: prop ? (typeof l.projection?.value === "number" ? l.projection.value.toFixed(1) : null) : l.probabilityShown ?? null,
       evidence: evidenceOf(l),
       flags: l.guard?.flagText ?? [],
       outcome: o && o !== "PENDING" ? o : null,
-      price: legPrice(prices.get(l.legId), vp?.book),
+      price: legPrice(prices.get(l.legId), vp?.book, details.get(l.legId)),
       snapshotId: l.projection?.snapshotId ?? null,
     };
   });

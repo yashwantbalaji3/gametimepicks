@@ -14,6 +14,10 @@ import { readLanePrices } from "../../challenge-lanes/price-display.mjs";
 import { bestInk } from "../../simulation-theater/nba/nba-team-colors.mjs";
 import { readPropAnalysis } from "../../odds/nba-prop-analysis.mjs";
 import { propAnalysisView } from "./prop-analysis.mjs";
+import { researchDisplay, researchAad, RESEARCH_PRICES_SCHEMA } from "../../challenge-lanes/research.mjs";
+import { researchView } from "./research.mjs";
+import { readDisplayKey, decryptDisplayArtifact } from "../../odds/display-crypto.mjs";
+import { displayAuthorization } from "../../odds/display-authorization.mjs";
 
 const KEY_ENV = "GTP_ODDS_DISPLAY_KEY";
 /**
@@ -89,6 +93,29 @@ export function loadChallengeLane({ appDir = process.cwd(), laneId, env = displa
      throws on tamper) over its laneDisplay. Build time only; the result renders into HTML and nowhere else. */
   const display = pricedLaneDisplay(r.doc, readLanePrices({ appDir, laneId, env }));
   return { doc: r.doc, view: laneView(r.doc, { display, teams: readTeamColours(appDir), imageVerified: imageVerifiedIn(appDir), productDay }), reason: null };
+}
+
+/**
+ * The day's research candidates for a product (founder 2026-11-04), or null: the engine's public research file
+ * (public/data/challenge-research/<product>/<date>.json, gtp.challenge-research.public@1) through the engine's
+ * researchDisplay, with its encrypted companion (data/odds-display/challenge-research/<product>/<date>.json.enc, aad
+ * challenge-research/<product>) only when NBA site display is authorized and the key opens it. A file that does not
+ * verify, or a companion from another file, THROWS (a tampered record fails the build, as the lanes do). Build time only.
+ * @param {{ appDir?: string, product: string, date: string | null, env?: Record<string, string | undefined>, asOf?: string }} opts
+ */
+export function loadResearch({ appDir = process.cwd(), product, date, env = displayEnv(process.env, { appDir }), asOf = undefined }) {
+  if (!["bank-builder", "moonshot"].includes(product) || !/^\d{4}-\d{2}-\d{2}$/.test(String(date ?? ""))) return null;
+  const file = path.join(appDir, "public", "data", "challenge-research", product, `${date}.json`);
+  if (!fs.existsSync(file)) return null;
+  const pub = JSON.parse(fs.readFileSync(file, "utf8"));
+  let prices = null;
+  const enc = path.join(appDir, "..", "data", "odds-display", "challenge-research", product, `${date}.json.enc`);
+  const k = readDisplayKey(env);
+  if (displayAuthorization("nba", "site").ok && k.ok && fs.existsSync(enc)) {
+    const text = decryptDisplayArtifact(fs.readFileSync(enc, "utf8"), k.key, researchAad(product));
+    if (text != null) { prices = JSON.parse(text); if (prices?.schema !== RESEARCH_PRICES_SCHEMA) throw new Error(`loadResearch: ${product}/${date} companion is not ${RESEARCH_PRICES_SCHEMA}`); }
+  }
+  return researchView(researchDisplay(pub, prices), { now: asOf ? Date.parse(asOf) : Date.now() });
 }
 
 /** Both lanes of a product, A then B, through the one loader. */

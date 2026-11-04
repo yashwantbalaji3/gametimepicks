@@ -28,7 +28,8 @@ import ProductDisclosure from "@/components/tier-board/product-disclosure";
 import { loadTierBoard, playerGuardFor } from "@/lib/products/tier-board/load";
 import LanePair from "@/components/challenge-lanes/lane-pair";
 import type { LaneView } from "@/components/challenge-lanes/lane-card";
-import { loadProductLanes, loadPropAnalysis } from "@/lib/products/challenge-lanes/load.mjs";
+import { loadProductLanes, loadPropAnalysis, loadResearch, etProductDay } from "@/lib/products/challenge-lanes/load.mjs";
+import ResearchCandidates, { type ResearchView } from "@/components/challenge-lanes/research-candidates";
 import PropAnalysisPanel, { type PropAnalysisView } from "@/components/challenge-lanes/prop-analysis-panel";
 import { presentFromArtifact } from "@/lib/signature-presentation.mjs";
 import ProductLanesLadder from "@/components/ladders/product-lanes-ladder";
@@ -182,6 +183,8 @@ export default function MoonshotPage() {
       {/* BBM V2 CHALLENGE LANES (founder, 2026-11-04) — lanes A and B, the same step, ladder, legs, settlements, status
           and graphics as the X posts, read through the ONE verifying loader of public/data/challenge-lanes/<laneId>.json. */}
       <LanePair product="moonshot" lead lanes={loadProductLanes("moonshot") as LaneView[]} />
+      {/* Research candidates (founder 2026-11-04): its own section under the lanes, never an official selection. */}
+      <ResearchCandidates research={loadResearch({ product: "moonshot", date: etProductDay() }) as ResearchView | null} />
       {/* PROVISIONAL PROP ANALYSIS (founder P0, 2026-11-04): a separate panel, never a challenge leg. */}
       <PropAnalysisPanel summary analysis={loadPropAnalysis({ date: levelAModel?.productDay ?? etToday }) as PropAnalysisView | null} />
 

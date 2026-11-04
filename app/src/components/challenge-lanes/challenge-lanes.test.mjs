@@ -543,7 +543,8 @@ test("PARITY on the engine's v2 sample: 4 states (retired+active, lost) green; a
     const view = lane.laneView(o.pub, { display: o.priced, productDay });
     const rep = parityReport([laneParity({ doc: o.pub, prices: o.prices, view })]);
     assert.deepEqual(rep.failures, [], o.laneId);
-    assert.ok(rep.rows.some((r) => r.field === "odds snapshot sha" && r.ok && r.engine), `${o.laneId}: the sample's stand-in snapshot sha matches`);
+    /* A HELD latest day (ms-b) carries no price, so no snapshot sha on either side. */
+    if (view.current?.price || o.priced.day?.price) assert.ok(rep.rows.some((r) => r.field === "odds snapshot sha" && r.ok && r.engine), `${o.laneId}: the sample's stand-in snapshot sha matches`);
     for (const f of ["rule version", "leg count", "leg cap", "step target"]) assert.ok(rep.rows.some((r) => r.field === f && r.ok), `${o.laneId} ${f}`);
   }
   const ms = sampleOutputs().find((o) => o.laneId === "ms-a");
@@ -553,106 +554,123 @@ test("PARITY on the engine's v2 sample: 4 states (retired+active, lost) green; a
   assert.ok(failures.includes("ms-a leg cap") && failures.includes("ms-a leg count"), failures.join(", "));
 });
 
-/** The engine's v2 ms-a sample with leg 1 turned into a LEVEL B points prop (field names as proposed to betting-engine,
-    2026-11-04): player/side/projection.value public; line and k/n hit rates only in the price display. */
-async function propSample({ foldEvidence = true } = {}) {
-  const { sampleOutputs } = await import("../../../scripts/challenge-lanes/v2-sample.mjs");
-  const { pricedLaneDisplay } = await import("../../lib/challenge-lanes/display.mjs");
-  const o = structuredClone(sampleOutputs().find((x) => x.laneId === "ms-a"));
-  const B = "Historical hit-rate research (experimental)";
-  const day = o.pub.runs.at(-1).days.at(-1);
-  Object.assign(day, { evidenceClass: "LEVEL_B", evidenceLabel: B });
-  const leg = day.card.legs[0];
-  Object.assign(leg, { market: "pts", side: "Over", player: { id: "p1", name: "Test Player", team: leg.selection?.teamAbbr }, projection: { ...leg.projection, value: 27.4 }, evidenceClass: "LEVEL_B", evidenceLabel: B });
-  o.pub = reseal(o.pub);
-  o.prices.projectionSha256 = o.pub.contentSha256;
-  const pl = o.prices.runs.at(-1).days.at(-1).legs.find((l) => l.legId === leg.legId);
-  Object.assign(pl, { line: 25.5, hitRates: [{ window: "last 10", k: 7, n: 10 }, { window: "season", k: 4, n: 6 }] });
-  o.priced = pricedLaneDisplay(o.pub, o.prices);
-  /* Stand-in for the engine's fold carrying the day's class (its dayView does not yet). */
-  if (foldEvidence) Object.assign(o.priced.day, { evidenceClass: "LEVEL_B", evidenceLabel: B });
-  return { o, date: day.date, legId: leg.legId };
-}
+const v2Sample = async (laneId) => (await import("../../../scripts/challenge-lanes/v2-sample.mjs")).sampleOutputs().find((o) => o.laneId === laneId);
 
-test("EVIDENCE + PROPS: the class badge and label verbatim; a prop leg shows player, side, line, market, odds and k/n hit rates — never a hit-rate percentage", async () => {
-  const { o, date } = await propSample();
+test("EVIDENCE + PROPS on the engine's sample (bb-b): class badge and label verbatim; prop legs show player, SIDE, line, market, odds and k/n hit rates — never a percentage", async () => {
+  const o = await v2Sample("bb-b");
+  const date = o.pub.runs.at(-1).days.at(-1).date;
   const view = lane.laneView(o.pub, { display: o.priced, productDay: date });
-  const leg = view.current.legs[0];
-  assert.deepEqual(leg.player, { name: "Test Player", team: leg.teamAbbr, side: "Over", market: "PTS" });
-  assert.equal(leg.projectionLabel, "MODEL PROJECTION");
-  assert.equal(leg.projection, "27.4");
-  assert.deepEqual(leg.price.hitRates, ["7 of 10 (last 10)", "4 of 6 (season)"]);
+  assert.deepEqual(view.evidence, { class: "LEVEL_B", label: "Historical hit-rate research (experimental)" });
+  const [a, b] = view.current.legs;
+  assert.deepEqual([a.player, b.player], [{ name: "Sample Player One", team: "VVV", side: "OVER", market: "PTS" }, { name: "Sample Player Two", team: "WWW", side: "UNDER", market: "REB" }]);
+  assert.equal(a.projectionLabel, "MODEL PROJECTION");
+  assert.equal(a.projection, "21.4");
+  assert.equal(a.price.line, 18.5);
+  assert.deepEqual(a.price.hitRates, ["7 of 10 (last 10)", "13 of 20 (last 20)", "48 of 72 (2025-26)"]);
   const h = html(React.createElement(LaneCard, { lane: view }));
   const t = text(h);
   assert.match(h, /data-lane-evidence="LEVEL_B"/);
   assert.match(h, /data-leg-evidence="LEVEL_B"/);
   assert.match(t, /Historical hit-rate research \(experimental\)/);
-  assert.match(t, /Test Player Over 25\.5 PTS/);
-  assert.match(t, /Hit rate 7 of 10 \(last 10\) · 4 of 6 \(season\)/);
-  assert.doesNotMatch(t, /70(\.0)?%|66\.7%|67%/, "a hit rate is never shown as a percentage or probability");
+  assert.match(t, /Sample Player One OVER 18\.5 PTS/);
+  assert.match(t, /Sample Player Two UNDER 9\.5 REB/);
+  assert.match(t, /Hit rate 7 of 10 \(last 10\) · 13 of 20 \(last 20\) · 48 of 72 \(2025-26\)/);
+  assert.doesNotMatch(t, /\d+(\.\d+)?%/, "a hit rate is never shown as a percentage or probability");
   assert.doesNotMatch(t, /\bpick(s)?\b/i);
-  /* Malformed hit rates are dropped, never guessed. */
+  /* The LEVEL A moneyline single (history, won) keeps its own class; a card@2 winner leg reads its team. */
+  const won = view.story.find((x) => x.stepOutcome === "WIN");
+  assert.deepEqual(won.evidence, { class: "LEVEL_A", label: "Model-validated value" });
+  assert.equal(won.legs[0].teamAbbr, "TTT");
   for (const bad of [{ k: 3, n: 0 }, { k: "7", n: 10 }, null]) assert.equal(lane.hitRateText(bad), null);
+  /* Without the key the same lane renders no line, odds or hit rate. */
+  const unpriced = text(html(React.createElement(LaneCard, { lane: lane.laneView(o.pub, { productDay: date }) })));
+  assert.doesNotMatch(unpriced, /18\.5|9\.5|7 of 10/);
+  assert.match(unpriced, /Sample Player One OVER PTS/);
 });
 
-test("PARITY for evidence + props: green with the class folded; fail-closed (NOT_ON_SITE) when the fold drops it; drifted line or hit rate fails", async () => {
+test("PARITY for evidence + props on the engine's sample: all four lanes green; a drifted line, hit rate or class fails", async () => {
   const { laneParity, parityReport } = await import("../../lib/products/challenge-lanes/parity.mjs");
-  const { o, date, legId } = await propSample();
+  const o = await v2Sample("bb-b");
+  const date = o.pub.runs.at(-1).days.at(-1).date;
   const view = lane.laneView(o.pub, { display: o.priced, productDay: date });
   const rep = parityReport([laneParity({ doc: o.pub, prices: o.prices, view })]);
   assert.deepEqual(rep.failures, []);
   for (const f of ["evidence class", "leg evidence", "prop players", "prop sides", "prop projections", "prop lines", "prop hit rates"]) assert.ok(rep.rows.some((r) => r.field === f && r.ok && r.engine), f);
-  const unfolded = await propSample({ foldEvidence: false });
-  const v2 = lane.laneView(unfolded.o.pub, { display: unfolded.o.priced, productDay: date });
-  assert.ok(parityReport([laneParity({ doc: unfolded.o.pub, prices: unfolded.o.prices, view: v2 })]).failures.includes("ms-a evidence class (NOT_ON_SITE)"));
   const drift = structuredClone(view);
-  drift.current.legs[0].price = { ...drift.current.legs[0].price, line: 26.5, hitRates: ["8 of 10 (last 10)"] };
+  drift.current.legs[0].price = { ...drift.current.legs[0].price, line: 19.5, hitRates: ["8 of 10 (last 10)"] };
+  drift.current.evidence = { class: "LEVEL_A", label: "Model-validated value" };
   const failures = parityReport([laneParity({ doc: o.pub, prices: o.prices, view: drift })]).failures;
-  assert.ok(failures.includes("ms-a prop lines") && failures.includes("ms-a prop hit rates"), failures.join(", "));
-  assert.ok(legId);
+  for (const f of ["bb-b prop lines", "bb-b prop hit rates", "bb-b evidence class"]) assert.ok(failures.includes(f), failures.join(", "));
 });
 
-test("RESEARCH CANDIDATES: its own section, NOT an official selection, no stake/payout/pick wording; stale lines withheld; official blocks refused; parity", async () => {
+test("RESEARCH CANDIDATES on the engine's sample (ms-b HELD): own section, NOT an official selection, held reason, no stake/payout/pick; stale withheld; parity", async () => {
   const { researchView } = await import("../../lib/products/challenge-lanes/research.mjs");
   const { researchParity, parityReport } = await import("../../lib/products/challenge-lanes/parity.mjs");
   const { default: ResearchCandidates } = await import("./research-candidates.tsx");
-  const block = {
-    official: false, date: "2030-01-03", label: "Research candidates — not official selections", heldReason: "Lane held: no qualified card.",
-    candidates: [
-      { candidateId: "c1", status: "UNDER_REVIEW", evidenceClass: "LEVEL_B", evidenceLabel: "Historical hit-rate research (experimental)", reason: "Hit-rate support only; model value not validated.",
-        legs: [{ legId: "l1", gameId: "931", eventLabel: "KKK @ LLL", market: "reb", side: "Under", player: { id: "p2", name: "Other Player", team: "KKK" }, projection: { value: 8.25 } }] },
-      { candidateId: "c2", status: "RESEARCH", legs: [{ legId: "l2", gameId: "932", eventLabel: "MMM @ NNN", market: "ast", side: "Over", player: { id: "p3", name: "Third Player", team: "NNN" }, projection: { value: 6 } }] },
-    ],
-  };
-  const now = Date.parse("2030-01-03T20:00:00Z");
-  const prices = { candidates: [
-    { candidateId: "c1", fetchedAt: "2030-01-03T17:00:00Z", staleAfter: "2030-01-03T23:00:00Z", legs: [{ legId: "l1", line: 9.5, price: -120, oddsFormat: "american", book: "SAMPLE BOOK", hitRates: [{ window: "last 10", k: 6, n: 10 }] }] },
-    { candidateId: "c2", fetchedAt: "2030-01-03T12:00:00Z", staleAfter: "2030-01-03T15:00:00Z", legs: [{ legId: "l2", line: 5.5, price: 105, oddsFormat: "american", book: "SAMPLE BOOK", hitRates: [{ window: "last 10", k: 8, n: 10 }] }] },
-  ] };
-  const view = researchView(block, { prices, now });
+  const o = await v2Sample("ms-b");
+  const fresh = Date.parse("2030-01-01T18:00:00Z");
+  const view = researchView(o.researchView, { now: fresh });
   const h = html(React.createElement(ResearchCandidates, { research: view }));
   const t = text(h);
   assert.match(h, /id="research-candidates"/);
   assert.match(t, /Not an official selection/);
-  assert.match(t, /Other Player Under 9\.5 REB/);
-  assert.match(t, /-120 SAMPLE BOOK/);
-  assert.match(t, /Hit rate 6 of 10 \(last 10\)/);
-  assert.match(t, /MODEL PROJECTION 8\.3/);
-  assert.match(t, /Lane held: no qualified card\./);
-  /* c2's line went stale: no line, odds, hit rate or capture time — and it says so. */
-  assert.equal(view.candidates[1].stale, true);
-  assert.match(t, /Line stale — not shown/);
-  assert.doesNotMatch(t, /5\.5|\+105|8 of 10/);
+  assert.match(t, /Research candidates — not official selections/);
+  assert.match(t, /Moonshot · Lane B: held\. No candidate passed every gate/);
+  assert.match(t, /RULES-BASED RANKING/);
+  assert.match(t, /Sample Player Three OVER 20\.5 PTS/);
+  assert.match(t, /\+100 synthetic-book/);
+  assert.match(t, /Hit rate 7 of 10 \(last 10\)/);
+  assert.match(t, /MODEL PROJECTION 21\.4/);
+  assert.match(t, /Under review/);
+  assert.match(t, /Held back: A_WEAK_EVIDENCE/);
   assert.doesNotMatch(t, /\b(pick|picks|stake|payout|to win|lock)\b/i);
-  assert.doesNotMatch(t, /60%|80%/);
-  assert.equal(researchView({ ...block, official: true }, { prices, now }), null, "an official block is never rendered as research");
+  assert.doesNotMatch(t, /\d+(\.\d+)?%/);
+  /* Past staleAfter (fetchedAt + 90 min): no line, odds, hit rate, capture time or combined price — and it says so. */
+  const stale = researchView(o.researchView, { now: Date.parse("2030-01-01T19:00:00Z") });
+  const st = text(html(React.createElement(ResearchCandidates, { research: stale })));
+  assert.match(st, /Line stale — not shown/);
+  assert.doesNotMatch(st, /20\.5|6\.5|\+100|-105|7 of 10|captured/);
+  /* Without the companion (no key): identity and projection only. */
+  const pub = text(html(React.createElement(ResearchCandidates, { research: researchView(o.researchPublicView, { now: fresh }) })));
+  assert.match(pub, /Sample Player Three OVER PTS/);
+  assert.doesNotMatch(pub, /20\.5|\+100|7 of 10/);
+  assert.equal(researchView({ ...o.researchView, official: true }), null, "a block not marked official:false is never rendered");
   assert.equal(researchView(null), null);
   assert.equal(html(React.createElement(ResearchCandidates, { research: null })), "");
-  assert.deepEqual(parityReport([researchParity({ block, view })]).failures, []);
+  assert.deepEqual(parityReport([researchParity({ block: o.researchView, view })]).failures, []);
+  assert.deepEqual(parityReport([researchParity({ block: o.researchView, view: stale })]).failures, []);
   const dropped = { ...view, candidates: view.candidates.slice(0, 1) };
-  assert.ok(parityReport([researchParity({ block, view: dropped })]).failures.includes("research research candidates"));
-  /* The section sits apart from the lanes: its own section element, never inside a lane card. */
+  assert.ok(parityReport([researchParity({ block: o.researchView, view: dropped })]).failures.includes("research research candidates"));
   assert.doesNotMatch(read("src/components/challenge-lanes/lane-card.tsx"), /research-candidates|ResearchCandidates/);
+});
+
+test("RESEARCH loader: reads the engine's public file + encrypted companion; missing → null; a companion from another file is refused", async () => {
+  const { loadResearch } = await import("../../lib/products/challenge-lanes/load.mjs");
+  const { researchAad } = await import("../../lib/challenge-lanes/research.mjs");
+  const { encryptDisplayArtifact } = await import("../../lib/odds/display-crypto.mjs");
+  const o = await v2Sample("ms-b");
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "rc-"));
+  const appDir = path.join(root, "app");
+  fs.mkdirSync(path.join(appDir, "public", "data", "challenge-research", "moonshot"), { recursive: true });
+  fs.mkdirSync(path.join(root, "data", "odds-display", "challenge-research", "moonshot"), { recursive: true });
+  const env = { GTP_ODDS_DISPLAY_KEY: crypto.randomBytes(32).toString("hex") };
+  assert.equal(loadResearch({ appDir, product: "moonshot", date: "2030-01-01", env }), null, "no file → no section");
+  fs.writeFileSync(path.join(appDir, "public", "data", "challenge-research", "moonshot", "2030-01-01.json"), JSON.stringify(o.research.public));
+  const unpriced = loadResearch({ appDir, product: "moonshot", date: "2030-01-01", env, asOf: "2030-01-01T18:00:00Z" });
+  assert.equal(unpriced.candidates.length, 2);
+  assert.ok(unpriced.candidates.every((c) => c.legs.every((l) => l.odds == null)));
+  const key = Buffer.from(env.GTP_ODDS_DISPLAY_KEY, "hex");
+  const encFile = path.join(root, "data", "odds-display", "challenge-research", "moonshot", "2030-01-01.json.enc");
+  fs.writeFileSync(encFile, encryptDisplayArtifact(JSON.stringify(o.research.prices), key, researchAad("moonshot")));
+  const priced = loadResearch({ appDir, product: "moonshot", date: "2030-01-01", env, asOf: "2030-01-01T18:00:00Z" });
+  /* NBA site display may be off in the committed authorization record; then the companion is never opened. */
+  const { displayAuthorization } = await import("../../lib/odds/display-authorization.mjs");
+  if (displayAuthorization("nba", "site").ok) assert.equal(priced.candidates[0].legs[0].odds, "+100");
+  else assert.equal(priced.candidates[0].legs[0].odds, null);
+  fs.writeFileSync(encFile, encryptDisplayArtifact(JSON.stringify({ ...o.research.prices, publicSha256: "0".repeat(64) }), key, researchAad("moonshot")));
+  if (displayAuthorization("nba", "site").ok) assert.throws(() => loadResearch({ appDir, product: "moonshot", date: "2030-01-01", env }), /not made from this research file/);
+  fs.writeFileSync(path.join(appDir, "public", "data", "challenge-research", "moonshot", "2030-01-01.json"), JSON.stringify({ ...o.research.public, label: "Picks" }));
+  assert.throws(() => loadResearch({ appDir, product: "moonshot", date: "2030-01-01", env }), /does not verify/);
 });
 
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
