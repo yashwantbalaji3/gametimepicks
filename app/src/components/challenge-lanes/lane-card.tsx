@@ -9,15 +9,16 @@ export type LaneLeg = {
   n: number; legId: string; gameId: string; game: string; market: string | null; prop: boolean;
   selection: string; teamAbbr: string | null; team: { name: string | null; color: string; ink: string | null } | null;
   matchup: string | null; time: string | null; projectionLabel: string | null; projection: string | null; flags: string[]; outcome: string | null;
-  price: { odds: string | null; line: number | string | null; book: string | null; captured: string | null; hitRates?: string[] } | null;
+  price: { odds: string | null; line: number | string | null; book: string | null; captured: string | null; hitRates?: string[]; evidenceLine?: string | null } | null;
   snapshotId?: string | null;
   player?: { name: string | null; team: string | null; side: string | null; market: string } | null;
   evidence?: { class: string; label: string } | null;
+  limits?: string[];
 };
 export type LanePrice = { method: string; estimate: boolean; combinedLabel: string; combined: string; decimal?: number | null; book: string | null; stake: string | null; payout: string | null; profit: string | null; captured: string | null; requiredMultiple?: number | null; belowPace?: boolean | null; verification?: string | null; verificationNote?: string | null; snapshotSha256?: string | null; priceEventSha256?: string | null; band?: string | null };
 export type LaneDay = {
   date: string; step: number; internalStatus: string | null; statusText: string; tone: string; reason: string | null; staked: boolean;
-  legs: LaneLeg[]; hasCard: boolean; modelCardResult: string | null; stepOutcome: string | null; result: string | null; price: LanePrice | null; ruleTag?: string | null; ruleLabel?: string | null; evidence?: { class: string; label: string } | null;
+  legs: LaneLeg[]; hasCard: boolean; modelCardResult: string | null; stepOutcome: string | null; result: string | null; price: LanePrice | null; ruleTag?: string | null; ruleLabel?: string | null; evidence?: { class: string; label: string } | null; selection?: { mode: string | null; label: string } | null;
   withdrawn?: boolean; legCount?: number | null; maxLegs?: number | null; stepTarget?: { label: string; value: string | null } | null;
 };
 export type LaneView = {
@@ -32,7 +33,7 @@ export type LaneView = {
   graphics: Array<{ date: string; step: number; packageId: string | null; imageSha256: string | null; captionSha256?: string | null; graphicVersion?: string | null; approvedVersionSha256?: string | null; imagePath: string | null; approved: boolean; postUrl: string | null; postedAt: string | null }>;
   runs: Array<{ runId: string; number: number; started: string | null; status: string; stepsWon: number; current: boolean; ruleTag?: string | null }>;
   ruleVersion?: string | null; ruleLabel?: string | null; stepTarget?: { label: string; value: string | null } | null;
-  evidence?: { class: string; label: string } | null;
+  evidence?: { class: string; label: string } | null; selection?: { mode: string | null; label: string } | null;
 };
 
 const RUNG_TEXT: Record<string, string> = { completed: "won", active: "current", failed: "lost", upcoming: "to come" };
@@ -61,12 +62,19 @@ function LegCard({ l, tag = null }: { l: LaneLeg; tag?: string | null }) {
             {l.price.book ? <span>{l.price.book}</span> : null}
           </span>
         ) : null}
-        {l.price?.hitRates?.length ? (
+        {l.price?.evidenceLine ? (
+          <span className="cl-hit-rates" data-leg-evidence-line="">{l.price.evidenceLine}</span>
+        ) : l.price?.hitRates?.length ? (
           <span className="cl-hit-rates" data-leg-hit-rates="">
             <span className="cl-label">Hit rate</span> {l.price.hitRates.join(" · ")}
           </span>
         ) : null}
         {tag && !l.evidence ? <span className="cl-rule-tag" data-leg-rule="">{tag} · history</span> : null}
+        {l.limits?.length ? (
+          <span className="cl-limits" data-leg-limits="">
+            <span className="cl-label">Disclosed limits</span> {l.limits.join(" · ")}
+          </span>
+        ) : null}
         {l.evidence ? <span className={`cl-evidence cl-evidence--${l.evidence.class.toLowerCase()}`} data-leg-evidence={l.evidence.class}>{l.evidence.label}</span> : null}
         {l.flags.length ? <span className="cl-leg-flag"><span className="cl-flag-chip">Flag</span> {l.flags.join(" ")}</span> : null}
       </div>
@@ -121,6 +129,7 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
           {lane.evidence ? (
             <span className={`cl-evidence cl-evidence--${lane.evidence.class.toLowerCase()}`} data-lane-evidence={lane.evidence.class}>{lane.evidence.label}</span>
           ) : null}
+          {lane.selection ? <span className="cl-selection-mode" data-lane-selection={lane.selection.mode ?? ""}>{lane.selection.label}</span> : null}
           {lane.verification ? (
             <span className="cl-status cl-status--prelim" data-lane-verification={lane.verification}>
               <span aria-hidden>◷</span> {lane.verification}

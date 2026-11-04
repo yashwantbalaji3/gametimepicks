@@ -706,6 +706,42 @@ test("LOST lane (PD 2026-11-04): reads LOST AT STEP k, the bankroll after the lo
   assert.ok(parityReport([laneParity({ doc: o.pub, prices: o.prices, view: { ...v, tracked: "$195.23" } })]).failures.includes("bb-a tracked bankroll"));
 });
 
+test("DAILY RESEARCH SELECTION: the card's mode label verbatim, disclosed limits as plain words, the engine's evidenceLine — never a contextual rate", async () => {
+  const { pricedLaneDisplay } = await import("../../lib/challenge-lanes/display.mjs");
+  const { laneParity, parityReport } = await import("../../lib/products/challenge-lanes/parity.mjs");
+  const o = structuredClone(await v2Sample("bb-b"));
+  const LABEL = "RESEARCH SELECTION — NO VALIDATED EDGE CLAIM";
+  const day = o.pub.runs.at(-1).days.at(-1);
+  const [l1, l2] = day.card.legs;
+  /* Field names as proposed to betting-engine (2026-11-04); the stand-in goes into the frozen card event too. */
+  const extra = { selectionMode: "RESEARCH", selectionLabel: LABEL, flags: [{ legId: l1.legId, code: "C_LINEUP_HIGH", level: "HIGH" }, { legId: l1.legId, code: "C_LINEUP_HIGH_WEIGHT" }, { legId: l2.legId, code: "B_MINUTES_VOLATILE" }] };
+  Object.assign(day.card, extra);
+  for (const e of day.receipts ?? []) if (e.card) Object.assign(e.card, extra);
+  o.pub = reseal(o.pub);
+  o.prices.projectionSha256 = o.pub.contentSha256;
+  const pd = o.prices.runs.at(-1).days.at(-1);
+  pd.legDetails = pd.legDetails.map((d, i) => ({ ...d, evidenceLine: i ? "Hit 7/10 L10 · 13/20 L20" : "Hit 8/10 L10 · 14/20 L20", flagText: [`C_LINEUP_HIGH ${d.legId}: contextual 0.61 [0.48, 0.73]`] }));
+  const priced = pricedLaneDisplay(o.pub, o.prices);
+  const view = lane.laneView(o.pub, { display: priced, productDay: day.date });
+  assert.deepEqual(view.selection, { mode: "RESEARCH", label: LABEL });
+  assert.deepEqual(view.current.legs[0].limits, ["Lineup uncertainty: HIGH"], "the ranking weight marker is not a disclosed limit");
+  const t = text(html(React.createElement(LaneCard, { lane: view })));
+  assert.match(t, /RESEARCH SELECTION — NO VALIDATED EDGE CLAIM/);
+  assert.match(t, /Disclosed limits Lineup uncertainty: HIGH/);
+  assert.match(t, /Disclosed limits Minutes volatile/);
+  assert.match(t, /Hit 8\/10 L10 · 14\/20 L20/);
+  assert.doesNotMatch(t, /0\.61|0\.48|0\.73|contextual|\d+(\.\d+)?%/, "no contextual rate, interval or percentage reaches the page");
+  const rep = parityReport([laneParity({ doc: o.pub, prices: o.prices, view })]);
+  assert.deepEqual(rep.failures, []);
+  for (const f of ["selection label", "flag codes", "evidence lines"]) assert.ok(rep.rows.some((r) => r.field === f && r.ok && r.engine), f);
+  const drift = structuredClone(view); drift.current.selection = null; drift.current.legs[1].limits = [];
+  const failures = parityReport([laneParity({ doc: o.pub, prices: o.prices, view: drift })]).failures;
+  assert.ok(failures.includes("bb-b selection label (NOT_ON_SITE)") && failures.includes("bb-b flag codes"), failures.join(", "));
+  /* An evidence line carrying a rate is refused, never printed. */
+  pd.legDetails[0].evidenceLine = "Hit 61% L10";
+  assert.equal(lane.laneView(o.pub, { display: pricedLaneDisplay(o.pub, o.prices), productDay: day.date }).current.legs[0].price.evidenceLine, null);
+});
+
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
   const css = read("src/app/globals.css");
   assert.match(css, /@keyframes cl-rung-in/);

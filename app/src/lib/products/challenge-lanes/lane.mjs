@@ -138,6 +138,9 @@ export const hitRateText = (h) => (h && Number.isInteger(h.k) && Number.isIntege
 const legPrice = (p, book, detail = null) => (p ? {
   odds: american(p.oddsFormat === "american" ? p.price : decimalToAmerican(p.price)), line: p.line ?? detail?.line ?? null, book: book ?? null, captured: etStamp(p.fetchedAt),
   hitRates: (Array.isArray(detail?.hitRates) ? detail.hitRates : Array.isArray(p.hitRates) ? p.hitRates : []).map(hitRateText).filter(Boolean),
+  /* The engine's evidenceLine (the graphic's and caption's text, hit counts only): encrypted display only. The engine's
+     flag text is NOT shown: it carries contextual rates, which would read as a probability. */
+  evidenceLine: typeof detail?.evidenceLine === "string" && !/%|\b0?\.\d/.test(detail.evidenceLine) ? detail.evidenceLine : null,
 } : null);
 /** The engine's evidence class for a day or a leg (card@2 legs carry `classification`), with the engine's own label. */
 export const evidenceOf = (x) => {
@@ -146,6 +149,17 @@ export const evidenceOf = (x) => {
 };
 export const PROP_MARKET = Object.freeze({ pts: "PTS", reb: "REB", ast: "AST", player_points: "PTS", player_rebounds: "REB", player_assists: "AST" });
 /** A player-prop leg: card@2 `family` pts/reb/ast (or its `market` player_*); winner / h2h legs are not props. */
+/* DAILY RESEARCH SELECTION (founder ~19:40Z): the engine's disclosed limitations per leg, as codes in the public card
+   (card.flags [{legId, code, level}]); the site prints plain words, never the contextual rate behind them. Field names
+   PROPOSED to betting-engine 2026-11-04. */
+export const FLAG_TEXT = Object.freeze({
+  B_ROLE_UNSTABLE: "Role unstable", B_MINUTES_VOLATILE: "Minutes volatile", C_LINEUP_UNCERTAIN: "Lineup uncertain",
+  C_LINEUP_MEDIUM: "Lineup uncertainty: MEDIUM", C_LINEUP_HIGH: "Lineup uncertainty: HIGH",
+});
+/* *_WEIGHT codes are the engine's ranking markers (a HIGH flag counts twice), not a limit to disclose. */
+export const flagWords = (f) => (!f?.code || /_WEIGHT$/.test(f.code) ? null : FLAG_TEXT[f.code] ?? String(f.code).replaceAll("_", " ").toLowerCase());
+/** The card's selection mode label, verbatim ("RESEARCH SELECTION — NO VALIDATED EDGE CLAIM"), or null. */
+export const selectionOf = (card) => (card?.selectionLabel ? { mode: card.selectionMode ?? null, label: card.selectionLabel } : null);
 export const isProp = (l) => !["winner", "h2h"].includes(l?.family ?? l?.market ?? "winner");
 
 /** The day's priced block (combined price, stake, payout, profit, pace), formatted; null without a VERIFIED price. */
@@ -171,6 +185,7 @@ function legsOf(day, projectionLabel, teams) {
   const vp = verified(day.price);
   const prices = new Map((vp?.legs ?? []).map((p) => [p.legId, p]));
   const details = new Map((vp?.legDetails ?? []).map((p) => [p.legId, p]));
+  const cardFlags = Array.isArray(day.card?.flags) ? day.card.flags : [];
   return (day.card?.legs ?? []).map((l, i) => {
     const o = outcome.get(l.legId);
     /* card@1 legs name the side in `selection`; card@2 winner legs carry `team` and `side` (home/away). */
@@ -191,6 +206,7 @@ function legsOf(day, projectionLabel, teams) {
          none, no MODEL WIN PROBABILITY row at all (a "—" under that label would suggest a model number exists). */
       projectionLabel: prop ? l.projection?.label ?? projectionLabel : l.probabilityShown != null ? "MODEL WIN PROBABILITY" : null, projection: prop ? (typeof l.projection?.value === "number" ? l.projection.value.toFixed(1) : null) : l.probabilityShown ?? null,
       evidence: evidenceOf(l),
+      limits: [...new Set(cardFlags.filter((f) => f?.legId === l.legId).map(flagWords).filter(Boolean))],
       flags: l.guard?.flagText ?? [],
       outcome: o && o !== "PENDING" ? o : null,
       price: legPrice(prices.get(l.legId), vp?.book, details.get(l.legId)),
@@ -217,7 +233,7 @@ function dayPresent(day, projectionLabel, teams) {
     reason: reasonText(day.reason), staked: Boolean(day.staked), legs: day.card ? legsOf(day, projectionLabel, teams) : [], hasCard: Boolean(day.card),
     modelCardResult: day.modelCardResult ?? null, stepOutcome: day.stepOutcome ?? null, result,
     price: priceOf(day),
-    withdrawn: Boolean(day.withdrawn), legCount: day.legCount ?? null, maxLegs: day.maxLegs ?? null, evidence: evidenceOf(day),
+    withdrawn: Boolean(day.withdrawn), legCount: day.legCount ?? null, maxLegs: day.maxLegs ?? null, evidence: evidenceOf(day), selection: selectionOf(day.card),
     stepTarget: typeof day.targetPayoutCents === "number" ? { label: day.targetPayoutLabel ?? "STEP TARGET", value: money(day.targetPayoutCents) } : null,
   };
 }
@@ -311,7 +327,7 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
     rungs: d.rungs.map((r) => ({ step: r.step, state: r.state, milestone: money(r.milestoneCents) })),
     current, story, graphics,
     runs: d.runs.map((r, i) => ({ runId: r.runId, number: i + 1, started: String(r.startedAt ?? "").slice(0, 10) || null, status: r.endStatus, stepsWon: r.stepsWon ?? 0, current: i === d.runs.length - 1, ruleTag: ruleTag(r.ruleVersion) })),
-    ruleVersion: currentRule, ruleLabel: ruleLabel(currentRule), evidence: current?.evidence ?? null,
+    ruleVersion: currentRule, ruleLabel: ruleLabel(currentRule), evidence: current?.evidence ?? null, selection: current?.selection ?? null,
     stepTarget: awaiting || lost ? null : latest?.stepTarget ?? null,
     sourceSha256: d.sourceSha256,
   };

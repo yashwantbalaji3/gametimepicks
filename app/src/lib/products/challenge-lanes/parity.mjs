@@ -6,7 +6,7 @@
  * graphic against the same record. Pure; returns rows, never prints a price.
  */
 import { decimalToAmerican } from "../../challenge-lanes/payout.mjs";
-import { isProp, hitRateText } from "./lane.mjs";
+import { isProp, hitRateText, flagWords } from "./lane.mjs";
 import { EVIDENCE_LABEL } from "../../challenge-lanes/card-fields.mjs";
 import { laneDisplay } from "../../challenge-lanes/display.mjs";
 
@@ -57,6 +57,10 @@ export function laneParity({ doc, prices, view }) {
   rowOpt("prop sides", props.length ? props.map((l) => [l.legId, l.side ? String(l.side).toUpperCase() : null]) : null, siteProps.length ? siteProps.map((l) => [l.legId, l.player?.side ?? null]) : null);
   rowOpt("prop projections", props.length ? props.map((l) => [l.legId, typeof l.projection?.value === "number" ? l.projection.value.toFixed(1) : null]) : null, siteProps.length ? siteProps.map((l) => [l.legId, l.projection ?? null]) : null);
   /* A LOST lane shows no step target (nothing is being played for). */
+  /* DAILY RESEARCH SELECTION: the card's mode label verbatim and its disclosed-limit codes per leg. */
+  rowOpt("selection label", card?.selectionLabel ?? null, siteDay?.selection?.label ?? null);
+  rowOpt("flag codes", card?.flags?.length ? card.legs.map((l) => [l.legId, [...new Set(card.flags.filter((f) => f.legId === l.legId).map(flagWords).filter(Boolean))]]) : null,
+    siteDay?.legs?.some((l) => l.limits?.length) ? siteDay.legs.map((l) => [l.legId, l.limits ?? []]) : null);
   rowOpt("step target", typeof day?.targetPayoutCents === "number" && doc.current?.publicStatus !== "LOST" ? { label: day.targetPayoutLabel ?? null, value: money(day.targetPayoutCents) } : null, view.stepTarget ?? null);
   const pr = prices?.runs?.find((r) => r.runId === run.runId);
   const pd = pr?.days?.filter((d) => d.date === day?.date).at(-1) ?? null;
@@ -81,6 +85,7 @@ export function laneParity({ doc, prices, view }) {
   const hrOf = (l) => (detail.get(l.legId)?.hitRates ?? l.hitRates ?? []).map(hitRateText).filter(Boolean);
   const sProps = sp ? siteProps : [];
   rowOpt("prop lines", pLegs.length ? pLegs.map((l) => [l.legId, l.line ?? detail.get(l.legId)?.line ?? null]) : null, sProps.length ? sProps.map((l) => [l.legId, l.price?.line ?? null]) : null);
+  rowOpt("evidence lines", pLegs.some((l) => detail.get(l.legId)?.evidenceLine) ? pLegs.map((l) => [l.legId, detail.get(l.legId)?.evidenceLine ?? null]) : null, sProps.some((l) => l.price?.evidenceLine) ? sProps.map((l) => [l.legId, l.price?.evidenceLine ?? null]) : null);
   rowOpt("prop hit rates", pLegs.some((l) => hrOf(l).length) ? pLegs.map((l) => [l.legId, hrOf(l)]) : null, sProps.some((l) => l.price?.hitRates?.length) ? sProps.map((l) => [l.legId, l.price?.hitRates ?? []]) : null);
   rowP("price event sha", priced ? pd.priceEventSha256 : null, sp?.priceEventSha256);
   /* Graphics (PD 2026-11-04): every GRAPHIC_RENDERED receipt the record holds, with its image, caption and renderer

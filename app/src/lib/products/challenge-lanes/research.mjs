@@ -6,7 +6,7 @@
  * says so. Pure.
  */
 import { decimalToAmerican } from "../../challenge-lanes/payout.mjs";
-import { hitRateText, evidenceOf, isProp, PROP_MARKET } from "./lane.mjs";
+import { hitRateText, evidenceOf, isProp, PROP_MARKET, flagWords, selectionOf } from "./lane.mjs";
 
 const american = (n) => (typeof n === "number" && Number.isFinite(n) ? (n > 0 ? `+${n}` : String(n)) : null);
 const ET = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
@@ -33,11 +33,13 @@ export function researchView(d, { now = Date.now() } = {}) {
           projectionLabel: prop ? l.projection?.label ?? "MODEL PROJECTION" : null,
           odds: p ? american(p.american) : null, book: p?.book ?? null, captured: p ? et(p.fetchedAt) : null,
           hitRates: (p?.hitRates ?? []).map(hitRateText).filter(Boolean),
+          evidenceLine: typeof p?.evidenceLine === "string" && !/%|\b0?\.\d/.test(p.evidenceLine) ? p.evidenceLine : null,
+          limits: [...new Set((c.flags ?? []).filter((f) => f?.legId === l.legId).map(flagWords).filter(Boolean))],
         };
       });
       const anyStale = legs.some((l) => l.stale);
       return {
-        id: c.candidateId, status: c.status ?? "RESEARCH", rank: c.rank ?? null, evidence: evidenceOf(c), reasonCodes: c.reasonCodes ?? [], stale: anyStale, legs,
+        id: c.candidateId, status: c.status ?? "RESEARCH", selection: selectionOf(c), rank: c.rank ?? null, evidence: evidenceOf(c), reasonCodes: c.reasonCodes ?? [], stale: anyStale, legs,
         combined: !anyStale && c.combined ? { label: c.combined.label, odds: american(c.combined.american ?? decimalToAmerican(c.combined.decimal)) } : null,
       };
     }),
