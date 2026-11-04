@@ -132,7 +132,7 @@ export function bbmCardV3(view, combo = null, { testData = false } = {}) {
     right = `<div class="legs3${combo.legs.length > 2 ? " d" : ""}">${combo.legs.map((l, i) => legRow(cells, l, i, view.view === VIEW.CARD ? null : outs[l.legId] ?? "PENDING", view.view === VIEW.CARD ? view.payout?.legs?.[l.legId] ?? null : null)).join("")}</div>`;
     if (view.view === VIEW.CARD) money = moneyBlock(cells, view);
   } else {
-    const note = view.view === VIEW.NO_ELIGIBLE_CARD ? ["No qualifying card today", "The lane keeps its step and its tracked bankroll."] : view.view === VIEW.COMPLETE ? ["Goal reached", `${cents(view.bankrollCents)} of ${cents(view.targetCents)}`] : view.view === VIEW.FINISHED_SHORT ? ["Finished short", `${cents(view.bankrollCents)} of ${cents(view.targetCents)}`] : ["Lane busted", ""];
+    const note = view.view === VIEW.NO_ELIGIBLE_CARD ? ["No qualifying card today", "The lane holds its place and its tracked bankroll."] : view.view === VIEW.COMPLETE ? ["Goal reached", `${cents(view.bankrollCents)} of ${cents(view.targetCents)}`] : view.view === VIEW.FINISHED_SHORT ? ["Finished short", `${cents(view.bankrollCents)} of ${cents(view.targetCents)}`] : ["Lane busted", ""];
     right = `<div class="stat3"><div class="k">${cell(cells, "status.note", note[0])}</div>${note[1] ? `<div class="c">${cell(cells, "status.rule", note[1])}</div>` : ""}</div>`;
   }
   const body = `${CSS}<div class="v3 ${P.cls}" style="--acc:${P.acc};--acc2:${P.acc2}">${top}<div class="v3-mid">${battery(cells, view)}${right}</div>${money}</div>`;
