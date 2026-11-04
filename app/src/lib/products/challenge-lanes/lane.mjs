@@ -13,7 +13,7 @@ import { verifyLaneProjection, IMAGE_PATH } from "../../challenge-lanes/projecti
 import { LANES as ENGINE_LANES } from "../../challenge-lanes/lanes.mjs";
 import { laneDisplay } from "../../challenge-lanes/display.mjs";
 import { decimalToAmerican } from "../../challenge-lanes/payout.mjs";
-import { EVIDENCE_LABEL } from "../../challenge-lanes/card-fields.mjs";
+import { EVIDENCE_LABEL, diversityViolations as engineDiversity } from "../../challenge-lanes/card-fields.mjs";
 
 export const LANE_IDS = Object.freeze(Object.keys(ENGINE_LANES));
 export const lanesOf = (product) => LANE_IDS.filter((id) => ENGINE_LANES[id].product === product);
@@ -366,26 +366,12 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
 
 /** The placeholder view for a lane whose public file is absent or refused: says so, invents nothing. */
 /**
- * DIVERSIFICATION (founder 2026-11-04, the engine's diversity@1): across the four lanes' cards in play on the same day,
- * no two lanes hold the same combination (order-insensitive; a duplicated single card is the one-leg case) and no leg
- * appears in more than two lanes. Returns the violations ([] when the set passes). The engine enforces this when it
- * freezes cards; the site re-checks the set it is about to render and refuses it whole on any violation.
+ * DIVERSIFICATION (founder 2026-11-04, the engine's diversity@1): the engine's own checker (card-fields.mjs
+ * diversityViolations) over the cards the site is about to render — same date only, held lanes skipped; a repeated
+ * combination (order-insensitive, a duplicate single included) or a leg in more than two lanes. [] when the set passes.
  * @param {Array<{ laneId: string, current?: { date: string, legs: Array<{ legId: string }> } | null }>} views
  */
-export function diversityViolations(views) {
-  const cards = views.filter((v) => v?.current?.legs?.length).map((v) => ({ laneId: v.laneId, date: v.current.date, legs: v.current.legs.map((l) => l.legId) }));
-  const out = [];
-  const combos = new Map();
-  const legLanes = new Map();
-  for (const c of cards) {
-    const k = `${c.date}|${[...c.legs].sort().join("+")}`;
-    if (combos.has(k)) out.push(`SAME_COMBINATION ${combos.get(k)} ${c.laneId}${c.legs.length === 1 ? " (duplicate single)" : ""}`);
-    else combos.set(k, c.laneId);
-    for (const l of new Set(c.legs)) legLanes.set(`${c.date}|${l}`, [...(legLanes.get(`${c.date}|${l}`) ?? []), c.laneId]);
-  }
-  for (const [k, lanes] of legLanes) if (lanes.length > 2) out.push(`LEG_IN_${lanes.length}_LANES ${k.split("|")[1]} ${lanes.join(" ")}`);
-  return out;
-}
+export const diversityViolations = (views) => engineDiversity(views.filter((v) => v?.current?.legs?.length).map((v) => ({ laneId: v.laneId, date: v.current.date, legIds: v.current.legs.map((l) => l.legId) })));
 
 export function unavailableLaneView(laneId, reason) {
   const lane = ENGINE_LANES[laneId];
