@@ -37,6 +37,7 @@ const ALTS = String(a.alt ?? "").split(",").filter(Boolean).map((x) => {
   if (key && !j.records?.[key]?.record) throw new Error(`${f}: no sealed record ${key}`);
   return { laneId, file: ref, sel: key ? { lanes: { [laneId]: { card: j.records[key].record } } } : j };
 });
+const isMoneyline = (l) => ["winner", "moneyline", "h2h", "ml"].includes(String(l.market ?? l.family ?? "").toLowerCase());
 /** The engine's Level B leg flags in plain words (the record's flags[] codes). */
 const FLAG_WORDS = { B_ROLE_UNSTABLE: "Role unstable", B_MINUTES_VOLATILE: "Minutes volatile" };
 /** The lane's minutes disclosure from the record's role note ("lane projected 15.5 min; L5 mean 24.4"). */
@@ -53,23 +54,34 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
   }
   const lane = src.lanes[laneId]; const c = lane?.card;
   if (!c || c.schema !== "gtp.bbm.card@2" || c.rulesVersion !== "bbm-rules@2") throw new Error(`${laneId}: no card@2 record under rules v2`);
-  if (c.classification !== "LEVEL_B" || c.probability != null || c.evClaim) throw new Error(`${laneId}: not a Level B research card without a probability`);
+  // Level B: research, never a probability. Level A: the model probability per leg (no other claim is drawn).
+  if (!["LEVEL_A", "LEVEL_B"].includes(c.classification) || (c.classification === "LEVEL_B" && (c.probability != null || c.evClaim))) throw new Error(`${laneId}: ${c.classification} with a probability or an EV claim is not drawn`);
   if (c.legs.length > RULES_V2.maxLegs) throw new Error(`${laneId}: ${c.legs.length} legs`);
   const L = BBM_LANES[laneId]; const product = L.product;
   const legs = c.legs.map((l) => {
     const [away, home] = l.eventLabel.split(" @ ");
+    const inj0 = c.injuryStatus?.find((x) => x.legId === l.legId);
+    if (isMoneyline(l)) {
+      // A moneyline leg (lane A): the team, and the model win probability the record carries; none is invented.
+      const side = l.selection?.teamAbbr ?? l.team;
+      const shown = l.probabilityShown ?? (l.probability != null ? `${Math.round(l.probability * 100)}%` : null);
+      if (!shown) throw new Error(`${laneId}: moneyline ${l.legId} carries no model win probability`);
+      const flags = [...(inj0?.lineup?.sensitive ? [`Lineup watch: ${inj0.lineup.tonightScenario}`] : []), ...(l.flagText ?? []).filter((t) => !/^[A-Z]_[A-Z_]+ /.test(t)), ...(c.flags ?? []).filter((f) => f.legId === l.legId).map((f) => FLAG_WORDS[f.code] ?? f.code.replace(/^[A-Z]_/, "").replace(/_/g, " ").toLowerCase())];
+      return { legId: l.legId, team: { abbr: side, name: l.teamName ?? side }, opponent: { abbr: side === home ? away : home }, home: side === home, tipUtc: l.startUtc, projectionText: shown, flagText: flags };
+    }
     const ev = evidenceLine(l);
     if (!ev) throw new Error(`${laneId}: ${l.legId} lacks L10 or L20 hit counts`);
     const w10 = l.hitRate.windows.find((w) => w.window === "last10");
-    const inj = c.injuryStatus.find((x) => x.legId === l.legId);
+    const inj = c.injuryStatus?.find((x) => x.legId === l.legId);
     const flags = [...(inj && inj.status !== "ACTIVE" ? [`${l.player.name} ${String(inj.status).toLowerCase()}`] : []), ...(inj?.lineup?.sensitive ? [`Lineup watch: ${inj.lineup.tonightScenario}`] : []), ...(minutesNote(l.role) ? [minutesNote(l.role)] : []), ...(c.flags ?? []).filter((f) => f.legId === l.legId).map((f) => FLAG_WORDS[f.code] ?? f.code.replace(/^[A-Z]_/, "").replace(/_/g, " ").toLowerCase())];
-    return { kind: "PROP", legId: l.legId, player: { name: l.player.name }, team: { abbr: l.team, name: l.team }, opponent: { abbr: l.team === home ? away : home }, home: l.team === home, tipUtc: l.startUtc, level: "B", lineText: `${l.side.toUpperCase()} ${l.line} ${SHORT[l.market] ?? ""}`.trim(), evidenceText: ev, evidenceBig: `${w10.hits}/${w10.n}`, flagText: flags };
+    const levelA = l.classification === "LEVEL_A" && l.probability != null;
+    return { kind: "PROP", legId: l.legId, player: { name: l.player.name }, team: { abbr: l.team, name: l.team }, opponent: { abbr: l.team === home ? away : home }, home: l.team === home, tipUtc: l.startUtc, level: levelA ? "A" : "B", ...(levelA ? { projectionText: l.probabilityShown ?? `${Math.round(l.probability * 100)}%` } : {}), lineText: `${l.side.toUpperCase()} ${l.line} ${SHORT[l.market] ?? ""}`.trim(), evidenceText: ev, evidenceBig: `${w10.hits}/${w10.n}`, flagText: flags };
   });
   const verified = c.priceEventSha256 != null;
   const rungs = RULES_V2.milestonesCents[product].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
   models.push({ laneId, name, alt: alt === true, sourceFile: srcFile, record: c, legsRaw: c.legs, model: {
     product, letter: L.letter, laneId, date: c.date, step: 1, steps: 5, rungs, ...TERMS[product], bankrollCents: c.money.stakeCents, badge: BADGE.ACTIVE, view: VIEW.CARD, template: false,
-    legs, selectionLabel: "Research selection — no validated edge claim", reviewRibbon: REVIEW, showStepTarget: true,
+    legs, selectionLabel: c.selectionLabel ?? (c.classification === "LEVEL_B" ? "Research selection — no validated edge claim" : null), reviewRibbon: REVIEW, showStepTarget: true,
     payout: { combinedAmerican: c.combined.american, grossCents: c.money.grossPayoutCents, profitCents: c.money.profitCents, stakeCents: c.money.stakeCents, preliminary: !verified, fixture: false, estimate: false, legs: Object.fromEntries(c.legs.map((l) => [l.legId, { price: l.price, oddsFormat: "american", line: l.line }])) },
   } });
 }
@@ -78,10 +90,10 @@ const bad = cards.flatMap((m) => verifyBbmCardV6(m.card).map((e) => `${m.name}: 
 
 function caption(product, pair) {
   const head = product === "bank-builder" ? "🏦 Bank Builder · Nov 4" : "🚀 Moonshot · Nov 4";
-  const lanes = pair.map((m) => (m.held ? `Lane ${BBM_LANES[m.laneId].letter} · Held · Step 1 of 5` : `Lane ${BBM_LANES[m.laneId].letter} · Step 1 of 5\n${m.legsRaw.map((l) => `${l.player.name} · ${WORD[l.market] ?? l.family}`).join("\n")}`));
+  const lanes = pair.map((m) => (m.held ? `Lane ${BBM_LANES[m.laneId].letter} · Held · Step 1 of 5` : `Lane ${BBM_LANES[m.laneId].letter} · Step 1 of 5\n${m.legsRaw.map((l) => (isMoneyline(l) ? `${l.teamName ?? l.selection?.teamAbbr ?? l.team} to win` : `${l.player.name} · ${WORD[l.market] ?? l.family}`)).join("\n")}`));
   const t = pair.every((m) => m.held)
     ? [head, ...lanes, "No card tonight; both lanes hold their place and tracked bankroll. Tracked challenge, no real wager placed. #NBA"].join("\n\n")
-    : [head, "Research selection · no validated edge claim", ...lanes, "Hit-rate research on the graphic. Tracked challenge, no real wager placed. #NBA"].join("\n\n");
+    : [head, ...(pair.some((m) => m.record?.classification === "LEVEL_B") ? ["Research selection · no validated edge claim"] : []), ...lanes, `${pair.some((m) => m.legsRaw.some(isMoneyline)) ? "Model win probabilities" : "Hit-rate research"}${pair.some((m) => m.legsRaw.some(isMoneyline)) && pair.some((m) => m.legsRaw.some((l) => !isMoneyline(l))) ? " and hit-rate research" : ""} on the graphic. Tracked challenge, no real wager placed. #NBA`].join("\n\n");
   if (xWeighted(t) > X_LIMIT || CAPTION_PRICE_TEXT.test(t)) throw new Error(`${product}: caption fails (${xWeighted(t)} X-weighted; ${t.match(CAPTION_PRICE_TEXT)?.[0] ?? "no price text"})`);
   return t;
 }
@@ -90,9 +102,10 @@ function caption(product, pair) {
 function parity(m) {
   const c = m.record; const cells = m.card.cells; const mis = [];
   const want = { "money.wager": cents(c.money.stakeCents), "money.payout": cents(c.money.grossPayoutCents), "money.profit": cents(c.money.profitCents), "price.combined": american(c.combined.american) };
-  c.legs.forEach((l, i) => Object.assign(want, { [`leg${i + 1}.name`]: l.player.name, [`leg${i + 1}.odds`]: american(l.price), [`leg${i + 1}.line`]: m.model.legs[i].lineText, [`leg${i + 1}.evidence`]: evidenceLine(l) }));
+  c.legs.forEach((l, i) => Object.assign(want, isMoneyline(l) ? { [`leg${i + 1}.team`]: m.model.legs[i].team.abbr, [`leg${i + 1}.odds`]: american(l.price), [`leg${i + 1}.proj`]: m.model.legs[i].projectionText } : { [`leg${i + 1}.name`]: l.player.name, [`leg${i + 1}.odds`]: american(l.price), [`leg${i + 1}.line`]: m.model.legs[i].lineText, [`leg${i + 1}.evidence`]: evidenceLine(l) }));
   for (const [k, v] of Object.entries(want)) if (cells[k] !== v) mis.push(`${k}: printed ${cells[k]} record ${v}`);
-  if (Object.keys(cells).some((k) => /\.proj$|^price\.verified$/.test(k)) && c.priceEventSha256 == null) mis.push("a probability or VERIFIED on an unverified research card");
+  if (c.classification === "LEVEL_B" && Object.keys(cells).some((k) => /\.proj$/.test(k))) mis.push("a probability on a Level B card");
+  if ("price.verified" in cells && c.priceEventSha256 == null) mis.push("VERIFIED on an unverified price");
   return mis;
 }
 
@@ -122,7 +135,7 @@ try {
     if (m.held) return { ...base, view: "NO_ELIGIBLE_CARD", status: "HELD", heldReason: m.model.heldReason, rulesVersion: "bbm-rules@2", step: 1, bankrollCents: m.model.bankrollCents, legs: [], priceClass: "NONE", priceEventSha256: null, payoutEventSha256: null, refEventSha256: null, recordSha256: null, parity: { ok: true, mismatches: [], note: "HELD is the PD's recommendation pending the founder; no engine HELD record exists" } };
     return {
       ...base, rulesVersion: c.rulesVersion, recordSha256: c.recordSha256, candidateId: c.candidateId, classification: c.classification, approvalStatus: c.approvalStatus, step: 1, bankrollCents: c.money.stakeCents,
-      legs: c.legs.map((l) => ({ legId: l.legId, side: l.side, line: l.line, market: l.market, odds: american(l.price), book: l.book, quotedAt: l.quotedAt, fetchedAt: l.fetchedAt, evidence: evidenceLine(l), minutes: minutesNote(l.role), injury: c.injuryStatus.find((x) => x.legId === l.legId) ?? null })),
+      legs: c.legs.map((l) => ({ legId: l.legId, side: l.side, line: l.line, market: l.market, odds: american(l.price), book: l.book, quotedAt: l.quotedAt, fetchedAt: l.fetchedAt, evidence: evidenceLine(l), minutes: minutesNote(l.role), injury: c.injuryStatus?.find((x) => x.legId === l.legId) ?? null })),
       combinedAmerican: american(c.combined.american), payoutCents: c.money.grossPayoutCents, profitCents: c.money.profitCents,
       priceClass: c.priceEventSha256 ? "VERIFIED" : "QUOTE_UNVERIFIED", priceEventSha256: c.priceEventSha256, payoutEventSha256: null, refEventSha256: null,
       parity: { ok: parity(m).length === 0, mismatches: parity(m) },
