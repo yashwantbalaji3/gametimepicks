@@ -79,6 +79,9 @@ export const LANE_STATUS = Object.freeze({
   "FINISHED SHORT": { glyph: "◐", tone: "held" },
 });
 const UNAVAILABLE = { label: "RECORD NOT PUBLISHED", glyph: "○", tone: "held" };
+/** PD 2026-11-04 (rules v2): an open lane with nothing recorded for the product day yet. Never priced. */
+export const AWAITING_SELECTION = "AWAITING QUALIFIED SELECTION";
+const AWAITING = { label: AWAITING_SELECTION, glyph: "◌", tone: "held" };
 /** Day-level wording for the engine's internal day codes (presentation only). */
 const DAY_TEXT = Object.freeze({
   IN_PLAY: "Active", PENDING_VOID_REVIEW: "Held · void under review", BUSTED: "Lost", AWAITING_RESTART_APPROVAL: "Lost · restart awaiting approval",
@@ -191,18 +194,28 @@ function dayPresent(day, projectionLabel, teams) {
  * @param {any} doc
  * `display` is the engine's PRICED fold of the same file when the caller has one (it must name this file's digest); by
  * default the price-free laneDisplay(doc).
- * @param {{ teams?: { teams: any, aliases: any, inkFor?: (fill: string) => string } | null, imageVerified?: (path: string, sha: string) => boolean, display?: any }} [opts]
+ * `productDay` (YYYY-MM-DD, the build's ET day): a lane with no engine record for that day — no frozen card and no engine
+ * decision yet — reads AWAITING QUALIFIED SELECTION with no prices, instead of carrying an older day forward.
+ * @param {{ teams?: { teams: any, aliases: any, inkFor?: (fill: string) => string } | null, imageVerified?: (path: string, sha: string) => boolean, display?: any, productDay?: string | null }} [opts]
  */
-export function laneView(doc, { teams = null, imageVerified = () => false, display = null } = {}) {
+export function laneView(doc, { teams = null, imageVerified = () => false, display = null, productDay = null } = {}) {
   const d = display ?? laneDisplay(doc);
   if (d.sourceSha256 !== doc.contentSha256) throw new Error("laneView: the display was not folded from this lane file");
   const lane = ENGINE_LANES[d.laneId];
   const projectionLabel = d.projectionLabel ?? "MODEL PROJECTION";
-  const story = [...d.history].reverse().map((x) => dayPresent(x, projectionLabel, teams));
+  /* RULE VERSIONS (PD 2026-11-04): the engine moved to rules v2 (two legs a step, new milestones). Days and runs the
+     record marks with another rule version stay in the history, labelled with that version — never re-read as today's. */
+  const currentRule = d.ruleVersion ?? d.runs?.at(-1)?.ruleVersion ?? null;
+  const ruleTag = (v) => (v && v !== currentRule ? `rules ${v}` : null);
+  const story = [...d.history].reverse().map((x) => ({ ...dayPresent(x, projectionLabel, teams), ruleTag: ruleTag(x.ruleVersion) }));
   const latest = d.day ? dayPresent(d.day, projectionLabel, teams) : null;
-  const current = latest?.hasCard && !latest.stepOutcome && d.status !== "LOST" ? latest : null;
-  const glyph = LANE_STATUS[d.status] ?? LANE_STATUS.HELD;
-  let note = reasonText(d.reason);
+  /* AWAITING QUALIFIED SELECTION (PD 2026-11-04, rules v2): the lane is open but the engine has recorded nothing for the
+     product day yet. An engine decision for the day (a frozen card, or HELD with its reason) always wins over this. */
+  const settledState = ["LOST", "COMPLETED", "FINISHED SHORT"].includes(d.status);
+  const awaiting = !settledState && Boolean(productDay) && (!d.day || d.day.date < productDay);
+  const current = !awaiting && latest?.hasCard && !latest.stepOutcome && d.status !== "LOST" ? latest : null;
+  const glyph = awaiting ? AWAITING : LANE_STATUS[d.status] ?? LANE_STATUS.HELD;
+  let note = awaiting ? `No qualified selection has been frozen for ${productDay} yet. Nothing is priced until one is.` : reasonText(d.reason);
   if (!note && d.status === "ACTIVE") note = `Step ${d.step} of ${d.steps} is active. No new card until it settles.`;
   if (!note && d.status === "WON") note = `Step ${d.step - 1} won. Step ${d.step} gets the next qualifying card.`;
   const p = d.pace;
@@ -234,19 +247,20 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
     runId: d.runId, runNumber: d.runNumber, startedAt: String(d.runs.at(-1)?.startedAt ?? "").slice(0, 10) || null,
     step: d.step, steps: d.steps, stepText: d.stepText, maxLegs: d.maxLegs ?? null,
     cleared: d.cleared ?? d.rungs.filter((r) => r.state === "completed").length,
-    status: d.status, statusLabel: d.status, statusGlyph: glyph.glyph, tone: glyph.tone, internalStatus: d.internalStatus, note,
+    status: awaiting ? "AWAITING" : d.status, statusLabel: awaiting ? AWAITING_SELECTION : d.status, statusGlyph: glyph.glyph, tone: glyph.tone, internalStatus: d.internalStatus, note,
     base: money(d.baseCents), target: money(d.targetCents), tracked,
     toTarget: d.distanceToTargetCents == null || d.status === "LOST" ? null : money(d.distanceToTargetCents),
-    wager: d.status === "LOST" ? null : current?.price?.stake ?? tracked, wagerNote: current?.price ? "tracked stake" : latest?.staked ? "staked" : "not staked until priced",
+    wager: d.status === "LOST" || awaiting ? null : current?.price?.stake ?? tracked, wagerNote: current?.price ? "tracked stake" : latest?.staked ? "staked" : "not staked until priced",
     potentialPayout: current?.price?.payout ?? AWAITING_PRICES, potentialProfit: current?.price?.profit ?? AWAITING_PRICES,
     pace, label: d.label ?? "Tracked challenge · no real wager placed",
     /* PRELIMINARY when the priced day is the early snapshot; AWAITING VERIFICATION from the plain file alone (no prices
        in this build); nothing once VERIFIED. Both come from the engine's fields, never inferred. */
-    verification: current?.price?.verification ?? (d.day?.awaitingVerification && d.status !== "LOST" ? VERIFICATION_LABEL.AWAITING_VERIFICATION : null),
+    verification: awaiting ? null : current?.price?.verification ?? (d.day?.awaitingVerification && d.status !== "LOST" ? VERIFICATION_LABEL.AWAITING_VERIFICATION : null),
     verificationNote: current?.price?.verificationNote ?? null,
     rungs: d.rungs.map((r) => ({ step: r.step, state: r.state, milestone: money(r.milestoneCents) })),
     current, story, graphics,
-    runs: d.runs.map((r, i) => ({ runId: r.runId, number: i + 1, started: String(r.startedAt ?? "").slice(0, 10) || null, status: r.endStatus, stepsWon: r.stepsWon ?? 0, current: i === d.runs.length - 1 })),
+    runs: d.runs.map((r, i) => ({ runId: r.runId, number: i + 1, started: String(r.startedAt ?? "").slice(0, 10) || null, status: r.endStatus, stepsWon: r.stepsWon ?? 0, current: i === d.runs.length - 1, ruleTag: ruleTag(r.ruleVersion) })),
+    ruleVersion: currentRule,
     sourceSha256: d.sourceSha256,
   };
 }

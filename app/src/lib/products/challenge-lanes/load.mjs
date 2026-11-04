@@ -72,7 +72,11 @@ export const imageVerifiedIn = (appDir) => (imagePath, sha) => {
 };
 
 /** { doc, view } for an accepted file, or { doc: null, view: <unavailable>, reason }. */
-export function loadChallengeLane({ appDir = process.cwd(), laneId, env = displayEnv(process.env, { appDir }) }) {
+/* The build's ET product day, for AWAITING QUALIFIED SELECTION. One formatter for the module (#1262). */
+const ET_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
+export const etProductDay = (now = Date.now()) => ET_DAY.format(now);
+
+export function loadChallengeLane({ appDir = process.cwd(), laneId, env = displayEnv(process.env, { appDir }), productDay = etProductDay() }) {
   if (!LANE_IDS.includes(laneId)) throw new Error(`unknown lane ${laneId}`);
   const r = readLaneProjection({ appDir, laneId });
   if (!r.ok) {
@@ -84,7 +88,7 @@ export function loadChallengeLane({ appDir = process.cwd(), laneId, env = displa
   /* The engine's priced fold: its decrypted prices (null with no key, another key, no file, or NBA site display off;
      throws on tamper) over its laneDisplay. Build time only; the result renders into HTML and nowhere else. */
   const display = pricedLaneDisplay(r.doc, readLanePrices({ appDir, laneId, env }));
-  return { doc: r.doc, view: laneView(r.doc, { display, teams: readTeamColours(appDir), imageVerified: imageVerifiedIn(appDir) }), reason: null };
+  return { doc: r.doc, view: laneView(r.doc, { display, teams: readTeamColours(appDir), imageVerified: imageVerifiedIn(appDir), productDay }), reason: null };
 }
 
 /** Both lanes of a product, A then B, through the one loader. */

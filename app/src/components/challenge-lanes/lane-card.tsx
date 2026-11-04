@@ -15,7 +15,7 @@ export type LaneLeg = {
 export type LanePrice = { method: string; estimate: boolean; combinedLabel: string; combined: string; decimal?: number | null; book: string | null; stake: string | null; payout: string | null; profit: string | null; captured: string | null; requiredMultiple?: number | null; belowPace?: boolean | null; verification?: string | null; verificationNote?: string | null; snapshotSha256?: string | null };
 export type LaneDay = {
   date: string; step: number; internalStatus: string | null; statusText: string; tone: string; reason: string | null; staked: boolean;
-  legs: LaneLeg[]; hasCard: boolean; modelCardResult: string | null; stepOutcome: string | null; result: string | null; price: LanePrice | null;
+  legs: LaneLeg[]; hasCard: boolean; modelCardResult: string | null; stepOutcome: string | null; result: string | null; price: LanePrice | null; ruleTag?: string | null;
 };
 export type LaneView = {
   laneId: string; product: string; letter: string; name: string; runId: string | null; runNumber: number; startedAt: string | null;
@@ -27,7 +27,8 @@ export type LaneView = {
   current: LaneDay | null;
   story: LaneDay[];
   graphics: Array<{ date: string; step: number; packageId: string | null; imageSha256: string | null; imagePath: string | null; approved: boolean; postUrl: string | null; postedAt: string | null }>;
-  runs: Array<{ runId: string; number: number; started: string | null; status: string; stepsWon: number; current: boolean }>;
+  runs: Array<{ runId: string; number: number; started: string | null; status: string; stepsWon: number; current: boolean; ruleTag?: string | null }>;
+  ruleVersion?: string | null;
 };
 
 const RUNG_TEXT: Record<string, string> = { completed: "won", active: "current", failed: "lost", upcoming: "to come" };
@@ -68,7 +69,7 @@ function StoryDay({ d, laneNote, isCurrent }: { d: LaneDay; laneNote: string | n
       <span className="cl-story-dot" aria-hidden />
       <details className="cl-story-fold" open={d.stepOutcome != null || undefined}>
         <summary className="cl-story-summary">
-          <span><strong>{d.date}</strong> · step {d.step} · {d.statusText}</span>
+          <span><strong>{d.date}</strong> · step {d.step} · {d.statusText}{d.ruleTag ? <span className="cl-rule-tag" data-rule-tag="">{d.ruleTag}</span> : null}</span>
         </summary>
         <div className="cl-story-body">
           {d.reason && d.reason !== laneNote ? <p className="cl-day-reason">{d.reason}</p> : null}
@@ -171,7 +172,7 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
         <section className="cl-block" aria-label={`${lane.name} runs`}>
           <h4 className="cl-block-title">Runs</h4>
           <ol className="cl-runs">
-            {lane.runs.map((r) => <li key={r.runId}><strong>{r.runId}</strong> · started {r.started ?? "—"} · {r.stepsWon} won · {r.current ? "current" : r.status}</li>)}
+            {lane.runs.map((r) => <li key={r.runId}><strong>{r.runId}</strong> · started {r.started ?? "—"} · {r.stepsWon} won · {r.current ? "current" : r.status}{r.ruleTag ? <span className="cl-rule-tag" data-rule-tag="">{r.ruleTag}</span> : null}</li>)}
           </ol>
           <p className="cl-day-reason">A lane is never reset quietly: every new run followed a founder-approved restart.</p>
         </section>

@@ -70,21 +70,21 @@ test("fixtures (the engine's replay and its synthetic states) are accepted only 
     assert.equal(lane.acceptLaneProjection(doc, { laneId: id }).reason, "fixture file", id);
     assert.deepEqual(lane.acceptLaneProjection(real(doc), { laneId: id }), { ok: true }, `${id} as published`);
   }
-  const r = loadChallengeLane({ appDir: tmpApp({ "bb-a": FIX["bb-a"] }), laneId: "bb-a" });
+  const r = loadChallengeLane({ appDir: tmpApp({ "bb-a": FIX["bb-a"] }), laneId: "bb-a", productDay: "2026-11-03" });
   assert.equal(r.doc, null); assert.equal(r.reason, "fixture file"); assert.equal(r.view.status, "UNAVAILABLE");
 });
 
 test("the loader reads through the engine's readLaneProjection: MISSING, UNREADABLE, UNVERIFIED and WRONG_LANE are refused", () => {
   const tampered = real(FIX["bb-b"]); tampered.runs[0].days[0].card.legs[0].selection.teamAbbr = "BOS";
   const dir = tmpApp({ "bb-a": real(FIX["bb-a"]), "bb-b": tampered, "ms-a": real(FIX["ms-b"]), "ms-b": "{not json" });
-  assert.equal(loadChallengeLane({ appDir: dir, laneId: "bb-a" }).view.status, "HELD");
-  assert.equal(loadChallengeLane({ appDir: dir, laneId: "bb-b" }).reason, "UNVERIFIED");
-  assert.equal(loadChallengeLane({ appDir: dir, laneId: "ms-a" }).reason, "WRONG_LANE");
-  assert.equal(loadChallengeLane({ appDir: dir, laneId: "ms-b" }).reason, "UNREADABLE");
-  const none = loadChallengeLane({ appDir: tmpApp({}), laneId: "bb-a" });
+  assert.equal(loadChallengeLane({ appDir: dir, laneId: "bb-a", productDay: "2026-11-03" }).view.status, "HELD");
+  assert.equal(loadChallengeLane({ appDir: dir, laneId: "bb-b", productDay: "2026-11-03" }).reason, "UNVERIFIED");
+  assert.equal(loadChallengeLane({ appDir: dir, laneId: "ms-a", productDay: "2026-11-03" }).reason, "WRONG_LANE");
+  assert.equal(loadChallengeLane({ appDir: dir, laneId: "ms-b", productDay: "2026-11-03" }).reason, "UNREADABLE");
+  const none = loadChallengeLane({ appDir: tmpApp({}), laneId: "bb-a", productDay: "2026-11-03" });
   assert.equal(none.reason, "MISSING"); assert.equal(none.view.note, "The lane record has not been published yet.");
-  assert.equal(loadChallengeLane({ appDir: dir, laneId: "bb-b" }).view.note, "The lane record did not pass verification, so it is not shown.");
-  assert.throws(() => loadChallengeLane({ appDir: dir, laneId: "zz" }), /unknown lane/);
+  assert.equal(loadChallengeLane({ appDir: dir, laneId: "bb-b", productDay: "2026-11-03" }).view.note, "The lane record did not pass verification, so it is not shown.");
+  assert.throws(() => loadChallengeLane({ appDir: dir, laneId: "zz", productDay: "2026-11-03" }), /unknown lane/);
   assert.throws(() => lane.laneView(tampered), /does not verify/, "laneDisplay refuses an unverified file");
 });
 
@@ -270,7 +270,7 @@ test("PRICED CONSISTENCY: the same frozen record gives the same numbers on the s
   assert.doesNotMatch(envelope, /draftkings|-910/, "the committed envelope is ciphertext");
   const env = { GTP_ODDS_DISPLAY_KEY: key.toString("hex") };
 
-  const v = loadChallengeLane({ appDir: app, laneId: "bb-a", env }).view;
+  const v = loadChallengeLane({ appDir: app, laneId: "bb-a", env, productDay: "2026-11-02" }).view;
   const usd = (c) => `$${(c / 100).toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
   const sign = (n) => (n > 0 ? `+${n}` : String(n));
   assert.equal(v.status, laneDisplay(projection).status);
@@ -296,7 +296,7 @@ test("PRICED CONSISTENCY: the same frozen record gives the same numbers on the s
 
   // Another key, or no key: nothing priced is shown. A tampered envelope is a release error.
   for (const e of [{ GTP_ODDS_DISPLAY_KEY: crypto.randomBytes(32).toString("hex") }, {}]) {
-    const u = loadChallengeLane({ appDir: app, laneId: "bb-a", env: e }).view;
+    const u = loadChallengeLane({ appDir: app, laneId: "bb-a", env: e, productDay: "2026-11-02" }).view;
     assert.equal(u.potentialPayout, lane.AWAITING_PRICES);
     assert.doesNotMatch(text(html(React.createElement(LaneCard, { lane: u }))), /draftkings|-910/);
   }
@@ -479,6 +479,31 @@ test("PACE: the engine's flag verbatim — BELOW PACE when below, and never an \
   for (const r of renders) assert.doesNotMatch(text(html(React.createElement(LaneCard, { lane: r }))), /on pace/i, r.laneId);
 });
 
+test("RULES v2: AWAITING QUALIFIED SELECTION when the engine has nothing for the day; old rule-version history stays, labelled", () => {
+  const doc = FIX["bb-a"]; // last record 2026-11-03
+  const awaiting = lane.laneView(doc, { productDay: "2026-11-05" });
+  assert.equal(awaiting.statusLabel, lane.AWAITING_SELECTION);
+  assert.equal(awaiting.current, null); assert.equal(awaiting.wager, null); assert.equal(awaiting.verification, null);
+  assert.equal(awaiting.potentialPayout, lane.AWAITING_PRICES);
+  const t = text(html(React.createElement(LaneCard, { lane: awaiting })));
+  assert.match(t, /◌ AWAITING QUALIFIED SELECTION/);
+  assert.match(t, /No qualified selection has been frozen for 2026-11-05 yet\. Nothing is priced until one is\./);
+  assert.doesNotMatch(t, /data-leg-odds|21\+/);
+  // The engine's own decision for the day wins: same day → its HELD reason, not the placeholder.
+  assert.equal(lane.laneView(doc, { productDay: "2026-11-03" }).statusLabel, "HELD");
+  // A settled lane never reads as awaiting.
+  assert.equal(lane.laneView(SYN["bb-b"], { productDay: "2026-11-09" }).statusLabel, "LOST");
+  // Rule versions: days and runs the record marks with another version carry their tag; the current version none.
+  const d = laneDisplay(SYN["ms-b"]);
+  const tagged = { ...d, ruleVersion: "v2", history: d.history.map((x) => ({ ...x, ruleVersion: "v1" })), runs: d.runs.map((r, i) => ({ ...r, ruleVersion: i ? "v2" : "v1" })) };
+  const v = lane.laneView(SYN["ms-b"], { display: tagged });
+  assert.deepEqual(v.runs.map((r) => [r.runId, r.ruleTag]), [["run-1", "rules v1"], ["run-2", null]]);
+  assert.ok(v.story.every((x) => x.ruleTag === "rules v1"));
+  assert.match(text(html(React.createElement(LaneCard, { lane: v }))), /run-1 · started 2026-11-02 · 0 won · LOST rules v1 run-2 · started 2026-11-04 · 0 won · current A lane/);
+  // No milestone or rule constant lives in the site's lane code.
+  assert.doesNotMatch(read("src/lib/products/challenge-lanes/lane.mjs"), /\b(20000|50000|125000|312500|5000|10000|40000)\b|MAX_LEGS|maxLegs\s*=/);
+});
+
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
   const css = read("src/app/globals.css");
   assert.match(css, /@keyframes cl-rung-in/);
@@ -515,7 +540,7 @@ test("graphic history: an image only when the path passes IMAGE_PATH and the byt
     return d;
   });
   fs.writeFileSync(path.join(dir, "public", "data", "challenge-lanes", "ms-b.json"), JSON.stringify(doc));
-  const v = loadChallengeLane({ appDir: dir, laneId: "ms-b" }).view;
+  const v = loadChallengeLane({ appDir: dir, laneId: "ms-b", productDay: "2026-11-03" }).view;
   assert.deepEqual(v.graphics.map((g) => [g.packageId, g.approved, g.postUrl, g.imagePath]), [
     ["ms-2026-11-02", true, "https://x.com/i/status/1", "/data/challenge-lanes/graphics/ms-2026-11-02-ms-b.png"],
     ["ms-2026-11-03", false, null, null],
@@ -530,7 +555,7 @@ test("graphic history: an image only when the path passes IMAGE_PATH and the byt
 });
 
 test("the pair renders lanes A and B side by side; an unavailable lane says so and invents nothing", () => {
-  const lanes = loadProductLanes("bank-builder", { appDir: tmpApp({ "bb-a": real(FIX["bb-a"]) }) });
+  const lanes = loadProductLanes("bank-builder", { appDir: tmpApp({ "bb-a": real(FIX["bb-a"]) }), productDay: "2026-11-03" });
   assert.deepEqual(lanes.map((l) => [l.laneId, l.status]), [["bb-a", "HELD"], ["bb-b", "UNAVAILABLE"]]);
   const h = html(React.createElement(LanePair, { product: "bank-builder", lanes }));
   const t = text(h);
