@@ -327,3 +327,16 @@ test("diversityViolations (shared checker): same-date scope, order-insensitive, 
   assert.match(diversityViolations([{ laneId: "bb-a", date: d, legIds: ["a"] }, { laneId: "ms-a", date: d, legIds: ["a", "c"] }, { laneId: "bb-b", date: d, legIds: ["a", "d"] }]).join(), /DIVERSITY_LEG_LIMIT .*a in 3 lanes/);
   assert.deepEqual(diversityViolations([{ laneId: "bb-a", date: d, legIds: ["a"] }, { laneId: "ms-a", date: "2026-11-05", legIds: ["a"] }]), [], "different days are independent");
 });
+
+test("diversity@2: zero repeated selections; books, snapshots, order and alternate lines don't bypass; a changed leg invalidates approval", async () => {
+  const { diversityViolations } = await import("./card-fields.mjs");
+  const { diversityRefusal, approvalValid } = await import("./levels.mjs");
+  const d = "2026-11-04";
+  const a = legFromShortlist(row()); const aAlt = legFromShortlist(row({ line: 22.5 }));
+  assert.equal(a.legId, aAlt.legId, "the same player-stat-side at an alternate line is the same selection");
+  assert.equal(diversityRefusal([{ legs: [{ ...a, quote: { book: "draftkings" } }] }], { legs: [{ ...aAlt, quote: { book: "fanduel" } }, { legId: "z" }] }, { maxLegUse: 1 }), `DIVERSITY_LEG_LIMIT ${a.legId}: already in 1 lane(s)`, "another book, snapshot or line does not bypass");
+  assert.equal(diversityViolations([{ laneId: "bb-a", date: d, legIds: ["x", "y"] }, { laneId: "ms-a", date: d, legIds: ["y", "q"] }], { maxLegUse: 1 }).length, 1, "a selection in two lanes is refused");
+  assert.equal(diversityViolations([{ laneId: "bb-a", date: d, legIds: ["x", "y"] }, { laneId: "ms-a", date: d, legIds: ["y", "x"] }], { maxLegUse: 1 }).length, 3, "reversed order: duplicate combination plus both legs repeated");
+  assert.deepEqual(diversityViolations([{ laneId: "bb-a", date: d, legIds: ["x", "y"] }, { laneId: "ms-a", date: d, legIds: ["p", "q"] }], { maxLegUse: 1 }), []);
+  assert.equal(approvalValid({ candidateId: "c", recordSha256: "new" }, { candidateId: "c", recordSha256: "old" }), false);
+});
