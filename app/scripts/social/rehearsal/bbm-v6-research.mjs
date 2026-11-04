@@ -122,10 +122,14 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
 // Founder 2026-11-04, diversity@2: no leg repeats across the day's four lanes. Identity is the underlying selection
 // (game + team for a moneyline; game + player + stat family + side for a prop), whatever the line, book or odds.
 const selectionOf = (l) => (isMoneyline(l) ? `${l.gameId}:ml:${l.selection?.teamAbbr ?? l.team}` : `${l.gameId}:${l.family ?? l.market}:${l.player?.playerId ?? l.player?.name}:${l.side}`);
-const seen = new Map(); const repeats = [];
+// Opposing sides too: OVER and UNDER on one player and stat, or both teams' moneylines in one game, across lanes.
+const marketOf = (l) => (isMoneyline(l) ? `${l.gameId}:ml` : `${l.gameId}:${l.family ?? l.market}:${l.player?.playerId ?? l.player?.name}`);
+const seen = new Map(); const seenMarket = new Map(); const repeats = [];
 for (const m of models.filter((x) => !x.alt && !x.held)) for (const l of m.legsRaw) {
-  const id = selectionOf(l);
-  if (seen.has(id)) repeats.push(`${id} is on ${seen.get(id)} and ${m.laneId}`); else seen.set(id, m.laneId);
+  const id = selectionOf(l); const mk = marketOf(l);
+  if (seen.has(id)) repeats.push(`${id} is on ${seen.get(id)} and ${m.laneId}`);
+  else if (seenMarket.has(mk)) repeats.push(`opposing sides of ${mk} on ${seenMarket.get(mk).laneId} (${seenMarket.get(mk).id}) and ${m.laneId} (${id})`);
+  seen.set(id, m.laneId); if (!seenMarket.has(mk)) seenMarket.set(mk, { laneId: m.laneId, id });
 }
 if (repeats.length && FINAL) throw new Error(`diversity@2: a leg repeats across lanes; the day's set is refused:\n  ${repeats.join("\n  ")}`);
 if (repeats.length) console.log(`DIVERSITY WARNING (a final render would refuse):\n  ${repeats.join("\n  ")}`);
