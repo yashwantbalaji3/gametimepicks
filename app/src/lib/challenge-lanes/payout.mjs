@@ -11,7 +11,9 @@
  *   CARD_SHA_UNVERIFIED          the card's suggested-cards file is missing, altered, or not the file the card names
  *   LEG_INELIGIBLE_RULE_A        a card leg carries a flag rule A excludes from this product
  *   NO_PRICE_VERIFIED            no PRICE_VERIFIED event for this card
- *   PROVIDER_NOT_PERMITTED       the provider is not in the permitted list (empty until founder decision P1)
+ *   PROVIDER_NOT_PERMITTED       the provider is not in the permitted list (the-odds-api: founder decision 2026-11-04)
+ *   BOOK_NOT_ELIGIBLE            a leg's book is not an eligible operator (eligible-operators@1)
+ *   CROSS_BOOK_MIX               the legs are not all from ONE book
  *   PRICE_LEGS_MISMATCH          the price covers different legs or sides than the frozen card
  *   PRICE_AFTER_FIRST_START      a price was fetched at or after the earliest leg's start
  *   PRICE_TOO_EARLY              fetched more than PRICE_WINDOW_MS before the post's scheduled time (proposed window)
@@ -19,16 +21,19 @@
  *   BAD_PRICE                    not a valid American or decimal price, or the parlay price does not match its method
  *   STAKE_NOT_BANKROLL           the stake is not the current tracked bankroll (all-in ladder, D1 proposed)
  *   LEG_COUNT_EXCEEDED           more legs than the product allows (Bank Builder: 2, hard)
- *   SAME_GAME_NEEDS_PARLAY_PRICE two legs from one game without the book's own whole-parlay price (correlation is never assumed)
+ *   SAME_GAME_NEEDS_PARLAY_PRICE two legs from one game without the book's own whole-parlay price (correlation is never
+ *                                assumed). With `allowSameGameEstimate` the leg product is allowed but labelled ESTIMATE
+ *                                (method LEG_PRODUCT_ESTIMATE, `estimate: true`): never a book's offer; lanes never pass it.
  *   PROP_LINE_UNVERIFIED         a prop leg has no line, or the priced line is not the line the leg was evaluated against
  *   BELOW_PACE                   only with `strictPace` (off: SPEC rev 2 allows a below-pace card and discloses the shortfall)
  */
 import { verifyChain } from "./chain.mjs";
 import { verifySuggestedCards } from "../products/leg-pool/daily-cards.mjs";
 import { RULE_A_FOR_PRODUCT, MAX_LEGS } from "./lanes.mjs";
+import { ELIGIBLE_OPERATOR_KEYS } from "../sports/odds/eligible-operators.mjs";
 
-/** Founder decision P1: no provider is permitted until the founder names one and confirms its terms. */
-export const PERMITTED_PRICE_PROVIDERS = Object.freeze([]);
+/** Founder decision P1 (2026-11-04): the existing paid The Odds API subscription; odds and payouts may be displayed. */
+export const PERMITTED_PRICE_PROVIDERS = Object.freeze(["the-odds-api"]);
 /** Proposed (SPEC §2): fetched at most 90 minutes before the post's scheduled time. */
 export const PRICE_WINDOW_MS = 90 * 60 * 1000;
 const MODEL_PROVIDERS = /^(gtp|gametimepicks|model|elo|engine|level-a)/i;
@@ -79,7 +84,7 @@ const legKey = (l) => `${l.legId}|${l.selection?.code ?? l.selectionCode}`;
  * @param {readonly string[]} [p.permittedProviders]
  * @param {boolean} [p.strictPace]   refuse below pace (rev 1 behaviour); default: allow and disclose
  */
-export function computePayout({ events, cardEvent, suggestedCards, priceEvent, stakeCents, bankrollCents, ladder, postScheduledAt = null, permittedProviders = PERMITTED_PRICE_PROVIDERS, strictPace = false }) {
+export function computePayout({ events, cardEvent, suggestedCards, priceEvent, stakeCents, bankrollCents, ladder, postScheduledAt = null, permittedProviders = PERMITTED_PRICE_PROVIDERS, eligibleBooks = ELIGIBLE_OPERATOR_KEYS, strictPace = false, allowSameGameEstimate = false }) {
   const refusals = [];
   const add = (code, detail) => refusals.push(detail ? { code, detail } : { code });
   if (!verifyChain(events).ok) add("CHAIN_BROKEN");
@@ -109,7 +114,10 @@ export function computePayout({ events, cardEvent, suggestedCards, priceEvent, s
     if (postScheduledAt && fetched.some((t) => t < Date.parse(postScheduledAt) - PRICE_WINDOW_MS)) add("PRICE_TOO_EARLY");
     const byLeg = new Map((card?.legs ?? []).map((l) => [l.legId, l]));
     for (const l of legs) { const c = byLeg.get(l.legId); if (c && c.market !== "winner" && typeof c.prop?.line === "number" && l.line !== c.prop.line) add("PROP_LINE_UNVERIFIED", `${l.legId} priced at another line`); }
-    if (sameGame && pv.parlay?.method !== "BOOK_QUOTED_PARLAY") add("SAME_GAME_NEEDS_PARLAY_PRICE");
+    if (sameGame && pv.parlay?.method !== "BOOK_QUOTED_PARLAY" && !allowSameGameEstimate) add("SAME_GAME_NEEDS_PARLAY_PRICE");
+    const books = [...new Set(legs.map((l) => l.book).concat(pv.parlay?.book ?? []))];
+    for (const b of books) if (!eligibleBooks.includes(b)) add("BOOK_NOT_ELIGIBLE", String(b));
+    if (books.length !== 1) add("CROSS_BOOK_MIX", books.join(",") || "no book");
     const ratios = legs.map((l) => {
       const r = priceRatio(l.oddsFormat, l.price);
       if (l.oddsFormat === "probability" || (typeof l.price === "number" && l.price > 0 && l.price < 1)) { add("MODEL_PROBABILITY_AS_PRICE", l.legId); return null; }
@@ -139,7 +147,8 @@ export function computePayout({ events, cardEvent, suggestedCards, priceEvent, s
   const belowPace = decimal != null && pace != null && decimal + 1e-12 < pace;
   if (strictPace && belowPace) add("BELOW_PACE", `${decimal.toFixed(4)} < ${pace.toFixed(4)}`);
 
-  const inputs = { cardEventSha256: cardEvent?.sha256 ?? null, priceEventSha256: priceEvent?.sha256 ?? null, priceSnapshotSha256: priceEvent?.price?.priceSnapshotSha256 ?? null, stakeCents, bankrollCents, decimalPrice: decimal, method: priceEvent?.price?.parlay?.method ?? null, pace, belowPace, strictPace };
+  const estimate = sameGame && priceEvent?.price?.parlay?.method === "LEG_PRODUCT";
+  const inputs = { estimate, label: estimate ? "ESTIMATE — same-game leg product, not a book's offer" : null, book: priceEvent?.price?.legs?.[0]?.book ?? null, cardEventSha256: cardEvent?.sha256 ?? null, priceEventSha256: priceEvent?.sha256 ?? null, priceSnapshotSha256: priceEvent?.price?.priceSnapshotSha256 ?? null, stakeCents, bankrollCents, decimalPrice: decimal, method: estimate ? "LEG_PRODUCT_ESTIMATE" : priceEvent?.price?.parlay?.method ?? null, pace, belowPace, strictPace };
   if (refusals.length) return { ok: false, refusals, inputs };
   return { ok: true, inputs, ...payoutCents(stakeCents, ratio) };
 }

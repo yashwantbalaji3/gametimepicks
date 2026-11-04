@@ -1,4 +1,4 @@
 #!/usr/bin/env node
 /** lanes-price: see cli.mjs. */
 import { main } from "./cli.mjs";
-main("price");
+await main("price");
