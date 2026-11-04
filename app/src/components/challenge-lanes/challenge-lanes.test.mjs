@@ -439,6 +439,28 @@ test("PUBLIC LANE FILE GUARD: every committed public lane file is price-free, ca
   }
 });
 
+test("PARITY: site vs the engine's raw record, fail-closed — green on a matching lane, red on any drift or a missing field", async () => {
+  const { laneParity, parityReport } = await import("../../lib/products/challenge-lanes/parity.mjs");
+  const { samplePrices } = await import("../../lib/products/challenge-lanes/__fixtures__/sample-prices.mjs");
+  const { pricedLaneDisplay } = await import("../../lib/challenge-lanes/display.mjs");
+  const doc = SYN["bb-a"]; const prices = samplePrices(doc);
+  const view = lane.laneView(doc, { display: pricedLaneDisplay(doc, prices) });
+  const good = parityReport([laneParity({ doc, prices, view })]);
+  assert.deepEqual(good.failures, []); assert.equal(good.ok, true);
+  assert.ok(good.rows.some((r) => r.field === "odds snapshot sha" && r.ok));
+  // Drift on the site side is caught.
+  const drift = { ...view, step: 3, current: { ...view.current, legs: view.current.legs.map((l, i) => (i ? l : { ...l, price: { ...l.price, odds: "+999" } })) } };
+  assert.deepEqual(parityReport([laneParity({ doc, prices, view: drift })]).failures.sort(), ["bb-a leg odds", "bb-a step"]);
+  // No prices (no key): the price rows fail closed, never pass by default.
+  const bare = parityReport([laneParity({ doc, prices: null, view: lane.laneView(doc) })]);
+  assert.equal(bare.ok, false);
+  assert.ok(bare.failures.includes("bb-a payout (NOT_IN_RECORD)"));
+  // A record without an odds snapshot sha is not green.
+  const noSha = { ...prices, runs: prices.runs.map((r) => ({ ...r, days: r.days.map((d) => ({ ...d, priceSnapshotSha256: undefined })) })) };
+  assert.ok(parityReport([laneParity({ doc, prices: noSha, view: lane.laneView(doc, { display: pricedLaneDisplay(doc, noSha) }) })]).failures.includes("bb-a odds snapshot sha (NOT_IN_RECORD)"));
+  assert.equal(parityReport([]).ok, false, "no lanes is not green");
+});
+
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
   const css = read("src/app/globals.css");
   assert.match(css, /@keyframes cl-rung-in/);
@@ -507,8 +529,14 @@ test("the pair renders lanes A and B side by side; an unavailable lane says so a
 test("pages: /bank-builder and /moonshot read their lanes only through loadProductLanes, before today's card", () => {
   for (const [file, product] of [["src/app/bank-builder/page.tsx", "bank-builder"], ["src/app/moonshot/page.tsx", "moonshot"]]) {
     const src = read(file);
-    assert.match(src, new RegExp(`<LanePair product="${product}" lanes=\\{loadProductLanes\\("${product}"\\) as LaneView\\[\\]\\} />`), file);
-    assert.ok(src.indexOf("<LanePair") < src.indexOf("<TierBoardSection"), file);
+    assert.match(src, new RegExp(`<LanePair product="${product}" lead lanes=\\{loadProductLanes\\("${product}"\\) as LaneView\\[\\]\\} />`), file);
+    // Founder cleanup (2026-11-04): the lanes lead; the hero (now an h2), today's model card and the archive fold below.
+    const lanesAt = src.indexOf("<LanePair");
+    assert.ok(lanesAt < src.indexOf("<ProductHero") && lanesAt < src.indexOf("<TierBoardSection"), file);
+    assert.match(src, /<ProductHero\n\s+product="(bank-builder|moonshot)"\n\s+headingLevel=\{2\}/, file);
+    assert.ok(src.indexOf("<MoreDisclosure") < src.indexOf("<ProductHero"), `${file}: the hero is folded`);
+    assert.match(src, /<MoreDisclosure id="track-record" title="Archive and track record"/, file);
+    assert.ok(src.indexOf('<MoreDisclosure id="track-record"') < src.indexOf("<LifecycleRecord"), `${file}: the archive is folded`);
     assert.doesNotMatch(src, /challenge-lanes\/__fixtures__|challenge-lanes\/[a-z-]+\.json/, file);
   }
   const loader = read("src/lib/products/challenge-lanes/load.mjs");

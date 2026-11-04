@@ -86,7 +86,8 @@ const DAY_TEXT = Object.freeze({
   UNPRICED: "Held · not staked, awaiting verified prices", PAUSED: "Held", READY: "Card frozen · awaiting verified prices",
 });
 
-const money = (cents) => (typeof cents === "number" && Number.isFinite(cents) ? `$${(cents / 100).toLocaleString("en-US", { maximumFractionDigits: 2 })}` : null);
+/* Whole dollars print bare ($100); anything with cents prints both digits ($189.90, never $189.9). */
+const money = (cents) => (typeof cents === "number" && Number.isFinite(cents) ? `$${(cents / 100).toLocaleString("en-US", cents % 100 ? { minimumFractionDigits: 2, maximumFractionDigits: 2 } : { maximumFractionDigits: 0 })}` : null);
 /** The engine's reasons read "CODE: sentence". The site shows the sentence. */
 const reasonText = (r) => {
   if (typeof r !== "string") return null;
@@ -137,6 +138,7 @@ function priceOf(day) {
     requiredMultiple: typeof p.pace === "number" ? p.pace : null, belowPace: p.belowPace ?? null,
     captured: etStamp([...(p.legs ?? [])].map((l) => l.fetchedAt).filter(Boolean).sort().at(-1)),
     verification: verificationOf(p), verificationNote: p.verification === "PRELIMINARY" ? p.verificationLabel ?? null : null,
+    snapshotSha256: p.priceSnapshotSha256 ?? null,
   };
 }
 
@@ -159,6 +161,7 @@ function legsOf(day, projectionLabel, teams) {
       flags: l.guard?.flagText ?? [],
       outcome: o && o !== "PENDING" ? o : null,
       price: legPrice(prices.get(l.legId), vp?.book),
+      snapshotId: l.projection?.snapshotId ?? null,
     };
   });
 }
@@ -173,7 +176,7 @@ function dayPresent(day, projectionLabel, teams) {
   else if (day.card && !day.staked && day.modelCardResult && day.modelCardResult !== "PENDING") result = `The model card ${day.modelCardResult === "WIN" ? "won" : "lost"}, but it was not staked, so the lane did not move.`;
   return {
     date: day.date, step: day.step, internalStatus: status,
-    statusText: day.stepOutcome === "WIN" ? "Won" : day.stepOutcome === "LOSS" ? "Lost" : DAY_TEXT[status] ?? status ?? "",
+    statusText: day.stepOutcome === "WIN" ? "Won" : day.stepOutcome === "LOSS" ? "Lost" : DAY_TEXT[status] ?? status ?? (day.card ? "Card frozen" : ""),
     tone: day.stepOutcome === "WIN" ? "won" : day.stepOutcome === "LOSS" ? "lost" : status === "IN_PLAY" ? "active" : "held",
     reason: reasonText(day.reason), staked: Boolean(day.staked), legs: day.card ? legsOf(day, projectionLabel, teams) : [], hasCard: Boolean(day.card),
     modelCardResult: day.modelCardResult ?? null, stepOutcome: day.stepOutcome ?? null, result,

@@ -21,7 +21,7 @@ export function samplePrices(doc, { stakeCents = doc.baseCents } = {}) {
   return {
     schema: "gtp.challenge-lane.prices@1", laneId: doc.laneId, projectionSha256: doc.contentSha256,
     runs: [{ runId: run.runId, trackedBankrollCents: stakeCents, step: run.step, status: run.status, pace: { milestoneCents: doc.milestonesCents?.[run.stepsWon] ?? null, requiredMultiplier: 2.51, behindByCents: 0, onPace: true },
-      days: [{ date: day.date, step: day.step, result: "VERIFIED", refusals: null, book: SAMPLE_BOOK, method: "LEG_PRODUCT", estimate: false, label: null, legs, decimalPrice, pace: 2.51, belowPace: decimalPrice < 2.51, stakeCents, grossPayoutCents: gross, profitCents: gross - stakeCents, stepOutcome: null, bankrollAfterCents: null }] }],
+      days: [{ date: day.date, step: day.step, result: "VERIFIED", verification: "VERIFIED", verificationLabel: null, refusals: null, book: SAMPLE_BOOK, method: "LEG_PRODUCT", estimate: false, label: null, legs, decimalPrice, pace: 2.51, belowPace: decimalPrice < 2.51, stakeCents, grossPayoutCents: gross, profitCents: gross - stakeCents, stepOutcome: null, bankrollAfterCents: null, priceSnapshotSha256: "5a".repeat(32) }] }],
   };
 }
 

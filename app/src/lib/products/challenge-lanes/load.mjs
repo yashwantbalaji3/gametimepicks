@@ -24,11 +24,29 @@ const KEY_ENV = "GTP_ODDS_DISPLAY_KEY";
  */
 export function displayEnv(env = process.env, { appDir = process.cwd() } = {}) {
   if (env[KEY_ENV] || env.NODE_ENV !== "development" || env.GTP_DEV_ROUTES !== "1") return env;
+  const v = keyFromRepoEnv(appDir);
+  return v ? { ...env, [KEY_ENV]: v } : env;
+}
+
+/**
+ * GTP_ODDS_DISPLAY_KEY from the repo-root .env, or null. In a git worktree the .env lives in the MAIN checkout, found
+ * from the worktree's `.git` pointer file ("gitdir: <main>/.git/worktrees/<name>"). Local tooling only; never logged.
+ */
+export function keyFromRepoEnv(appDir = process.cwd()) {
+  const root = path.resolve(appDir, "..");
+  const roots = [root];
   try {
-    const line = fs.readFileSync(path.resolve(appDir, "..", ".env"), "utf8").split("\n").find((l) => l.startsWith(`${KEY_ENV}=`));
-    const v = line ? line.slice(KEY_ENV.length + 1).replace(/[\r"' ]/g, "") : "";
-    return v ? { ...env, [KEY_ENV]: v } : env;
-  } catch { return env; }
+    const pointer = fs.readFileSync(path.join(root, ".git"), "utf8").match(/^gitdir:\s*(.+)$/m)?.[1]?.trim();
+    if (pointer) roots.push(path.resolve(pointer, "..", "..", ".."));
+  } catch { /* a normal checkout: .git is a directory */ }
+  for (const r of roots) {
+    try {
+      const line = fs.readFileSync(path.join(r, ".env"), "utf8").split("\n").find((l) => l.startsWith(`${KEY_ENV}=`));
+      const v = line ? line.slice(KEY_ENV.length + 1).replace(/[\r"' ]/g, "") : "";
+      if (v) return v;
+    } catch { /* try the next root */ }
+  }
+  return null;
 }
 
 /**

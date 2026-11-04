@@ -6,11 +6,13 @@ import { PUBLIC_RISK_LABELS } from "@/lib/parlays/risk-odds-bands.mjs";
 /* The product's front door (Founder Priority 4). Bank Builder: calm, premium, gold hairline on a still panel.
    Moonshot: violet night sky, high energy, the risk printed as large as the promise. Same structure, same tokens —
    one design system, two identities. The status line is the page's own derived state, passed in verbatim. */
-export default function ProductHero({ product, state, statusLabel, statusNote }: {
+export default function ProductHero({ product, state, statusLabel, statusNote, headingLevel = 1 }: {
   product: "bank-builder" | "moonshot";
   state: string;
   statusLabel: string;
   statusNote?: string | null;
+  /** 2 when the page's own h1 is elsewhere (the BBM V2 lanes lead the page and the hero folds below them). */
+  headingLevel?: 1 | 2;
 }) {
   const id = PRODUCT_IDENTITY[product];
   const moon = product === "moonshot";
@@ -20,7 +22,7 @@ export default function ProductHero({ product, state, statusLabel, statusNote }:
         <span className="tb-eyebrow">{id.eyebrow}</span>
         <StateBadge state={state} />
       </div>
-      <h1 className="tb-hero-title">{id.name}</h1>
+      {headingLevel === 2 ? <h2 className="tb-hero-title">{id.name}</h2> : <h1 className="tb-hero-title">{id.name}</h1>}
       <p className="tb-hero-promise">{id.promise}</p>
       <ul className="tb-band-row" aria-label={`${id.name} risk bands`}>
         {id.bands.map((b: string) => (

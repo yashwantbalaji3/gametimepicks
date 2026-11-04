@@ -507,105 +507,111 @@ export default function BankBuilderPage() {
           <FreshnessBadge slateDate={bbArtifact.date ?? today} serverToday={currentEtDate()} noun="card slate" />
         </div>
       ) : null}
-      {/* FRONT DOOR — the product's identity, its bands and its risk, and the ladder's operating state (Program 140)
-          from THIS product's own artifact. The time is quoted from the ONE runbook registry (P211 R-E). */}
-      <ProductHero
-        product="bank-builder"
-        state={tierBoardState}
-        statusLabel={bbStateLabel}
-        statusNote={`${bbStateExplanation} ${isLive(bbProductState)
-          ? "It settles overnight from official box scores — the ladder advances or restarts on the graded result."
-          : NEXT_EVALUATION_ET ? `Next check ${NEXT_EVALUATION_ET}.` : ""}`.trim()}
-      />
-
+      {/* FOUNDER CLEANUP (2026-11-04): today's two lanes lead the page; how it works, the archive and the technical
+          detail fold below them, every word still server-rendered (MoreDisclosure: folded, never removed). */}
       {/* BBM V2 CHALLENGE LANES (founder, 2026-11-04) — lanes A and B, the same step, ladder, legs, settlements, status
           and graphics as the X posts, read through the ONE verifying loader of public/data/challenge-lanes/<laneId>.json. */}
-      <LanePair product="bank-builder" lanes={loadProductLanes("bank-builder") as LaneView[]} />
+      <LanePair product="bank-builder" lead lanes={loadProductLanes("bank-builder") as LaneView[]} />
       {/* PROVISIONAL PROP ANALYSIS (founder P0, 2026-11-04): a separate panel, never a challenge leg. */}
       <PropAnalysisPanel analysis={loadPropAnalysis({ date: levelAModel?.productDay ?? currentEtDate() }) as PropAnalysisView | null} />
 
-      {/* TODAY'S CARD — the featured parlay, or one explicit state. The day's detailed checks fold beneath it. */}
-      <TierBoardSection
-        board={tierBoard}
-        productName="Bank Builder"
-        checks={
-          <>
-            {/* v1.7 — which sports could contribute a leg today, from the availability owner. */}
-            <EligibleUniverse availability={loadProductAvailability()} compact scope="Bank Builder" levelASports={levelAModel ? levelASportsShown(levelAModel, "bank-builder") : null} />
-            {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="bank-builder" applyAvailabilityGuard playerGuard={playerGuardFor(levelAModel?.productDay ?? currentEtDate())} /> : null}
-            {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none. */}
-            {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("bank-builder") as unknown as DailyCandidateModel} /> : null}
-          </>
-        }
-      />
-
-      {/* TRACK RECORD — the paper ladder and every graded result. */}
-      <section id="track-record" className="scroll-mt-24" aria-labelledby="bb-track-h">
-        <h2 id="bb-track-h" className="tb-block-title">The ladder and track record</h2>
-        {/* P0 U2: the hero leads with the CURRENT era (record + settled P/L, through the shared reader); the
-            all-time record and the June peak sit in its History block, labelled. Every figure is read verbatim. */}
-        <ClimbHero
-          currentBankroll={dailyPortfolio.activeBankroll}
-          peakBankroll={dailyPortfolio.peakBankroll}
-          openExposure={dailyPortfolio.exposure.core}
-          recordLabel={recordLabel}
-          currentEraText={scopedRecordText(officialRecord.currentEra)}
-          currentEraPl={loadCurrentEraMoney()?.pl ?? null}
-          allTimeText={scopedRecordText(officialRecord.allTime)}
-          lanes={climbLanes}
-          completedLadders={completedLadders}
+      <MoreDisclosure title="How Bank Builder works" summary="Risk bands, today's model card and the checks behind it" className="mt-6">
+        {/* FRONT DOOR — the product's identity, its bands and its risk, and the ladder's operating state (Program 140)
+            from THIS product's own artifact. The time is quoted from the ONE runbook registry (P211 R-E). */}
+        <ProductHero
+          product="bank-builder"
+          headingLevel={2}
+          state={tierBoardState}
+          statusLabel={bbStateLabel}
+          statusNote={`${bbStateExplanation} ${isLive(bbProductState)
+            ? "It settles overnight from official box scores — the ladder advances or restarts on the graded result."
+            : NEXT_EVALUATION_ET ? `Next check ${NEXT_EVALUATION_ET}.` : ""}`.trim()}
         />
+        {/* TODAY'S CARD — the featured parlay, or one explicit state. The day's detailed checks fold beneath it. */}
+        <TierBoardSection
+          board={tierBoard}
+          productName="Bank Builder"
+          checks={
+            <>
+              {/* v1.7 — which sports could contribute a leg today, from the availability owner. */}
+              <EligibleUniverse availability={loadProductAvailability()} compact scope="Bank Builder" levelASports={levelAModel ? levelASportsShown(levelAModel, "bank-builder") : null} />
+              {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="bank-builder" applyAvailabilityGuard playerGuard={playerGuardFor(levelAModel?.productDay ?? currentEtDate())} /> : null}
+              {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none. */}
+              {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("bank-builder") as unknown as DailyCandidateModel} /> : null}
+            </>
+          }
+        />
+      </MoreDisclosure>
 
-        {officialRecordLabel ? (
-          <RecordComposition recordLabel={officialRecordLabel} scopeLabel={officialRecord.scope ? RECORD_SCOPE_LABEL[officialRecord.scope] : RECORD_SCOPE_LABEL["all-time"]}
-            window={officialRecord.cell?.window ?? null}
-            composition={(officialRecord.cell?.composition as never) ?? null} backlog={foldBacklogView} />
-        ) : null}
-
-        {/* The paper ladder's own no-card state (only when no lane is active and no review card shows). ONE product
-            state (P241 · A18): "we never ran" and "we ran and nothing qualified" are different facts. */}
-        {!dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active" && c.legs.length > 0)
-          && !climbLanes.some((l) => l.reviewMode) ? (
-          <div className="mt-5">
-            {bbProductState === "NO_EVENTS" ? (
-              /* Session 7: a no-games day is the calendar, not a slate that "offered no combination". */
-              <div className="tb-empty">
-                <p className="tb-empty-title">No MLB slate today</p>
-                <p className="tb-empty-text">
-                  The paper ladder is built from MLB team markets, so it assessed nothing today. This is not a no-play call. The ladder resumes on the next MLB slate.
-                </p>
-              </div>
-            ) : bbProductState === "INPUTS_STALE" || bbProductState === "INPUTS_MISSING" ? (
-              <div className="tb-empty">
-                <p className="tb-empty-title">Waiting on today&rsquo;s data</p>
-                <p className="tb-empty-text">
-                  Today&rsquo;s source data has not arrived yet, so no ladder card has been assessed — this is not a
-                  no-play call. The evaluation runs the moment the day&rsquo;s board posts.
-                </p>
-              </div>
-            ) : bbProposal.available
-              ? <BankBuilderProposalCard proposal={bbProposal} />
-              : <BankBuilderSkippedCard alternatives={strongestSlatePicks(path.join(process.cwd(), "public", "data"), today, 3)} />}
-          </div>
-        ) : null}
-
-        {/* Previous hits (settled ladder steps) and every graded card with the official numbers. */}
-        <PreviousHits hits={hits} />
-        <div className="mt-6">
-          <LifecycleRecord
-            cards={bbSettled}
-            position={receiptsDrive
-              ? receiptPositionRecord(bbPositions.A, dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === "A" && c.status === "active")?.step ?? null)
-              : positionFor(bbLedger, "bank-builder-lane-A")}
-            positionLabel="Lane A"
-            emptyReason="No Bank Builder card has been graded yet. When a card's games finish, its legs and the official numbers they were graded against appear here."
+      <MoreDisclosure id="track-record" title="Archive and track record" summary="The earlier paper ladder and every graded result" className="mt-4">
+        {/* TRACK RECORD — the paper ladder and every graded result. */}
+        <section className="scroll-mt-24" aria-labelledby="bb-track-h">
+          <h2 id="bb-track-h" className="tb-block-title">The ladder and track record</h2>
+          {/* P0 U2: the hero leads with the CURRENT era (record + settled P/L, through the shared reader); the
+              all-time record and the June peak sit in its History block, labelled. Every figure is read verbatim. */}
+          <ClimbHero
+            currentBankroll={dailyPortfolio.activeBankroll}
+            peakBankroll={dailyPortfolio.peakBankroll}
+            openExposure={dailyPortfolio.exposure.core}
+            recordLabel={recordLabel}
+            currentEraText={scopedRecordText(officialRecord.currentEra)}
+            currentEraPl={loadCurrentEraMoney()?.pl ?? null}
+            allTimeText={scopedRecordText(officialRecord.allTime)}
+            lanes={climbLanes}
+            completedLadders={completedLadders}
           />
-        </div>
-      </section>
+
+          {officialRecordLabel ? (
+            <RecordComposition recordLabel={officialRecordLabel} scopeLabel={officialRecord.scope ? RECORD_SCOPE_LABEL[officialRecord.scope] : RECORD_SCOPE_LABEL["all-time"]}
+              window={officialRecord.cell?.window ?? null}
+              composition={(officialRecord.cell?.composition as never) ?? null} backlog={foldBacklogView} />
+          ) : null}
+
+          {/* The paper ladder's own no-card state (only when no lane is active and no review card shows). ONE product
+              state (P241 · A18): "we never ran" and "we ran and nothing qualified" are different facts. */}
+          {!dailyPortfolio.cards.some((c) => c.product === "bank-builder" && c.status === "active" && c.legs.length > 0)
+            && !climbLanes.some((l) => l.reviewMode) ? (
+            <div className="mt-5">
+              {bbProductState === "NO_EVENTS" ? (
+                /* Session 7: a no-games day is the calendar, not a slate that "offered no combination". */
+                <div className="tb-empty">
+                  <p className="tb-empty-title">No MLB slate today</p>
+                  <p className="tb-empty-text">
+                    The paper ladder is built from MLB team markets, so it assessed nothing today. This is not a no-play call. The ladder resumes on the next MLB slate.
+                  </p>
+                </div>
+              ) : bbProductState === "INPUTS_STALE" || bbProductState === "INPUTS_MISSING" ? (
+                <div className="tb-empty">
+                  <p className="tb-empty-title">Waiting on today&rsquo;s data</p>
+                  <p className="tb-empty-text">
+                    Today&rsquo;s source data has not arrived yet, so no ladder card has been assessed — this is not a
+                    no-play call. The evaluation runs the moment the day&rsquo;s board posts.
+                  </p>
+                </div>
+              ) : bbProposal.available
+                ? <BankBuilderProposalCard proposal={bbProposal} />
+                : <BankBuilderSkippedCard alternatives={strongestSlatePicks(path.join(process.cwd(), "public", "data"), today, 3)} />}
+            </div>
+          ) : null}
+
+          {/* Previous hits (settled ladder steps) and every graded card with the official numbers. */}
+          <PreviousHits hits={hits} />
+          <div className="mt-6">
+            <LifecycleRecord
+              cards={bbSettled}
+              position={receiptsDrive
+                ? receiptPositionRecord(bbPositions.A, dailyPortfolio.cards.find((c) => c.product === "bank-builder" && c.lane === "A" && c.status === "active")?.step ?? null)
+                : positionFor(bbLedger, "bank-builder-lane-A")}
+              positionLabel="Lane A"
+              emptyReason="No Bank Builder card has been graded yet. When a card's games finish, its legs and the official numbers they were graded against appear here."
+            />
+          </div>
+        </section>
+      </MoreDisclosure>
 
       {/* P250 · A01 — WHAT THE RECORD SYSTEMS SAY, from the ONE derived owner, and the daily schedule: audit detail,
           kept in full in this page's one Technical details disclosure. Any typed divergence is stated, never resolved. */}
-      <MoreDisclosure title="Technical details" summary="Daily schedule and how the two record systems agree" className="mt-6">
+      <MoreDisclosure title="Technical details" summary="Daily schedule and how the two record systems agree" className="mt-4">
       <p className="m-0 font-mono" style={{ color: "var(--vault-text-mute)", fontSize: 11 }}>
         Daily evaluation: {RUNBOOKS.mlb.products.when}. A watchdog re-runs a missed morning before 7:00 AM ET.
       </p>
