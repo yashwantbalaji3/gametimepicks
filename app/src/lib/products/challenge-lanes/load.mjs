@@ -7,7 +7,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { createHash } from "node:crypto";
-import { LANE_IDS, lanesOf, laneView, unavailableLaneView, acceptLaneProjection } from "./lane.mjs";
+import { LANE_IDS, lanesOf, laneView, unavailableLaneView, acceptLaneProjection, diversityViolations } from "./lane.mjs";
 import { readLaneProjection } from "../../challenge-lanes/public-reader.mjs";
 import { pricedLaneDisplay } from "../../challenge-lanes/display.mjs";
 import { readLanePrices } from "../../challenge-lanes/price-display.mjs";
@@ -104,7 +104,13 @@ export function loadResearch({ appDir = process.cwd(), product, date, env = disp
   return researchView(readResearchDisplay({ appDir, product, date, env }), { now: asOf ? Date.parse(asOf) : Date.now() });
 }
 
-/** Both lanes of a product, A then B, through the one loader. */
+/**
+ * Both lanes of a product, A then B, through the one loader. All four lanes are loaded so the diversification rule can
+ * be checked across products; a violating set is refused whole (every lane renders "not shown"), never partly shown.
+ */
 export function loadProductLanes(product, opts = {}) {
-  return lanesOf(product).map((laneId) => loadChallengeLane({ ...opts, laneId }).view);
+  const all = LANE_IDS.map((laneId) => loadChallengeLane({ ...opts, laneId }).view);
+  const bad = diversityViolations(all);
+  if (bad.length) return lanesOf(product).map((laneId) => unavailableLaneView(laneId, "Today's lane set did not pass the diversification check, so no lane is shown."));
+  return lanesOf(product).map((laneId) => all.find((v) => v.laneId === laneId));
 }

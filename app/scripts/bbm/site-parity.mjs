@@ -20,7 +20,7 @@ import { readLaneProjection } from "../../src/lib/challenge-lanes/public-reader.
 import { readLanePrices } from "../../src/lib/challenge-lanes/price-display.mjs";
 import { LANE_IDS } from "../../src/lib/challenge-lanes/lanes.mjs";
 import { loadChallengeLane, keyFromRepoEnv, etProductDay } from "../../src/lib/products/challenge-lanes/load.mjs";
-import { laneParity, parityReport, researchParity } from "../../src/lib/products/challenge-lanes/parity.mjs";
+import { laneParity, parityReport, researchParity, diversityParity } from "../../src/lib/products/challenge-lanes/parity.mjs";
 import { readResearchDisplay } from "../../src/lib/challenge-lanes/research-io.mjs";
 import { researchView } from "../../src/lib/products/challenge-lanes/research.mjs";
 
@@ -43,6 +43,8 @@ for (const laneId of LANE_IDS) {
   const { view } = loadChallengeLane({ appDir: APP, laneId, env });
   perLane.push(laneParity({ doc: r.doc, prices, view }));
 }
+/* Diversification across the four lanes the site would render. */
+perLane.push(diversityParity(LANE_IDS.map((laneId) => loadChallengeLane({ appDir: APP, laneId, env }).view)));
 const dateArg = process.argv.indexOf("--date");
 const date = dateArg > 0 ? process.argv[dateArg + 1] : etProductDay();
 const research = {};

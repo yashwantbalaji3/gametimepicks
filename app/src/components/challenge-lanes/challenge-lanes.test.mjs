@@ -768,6 +768,21 @@ test("LANE SPECIALIZATION (proposed): the lane-type badge from the engine's disp
   assert.throws(() => lane.laneView(ms.pub, { display: typed(ms, "NBA_PLAYER_PROPS", "NBA PLAYER PROPS"), productDay: ms.priced.day.date }), /outside its lane type/);
 });
 
+test("DIVERSIFICATION (founder 2026-11-04): the same combination in two lanes, a duplicate single or a leg in three lanes refuses the whole set", async () => {
+  const card = (laneId, date, ...legIds) => ({ laneId, current: { date, legs: legIds.map((legId) => ({ legId })) } });
+  const D = "2026-11-05";
+  assert.deepEqual(lane.diversityViolations([card("bb-a", D, "x"), card("bb-b", D, "p1", "p2"), card("ms-a", D, "y"), card("ms-b", D, "p1", "p3")]), []);
+  assert.deepEqual(lane.diversityViolations([card("bb-a", D, "p1", "p2"), card("ms-b", D, "p2", "p1")]), ["SAME_COMBINATION bb-a ms-b"]);
+  assert.deepEqual(lane.diversityViolations([card("bb-a", D, "x"), card("ms-a", D, "x")]), ["SAME_COMBINATION bb-a ms-a (duplicate single)"]);
+  assert.deepEqual(lane.diversityViolations([card("bb-a", D, "x"), card("bb-b", D, "x", "p1"), card("ms-a", D, "x", "p2")]), ["LEG_IN_3_LANES x bb-a bb-b ms-a"]);
+  /* Other days and held lanes never collide. */
+  assert.deepEqual(lane.diversityViolations([card("bb-a", D, "x"), card("ms-a", "2026-11-04", "x"), { laneId: "ms-b", current: null }]), []);
+  /* The loader refuses a violating set whole, on both pages. */
+  const { diversityParity } = await import("../../lib/products/challenge-lanes/parity.mjs");
+  assert.equal(diversityParity([card("bb-a", D, "x"), card("ms-a", D, "x")])[0].ok, false);
+  assert.match(read("src/lib/products/challenge-lanes/load.mjs"), /const bad = diversityViolations\(all\);\n  if \(bad\.length\) return lanesOf\(product\)\.map\(\(laneId\) => unavailableLaneView/);
+});
+
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
   const css = read("src/app/globals.css");
   assert.match(css, /@keyframes cl-rung-in/);
