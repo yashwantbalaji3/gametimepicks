@@ -87,7 +87,7 @@ export function legFromShortlist(c) {
     projection: c.projection ? { value: c.projection.value ?? null, label: "MODEL PROJECTION", snapshotId: c.projection.snapshotId ?? null } : null,
     hitRate: c.hitRate ? { windows: (c.hitRate.windows ?? []).map((w) => ({ window: w.window, hits: w.hits, n: w.n, text: hitRateText(w) })), shrunk: c.hitRate.shrunk ?? null, lineBasis: c.hitRate.lineBasis ?? null } : null,
     role: c.role ?? null, injury: c.injury ?? null, dataQuality: c.dataQuality ?? null, lineup: c.lineup ?? null,
-    eloSide: c.eloSide ?? undefined, roster: c.roster ?? undefined,
+    eloSide: c.eloSide ?? undefined, roster: c.roster ?? undefined, flags: c.family === "winner" ? c.flags ?? undefined : undefined, context: c.context ?? undefined,
     probability: null, uncertainty: null, ev: null,
   };
 }
@@ -135,7 +135,9 @@ export function legSignals(leg, { params = null, now } = {}) {
      side and the no-vig favourite disagree, or no W-L evidence. The small samples and roster turnover are disclosed. */
   if (research && leg.family === "winner") {
     const nv = leg.hitRate?.shrunk?.marketNoVig;
-    const A = { longestN: longest, windows: w.map((x) => x.text), shrunkRate: null, nEffective: null, basis: "moneyline research (no probability)", marketNoVig: nv ?? null };
+    const sh = leg.hitRate?.shrunk;
+    const A = { longestN: longest, windows: w.map((x) => x.text), shrunkRate: typeof sh?.rate === "number" ? sh.rate : null, nEffective: sh?.nEffective ?? null, interval95: sh?.interval95 ?? null, basis: "moneyline team evidence shrunk toward the no-vig (research; not a probability)", marketNoVig: nv ?? null };
+    for (const fl of leg.flags ?? []) { const code = String(fl).split(" ")[0]; if (["TOP5_OUT", "KEY_UNCERTAIN", "BACK_TO_BACK"].includes(code)) f.push(`ML_${code} ${leg.legId}: ${fl}`); }
     if (!w.length) r.push(`A_NO_EVIDENCE ${leg.legId}: no W-L windows`);
     if (!leg.eloSide || leg.eloSide !== leg.side) r.push(`ML_NOT_MODEL_SIDE ${leg.legId}`);
     if (!(typeof nv === "number" && nv > 0.5)) r.push(`ML_MARKET_DISAGREES ${leg.legId}: the no-vig favourite is the opponent`);
