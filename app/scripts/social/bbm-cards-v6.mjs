@@ -342,6 +342,8 @@ export function verifyBbmCardV6(card) {
   } else if (/template preview/i.test(text)) e.push("TEMPLATE ribbon on a real card");
   if (!card.priced && "price.verified" in got) e.push("VERIFIED on unpriced content");
   if (card.classification === "LEVEL_B" && Object.keys(got).some((k) => /\.proj$/.test(k))) e.push("a Level B card with a probability row");
+  // A raw engine code (FLAG_CODE, leg ids) never reaches the image; the engine's evidence line prints verbatim.
+  for (const [k, v] of Object.entries(got)) if (!/\.evidence$/.test(k) && (/\b[A-Z][A-Z0-9]*_[A-Z0-9_]+\b/.test(v) || /\bnba:\d+/.test(v))) e.push(`${k}: a raw engine code on the image (${v})`);
   // A held card shows no picks and no prices, and is never VERIFIED.
   if (card.view === VIEW.NO_ELIGIBLE_CARD && Object.keys(got).some((k) => /^price\.|^money\.(payout|profit)|^leg\d|^plan\./.test(k))) e.push("a held card carries a pick or a price");
   // A hit rate is research evidence, never a probability: no "%" in any evidence cell.

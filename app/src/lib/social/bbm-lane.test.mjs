@@ -528,3 +528,11 @@ test("V6 engine lane types: the record's laneType must match the lane letter; a 
   assert.deepEqual(verifyBbmCardV6(c), []); assert.match(textOf(c), /Combined odds \(book-quoted parlay\)/);
   assert.equal(heldReasonText("ML_EVIDENCE_UNFITTED"), "The moneyline research evidence is not yet fitted, so the lane holds tonight.");
 });
+
+test("V6 checker: a raw engine flag code or leg id never prints", () => {
+  const rungs = RULES_V2.milestonesCents["bank-builder"].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
+  const model = { product: "bank-builder", letter: "A", laneId: "bb-a", date: DATE, step: 1, steps: 5, rungs, baseCents: 10000, targetCents: 1000000, bankrollCents: 10000, badge: BADGE.ACTIVE, view: VIEW.CARD, payout: null, template: false };
+  const ml = { legId: "m1", team: { abbr: "OKC", name: "Oklahoma City Thunder" }, opponent: { abbr: "CLE" }, home: true, tipUtc: "2026-11-05T01:00:00Z", level: "B", evidenceText: "Model side OKC · key out/DTD: X DAY_TO_DAY" };
+  assert.deepEqual(verifyBbmCardV6(bbmCardV6({ ...model, legs: [{ ...ml, flagText: ["Top 5 player out"] }] })), []);
+  assert.match(verifyBbmCardV6(bbmCardV6({ ...model, legs: [{ ...ml, flagText: ["ML_TOP5_OUT nba:401909929:winner:home: TOP5_OUT"] }] })).join(";"), /raw engine code/);
+});
