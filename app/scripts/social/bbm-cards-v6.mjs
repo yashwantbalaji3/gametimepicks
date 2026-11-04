@@ -179,6 +179,7 @@ const CSS = (P) => `<style>
 .pills5>.st{border-left:2px solid rgba(255,255,255,.2)}.pills5>.st.LOST{color:#FF6B7A}.pills5 .st.HELD{color:#FFC14D}.pills5 .st.WON,.pills5 .st.COMPLETED{color:var(--neon)}.pills5 .st.FINISHED{color:#D7DEE5}
 .pills5.three>b,.pills5.three>span{font-size:24px;padding:10px 14px 8px;letter-spacing:1px}
 .legs5:has(>.leg:only-child){justify-content:center}
+.sel5{margin:18px auto 0;padding:8px 20px 6px;border-radius:999px;border:2px solid #FFC400;background:rgba(0,0,0,.85);box-shadow:0 0 12px rgba(255,196,0,.55);font:900 20px/1 var(--display);letter-spacing:2px;text-transform:uppercase;color:#FFE27A;white-space:nowrap}
 .legs5{flex:1;min-height:0;margin-top:24px;display:flex;flex-direction:column;justify-content:flex-start;gap:14px}
 .leg{position:relative;display:grid;grid-template-columns:58px 1fr auto;align-items:center;gap:6px 16px;flex:none;min-height:132px;padding:14px 22px 12px;border-radius:22px;border:4px solid color-mix(in srgb,var(--c) 45%,#fff);background:linear-gradient(100deg,color-mix(in srgb,var(--c) 92%,#fff 8%) 0%,var(--c) 38%,color-mix(in srgb,var(--c) 55%,#000) 72%,color-mix(in srgb,var(--c) 30%,#000) 100%);box-shadow:0 0 0 1px rgba(255,255,255,.6),0 0 8px color-mix(in srgb,var(--c) 90%,#fff),0 0 26px var(--c),0 0 54px color-mix(in srgb,var(--c) 60%,transparent),inset 0 3px 0 rgba(255,255,255,.35),inset 0 -14px 24px rgba(0,0,0,.35);min-width:0}
 .leg .n{font:900 italic 76px/1 var(--headline);background:linear-gradient(180deg,var(--g1),var(--g2) 60%,var(--g3));-webkit-background-clip:text;background-clip:text;color:transparent;text-align:center;padding-right:8px;border-right:2px solid rgba(255,255,255,.18)}
@@ -228,6 +229,7 @@ const CSS = (P) => `<style>
 .money5 .pro .v{color:var(--neon);text-shadow:0 0 6px var(--neon),0 0 18px color-mix(in srgb,var(--neon) 70%,transparent)}
 .money5 .v.pend{font-size:34px;text-transform:uppercase;color:rgba(247,247,242,.72)}
 .money5 .pay .v.pend{font-size:36px;color:#FFFFFF;background:none;-webkit-background-clip:initial;background-clip:initial;filter:drop-shadow(0 0 10px rgba(255,200,60,.9))}
+.money5 .pay .sub{color:rgba(255,255,255,.85)}
 .money5 .sub{margin-top:6px;font:700 16px/1.1 var(--display);letter-spacing:2px;text-transform:uppercase;color:rgba(247,247,242,.6)}
 .content{justify-content:flex-end}
 .content .social{margin-top:0;padding-top:0}
@@ -265,7 +267,9 @@ export function bbmCardV6(model, { testData = false } = {}) {
   const outs = Object.fromEntries((model.legResults ?? []).map((r) => [r.legId, r.outcome]));
   let mid; let bottom = "";
   if ([VIEW.CARD, VIEW.WON, VIEW.BUSTED].includes(model.view) && (model.legs ?? []).length) {
-    mid = `<div class="legs5">${model.legs.map((l, i) => legPanel(cells, l, i, { price: model.view === VIEW.CARD ? model.payout?.legs?.[l.legId] : null, outcome: model.view === VIEW.CARD || l.placeholder ? null : outs[l.legId] ?? "PENDING" })).join("")}</div>`;
+    // The engine's classification label for a research selection (its dash drawn as a dot).
+    const sel = model.selectionLabel ? `<div class="sel5">${cell(cells, "selection.label", String(model.selectionLabel).replace(/\s*[—–]\s*/g, " · "))}</div>` : "";
+    mid = sel + `<div class="legs5">${model.legs.map((l, i) => legPanel(cells, l, i, { price: model.view === VIEW.CARD ? model.payout?.legs?.[l.legId] : null, outcome: model.view === VIEW.CARD || l.placeholder ? null : outs[l.legId] ?? "PENDING" })).join("")}</div>`;
     const target = model.rungs[model.step - 1]?.milestoneCents;
     // STEP n PLAN: the lane's tracked bankroll to this step's milestone (approximate except the goal), from the engine record.
     if (model.view === VIEW.CARD && model.bankrollCents > 0 && target) mid += `<div class="plan5" data-plan><span class="lb">${cell(cells, "plan.label", `Step ${model.step} plan`)}</span>${TARGET_ICON}${cell(cells, "plan.from", cents(model.bankrollCents), "f")}<span class="ar">→</span>${cell(cells, "plan.to", `${model.step === model.steps ? "" : "~"}${cents(target)}`, "to")}${cell(cells, "plan.mult", `(≈${(target / model.bankrollCents).toFixed(1)}×)`, "x")}</div>`;
@@ -277,7 +281,7 @@ export function bbmCardV6(model, { testData = false } = {}) {
       bottom += `<div class="comb5"><span class="k">${esc(model.payout?.estimate ? "Combined odds (estimate)" : "Combined odds (leg product)")}</span>${cell(cells, "price.combined", am ?? V6_PLACEHOLDER.price, "v")}${tag}</div>`;
       const stake = `<div><div class="k">Tracked stake</div>${cell(cells, "money.wager", model.bankrollCents == null ? "Withheld" : cents(model.bankrollCents), "v")}</div>`;
       if (tpl || !model.payout) bottom += `<div class="money5">${stake}<div class="pay"><div class="k">Potential payout</div>${cell(cells, "money.payoutPending", V6_PLACEHOLDER.payout, "v pend")}<div class="sub">${cell(cells, "money.targetNote", `Step ${model.step} target ~${cents(stepTarget)}`)}</div></div><div><div class="k">Potential profit</div>${cell(cells, "money.profitPending", V6_PLACEHOLDER.payout, "v pend")}</div></div>`;
-      else bottom += `<div class="money5">${stake}<div class="pay" data-money="payout"><div class="k">Potential payout</div>${cell(cells, "money.payout", cents(model.payout.grossCents), "v")}</div><div class="pro"><div class="k">Potential profit</div>${cell(cells, "money.profit", cents(model.payout.profitCents), "v")}</div></div>`;
+      else bottom += `<div class="money5">${stake}<div class="pay" data-money="payout"><div class="k">Potential payout</div>${cell(cells, "money.payout", cents(model.payout.grossCents), "v")}${model.showStepTarget ? `<div class="sub">${cell(cells, "money.targetNote", `Step ${model.step} target ~${cents(stepTarget)}`)}</div>` : ""}</div><div class="pro"><div class="k">Potential profit</div>${cell(cells, "money.profit", cents(model.payout.profitCents), "v")}</div></div>`;
     }
   } else {
     if (model.view === VIEW.NO_ELIGIBLE_CARD) {
@@ -291,7 +295,7 @@ export function bbmCardV6(model, { testData = false } = {}) {
       mid = `<div class="stat5"><div class="k">${cell(cells, "status.note", note[0])}</div>${note[1] ? `<div class="c">${cell(cells, "status.rule", note[1])}</div>` : ""}</div>`;
     }
   }
-  const rib = [tpl ? TEMPLATE_RIBBON : null, testData ? TEST_RIBBON : null, model.payout?.fixture ? SAMPLE_PRICE_RIBBON : null].filter(Boolean);
+  const rib = [model.reviewRibbon ?? null, tpl ? TEMPLATE_RIBBON : null, testData ? TEST_RIBBON : null, model.payout?.fixture ? SAMPLE_PRICE_RIBBON : null].filter(Boolean);
   const ribbon = rib.length ? `<div class="rib5 ${testData && !tpl ? "t" : ""}">${esc(rib.join(" · "))}</div>` : "";
   const body = `${CSS(P)}<div class="v5 ${P.cls}">${scene(P)}${meter}<div class="rt5">${head}${mid}</div>${bottom}${ribbon}</div>`;
   const html = shell({ chip: "", body, review: false, disclosure: V6_FOOTER }).replace(/<div class="rg">[^<]*<\/div>/g, "");
