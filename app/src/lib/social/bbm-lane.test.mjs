@@ -508,13 +508,13 @@ test("V6 Level B (founder 2026-11-04): no probability row on any Level B leg, pr
   const ml = { legId: "m1", team: { abbr: "DET", name: "Detroit Pistons" }, opponent: { abbr: "PHI" }, home: true, tipUtc: "2026-11-05T00:00:00Z" };
   const b = bbmCardV6({ ...model, legs: [{ ...ml, level: "B", evidenceText: "Model side · Market favourite · Form 4-1 L5 · 7-3 L10" }] });
   assert.deepEqual(verifyBbmCardV6(b), []); assert.equal(b.classification, "LEVEL_B");
-  assert.ok(!Object.keys(b.cells).some((k) => /\.proj$/.test(k))); assert.match(textOf(b), /Research \(Level B\)/); assert.match(textOf(b), /Form 4-1 L5/);
+  assert.ok(!Object.keys(b.cells).some((k) => /\.proj$/.test(k))); assert.equal(b.cells["leg1.level"], "Research"); assert.equal(b.cells["leg1.evidenceBig"], "Level B"); assert.match(textOf(b), /Form 4-1 L5/);
   assert.throws(() => bbmCardV6({ ...model, legs: [{ ...ml, level: "B", projectionText: "70%" }] }), /Level B moneyline leg never carries a probability/);
   assert.throws(() => bbmCardV6({ ...model, legs: [{ ...ml, level: "A" }] }), /Level A leg without its probability/);
   assert.throws(() => bbmCardV6({ ...model, classification: "LEVEL_B", legs: [{ ...ml, projectionText: "70%" }] }), /Level B card draws every leg as research/);
   const a = bbmCardV6({ ...model, legs: [{ ...ml, level: "A", projectionText: "70%" }] });
   assert.deepEqual(verifyBbmCardV6(a), []); assert.equal(a.cells["leg1.proj"], "70%");
-  assert.match(verifyBbmCardV6({ ...b, cells: { ...b.cells, "leg1.proj": "70%" }, html: b.html.replace(">Research (Level B)<", ' data-cell="leg1.proj">70%<') }).join(";"), /Level B card with a probability row/);
+  assert.match(verifyBbmCardV6({ ...b, cells: { ...b.cells, "leg1.proj": "70%" }, html: b.html.replace(">Level B<", ' data-cell="leg1.proj">70%<') }).join(";"), /Level B card with a probability row/);
   // Placeholders never print a probability label.
   assert.doesNotMatch(textOf(bbmCardV6({ ...model, template: true, legs: [{ placeholder: "required" }] })), /probability/i);
 });
