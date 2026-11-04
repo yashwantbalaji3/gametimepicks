@@ -6,7 +6,7 @@
  * says so. Pure.
  */
 import { decimalToAmerican } from "../../challenge-lanes/payout.mjs";
-import { hitRateText, evidenceOf, isProp, PROP_MARKET, flagWords, selectionOf } from "./lane.mjs";
+import { hitRateText, evidenceOf, isProp, PROP_MARKET, flagWords, selectionOf, lineupText } from "./lane.mjs";
 
 const american = (n) => (typeof n === "number" && Number.isFinite(n) ? (n > 0 ? `+${n}` : String(n)) : null);
 const ET = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
@@ -34,6 +34,7 @@ export function researchView(d, { now = Date.now() } = {}) {
           odds: p ? american(p.american) : null, book: p?.book ?? null, captured: p ? et(p.fetchedAt) : null,
           hitRates: (p?.hitRates ?? []).map(hitRateText).filter(Boolean),
           evidenceLine: typeof p?.evidenceLine === "string" && !/%|\b0?\.\d/.test(p.evidenceLine) ? p.evidenceLine : null,
+          lineup: lineupText(p?.lineup),
           limits: [...new Set((c.flags ?? []).filter((f) => f?.legId === l.legId).map(flagWords).filter(Boolean))],
         };
       });

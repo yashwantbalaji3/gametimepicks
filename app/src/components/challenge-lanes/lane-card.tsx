@@ -9,7 +9,7 @@ export type LaneLeg = {
   n: number; legId: string; gameId: string; game: string; market: string | null; prop: boolean;
   selection: string; teamAbbr: string | null; team: { name: string | null; color: string; ink: string | null } | null;
   matchup: string | null; time: string | null; projectionLabel: string | null; projection: string | null; flags: string[]; outcome: string | null;
-  price: { odds: string | null; line: number | string | null; book: string | null; captured: string | null; hitRates?: string[]; evidenceLine?: string | null } | null;
+  price: { odds: string | null; line: number | string | null; book: string | null; captured: string | null; hitRates?: string[]; evidenceLine?: string | null; lineup?: string | null } | null;
   snapshotId?: string | null;
   player?: { name: string | null; team: string | null; side: string | null; market: string } | null;
   evidence?: { class: string; label: string } | null;
@@ -70,6 +70,7 @@ function LegCard({ l, tag = null }: { l: LaneLeg; tag?: string | null }) {
           </span>
         ) : null}
         {tag && !l.evidence ? <span className="cl-rule-tag" data-leg-rule="">{tag} · history</span> : null}
+        {l.price?.lineup ? <span className="cl-hit-rates" data-leg-lineup="">{l.price.lineup}</span> : null}
         {l.limits?.length ? (
           <span className="cl-limits" data-leg-limits="">
             <span className="cl-label">Disclosed limits</span> {l.limits.join(" · ")}

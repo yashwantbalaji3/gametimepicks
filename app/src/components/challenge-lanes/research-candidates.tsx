@@ -7,7 +7,7 @@ export type ResearchView = {
   candidates: Array<{
     id: string; status: string; selection?: { mode: string | null; label: string } | null; rank: number | null; evidence: { class: string; label: string } | null; reasonCodes: string[]; stale: boolean;
     combined: { label: string; odds: string | null } | null;
-    legs: Array<{ legId: string; game: string | null; stale: boolean; who: string | null; what: string; projection: string | null; projectionLabel: string | null; odds: string | null; book: string | null; captured: string | null; hitRates: string[]; evidenceLine?: string | null; limits?: string[] }>;
+    legs: Array<{ legId: string; game: string | null; stale: boolean; who: string | null; what: string; projection: string | null; projectionLabel: string | null; odds: string | null; book: string | null; captured: string | null; hitRates: string[]; evidenceLine?: string | null; lineup?: string | null; limits?: string[] }>;
   }>;
 };
 
@@ -42,6 +42,7 @@ export default function ResearchCandidates({ research }: { research: ResearchVie
                     <span className="cl-prop-line">{l.what}</span>
                     <span className="cl-leg-meta">{[l.game, l.odds ? `${l.odds}${l.book ? ` ${l.book}` : ""}` : null, l.captured ? `captured ${l.captured}` : null].filter(Boolean).join(" · ")}</span>
                     {l.evidenceLine ? <span className="cl-hit-rates">{l.evidenceLine}</span> : l.hitRates.length ? <span className="cl-hit-rates"><span className="cl-label">Hit rate</span> {l.hitRates.join(" · ")}</span> : null}
+                    {l.lineup ? <span className="cl-hit-rates">{l.lineup}</span> : null}
                     {l.limits?.length ? <span className="cl-limits"><span className="cl-label">Disclosed limits</span> {l.limits.join(" · ")}</span> : null}
                   </div>
                   {l.projectionLabel ? (

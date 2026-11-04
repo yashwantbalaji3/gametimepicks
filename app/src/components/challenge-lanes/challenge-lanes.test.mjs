@@ -579,7 +579,8 @@ test("EVIDENCE + PROPS on the engine's sample (bb-b): class badge and label verb
   assert.match(t, /Historical hit-rate research \(experimental\)/);
   assert.match(t, /Sample Player One OVER 18\.5 PTS/);
   assert.match(t, /Sample Player Two UNDER 9\.5 REB/);
-  assert.match(t, /Hit rate 7 of 10 \(last 10\) · 13 of 20 \(last 20\) · 48 of 72 \(2025-26\)/);
+  /* The engine's evidenceLine (the graphic's and caption's text) replaces the site's own windows when present. */
+  assert.match(t, /Hit 7\/10 L10 · 13\/20 L20/);
   assert.doesNotMatch(t, /\d+(\.\d+)?%/, "a hit rate is never shown as a percentage or probability");
   assert.doesNotMatch(t, /\bpick(s)?\b/i);
   /* The LEVEL A moneyline single (history, won) keeps its own class; a card@2 winner leg reads its team. */
@@ -628,7 +629,7 @@ test("RESEARCH CANDIDATES on the engine's sample (ms-b HELD): own section, NOT a
   assert.match(t, /RULES-BASED RANKING/);
   assert.match(t, /Sample Player Three OVER 20\.5 PTS/);
   assert.match(t, /\+100 synthetic-book/);
-  assert.match(t, /Hit rate 7 of 10 \(last 10\)/);
+  assert.match(t, /Hit 7\/10 L10 · 13\/20 L20/);
   assert.match(t, /MODEL PROJECTION 21\.4/);
   assert.match(t, /Under review/);
   assert.match(t, /Held back: A_WEAK_EVIDENCE/);
@@ -638,7 +639,7 @@ test("RESEARCH CANDIDATES on the engine's sample (ms-b HELD): own section, NOT a
   const stale = researchView(o.researchView, { now: Date.parse("2030-01-01T19:00:00Z") });
   const st = text(html(React.createElement(ResearchCandidates, { research: stale })));
   assert.match(st, /Line stale — not shown/);
-  assert.doesNotMatch(st, /20\.5|6\.5|\+100|-105|7 of 10|captured/);
+  assert.doesNotMatch(st, /20\.5|6\.5|\+100|-105|7 of 10|7\/10|Tonight:|captured/);
   /* Without the companion (no key): identity and projection only. */
   const pub = text(html(React.createElement(ResearchCandidates, { research: researchView(o.researchPublicView, { now: fresh }) })));
   assert.match(pub, /Sample Player Three OVER PTS/);
@@ -720,7 +721,7 @@ test("DAILY RESEARCH SELECTION: the card's mode label verbatim, disclosed limits
   o.pub = reseal(o.pub);
   o.prices.projectionSha256 = o.pub.contentSha256;
   const pd = o.prices.runs.at(-1).days.at(-1);
-  pd.legDetails = pd.legDetails.map((d, i) => ({ ...d, evidenceLine: i ? "Hit 7/10 L10 · 13/20 L20" : "Hit 8/10 L10 · 14/20 L20", flagText: [`C_LINEUP_HIGH ${d.legId}: contextual 0.61 [0.48, 0.73]`] }));
+  pd.legDetails = pd.legDetails.map((d, i) => ({ ...d, evidenceLine: i ? "Hit 7/10 L10 · 13/20 L20" : "Hit 8/10 L10 · 14/20 L20", flagText: [`C_LINEUP_HIGH ${d.legId}: contextual 0.61 [0.48, 0.73]`], lineup: i ? null : { expectedLineup: "without Starter X", exact: { hits: 5, games: 8 }, uncertainTeammates: ["Starter X"] } }));
   const priced = pricedLaneDisplay(o.pub, o.prices);
   const view = lane.laneView(o.pub, { display: priced, productDay: day.date });
   assert.deepEqual(view.selection, { mode: "RESEARCH", label: LABEL });
@@ -730,10 +731,11 @@ test("DAILY RESEARCH SELECTION: the card's mode label verbatim, disclosed limits
   assert.match(t, /Disclosed limits Lineup uncertainty: HIGH/);
   assert.match(t, /Disclosed limits Minutes volatile/);
   assert.match(t, /Hit 8\/10 L10 · 14\/20 L20/);
+  assert.match(t, /Tonight: without Starter X · 5 of 8 in that lineup · uncertain: Starter X/);
   assert.doesNotMatch(t, /0\.61|0\.48|0\.73|contextual|\d+(\.\d+)?%/, "no contextual rate, interval or percentage reaches the page");
   const rep = parityReport([laneParity({ doc: o.pub, prices: o.prices, view })]);
   assert.deepEqual(rep.failures, []);
-  for (const f of ["selection label", "flag codes", "evidence lines"]) assert.ok(rep.rows.some((r) => r.field === f && r.ok && r.engine), f);
+  for (const f of ["selection label", "flag codes", "evidence lines", "lineup context"]) assert.ok(rep.rows.some((r) => r.field === f && r.ok && r.engine), f);
   const drift = structuredClone(view); drift.current.selection = null; drift.current.legs[1].limits = [];
   const failures = parityReport([laneParity({ doc: o.pub, prices: o.prices, view: drift })]).failures;
   assert.ok(failures.includes("bb-b selection label (NOT_ON_SITE)") && failures.includes("bb-b flag codes"), failures.join(", "));

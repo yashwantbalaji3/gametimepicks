@@ -6,7 +6,7 @@
  * graphic against the same record. Pure; returns rows, never prints a price.
  */
 import { decimalToAmerican } from "../../challenge-lanes/payout.mjs";
-import { isProp, hitRateText, flagWords } from "./lane.mjs";
+import { isProp, hitRateText, flagWords, lineupText } from "./lane.mjs";
 import { EVIDENCE_LABEL } from "../../challenge-lanes/card-fields.mjs";
 import { laneDisplay } from "../../challenge-lanes/display.mjs";
 
@@ -86,6 +86,7 @@ export function laneParity({ doc, prices, view }) {
   const sProps = sp ? siteProps : [];
   rowOpt("prop lines", pLegs.length ? pLegs.map((l) => [l.legId, l.line ?? detail.get(l.legId)?.line ?? null]) : null, sProps.length ? sProps.map((l) => [l.legId, l.price?.line ?? null]) : null);
   rowOpt("evidence lines", pLegs.some((l) => detail.get(l.legId)?.evidenceLine) ? pLegs.map((l) => [l.legId, detail.get(l.legId)?.evidenceLine ?? null]) : null, sProps.some((l) => l.price?.evidenceLine) ? sProps.map((l) => [l.legId, l.price?.evidenceLine ?? null]) : null);
+  rowOpt("lineup context", pLegs.some((l) => lineupText(detail.get(l.legId)?.lineup)) ? pLegs.map((l) => [l.legId, lineupText(detail.get(l.legId)?.lineup)]) : null, sProps.some((l) => l.price?.lineup) ? sProps.map((l) => [l.legId, l.price?.lineup ?? null]) : null);
   rowOpt("prop hit rates", pLegs.some((l) => hrOf(l).length) ? pLegs.map((l) => [l.legId, hrOf(l)]) : null, sProps.some((l) => l.price?.hitRates?.length) ? sProps.map((l) => [l.legId, l.price?.hitRates ?? []]) : null);
   rowP("price event sha", priced ? pd.priceEventSha256 : null, sp?.priceEventSha256);
   /* Graphics (PD 2026-11-04): every GRAPHIC_RENDERED receipt the record holds, with its image, caption and renderer

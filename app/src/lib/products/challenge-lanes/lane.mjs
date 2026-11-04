@@ -141,6 +141,7 @@ const legPrice = (p, book, detail = null) => (p ? {
   /* The engine's evidenceLine (the graphic's and caption's text, hit counts only): encrypted display only. The engine's
      flag text is NOT shown: it carries contextual rates, which would read as a probability. */
   evidenceLine: typeof detail?.evidenceLine === "string" && !/%|\b0?\.\d/.test(detail.evidenceLine) ? detail.evidenceLine : null,
+  lineup: lineupText(detail?.lineup),
 } : null);
 /** The engine's evidence class for a day or a leg (card@2 legs carry `classification`), with the engine's own label. */
 export const evidenceOf = (x) => {
@@ -158,6 +159,15 @@ export const FLAG_TEXT = Object.freeze({
 });
 /* *_WEIGHT codes are the engine's ranking markers (a HIGH flag counts twice), not a limit to disclose. */
 export const flagWords = (f) => (!f?.code || /_WEIGHT$/.test(f.code) ? null : FLAG_TEXT[f.code] ?? String(f.code).replaceAll("_", " ").toLowerCase());
+/** The engine's lineup context (encrypted legDetails.lineup) in words and counts: tonight's expected lineup, how often
+    the side hit in exactly that lineup (k of n), who is uncertain. Never the contextual rate. */
+export const lineupText = (lu) => {
+  if (!lu || typeof lu !== "object") return null;
+  const k = lu.exact?.hits, n = lu.exact?.games;
+  const parts = [lu.expectedLineup ? `Tonight: ${lu.expectedLineup}` : null, Number.isInteger(k) && Number.isInteger(n) && n > 0 ? `${k} of ${n} in that lineup` : null,
+    Array.isArray(lu.uncertainTeammates) && lu.uncertainTeammates.length ? `uncertain: ${lu.uncertainTeammates.map((t) => (typeof t === "string" ? t : t?.name)).filter(Boolean).join(", ")}` : null].filter(Boolean);
+  return parts.length ? parts.join(" · ") : null;
+};
 /** The card's selection mode label, verbatim ("RESEARCH SELECTION — NO VALIDATED EDGE CLAIM"), or null. */
 export const selectionOf = (card) => (card?.selectionLabel ? { mode: card.selectionMode ?? null, label: card.selectionLabel } : null);
 export const isProp = (l) => !["winner", "h2h"].includes(l?.family ?? l?.market ?? "winner");
