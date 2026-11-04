@@ -22,7 +22,12 @@ import { evidenceLine } from "../../../src/lib/challenge-lanes/card-fields.mjs";
 const a = parseArgs(process.argv.slice(2));
 const out = path.resolve(a.out);
 const raw = fs.readFileSync(a.selection);
-const sel = JSON.parse(raw);
+const sel0 = JSON.parse(raw);
+// A sealed-records file (records["<lane>:<A|B|C>"].record): option A is the lane's card, the others render as alternates.
+const sel = sel0.records ? { now: sel0.evaluatedAt, lanes: Object.fromEntries(["bb-a", "bb-b", "ms-a", "ms-b"].filter((l) => sel0.records[`${l}:A`]).map((l) => [l, { card: sel0.records[`${l}:A`].record }])) } : sel0;
+const RECORD_ALTS = sel0.records ? Object.keys(sel0.records).filter((k) => !k.endsWith(":A")).map((k) => { const [laneId, opt] = k.split(":"); return { laneId, name: `${laneId}-${opt}`, sel: { lanes: { [laneId]: { card: sel0.records[k].record } } }, file: `${a.selection}#${k}` }; }) : [];
+const TEAMS = JSON.parse(fs.readFileSync(path.resolve("src/lib/simulation-theater/nba/nba-team-colors.json"), "utf8"));
+const teamName = (abbr) => TEAMS.teams[abbr]?.name ?? TEAMS.teams[TEAMS.aliases?.[abbr]]?.name ?? abbr;
 const sha = (b) => crypto.createHash("sha256").update(b).digest("hex");
 if (!socialPricesOk()) throw new Error("the display record does not authorize NBA challenge-graphics prices; prices are not drawn");
 const TERMS = { "bank-builder": { baseCents: 10000, targetCents: 1000000 }, moonshot: { baseCents: 2500, targetCents: 100000 } };
@@ -39,11 +44,11 @@ const ALTS = String(a.alt ?? "").split(",").filter(Boolean).map((x) => {
 });
 const isMoneyline = (l) => ["winner", "moneyline", "h2h", "ml"].includes(String(l.market ?? l.family ?? "").toLowerCase());
 /** The engine's Level B leg flags in plain words (the record's flags[] codes). */
-const FLAG_WORDS = { B_ROLE_UNSTABLE: "Role unstable", B_MINUTES_VOLATILE: "Minutes volatile", B_MINUTES_UNCERTAIN: "Minutes uncertain", B_MINUTES_DROP: "Minutes drop" };
+const FLAG_WORDS = { B_ROLE_UNSTABLE: "Role unstable", B_MINUTES_VOLATILE: "Minutes volatile", B_MINUTES_UNCERTAIN: "Minutes uncertain", B_MINUTES_DROP: "Minutes drop", ML_SMALL_SAMPLE: "Small sample", ML_ROSTER_TURNOVER: "Roster turnover", ML_KEY_OUT: "Key player out", ML_KEY_DTD: "Key player day-to-day" };
 /** The lane's minutes disclosure from the record's role note ("lane projected 15.5 min; L5 mean 24.4"). */
 const minutesNote = (role) => { const m = /lane projected ([\d.]+) min; L5 mean ([\d.]+)/.exec(role?.note ?? ""); return m ? `Projected minutes ${m[1]} vs ${m[2]} recent` : null; };
 const models = [];
-const jobs = [...["bb-a", "bb-b", "ms-a", "ms-b"].map((laneId) => ({ laneId, name: laneId, sel, file: a.selection })), ...ALTS.map((x) => ({ laneId: x.laneId, name: `${x.laneId}-alt`, sel: x.sel, file: x.file, alt: true }))];
+const jobs = [...["bb-a", "bb-b", "ms-a", "ms-b"].map((laneId) => ({ laneId, name: laneId, sel, file: a.selection })), ...ALTS.map((x) => ({ laneId: x.laneId, name: `${x.laneId}-alt`, sel: x.sel, file: x.file, alt: true })), ...RECORD_ALTS.map((x) => ({ ...x, alt: true }))].filter((j) => j.alt || HELD.has(j.laneId) || sel.lanes[j.laneId]);
 for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
   const L0 = BBM_LANES[laneId];
   if (HELD.has(laneId) && !alt) {
@@ -70,8 +75,8 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
       if (levelA && !shown) throw new Error(`${laneId}: Level A moneyline ${l.legId} carries no model win probability`);
       const evText = levelA ? null : (l.evidenceLine ?? l.evidenceText ?? evidenceLine(l));
       if (!levelA && !evText) throw new Error(`${laneId}: Level B moneyline ${l.legId} carries no evidence line`);
-      const flags = [...(inj0?.lineup?.sensitive ? [`Lineup watch: ${inj0.lineup.tonightScenario}`] : []), ...(l.flagText ?? []).filter((t) => !/^[A-Z]_[A-Z_]+ /.test(t)), ...(c.flags ?? []).filter((f) => f.legId === l.legId).map((f) => FLAG_WORDS[f.code] ?? f.code.replace(/^[A-Z]_/, "").replace(/_/g, " ").toLowerCase())];
-      return { legId: l.legId, team: { abbr: side, name: l.teamName ?? side }, opponent: { abbr: side === home ? away : home }, home: side === home, tipUtc: l.startUtc, level: levelA ? "A" : "B", ...(levelA ? { projectionText: shown } : { evidenceText: evText }), flagText: flags };
+      const flags = [...(inj0?.lineup?.sensitive ? [`Lineup watch: ${inj0.lineup.tonightScenario}`] : []), ...(l.flagText ?? []).filter((t) => !/^[A-Z]+_[A-Z_]+ /.test(t)), ...(c.flags ?? []).filter((f) => f.legId === l.legId).map((f) => FLAG_WORDS[f.code] ?? f.code.replace(/^[A-Z]_/, "").replace(/_/g, " ").toLowerCase())];
+      return { legId: l.legId, team: { abbr: side, name: l.teamName ?? teamName(side) }, opponent: { abbr: side === home ? away : home }, home: side === home, tipUtc: l.startUtc, level: levelA ? "A" : "B", ...(levelA ? { projectionText: shown } : { evidenceText: evText }), flagText: flags };
     }
     const ev = evidenceLine(l);
     if (!ev) throw new Error(`${laneId}: ${l.legId} lacks L10 or L20 hit counts`);
@@ -94,7 +99,7 @@ const bad = cards.flatMap((m) => verifyBbmCardV6(m.card).map((e) => `${m.name}: 
 
 function caption(product, pair) {
   const head = product === "bank-builder" ? "🏦 Bank Builder · Nov 4" : "🚀 Moonshot · Nov 4";
-  const lanes = pair.map((m) => (m.held ? `Lane ${BBM_LANES[m.laneId].letter} · Held · Step 1 of 5` : `Lane ${BBM_LANES[m.laneId].letter} · Step 1 of 5\n${m.legsRaw.map((l) => (isMoneyline(l) ? `${l.teamName ?? l.selection?.teamAbbr ?? l.team} to win` : `${l.player.name} · ${WORD[l.market] ?? l.family}`)).join("\n")}`));
+  const lanes = pair.map((m) => (m.held ? `Lane ${BBM_LANES[m.laneId].letter} · Held · Step 1 of 5` : `Lane ${BBM_LANES[m.laneId].letter} · Step 1 of 5\n${m.legsRaw.map((l) => (isMoneyline(l) ? `${l.teamName ?? teamName(l.selection?.teamAbbr ?? l.team)} to win` : `${l.player.name} · ${WORD[l.market] ?? l.family}`)).join("\n")}`));
   const t = pair.every((m) => m.held)
     ? [head, ...lanes, "No card tonight; both lanes hold their place and tracked bankroll. Tracked challenge, no real wager placed. #NBA"].join("\n\n")
     : [head, ...(pair.some((m) => m.record?.classification === "LEVEL_B") ? ["Research selection · no validated edge claim"] : []), ...lanes, `${pair.every((m) => m.record?.classification === "LEVEL_A") ? "Model probabilities" : "Research evidence"} on the graphic. Tracked challenge, no real wager placed. #NBA`].join("\n\n");
@@ -154,7 +159,7 @@ try {
   // Alternates: images only (a chosen alternate replaces its lane and the package caption is rewritten then).
   for (const m of cards.filter((x) => x.alt)) rows.push(row(m, { pkg: null, mediaIndex: null, cap: null, shots: await shoot(m) }));
 } finally { await browser.close(); }
-const manifest = { schema: "gtp.bbm-v6-founder-review@1", source: { file: a.selection, sha256: sha(raw), now: sel.now }, note: "FOUNDER-REVIEW previews only: not approved, never packaged, never posted. Prices are 19:05Z quotes, not verified price events.", checker: bad, layout, parityRows: rows };
+const manifest = { schema: "gtp.bbm-v6-founder-review@1", source: { file: a.selection, sha256: sha(raw), now: sel.now ?? null }, note: "FOUNDER-REVIEW previews only: not approved, never packaged, never posted. Prices are 19:05Z quotes, not verified price events.", checker: bad, layout, parityRows: rows };
 fs.writeFileSync(path.join(out, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`checker problems: ${bad.length}${bad.length ? `\n  ${bad.join("\n  ")}` : ""}`);
 console.log(`layout problems: ${layout.length}${layout.length ? `\n  ${layout.join("\n  ")}` : ""}`);
