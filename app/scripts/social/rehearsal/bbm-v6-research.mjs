@@ -20,12 +20,13 @@ import { BADGE, BBM_LANES, RUNG, VIEW, socialPricesOk } from "../../../src/lib/s
 import { evidenceLine } from "../../../src/lib/challenge-lanes/card-fields.mjs";
 
 const a = parseArgs(process.argv.slice(2));
+const FINAL = a.final != null && a.final !== "0" && a.final !== false;
 const out = path.resolve(a.out);
 const raw = fs.readFileSync(a.selection);
 const sel0 = JSON.parse(raw);
 // A sealed-records file (records["<lane>:<A|B|C>"].record): option A is the lane's card, the others render as alternates.
 const sel = sel0.records ? { now: sel0.evaluatedAt, lanes: Object.fromEntries(["bb-a", "bb-b", "ms-a", "ms-b"].filter((l) => sel0.records[`${l}:A`]).map((l) => [l, { card: sel0.records[`${l}:A`].record }])) } : sel0;
-const RECORD_ALTS = sel0.records ? Object.keys(sel0.records).filter((k) => !k.endsWith(":A")).map((k) => { const [laneId, opt] = k.split(":"); return { laneId, name: `${laneId}-${opt}`, sel: { lanes: { [laneId]: { card: sel0.records[k].record } } }, file: `${a.selection}#${k}` }; }) : [];
+const RECORD_ALTS = sel0.records && !FINAL ? Object.keys(sel0.records).filter((k) => !k.endsWith(":A")).map((k) => { const [laneId, opt] = k.split(":"); return { laneId, name: `${laneId}-${opt}`, sel: { lanes: { [laneId]: { card: sel0.records[k].record } } }, file: `${a.selection}#${k}` }; }) : [];
 const TEAMS = JSON.parse(fs.readFileSync(path.resolve("src/lib/simulation-theater/nba/nba-team-colors.json"), "utf8"));
 const teamName = (abbr) => TEAMS.teams[abbr]?.name ?? TEAMS.teams[TEAMS.aliases?.[abbr]]?.name ?? abbr;
 const sha = (b) => crypto.createHash("sha256").update(b).digest("hex");
@@ -33,7 +34,24 @@ if (!socialPricesOk()) throw new Error("the display record does not authorize NB
 const TERMS = { "bank-builder": { baseCents: 10000, targetCents: 1000000 }, moonshot: { baseCents: 2500, targetCents: 100000 } };
 const SHORT = { player_points: "PTS", player_rebounds: "REB", player_assists: "AST", player_threes: "3PM" };
 const WORD = { player_points: "points", player_rebounds: "rebounds", player_assists: "assists", player_threes: "threes" };
-const REVIEW = "Founder review · not approved · do not post";
+// --final 1 (founder 2026-11-04): the FINAL images, final-first. No review ribbon and no preliminary; every record must carry
+// the run-2 PRICE_VERIFIED event and the founder's approval, and its money must reconcile with an independent recompute.
+const REVIEW = FINAL ? null : "Founder review · not approved · do not post";
+const decimalOf = (am) => (am > 0 ? 1 + am / 100 : 1 + 100 / -am);
+/** Fail-closed field checks for a final record: price event, approval, combined decimal, gross and profit (1 cent). */
+function finalProblems(c) {
+  const p = [];
+  if (!c.priceEventSha256) p.push("no PRICE_VERIFIED event (priceEventSha256 is null)");
+  if (!c.approvalStatus || /PENDING|REJECT/i.test(c.approvalStatus)) p.push(`approval is ${c.approvalStatus ?? "missing"}`);
+  const dec = c.legs.reduce((x, l) => x * decimalOf(l.price), 1);
+  if (Math.abs(dec - c.combined.decimal) > 1e-6) p.push(`combined decimal ${c.combined.decimal} is not the leg product ${dec}`);
+  const gross = c.money.stakeCents * dec;
+  if (Math.abs(gross - c.money.grossPayoutCents) > 1) p.push(`gross ${c.money.grossPayoutCents} is not stake × ${dec.toFixed(6)} = ${gross.toFixed(2)}`);
+  if (c.money.grossPayoutCents - c.money.stakeCents !== c.money.profitCents) p.push(`profit ${c.money.profitCents} is not gross minus stake`);
+  const am = dec >= 2 ? Math.round((dec - 1) * 100) : Math.round(-100 / (dec - 1));
+  if (Math.abs(am - c.combined.american) > 1) p.push(`combined american ${c.combined.american} is not ${am}`);
+  return p;
+}
 
 const HELD = new Set(String(a.held ?? "").split(",").filter(Boolean));
 // --alt lane=<selection.json> (that file's lanes[lane].card) or lane=<sealed-alternates.json>#<records key> (its .record).
@@ -89,6 +107,7 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
     return { kind: "PROP", legId: l.legId, player: { name: l.player.name }, team: { abbr: l.team, name: l.team }, opponent: { abbr: l.team === home ? away : home }, home: l.team === home, tipUtc: l.startUtc, level: levelA ? "A" : "B", ...(levelA ? { projectionText: l.probabilityShown ?? `${Math.round(l.probability * 100)}%` } : {}), lineText: `${l.side.toUpperCase()} ${l.line} ${SHORT[l.market] ?? ""}`.trim(), evidenceText: ev, evidenceBig: `${w10.hits}/${w10.n}`, flagText: [...new Set(flags)] };
   });
   const verified = c.priceEventSha256 != null;
+  if (FINAL) { const fp = finalProblems(c); if (fp.length) throw new Error(`${name}: not final: ${fp.join("; ")}`); }
   const rungs = RULES_V2.milestonesCents[product].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
   models.push({ laneId, name, alt: alt === true, sourceFile: srcFile, record: c, legsRaw: c.legs, model: {
     product, letter: L.letter, laneId, date: c.date, step: 1, steps: 5, rungs, ...TERMS[product], bankrollCents: c.money.stakeCents, badge: BADGE.ACTIVE, view: VIEW.CARD, template: false,
@@ -161,7 +180,7 @@ try {
   // Alternates: images only (a chosen alternate replaces its lane and the package caption is rewritten then).
   for (const m of cards.filter((x) => x.alt)) rows.push(row(m, { pkg: null, mediaIndex: null, cap: null, shots: await shoot(m) }));
 } finally { await browser.close(); }
-const manifest = { schema: "gtp.bbm-v6-founder-review@1", source: { file: a.selection, sha256: sha(raw), now: sel.now ?? null }, note: "FOUNDER-REVIEW previews only: not approved, never packaged, never posted. Prices are 19:05Z quotes, not verified price events.", checker: bad, layout, parityRows: rows };
+const manifest = { schema: FINAL ? "gtp.bbm-v6-final@1" : "gtp.bbm-v6-founder-review@1", final: FINAL, source: { file: a.selection, sha256: sha(raw), now: sel.now ?? null }, note: FINAL ? "FINAL images from run-2 PRICE_VERIFIED records with founder approval; reconciled field by field. Not yet packaged or posted." : "FOUNDER-REVIEW previews only: not approved, never packaged, never posted. Prices are quotes, not verified price events.", checker: bad, layout, parityRows: rows };
 fs.writeFileSync(path.join(out, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
 console.log(`checker problems: ${bad.length}${bad.length ? `\n  ${bad.join("\n  ")}` : ""}`);
 console.log(`layout problems: ${layout.length}${layout.length ? `\n  ${layout.join("\n  ")}` : ""}`);
