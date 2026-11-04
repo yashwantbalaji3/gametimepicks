@@ -14,7 +14,7 @@ import { dailySuggestedCards, sealSuggestedCards } from "../products/leg-pool/da
 import { selectLaneCards, runStarted, laneState } from "./lanes.mjs";
 import { prepareLane, priceLane } from "./ops.mjs";
 import { parseBbmOddsReceipt, captureBbmPrices, priceForCard, planBbmCapture, spentOnEtDay } from "./odds.mjs";
-import { canonical, sha256, parseEvents, verifyChain } from "./chain.mjs";
+import { canonical, sha256, parseEvents, verifyChain, serializeEvents } from "./chain.mjs";
 import { lanePriceDisplay, encryptLanePriceDisplay, readLanePriceDisplay } from "./price-display.mjs";
 import { laneProjection, serializeProjection } from "./projection.mjs";
 import { laneDisplay, pricedLaneDisplay } from "./display.mjs";
@@ -258,6 +258,38 @@ test("PRELIMINARY early build: priced from an early snapshot, never staked; the 
   assert.equal(laneState(ev2).status, "IN_PLAY");
   const days = lanePriceDisplay("bb-a", [ev2]).runs[0].days;
   assert.deepEqual(days.map((d) => [d.verification, d.verificationLabel, d.capturedAt]), [["PRELIMINARY", "PRELIMINARY — re-verified before posting", "2026-11-02T05:22:01Z"], ["VERIFIED", null, "2026-11-02T22:30:05Z"]]);
+  /* Parity identities: each day names its own odds snapshot and chain events (never a price). */
+  const payouts = ev2.filter((e) => e.type === "PAYOUT_COMPUTED");
+  const prices = ev2.filter((e) => e.type === "PRICE_VERIFIED");
+  assert.deepEqual(days.map((d) => d.priceSnapshotSha256), prices.map((e) => e.price.priceSnapshotSha256));
+  assert.notEqual(days[0].priceSnapshotSha256, days[1].priceSnapshotSha256, "the early and the near-window snapshots differ");
+  assert.deepEqual(days.map((d) => [d.priceEventSha256, d.payoutEventSha256, d.cardEventSha256]), payouts.map((e) => [prices[payouts.indexOf(e)].sha256, e.sha256, ev2.find((x) => x.type === "CARD_FROZEN").sha256]));
   assert.equal(laneDisplay(laneProjection("bb-a", [ev2])).day.priceVerification, "VERIFIED");
+  /* NEWER QUOTE on the staked card: a separate, labelled comparison; the lane log is never appended. */
+  const { newerQuote, QUOTE_LABEL } = await import("./quote.mjs");
+  assert.match(newerQuote(ev1, early, { date: DATE }).refusal, /^NOT_STAKED/, "an unstaked card gets no newer quote");
+  const same = newerQuote(ev2, late, { date: DATE });
+  assert.deepEqual([same.ok, same.changedLegs, same.quote.grossPayoutCents], [true, [], fin.payout.grossPayoutCents], "the staked snapshot re-quotes to the record");
+  const q = newerQuote(ev2, early, { date: DATE });
+  assert.deepEqual([q.ok, q.label, q.changedLegs, q.record.payoutEventSha256, q.quote.priceSnapshotSha256], [true, QUOTE_LABEL, [c.legs[0].legId], fin.payout.sha256 ?? ev2.find((e) => e.type === "PAYOUT_COMPUTED" && e.result === "VERIFIED").sha256, early.snapshotSha256]);
+  assert.notEqual(q.quote.grossPayoutCents, q.record.grossPayoutCents);
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "lanes-quote-"));
+  fs.mkdirSync(path.join(root, "bb-a"));
+  const logFile = path.join(root, "bb-a", "run-1.jsonl");
+  fs.writeFileSync(logFile, serializeEvents(ev2));
+  const snapFile = path.join(root, "early.json");
+  fs.writeFileSync(snapFile, JSON.stringify(early));
+  const before = fs.readFileSync(logFile, "utf8");
+  const cliRun = (extra) => spawnSync("npx", ["tsx", path.join(APP, "scripts/challenge-lanes/lanes-price.mjs"), "--root", root, "--date", DATE, "--snapshot", snapFile, "--out-dir", path.join(root, "priv"), ...extra], { cwd: APP, encoding: "utf8" });
+  const r = cliRun(["--quote-only", "--lanes", "bb-a"]);
+  assert.equal(r.status, 0, r.stderr + r.stdout);
+  const rep = JSON.parse(r.stdout);
+  assert.deepEqual([rep.lanes["bb-a"].action, rep.lanes["bb-a"].changedLegs], ["NEWER_QUOTE", [c.legs[0].legId]]);
+  assert.equal(fs.readFileSync(logFile, "utf8"), before, "the posted record is byte-identical after a newer quote");
+  assert.equal(JSON.parse(fs.readFileSync(rep.quoteFile, "utf8")).quotes[0].quoteSha256, q.quoteSha256);
+  assert.equal(cliRun(["--quote-only", "--preliminary"]).status, 2, "--quote-only never combines with --preliminary");
+  assert.equal(JSON.parse(cliRun(["--post-at", "2026-11-02T23:00:00Z", "--lanes", "bb-a"]).stdout).lanes["bb-a"].action, "SKIP", "a staked card is never re-priced");
+  assert.equal(fs.readFileSync(logFile, "utf8"), before);
+  fs.rmSync(root, { recursive: true, force: true });
 });
 const PRICE_TOO_EARLY_CHECK = (pre) => !(pre.payout.refusals ?? []).some((x) => x.code === "PRICE_TOO_EARLY");
