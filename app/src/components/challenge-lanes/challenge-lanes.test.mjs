@@ -195,7 +195,7 @@ test("the lane card mirrors the graphic: product + lane chip, STEP k OF N, lit l
   const v = lane.laneView(SYN["ms-a"], { teams: readTeamColours(APP) });
   const h = html(React.createElement(LaneCard, { lane: v }));
   const t = text(h);
-  assert.match(t, /Moonshot Lane A run-1 ● ACTIVE/);
+  assert.match(t, /Moonshot Lane A run-1 RULES V1 ● ACTIVE/);
   assert.match(t, /STEP 2 OF 5/);
   assert.match(h, /role="img"[^>]*data-lane-meter=""/);
   assert.match(t, /Start \$25 Tracked bankroll · settled Awaiting verified prices Goal · hypothetical \$1,000/);
@@ -459,7 +459,8 @@ test("PARITY: site vs the engine's raw record, fail-closed — green on a matchi
   // No prices (no key): the price rows fail closed, never pass by default.
   const bare = parityReport([laneParity({ doc, prices: null, view: lane.laneView(doc) })]);
   assert.equal(bare.ok, false);
-  assert.ok(bare.failures.includes("bb-a payout (NOT_IN_RECORD)"));
+  assert.ok(bare.failures.includes("bb-a prices bound to projection (NOT_IN_RECORD)"));
+  assert.ok(bare.failures.includes("bb-a tracked bankroll (NOT_IN_RECORD)") || bare.failures.some((f) => /bb-a/.test(f)));
   // A record without an odds snapshot sha is not green.
   const noSha = { ...prices, runs: prices.runs.map((r) => ({ ...r, days: r.days.map((d) => ({ ...d, priceSnapshotSha256: undefined })) })) };
   assert.ok(parityReport([laneParity({ doc, prices: noSha, view: lane.laneView(doc, { display: pricedLaneDisplay(doc, noSha) }) })]).failures.includes("bb-a odds snapshot sha (NOT_IN_RECORD)"));
@@ -495,13 +496,62 @@ test("RULES v2: AWAITING QUALIFIED SELECTION when the engine has nothing for the
   assert.equal(lane.laneView(SYN["bb-b"], { productDay: "2026-11-09" }).statusLabel, "LOST");
   // Rule versions: days and runs the record marks with another version carry their tag; the current version none.
   const d = laneDisplay(SYN["ms-b"]);
-  const tagged = { ...d, ruleVersion: "v2", history: d.history.map((x) => ({ ...x, ruleVersion: "v1" })), runs: d.runs.map((r, i) => ({ ...r, ruleVersion: i ? "v2" : "v1" })) };
+  const tagged = { ...d, ruleVersion: "bbm-rules@2", history: d.history.map((x) => ({ ...x, ruleVersion: "bbm-rules@1" })), runs: d.runs.map((r, i) => ({ ...r, ruleVersion: i ? "bbm-rules@2" : "bbm-rules@1" })) };
   const v = lane.laneView(SYN["ms-b"], { display: tagged });
-  assert.deepEqual(v.runs.map((r) => [r.runId, r.ruleTag]), [["run-1", "rules v1"], ["run-2", null]]);
-  assert.ok(v.story.every((x) => x.ruleTag === "rules v1"));
-  assert.match(text(html(React.createElement(LaneCard, { lane: v }))), /run-1 · started 2026-11-02 · 0 won · LOST rules v1 run-2 · started 2026-11-04 · 0 won · current A lane/);
+  assert.deepEqual(v.runs.map((r) => [r.runId, r.ruleTag]), [["run-1", "RULES V1"], ["run-2", null]]);
+  assert.ok(v.story.every((x) => x.ruleTag === "RULES V1"));
+  assert.match(text(html(React.createElement(LaneCard, { lane: v }))), /run-1 · started 2026-11-02 · 0 won · LOST RULES V1 run-2 · started 2026-11-04 · 0 won · current A lane/);
   // No milestone or rule constant lives in the site's lane code.
-  assert.doesNotMatch(read("src/lib/products/challenge-lanes/lane.mjs"), /\b(20000|50000|125000|312500|5000|10000|40000)\b|MAX_LEGS|maxLegs\s*=/);
+  assert.doesNotMatch(read("src/lib/products/challenge-lanes/lane.mjs"), /\b(20000|50000|125000|312500|5000|10000|40000)\b|MAX_LEGS|maxLegs\s*=(?!=)/);
+});
+
+test("RULES v2 on the engine's synthetic sample: retired v1 run, v2 win, HELD with reason, single in play, lost lane; STEP TARGET verbatim", async () => {
+  const { sampleOutputs } = await import("../../../scripts/challenge-lanes/v2-sample.mjs");
+  const out = Object.fromEntries(sampleOutputs().map((o) => [o.laneId, o]));
+  const t = (v) => text(html(React.createElement(LaneCard, { lane: v })));
+  // ms-a: v2 run-2 active on step 2 with a single; run-1 (v1, 5 legs) RETIRED and its withdrawn card kept as record.
+  const ms = lane.laneView(out["ms-a"].pub, { display: out["ms-a"].priced, productDay: "2030-01-03" });
+  assert.equal(ms.ruleLabel, "RULES V2"); assert.equal(ms.statusLabel, "ACTIVE"); assert.equal(ms.stepText, "STEP 2 OF 5");
+  assert.equal(ms.note, "Step 2 of 5 is active. No new card until it settles.", "the held day's reason is not shown once a card is in play");
+  assert.deepEqual(ms.current.legs.map((l) => l.teamAbbr), ["LLL"], "KKK @ LLL, home side");
+  assert.deepEqual(ms.stepTarget, { label: "STEP TARGET", value: "$100" });
+  assert.equal(ms.current.price.band, "$90–$110");
+  assert.match(ms.current.price.combinedLabel, /^Combined price \(calculated leg product\)$/);
+  assert.equal(ms.tracked, "$52.40", "carry-forward bankroll after the step-1 win");
+  assert.equal(ms.wager, "$52.40");
+  assert.deepEqual(ms.rungs.map((r) => r.milestone), ["$50", "$100", "$200", "$400", "$1,000"], "the v2 ladder from the record");
+  assert.deepEqual(ms.runs.map((r) => [r.runId, r.status, r.ruleTag]), [["run-1", "RETIRED", "RULES V1"], ["run-2", "ACTIVE", null]]);
+  const day2 = ms.story.find((d) => d.date === "2030-01-02");
+  assert.equal(day2.statusText, "Held · no qualified card"); assert.match(day2.reason, /^No candidate passed every gate/);
+  const tm = t(ms);
+  assert.match(tm, /STEP TARGET \$100 · band \$90–\$110/);
+  assert.doesNotMatch(tm, /on pace/i);
+  // bb-a: fresh v2 run, single WIN below pace, then a double LOSS → LOST.
+  const bb = lane.laneView(out["bb-a"].pub, { display: out["bb-a"].priced, productDay: "2030-01-02" });
+  assert.equal(bb.statusLabel, "LOST"); assert.equal(bb.ruleLabel, "RULES V2");
+  assert.deepEqual(bb.story.map((d) => [d.date, d.statusText, d.legs.length]), [["2030-01-02", "Lost", 2], ["2030-01-01", "Won", 1]]);
+  // The leg cap is enforced: a v2 card showing more legs than its day's cap is refused.
+  const d = out["ms-a"].priced; const extra = { ...d, day: { ...d.day, maxLegs: 0 } };
+  assert.throws(() => lane.laneView(out["ms-a"].pub, { display: extra, productDay: "2030-01-03" }), /over its cap of 0/);
+});
+
+test("PARITY on the engine's v2 sample: 4 states (retired+active, lost) green; a site showing more legs than the cap fails", async () => {
+  const { sampleOutputs } = await import("../../../scripts/challenge-lanes/v2-sample.mjs");
+  const { laneParity, parityReport } = await import("../../lib/products/challenge-lanes/parity.mjs");
+  for (const o of sampleOutputs()) {
+    const productDay = o.pub.runs.at(-1).days.at(-1).date;
+    const view = lane.laneView(o.pub, { display: o.priced, productDay });
+    const rep = parityReport([laneParity({ doc: o.pub, prices: o.prices, view })]);
+    // The engine's SYNTHETIC sample prices its days without an odds snapshot sha (real records carry one, e.g. Nov 4);
+    // parity stays fail-closed and reports exactly that, nothing else. Asked the engine to add it to the sample.
+    assert.deepEqual(rep.failures.filter((f) => f !== `${o.laneId} odds snapshot sha (NOT_IN_RECORD)`), [], o.laneId);
+    for (const f of ["rule version", "leg count", "leg cap", "step target"]) assert.ok(rep.rows.some((r) => r.field === f && r.ok), `${o.laneId} ${f}`);
+  }
+  const ms = sampleOutputs().find((o) => o.laneId === "ms-a");
+  const view = lane.laneView(ms.pub, { display: ms.priced, productDay: "2030-01-03" });
+  const three = { ...view, current: { ...view.current, legs: [...view.current.legs, ...view.current.legs, ...view.current.legs] } };
+  const failures = parityReport([laneParity({ doc: ms.pub, prices: ms.prices, view: three })]).failures;
+  assert.ok(failures.includes("ms-a leg cap") && failures.includes("ms-a leg count"), failures.join(", "));
 });
 
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {

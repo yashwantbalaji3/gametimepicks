@@ -12,10 +12,11 @@ export type LaneLeg = {
   price: { odds: string | null; line: number | string | null; book: string | null; captured: string | null } | null;
   snapshotId?: string | null;
 };
-export type LanePrice = { method: string; estimate: boolean; combinedLabel: string; combined: string; decimal?: number | null; book: string | null; stake: string | null; payout: string | null; profit: string | null; captured: string | null; requiredMultiple?: number | null; belowPace?: boolean | null; verification?: string | null; verificationNote?: string | null; snapshotSha256?: string | null };
+export type LanePrice = { method: string; estimate: boolean; combinedLabel: string; combined: string; decimal?: number | null; book: string | null; stake: string | null; payout: string | null; profit: string | null; captured: string | null; requiredMultiple?: number | null; belowPace?: boolean | null; verification?: string | null; verificationNote?: string | null; snapshotSha256?: string | null; band?: string | null };
 export type LaneDay = {
   date: string; step: number; internalStatus: string | null; statusText: string; tone: string; reason: string | null; staked: boolean;
   legs: LaneLeg[]; hasCard: boolean; modelCardResult: string | null; stepOutcome: string | null; result: string | null; price: LanePrice | null; ruleTag?: string | null;
+  withdrawn?: boolean; legCount?: number | null; maxLegs?: number | null; stepTarget?: { label: string; value: string | null } | null;
 };
 export type LaneView = {
   laneId: string; product: string; letter: string; name: string; runId: string | null; runNumber: number; startedAt: string | null;
@@ -28,7 +29,7 @@ export type LaneView = {
   story: LaneDay[];
   graphics: Array<{ date: string; step: number; packageId: string | null; imageSha256: string | null; imagePath: string | null; approved: boolean; postUrl: string | null; postedAt: string | null }>;
   runs: Array<{ runId: string; number: number; started: string | null; status: string; stepsWon: number; current: boolean; ruleTag?: string | null }>;
-  ruleVersion?: string | null;
+  ruleVersion?: string | null; ruleLabel?: string | null; stepTarget?: { label: string; value: string | null } | null;
 };
 
 const RUNG_TEXT: Record<string, string> = { completed: "won", active: "current", failed: "lost", upcoming: "to come" };
@@ -92,6 +93,7 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
           <span className="cl-product">{moon ? "Moonshot" : "Bank Builder"}</span>
           <span className="cl-lane-chip">{lane.name}</span>
           {lane.runId ? <span className="cl-lane-run">{lane.runId}</span> : null}
+          {lane.ruleLabel ? <span className="cl-rule-tag" data-lane-rule="">{lane.ruleLabel}</span> : null}
         </h3>
         <span className="cl-badges">
           <span className={`cl-status cl-status--${lane.tone}`} data-lane-status-badge="">
@@ -128,6 +130,12 @@ export default function LaneCard({ lane }: { lane: LaneView }) {
         <div className="cl-bank-box cl-bank--tracked"><dt>Tracked bankroll · settled</dt><dd className={lane.tracked && !lane.tracked.startsWith("$") ? "cl-bank-pending" : undefined}>{lane.tracked ?? "—"}</dd></div>
         <div className="cl-bank-box cl-bank--goal"><dt>Goal · hypothetical</dt><dd>{lane.target}</dd></div>
       </dl>
+      {lane.stepTarget?.value ? (
+        <p className="cl-step-target" data-lane-step-target="">
+          <span className="cl-label cl-label--accent">{lane.stepTarget.label}</span> <strong>{lane.stepTarget.value}</strong>
+          {lane.current?.price?.band ? <span className="cl-step-band"> · band {lane.current.price.band}</span> : null}
+        </p>
+      ) : null}
       {lane.pace || lane.toTarget ? (
         <p className={`cl-pace cl-pace--${lane.pace?.state ?? "none"}`} data-lane-pace="">
           {[lane.pace?.text, lane.toTarget ? `${lane.toTarget} to the goal` : null].filter(Boolean).join(" · ")}

@@ -14,9 +14,13 @@ const american = (n) => (typeof n === "number" && Number.isFinite(n) ? (n > 0 ? 
 export function laneParity({ doc, prices, view }) {
   const out = [];
   const row = (field, engine, site) => out.push({ laneId: doc.laneId, field, engine: engine ?? null, site: site ?? null, ok: engine != null && site != null && JSON.stringify(engine) === JSON.stringify(site) });
+  /* Rules-v2 fields are absent on v1 records: absent on both sides matches; present on one side only fails. */
+  const rowOpt = (field, engine, site) => out.push({ laneId: doc.laneId, field, engine: engine ?? null, site: site ?? null, ok: JSON.stringify(engine ?? null) === JSON.stringify(site ?? null) });
   const run = doc.runs.at(-1);
   const day = run.days.at(-1);
   const card = day?.card ?? null;
+  /* What the site renders for that same day: the current selection, or (a settled or held day) its history entry. */
+  const siteDay = view.current ?? view.story?.find((x) => x.date === day?.date && x.step === day?.step) ?? null;
   row("runId", run.runId, view.runId);
   row("step", doc.current.step, view.step);
   row("steps", doc.steps, view.steps);
@@ -24,24 +28,32 @@ export function laneParity({ doc, prices, view }) {
   row("base", money(doc.baseCents), view.base);
   row("target", money(doc.targetCents), view.target);
   row("projection sha", doc.contentSha256, view.sourceSha256);
-  row("card date", card ? day.date : null, view.current?.date ?? null);
-  row("leg ids", card?.legs.map((l) => l.legId), view.current?.legs.map((l) => l.legId));
-  row("markets", card?.legs.map((l) => l.market), view.current?.legs.map((l) => l.market));
-  row("selections", card?.legs.map((l) => l.selection?.teamAbbr ?? l.selection?.label), view.current?.legs.map((l) => l.teamAbbr ?? l.selection));
-  row("model win probability", card?.legs.map((l) => l.probabilityShown), view.current?.legs.map((l) => l.projection));
-  row("projection snapshots", card?.legs.map((l) => l.projection?.snapshotId), view.current?.legs.map((l) => l.snapshotId));
+  row("day", day ? `${day.date}/${day.step}` : null, siteDay ? `${siteDay.date}/${siteDay.step}` : null);
+  rowOpt("leg ids", card?.legs.map((l) => l.legId), siteDay?.hasCard ? siteDay.legs.map((l) => l.legId) : null);
+  rowOpt("markets", card?.legs.map((l) => l.market), siteDay?.hasCard ? siteDay.legs.map((l) => l.market) : null);
+  rowOpt("selections", card?.legs.map((l) => l.selection?.teamAbbr ?? l.selection?.label), siteDay?.hasCard ? siteDay.legs.map((l) => l.teamAbbr ?? l.selection) : null);
+  rowOpt("model win probability", card?.legs.map((l) => l.probabilityShown), siteDay?.hasCard ? siteDay.legs.map((l) => l.projection) : null);
+  rowOpt("projection snapshots", card?.legs.map((l) => l.projection?.snapshotId), siteDay?.hasCard ? siteDay.legs.map((l) => l.snapshotId) : null);
+  row("rule version", doc.ruleVersion ?? doc.current?.ruleVersion ?? "bbm-rules@1", view.ruleVersion ?? "bbm-rules@1");
+  rowOpt("leg count", typeof day?.legCount === "number" && card ? day.legCount : null, siteDay?.hasCard && typeof day?.legCount === "number" ? siteDay.legs.length : null);
+  out.push({ laneId: doc.laneId, field: "leg cap", engine: day?.maxLegs ?? null, site: siteDay?.legs?.length ?? null, ok: typeof day?.maxLegs !== "number" || !siteDay || siteDay.legs.length <= day.maxLegs });
+  rowOpt("step target", typeof day?.targetPayoutCents === "number" ? { label: day.targetPayoutLabel ?? null, value: money(day.targetPayoutCents) } : null, view.stepTarget ?? null);
   const pr = prices?.runs?.find((r) => r.runId === run.runId);
   const pd = pr?.days?.filter((d) => d.date === day?.date).at(-1) ?? null;
   row("prices bound to projection", prices?.projectionSha256, doc.contentSha256);
   row("tracked bankroll", money(pr?.trackedBankrollCents), view.tracked);
-  row("verification", pd?.verification, view.current?.price ? (view.verification ?? "VERIFIED") : null);
-  row("book", pd?.book, view.current?.price?.book);
-  row("leg odds", pd?.legs.map((l) => [l.legId, l.oddsFormat === "american" ? american(l.price) : american(decimalToAmerican(l.price))]), view.current?.legs.map((l) => [l.legId, l.price?.odds ?? null]));
-  row("combined decimal", typeof pd?.decimalPrice === "number" ? pd.decimalPrice.toFixed(2) : null, typeof view.current?.price?.decimal === "number" ? view.current.price.decimal.toFixed(2) : null);
-  row("stake", money(pd?.stakeCents), view.current?.price?.stake);
-  row("payout", money(pd?.grossPayoutCents), view.current?.price?.payout);
-  row("profit", money(pd?.profitCents), view.current?.price?.profit);
-  row("odds snapshot sha", pd?.priceSnapshotSha256, view.current?.price?.snapshotSha256);
+  const sp = siteDay?.price ?? null;
+  const priced = pd && pd.verification !== "REFUSED";
+  /* A priced day must show every price field, exactly (fail-closed); an unpriced or refused day must show none. */
+  const rowP = priced ? row : rowOpt;
+  rowP("verification", priced ? pd.verification : null, sp ? (sp.verification ?? "VERIFIED") : null);
+  rowP("book", priced ? pd.book : null, sp?.book);
+  rowP("leg odds", priced ? pd.legs.map((l) => [l.legId, l.oddsFormat === "american" ? american(l.price) : american(decimalToAmerican(l.price))]) : null, sp ? siteDay.legs.map((l) => [l.legId, l.price?.odds ?? null]) : null);
+  rowP("combined decimal", priced && typeof pd.decimalPrice === "number" ? pd.decimalPrice.toFixed(2) : null, typeof sp?.decimal === "number" ? sp.decimal.toFixed(2) : null);
+  rowP("stake", priced ? money(pd.stakeCents) : null, sp?.stake);
+  rowP("payout", priced ? money(pd.grossPayoutCents) : null, sp?.payout);
+  rowP("profit", priced ? money(pd.profitCents) : null, sp?.profit);
+  rowP("odds snapshot sha", priced ? pd.priceSnapshotSha256 : null, sp?.snapshotSha256);
   return out;
 }
 

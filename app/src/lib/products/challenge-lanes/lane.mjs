@@ -77,7 +77,11 @@ export const LANE_STATUS = Object.freeze({
   HELD: { glyph: "Ⅱ", tone: "held" },
   COMPLETED: { glyph: "★", tone: "won" },
   "FINISHED SHORT": { glyph: "◐", tone: "held" },
+  /* Rules v2 (proposed): a run superseded under new rules. */
+  RETIRED: { glyph: "⊘", tone: "held" },
 });
+/** "bbm-rules@1" → "RULES V1": the engine's rule version, shown, never interpreted. */
+export const ruleLabel = (v) => (typeof v === "string" && /@(\d+)$/.test(v) ? `RULES V${v.match(/@(\d+)$/)[1]}` : v ?? null);
 const UNAVAILABLE = { label: "RECORD NOT PUBLISHED", glyph: "○", tone: "held" };
 /** PD 2026-11-04 (rules v2): an open lane with nothing recorded for the product day yet. Never priced. */
 export const AWAITING_SELECTION = "AWAITING QUALIFIED SELECTION";
@@ -134,7 +138,8 @@ function priceOf(day) {
   if (!p) return null;
   return {
     method: p.method, estimate: p.estimate === true,
-    combinedLabel: p.estimate ? p.label ?? "Combined price · estimate (same-game legs, not a book's offer)" : "Combined price (leg product)",
+    combinedLabel: p.estimate ? p.label ?? "Combined price · estimate (same-game legs, not a book's offer)" : p.combinedLabel ? `Combined price (${p.combinedLabel})` : "Combined price (leg product)",
+    band: p.band && typeof p.band.loCents === "number" ? `${money(p.band.loCents)}–${money(p.band.hiCents)}` : null,
     combined: [american(decimalToAmerican(p.decimalPrice)), typeof p.decimalPrice === "number" ? `${p.decimalPrice.toFixed(2)}×` : null].filter(Boolean).join(" · "),
     decimal: p.decimalPrice, book: p.book ?? null,
     stake: money(p.stakeCents), payout: money(p.grossPayoutCents), profit: money(p.profitCents),
@@ -173,17 +178,22 @@ function dayPresent(day, projectionLabel, teams) {
   /* The engine leaves a staked, unsettled day's own status empty: that day is the active step. */
   const status = day.status ?? (day.staked && !day.stepOutcome ? "IN_PLAY" : null);
   let result = null;
-  if (day.stepOutcome === "WIN") result = `Step ${day.step} won.`;
+  /* Rules v2 (proposed): a v1 card withdrawn by the migration stays in the record, never staked, never re-read. */
+  if (day.withdrawn) result = "Withdrawn when the rules changed: never staked; its legs are kept as record only.";
+  if (result) { /* withdrawn: nothing else applies */ }
+  else if (day.stepOutcome === "WIN") result = `Step ${day.step} won.`;
   else if (day.stepOutcome === "LOSS") result = `Step ${day.step} lost.`;
   else if (day.stepOutcome) result = `Step ${day.step}: ${day.stepOutcome}.`;
   else if (day.card && !day.staked && day.modelCardResult && day.modelCardResult !== "PENDING") result = `The model card ${day.modelCardResult === "WIN" ? "won" : "lost"}, but it was not staked, so the lane did not move.`;
   return {
     date: day.date, step: day.step, internalStatus: status,
-    statusText: day.stepOutcome === "WIN" ? "Won" : day.stepOutcome === "LOSS" ? "Lost" : DAY_TEXT[status] ?? status ?? (day.card ? "Card frozen" : ""),
+    statusText: day.withdrawn ? "Withdrawn · record only" : day.stepOutcome === "WIN" ? "Won" : day.stepOutcome === "LOSS" ? "Lost" : day.heldCode === "NO_QUALIFIED_CARD" ? "Held · no qualified card" : DAY_TEXT[status] ?? status ?? (day.card ? "Card frozen" : ""),
     tone: day.stepOutcome === "WIN" ? "won" : day.stepOutcome === "LOSS" ? "lost" : status === "IN_PLAY" ? "active" : "held",
     reason: reasonText(day.reason), staked: Boolean(day.staked), legs: day.card ? legsOf(day, projectionLabel, teams) : [], hasCard: Boolean(day.card),
     modelCardResult: day.modelCardResult ?? null, stepOutcome: day.stepOutcome ?? null, result,
     price: priceOf(day),
+    withdrawn: Boolean(day.withdrawn), legCount: day.legCount ?? null, maxLegs: day.maxLegs ?? null,
+    stepTarget: typeof day.targetPayoutCents === "number" ? { label: day.targetPayoutLabel ?? "STEP TARGET", value: money(day.targetPayoutCents) } : null,
   };
 }
 
@@ -206,7 +216,7 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
   /* RULE VERSIONS (PD 2026-11-04): the engine moved to rules v2 (two legs a step, new milestones). Days and runs the
      record marks with another rule version stay in the history, labelled with that version — never re-read as today's. */
   const currentRule = d.ruleVersion ?? d.runs?.at(-1)?.ruleVersion ?? null;
-  const ruleTag = (v) => (v && v !== currentRule ? `rules ${v}` : null);
+  const ruleTag = (v) => (v && v !== currentRule ? ruleLabel(v) : null);
   const story = [...d.history].reverse().map((x) => ({ ...dayPresent(x, projectionLabel, teams), ruleTag: ruleTag(x.ruleVersion) }));
   const latest = d.day ? dayPresent(d.day, projectionLabel, teams) : null;
   /* AWAITING QUALIFIED SELECTION (PD 2026-11-04, rules v2): the lane is open but the engine has recorded nothing for the
@@ -214,8 +224,13 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
   const settledState = ["LOST", "COMPLETED", "FINISHED SHORT"].includes(d.status);
   const awaiting = !settledState && Boolean(productDay) && (!d.day || d.day.date < productDay);
   const current = !awaiting && latest?.hasCard && !latest.stepOutcome && d.status !== "LOST" ? latest : null;
+  /* Leg cap (rules v2): a card with more legs than its own day's cap is refused, never shown as a qualified card. */
+  if (current && typeof current.maxLegs === "number" && current.legs.length > current.maxLegs) throw new Error(`laneView: ${d.laneId} ${current.date} shows ${current.legs.length} legs over its cap of ${current.maxLegs}`);
   const glyph = awaiting ? AWAITING : LANE_STATUS[d.status] ?? LANE_STATUS.HELD;
-  let note = awaiting ? `No qualified selection has been frozen for ${productDay} yet. Nothing is priced until one is.` : reasonText(d.reason);
+  /* The engine keeps a run's last reason after it moves on (a HELD day's reason stays on the run once a card is in
+     play), so a reason is shown only for the states it explains. */
+  const REASONED = new Set(["HELD", "LOST", "RETIRED", "FINISHED SHORT", "COMPLETED"]);
+  let note = awaiting ? `No qualified selection has been frozen for ${productDay} yet. Nothing is priced until one is.` : REASONED.has(d.status) ? reasonText(d.reason) : null;
   if (!note && d.status === "ACTIVE") note = `Step ${d.step} of ${d.steps} is active. No new card until it settles.`;
   if (!note && d.status === "WON") note = `Step ${d.step - 1} won. Step ${d.step} gets the next qualifying card.`;
   const p = d.pace;
@@ -260,7 +275,8 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
     rungs: d.rungs.map((r) => ({ step: r.step, state: r.state, milestone: money(r.milestoneCents) })),
     current, story, graphics,
     runs: d.runs.map((r, i) => ({ runId: r.runId, number: i + 1, started: String(r.startedAt ?? "").slice(0, 10) || null, status: r.endStatus, stepsWon: r.stepsWon ?? 0, current: i === d.runs.length - 1, ruleTag: ruleTag(r.ruleVersion) })),
-    ruleVersion: currentRule,
+    ruleVersion: currentRule, ruleLabel: ruleLabel(currentRule),
+    stepTarget: awaiting ? null : latest?.stepTarget ?? null,
     sourceSha256: d.sourceSha256,
   };
 }
