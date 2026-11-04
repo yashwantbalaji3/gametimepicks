@@ -187,7 +187,9 @@ function legsOf(day, projectionLabel, teams) {
       selection: player ? `${player.name ?? ""}` : l.selection?.label ?? abbr ?? "", teamAbbr: player ? player.team : abbr, team: teamOf(teams, player ? player.team : abbr), player,
       matchup: opponent ? `${code === "home" ? "vs" : "@"} ${opponent}` : l.eventLabel ?? null,
       time: etTime(l.startUtc),
-      projectionLabel: prop ? l.projection?.label ?? projectionLabel : "MODEL WIN PROBABILITY", projection: prop ? (typeof l.projection?.value === "number" ? l.projection.value.toFixed(1) : null) : l.probabilityShown ?? null,
+      /* betting-engine 2026-11-04: a card@2 winner leg carries no probability unless it is a validated LEVEL A one; with
+         none, no MODEL WIN PROBABILITY row at all (a "—" under that label would suggest a model number exists). */
+      projectionLabel: prop ? l.projection?.label ?? projectionLabel : l.probabilityShown != null ? "MODEL WIN PROBABILITY" : null, projection: prop ? (typeof l.projection?.value === "number" ? l.projection.value.toFixed(1) : null) : l.probabilityShown ?? null,
       evidence: evidenceOf(l),
       flags: l.guard?.flagText ?? [],
       outcome: o && o !== "PENDING" ? o : null,

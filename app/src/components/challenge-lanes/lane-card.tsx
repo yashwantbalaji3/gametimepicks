@@ -8,7 +8,7 @@ import type { CSSProperties } from "react";
 export type LaneLeg = {
   n: number; legId: string; gameId: string; game: string; market: string | null; prop: boolean;
   selection: string; teamAbbr: string | null; team: { name: string | null; color: string; ink: string | null } | null;
-  matchup: string | null; time: string | null; projectionLabel: string; projection: string | null; flags: string[]; outcome: string | null;
+  matchup: string | null; time: string | null; projectionLabel: string | null; projection: string | null; flags: string[]; outcome: string | null;
   price: { odds: string | null; line: number | string | null; book: string | null; captured: string | null; hitRates?: string[] } | null;
   snapshotId?: string | null;
   player?: { name: string | null; team: string | null; side: string | null; market: string } | null;
@@ -70,8 +70,12 @@ function LegCard({ l }: { l: LaneLeg }) {
         {l.flags.length ? <span className="cl-leg-flag"><span className="cl-flag-chip">Flag</span> {l.flags.join(" ")}</span> : null}
       </div>
       <div className="cl-leg-side">
-        <span className="cl-label cl-label--accent">{l.projectionLabel}</span>
-        <span className="cl-leg-pct">{l.projection ?? "—"}</span>
+        {l.projectionLabel ? (
+          <>
+            <span className="cl-label cl-label--accent">{l.projectionLabel}</span>
+            <span className="cl-leg-pct">{l.projection ?? "—"}</span>
+          </>
+        ) : null}
         <span className={`cl-outcome cl-outcome--${(l.outcome ?? "open").toLowerCase()}`}>{l.outcome ? OUTCOME_TEXT[l.outcome] ?? l.outcome : l.prop ? "projected" : "to win"}</span>
       </div>
     </li>

@@ -581,6 +581,10 @@ test("EVIDENCE + PROPS on the engine's sample (bb-b): class badge and label verb
   const won = view.story.find((x) => x.stepOutcome === "WIN");
   assert.deepEqual(won.evidence, { class: "LEVEL_A", label: "Model-validated value" });
   assert.equal(won.legs[0].teamAbbr, "TTT");
+  /* No probability on a card@2 winner leg → no MODEL WIN PROBABILITY row, not a "—" under it. */
+  assert.equal(won.legs[0].projectionLabel, null);
+  const wonHtml = text(html(React.createElement(LaneCard, { lane: { ...view, current: { ...won, stepOutcome: null } } })));
+  assert.doesNotMatch(wonHtml, /MODEL WIN PROBABILITY/);
   for (const bad of [{ k: 3, n: 0 }, { k: "7", n: 10 }, null]) assert.equal(lane.hitRateText(bad), null);
   /* Without the key the same lane renders no line, odds or hit rate. */
   const unpriced = text(html(React.createElement(LaneCard, { lane: lane.laneView(o.pub, { productDay: date }) })));
