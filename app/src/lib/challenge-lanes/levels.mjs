@@ -35,6 +35,13 @@ export const LEVEL_B_PARAMS = Object.freeze({
   allowedInjury: Object.freeze({ value: Object.freeze(["ACTIVE", "PROBABLE"]), state: "PROPOSED" }),
   /* Founder 2026-11-04 ~19:25Z: an evening prop needs its role under tonight's lineup, not static morning evidence. */
   requireLineup: Object.freeze({ value: true, state: "PROPOSED" }),
+  /* Founder 2026-11-04 ~19:40Z, DAILY RESEARCH SELECTION (development): hold only for integrity blockers; role and lineup
+     uncertainty become disclosed flags; the payout target is a guide (a wide window, ranked evidence-first). */
+  mode: Object.freeze({ value: "STRICT", state: "PROPOSED", note: "STRICT | RESEARCH" }),
+  minShrunkRateByFamily: Object.freeze({ value: null, state: "PROPOSED", note: "e.g. { pts: 0.60, reb: 0.60, ast: 0.57 } from nba-engine-eval's walk-forward (cc465d1a57)" }),
+  guideWindow: Object.freeze({ value: Object.freeze([0.75, 1.30]), state: "PROPOSED", note: "RESEARCH: gross within target × [lo, hi]; inside it, evidence ranks first and target proximity later" }),
+  lineupExcludeMinN: Object.freeze({ value: 20, state: "PROPOSED", note: "RESEARCH: exclude when tonight's teammate scenario has n ≥ this and its side rate is below lineupExcludeRate" }),
+  lineupExcludeRate: Object.freeze({ value: 0.55, state: "PROPOSED" }),
   legDecimalRange: Object.freeze({ value: Object.freeze([1.25, 4.0]), state: "PROPOSED" }),
   minBooksAtLine: Object.freeze({ value: 2, state: "PROPOSED" }),
   maxQuoteAgeMs: Object.freeze({ value: 90 * 60 * 1000, state: "PROPOSED" }),
@@ -109,22 +116,28 @@ const booksQuoting = (leg, books, q) => books.filter((b) => quoteAt(leg, b, q)).
 /** Per-leg Level B signals A–E (F, model validation, is Level A only and is "not validated" today). */
 export function legSignals(leg, { params = null, now } = {}) {
   const r = [];
+  const f = []; // RESEARCH-mode flags: disclosed limitations, not refusals
+  const research = P("mode", params) === "RESEARCH";
+  const soft = (code) => (research ? f : r).push(code);
   const w = leg.hitRate?.windows ?? [];
   const longest = w.reduce((m, x) => Math.max(m, x.n), 0);
   const A = { longestN: longest, windows: w.map((x) => x.text), shrunkRate: leg.hitRate?.shrunk?.rate ?? null, nEffective: leg.hitRate?.shrunk?.nEffective ?? null };
   if (!w.length) r.push(`A_NO_EVIDENCE ${leg.legId}: no hit-rate windows`);
   else if (longest < P("minLongestWindowN", params)) r.push(`A_SMALL_SAMPLE ${leg.legId}: longest window n ${longest} < ${P("minLongestWindowN", params)}`);
   if (!(typeof A.shrunkRate === "number")) r.push(`A_NO_SHRUNK_RATE ${leg.legId}`);
-  else if (A.shrunkRate < P("minShrunkRate", params)) r.push(`A_WEAK_EVIDENCE ${leg.legId}: shrunk ${A.shrunkRate.toFixed(3)} < ${P("minShrunkRate", params)}`);
+  else {
+    const floor = P("minShrunkRateByFamily", params)?.[leg.family] ?? P("minShrunkRate", params);
+    if (A.shrunkRate < floor - 1e-9) r.push(`A_WEAK_EVIDENCE ${leg.legId}: shrunk ${A.shrunkRate.toFixed(3)} < ${floor}`);
+  }
   const ro = leg.role;
   const cv = ro && ro.minutesAvg > 0 && typeof ro.minutesSd === "number" ? ro.minutesSd / ro.minutesAvg : null;
   const B = { stable: ro?.stable ?? null, gamesPlayed: ro?.gamesPlayed ?? null, minutesCv: cv };
   if (leg.family !== "winner") {
     if (!ro) r.push(`B_NO_ROLE ${leg.legId}`);
     else {
-      if (ro.stable !== true) r.push(`B_ROLE_UNSTABLE ${leg.legId}${ro.note ? `: ${ro.note}` : ""}`);
+      if (ro.stable !== true) soft(`B_ROLE_UNSTABLE ${leg.legId}${ro.note ? `: ${ro.note}` : ""}`);
       if (!(ro.gamesPlayed >= P("minGamesPlayed", params))) r.push(`B_FEW_GAMES ${leg.legId}: ${ro.gamesPlayed ?? 0} < ${P("minGamesPlayed", params)}`);
-      if (cv == null || cv > P("maxMinutesCv", params)) r.push(`B_MINUTES_VOLATILE ${leg.legId}: minutes CV ${cv == null ? "unknown" : cv.toFixed(3)}`);
+      if (cv == null || cv > P("maxMinutesCv", params)) soft(`B_MINUTES_VOLATILE ${leg.legId}: minutes CV ${cv == null ? "unknown" : cv.toFixed(3)}`);
     }
   }
   const C = { status: leg.injury?.status ?? null, fetchedAt: leg.injury?.fetchedAt ?? null };
@@ -135,12 +148,19 @@ export function legSignals(leg, { params = null, now } = {}) {
   C.lineup = lu ? { tonightScenario: lu.tonightScenario ?? null, sensitive: lu.sensitive ?? null, baseRepresentative: lu.baseRepresentative ?? null, scenarios: (lu.scenarios ?? []).map((x) => `${x.label}: ${x.hits}/${x.games}${x.minutesAvg != null ? ` · ${x.minutesAvg} min` : ""}`), keyTeammates: (lu.keyTeammates ?? []).map((t) => `${t.name} ${t.statusNow}`) } : null;
   if (leg.family !== "winner" && P("requireLineup", params)) {
     if (!lu) r.push(`C_LINEUP_UNKNOWN ${leg.legId}: no teammate-scenario evidence`);
-    else if (lu.sensitive !== false || lu.baseRepresentative !== true) r.push(`C_LINEUP_SENSITIVE ${leg.legId}: ${lu.sensitive !== false ? "role shifts across plausible teammate scenarios" : "base sample does not represent tonight's lineup"}${lu.note ? ` (${lu.note})` : ""}`);
+    else if (research) {
+      /* Contextual: exclude only when tonight's own teammate scenario is large and does not support the side (e.g. a
+         starter's role jumps and the history points the other way); otherwise disclose the uncertainty. */
+      const t = lu.tonight ?? (lu.scenarios ?? []).find((x) => x.label === lu.tonightScenario) ?? null;
+      const rate = t && t.games > 0 ? t.hits / t.games : null;
+      if (t && t.games >= P("lineupExcludeMinN", params) && rate < P("lineupExcludeRate", params)) r.push(`C_LINEUP_EXCLUDED ${leg.legId}: tonight's scenario (${lu.tonightScenario}) ${t.hits}/${t.games} does not support the side`);
+      else if (lu.sensitive !== false || lu.baseRepresentative !== true) f.push(`C_LINEUP_UNCERTAIN ${leg.legId}: ${lu.tonightScenario ?? "?"}${t ? ` ${t.hits}/${t.games}` : ""}${t && t.games < 8 ? " (small sample: wide uncertainty)" : ""}${lu.note ? ` · ${lu.note}` : ""}`);
+    } else if (lu.sensitive !== false || lu.baseRepresentative !== true) r.push(`C_LINEUP_SENSITIVE ${leg.legId}: ${lu.sensitive !== false ? "role shifts across plausible teammate scenarios" : "base sample does not represent tonight's lineup"}${lu.note ? ` (${lu.note})` : ""}`);
   }
   const D = { ok: leg.dataQuality?.ok ?? null, issues: leg.dataQuality?.issues ?? [] };
   if (D.ok !== true) r.push(`D_DATA_QUALITY ${leg.legId}: ${D.issues.join(", ") || "not confirmed"}`);
   if (!(Date.parse(leg.startUtc) > Date.parse(now))) r.push(`STARTED ${leg.legId}`);
-  return { signals: { A, B, C, D, F: { validated: false, note: "no leg model is validated for EV today (Level A unavailable)" } }, reasons: r };
+  return { signals: { A, B, C, D, F: { validated: false, note: "no leg model is validated for EV today (Level A unavailable)" } }, reasons: r, flags: f };
 }
 
 /**
@@ -151,7 +171,8 @@ export function legSignals(leg, { params = null, now } = {}) {
 export function evaluateLevelSet(set, { position, now, propIx, propCaptureSha256 = null, h2h = null, params = null, excludeGames = [], bookmakers = ELIGIBLE_OPERATOR_KEYS }) {
   const legs = [...set].sort((a, b) => String(a.startUtc).localeCompare(String(b.startUtc)) || a.legId.localeCompare(b.legId));
   const reasons = [];
-  const perLeg = legs.map((l) => { const s = legSignals(l, { params, now }); reasons.push(...s.reasons); return s.signals; });
+  const flags = [];
+  const perLeg = legs.map((l) => { const s = legSignals(l, { params, now }); reasons.push(...s.reasons); flags.push(...s.flags); return s.signals; });
   if (legs.length > 2) reasons.push("LEG_COUNT_EXCEEDED");
   const players = legs.filter((l) => l.player).map((l) => l.player.playerId);
   if (new Set(players).size !== players.length) reasons.push("CORRELATED_SAME_PLAYER: no dependence model for two lines of one player");
@@ -183,17 +204,19 @@ export function evaluateLevelSet(set, { position, now, propIx, propCaptureSha256
   });
   const D = Number(ratio.n) / Number(ratio.d);
   const money = { stakeCents: position.bankrollCents, ...payoutCents(position.bankrollCents, ratio) };
-  if (money.grossPayoutCents < position.band.loCents || money.grossPayoutCents > position.band.hiCents) reasons.push(`OUT_OF_BAND: gross ${money.grossPayoutCents} outside [${position.band.loCents}, ${position.band.hiCents}]`);
+  const win = P("mode", params) === "RESEARCH" ? P("guideWindow", params) : null;
+  if (win) { const lo = Math.ceil(position.targetCents * win[0]); const hi = Math.floor(position.targetCents * win[1]); if (money.grossPayoutCents < lo || money.grossPayoutCents > hi) reasons.push(`OUT_OF_GUIDE_WINDOW: gross ${money.grossPayoutCents} outside [${lo}, ${hi}]`); }
+  else if (money.grossPayoutCents < position.band.loCents || money.grossPayoutCents > position.band.hiCents) reasons.push(`OUT_OF_BAND: gross ${money.grossPayoutCents} outside [${position.band.loCents}, ${position.band.hiCents}]`);
   const minShrunk = Math.min(...perLeg.map((s) => s.A.shrunkRate ?? 0));
   const minN = Math.min(...perLeg.map((s) => s.A.longestN ?? 0));
   const maxCv = Math.max(...perLeg.map((s) => s.B.minutesCv ?? 0));
   const freshest = Math.min(...quotes.map((x) => Date.parse(now) - Date.parse(x.fetchedAt)));
   return {
-    ...base, classification: reasons.length ? LEVEL.HOLD : LEVEL.B, classificationLabel: LEVEL_LABEL[reasons.length ? LEVEL.HOLD : LEVEL.B], reasons,
+    ...base, flags, classification: reasons.length ? LEVEL.HOLD : LEVEL.B, classificationLabel: LEVEL_LABEL[reasons.length ? LEVEL.HOLD : LEVEL.B], reasons,
     legs: legView(quotes),
     price: { book, method: "CALCULATED_LEG_PRODUCT", label: "calculated leg product", decimal: D, american: decimalToAmerican(D), ratio: { n: String(ratio.n), d: String(ratio.d) }, propCaptureSha256, h2hSnapshotSha256: h2h?.snapshotSha256 ?? null },
     money, targetDeviation: money.grossPayoutCents / position.targetCents - 1,
-    rankKeys: { weakestShrunkRate: minShrunk, smallestLongestN: minN, worstMinutesCv: maxCv, legCount: legs.length, freshestQuoteAgeMs: freshest },
+    rankKeys: { weakestShrunkRate: minShrunk, smallestLongestN: minN, worstMinutesCv: maxCv, legCount: legs.length, flagCount: flags.length, freshestQuoteAgeMs: freshest },
   };
 }
 
@@ -210,6 +233,7 @@ export function evaluateLevelCandidates({ legs, position, now, propCapture = nul
   const ranked = rows.filter((r) => r.classification === LEVEL.B).sort((a, b) =>
     bucketOf(b.rankKeys.weakestShrunkRate, bucket) - bucketOf(a.rankKeys.weakestShrunkRate, bucket)
     || a.rankKeys.legCount - b.rankKeys.legCount
+    || (a.rankKeys.flagCount ?? 0) - (b.rankKeys.flagCount ?? 0) // fewer disclosed limitations (suitability)
     || b.rankKeys.smallestLongestN - a.rankKeys.smallestLongestN
     || a.rankKeys.worstMinutesCv - b.rankKeys.worstMinutesCv
     || Math.abs(a.targetDeviation) - Math.abs(b.targetDeviation)
