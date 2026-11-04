@@ -19,6 +19,7 @@ import { priceLane } from "../challenge-lanes/ops.mjs";
 import { DISPLAY_AUTHORIZATION } from "../odds/display-authorization.mjs";
 import { RULES_V2, bbmCardV4, verifyBbmCardV4 } from "../../../scripts/social/bbm-cards-v4.mjs";
 import { bbmCardV5, verifyBbmCardV5 } from "../../../scripts/social/bbm-cards-v5.mjs";
+import { bbmCardV6, verifyBbmCardV6 } from "../../../scripts/social/bbm-cards-v6.mjs";
 /** The committed record (founder 2026-11-04: NBA challengeGraphicsPrices on), and the same record with that switch off. */
 const SOCIAL_ON = DISPLAY_AUTHORIZATION;
 const PRICES_OFF = { ...DISPLAY_AUTHORIZATION, nba: { ...DISPLAY_AUTHORIZATION.nba, challengeGraphicsPrices: false } };
@@ -447,4 +448,23 @@ test("V5 (reference composition): templates keep every placeholder gate, props n
   const real = priced({});
   assert.deepEqual(verifyBbmCardV5(real), []); assert.ok("price.verified" in real.cells);
   assert.match(verifyBbmCardV5({ ...real, preliminary: true }).join(";"), /verified badge without a verified real price/);
+});
+
+test("V6 (contrast pass): the same gates as V5, and the STEP n PLAN box comes from the bankroll and the step milestone (goal exact)", () => {
+  const rungs = (product, at) => RULES_V2.milestonesCents[product].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i + 1 < at ? RUNG.COMPLETED : i + 1 === at ? RUNG.ACTIVE : RUNG.UPCOMING }));
+  const model = { product: "moonshot", letter: "A", laneId: "ms-a", date: DATE, step: 1, steps: 5, rungs: rungs("moonshot", 1), baseCents: 2500, targetCents: 100000, bankrollCents: 2500, badge: BADGE.ACTIVE, view: VIEW.CARD, legs: [{ placeholder: "required" }, { placeholder: "optional" }], payout: null, template: true };
+  const c = bbmCardV6(model);
+  assert.deepEqual(verifyBbmCardV6(c), []);
+  assert.equal(c.cells["plan.label"], "Step 1 plan"); assert.equal(c.cells["plan.from"], "$25"); assert.equal(c.cells["plan.to"], "~$50"); assert.equal(c.cells["plan.mult"], "(≈2.0×)");
+  const goal = bbmCardV6({ ...model, step: 5, rungs: rungs("moonshot", 5), bankrollCents: 40000 });
+  assert.equal(goal.cells["plan.to"], "$1,000"); assert.equal(goal.cells["plan.mult"], "(≈2.5×)"); assert.equal(goal.cells["ladder.m5"], "$1,000");
+  assert.ok(!("plan.label" in bbmCardV6({ ...model, view: VIEW.NO_ELIGIBLE_CARD, badge: BADGE.HELD, legs: [] }).cells));
+  assert.match(verifyBbmCardV6({ ...c, html: c.html.replace(">Price pending<", ">Verified odds<") }).join(";"), /template carries VERIFIED/);
+  assert.throws(() => bbmCardV6({ ...model, legs: [{ placeholder: "required" }, { placeholder: "optional" }, { placeholder: "optional" }] }), /at most 2/);
+  const team = { abbr: "DET", name: "Detroit Pistons" }; const opp = { abbr: "PHI", name: "Philadelphia 76ers" };
+  const leg = { legId: "l1", team, opponent: opp, home: true, tipUtc: "2026-11-05T00:00:00Z", projectionText: "70%" };
+  const priced = (p) => bbmCardV6({ ...model, template: false, legs: [leg], payout: { combinedAmerican: -150, grossCents: 4167, profitCents: 1667, legs: { l1: { price: -150, oddsFormat: "american" } }, ...p } });
+  assert.ok(!("price.verified" in priced({ fixture: true }).cells)); assert.ok("price.verified" in priced({}).cells);
+  assert.deepEqual(verifyBbmCardV6(priced({})), []);
+  assert.throws(() => bbmCardV6({ ...model, legs: [{ kind: "PROP", legId: "p", player: { name: "Sample Player" }, team, opponent: opp, home: true, tipUtc: "2026-11-05T00:00:00Z", lineText: "Over 24.5 pts", level: "B", projectionText: "80%", evidence: { l10: "8/10", l20: "14/20" } }] }), /never carries a probability/);
 });
