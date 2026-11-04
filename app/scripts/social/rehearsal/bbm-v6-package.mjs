@@ -4,7 +4,12 @@
 // packages folder; fail-closed on any mismatch (status, approval, run-2 payout event, image or caption sha, flags).
 //
 //   npx tsx scripts/social/rehearsal/bbm-v6-package.mjs --render <final render dir> --source <sealed-final-2105.json> --out <dir>
-//       --caption-variant v3|compliant --founder-words "<verbatim>" --founder-approved-at <ISO> [--publish-bb <ISO>] [--publish-ms <ISO>]
+//       --caption-variant v3|compliant --founder-approved-at <ISO> [--publish-bb <ISO>] [--publish-ms <ISO>]
+//       --founder-words "<verbatim>" | --approval-file <founder decisions .md> (section A is quoted verbatim)
+//       [--approved-shas bb-a=<sha>,bb-b=<sha>,ms-a=<sha>,ms-b=<sha>,bb-caption=<sha>,ms-caption=<sha>]
+// With --approved-shas the founder approved the FINAL_CANDIDATE bytes themselves (2026-11-04 22:30:09Z): no re-render.
+// The candidate render is packaged only when all six shas match exactly and each sealed final record carries the same
+// candidateRecordSha256 the images were rendered from (the engine applies identical data).
 // Also writes the console's gtp-social-package@1 (BBM_CHALLENGE_POST) per product, in the shape the Command Center
 // importer enforces (CC 2026-11-04); approval fields only from the founder's words as relayed by the PD.
 import crypto from "node:crypto";
@@ -22,12 +27,26 @@ const render = JSON.parse(fs.readFileSync(path.join(a.render, "manifest.json"), 
 const srcRaw = fs.readFileSync(a.source);
 const src = JSON.parse(srcRaw);
 const problems = [];
+const APPROVED = a["approved-shas"] ? Object.fromEntries(String(a["approved-shas"]).split(",").map((x) => x.split("="))) : null;
+let approvalSource = null;
+if (a["approval-file"]) {
+  const raw = fs.readFileSync(a["approval-file"]);
+  const text = raw.toString("utf8");
+  const sec = /^A\. [^\n]*\n([\s\S]*?)\n(?=B\. )/m.exec(text);
+  if (!sec) problems.push("the approval file has no section A");
+  else { a["founder-words"] = `${text.match(/^A\. [^\n]*/m)[0]}\n${sec[1]}`.trim(); approvalSource = { file: a["approval-file"], sha256: sha(raw), section: "A" }; }
+}
 if (!["v3", "compliant"].includes(a["caption-variant"])) problems.push("--caption-variant must be v3 or compliant (the founder's choice)");
 if (!a["founder-words"] || !a["founder-approved-at"] || Number.isNaN(Date.parse(a["founder-approved-at"]))) problems.push("approval needs the founder's verbatim words and the approval time (relayed by the PD)");
 const LANE_LOGS = process.env.GTP_LANE_LOGS_DIR ?? path.join(process.env.HOME, "gtp-private", "challenge-lanes");
 const numbersIn = (t) => String(t ?? "").replace(/\b(49ers|76ers)\b/gi, "").match(/\d+(?:\.\d+)?/g) ?? [];
-if (render.status !== "FINAL" || render.final !== true) problems.push(`render status ${render.status}: only a FINAL render is packaged`);
-if (render.source?.sha256 !== sha(srcRaw)) problems.push("the render was not made from this source file");
+if (APPROVED) {
+  if (render.status !== "FINAL_CANDIDATE") problems.push(`render status ${render.status}: the approved bytes are the FINAL_CANDIDATE render`);
+  if (!fs.existsSync(render.source?.file ?? "") || sha(fs.readFileSync(render.source.file)) !== render.source.sha256) problems.push("the candidate source file changed since the render");
+} else {
+  if (render.status !== "FINAL" || render.final !== true) problems.push(`render status ${render.status}: only a FINAL render is packaged`);
+  if (render.source?.sha256 !== sha(srcRaw)) problems.push("the render was not made from this source file");
+}
 if ((render.checker ?? []).length || (render.layout ?? []).length || (render.diversity?.repeats ?? []).length) problems.push("the render carries checker, layout or diversity problems");
 // Founder override 2026-11-04 (odds snapshot): captured odds, may have changed, not a live offer.
 const OVERRIDE = { id: "2026-11-04-founder-odds-snapshot-override", commits: ["f529fa44fa", "41c421cf1d"], fetchedWindowUtc: "2026-11-04T21:05Z/2026-11-04T21:07Z" };
@@ -41,12 +60,14 @@ for (const [pkg, lanes] of [["bb", ["bb-a", "bb-b"]], ["ms", ["ms-a", "ms-b"]]])
     if (!r || !rec) { problems.push(`${lane}: missing render row or source record`); continue; }
     if (rec.approvalStatus !== "FOUNDER_APPROVED") problems.push(`${lane}: approval ${rec.approvalStatus}`);
     for (const k of ["priceEventSha256", "payoutEventSha256", "cardEventSha256"]) if (!/^[0-9a-f]{64}$/.test(rec[k] ?? "")) problems.push(`${lane}: ${k} is not a run-2 event sha (${rec[k]})`);
-    if (r.recordSha256 !== rec.recordSha256 || r.candidateRecordSha256 !== rec.candidateRecordSha256) problems.push(`${lane}: the image was not rendered from this record`);
+    if ((!APPROVED && r.recordSha256 !== rec.recordSha256) || r.candidateRecordSha256 !== rec.candidateRecordSha256) problems.push(`${lane}: the image was not rendered from this record`);
+    if (APPROVED && APPROVED[lane] !== r.imageSha256) problems.push(`${lane}: image sha ${r.imageSha256} is not the founder-approved ${APPROVED[lane]}`);
     if (!r.parity?.ok) problems.push(`${lane}: parity ${r.parity?.mismatches?.join("; ")}`);
     const png = fs.readFileSync(path.join(a.render, "full", `${lane}.png`));
     if (sha(png) !== r.imageSha256) problems.push(`${lane}: image bytes differ from the render manifest`);
     const cap = fs.readFileSync(path.join(a.render, "captions", `${pkg}-2026-11-04${a["caption-variant"] === "compliant" ? "-compliant" : ""}.txt`), "utf8");
     if (a["caption-variant"] === "v3" && sha(Buffer.from(cap, "utf8")) !== r.captionSha256) problems.push(`${lane}: caption bytes differ from the render manifest`);
+    if (APPROVED && APPROVED[`${pkg}-caption`] !== sha(Buffer.from(cap, "utf8"))) problems.push(`${pkg}: caption sha ${sha(Buffer.from(cap, "utf8"))} is not the founder-approved ${APPROVED[`${pkg}-caption`]}`);
     // The lane's run-2 log must hold this card and this VERIFIED payout (the importer re-reads it before send).
     const logRef = path.join(LANE_LOGS, lane, "run-2.jsonl");
     const evs = fs.existsSync(logRef) ? fs.readFileSync(logRef, "utf8").trim().split("\n").map((x) => JSON.parse(x)) : [];
@@ -90,7 +111,7 @@ for (const p of packages) {
   const social = {
     schema: "gtp-social-package@1", revision: 1, designVersion: "1", sport: "nba", date: "2026-11-04", contentType: "BBM_CHALLENGE_POST", variant,
     dedupeId: `gtp-social:nba:2026-11-04:BBM_CHALLENGE_POST:${variant}`, contentSha256, containsMarketData: true,
-    approval: { status: "FINAL", socialAuthorized: true, founderWords: a["founder-words"], founderApprovedAt: new Date(a["founder-approved-at"]).toISOString(), oddsSnapshotOverride: OVERRIDE, authorizationRef: "41c421cf1d / f529fa44fa" },
+    approval: { status: "FINAL", socialAuthorized: true, founderWords: a["founder-words"], founderApprovedAt: new Date(a["founder-approved-at"]).toISOString(), approvalSourceRef: approvalSource, approvedShas: APPROVED, oddsSnapshotOverride: OVERRIDE, authorizationRef: "41c421cf1d / f529fa44fa" },
     verification: { passed: true, checks: ["render FINAL from this source", "records FOUNDER_APPROVED with run-2 event shas", "run-2 lane log holds the card and last VERIFIED payout", "image and caption bytes match the render", "record parity", "money reconciliation", "diversity@2", "layout and checker clean"] },
     window: { opensAt: new Date(a["founder-approved-at"]).toISOString(), closesAt: firstStartUtc },
     provenance: { source: manifest.source, render: manifest.render, packageId: p.packageId },
