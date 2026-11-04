@@ -6387,3 +6387,17 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 .pa-nums dt { font-family: var(--font-mono, ui-monospace, monospace); font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--vault-text-mute); }
 .pa-nums dd { margin: 2px 0 0; font-size: 16px; font-weight: 900; color: var(--vault-text); overflow-wrap: anywhere; }
 .pa-src { margin: 0; font-size: 12px; color: var(--vault-text-mute); }
+.pa-game { border: 1px solid var(--vault-border); border-radius: 12px; padding: 0 12px; }
+.pa-game[open] { padding-bottom: 12px; }
+.pa-game-summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-size: 14px; color: var(--vault-text); }
+.pa-table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12.5px; }
+.pa-table th, .pa-table td { padding: 6px 4px; text-align: right; border-top: 1px solid var(--vault-border); color: var(--vault-text); overflow-wrap: anywhere; }
+.pa-table thead th { font-family: var(--font-mono, ui-monospace, monospace); font-size: 9.5px; font-weight: 700; letter-spacing: .02em; text-transform: uppercase; color: var(--vault-text-mute); border-top: 0; overflow-wrap: normal; word-break: keep-all; vertical-align: bottom; }
+.pa-table th[scope="row"], .pa-table thead th:first-child { text-align: left; width: 38%; font-weight: 700; }
+.pa-table thead th:nth-child(2) { width: 14%; }
+.pa-table thead th:nth-child(3) { width: 20%; }
+.pa-table thead th:nth-child(4) { width: 12%; }
+.pa-table thead th:nth-child(5) { width: 16%; }
+.pa-book { display: block; font-size: 11px; font-weight: 500; color: var(--vault-text-mute); }
+.pa-team { color: var(--vault-text-mute); font-weight: 600; }
+@media (min-width: 768px) { .pa-table { font-size: 13.5px; } }

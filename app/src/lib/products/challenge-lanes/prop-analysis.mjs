@@ -6,7 +6,7 @@
  * confidence word. Every other comparison state is counted in one line; when the 6 h line rule has made the lines
  * STALE they are counted, not shown. No prices available → no panel.
  */
-const MARKET = Object.freeze({ pts: "Points", reb: "Rebounds", ast: "Assists" });
+const MARKET = Object.freeze({ pts: "PTS", reb: "REB", ast: "AST" });
 /* One formatter for the module (a formatter per call is what blew the build's memory, #1262). */
 const ET = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" });
 const et = (iso) => { const t = Date.parse(String(iso ?? "")); return Number.isFinite(t) ? `${ET.format(t)} ET` : null; };
@@ -27,9 +27,9 @@ export function propAnalysisView(doc, { now = Date.now() } = {}) {
   const counts = [count(excluded, "excluded by the availability and minutes rules"), count(notProjected, "players not projected"), count(sm.linesOutOfScopeFamily, "lines in markets outside points, rebounds and assists")].filter(Boolean);
   return {
     date: doc.date, label: doc.label ?? null, gateReason: doc.gate?.reason ?? null, stale,
-    freshness: `Lines captured ${et(doc.capture?.capturedAt) ?? "—"}${Number.isFinite(staleAt) ? `; stale after ${et(doc.lineStaleAfter)}` : ""}.`,
+    freshness: `Lines captured ${et(doc.capture?.capturedAt) ?? "—"} (one snapshot; each row shows the line of the book named)${Number.isFinite(staleAt) ? `; stale after ${et(doc.lineStaleAfter)}` : ""}.`,
     others: counts.length ? `Also ${counts.join(", ")}; not listed.` : null,
-    rows: compared.map((r) => ({
+    rows: [...compared].sort((x, y) => String(x.tipUtc).localeCompare(String(y.tipUtc)) || String(x.game).localeCompare(String(y.game)) || String(x.name).localeCompare(String(y.name)) || String(x.family).localeCompare(String(y.family))).map((r) => ({
       key: `${r.eventId}:${r.playerId}:${r.family}`,
       player: r.name, team: r.team ?? null, opponent: null, game: r.game ?? null, market: MARKET[r.family] ?? r.family,
       projection: num(r.projection), line: stale ? null : num(r.line.line), difference: stale ? null : signed(r.difference),

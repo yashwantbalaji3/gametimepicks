@@ -335,7 +335,7 @@ test("provisional prop analysis: a separate panel, labelled not a challenge leg,
   assert.equal(PROP_PANEL_LABEL, "Not a challenge leg — no prop passed the reliability gate");
   assert.match(t, /Provisional prop analysis · 2026-11-04/);
   assert.match(t, /Not a challenge leg — no prop passed the reliability gate\. No prop met the reliability bar today/);
-  assert.match(t, /MODEL PROJECTION 24\.6 Line 22\.5 Difference \+2\.1 SAMPLE BOOK · captured Nov 4, 12:18 AM ET/);
+  assert.match(t, /Player · book Market MODEL PROJECTION Line Difference Sample Player NY SAMPLE BOOK Points 24\.6 22\.5 \+2\.1/);
   assert.doesNotMatch(t, /probability|%|confiden|lock|best bet|high/i);
   assert.doesNotMatch(h, /data-lane-leg=/, "never rendered as a challenge leg");
   assert.doesNotMatch(read("src/components/challenge-lanes/prop-analysis-panel.tsx"), /^["']use client["']/m);
@@ -357,11 +357,12 @@ test("PROP ANALYSIS end to end: nba-engine-eval's writer + reader → the panel:
   const repo = fs.mkdtempSync(path.join(os.tmpdir(), "pa-")); const app = path.join(repo, "app"); fs.mkdirSync(app);
   writePropAnalysis({ appDir: app, analysis, env: { GTP_ODDS_DISPLAY_KEY: KEY } });
   const fresh = loadPropAnalysis({ appDir: app, date: "2099-01-15", env: { GTP_ODDS_DISPLAY_KEY: KEY }, asOf: "2099-01-14T21:00:00Z" });
-  assert.deepEqual(fresh.rows.map((r) => [r.player, r.market, r.projection, r.line, r.difference, r.book, r.range]), [["Test Player", "Points", "21.3", "19.5", "+1.8", "draftkings", "3 books, 19.5–20.5"]]);
+  assert.deepEqual(fresh.rows.map((r) => [r.player, r.market, r.projection, r.line, r.difference, r.book]), [["Test Player", "PTS", "21.3", "19.5", "+1.8", "draftkings"]]);
+  assert.match(text(html(React.createElement(PropAnalysisPanel, { analysis: fresh }))), /AAA @ BBB · 1 prop Player · book Market MODEL PROJECTION Line Difference Test Player BBB draftkings PTS 21\.3 19\.5 \+1\.8/);
   const t = text(html(React.createElement(PropAnalysisPanel, { analysis: fresh })));
   assert.match(t, /Provisional prop analysis · 2099-01-15 Not a challenge leg — no prop passed the reliability gate\. No NBA prop family passed the reliability gate/);
   assert.match(t, /PROVISIONAL ANALYSIS — not a challenge leg; no prop passed the reliability gate \(backtest 0ce4b94208\)/);
-  assert.match(t, /Lines captured Jan 14, 3:00 PM ET; stale after Jan 14, 9:00 PM ET\./);
+  assert.match(t, /Lines captured Jan 14, 3:00 PM ET \(one snapshot; each row shows the line of the book named\); stale after Jan 14, 9:00 PM ET\./);
   assert.match(t, /Also 1 excluded by the availability and minutes rules, 2 players not projected, 3 lines in markets outside points, rebounds and assists; not listed\./);
   assert.doesNotMatch(t, /OVER|UNDER|-115|-105|probability|confiden|Guarded Player/i, "no side, no price, no probability; excluded rows not listed");
   // Built after lineStaleAfter: lines and differences hidden, the panel says so.

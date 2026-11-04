@@ -17,7 +17,8 @@ import { parlayFixtureRouteEnabled } from "@/lib/parlays/v2/dev-route.mjs";
 import LanePair from "@/components/challenge-lanes/lane-pair";
 import type { LaneView } from "@/components/challenge-lanes/lane-card";
 import { laneView, acceptLaneProjection } from "@/lib/products/challenge-lanes/lane.mjs";
-import { readTeamColours } from "@/lib/products/challenge-lanes/load.mjs";
+import { readTeamColours, loadPropAnalysis } from "@/lib/products/challenge-lanes/load.mjs";
+import PropAnalysisPanel, { type PropAnalysisView } from "@/components/challenge-lanes/prop-analysis-panel";
 import { samplePricedDisplay } from "@/lib/products/challenge-lanes/__fixtures__/sample-prices.mjs";
 import bbA from "@/lib/products/challenge-lanes/__fixtures__/bb-a.fixture.json";
 import bbB from "@/lib/products/challenge-lanes/__fixtures__/bb-b.fixture.json";
@@ -54,6 +55,9 @@ export default function ChallengeLanesFixturePage() {
       </p>
       <div id="fixture-priced"><LanePair product="bank-builder" lanes={[view(synBbA, true), view(synBbB)]} /></div>
       <div id="fixture-synthetic-moonshot"><LanePair product="moonshot" lanes={[view(synMsA), view(synMsB)]} /></div>
+      {/* The prop analysis panel over nba-engine-eval's Nov 2 test-key sample, when a developer has placed it locally
+          (never committed: real prices under a known key). Renders nothing without the file and the test key. */}
+      <div id="fixture-prop-analysis"><PropAnalysisPanel analysis={loadPropAnalysis({ date: "2026-11-02", asOf: "2026-11-02T18:00:00Z" }) as PropAnalysisView | null} /></div>
     </div>
   );
 }
