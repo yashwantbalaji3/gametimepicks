@@ -263,6 +263,11 @@ test("POSTED receipts from the console's chained inbox are ingested once; bad on
   assert.equal(r.events[0].receiptSha256, inbox[0].sha256);
   assert.deepEqual(r.refused.map((x) => x.reason), ["OTHER_LANE_OR_RUN", "TYPE_NOT_ALLOWED"]);
   assert.equal(ingestReceipts([...ev, ...r.events], inbox).events.length, 0, "idempotent");
+  const gfx = (imagePath) => { const g = append([], { type: "GRAPHIC_RENDERED", laneId: "ms-b", runId: "run-1", date: DATE, step: 1, at: "x", source: "bb-social", refEventSha256: cardSha, packageId: "ms-b-2026-11-02", imageSha256: "b".repeat(64), imagePath }); return laneProjection("ms-b", [[...ev, ...ingestReceipts(ev, g).events]]).runs[0].days[0].receipts[0].imagePath; };
+  assert.equal(gfx("/data/challenge-lanes/graphics/ms-b-2026-11-02-ms-b.png"), "/data/challenge-lanes/graphics/ms-b-2026-11-02-ms-b.png");
+  for (const bad of ["https://evil.example/x.png", "/data/challenge-lanes/graphics/../../x.png", "/data/other/x.png", "/data/challenge-lanes/graphics/x.svg", undefined]) assert.equal(gfx(bad), null, String(bad));
+  const pub = laneProjection("ms-b", [[...ev, ...r.events]]).runs[0].days[0].receipts[0];
+  assert.deepEqual([pub.type, pub.xPostId, pub.packageId, pub.scheduledFor, pub.refEventSha256], ["POSTED", "123", "ms-b-2026-11-02", "2026-11-02T20:00:00Z", cardSha]);
   assert.match(ingestReceipts(ev, [inbox[0], { ...inbox[1], at: "y" }]).refused[0].reason, /^INBOX_CHAIN_BROKEN/);
 });
 
