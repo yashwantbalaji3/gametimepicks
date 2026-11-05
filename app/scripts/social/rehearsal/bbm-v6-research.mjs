@@ -160,7 +160,11 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
     models.push({ laneId, name, held: true, legsRaw: [], model: { product, letter: L0.letter, laneId, date: "2026-11-04", step: 1, steps: 5, rungs, ...TERMS[product], bankrollCents: TERMS[product].baseCents, badge: BADGE.HELD, view: VIEW.NO_ELIGIBLE_CARD, template: false, legs: [], payout: null, heldSub: "No card tonight", heldReason: HELD_CODE[laneId] ? heldReasonText(HELD_CODE[laneId]) : a["held-code"] ? heldReasonText(a["held-code"]) : "Held pending the founder's decision on tonight's research selections.", researchLine: true, reviewRibbon: REVIEW } });
     continue;
   }
-  const lane = src.lanes[laneId]; const c = lane?.card;
+  const lane = src.lanes[laneId]; const c0 = lane?.card;
+  // A record without money.stakeCents (step 2 sealed file): stake = gross - profit, asserted against --opening (fail-closed).
+  const OPEN = Object.fromEntries(String(a.opening ?? "").split(",").filter(Boolean).map((x) => x.split("=")).map(([k, v]) => [k, Number(v)]));
+  const c = c0 && c0.money && c0.money.stakeCents == null ? { ...c0, money: { ...c0.money, stakeCents: c0.money.grossPayoutCents - c0.money.profitCents } } : c0;
+  if (c && c0.money.stakeCents == null && OPEN[laneId] !== c.money.stakeCents) throw new Error(`${laneId}: the record has no stakeCents and gross - profit ${c.money.stakeCents} is not --opening ${OPEN[laneId]}`);
   if (!c || c.schema !== "gtp.bbm.card@2" || c.rulesVersion !== "bbm-rules@2") throw new Error(`${laneId}: no card@2 record under rules v2`);
   // Level B: research, never a probability. Level A: the model probability per leg (no other claim is drawn).
   if (!["LEVEL_A", "LEVEL_B"].includes(c.classification) || (c.classification === "LEVEL_B" && (c.probability != null || c.evClaim))) throw new Error(`${laneId}: ${c.classification} with a probability or an EV claim is not drawn`);

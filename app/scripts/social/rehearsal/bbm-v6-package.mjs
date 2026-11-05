@@ -89,7 +89,11 @@ for (const [pkg, lanes] of plan) {
   const media = []; let caption = null;
   for (const [i, r] of rows.entries()) {
     const lane = lanes[i];
-    const rec = src.records?.[`${lane}:A`]?.record;
+    const rec0 = src.records?.[`${lane}:A`]?.record;
+    // No money.stakeCents in the step 2 sealed file: gross - profit, asserted against --opening (as the render does).
+    const OPEN = Object.fromEntries(String(a.opening ?? "").split(",").filter(Boolean).map((x) => x.split("=")).map(([k, v]) => [k, Number(v)]));
+    const rec = rec0 && rec0.money.stakeCents == null ? { ...rec0, money: { ...rec0.money, stakeCents: rec0.money.grossPayoutCents - rec0.money.profitCents } } : rec0;
+    if (rec && rec0.money.stakeCents == null && OPEN[lane] !== rec.money.stakeCents) problems.push(`${lane}: no stakeCents and gross - profit ${rec.money.stakeCents} is not --opening ${OPEN[lane]}`);
     if (!r || !rec) { problems.push(`${lane}: missing render row or source record`); continue; }
     if (rec.approvalStatus !== "FOUNDER_APPROVED") problems.push(`${lane}: approval ${rec.approvalStatus}`);
     for (const k of ["priceEventSha256", "payoutEventSha256", "cardEventSha256"]) if (!/^[0-9a-f]{64}$/.test(rec[k] ?? "")) problems.push(`${lane}: ${k} is not a run-2 event sha (${rec[k]})`);
@@ -120,7 +124,8 @@ for (const [pkg, lanes] of plan) {
     if (media.at(-1).lane.legs.some((l) => !l.startUtc)) problems.push(`${lane}: a leg has no startUtc in the record`);
   }
   const T = { bb: { base: 10000, target: 1000000 }, ms: { base: 2500, target: 100000 } }[pkg];
-  const rec0 = src.records?.[`${lanes[0]}:A`]?.record ?? {};
+  const recP = src.records?.[`${lanes[0]}:A`]?.record ?? {};
+  const rec0 = recP.money && recP.money.stakeCents == null ? { ...recP, money: { ...recP.money, stakeCents: recP.money.grossPayoutCents - recP.money.profitCents } } : recP;
   const date = rec0.date ?? "2026-11-04"; const step = ROAD ? rec0.step : 1;
   // The post's sport: NFL when the card carries the required NFL leg (tonight's TNF), else NBA (CC to confirm for mixed cards).
   const sport = (rec0.legs ?? []).some((l) => l.sport === "nfl") ? "nfl" : "nba";
