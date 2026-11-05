@@ -399,3 +399,13 @@ test("public projection of a final-candidate card@2: no priceCheck, display coun
   const txt = JSON.stringify(laneProjection("bb-b", [ev]));
   assert.ok(!/draftkings|"line":|priceCheck|displayCard|grossPayoutCents|"american"|espnNow|hitRate|"last5"/.test(txt), txt.slice(0, 300));
 });
+
+test("a settled prop leg's public record drops the book line but keeps the stat and outcome", async () => {
+  const { runStartedV2 } = await import("./rules-v2.mjs");
+  const { laneProjection } = await import("./projection.mjs");
+  const { append } = await import("./lanes.mjs");
+  let ev = [runStartedV2({ laneId: "bb-b", runId: "run-2", startedAt: "2026-11-04T22:00:00Z", approvedBy: "TEST", laneType: "NBA_PLAYER_PROPS" })];
+  ev = append(ev, { type: "LEG_SETTLED", date: "2026-11-04", step: 1, at: "2026-11-05T15:00:00Z", source: { kind: "official-final" }, legId: "x", gameId: "1", outcome: "WIN", final: { stat: "ast", value: 5, line: 3.5, side: "over" } });
+  const txt = JSON.stringify(laneProjection("bb-b", [ev]));
+  assert.ok(!txt.includes('"line"') && txt.includes('"value":5') && txt.includes('"outcome":"WIN"'));
+});
