@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-05T17:22:55Z",
- "sourceGeneratedAt": "2026-11-05T17:22:55Z",
+ "generatedAt": "2026-11-05T21:11:49Z",
+ "sourceGeneratedAt": "2026-11-05T21:11:49Z",
  "forecastInputHash": "5fdf48b624527d19",
  "providerEventId": "401873037",
  "matchup": "JAX @ BAL",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-05T17:22:55Z",
-  "roleEvidenceAt": "2026-11-05T17:22:55Z",
+  "injuriesCapturedAt": "2026-11-05T21:11:49Z",
+  "roleEvidenceAt": "2026-11-05T21:11:49Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,15 +24,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "BAL",
-     "playerId": "nfl-athlete-3916387",
-     "name": "Lamar Jackson",
-     "share": 0.7,
-     "reason": "withheld for Lamar Jackson (BAL): his modelled share of BAL's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -125,7 +116,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 59,
+  "absent": 57,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -261,8 +252,8 @@
   },
   "BAL": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -279,23 +270,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-3916387",
-     "name": "Lamar Jackson",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Lamar Jackson (BAL): his modelled share of BAL's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-      }
-     ]
     },
     {
      "playerId": "nfl-athlete-4429582",
@@ -386,10 +360,16 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-3916387",
+     "name": "Lamar Jackson",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
+    },
+    {
      "playerId": "nfl-athlete-4035671",
      "name": "Tyler Huntley",
      "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
+     "reason": "designation: Injured Reserve"
     },
     {
      "playerId": "nfl-athlete-2576581",
@@ -412,14 +392,11 @@
    },
    {
     "team": "BAL",
-    "state": "UNRESOLVED",
-    "reason": "depth-chart QB1 Tyler Huntley is not in the board's passing pool",
+    "state": "SINGLE_PASSER",
     "passers": [
-     "nfl-athlete-3916387",
      "nfl-athlete-4429582"
     ],
-    "removed": [],
-    "snapshotAt": "2026-11-04T15:20:57Z"
+    "removed": []
    }
   ],
   "passerShareFloor": [
@@ -436,18 +413,9 @@
     "team": "BAL",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3916387",
      "nfl-athlete-4429582"
     ],
-    "withheld": [
-     {
-      "team": "BAL",
-      "playerId": "nfl-athlete-3916387",
-      "name": "Lamar Jackson",
-      "share": 0.7,
-      "reason": "withheld for Lamar Jackson (BAL): his modelled share of BAL's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],
@@ -978,27 +946,6 @@
     },
     "anytime_td": {
      "probability": 0.1285,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3916387",
-   "name": "Lamar Jackson",
-   "team": "BAL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 14.405,
-     "p10": 0,
-     "p25": 0.34,
-     "median": 7.45,
-     "p75": 21.8,
-     "p90": 39.47,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1158,
      "pricingState": "NOT_PROBED"
     }
    }
