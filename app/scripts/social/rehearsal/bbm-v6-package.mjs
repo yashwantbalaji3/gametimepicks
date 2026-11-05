@@ -26,7 +26,9 @@ const out = path.resolve(a.out);
 if (out === LIVE_PACKAGES || out.startsWith(LIVE_PACKAGES + path.sep)) throw new Error("never the live packages folder");
 const render = JSON.parse(fs.readFileSync(path.join(a.render, "manifest.json"), "utf8"));
 const srcRaw = fs.readFileSync(a.source);
-const src = JSON.parse(srcRaw);
+const srcR = JSON.parse(srcRaw);
+// Records keyed by lane alone ("bb-b") are option A ("bb-b:A"), as in the render.
+const src = srcR.records ? { ...srcR, records: Object.fromEntries(Object.entries(srcR.records).map(([k, v]) => [k.includes(":") ? k : `${k}:A`, v])) } : srcR;
 const problems = [];
 const APPROVED = a["approved-shas"] ? Object.fromEntries(String(a["approved-shas"]).split(",").map((x) => x.split("="))) : null;
 let approvalSource = null;

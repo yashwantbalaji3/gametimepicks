@@ -33,7 +33,9 @@ const ROAD_GAME = a["require-game"] ?? null;
 const RENDER_AT = Date.now();
 const out = path.resolve(a.out);
 const raw = fs.readFileSync(a.selection);
-const sel0 = JSON.parse(raw);
+const sel0r = JSON.parse(raw);
+// Records keyed by lane alone ("bb-b", the step 2 sealed file) are option A ("bb-b:A").
+const sel0 = sel0r.records ? { ...sel0r, records: Object.fromEntries(Object.entries(sel0r.records).map(([k, v]) => [k.includes(":") ? k : `${k}:A`, v])) } : sel0r;
 // A sealed-records file (records["<lane>:<A|B|C>"].record): option A is the lane's card, the others render as alternates.
 const sel0b = sel0.lanes && Object.values(sel0.lanes).some((v) => v?.schema === "gtp.bbm.card@2") ? { ...sel0, lanes: Object.fromEntries(Object.entries(sel0.lanes).map(([k, v]) => [k, { card: v }])) } : sel0;
 const sel = sel0.records ? { now: sel0.evaluatedAt, lanes: Object.fromEntries(["bb-a", "bb-b", "ms-a", "ms-b"].filter((l) => sel0.records[`${l}:A`]).map((l) => [l, { card: sel0.records[`${l}:A`].record }])) } : sel0b;
