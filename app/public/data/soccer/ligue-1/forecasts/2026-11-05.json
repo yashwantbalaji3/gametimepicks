@@ -1,0 +1,641 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-league-forecasts",
+ "dataClass": "PUBLIC",
+ "public": true,
+ "league": "ligue-1",
+ "competition": "Ligue 1",
+ "country": "France",
+ "generatedAt": "2026-11-05T17:26:35Z",
+ "model": {
+  "id": "epl-model-v1-split-poisson",
+  "fitThrough": "2026-11-05T17:26:35Z",
+  "matchesFitted": 1342,
+  "description": "the Premier League split-Poisson model (v1), fit on this league's own results"
+ },
+ "validation": {
+  "verdict": "ACCEPTED_FOR_MODEL_ONLY_FORECASTS",
+  "holdout": {
+   "season": "2025-26",
+   "matches": 306,
+   "logLoss": 1.0127,
+   "empiricalLogLoss": 1.0652,
+   "drawEceAllScored": 0.0271
+  },
+  "limitations": {
+   "closingMarketBetterBy": 0.0372,
+   "eloBetterBy": 0.0108,
+   "note": "Over the 2025-26 holdout the sportsbook closing line was more accurate than this model, and so was a plain Elo rating. These are model-only forecasts for research and entertainment — not betting advice."
+  }
+ },
+ "sources": {
+  "fixtures": "ESPN public scoreboard",
+  "history": "openfootball football.json (results, public domain)"
+ },
+ "counts": {
+  "forecast": 9,
+  "refused": 0
+ },
+ "rows": [
+  {
+   "eventId": "soccer:ligue-1:401876405",
+   "providerEventId": "401876405",
+   "kickoffUtc": "2026-11-06T19:45:00.000Z",
+   "homeEspnId": "179",
+   "awayEspnId": "180",
+   "matchup": "Toulouse v Strasbourg",
+   "homeClub": "Toulouse",
+   "awayClub": "Strasbourg",
+   "historyNames": {
+    "home": "Toulouse",
+    "away": "Strasbourg"
+   },
+   "slug": "toulouse-v-strasbourg-2026-11-06",
+   "modelOnly": true,
+   "modelId": "epl-model-v1-split-poisson",
+   "forecastAt": "2026-11-05T17:26:35Z",
+   "probs": {
+    "home": 0.358662,
+    "draw": 0.247423,
+    "away": 0.393915
+   },
+   "expectedGoals": 2.9024,
+   "lambdas": {
+    "home": 1.4117,
+    "away": 1.4907
+   },
+   "over25": 0.554599,
+   "btts": {
+    "yes": 0.585953,
+    "no": 0.414047
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.606085,
+    "drawOrAway": 0.641338,
+    "homeOrAway": 0.752577
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.115513
+    },
+    {
+     "score": "1-2",
+     "p": 0.086099
+    },
+    {
+     "score": "0-1",
+     "p": 0.081825
+    },
+    {
+     "score": "2-1",
+     "p": 0.081536
+    },
+    {
+     "score": "1-0",
+     "p": 0.077489
+    }
+   ],
+   "topScorelinesMass": 0.716593,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "sparseInput": null
+  },
+  {
+   "eventId": "soccer:ligue-1:401876411",
+   "providerEventId": "401876411",
+   "kickoffUtc": "2026-11-07T18:00:00.000Z",
+   "homeEspnId": "172",
+   "awayEspnId": "6851",
+   "matchup": "AJ Auxerre v Paris FC",
+   "homeClub": "AJ Auxerre",
+   "awayClub": "Paris FC",
+   "historyNames": {
+    "home": "Auxerre",
+    "away": "Paris FC"
+   },
+   "slug": "aj-auxerre-v-paris-fc-2026-11-07",
+   "modelOnly": true,
+   "modelId": "epl-model-v1-split-poisson",
+   "forecastAt": "2026-11-05T17:26:35Z",
+   "probs": {
+    "home": 0.329135,
+    "draw": 0.305073,
+    "away": 0.365792
+   },
+   "expectedGoals": 2.0345,
+   "lambdas": {
+    "home": 0.982,
+    "away": 1.0525
+   },
+   "over25": 0.332669,
+   "btts": {
+    "yes": 0.407128,
+    "no": 0.592872
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.634208,
+    "drawOrAway": 0.670865,
+    "homeOrAway": 0.694927
+   },
+   "topScorelines": [
+    {
+     "score": "0-1",
+     "p": 0.137608
+    },
+    {
+     "score": "1-1",
+     "p": 0.135133
+    },
+    {
+     "score": "0-0",
+     "p": 0.130742
+    },
+    {
+     "score": "1-0",
+     "p": 0.128391
+    },
+    {
+     "score": "0-2",
+     "p": 0.072417
+    }
+   ],
+   "topScorelinesMass": 0.865121,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "sparseInput": null
+  },
+  {
+   "eventId": "soccer:ligue-1:401876407",
+   "providerEventId": "401876407",
+   "kickoffUtc": "2026-11-07T20:05:00.000Z",
+   "homeEspnId": "160",
+   "awayEspnId": "170",
+   "matchup": "Paris Saint-Germain v Troyes",
+   "homeClub": "Paris Saint-Germain",
+   "awayClub": "Troyes",
+   "historyNames": {
+    "home": "Paris SG",
+    "away": "Troyes"
+   },
+   "slug": "paris-saint-germain-v-troyes-2026-11-07",
+   "modelOnly": true,
+   "modelId": "epl-model-v1-split-poisson",
+   "forecastAt": "2026-11-05T17:26:35Z",
+   "probs": {
+    "home": 0.873392,
+    "draw": 0.076756,
+    "away": 0.049852
+   },
+   "expectedGoals": 5.1142,
+   "lambdas": {
+    "home": 4.0738,
+    "away": 1.0646
+   },
+   "over25": 0.886156,
+   "btts": {
+    "yes": 0.643939,
+    "no": 0.356061
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.950148,
+    "drawOrAway": 0.126608,
+    "homeOrAway": 0.923244
+   },
+   "topScorelines": [
+    {
+     "score": "4-1",
+     "p": 0.071914
+    },
+    {
+     "score": "3-1",
+     "p": 0.070611
+    },
+    {
+     "score": "4-0",
+     "p": 0.067552
+    },
+    {
+     "score": "3-0",
+     "p": 0.066329
+    },
+    {
+     "score": "5-1",
+     "p": 0.058592
+    }
+   ],
+   "topScorelinesMass": 0.568942,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "sparseInput": null
+  },
+  {
+   "eventId": "soccer:ligue-1:401876406",
+   "providerEventId": "401876406",
+   "kickoffUtc": "2026-11-08T14:00:00.000Z",
+   "homeEspnId": "169",
+   "awayEspnId": "166",
+   "matchup": "Stade Rennais v Lille",
+   "homeClub": "Stade Rennais",
+   "awayClub": "Lille",
+   "historyNames": {
+    "home": "Rennes",
+    "away": "Lille"
+   },
+   "slug": "stade-rennais-v-lille-2026-11-08",
+   "modelOnly": true,
+   "modelId": "epl-model-v1-split-poisson",
+   "forecastAt": "2026-11-05T17:26:35Z",
+   "probs": {
+    "home": 0.424516,
+    "draw": 0.272561,
+    "away": 0.302923
+   },
+   "expectedGoals": 2.4197,
+   "lambdas": {
+    "home": 1.336,
+    "away": 1.0837
+   },
+   "over25": 0.435435,
+   "btts": {
+    "yes": 0.487718,
+    "no": 0.512282
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.697077,
+    "drawOrAway": 0.575484,
+    "homeOrAway": 0.727439
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.128782
+    },
+    {
+     "score": "1-0",
+     "p": 0.118831
+    },
+    {
+     "score": "0-1",
+     "p": 0.096395
+    },
+    {
+     "score": "0-0",
+     "p": 0.088947
+    },
+    {
+     "score": "2-1",
+     "p": 0.086025
+    }
+   ],
+   "topScorelinesMass": 0.805297,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "sparseInput": null
+  },
+  {
+   "eventId": "soccer:ligue-1:401876412",
+   "providerEventId": "401876412",
+   "kickoffUtc": "2026-11-08T16:15:00.000Z",
+   "homeEspnId": "7868",
+   "awayEspnId": "2502",
+   "matchup": "Angers v Nice",
+   "homeClub": "Angers",
+   "awayClub": "Nice",
+   "historyNames": {
+    "home": "Angers",
+    "away": "Nice"
+   },
+   "slug": "angers-v-nice-2026-11-08",
+   "modelOnly": true,
+   "modelId": "epl-model-v1-split-poisson",
+   "forecastAt": "2026-11-05T17:26:35Z",
+   "probs": {
+    "home": 0.227934,
+    "draw": 0.251957,
+    "away": 0.52011
+   },
+   "expectedGoals": 2.5389,
+   "lambdas": {
+    "home": 0.9556,
+    "away": 1.5833
+   },
+   "over25": 0.466116,
+   "btts": {
+    "yes": 0.489069,
+    "no": 0.510931
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.47989,
+    "drawOrAway": 0.772066,
+    "homeOrAway": 0.748043
+   },
+   "topScorelines": [
+    {
+     "score": "0-1",
+     "p": 0.125009
+    },
+    {
+     "score": "1-1",
+     "p": 0.119458
+    },
+    {
+     "score": "0-2",
+     "p": 0.098962
+    },
+    {
+     "score": "1-2",
+     "p": 0.094567
+    },
+    {
+     "score": "0-0",
+     "p": 0.078956
+    }
+   ],
+   "topScorelinesMass": 0.796797,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "sparseInput": null
+  },
+  {
+   "eventId": "soccer:ligue-1:401876410",
+   "providerEventId": "401876410",
+   "kickoffUtc": "2026-11-08T16:15:00.000Z",
+   "homeEspnId": "6997",
+   "awayEspnId": "167",
+   "matchup": "Brest v Lyon",
+   "homeClub": "Brest",
+   "awayClub": "Lyon",
+   "historyNames": {
+    "home": "Brest",
+    "away": "Lyon"
+   },
+   "slug": "brest-v-lyon-2026-11-08",
+   "modelOnly": true,
+   "modelId": "epl-model-v1-split-poisson",
+   "forecastAt": "2026-11-05T17:26:35Z",
+   "probs": {
+    "home": 0.376511,
+    "draw": 0.253608,
+    "away": 0.369882
+   },
+   "expectedGoals": 2.7845,
+   "lambdas": {
+    "home": 1.3996,
+    "away": 1.385
+   },
+   "over25": 0.52685,
+   "btts": {
+    "yes": 0.564721,
+    "no": 0.435279
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.630118,
+    "drawOrAway": 0.623489,
+    "homeOrAway": 0.746392
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.119709
+    },
+    {
+     "score": "1-0",
+     "p": 0.086434
+    },
+    {
+     "score": "0-1",
+     "p": 0.085534
+    },
+    {
+     "score": "2-1",
+     "p": 0.08377
+    },
+    {
+     "score": "1-2",
+     "p": 0.082897
+    }
+   ],
+   "topScorelinesMass": 0.736906,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "sparseInput": null
+  },
+  {
+   "eventId": "soccer:ligue-1:401876409",
+   "providerEventId": "401876409",
+   "kickoffUtc": "2026-11-08T16:15:00.000Z",
+   "homeEspnId": "3236",
+   "awayEspnId": "273",
+   "matchup": "Le Havre AC v Lorient",
+   "homeClub": "Le Havre AC",
+   "awayClub": "Lorient",
+   "historyNames": {
+    "home": "Le Havre",
+    "away": "Lorient"
+   },
+   "slug": "le-havre-ac-v-lorient-2026-11-08",
+   "modelOnly": true,
+   "modelId": "epl-model-v1-split-poisson",
+   "forecastAt": "2026-11-05T17:26:35Z",
+   "probs": {
+    "home": 0.323177,
+    "draw": 0.27547,
+    "away": 0.401353
+   },
+   "expectedGoals": 2.4003,
+   "lambdas": {
+    "home": 1.1195,
+    "away": 1.2808
+   },
+   "over25": 0.430382,
+   "btts": {
+    "yes": 0.486442,
+    "no": 0.513558
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.598647,
+    "drawOrAway": 0.676823,
+    "homeOrAway": 0.72453
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.130036
+    },
+    {
+     "score": "0-1",
+     "p": 0.116156
+    },
+    {
+     "score": "1-0",
+     "p": 0.101523
+    },
+    {
+     "score": "0-0",
+     "p": 0.090686
+    },
+    {
+     "score": "1-2",
+     "p": 0.083278
+    }
+   ],
+   "topScorelinesMass": 0.807854,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "sparseInput": null
+  },
+  {
+   "eventId": "soccer:ligue-1:401876408",
+   "providerEventId": "401876408",
+   "kickoffUtc": "2026-11-08T16:15:00.000Z",
+   "homeEspnId": "2697",
+   "awayEspnId": "174",
+   "matchup": "Le Mans v AS Monaco",
+   "homeClub": "Le Mans",
+   "awayClub": "AS Monaco",
+   "historyNames": {
+    "home": "Le Mans",
+    "away": "Monaco"
+   },
+   "slug": "le-mans-v-as-monaco-2026-11-08",
+   "modelOnly": true,
+   "modelId": "epl-model-v1-split-poisson",
+   "forecastAt": "2026-11-05T17:26:35Z",
+   "probs": {
+    "home": 0.353153,
+    "draw": 0.199709,
+    "away": 0.447138
+   },
+   "expectedGoals": 4.222,
+   "lambdas": {
+    "home": 1.986,
+    "away": 2.2363
+   },
+   "over25": 0.792685,
+   "btts": {
+    "yes": 0.770562,
+    "no": 0.229438
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.552862,
+    "drawOrAway": 0.646847,
+    "homeOrAway": 0.800291
+   },
+   "topScorelines": [
+    {
+     "score": "1-2",
+     "p": 0.07283
+    },
+    {
+     "score": "2-2",
+     "p": 0.072319
+    },
+    {
+     "score": "1-1",
+     "p": 0.065134
+    },
+    {
+     "score": "2-1",
+     "p": 0.064677
+    },
+    {
+     "score": "1-3",
+     "p": 0.05429
+    }
+   ],
+   "topScorelinesMass": 0.546206,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "sparseInput": {
+    "home": true,
+    "away": false,
+    "note": "Small-sample input: Le Mans's home rates come from 3 matches. The model treats these tiny splits as fully informative, so this forecast is unusually sensitive to them."
+   }
+  },
+  {
+   "eventId": "soccer:ligue-1:401876404",
+   "providerEventId": "401876404",
+   "kickoffUtc": "2026-11-08T19:45:00.000Z",
+   "homeEspnId": "175",
+   "awayEspnId": "176",
+   "matchup": "Lens v Marseille",
+   "homeClub": "Lens",
+   "awayClub": "Marseille",
+   "historyNames": {
+    "home": "Lens",
+    "away": "Marseille"
+   },
+   "slug": "lens-v-marseille-2026-11-08",
+   "modelOnly": true,
+   "modelId": "epl-model-v1-split-poisson",
+   "forecastAt": "2026-11-05T17:26:35Z",
+   "probs": {
+    "home": 0.471403,
+    "draw": 0.254346,
+    "away": 0.274251
+   },
+   "expectedGoals": 2.6445,
+   "lambdas": {
+    "home": 1.5359,
+    "away": 1.1087
+   },
+   "over25": 0.492695,
+   "btts": {
+    "yes": 0.525776,
+    "no": 0.474224
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.725749,
+    "drawOrAway": 0.528597,
+    "homeOrAway": 0.745654
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.120962
+    },
+    {
+     "score": "1-0",
+     "p": 0.109103
+    },
+    {
+     "score": "2-1",
+     "p": 0.09289
+    },
+    {
+     "score": "2-0",
+     "p": 0.083784
+    },
+    {
+     "score": "0-1",
+     "p": 0.078759
+    }
+   ],
+   "topScorelinesMass": 0.766298,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "sparseInput": null
+  }
+ ],
+ "refused": [],
+ "carriedFromEarlierRun": 0
+}
