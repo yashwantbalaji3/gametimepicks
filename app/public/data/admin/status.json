@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-11-05T09:36:46.194Z",
+  "generatedAt": "2026-11-05T13:16:00.771Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -103,25 +103,109 @@
       ]
     },
     "forwardCoverage": {
-      "present": false,
-      "date": "2026-11-05"
+      "present": true,
+      "date": "2026-11-05",
+      "generatedAt": "2026-11-05T09:39:27Z",
+      "sports": [
+        {
+          "sport": "epl",
+          "state": "DERIVED",
+          "counts": {
+            "scheduled": 10,
+            "priced": 10,
+            "generated": 10,
+            "frozen": 0,
+            "started": 0
+          },
+          "findings": []
+        },
+        {
+          "sport": "ufc",
+          "state": "DERIVED",
+          "counts": {
+            "scheduled": 14,
+            "priced": 10,
+            "generated": 11,
+            "frozen": 0,
+            "started": 0
+          },
+          "findings": []
+        },
+        {
+          "sport": "nfl",
+          "state": "SCHEDULE_ONLY",
+          "counts": {
+            "scheduled": 16,
+            "priced": 16,
+            "generated": 0,
+            "frozen": 0,
+            "started": 0
+          },
+          "findings": [
+            "MODEL_ABSENT_BY_DECISION:16 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+          ]
+        },
+        {
+          "sport": "mlb",
+          "state": "DAILY_BY_CONTRACT",
+          "counts": {
+            "scheduled": 0,
+            "priced": 0,
+            "generated": 0,
+            "frozen": 0,
+            "started": 0
+          },
+          "findings": [
+            "FUTURE_STAGING_ABSENT_BY_DESIGN:game-specific inputs (probables, lineups, current odds) arrive per game day; a pre-series artifact would be dishonest for repeated matchups"
+          ]
+        }
+      ]
     },
     "dailyLifecycle": {
       "receiptDate": "2026-11-05",
-      "present": false,
+      "present": true,
+      "generatedAt": "2026-11-05T09:39:26Z",
       "watchdog": [
         {
-          "product": "bank-builder",
-          "kind": "MISSING_DAILY_EVALUATION",
-          "detail": "no daily receipt exists for 2026-11-05"
-        },
-        {
-          "product": "moonshot",
-          "kind": "MISSING_DAILY_EVALUATION",
-          "detail": "no daily receipt exists for 2026-11-05"
+          "product": "homer-nukes",
+          "kind": "INCIDENT_OPEN",
+          "detail": "NOT_RUN: no Homer Nukes board exists for 2026-11-05"
         }
       ],
-      "states": null
+      "states": {
+        "bank-builder": {
+          "state": "OFF_SEASON",
+          "policyVersion": "bank-builder@1"
+        },
+        "moonshot": {
+          "state": "OFF_SEASON",
+          "policyVersion": "moonshot@2"
+        },
+        "end-zone-vault": {
+          "state": "NO_PLAY",
+          "policyVersion": "end-zone-vault@1"
+        },
+        "homer-nukes": {
+          "state": "INCIDENT",
+          "policyVersion": "homer-nukes@1"
+        },
+        "ufc-cards": {
+          "state": "NO_PLAY",
+          "policyVersion": "ufc-cards@1"
+        },
+        "epl-cards": {
+          "state": "NO_PLAY",
+          "policyVersion": "epl-cards@1"
+        },
+        "mlb-cards": {
+          "state": "OFF_SEASON",
+          "policyVersion": "mlb-cards@1"
+        },
+        "multi-cards": {
+          "state": "NO_PLAY",
+          "policyVersion": "multi-cards@1"
+        }
+      }
     }
   },
   "counts": {
@@ -129,16 +213,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-11-05T09:36:45.703Z",
+    "lastRunAt": "2026-11-05T13:16:00.191Z",
     "ageHours": 0,
-    "ok": false,
-    "status": "partial",
-    "phase": "mlb-daily-production"
+    "ok": true,
+    "status": "pass",
+    "phase": "nightly-settle"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-11-05",
-    "etTime": "04:36",
+    "etTime": "08:16",
     "stages": [
       {
         "stage": "schedule",
@@ -157,14 +241,14 @@
       {
         "stage": "teamMarkets",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "playerProps",
         "present": false,
-        "state": "pending",
+        "state": "late",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
@@ -185,9 +269,9 @@
     ],
     "readyCount": 4,
     "totalStages": 6,
-    "lateCount": 0,
-    "signal": "YELLOW",
-    "summary": "4/6 produced; the rest are not due yet"
+    "lateCount": 2,
+    "signal": "RED",
+    "summary": "2 stage(s) overdue: teamMarkets (due 07:17 ET via mlb-daily-production), playerProps (due 07:17 ET via mlb-daily-production)"
   },
   "learningLoop": {
     "signal": "GREEN",
