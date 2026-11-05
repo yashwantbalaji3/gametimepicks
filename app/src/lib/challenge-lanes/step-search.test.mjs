@@ -110,3 +110,13 @@ test("Nov 5 dated snapshot exception: 19:00Z quotes usable past 90 min for tonig
   assert.equal(r.ranked[0].latestPostAt, "2026-11-06T01:15:00.000Z");
   assert.ok(r.ranked[0].flags.some((x) => x.startsWith("E_SNAPSHOT_OVERRIDE")));
 });
+
+test("NFL team W-L windows from final scores (season, last5, venue), ties excluded from n, shrunk only with a no-vig", async () => {
+  const { nflTeamWindows } = await import("./nfl-team-record.mjs");
+  const g = (id, home, hp, away, ap) => [{ family: "nfl.final-score", gameId: id, isFinal: true, teamId: home, homeAway: "HOME", stats: { points: hp } }, { family: "nfl.final-score", gameId: id, isFinal: true, teamId: away, homeAway: "AWAY", stats: { points: ap } }];
+  const rows = [...g("1", "B", 20, "X", 10), ...g("2", "Y", 30, "B", 20), ...g("3", "B", 17, "Z", 17), ...g("4", "W", 3, "B", 24)];
+  const r = nflTeamWindows(rows, { teamId: "B", venue: "home", noVig: 0.6 });
+  assert.deepEqual(r.windows.map((w) => [w.window, w.hits, w.n]), [["last5", 2, 3], ["last10", 2, 3], ["season", 2, 3], ["home", 1, 1]]);
+  assert.equal(r.shrunk.rate, Math.round(((2 + 16 * 0.6) / 19) * 1000) / 1000);
+  assert.equal(nflTeamWindows(rows, { teamId: "B", venue: "home" }).shrunk.rate, null);
+});

@@ -68,7 +68,9 @@ function legView(c, quotesByKey, { now, params, bookmakers }) {
     level = "LEVEL_B";
     const longest = Math.max(0, ...(ev.windows ?? []).map((w) => w.n));
     if (!(ev.windows ?? []).length) reasons.push(`A_NO_EVIDENCE ${key}`);
-    else if (longest < D("minLongestN", params)) reasons.push(`A_SMALL_SAMPLE ${key}: longest n ${longest}`);
+    /* moneylines: team W-L samples are season-sized (NFL ≤ 17); as on Nov 4 (founder-approved research mode) the small
+       sample is a disclosed flag, not a refusal. Player props keep the n floor. */
+    else if (longest < D("minLongestN", params)) (c.family === "winner" ? flags : reasons).push(`${c.family === "winner" ? "ML_SMALL_SAMPLE" : "A_SMALL_SAMPLE"} ${key}: longest n ${longest}`);
     const rate = ev.shrunk?.rate ?? null;
     if (rate == null) reasons.push(`A_NO_SHRUNK_RATE ${key}`);
     else if (rate < D("minShrunkRate", params) - 1e-9) reasons.push(`A_WEAK_EVIDENCE ${key}: shrunk ${rate}`);
