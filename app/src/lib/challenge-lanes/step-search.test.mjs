@@ -81,3 +81,16 @@ test("products differ: no shared selection or opposing sides; the same event is 
   }
   assert.equal(searchDigest(bb), searchDigest(searchStep({ candidates: [...cands].reverse(), quotes, ...BB })), "deterministic regardless of input order");
 });
+
+test("NFL hit-rate windows at the exact line from per-game rows; null lines skipped; newest first; TD family", async () => {
+  const { nflWindows } = await import("./nfl-hit-rates.mjs");
+  const row = (gameId, season, stats) => ({ family: "nfl.espn-player-lines", playerId: "p", gameId, season, stats });
+  const rows = [row("401", 2025, { receptions: 6, rushingTds: 0, receivingTds: 1 }), row("402", 2025, { receptions: 4, rushingTds: 0, receivingTds: 0 }), row("501", 2026, { receptions: 7, rushingTds: 1, receivingTds: 0 }), row("502", 2026, { receptions: null }), row("503", 2026, { receptions: 5, rushingTds: 0, receivingTds: 0 })];
+  const r = nflWindows(rows, { playerId: "p", family: "receptions", side: "over", line: 5.5, noVig: 0.5 });
+  assert.deepEqual(r.windows.map((w) => [w.window, w.hits, w.n]), [["last5", 2, 4], ["last10", 2, 4], ["last20", 2, 4], ["season-2026", 1, 2], ["season-2025", 1, 2]]);
+  assert.equal(r.shrunk.rate, Math.round(((2 + 32) / 68) * 1000) / 1000);
+  assert.ok(r.flags.includes("NFL_SHRINK_FROM_NBA_FIT"));
+  const td = nflWindows(rows, { playerId: "p", family: "anytime_td", side: "yes" });
+  assert.equal(td.windows[0].hits, 2);
+  assert.equal(td.shrunk.rate, null, "no market price → no shrunk rate");
+});
