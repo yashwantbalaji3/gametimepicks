@@ -40,8 +40,10 @@ if (a["approval-file"]) {
 if (!(a.road && a.road !== "0") && !["v3", "compliant", "final"].includes(a["caption-variant"])) problems.push("--caption-variant must be v3, compliant or final (the founder's choice)");
 // --final-copy-file/-sha/-section (founder 2026-11-05): a final-copy candidate; the founder's console click is the content
 // approval (contentApproval null). Otherwise the founder's words and approval time are required.
-const FINAL_COPY = a["final-copy-file"] ? { file: a["final-copy-file"], sha256: a["final-copy-sha"], section: a["final-copy-section"] ?? null } : null;
-if (FINAL_COPY && sha(fs.readFileSync(FINAL_COPY.file)) !== FINAL_COPY.sha256) problems.push(`final-copy file ${FINAL_COPY.file} does not hash to ${FINAL_COPY.sha256}`);
+// Several approval files may be cited (comma-separated, in order; sections "|"-separated); every one must hash as given.
+const fcFiles = String(a["final-copy-file"] ?? "").split(",").filter(Boolean); const fcShas = String(a["final-copy-sha"] ?? "").split(","); const fcSec = String(a["final-copy-section"] ?? "").split("|");
+const FINAL_COPY = fcFiles.length ? { files: fcFiles.map((f, i) => ({ file: f, sha256: fcShas[i], section: fcSec[i] || null })) } : null;
+for (const f of FINAL_COPY?.files ?? []) if (!f.sha256 || sha(fs.readFileSync(f.file)) !== f.sha256) problems.push(`final-copy file ${f.file} does not hash to ${f.sha256}`);
 if (!FINAL_COPY && (!a["founder-words"] || !a["founder-approved-at"] || Number.isNaN(Date.parse(a["founder-approved-at"])))) problems.push("approval needs the founder's verbatim words and the approval time (relayed by the PD)");
 const LANE_LOGS = process.env.GTP_LANE_LOGS_DIR ?? path.join(process.env.HOME, "gtp-private", "challenge-lanes");
 /** The card facts a caption may cite, each from the sealed record or the render, keyed by what it is. */
