@@ -55,8 +55,10 @@ function cardClaims(p) {
   return out;
 }
 const numbersIn = (t) => String(t ?? "").replace(/\b(49ers|76ers)\b/gi, "").match(/\d+(?:\.\d+)?/g) ?? [];
-if (APPROVED) {
-  if (render.status !== "FINAL_CANDIDATE") problems.push(`render status ${render.status}: the approved bytes are the FINAL_CANDIDATE render`);
+// Approved bytes may be a FINAL_CANDIDATE render (approved before run-2, Nov 4) or a FINAL render (step 2); either way
+// every approved sha must match exactly.
+const CANDIDATE_BYTES = APPROVED && render.status === "FINAL_CANDIDATE";
+if (CANDIDATE_BYTES) {
   if (!fs.existsSync(render.source?.file ?? "") || sha(fs.readFileSync(render.source.file)) !== render.source.sha256) problems.push("the candidate source file changed since the render");
 } else {
   if (render.status !== "FINAL" || render.final !== true) problems.push(`render status ${render.status}: only a FINAL render is packaged`);
@@ -84,8 +86,8 @@ for (const [pkg, lanes] of plan) {
     if (!r || !rec) { problems.push(`${lane}: missing render row or source record`); continue; }
     if (rec.approvalStatus !== "FOUNDER_APPROVED") problems.push(`${lane}: approval ${rec.approvalStatus}`);
     for (const k of ["priceEventSha256", "payoutEventSha256", "cardEventSha256"]) if (!/^[0-9a-f]{64}$/.test(rec[k] ?? "")) problems.push(`${lane}: ${k} is not a run-2 event sha (${rec[k]})`);
-    if ((!APPROVED && r.recordSha256 !== rec.recordSha256) || r.candidateRecordSha256 !== rec.candidateRecordSha256) problems.push(`${lane}: the image was not rendered from this record`);
-    if (APPROVED && APPROVED[lane] !== r.imageSha256) problems.push(`${lane}: image sha ${r.imageSha256} is not the founder-approved ${APPROVED[lane]}`);
+    if ((!CANDIDATE_BYTES && r.recordSha256 !== rec.recordSha256) || r.candidateRecordSha256 !== rec.candidateRecordSha256) problems.push(`${lane}: the image was not rendered from this record`);
+    if (APPROVED && (APPROVED[lane] || CANDIDATE_BYTES) && APPROVED[lane] !== r.imageSha256) problems.push(`${lane}: image sha ${r.imageSha256} is not the founder-approved ${APPROVED[lane]}`);
     if (!r.parity?.ok) problems.push(`${lane}: parity ${r.parity?.mismatches?.join("; ")}`);
     const png = fs.readFileSync(path.join(a.render, "full", `${lane}.png`));
     if (sha(png) !== r.imageSha256) problems.push(`${lane}: image bytes differ from the render manifest`);
