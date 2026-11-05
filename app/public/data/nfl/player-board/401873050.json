@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-03T20:54:05Z",
- "sourceGeneratedAt": "2026-11-03T20:54:05Z",
- "forecastInputHash": "0ddaa0a7fca64c86",
+ "generatedAt": "2026-11-05T01:19:19Z",
+ "sourceGeneratedAt": "2026-11-05T01:19:19Z",
+ "forecastInputHash": "cbc1a965504b05b7",
  "providerEventId": "401873050",
  "matchup": "TB @ CHI",
  "kickoffUtc": "2026-11-09T01:20Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-03T20:54:05Z",
-  "roleEvidenceAt": "2026-11-03T20:54:05Z",
+  "injuriesCapturedAt": "2026-11-05T01:19:19Z",
+  "roleEvidenceAt": "2026-11-05T01:19:19Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,29 +24,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "TB",
-     "playerId": "nfl-athlete-4596472",
-     "name": "Jalon Daniels",
-     "share": 0.599,
-     "reason": "withheld for Jalon Daniels (TB): his modelled share of TB's pass attempts is 0.60, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "CHI",
-     "playerId": "nfl-athlete-15168",
-     "name": "Case Keenum",
-     "share": 0.464,
-     "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "CHI",
-     "playerId": "nfl-athlete-4434153",
-     "name": "Tyson Bagent",
-     "share": 0.523,
-     "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -160,7 +137,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Jalon Daniels (TB): his modelled share of TB's pass attempts is 0.60, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -352,7 +329,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -375,12 +352,12 @@
      "playerId": "nfl-athlete-15168",
      "name": "Case Keenum",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -391,26 +368,43 @@
   "qbStarter": [
    {
     "team": "TB",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3052587",
-     "nfl-athlete-4596472"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3052587",
+     "name": "Baker Mayfield"
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4596472",
+      "name": "Jalon Daniels"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-3052587"
+    ]
    },
    {
     "team": "CHI",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4431611",
-     "nfl-athlete-15168",
-     "nfl-athlete-4434153"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4431611",
+     "name": "Caleb Williams"
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-15168",
+      "name": "Case Keenum"
+     },
+     {
+      "playerId": "nfl-athlete-4434153",
+      "name": "Tyson Bagent"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-4431611"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -418,44 +412,18 @@
     "team": "TB",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3052587",
-     "nfl-athlete-4596472"
+     "nfl-athlete-3052587"
     ],
-    "withheld": [
-     {
-      "team": "TB",
-      "playerId": "nfl-athlete-4596472",
-      "name": "Jalon Daniels",
-      "share": 0.599,
-      "reason": "withheld for Jalon Daniels (TB): his modelled share of TB's pass attempts is 0.60, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    },
    {
     "team": "CHI",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4431611",
-     "nfl-athlete-15168",
-     "nfl-athlete-4434153"
+     "nfl-athlete-4431611"
     ],
-    "withheld": [
-     {
-      "team": "CHI",
-      "playerId": "nfl-athlete-15168",
-      "name": "Case Keenum",
-      "share": 0.464,
-      "reason": "withheld for Case Keenum (CHI): his modelled share of CHI's pass attempts is 0.46, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     },
-     {
-      "team": "CHI",
-      "playerId": "nfl-athlete-4434153",
-      "name": "Tyson Bagent",
-      "share": 0.523,
-      "reason": "withheld for Tyson Bagent (CHI): his modelled share of CHI's pass attempts is 0.52, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],
@@ -523,21 +491,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 43.819,
-     "p10": 13.36,
-     "p25": 24.6,
-     "median": 39.74,
-     "p75": 58.83,
-     "p90": 79.09,
+     "mean": 43.002,
+     "p10": 12.72,
+     "p25": 22.95,
+     "median": 38.98,
+     "p75": 58.21,
+     "p90": 78.73,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 22.153,
+     "mean": 22.182,
      "p10": 0,
-     "p25": 6.04,
-     "median": 17.42,
-     "p75": 32.72,
-     "p90": 50.26,
+     "p25": 6.05,
+     "median": 17.24,
+     "p75": 33.4,
+     "p90": 50.03,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -562,12 +530,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
-     "mean": 34.939,
-     "p10": 6.27,
-     "p25": 15.28,
-     "median": 29.98,
-     "p75": 49.15,
-     "p90": 69.86,
+     "mean": 35.369,
+     "p10": 5.99,
+     "p25": 15.16,
+     "median": 30.09,
+     "p75": 49.83,
+     "p90": 71.51,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -583,21 +551,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 59.781,
-     "p10": 20.46,
-     "p25": 34.78,
-     "median": 55.16,
-     "p75": 79.56,
-     "p90": 105.79,
+     "mean": 59.268,
+     "p10": 19.81,
+     "p25": 33.67,
+     "median": 54.21,
+     "p75": 79.18,
+     "p90": 104.9,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 16.303,
+     "mean": 16.544,
      "p10": 0,
-     "p25": 2.34,
-     "median": 11.78,
-     "p75": 24.94,
-     "p90": 39.28,
+     "p25": 2.11,
+     "median": 11.87,
+     "p75": 24.79,
+     "p90": 40.07,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -622,12 +590,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 56.465,
-     "p10": 12.21,
-     "p25": 27.64,
-     "median": 49.91,
-     "p75": 78.67,
-     "p90": 109.47,
+     "mean": 54.9,
+     "p10": 12.41,
+     "p25": 27.34,
+     "median": 49.17,
+     "p75": 75.61,
+     "p90": 104.57,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -652,12 +620,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 43.381,
-     "p10": 9.43,
-     "p25": 20.92,
-     "median": 38.63,
-     "p75": 60.9,
-     "p90": 83.52,
+     "mean": 42.851,
+     "p10": 8.9,
+     "p25": 20.69,
+     "median": 37.85,
+     "p75": 59.37,
+     "p90": 82.78,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -682,12 +650,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 47.018,
-     "p10": 10.3,
-     "p25": 22.19,
-     "median": 41.21,
-     "p75": 65.27,
-     "p90": 90.92,
+     "mean": 46.979,
+     "p10": 9.75,
+     "p25": 22.54,
+     "median": 41.14,
+     "p75": 65.42,
+     "p90": 91.53,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -712,21 +680,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 23.14,
-     "p10": 0.76,
-     "p25": 6.13,
-     "median": 17.57,
-     "p75": 33.38,
-     "p90": 52.91,
+     "mean": 23.392,
+     "p10": 1.1,
+     "p25": 6.63,
+     "median": 17.75,
+     "p75": 33.86,
+     "p90": 53.01,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 22.018,
+     "mean": 21.929,
      "p10": 0,
-     "p25": 5.44,
-     "median": 16.67,
-     "p75": 32.53,
-     "p90": 50.78,
+     "p25": 5.11,
+     "median": 17.06,
+     "p75": 32.43,
+     "p90": 50.74,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -751,12 +719,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 11.259,
+     "mean": 11.502,
      "p10": 0,
-     "p25": 0.62,
-     "median": 6.45,
-     "p75": 16.64,
-     "p90": 29.26,
+     "p25": 0.71,
+     "median": 6.61,
+     "p75": 17.19,
+     "p90": 30.29,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -772,12 +740,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 12.617,
+     "mean": 12.438,
      "p10": 0,
-     "p25": 0.49,
-     "median": 6.92,
-     "p75": 18.58,
-     "p90": 34.42,
+     "p25": 0.5,
+     "median": 6.94,
+     "p75": 18.7,
+     "p90": 33.46,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -802,12 +770,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 48.909,
-     "p10": 11.55,
-     "p25": 24.52,
-     "median": 43.57,
-     "p75": 67.08,
-     "p90": 92.51,
+     "mean": 48.577,
+     "p10": 11.68,
+     "p25": 24.56,
+     "median": 43.49,
+     "p75": 67.16,
+     "p90": 92.33,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -832,12 +800,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 44.645,
-     "p10": 4.65,
-     "p25": 17.68,
-     "median": 37.59,
+     "mean": 44.333,
+     "p10": 4.31,
+     "p25": 17.43,
+     "median": 36.74,
      "p75": 63.66,
-     "p90": 94.11,
+     "p90": 93.34,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -862,12 +830,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 32.835,
-     "p10": 0,
-     "p25": 10.58,
-     "median": 26.39,
-     "p75": 47.42,
-     "p90": 71.52,
+     "mean": 32.226,
+     "p10": 0.22,
+     "p25": 10.67,
+     "median": 26.1,
+     "p75": 46.57,
+     "p90": 71.31,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -892,12 +860,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 24.14,
+     "mean": 24.548,
      "p10": 0,
-     "p25": 6.49,
-     "median": 19.02,
-     "p75": 36.16,
-     "p90": 54.6,
+     "p25": 6.84,
+     "median": 19.22,
+     "p75": 36.1,
+     "p90": 55.89,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -922,12 +890,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 10.593,
+     "mean": 10.014,
      "p10": 0,
-     "p25": 0.01,
-     "median": 4.99,
-     "p75": 15.57,
-     "p90": 30.26,
+     "p25": 0,
+     "median": 4.49,
+     "p75": 14.98,
+     "p90": 27.83,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -943,12 +911,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 13.346,
+     "mean": 13.401,
      "p10": 0,
-     "p25": 0.94,
-     "median": 7.86,
-     "p75": 19.6,
-     "p90": 35.43,
+     "p25": 0.92,
+     "median": 7.64,
+     "p75": 19.85,
+     "p90": 35.61,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -976,12 +944,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 11.064,
+     "mean": 11.012,
      "p10": 0,
-     "p25": 0.01,
-     "median": 5.14,
-     "p75": 16.31,
-     "p90": 31.17,
+     "p25": 0.02,
+     "median": 5.35,
+     "p75": 16.12,
+     "p90": 30.8,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -1006,12 +974,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 26.848,
+     "mean": 26.963,
      "p10": 0,
-     "p25": 8.17,
-     "median": 21.14,
-     "p75": 39.01,
-     "p90": 60.27,
+     "p25": 8.2,
+     "median": 21.56,
+     "p75": 39.63,
+     "p90": 59.57,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1036,12 +1004,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 17.009,
+     "mean": 17.082,
      "p10": 0,
      "p25": 0,
-     "median": 9.81,
-     "p75": 26.43,
-     "p90": 44.56,
+     "median": 9.43,
+     "p75": 26.14,
+     "p90": 46.52,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {

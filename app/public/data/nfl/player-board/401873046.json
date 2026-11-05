@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-03T20:54:05Z",
- "sourceGeneratedAt": "2026-11-03T20:54:05Z",
- "forecastInputHash": "098abaf9aeb3e24d",
+ "generatedAt": "2026-11-05T01:19:19Z",
+ "sourceGeneratedAt": "2026-11-05T01:19:19Z",
+ "forecastInputHash": "9652412c60c47bd6",
  "providerEventId": "401873046",
  "matchup": "HOU @ LAC",
  "kickoffUtc": "2026-11-08T21:05Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-03T20:54:05Z",
-  "roleEvidenceAt": "2026-11-03T20:54:05Z",
+  "injuriesCapturedAt": "2026-11-05T01:19:19Z",
+  "roleEvidenceAt": "2026-11-05T01:19:19Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,22 +24,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "HOU",
-     "playerId": "nfl-athlete-4242546",
-     "name": "Davis Mills",
-     "share": 0.672,
-     "reason": "withheld for Davis Mills (HOU): his modelled share of HOU's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "LAC",
-     "playerId": "nfl-athlete-4383351",
-     "name": "Trey Lance",
-     "share": 0.423,
-     "reason": "withheld for Trey Lance (LAC): his modelled share of LAC's pass attempts is 0.42, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -169,14 +153,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 74,
+  "absent": 72,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "HOU": {
    "counts": {
-    "PROJECTED": 13,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -204,16 +188,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4035538",
-     "name": "David Montgomery",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4429939",
@@ -314,7 +288,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Davis Mills (HOU): his modelled share of HOU's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -327,6 +301,12 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4035538",
+     "name": "David Montgomery",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4586312",
@@ -382,7 +362,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Trey Lance (LAC): his modelled share of LAC's pass attempts is 0.42, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -522,25 +502,39 @@
   "qbStarter": [
    {
     "team": "HOU",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4432577",
-     "nfl-athlete-4242546"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4432577",
+     "name": "C.J. Stroud"
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4242546",
+      "name": "Davis Mills"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-4432577"
+    ]
    },
    {
     "team": "LAC",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4038941",
-     "nfl-athlete-4383351"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4038941",
+     "name": "Justin Herbert"
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4383351",
+      "name": "Trey Lance"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-4038941"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -548,36 +542,18 @@
     "team": "HOU",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4432577",
-     "nfl-athlete-4242546"
+     "nfl-athlete-4432577"
     ],
-    "withheld": [
-     {
-      "team": "HOU",
-      "playerId": "nfl-athlete-4242546",
-      "name": "Davis Mills",
-      "share": 0.672,
-      "reason": "withheld for Davis Mills (HOU): his modelled share of HOU's pass attempts is 0.67, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    },
    {
     "team": "LAC",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4038941",
-     "nfl-athlete-4383351"
+     "nfl-athlete-4038941"
     ],
-    "withheld": [
-     {
-      "team": "LAC",
-      "playerId": "nfl-athlete-4383351",
-      "name": "Trey Lance",
-      "share": 0.423,
-      "reason": "withheld for Trey Lance (LAC): his modelled share of LAC's pass attempts is 0.42, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],
@@ -645,12 +621,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 34.293,
-     "p10": 8.08,
-     "p25": 17.19,
-     "median": 30.24,
-     "p75": 46.84,
-     "p90": 65.79,
+     "mean": 34.728,
+     "p10": 8.63,
+     "p25": 17.5,
+     "median": 30.93,
+     "p75": 47.35,
+     "p90": 65.73,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -673,39 +649,18 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4035538",
-   "name": "David Montgomery",
-   "team": "HOU",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 23.673,
-     "p10": 3.97,
-     "p25": 10.22,
-     "median": 19.88,
-     "p75": 33.2,
-     "p90": 48.09,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.3365,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4258173",
    "name": "Nico Collins",
    "team": "HOU",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 42.827,
-     "p10": 4.96,
-     "p25": 16.81,
-     "median": 36.05,
-     "p75": 61.75,
-     "p90": 88.49,
+     "mean": 43.938,
+     "p10": 5.25,
+     "p25": 18.01,
+     "median": 38.05,
+     "p75": 61.55,
+     "p90": 90.76,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -734,21 +689,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 34.734,
-     "p10": 8.85,
-     "p25": 17.76,
-     "median": 30.61,
-     "p75": 47.61,
-     "p90": 65.88,
+     "mean": 35.165,
+     "p10": 9.01,
+     "p25": 17.51,
+     "median": 31.15,
+     "p75": 48.03,
+     "p90": 66.71,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 11.385,
+     "mean": 11.433,
      "p10": 0,
      "p25": 0,
-     "median": 6.05,
-     "p75": 17.41,
-     "p90": 31.23,
+     "median": 6.07,
+     "p75": 17.62,
+     "p90": 31.78,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -777,12 +732,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 20.461,
-     "p10": 0.45,
-     "p25": 5.08,
-     "median": 14.68,
-     "p75": 29.74,
-     "p90": 48.26,
+     "mean": 20.146,
+     "p10": 0.23,
+     "p25": 4.52,
+     "median": 14.9,
+     "p75": 30.07,
+     "p90": 46.52,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -798,12 +753,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 28.263,
+     "mean": 28.266,
      "p10": 0,
-     "p25": 8.57,
-     "median": 22.54,
-     "p75": 41.79,
-     "p90": 62.92,
+     "p25": 8.18,
+     "median": 22.08,
+     "p75": 41.07,
+     "p90": 63.51,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -832,12 +787,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 19.437,
+     "mean": 19.946,
      "p10": 0,
-     "p25": 1.81,
-     "median": 13.17,
-     "p75": 29.44,
-     "p90": 48.75,
+     "p25": 2.82,
+     "median": 13.88,
+     "p75": 29.73,
+     "p90": 48.34,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -866,12 +821,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 23.412,
+     "mean": 22.123,
      "p10": 0,
-     "p25": 4.31,
-     "median": 17.17,
-     "p75": 34.86,
-     "p90": 55.34,
+     "p25": 4.2,
+     "median": 16.35,
+     "p75": 33.17,
+     "p90": 52.67,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -900,21 +855,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 21.918,
-     "p10": 1.21,
-     "p25": 6.53,
-     "median": 16.94,
-     "p75": 31.96,
-     "p90": 48.73,
+     "mean": 21.777,
+     "p10": 1.54,
+     "p25": 6.7,
+     "median": 16.96,
+     "p75": 31.27,
+     "p90": 49.22,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 11.727,
+     "mean": 11.461,
      "p10": 0,
      "p25": 0,
-     "median": 5.9,
-     "p75": 17.63,
-     "p90": 33.46,
+     "median": 5.7,
+     "p75": 17.5,
+     "p90": 31.94,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -943,12 +898,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 31.03,
-     "p10": 1.8,
-     "p25": 11.35,
-     "median": 25.73,
-     "p75": 44.45,
-     "p90": 65.85,
+     "mean": 30.81,
+     "p10": 1.94,
+     "p25": 11.09,
+     "median": 24.81,
+     "p75": 44.52,
+     "p90": 66.05,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -978,20 +933,20 @@
    "markets": {
     "player_rush_yds": {
      "mean": 16.041,
-     "p10": 0.11,
-     "p25": 3.35,
-     "median": 11.44,
-     "p75": 23.66,
-     "p90": 37.84,
+     "p10": 0.16,
+     "p25": 3.48,
+     "median": 11.36,
+     "p75": 23.85,
+     "p90": 38.29,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 14.073,
+     "mean": 14.017,
      "p10": 0,
-     "p25": 0.11,
-     "median": 9.62,
-     "p75": 21.27,
-     "p90": 35.76,
+     "p25": 0.24,
+     "median": 9.49,
+     "p75": 20.96,
+     "p90": 34.65,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1020,12 +975,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 27.311,
+     "mean": 27.564,
      "p10": 0,
-     "p25": 5.87,
-     "median": 20.61,
-     "p75": 40.46,
-     "p90": 64.17,
+     "p25": 5.44,
+     "median": 19.89,
+     "p75": 42.03,
+     "p90": 65.88,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1054,12 +1009,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 24.082,
+     "mean": 24.447,
      "p10": 0,
-     "p25": 3.65,
-     "median": 16.98,
-     "p75": 36.59,
-     "p90": 58.88,
+     "p25": 3.93,
+     "median": 17.51,
+     "p75": 36.8,
+     "p90": 58.53,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1088,12 +1043,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 18.885,
+     "mean": 18.694,
      "p10": 0,
-     "p25": 0.49,
-     "median": 12.61,
-     "p75": 28.8,
-     "p90": 48.08,
+     "p25": 0.29,
+     "median": 12.08,
+     "p75": 28.36,
+     "p90": 48.09,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1122,12 +1077,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 20.987,
+     "mean": 20.758,
      "p10": 0,
-     "p25": 3.69,
-     "median": 15.33,
-     "p75": 31.79,
-     "p90": 50.01,
+     "p25": 3.74,
+     "median": 14.91,
+     "p75": 30.78,
+     "p90": 49.49,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1156,12 +1111,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 28.32,
+     "mean": 27.284,
      "p10": 0,
-     "p25": 7.37,
-     "median": 22.05,
-     "p75": 41.87,
-     "p90": 64.37,
+     "p25": 6.98,
+     "median": 21.25,
+     "p75": 41.03,
+     "p90": 62.42,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1215,12 +1170,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 14.023,
+     "mean": 13.995,
      "p10": 0,
-     "p25": 1.48,
-     "median": 8.61,
-     "p75": 20.58,
-     "p90": 36.04,
+     "p25": 1.47,
+     "median": 8.64,
+     "p75": 20.74,
+     "p90": 36.27,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1236,12 +1191,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 22.581,
+     "mean": 22.363,
      "p10": 0,
-     "p25": 4.84,
-     "median": 16.73,
-     "p75": 33.57,
-     "p90": 54.14,
+     "p25": 4.73,
+     "median": 17.02,
+     "p75": 33.31,
+     "p90": 52.06,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1270,12 +1225,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 12.466,
+     "mean": 12.256,
      "p10": 0,
      "p25": 0,
-     "median": 6.81,
-     "p75": 19.25,
-     "p90": 33.76,
+     "median": 6.53,
+     "p75": 18.98,
+     "p90": 33.66,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1304,12 +1259,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 20.728,
-     "p10": 0.15,
-     "p25": 4.61,
-     "median": 14.66,
-     "p75": 29.82,
-     "p90": 49.59,
+     "mean": 20.278,
+     "p10": 0.14,
+     "p25": 4.44,
+     "median": 14.36,
+     "p75": 29.25,
+     "p90": 48.02,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -1334,12 +1289,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 13.139,
+     "mean": 12.621,
      "p10": 0,
      "p25": 0,
-     "median": 7.4,
-     "p75": 20.58,
-     "p90": 35.94,
+     "median": 6.79,
+     "p75": 19.26,
+     "p90": 35.06,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1368,12 +1323,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 7.841,
+     "mean": 7.937,
      "p10": 0,
      "p25": 0,
-     "median": 2.45,
-     "p75": 11.02,
-     "p90": 23.23,
+     "median": 2.71,
+     "p75": 11.47,
+     "p90": 23.36,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -1423,12 +1378,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 13.673,
+     "mean": 13.544,
      "p10": 0,
      "p25": 0,
-     "median": 7.68,
-     "p75": 20.76,
-     "p90": 37.68,
+     "median": 6.73,
+     "p75": 20.83,
+     "p90": 37.67,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {

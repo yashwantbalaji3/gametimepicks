@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-03T20:54:05Z",
- "sourceGeneratedAt": "2026-11-03T20:54:05Z",
- "forecastInputHash": "f31dcfde687096fb",
+ "generatedAt": "2026-11-05T01:19:19Z",
+ "sourceGeneratedAt": "2026-11-05T01:19:19Z",
+ "forecastInputHash": "03d060796095de42",
  "providerEventId": "401873038",
  "matchup": "CIN @ ATL",
  "kickoffUtc": "2026-11-08T14:30Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-03T20:54:05Z",
-  "roleEvidenceAt": "2026-11-03T20:54:05Z",
+  "injuriesCapturedAt": "2026-11-05T01:19:19Z",
+  "roleEvidenceAt": "2026-11-05T01:19:19Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,15 +24,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "ATL",
-     "playerId": "nfl-athlete-5344782",
-     "name": "Jack Strand",
-     "share": 0.469,
-     "reason": "withheld for Jack Strand (ATL): his modelled share of ATL's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -103,8 +94,13 @@
  },
  "arrivalsShadowed": 0,
  "departedFiltered": 0,
- "practiceSquadFiltered": 1,
+ "practiceSquadFiltered": 3,
  "practiceSquadFilteredPlayers": [
+  {
+   "playerId": "nfl-athlete-4035886",
+   "name": "Khalil Herbert",
+   "team": "ATL"
+  },
   {
    "playerId": "nfl-athlete-4429012",
    "name": "Kendall Milton",
@@ -124,7 +120,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 49,
+  "absent": 47,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -256,9 +252,9 @@
   },
   "ATL": {
    "counts": {
-    "PROJECTED": 10,
+    "PROJECTED": 9,
     "EXCLUDED_UNAVAILABLE": 1,
-    "EXCLUDED_NO_CURRENT_ROLE": 1,
+    "EXCLUDED_NO_CURRENT_ROLE": 2,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
@@ -331,16 +327,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4035886",
-     "name": "Khalil Herbert",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-3917914",
      "name": "Olamide Zaccheaus",
      "state": "PROJECTED",
@@ -372,7 +358,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Jack Strand (ATL): his modelled share of ATL's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -387,6 +373,12 @@
      "name": "Cooper Rush",
      "state": "EXCLUDED_NO_CURRENT_ROLE",
      "reason": "not on ATL's current roster"
+    },
+    {
+     "playerId": "nfl-athlete-4035886",
+     "name": "Khalil Herbert",
+     "state": "EXCLUDED_NO_CURRENT_ROLE",
+     "reason": "on ATL's practice squad — no game-day elevation source"
     }
    ]
   }
@@ -403,14 +395,21 @@
    },
    {
     "team": "ATL",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4360423",
-     "nfl-athlete-5344782"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4360423",
+     "name": "Michael Penix Jr."
+    },
+    "snapshotAt": "2026-11-04T15:20:57Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-5344782",
+      "name": "Jack Strand"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-10-31T13:34:51Z"
+    "passers": [
+     "nfl-athlete-4360423"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -427,18 +426,9 @@
     "team": "ATL",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4360423",
-     "nfl-athlete-5344782"
+     "nfl-athlete-4360423"
     ],
-    "withheld": [
-     {
-      "team": "ATL",
-      "playerId": "nfl-athlete-5344782",
-      "name": "Jack Strand",
-      "share": 0.469,
-      "reason": "withheld for Jack Strand (ATL): his modelled share of ATL's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],
@@ -506,12 +496,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 55.49,
-     "p10": 13.12,
-     "p25": 27.1,
-     "median": 49.45,
-     "p75": 77.58,
-     "p90": 105.57,
+     "mean": 54.157,
+     "p10": 12.42,
+     "p25": 26.75,
+     "median": 47.88,
+     "p75": 74.59,
+     "p90": 102.48,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -536,21 +526,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 78.324,
-     "p10": 30.88,
-     "p25": 48.77,
-     "median": 73.38,
-     "p75": 102.59,
-     "p90": 133.08,
+     "mean": 77.374,
+     "p10": 31.09,
+     "p25": 48.8,
+     "median": 72.28,
+     "p75": 100.43,
+     "p90": 130.83,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 26.719,
-     "p10": 0.92,
-     "p25": 8.68,
-     "median": 21.27,
-     "p75": 39.38,
-     "p90": 59.05,
+     "mean": 27.611,
+     "p10": 0.33,
+     "p25": 8.99,
+     "median": 22.82,
+     "p75": 40.18,
+     "p90": 59.98,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -575,12 +565,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 60.719,
-     "p10": 12.19,
-     "p25": 28.52,
-     "median": 53.43,
-     "p75": 86.04,
-     "p90": 119.68,
+     "mean": 60.124,
+     "p10": 12.93,
+     "p25": 28.63,
+     "median": 52.64,
+     "p75": 84.11,
+     "p90": 116.27,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -605,21 +595,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 55.39,
-     "p10": 20.27,
-     "p25": 33.59,
-     "median": 51.61,
-     "p75": 72.81,
-     "p90": 94.79,
+     "mean": 55.807,
+     "p10": 20.31,
+     "p25": 33.71,
+     "median": 52.2,
+     "p75": 73.54,
+     "p90": 95.53,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 26.625,
-     "p10": 3.3,
-     "p25": 10.45,
-     "median": 22.28,
-     "p75": 38.71,
-     "p90": 54.97,
+     "mean": 25.992,
+     "p10": 2.18,
+     "p25": 9.63,
+     "median": 21.51,
+     "p75": 37.37,
+     "p90": 55.94,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -644,12 +634,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
-     "mean": 25.866,
-     "p10": 3.5,
-     "p25": 9.91,
-     "median": 21.07,
-     "p75": 36.4,
-     "p90": 54.75,
+     "mean": 25.249,
+     "p10": 2.72,
+     "p25": 9.14,
+     "median": 20.7,
+     "p75": 36.39,
+     "p90": 54.07,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -665,12 +655,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 70.007,
-     "p10": 19.46,
-     "p25": 37.4,
-     "median": 63.16,
-     "p75": 95.56,
-     "p90": 129.27,
+     "mean": 70.68,
+     "p10": 19.96,
+     "p25": 37.12,
+     "median": 63.69,
+     "p75": 96.62,
+     "p90": 130.66,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -695,12 +685,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 20.999,
+     "mean": 21.051,
      "p10": 0,
-     "p25": 2,
-     "median": 14.36,
-     "p75": 31.48,
-     "p90": 52.72,
+     "p25": 2.09,
+     "median": 14.8,
+     "p75": 31.71,
+     "p90": 53.18,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -725,12 +715,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 33.414,
-     "p10": 3.76,
-     "p25": 13.21,
-     "median": 27.75,
-     "p75": 47.96,
-     "p90": 69.91,
+     "mean": 33.781,
+     "p10": 4,
+     "p25": 13.72,
+     "median": 28.28,
+     "p75": 48.64,
+     "p90": 69.69,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -755,12 +745,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 22.472,
-     "p10": 1.97,
-     "p25": 7.42,
-     "median": 17.64,
-     "p75": 32.76,
-     "p90": 48.63,
+     "mean": 22.489,
+     "p10": 1.91,
+     "p25": 7.62,
+     "median": 18.05,
+     "p75": 32.5,
+     "p90": 48.92,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -776,12 +766,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 37.891,
+     "mean": 36.392,
      "p10": 0,
-     "p25": 10.88,
-     "median": 29.81,
-     "p75": 55.82,
-     "p90": 86.14,
+     "p25": 10.21,
+     "median": 28.26,
+     "p75": 53.85,
+     "p90": 81.47,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -806,12 +796,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 16.396,
+     "mean": 15.997,
      "p10": 0,
      "p25": 0,
-     "median": 10.42,
-     "p75": 25.28,
-     "p90": 42.17,
+     "median": 9.42,
+     "p75": 24.55,
+     "p90": 42.02,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -851,39 +841,18 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4035886",
-   "name": "Khalil Herbert",
-   "team": "ATL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 9.183,
-     "p10": 0,
-     "p25": 0,
-     "median": 4.12,
-     "p75": 13.4,
-     "p90": 25.88,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1322,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-3915511",
    "name": "Joe Burrow",
    "team": "CIN",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 12.134,
+     "mean": 11.973,
      "p10": 0,
-     "p25": 1.02,
-     "median": 7.06,
-     "p75": 18.09,
-     "p90": 31.78,
+     "p25": 1.11,
+     "median": 7.07,
+     "p75": 17.58,
+     "p90": 31.36,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -908,12 +877,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 11.723,
+     "mean": 12.172,
      "p10": 0,
      "p25": 0,
-     "median": 6.05,
-     "p75": 18.56,
-     "p90": 32.39,
+     "median": 6.24,
+     "p75": 18.94,
+     "p90": 33.38,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -938,12 +907,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 8.206,
+     "mean": 8.061,
      "p10": 0,
-     "p25": 0.3,
-     "median": 4.35,
-     "p75": 12.39,
-     "p90": 21.85,
+     "p25": 0.22,
+     "median": 4.34,
+     "p75": 12.05,
+     "p90": 21.73,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -980,12 +949,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 12.432,
+     "mean": 12.555,
      "p10": 0,
      "p25": 0,
-     "median": 6.24,
-     "p75": 19.19,
-     "p90": 34.67,
+     "median": 6.3,
+     "p75": 19.34,
+     "p90": 34.83,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -997,12 +966,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 14.06,
+     "mean": 13.75,
      "p10": 0,
      "p25": 0,
-     "median": 7.22,
-     "p75": 22,
-     "p90": 38.69,
+     "median": 7.18,
+     "p75": 21.57,
+     "p90": 37.76,
      "pricingState": "NOT_PROBED"
     }
    }

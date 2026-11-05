@@ -1,0 +1,133 @@
+{
+ "providerEventId": "401873044",
+ "canonicalEventId": "nfl-401873044",
+ "matchup": "NYG @ PHI",
+ "home": {
+  "abbr": "PHI",
+  "name": "Philadelphia Eagles"
+ },
+ "away": {
+  "abbr": "NYG",
+  "name": "New York Giants"
+ },
+ "kickoffUtc": "2026-11-08T18:00Z",
+ "seasonType": 2,
+ "week": 9,
+ "venue": "Lincoln Financial Field",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-regular-season-public-v1",
+  "version": 2,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "bc7e6caa3812a8c0",
+  "simulations": 10000,
+  "derivedFrom": [
+   "nfl-win-elo-mov-v1@v1",
+   "nfl-margin-elo-hfa-v1@v1",
+   "nfl-model-v1-elo-analytic@v1",
+   "nfl-gamesim-v1-joint-normal@v1"
+  ],
+  "totalsHead": {
+   "id": "matchup-totals-v3-play-efficiency",
+   "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
+   "gamesFolded": 7397,
+   "foldedThrough": "2026-11-02",
+   "sigma": 13.32677
+  },
+  "winHead": {
+   "id": "nfl-model-v1-elo-analytic",
+   "fallbackFrom": "nfl-win-elo-mov-v1",
+   "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
+  },
+  "marginHead": {
+   "id": "nfl-model-v1-elo-analytic",
+   "fallbackFrom": "nfl-margin-elo-hfa-v1",
+   "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
+  }
+ },
+ "teamSignal": {
+  "state": "APPLIED",
+  "note": "Team strength moves this forecast: the Elo-logistic win head over a 870-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
+ },
+ "generatedAt": "2026-11-04T17:08:16Z",
+ "evidence": {
+  "schedule": "2026-11-04T17:04:47Z",
+  "strengthCutoff": "2026-11-04T17:08:16Z",
+  "strengthGamesFolded": 870,
+  "regressedToSeason": null
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 29,
+   "away": 17,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "winProbability": {
+   "home": 0.6866,
+   "away": 0.289,
+   "tieMass": 0.0244,
+   "homeUnrounded": 0.6866018837309777,
+   "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
+  },
+  "margin": {
+   "median": 11,
+   "p10": -7,
+   "p90": 28
+  },
+  "total": {
+   "median": 46,
+   "p10": 29,
+   "p90": 63,
+   "head": "matchup-totals-v3-play-efficiency"
+  },
+  "scoreRange": {
+   "homeP10": 16,
+   "homeP90": 40,
+   "awayP10": 5,
+   "awayP90": 30
+  },
+  "distribution": {
+   "marginMean": 10.42,
+   "marginSigma": 13.7,
+   "totalMean": 45.7498,
+   "totalSigma": 13.33,
+   "source": "nfl-gamesim-v1-joint-normal"
+  }
+ },
+ "marketComparison": {
+  "state": "NO_MARKET",
+  "note": "No current sportsbook capture covers this game."
+ },
+ "teamInputs": {
+  "version": 1,
+  "consumedByModel": false,
+  "participationAsOf": "2026-11-04T17:08:16Z",
+  "state": "NO_STARTING_QB_ABSENCE",
+  "absences": [],
+  "comparisonWithheld": false,
+  "note": null
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401873044",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Educational and paper-only — not betting advice.",
+ "sideDecision": {
+  "schemaVersion": "side-decision@1",
+  "publishedSide": "HOME",
+  "rule": "MODEL_FAVORED_V1",
+  "abstention": null,
+  "frozenAt": "2026-11-04T17:08:16Z"
+ },
+ "revisionOf": "401873044.json",
+ "priorInputHash": "5bf74530600e0c96",
+ "inputs": {
+  "injuries": {
+   "sourceAsOf": "2026-11-04T17:08:40Z"
+  },
+  "rosters": {
+   "sourceAsOf": "2026-11-04T17:08:16Z"
+  }
+ }
+}
