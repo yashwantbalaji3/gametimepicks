@@ -55,3 +55,17 @@ test("final-copy marker: only the founder's Nov 4 ref on a priced Nov 4 game pos
   assert.equal(bad(fin({ containsMarketData: false })), true);
   assert.equal(bad({ ...p, approval: { ...p.approval, socialAuthorized: true } }), true);
 });
+
+test("final-copy marker, NFL Week 9: only the founder's Nov 5 ref on a Week 9 NFL game post or Top 5", async () => {
+  const { socialPackageViolations: v, FINAL_COPY_AUTHORIZATION_NFL_W9: N, FINAL_COPY_AUTHORIZATION_2026_11_04: F } = await import("./social-package.mjs");
+  const p = buildPricedGamePost({ ...ok, renderSource: { path: "/x/rs.json", sha256: "r" }, game });
+  const nfl = (o = {}, a = {}) => ({ ...p, sport: "nfl", contentType: "NFL_GAME_POST", date: "2026-11-08", content: { ...p.content, week: 9 }, ...o, approval: { ...p.approval, socialAuthorized: true, contentApproval: null, finalCopyAuthorization: { ...N }, ...a } });
+  const bad = (x) => v(x).some((m) => /approval must stay/.test(m));
+  assert.equal(bad(nfl()), false);
+  assert.equal(bad(nfl({ contentType: "NFL_WEEKLY_TOP5" })), false);
+  assert.equal(bad(nfl({ date: "2026-11-10" })), true);
+  assert.equal(bad(nfl({ content: { week: 10 } })), true);
+  assert.equal(bad(nfl({ contentType: "NFL_SUNDAY_WINNERS" })), true);
+  assert.equal(bad(nfl({}, { finalCopyAuthorization: { ...F } })), true);
+  assert.equal(bad(nfl({}, { contentApproval: { by: "x" } })), true);
+});

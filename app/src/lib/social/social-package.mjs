@@ -245,8 +245,21 @@ export const dedupeSlug = ({ sport, date, contentType, variant = null }) => [spo
 export const FINAL_COPY_AUTHORIZATION_2026_11_04 = Object.freeze({
   ref: "nov4-founder-decisions-2230Z.md section C", sha256: "0bb0c75cc18f77028fcb850fd60b5477a4c7b14383781ab647aabaed1981bbb3", at: "2026-11-04T22:30:09Z",
 });
+/**
+ * NFL WEEK 9 (founder 2026-11-05T16:04:37Z, ~/gtp-evidence/nov5-founder-approval-items1-5.md): "I approve final-copy imports
+ * of all 15 NFL game posts and all five official Top 5 graphics into the Command Center. Each post must remain subject to
+ * my exact-version content approval before scheduling or publishing." Week 9 NFL_GAME_POST / NFL_WEEKLY_TOP5, dated
+ * 2026-11-05 to 2026-11-09, still FOUNDER_REVIEW_REQUIRED, contentApproval null, this exact ref.
+ */
+export const FINAL_COPY_AUTHORIZATION_NFL_W9 = Object.freeze({
+  ref: "nov5-founder-approval-items1-5.md final-copy paragraph", sha256: "64bbd86930ca8409552e1980b9e7b1dbae833ce35e8ad340913a67ef134b1c7d", at: "2026-11-05T16:04:37Z",
+});
+const sameRef = (f, F) => f.ref === F.ref && f.sha256 === F.sha256 && f.at === F.at;
+const nflW9 = (p) => p.sport === "nfl" && ["NFL_GAME_POST", "NFL_WEEKLY_TOP5"].includes(p.contentType) && p.date >= "2026-11-05" && p.date <= "2026-11-09" && p.content?.week === 9;
+
 export function isFinalCopyCandidate(p) {
   const a = p?.approval ?? {}, f = a.finalCopyAuthorization ?? {}, F = FINAL_COPY_AUTHORIZATION_2026_11_04;
+  if (a.socialAuthorized === true && a.status === APPROVAL_STATUS && a.contentApproval === null && sameRef(f, FINAL_COPY_AUTHORIZATION_NFL_W9) && nflW9(p ?? {})) return true;
   return a.socialAuthorized === true && a.status === APPROVAL_STATUS && a.contentApproval === null && f.ref === F.ref && f.sha256 === F.sha256 && f.at === F.at
     && p.sport === "nba" && p.date === "2026-11-04" && p.contentType === "NBA_GAME_POST" && /^\d+-priced$/.test(String(p.variant)) && p.containsMarketData === true;
 }

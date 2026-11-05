@@ -250,6 +250,19 @@ export const MATCHUP_GRAPHICS_PRICE_AUTHORIZATION = Object.freeze({
       lineAgeMaxHours: 9,
     }),
   ]),
+  // NFL Week 9 (founder 2026-11-05T16:04:37Z, ~/gtp-evidence/nov5-founder-approval-items1-5.md; receipt
+  // docs/receipts/ODDS_AUTHORIZATION_NFL_WEEK9_2026-11-05.md @ 2837ec8fc9): the one ~3 PM ET Thursday capture, shown as a dated
+  // snapshot on Week 9 social graphics through 2026-11-09, no book names, never a feed. Images carry the capture time.
+  nfl: Object.freeze(["2026-11-05", "2026-11-06", "2026-11-08", "2026-11-09"].map((etDate) => Object.freeze({
+    etDate,
+    markets: Object.freeze(["moneyline", "anytimeTd", "playerProps"]),
+    receiptRef: "docs/receipts/ODDS_AUTHORIZATION_NFL_WEEK9_2026-11-05.md (claude/bbm-v2-authorization 2837ec8fc9); nov5-founder-approval-items1-5.md sha256 64bbd869…",
+    snapshotLabel: "ODDS SNAPSHOT",
+    captionDisclosure: "none in captions (founder 2026-11-04T22:44Z: no snapshot or odds talk in captions); the image carries the capture time",
+    approvedBy: "founder",
+    approvedAt: "2026-11-05",
+    lineAgeExceptionApproved: false,
+  }))),
 });
 
 /**

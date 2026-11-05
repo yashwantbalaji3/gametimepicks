@@ -157,3 +157,12 @@ test("matchup graphics: dated Nov 4 NBA authorization only; the social surfaces 
   assert.equal(d("nba", "social").ok, false);
   assert.equal(d("nba", "socialPrices").ok, false);
 });
+
+test("matchup graphics: NFL Week 9 dated entries only (Nov 5 to Nov 9), never another week", async () => {
+  const { matchupGraphicsPriceAuthorization: m } = await import("./display-authorization.mjs");
+  for (const d of ["2026-11-05", "2026-11-06", "2026-11-08", "2026-11-09"]) assert.equal(m("nfl", d, "moneyline").ok, true, d);
+  assert.equal(m("nfl", "2026-11-08", "anytimeTd").ok, true);
+  assert.equal(m("nfl", "2026-11-10", "moneyline").ok, false);
+  assert.equal(m("nfl", "2026-11-04", "moneyline").ok, false);
+  assert.equal(m("nfl", "2026-11-08", "spreads").ok, false);
+});
