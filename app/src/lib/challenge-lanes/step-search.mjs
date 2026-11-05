@@ -70,7 +70,8 @@ function legView(c, quotesByKey, { now, params, bookmakers }) {
   }
   const w = (n) => (ev.windows ?? []).find((x) => x.window === n);
   return {
-    legId: key, key, proposition: propositionIdentity(c), // legId = the selection identity (line-free, book-free; unique per leg) sport: c.sport, gameId: String(c.gameId), eventLabel: c.eventLabel, startUtc: c.startUtc,
+    /* legId = the selection identity (line-free, book-free; unique per leg) */
+    legId: key, key, proposition: propositionIdentity(c), sport: c.sport, gameId: String(c.gameId), eventLabel: c.eventLabel, startUtc: c.startUtc,
     family: c.family, player: c.player ?? null, team: c.team ?? null, side: c.side, line: c.line ?? null,
     book: q?.book ?? null, american: q?.american ?? null, decimal: d, ratio: r, fetchedAt: q?.fetchedAt ?? null, quotedAt: q?.quotedAt ?? null,
     injury: c.injury ?? null, last5: w("last5") ? `${w("last5").hits}/${w("last5").n}` : null, last10: w("last10") ? `${w("last10").hits}/${w("last10").n}` : null,
