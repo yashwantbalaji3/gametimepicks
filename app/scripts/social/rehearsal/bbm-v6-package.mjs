@@ -38,7 +38,11 @@ if (a["approval-file"]) {
   else { a["founder-words"] = `${text.match(/^A\. [^\n]*/m)[0]}\n${sec[1]}`.trim(); approvalSource = { file: a["approval-file"], sha256: sha(raw), section: "A" }; }
 }
 if (!(a.road && a.road !== "0") && !["v3", "compliant", "final"].includes(a["caption-variant"])) problems.push("--caption-variant must be v3, compliant or final (the founder's choice)");
-if (!a["founder-words"] || !a["founder-approved-at"] || Number.isNaN(Date.parse(a["founder-approved-at"]))) problems.push("approval needs the founder's verbatim words and the approval time (relayed by the PD)");
+// --final-copy-file/-sha/-section (founder 2026-11-05): a final-copy candidate; the founder's console click is the content
+// approval (contentApproval null). Otherwise the founder's words and approval time are required.
+const FINAL_COPY = a["final-copy-file"] ? { file: a["final-copy-file"], sha256: a["final-copy-sha"], section: a["final-copy-section"] ?? null } : null;
+if (FINAL_COPY && sha(fs.readFileSync(FINAL_COPY.file)) !== FINAL_COPY.sha256) problems.push(`final-copy file ${FINAL_COPY.file} does not hash to ${FINAL_COPY.sha256}`);
+if (!FINAL_COPY && (!a["founder-words"] || !a["founder-approved-at"] || Number.isNaN(Date.parse(a["founder-approved-at"])))) problems.push("approval needs the founder's verbatim words and the approval time (relayed by the PD)");
 const LANE_LOGS = process.env.GTP_LANE_LOGS_DIR ?? path.join(process.env.HOME, "gtp-private", "challenge-lanes");
 /** The card facts a caption may cite, each from the sealed record or the render, keyed by what it is. */
 function cardClaims(p) {
@@ -145,9 +149,9 @@ for (const p of packages) {
   const social = {
     schema: "gtp-social-package@1", revision: 1, designVersion: "1", sport: p.sport, date: p.date, contentType: "BBM_CHALLENGE_POST", variant,
     dedupeId: `gtp-social:${p.sport}:${p.date}:BBM_CHALLENGE_POST:${variant}`, contentSha256, containsMarketData: true,
-    approval: { status: "FINAL", socialAuthorized: !APPROVED || Boolean(APPROVED[`${p.pkg}-caption`]), captionApproval: !APPROVED || APPROVED[`${p.pkg}-caption`] ? { status: "APPROVED", sha256: captionSha } : { status: "PENDING_FOUNDER", sha256: captionSha, note: "images approved 2026-11-04T22:30:09Z; this caption awaits the founder's approval" }, founderWords: a["founder-words"], founderApprovedAt: new Date(a["founder-approved-at"]).toISOString(), approvalSourceRef: approvalSource, approvedShas: APPROVED, oddsSnapshotOverride: OVERRIDE, authorizationRef: OVERRIDE ? (OVERRIDE.commits.length ? OVERRIDE.commits : (OVERRIDE.receipts ?? []).map((r) => r.split(" ")[0])).join(" / ") : null },
+    approval: FINAL_COPY ? { status: "FINAL", socialAuthorized: true, socialAuthorizedMeaning: "final-copy marker only; the founder's console approval is the content approval", finalCopyAuthorization: FINAL_COPY, contentApproval: null, oddsSnapshotOverride: OVERRIDE, authorizationRef: OVERRIDE ? (OVERRIDE.commits.length ? OVERRIDE.commits : (OVERRIDE.receipts ?? []).map((r) => r.split(" ")[0])).join(" / ") : null } : { status: "FINAL", socialAuthorized: !APPROVED || Boolean(APPROVED[`${p.pkg}-caption`]), captionApproval: !APPROVED || APPROVED[`${p.pkg}-caption`] ? { status: "APPROVED", sha256: captionSha } : { status: "PENDING_FOUNDER", sha256: captionSha, note: "images approved 2026-11-04T22:30:09Z; this caption awaits the founder's approval" }, founderWords: a["founder-words"], founderApprovedAt: new Date(a["founder-approved-at"]).toISOString(), approvalSourceRef: approvalSource, approvedShas: APPROVED, oddsSnapshotOverride: OVERRIDE, authorizationRef: OVERRIDE ? (OVERRIDE.commits.length ? OVERRIDE.commits : (OVERRIDE.receipts ?? []).map((r) => r.split(" ")[0])).join(" / ") : null },
     verification: { passed: true, checks: ["render FINAL from this source", "records FOUNDER_APPROVED with run-2 event shas", "run-2 lane log holds the card and last VERIFIED payout", "image and caption bytes match the render", "record parity", "money reconciliation", "diversity@2", "layout and checker clean"] },
-    window: { opensAt: new Date(a["founder-approved-at"]).toISOString(), closesAt: firstStartUtc },
+    window: { opensAt: new Date(FINAL_COPY ? Date.now() : a["founder-approved-at"]).toISOString(), closesAt: firstStartUtc },
     provenance: { source: manifest.source, render: manifest.render, packageId: p.packageId },
     images: p.media.map((m) => ({ path: path.join(dir, m.file), sha256: m.sha256, width: 1080, height: 1350, scale: 1, laneId: m.laneId })),
     content: { bbm: { product: variant, preliminary: false, superseded: false, doNotPost: false, template: false, lanes } },

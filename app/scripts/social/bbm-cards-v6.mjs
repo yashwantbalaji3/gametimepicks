@@ -377,11 +377,12 @@ export function bbmCardV6(model, { testData = false } = {}) {
     if (clean) {
       // Separated ODDS · TRACKED STAKE · POTENTIAL PAYOUT (focal) · PROFIT. The verified mark only on a passing, unexpired price check.
       const n = model.legs.length;
-      const kind = model.payout.combinedLabel === "book-quoted parlay" ? "Book parlay" : n === 1 ? "Selection" : "Leg product";
+      // Two legs: odds calculated from separately observed prices, never presented as a quoted parlay (founder 2026-11-05).
+      const kind = model.payout.combinedLabel === "book-quoted parlay" ? "Book parlay" : n === 1 ? "Selection" : "Calculated";
       // Founder override 2026-11-04 (odds snapshot): captured odds with their capture time; may have changed, not a live offer.
       const snap = model.payout.snapshotText ? `<div class="snap5">${cell(cells, "price.snapshot", model.payout.snapshotText)}</div>` : "";
       const mark = model.payout.snapshotText ? "" : model.payout.verifiedMark ? `<div class="vm">${CHECK}${cell(cells, "price.verified", "Verified odds")}</div>` : "";
-      bottom += `<div class="money5 clean"><div class="odds"><div class="k">Odds</div>${cell(cells, "price.combined", american(model.payout.combinedAmerican), "v")}<div class="sub">${cell(cells, "price.kind", kind)}</div>${mark}</div><div><div class="k">Tracked stake</div>${cell(cells, "money.wager", cents(model.bankrollCents), "v")}</div><div class="pay" data-money="payout"><div class="k">Potential payout</div>${cell(cells, "money.payout", cents(model.payout.grossCents), "v")}</div><div class="pro"><div class="k">Profit</div>${cell(cells, "money.profit", cents(model.payout.profitCents), "v")}</div></div>${snap}`;
+      bottom += `<div class="money5 clean"><div class="odds"><div class="k">${n === 1 ? "Odds" : "Combined odds"}</div>${cell(cells, "price.combined", american(model.payout.combinedAmerican), "v")}<div class="sub">${cell(cells, "price.kind", kind)}</div>${mark}</div><div><div class="k">Tracked stake</div>${cell(cells, "money.wager", cents(model.bankrollCents), "v")}</div><div class="pay" data-money="payout"><div class="k">Potential payout</div>${cell(cells, "money.payout", cents(model.payout.grossCents), "v")}</div><div class="pro"><div class="k">Profit</div>${cell(cells, "money.profit", cents(model.payout.profitCents), "v")}</div></div>${snap}`;
     } else if (model.view === VIEW.CARD) {
       const stepTarget = model.rungs[model.step - 1]?.milestoneCents;
       const am = model.payout ? american(model.payout.combinedAmerican) : null;

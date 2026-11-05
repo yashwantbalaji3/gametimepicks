@@ -80,6 +80,12 @@ const ALTS = String(a.alt ?? "").split(",").filter(Boolean).map((x) => {
 const flagWords = (code) => { const t = code.replace(/^[A-Z]+_/, "").replace(/_/g, " ").toLowerCase(); return t.charAt(0).toUpperCase() + t.slice(1); };
 /** The clean card's verified-odds mark: FINAL = the run-2 PRICE_VERIFIED event; CANDIDATE = every price check PASS and unexpired at render. */
 const verifiedMarkOf = (c) => (FINAL ? Boolean(c.priceEventSha256) : CANDIDATE ? c.priceCheckAll === "PASS" && c.legs.every((l) => l.priceCheck?.result === "PASS" && Date.parse(l.priceCheck.expiresAt) > RENDER_AT) : false);
+const etTime = (iso) => `${new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(new Date(iso))} ET`;
+/** The snapshot line: one capture time, or each leg's own when they differ (founder 2026-11-05: honest provenance per leg). */
+const snapshotOf = (c) => {
+  const ts = c.legs.map((l) => etTime(l.priceCheck?.fetchedAt ?? l.fetchedAt));
+  return new Set(ts).size === 1 ? `Odds snapshot · ${ts[0]}` : `Odds snapshots · ${ts.map((t, i) => `Leg ${i + 1} ${t}`).join(" · ")}`;
+};
 /** The card's odds capture time in ET (the latest leg fetch; founder odds-snapshot override 2026-11-04). */
 const captureEt = (c) => `${new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(new Date(Math.max(...c.legs.map((l) => Date.parse(l.priceCheck?.fetchedAt ?? l.fetchedAt)))))} ET`;
 const winsLosses = (w) => `${w.hits}-${w.n - w.hits}`;
@@ -209,7 +215,7 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
     road: ROAD, chipText: ROAD ? `${sports.join(" · ")} · ${chipDay}` : undefined,
     product, letter: ROAD ? null : L.letter, laneId, date: c.date, step, steps: 5, rungs, ...TERMS[product], bankrollCents: c.money.stakeCents, badge: BADGE.ACTIVE, view: VIEW.CARD, template: false,
     laneType: c.laneType ?? lane.laneType ?? undefined, legs: CLEAN ? c.legs.map((l, i) => cleanLegOf(l, legs[i], name)) : legs, clean: CLEAN, selectionLabel: CLEAN ? null : c.selectionLabel ?? (c.classification === "LEVEL_B" ? "Research selection — no validated edge claim" : null), reviewRibbon: REVIEW, showStepTarget: !CLEAN,
-    payout: { verifiedMark: CLEAN ? false : verifiedMarkOf(c), snapshotText: CLEAN ? `Odds snapshot · ${captureEt(c)}` : null, combinedLabel: c.combinedLabel ?? c.combined?.label ?? null, combinedAmerican: c.combined.american, grossCents: c.money.grossPayoutCents, profitCents: c.money.profitCents, stakeCents: c.money.stakeCents, preliminary: !verified, fixture: false, estimate: false, legs: Object.fromEntries(c.legs.map((l) => [l.legId, { price: l.price, oddsFormat: "american", line: l.line }])) },
+    payout: { verifiedMark: CLEAN ? false : verifiedMarkOf(c), snapshotText: CLEAN ? (ROAD ? snapshotOf(c) : `Odds snapshot · ${captureEt(c)}`) : null, combinedLabel: c.combinedLabel ?? c.combined?.label ?? null, combinedAmerican: c.combined.american, grossCents: c.money.grossPayoutCents, profitCents: c.money.profitCents, stakeCents: c.money.stakeCents, preliminary: !verified, fixture: false, estimate: false, legs: Object.fromEntries(c.legs.map((l) => [l.legId, { price: l.price, oddsFormat: "american", line: l.line }])) },
   } });
 }
 // Founder 2026-11-04, diversity@2: no leg repeats across the day's four lanes. Identity is the underlying selection
@@ -254,7 +260,7 @@ function parity(m) {
   for (const [k, v] of Object.entries(want)) if (cells[k] !== v) mis.push(`${k}: printed ${cells[k]} record ${v}`);
   if (c.classification === "LEVEL_B" && Object.keys(cells).some((k) => /\.proj$/.test(k))) mis.push("a Level B card with a probability row");
   if (("price.verified" in cells) !== (CLEAN ? false : c.priceEventSha256 != null)) mis.push("the verified mark does not match the record's price verification");
-  if (CLEAN && cells["price.snapshot"] !== `Odds snapshot · ${captureEt(c)}`) mis.push(`snapshot ${cells["price.snapshot"]} is not the record's capture time`);
+  if (CLEAN && cells["price.snapshot"] !== (ROAD ? snapshotOf(c) : `Odds snapshot · ${captureEt(c)}`)) mis.push(`snapshot ${cells["price.snapshot"]} is not the record's capture time`);
   return mis;
 }
 
