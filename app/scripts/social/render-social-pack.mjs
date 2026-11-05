@@ -228,7 +228,7 @@ const quoteAgeOf = (quotes, asOf) => {
 function nflMarket(view, row, captures, asOf) {
   const side = row.winner === view.home.abbr ? view.home : view.away;
   const q = nflMoneylineQuote(captures?.moneylines ?? [], { eventId: row.eventId, awayName: view.away.name, homeName: view.home.name, sideName: side.name, kickoffUtc: view.kickoffUtc, asOf });
-  return q && { sideAbbr: row.winner, priceText: americanText(q.price), bookLabel: NFL_BOOK_LABEL(q.book), book: q.book, price: q.price, quotedAt: q.quotedAt };
+  return q && { sideAbbr: row.winner, priceText: americanText(q.price), bookLabel: NFL_BOOK_LABEL(q.book), book: q.book, price: q.price, quotedAt: q.quotedAt, label: snapshotLabel([q.quotedAt]) };
 }
 const NFL_BOOK_LABEL = (k) => NBA_PROP_LINE_ADAPTER.bookLabel(k);
 
@@ -400,7 +400,7 @@ export function prepareNflTop5({ seasonType = 2, week, asOf, sundayOnly = false,
     const isProb = spec.method === "probability";
     const quoteTimes = rows.map((r) => r.quotedAt).filter(Boolean);
     const missing = rows.filter((r) => !r.quotedAt).map((r) => ({ playerId: r.key, name: r.name, reason: r.comparison.reason }));
-    const cards = v2Cards([v2Top5Card({ title: spec.label, chip: `NFL · Week ${week}${sundayOnly ? " · Sunday" : ""}`, rows: rows.map((r) => ({ ...r, team: teams.get(r.team), tip: etClock(instant(r.kickoffUtc)) })), sub: isProb ? "Chance to score a touchdown" : undefined, section: isProb ? null : MODEL_SECTION, real: !isProb, note: !isProb && quoteTimes.length ? COMPARISON_LEGEND : null, ...NFL_V2 })], `nfl-w${String(week).padStart(2, "0")}-${b.id}`);
+    const cards = v2Cards([v2Top5Card({ title: spec.label, chip: `NFL · Week ${week}${sundayOnly ? " · Sunday" : ""}`, rows: rows.map((r) => ({ ...r, team: teams.get(r.team), tip: etClock(instant(r.kickoffUtc)) })), sub: isProb ? "Chance to score a touchdown" : undefined, section: isProb ? null : MODEL_SECTION, real: !isProb, note: quoteTimes.length ? [...(isProb ? [] : [COMPARISON_LEGEND]), snapshotLabel(quoteTimes)].join(" · ") : null, ...NFL_V2 })], `nfl-w${String(week).padStart(2, "0")}-${b.id}`);
     const caption = checkCaption(`GameTime Picks NFL Week ${week} top 5 ${spec.label.toLowerCase()}${est ? ` (${est.replace(/·/g, "-")})` : ""}: ${rows.map((r) => `${r.rank}. ${r.name} ${r.text}`).join(", ")}. ${FOOT.projections} ${legalLine}`);
     const gen = wb.generatedAt;
     posts.push(withSendWindow({
@@ -486,6 +486,8 @@ export function nflPropRows({ players, board, eventId, kickoffUtc, offers, asOf 
   return rows;
 }
 
+/** The capture instant printed beside the prices it priced: the latest quote time on the card, in ET. */
+export const snapshotLabel = (times) => `ODDS SNAPSHOT · ${new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit" }).format(new Date([...times].sort().at(-1))).replace(",", "")} ET`;
 const kickoffEst = (ms) => `${timeOnly(ms)} ET`;
 
 /** Exactly two images per Sunday game: the priced winner card, then a separate ranked Top 3 anytime TD card. No props graphic. */
@@ -1092,7 +1094,7 @@ export function parseArgs(argv) {
   const out = {};
   for (let i = 0; i < argv.length; i += 1) {
     if (!argv[i].startsWith("--")) throw new Error(`unexpected argument ${argv[i]}`);
-    if (argv[i] === "--no-png" || argv[i] === "--moneyline-only" || argv[i] === "--approved-captions" || argv[i] === "--nfl-sunday-pack") { out[argv[i].slice(2)] = true; continue; }
+    if (argv[i] === "--no-png" || argv[i] === "--moneyline-only" || argv[i] === "--approved-captions" || argv[i] === "--nfl-sunday-pack" || argv[i] === "--nfl-priced") { out[argv[i].slice(2)] = true; continue; }
     out[argv[i].slice(2)] = argv[(i += 1)];
   }
   return out;
@@ -1132,7 +1134,8 @@ export async function runPack(args) {
     const week = Number(args["nfl-week"]);
     attempt("nfl-winners", () => prepareNflWinners({ week, asOf }));
     attempt("nfl-game-winners", () => prepareNflGameWinners({ week, asOf }));
-    attempt("nfl-top5", () => prepareNflTop5({ week, asOf }));
+    // --nfl-priced: the full-week Top 5s against the saved private captures (same offer rule as the Sunday pack).
+    attempt("nfl-top5", () => prepareNflTop5({ week, asOf, captures: args["nfl-priced"] ? loadNflCaptures() : null }));
     attempt("nfl-player-stats", () => prepareNflPlayerStats({ week, asOf }));
     refused.push({ contentType: "NFL_MOST_CONFIDENT", reason: "WITHHELD: forward winner log loss interval (-0.092 to +0.026) includes the coin-flip baseline, so no confidence ranking is shown" });
   }

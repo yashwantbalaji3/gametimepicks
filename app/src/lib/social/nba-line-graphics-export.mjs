@@ -273,7 +273,7 @@ export function buildNbaLineGraphicsExport({ date, asOf, lane, laneSha256 = null
     purpose,
     socialAuthorized: review || matchup ? false : social.ok,
     asOf,
-    ...(matchup ? { snapshotException: { ref: "2026-11-04-founder-odds-snapshot-override (f529fa44fa, 41c421cf1d)", label: "ODDS SNAPSHOT", lineAgeException: lineAgeExceptionOn(purpose, date), comparedAsOf: lineJudgedAt(purpose, date, asOf, artifact.asOf) } } : {}),
+    ...(matchup ? { snapshotException: { ref: matchupGraphicsPriceAuthorization("nba", date, "playerProps").entry.receiptRef, label: "ODDS SNAPSHOT", lineAgeException: lineAgeExceptionOn(purpose, date), comparedAsOf: lineJudgedAt(purpose, date, asOf, artifact.asOf) } } : {}),
     publication: {
       status: base.publication.status !== "PUBLISHED" ? base.publication.status : !shown ? "LINES_WITHHELD" : rows.length ? "PUBLISHED" : "NO_COMPARISONS",
       lane: base.publication.lane, laneSha256,

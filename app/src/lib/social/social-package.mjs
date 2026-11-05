@@ -254,12 +254,19 @@ export const FINAL_COPY_AUTHORIZATION_2026_11_04 = Object.freeze({
 export const FINAL_COPY_AUTHORIZATION_NFL_W9 = Object.freeze({
   ref: "nov5-founder-approval-items1-5.md final-copy paragraph", sha256: "64bbd86930ca8409552e1980b9e7b1dbae833ce35e8ad340913a67ef134b1c7d", at: "2026-11-05T16:04:37Z",
 });
+// Founder ~22:30Z Nov 5, verbatim "Deliver these NBA packages into the live Command Center as finalized, banner-free,
+// single-approval posts" (~/gtp-evidence/nov5-founder-weekend-directive-excerpts.md): the two Nov 5 NBA game posts only.
+export const FINAL_COPY_AUTHORIZATION_NBA_2026_11_05 = Object.freeze({
+  ref: "nov5-founder-weekend-directive-excerpts.md NBA finalized-posts line", sha256: "80818f48756cce69926cc1bc62f545361164e309c83f2a8be4aa3a49de605ab7", at: "2026-11-05T22:30:00Z",
+});
 const sameRef = (f, F) => f.ref === F.ref && f.sha256 === F.sha256 && f.at === F.at;
 const nflW9 = (p) => p.sport === "nfl" && ["NFL_GAME_POST", "NFL_WEEKLY_TOP5"].includes(p.contentType) && p.date >= "2026-11-05" && p.date <= "2026-11-09" && p.content?.week === 9;
 
 export function isFinalCopyCandidate(p) {
   const a = p?.approval ?? {}, f = a.finalCopyAuthorization ?? {}, F = FINAL_COPY_AUTHORIZATION_2026_11_04;
   if (a.socialAuthorized === true && a.status === APPROVAL_STATUS && a.contentApproval === null && sameRef(f, FINAL_COPY_AUTHORIZATION_NFL_W9) && nflW9(p ?? {})) return true;
+  if (a.socialAuthorized === true && a.status === APPROVAL_STATUS && a.contentApproval === null && sameRef(f, FINAL_COPY_AUTHORIZATION_NBA_2026_11_05)
+    && p.sport === "nba" && p.date === "2026-11-05" && p.contentType === "NBA_GAME_POST" && /^\d+-lines$/.test(String(p.variant)) && p.containsMarketData === true) return true;
   return a.socialAuthorized === true && a.status === APPROVAL_STATUS && a.contentApproval === null && f.ref === F.ref && f.sha256 === F.sha256 && f.at === F.at
     && p.sport === "nba" && p.date === "2026-11-04" && p.contentType === "NBA_GAME_POST" && /^\d+-priced$/.test(String(p.variant)) && p.containsMarketData === true;
 }

@@ -249,6 +249,19 @@ export const MATCHUP_GRAPHICS_PRICE_AUTHORIZATION = Object.freeze({
       lineAgeExceptionApproved: true,
       lineAgeMaxHours: 9,
     }),
+    // Nov 5 (founder ~22:30Z, ~/gtp-evidence/nov5-founder-weekend-directive-excerpts.md sha256 80818f48…; receipt
+    // docs/receipts/ODDS_AUTHORIZATION_NBA_PROPS_MATCHUP_DISPLAY_2026-11-05.md @ b8317feadf): the props already captured at
+    // 19:00Z/19:02Z only. No moneyline was captured, so none is authorized; the standard line age applies.
+    Object.freeze({
+      etDate: "2026-11-05",
+      markets: Object.freeze(["playerProps"]),
+      receiptRef: "docs/receipts/ODDS_AUTHORIZATION_NBA_PROPS_MATCHUP_DISPLAY_2026-11-05.md (claude/bbm-v2-authorization b8317feadf)",
+      snapshotLabel: "ODDS SNAPSHOT",
+      captionDisclosure: "Odds shown are snapshots captured at the stated time and may have changed.",
+      approvedBy: "founder",
+      approvedAt: "2026-11-05",
+      lineAgeExceptionApproved: false,
+    }),
   ]),
   // NFL Week 9 (founder 2026-11-05T16:04:37Z, ~/gtp-evidence/nov5-founder-approval-items1-5.md; receipt
   // docs/receipts/ODDS_AUTHORIZATION_NFL_WEEK9_2026-11-05.md @ 2837ec8fc9): the one ~3 PM ET Thursday capture, shown as a dated

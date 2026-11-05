@@ -147,7 +147,7 @@ export function nflHeroCard(g, { disclosure = NFL_DISCLOSURE } = {}) {
   const body = `<div class="kicker">GameTimePicks Prediction</div><div class="gph solo"><div class="winner2"><div class="k">Predicted Winner</div>${slab(g.winner)}</div>
 <div class="meter" data-meter="official"><div class="meter-k">Model win probability</div><div class="meter-labels"><div class="ml l">${bcell(cells, "away.pct", `${g.awayPct}%`)}<span data-fit>${esc(g.away.name)}</span></div><div class="ml r">${bcell(cells, "home.pct", `${g.homePct}%`)}<span data-fit>${esc(g.home.name)}</span></div></div>
 <div class="meter-bar"><i class="seg away" data-share="${g.awayP}" style="width:${((100 * g.awayP) / total).toFixed(3)}%;--c:${ca}"></i><i class="seg home" data-share="${g.homeP}" style="width:${((100 * g.homeP) / total).toFixed(3)}%;--c:${cb}"></i></div></div>
-<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>Kickoff</span></div><div>${bcell(cells, "time", g.kickoffText, "data-fit")}<span>Eastern</span></div>${g.market ? `<div>${bcell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, 'class="pv" data-fit')}<span>Price</span></div>` : ""}</div></div>`;
+<div class="strip"><div>${bcell(cells, "day", g.tipDay, "data-fit")}<span>Kickoff</span></div><div>${bcell(cells, "time", g.kickoffText, "data-fit")}<span>Eastern</span></div>${g.market ? `<div>${bcell(cells, "market.price", `${g.market.sideAbbr} ${g.market.priceText}`, 'class="pv" data-fit')}<span>${esc(g.market.label ?? "Price")}</span></div>` : ""}</div></div>`;
   return { html: shell({ away: g.away, home: g.home, chip: g.chip, body, disclosure }), cells, v2: true, disclosure };
 }
 
