@@ -21,6 +21,7 @@ import { logoDataUri, visibleText } from "./nba-line-cards.mjs";
 import { american, cents, chipText, tipText, TEST_RIBBON, SAMPLE_PRICE_RIBBON } from "./bbm-cards.mjs";
 import { RULES_V2, TEMPLATE_RIBBON } from "./bbm-cards-v4.mjs";
 import { BADGE, RUNG, VIEW } from "../../src/lib/social/bbm-lane.mjs";
+import { nflTeamColor } from "../../src/lib/simulation-theater/nfl-team-colors.mjs";
 
 export { RULES_V2, TEMPLATE_RIBBON };
 export const BBM_V6_DESIGN_VERSION = "bbm-v6";
@@ -126,7 +127,7 @@ function compartment(cells, r, steps) {
   const top = r.step === steps;
   const mark = r.state === RUNG.COMPLETED ? "✓ " : r.state === RUNG.FAILED ? "✕ " : "";
   // Founder 2026-11-04 (final polish): the current step shows the card's exact payout; future steps show ~targets.
-  if (r.exactCents != null) return `<div class="cp ${r.state}" data-rung="${r.state}"><span class="k">${esc(mark)}Step ${r.step}</span>${cell(cells, `ladder.m${r.step}`, cents(r.exactCents), "m")}<span class="t">(Potential)</span></div>`;
+  if (r.exactCents != null) return `<div class="cp ${r.state}" data-rung="${r.state}"><span class="k">${esc(mark)}Step ${r.step}</span>${cell(cells, `ladder.m${r.step}`, cents(r.exactCents), "m")}<span class="t">(${r.state === RUNG.COMPLETED ? "Won" : "Potential"})</span></div>`;
   return `<div class="cp ${r.state}" data-rung="${r.state}"><span class="k">${esc(mark)}Step ${r.step}</span>${cell(cells, `ladder.m${r.step}`, `${top ? "" : "~"}${cents(r.milestoneCents)}`, "m")}<span class="t">(${top ? "Goal" : "Target"})</span></div>`;
 }
 
@@ -136,9 +137,17 @@ function compartment(cells, r, steps) {
  * Prop: PLAYER / OVER 3.5 ASSISTS / AWY @ HOM | tip | odds / Last 5 k/5 · Last 10 k/10 at the exact line.
  * Every count is the engine record's, with its real sample size; none is invented.
  */
+/** A leg's team tint: NBA from the verified NBA colours, NFL from the verified NFL colours (accent); no logos (third-party marks). */
+function teamTint(l) {
+  if (l.sport !== "nfl") return teamOf(l.team.abbr, l.team.name);
+  const c = nflTeamColor(l.team.abbr);
+  if (!c) throw new Error(`no verified NFL colour for ${l.team.abbr}`);
+  return { abbr: c.abbr, name: l.team.name, color: c.accent, ink: c.ink };
+}
+
 function cleanLeg(cells, l, i, ctx) {
   const k = `leg${i + 1}`;
-  const t = teamOf(l.team.abbr, l.team.name);
+  const t = teamTint(l);
   const odds = ctx.price && american(ctx.price.price) ? cell(cells, `${k}.odds`, american(ctx.price.price), "chip odds") : "";
   // Founder 2026-11-04 (v2): a compact record panel on the right; the engine's counts with their true sample labels.
   const stats = (l.recordStats ?? []).map((r, n) => `<div class="st5">${cell(cells, `${k}.r${n + 1}l`, r.label, "sl")}${cell(cells, `${k}.r${n + 1}v`, r.value, "sv")}</div>`).join("");
@@ -337,7 +346,8 @@ export function bbmCardV6(model, { testData = false } = {}) {
   if ((model.legs ?? []).length > RULES_V2.maxLegs) throw new Error(`${model.legs.length} legs: rules v2 take at most ${RULES_V2.maxLegs}`);
   if (model.laneType && model.laneType !== ENGINE_LANE_TYPE[model.letter]) throw new Error(`LANE_TYPE_MISMATCH: lane ${model.letter} is ${ENGINE_LANE_TYPE[model.letter]}, the record says ${model.laneType}`);
   // Founder 2026-11-04: lanes specialize (A = moneyline, B = player props, both products); a leg of the other type is refused.
-  for (const l of model.legs ?? []) if (!l.placeholder && (l.kind === "PROP") !== (model.letter === "B")) throw new Error(`lane ${model.letter} is the ${LANE_TYPE[model.letter]} challenge: a ${l.kind === "PROP" ? "prop" : "moneyline"} leg is refused`);
+  // Road mode (founder 2026-11-05): one card per product, legs of any type and sport, no lane letters on the image.
+  if (!model.road) for (const l of model.legs ?? []) if (!l.placeholder && (l.kind === "PROP") !== (model.letter === "B")) throw new Error(`lane ${model.letter} is the ${LANE_TYPE[model.letter]} challenge: a ${l.kind === "PROP" ? "prop" : "moneyline"} leg is refused`);
   if (!Object.values(BADGE).includes(model.badge)) throw new Error(`status ${model.badge} is not in the public vocabulary`);
   // Founder 2026-11-04: Level B never displays a probability (props or moneylines); only a Level A leg may.
   for (const l of model.legs ?? []) if (l.level === "B" && l.projectionText) throw new Error(`a Level B ${l.kind === "PROP" ? "prop" : "moneyline"} leg never carries a probability`);
@@ -348,9 +358,11 @@ export function bbmCardV6(model, { testData = false } = {}) {
   const tpl = model.template === true;
   const stepWord = model.view === VIEW.COMPLETE || model.view === VIEW.FINISHED_SHORT ? `${model.rungs.filter((r) => r.state === RUNG.COMPLETED).length} of ${model.steps} won` : `Step ${model.step} of ${model.steps}`;
   const status = model.badge === BADGE.ACTIVE ? "" : `<span class="st ${String(model.badge).split(" ")[0]}">${cell(cells, "status", STATUS_WORD[model.badge] ?? model.badge)}</span>`;
-  const head = `<img class="logo5" src="${logoDataUri()}" alt=""><div style="text-align:center"><span class="chip5" style="display:inline-block">${cell(cells, "chip", chipText(model.date))}</span></div><div class="title5">${esc(P.name)}</div><div class="goal5">${cell(cells, "goal", `${cents(model.baseCents)} → ${cents(model.targetCents)} challenge`)}</div><div style="text-align:center"><span class="pills5${status ? " three" : ""}" style="display:inline-flex"><b>${cell(cells, "lane", `Lane ${model.letter}${LANE_TYPE[model.letter] ? ` · ${LANE_TYPE[model.letter]}` : ""}`)}</b><span>${cell(cells, "step", stepWord)}</span>${status}</span></div>`;
+  const head = `<img class="logo5" src="${logoDataUri()}" alt=""><div style="text-align:center"><span class="chip5" style="display:inline-block">${cell(cells, "chip", model.chipText ?? chipText(model.date))}</span></div><div class="title5">${esc(P.name)}</div><div class="goal5">${cell(cells, "goal", model.road ? `Road to ${cents(model.targetCents)}` : `${cents(model.baseCents)} → ${cents(model.targetCents)} challenge`)}</div><div style="text-align:center"><span class="pills5${status ? " three" : ""}" style="display:inline-flex">${model.road ? `<b>${cell(cells, "step", stepWord)}</b>` : `<b>${cell(cells, "lane", `Lane ${model.letter}${LANE_TYPE[model.letter] ? ` · ${LANE_TYPE[model.letter]}` : ""}`)}</b><span>${cell(cells, "step", stepWord)}</span>`}${status}</span></div>`;
   const clean = model.clean === true && model.view === VIEW.CARD && model.payout && !tpl;
-  const rungs = clean ? model.rungs.map((r) => (r.state === RUNG.ACTIVE ? { ...r, exactCents: model.payout.grossCents } : r)) : model.rungs;
+  // The last completed step shows what the lane banked (the opening tracked amount of this step), not its ~target.
+  const lastWon = model.rungs.filter((r) => r.state === RUNG.COMPLETED).at(-1)?.step;
+  const rungs = clean ? model.rungs.map((r) => (r.state === RUNG.ACTIVE ? { ...r, exactCents: model.payout.grossCents } : r.step === lastWon && model.bankrollCents != null ? { ...r, exactCents: model.bankrollCents } : r)) : model.rungs;
   const meter = model.product === "moonshot" ? rocket(cells, rungs, P) : battery(cells, rungs, P);
   const outs = Object.fromEntries((model.legResults ?? []).map((r) => [r.legId, r.outcome]));
   let mid; let bottom = "";

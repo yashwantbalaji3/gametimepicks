@@ -39,6 +39,21 @@ if (a["approval-file"]) {
 if (!["v3", "compliant", "final"].includes(a["caption-variant"])) problems.push("--caption-variant must be v3, compliant or final (the founder's choice)");
 if (!a["founder-words"] || !a["founder-approved-at"] || Number.isNaN(Date.parse(a["founder-approved-at"]))) problems.push("approval needs the founder's verbatim words and the approval time (relayed by the PD)");
 const LANE_LOGS = process.env.GTP_LANE_LOGS_DIR ?? path.join(process.env.HOME, "gtp-private", "challenge-lanes");
+/** The card facts a caption may cite, each from the sealed record or the render, keyed by what it is. */
+function cardClaims(p) {
+  const dollars = (c) => `$${(c / 100).toLocaleString("en-US", { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 })}`;
+  const out = [{ key: "date", display: new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" }).format(new Date(`${p.date}T12:00:00Z`)) }, { key: "age", display: "21+" }];
+  for (const m of p.media) {
+    const L = m.lane;
+    out.push({ key: `${m.laneId}.stake`, display: dollars(L.stakeCents) }, { key: `${m.laneId}.payout`, display: dollars(L.grossPayoutCents) }, { key: `${m.laneId}.profit`, display: dollars(L.profitCents) }, { key: `${m.laneId}.combined`, display: `${L.combinedAmerican}` });
+    for (const [i, l] of (L.legs ?? []).entries()) {
+      if (l.line != null) out.push({ key: `${m.laneId}.leg${i + 1}.line`, display: String(l.line) });
+      if (l.odds) out.push({ key: `${m.laneId}.leg${i + 1}.odds`, display: String(l.odds) });
+    }
+  }
+  for (const [k, v] of Object.entries(p.extraClaims ?? {})) out.push({ key: k, display: v });
+  return out;
+}
 const numbersIn = (t) => String(t ?? "").replace(/\b(49ers|76ers)\b/gi, "").match(/\d+(?:\.\d+)?/g) ?? [];
 if (APPROVED) {
   if (render.status !== "FINAL_CANDIDATE") problems.push(`render status ${render.status}: the approved bytes are the FINAL_CANDIDATE render`);
@@ -86,7 +101,9 @@ for (const [pkg, lanes] of [["bb", ["bb-a", "bb-b"]], ["ms", ["ms-a", "ms-b"]]])
         legs: r.legs.map((l) => ({ ...l, startUtc: rec.legs.find((x) => x.legId === l.legId)?.startUtc ?? null })) } });
     if (media.at(-1).lane.legs.some((l) => !l.startUtc)) problems.push(`${lane}: a leg has no startUtc in the record`);
   }
-  packages.push({ pkg, packageId: `${pkg}-2026-11-04`, product: pkg === "bb" ? "bank-builder" : "moonshot", media, caption });
+  const T = { bb: { base: 10000, target: 1000000 }, ms: { base: 2500, target: 100000 } }[pkg];
+  packages.push({ pkg, packageId: `${pkg}-2026-11-04`, date: "2026-11-04", product: pkg === "bb" ? "bank-builder" : "moonshot", media, caption,
+    extraClaims: { "challenge.step": "Step 1 of 5", "challenge.base": `$${(T.base / 100).toLocaleString("en-US")}`, "challenge.target": `$${(T.target / 100).toLocaleString("en-US")}` } });
 }
 if (problems.length) throw new Error(`packaging refused:\n  ${problems.join("\n  ")}`);
 for (const p of packages) {
@@ -121,7 +138,9 @@ for (const p of packages) {
     commandCenter: {
       postId: `2026-11-04:NBA:bbm:${variant}`, title: `${variant === "bank-builder" ? "Bank Builder" : "Moonshot"} · lanes A + B`, sport: "NBA", date: "2026-11-04", firstStartUtc,
       suggestedPublishAt: a[`publish-${p.pkg}`] ?? null,
-      claims: [...new Set(numbersIn(p.caption))].map((n) => ({ key: `caption.${n}`, display: n, evidenceRef: `${p.packageId}/manifest.json` })),
+      // PD 2026-11-05: claims come from the card data (money, odds, lines, records, step, date, 21+), never from the
+      // caption's own numbers, so the console's number check can refuse a caption number the card does not carry.
+      claims: cardClaims(p).map((c) => ({ ...c, evidenceRef: `${p.packageId}/manifest.json` })),
       captions: [{ id: "A", text: p.caption, tone: "factual" }],
     },
   };
