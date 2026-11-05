@@ -333,7 +333,7 @@ const CLEAN_CSS = `<style>
 .v5.clean .money5.clean .pay{border:4px solid #FFD54A;background:radial-gradient(130% 120% at 50% 20%,rgba(255,215,80,.45),rgba(25,12,0,.95) 65%);box-shadow:0 0 0 1px #FFF3C0,0 0 22px rgba(255,180,0,.55)}
 .v5.clean .money5.clean .pay .k{color:#FFFFFF;text-shadow:none}
 .v5.clean .money5.clean .pay .v{font-size:58px;background:none;color:#FFD84A;-webkit-text-fill-color:#FFD84A;-webkit-text-stroke:0;text-shadow:0 2px 0 #5A2A00,0 0 10px rgba(255,190,40,.35);filter:none}
-.v5.clean .money5.clean .pro .v{color:var(--neon);text-shadow:0 2px 0 rgba(0,0,0,.6)}
+.v5.clean .money5.clean .pro .v{color:#4FD877;text-shadow:0 2px 0 rgba(0,0,0,.6)}
 .v5.clean .cp .m{filter:none}.v5.clean .cp.active .m{filter:none}
 .v5.clean .rt5{bottom:440px}
 </style>`;

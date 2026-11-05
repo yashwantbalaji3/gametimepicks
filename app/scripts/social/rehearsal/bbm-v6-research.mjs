@@ -26,6 +26,10 @@ const FINAL = a.final != null && a.final !== "0" && a.final !== false;
 // CANDIDATE, priceCheck PASS): banner-free, the clean final layout, never "preliminary". The founder approves these exact shas.
 const CANDIDATE = a.candidate != null && a.candidate !== "0";
 const CLEAN = FINAL || CANDIDATE;
+// --road 1 (PD 2026-11-05, step 2+): one card per product from the continuing lane, no lane letters, the record's own step;
+// step bands, the required NFL game and different games per card are asserted (fail-closed).
+const ROAD = a.road != null && a.road !== "0";
+const ROAD_GAME = a["require-game"] ?? null;
 const RENDER_AT = Date.now();
 const out = path.resolve(a.out);
 const raw = fs.readFileSync(a.selection);
@@ -84,6 +88,7 @@ function cleanLegOf(l, base, name) {
   const win = (id) => l.hitRate?.windows?.find((w) => w.window === id);
   const d = l.display ?? {};
   const bad = (m) => { throw new Error(`${name}: ${l.legId}: ${m}`); };
+  if (!(l.hitRate?.windows ?? []).length) return displayLegOf(l, base, d, bad);
   if (isMoneyline(l)) {
     const w5 = win("last5"); const w10 = win("last10"); const ws = win("season-2026-27");
     if (!w5 || !w10 || !ws) bad("missing W-L windows");
@@ -92,7 +97,7 @@ function cleanLegOf(l, base, name) {
     if (d.season && d.season !== winsLosses(ws)) bad(`display season ${d.season} is not ${winsLosses(ws)}`);
     const recordText = `Last ${w5.n}: ${winsLosses(w5)} | Last ${w10.n}: ${winsLosses(w10)} | Season: ${winsLosses(ws)}`;
     const recordStats = [{ label: `Last ${w5.n}`, value: winsLosses(w5) }, { label: `Last ${w10.n}`, value: winsLosses(w10) }];
-    return { ...base, recordStats, team: { abbr: base.team.abbr, name: d.team ?? base.team.name }, opponent: { abbr: base.opponent.abbr, name: d.opponent ?? teamName(base.opponent.abbr) }, home: d.venue ? d.venue === "vs" : base.home, recordText, level: "B", evidenceText: undefined, flagText: [] };
+    return { ...base, sport: l.sport, recordStats, team: { abbr: base.team.abbr, name: d.team ?? base.team.name }, opponent: { abbr: base.opponent.abbr, name: d.opponent ?? teamName(base.opponent.abbr) }, home: d.venue ? d.venue === "vs" : base.home, recordText, level: "B", evidenceText: undefined, flagText: [] };
   }
   const w5 = win("last5"); const w10 = win("last10");
   if (!w5 || !w10) bad("missing L5 / L10 hit counts");
@@ -100,7 +105,39 @@ function cleanLegOf(l, base, name) {
   if (d.last10 && d.last10 !== `${w10.hits}/${w10.n}`) bad(`display last10 ${d.last10} is not ${w10.hits}/${w10.n}`);
   const stat = d.stat ?? WORD[l.market] ?? l.family;
   const recordStats = [{ label: `L${w5.n} hits`, value: `${w5.hits}/${w5.n}` }, { label: `L${w10.n} hits`, value: `${w10.hits}/${w10.n}` }];
-  return { ...base, recordStats, lineWords: `${l.side.toUpperCase()} ${l.line} ${String(stat).toUpperCase()}`, gameLabel: d.matchup ?? l.eventLabel, recordText: `Last ${w5.n}: ${w5.hits}/${w5.n} | Last ${w10.n}: ${w10.hits}/${w10.n}`, evidenceText: null, evidenceBig: null, flagText: [] };
+  return { ...base, sport: l.sport, recordStats, lineWords: `${l.side.toUpperCase()} ${l.line} ${String(stat).toUpperCase()}`, gameLabel: d.matchup ?? l.eventLabel, recordText: `Last ${w5.n}: ${w5.hits}/${w5.n} | Last ${w10.n}: ${w10.hits}/${w10.n}`, evidenceText: null, evidenceBig: null, flagText: [] };
+}
+/**
+ * A clean leg from the engine's display fields when the record carries no raw windows (step 2 records): each count is
+ * cross-checked against the engine's own evidenceLine; the sample label is the real sample size (W + L, or k/n).
+ */
+function displayLegOf(l, base, d, bad) {
+  const ev = String(l.evidenceLine ?? "");
+  const inEv = (x) => ev.includes(x);
+  if (isMoneyline(l)) {
+    const stats = [];
+    for (const k of ["last5", "last10"]) {
+      const v = d[k] ? String(d[k]).split(" ")[0] : null;
+      if (!v) continue;
+      const [w, lo] = v.split("-").map(Number);
+      if (!Number.isInteger(w) || !Number.isInteger(lo)) bad(`display ${k} ${d[k]} is not W-L`);
+      if (!inEv(v)) bad(`display ${k} ${v} is not in the engine's evidence line`);
+      stats.push({ label: `Last ${w + lo}`, value: v });
+    }
+    return { ...base, sport: l.sport, recordStats: stats, team: { abbr: base.team.abbr, name: d.team ?? base.team.name }, opponent: { abbr: base.opponent.abbr, name: d.opponent ?? base.opponent.name ?? base.opponent.abbr }, home: d.venue ? d.venue === "vs" : base.home, recordText: stats.map((r) => `${r.label}: ${r.value}`).join(" | "), level: "B", evidenceText: undefined, flagText: [] };
+  }
+  const stats = [];
+  for (const k of ["last5", "last10"]) {
+    const v = d[k] ?? null;
+    if (!v) continue;
+    const [h, n] = String(v).split("/").map(Number);
+    if (!Number.isInteger(h) || !Number.isInteger(n)) bad(`display ${k} ${v} is not k/n`);
+    if (!inEv(v)) bad(`display ${k} ${v} is not in the engine's evidence line`);
+    stats.push({ label: `L${n} hits`, value: v });
+  }
+  const stat = String(d.stat ?? WORD[l.market] ?? l.family).toUpperCase();
+  const lineWords = l.line == null ? stat : `${String(d.side ?? l.side).toUpperCase()} ${l.line} ${stat}`;
+  return { ...base, sport: l.sport, recordStats: stats, lineWords, gameLabel: d.matchup ?? l.eventLabel, recordText: stats.map((r) => `${r.label}: ${r.value}`).join(" | "), evidenceText: null, evidenceBig: null, flagText: [] };
 }
 const isMoneyline = (l) => ["winner", "moneyline", "h2h", "ml"].includes(String(l.market ?? l.family ?? "").toLowerCase());
 /** The engine's Level B leg flags in plain words (the record's flags[] codes). */
@@ -122,6 +159,7 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
   // Level B: research, never a probability. Level A: the model probability per leg (no other claim is drawn).
   if (!["LEVEL_A", "LEVEL_B"].includes(c.classification) || (c.classification === "LEVEL_B" && (c.probability != null || c.evClaim))) throw new Error(`${laneId}: ${c.classification} with a probability or an EV claim is not drawn`);
   if (c.legs.length > RULES_V2.maxLegs) throw new Error(`${laneId}: ${c.legs.length} legs`);
+  if (new Set(c.legs.map((l) => l.legId).filter(Boolean)).size !== c.legs.length) throw new Error(`${laneId}: every leg needs a unique legId (prices and parity bind by it)`);
   const L = BBM_LANES[laneId]; const product = L.product;
   const legs = c.legs.map((l) => {
     const [away, home] = l.eventLabel.split(" @ ");
@@ -138,13 +176,15 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
       const flags = [...(inj0?.lineup?.sensitive ? [`Lineup watch: ${inj0.lineup.tonightScenario}`] : []), ...(l.flagText ?? []).filter((t) => !/^[A-Z0-9]+_[A-Z0-9_]+\b/.test(t)), ...(c.flags ?? []).filter((f) => f.legId === l.legId).map((f) => FLAG_WORDS[f.code] ?? flagWords(f.code))];
       return { legId: l.legId, team: { abbr: side, name: l.teamName ?? teamName(side) }, opponent: { abbr: side === home ? away : home }, home: side === home, tipUtc: l.startUtc, level: levelA ? "A" : "B", ...(levelA ? { projectionText: shown } : { evidenceText: evText }), flagText: [...new Set(flags)] };
     }
-    const ev = evidenceLine(l);
+    // Step 2 records carry the engine's evidenceLine and display counts instead of raw windows.
+    const ev = evidenceLine(l) ?? l.evidenceLine ?? null;
     if (!ev) throw new Error(`${laneId}: ${l.legId} lacks L10 or L20 hit counts`);
-    const w10 = l.hitRate.windows.find((w) => w.window === "last10");
+    const w10 = l.hitRate?.windows?.find((w) => w.window === "last10");
+    const pTeam = l.team ?? l.player?.team;
     const inj = c.injuryStatus?.find((x) => x.legId === l.legId);
     const flags = [...(inj && inj.status !== "ACTIVE" ? [`${l.player.name} ${String(inj.status).toLowerCase()}`] : []), ...(inj?.lineup?.sensitive ? [`Lineup watch: ${inj.lineup.tonightScenario}`] : []), ...(minutesNote(l.role) ? [minutesNote(l.role)] : []), ...(c.flags ?? []).filter((f) => f.legId === l.legId).map((f) => FLAG_WORDS[f.code] ?? flagWords(f.code))];
     const levelA = l.classification === "LEVEL_A" && l.probability != null;
-    return { kind: "PROP", legId: l.legId, player: { name: l.player.name }, team: { abbr: l.team, name: l.team }, opponent: { abbr: l.team === home ? away : home }, home: l.team === home, tipUtc: l.startUtc, level: levelA ? "A" : "B", ...(levelA ? { projectionText: l.probabilityShown ?? `${Math.round(l.probability * 100)}%` } : {}), lineText: `${l.side.toUpperCase()} ${l.line} ${SHORT[l.market] ?? ""}`.trim(), evidenceText: ev, evidenceBig: `${w10.hits}/${w10.n}`, flagText: [...new Set(flags)] };
+    return { kind: "PROP", sport: l.sport, legId: l.legId, player: { name: l.player.name }, team: { abbr: pTeam, name: pTeam }, opponent: { abbr: pTeam === home ? away : home }, home: pTeam === home, tipUtc: l.startUtc, level: levelA ? "A" : "B", ...(levelA ? { projectionText: l.probabilityShown ?? `${Math.round(l.probability * 100)}%` } : {}), lineText: `${l.side.toUpperCase()} ${l.line} ${SHORT[l.market] ?? ""}`.trim(), evidenceText: ev, evidenceBig: w10 ? `${w10.hits}/${w10.n}` : null, flagText: [...new Set(flags)] };
   });
   const verified = c.priceEventSha256 != null;
   if (FINAL) { const fp = finalProblems(c); if (fp.length) throw new Error(`${name}: not final: ${fp.join("; ")}`); }
@@ -154,9 +194,20 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
     if (c.priceCheckAll !== "PASS" || c.legs.some((l) => l.priceCheck?.result !== "PASS")) fp.push("a price check did not PASS");
     if (fp.length) throw new Error(`${name}: not a final candidate: ${fp.join("; ")}`);
   }
-  const rungs = RULES_V2.milestonesCents[product].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i ? RUNG.UPCOMING : RUNG.ACTIVE }));
+  const step = ROAD ? c.step : 1;
+  if (ROAD) {
+    const band = RULES_V2.milestonesCents[product][step - 1];
+    if (!Number.isInteger(step) || step < 1 || step > 5) throw new Error(`${name}: step ${c.step}`);
+    if (Math.abs(c.money.grossPayoutCents - band) > band * 0.1) throw new Error(`${name}: payout ${c.money.grossPayoutCents} is outside the step ${step} band (${band} ±10%)`);
+    if (ROAD_GAME && !c.legs.some((l) => l.sport === "nfl" && String(l.gameId) === String(ROAD_GAME))) throw new Error(`${name}: no NFL leg from game ${ROAD_GAME}`);
+    if (new Set(c.legs.map((l) => l.gameId)).size !== c.legs.length) throw new Error(`${name}: two legs from one game`);
+  }
+  const rungs = RULES_V2.milestonesCents[product].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i + 1 < step ? RUNG.COMPLETED : i + 1 === step ? RUNG.ACTIVE : RUNG.UPCOMING }));
+  const sports = [...new Set(c.legs.map((l) => String(l.sport ?? "nba").toUpperCase()))].sort((x, y) => (x === "NFL" ? -1 : y === "NFL" ? 1 : 0));
+  const chipDay = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "short", month: "short", day: "numeric" }).format(new Date(`${c.date}T12:00:00Z`)).replace(",", "");
   models.push({ laneId, name, alt: alt === true, sourceFile: srcFile, record: c, legsRaw: c.legs, model: {
-    product, letter: L.letter, laneId, date: c.date, step: 1, steps: 5, rungs, ...TERMS[product], bankrollCents: c.money.stakeCents, badge: BADGE.ACTIVE, view: VIEW.CARD, template: false,
+    road: ROAD, chipText: ROAD ? `${sports.join(" · ")} · ${chipDay}` : undefined,
+    product, letter: ROAD ? null : L.letter, laneId, date: c.date, step, steps: 5, rungs, ...TERMS[product], bankrollCents: c.money.stakeCents, badge: BADGE.ACTIVE, view: VIEW.CARD, template: false,
     laneType: c.laneType ?? lane.laneType ?? undefined, legs: CLEAN ? c.legs.map((l, i) => cleanLegOf(l, legs[i], name)) : legs, clean: CLEAN, selectionLabel: CLEAN ? null : c.selectionLabel ?? (c.classification === "LEVEL_B" ? "Research selection — no validated edge claim" : null), reviewRibbon: REVIEW, showStepTarget: !CLEAN,
     payout: { verifiedMark: CLEAN ? false : verifiedMarkOf(c), snapshotText: CLEAN ? `Odds snapshot · ${captureEt(c)}` : null, combinedLabel: c.combinedLabel ?? c.combined?.label ?? null, combinedAmerican: c.combined.american, grossCents: c.money.grossPayoutCents, profitCents: c.money.profitCents, stakeCents: c.money.stakeCents, preliminary: !verified, fixture: false, estimate: false, legs: Object.fromEntries(c.legs.map((l) => [l.legId, { price: l.price, oddsFormat: "american", line: l.line }])) },
   } });
@@ -235,7 +286,7 @@ try {
   };
   const row = (m, { pkg, mediaIndex, cap, shots }) => {
     const c = m.record;
-    const base = { laneId: m.laneId, name: m.name, alternate: m.alt === true, date: "2026-11-04", packageId: pkg ? `${pkg}-2026-11-04` : null, mediaIndex, imageSha256: shots.full, mobileSha256: shots.mobile, captionSha256: cap ? sha(Buffer.from(cap, "utf8")) : null, caption: cap, graphicVersion: rendererCommit(), designVersion: m.card.design, sourceFile: m.sourceFile ?? a.selection };
+    const base = { laneId: m.laneId, name: m.name, alternate: m.alt === true, date: m.record?.date ?? m.model.date, packageId: pkg ? `${pkg}-${m.record?.date ?? m.model.date}` : null, mediaIndex, imageSha256: shots.full, mobileSha256: shots.mobile, captionSha256: cap ? sha(Buffer.from(cap, "utf8")) : null, caption: cap, graphicVersion: rendererCommit(), designVersion: m.card.design, sourceFile: m.sourceFile ?? a.selection };
     if (m.held) return { ...base, view: "NO_ELIGIBLE_CARD", status: "HELD", heldReason: m.model.heldReason, rulesVersion: "bbm-rules@2", step: 1, bankrollCents: m.model.bankrollCents, legs: [], priceClass: "NONE", priceEventSha256: null, payoutEventSha256: null, refEventSha256: null, recordSha256: null, parity: { ok: true, mismatches: [], note: "HELD is the PD's recommendation pending the founder; no engine HELD record exists" } };
     return {
       ...base, rulesVersion: c.rulesVersion, recordSha256: c.recordSha256, candidateId: c.candidateId, classification: c.classification, approvalStatus: c.approvalStatus, step: 1, bankrollCents: c.money.stakeCents,
@@ -245,7 +296,9 @@ try {
       parity: { ok: parity(m).length === 0, mismatches: parity(m) }, candidateRecordSha256: c.candidateRecordSha256 ?? null, verifiedMark: m.card.verifiedMark === true, priceExpiresAt: c.legs.map((l) => l.priceCheck?.expiresAt ?? null),
     };
   };
-  for (const [product, ids, pkg] of [["bank-builder", ["bb-a", "bb-b"], "bb"], ["moonshot", ["ms-a", "ms-b"], "ms"]]) {
+  // Road mode: one card per product; its caption is the founder's, supplied at packaging (none is generated here).
+  if (ROAD) for (const m of cards.filter((x) => !x.alt)) rows.push(row(m, { pkg: m.laneId.slice(0, 2), mediaIndex: 1, cap: null, shots: await shoot(m) }));
+  else for (const [product, ids, pkg] of [["bank-builder", ["bb-a", "bb-b"], "bb"], ["moonshot", ["ms-a", "ms-b"], "ms"]]) {
     const pair = ids.map((id) => cards.find((m) => m.name === id));
     const cap = caption(product, pair);
     fs.writeFileSync(path.join(out, "captions", `${pkg}-2026-11-04.txt`), cap);

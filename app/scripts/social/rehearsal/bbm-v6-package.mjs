@@ -36,7 +36,7 @@ if (a["approval-file"]) {
   if (!sec) problems.push("the approval file has no section A");
   else { a["founder-words"] = `${text.match(/^A\. [^\n]*/m)[0]}\n${sec[1]}`.trim(); approvalSource = { file: a["approval-file"], sha256: sha(raw), section: "A" }; }
 }
-if (!["v3", "compliant", "final"].includes(a["caption-variant"])) problems.push("--caption-variant must be v3, compliant or final (the founder's choice)");
+if (!(a.road && a.road !== "0") && !["v3", "compliant", "final"].includes(a["caption-variant"])) problems.push("--caption-variant must be v3, compliant or final (the founder's choice)");
 if (!a["founder-words"] || !a["founder-approved-at"] || Number.isNaN(Date.parse(a["founder-approved-at"]))) problems.push("approval needs the founder's verbatim words and the approval time (relayed by the PD)");
 const LANE_LOGS = process.env.GTP_LANE_LOGS_DIR ?? path.join(process.env.HOME, "gtp-private", "challenge-lanes");
 /** The card facts a caption may cite, each from the sealed record or the render, keyed by what it is. */
@@ -45,7 +45,7 @@ function cardClaims(p) {
   const out = [{ key: "date", display: new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" }).format(new Date(`${p.date}T12:00:00Z`)) }, { key: "age", display: "21+" }];
   for (const m of p.media) {
     const L = m.lane;
-    out.push({ key: `${m.laneId}.stake`, display: dollars(L.stakeCents) }, { key: `${m.laneId}.payout`, display: dollars(L.grossPayoutCents) }, { key: `${m.laneId}.profit`, display: dollars(L.profitCents) }, { key: `${m.laneId}.combined`, display: `${L.combinedAmerican}` });
+    out.push({ key: `${m.laneId}.stake`, display: dollars(L.stakeCents) }, { key: `${m.laneId}.payout`, display: dollars(L.grossPayoutCents) }, { key: `${m.laneId}.profit`, display: dollars(L.profitCents) }, { key: `${m.laneId}.combined`, display: `${L.combinedAmerican > 0 ? "+" : ""}${L.combinedAmerican}` });
     for (const [i, l] of (L.legs ?? []).entries()) {
       if (l.line != null) out.push({ key: `${m.laneId}.leg${i + 1}.line`, display: String(l.line) });
       if (l.odds) out.push({ key: `${m.laneId}.leg${i + 1}.odds`, display: String(l.odds) });
@@ -64,9 +64,16 @@ if (APPROVED) {
 }
 if ((render.checker ?? []).length || (render.layout ?? []).length || (render.diversity?.repeats ?? []).length) problems.push("the render carries checker, layout or diversity problems");
 // Founder override 2026-11-04 (odds snapshot): captured odds, may have changed, not a live offer.
-const OVERRIDE = { id: "2026-11-04-founder-odds-snapshot-override", commits: ["f529fa44fa", "41c421cf1d"], fetchedWindowUtc: "2026-11-04T21:05Z/2026-11-04T21:07Z" };
+// The Nov 4 override applies to Nov 4 only; a later date cites its own (--override-id, --override-commits a,b) or none.
+const OVERRIDE = a["override-id"] ? { id: a["override-id"], commits: String(a["override-commits"] ?? "").split(",").filter(Boolean) } : (a.road && a.road !== "0") ? null : { id: "2026-11-04-founder-odds-snapshot-override", commits: ["f529fa44fa", "41c421cf1d"], fetchedWindowUtc: "2026-11-04T21:05Z/2026-11-04T21:07Z" };
 const packages = [];
-for (const [pkg, lanes] of [["bb", ["bb-a", "bb-b"]], ["ms", ["ms-a", "ms-b"]]]) {
+// --road 1 (PD 2026-11-05): ONE card per product from the continuing lane in the source (bb-b / ms-b); the founder's
+// caption comes from --caption-bb / --caption-ms (files) and its sha must be in --approved-shas once he approves it.
+const ROAD = a.road != null && a.road !== "0";
+const recKeys = Object.keys(src.records ?? {});
+const plan = ROAD ? [["bb", recKeys.filter((k) => k.startsWith("bb-")).map((k) => k.split(":")[0])], ["ms", recKeys.filter((k) => k.startsWith("ms-")).map((k) => k.split(":")[0])]] : [["bb", ["bb-a", "bb-b"]], ["ms", ["ms-a", "ms-b"]]];
+if (ROAD && plan.some(([, ls]) => ls.length !== 1)) problems.push(`road mode expects one card per product, got ${JSON.stringify(plan)}`);
+for (const [pkg, lanes] of plan) {
   const rows = lanes.map((l) => render.parityRows.find((r) => r.laneId === l && !r.alternate));
   const media = []; let caption = null;
   for (const [i, r] of rows.entries()) {
@@ -80,7 +87,7 @@ for (const [pkg, lanes] of [["bb", ["bb-a", "bb-b"]], ["ms", ["ms-a", "ms-b"]]])
     if (!r.parity?.ok) problems.push(`${lane}: parity ${r.parity?.mismatches?.join("; ")}`);
     const png = fs.readFileSync(path.join(a.render, "full", `${lane}.png`));
     if (sha(png) !== r.imageSha256) problems.push(`${lane}: image bytes differ from the render manifest`);
-    const cap = fs.readFileSync(path.join(a.render, "captions", `${pkg}-2026-11-04${{ compliant: "-compliant", final: "-final" }[a["caption-variant"]] ?? ""}.txt`), "utf8");
+    const cap = ROAD ? fs.readFileSync(a[`caption-${pkg}`], "utf8") : fs.readFileSync(path.join(a.render, "captions", `${pkg}-2026-11-04${{ compliant: "-compliant", final: "-final" }[a["caption-variant"]] ?? ""}.txt`), "utf8");
     if (a["caption-variant"] === "v3" && sha(Buffer.from(cap, "utf8")) !== r.captionSha256) problems.push(`${lane}: caption bytes differ from the render manifest`);
     // A caption the founder has not yet approved (no caption sha given) is packaged as PENDING: never socially authorized.
     if (APPROVED && APPROVED[`${pkg}-caption`] && APPROVED[`${pkg}-caption`] !== sha(Buffer.from(cap, "utf8"))) problems.push(`${pkg}: caption sha ${sha(Buffer.from(cap, "utf8"))} is not the founder-approved ${APPROVED[`${pkg}-caption`]}`);
@@ -102,8 +109,12 @@ for (const [pkg, lanes] of [["bb", ["bb-a", "bb-b"]], ["ms", ["ms-a", "ms-b"]]])
     if (media.at(-1).lane.legs.some((l) => !l.startUtc)) problems.push(`${lane}: a leg has no startUtc in the record`);
   }
   const T = { bb: { base: 10000, target: 1000000 }, ms: { base: 2500, target: 100000 } }[pkg];
-  packages.push({ pkg, packageId: `${pkg}-2026-11-04`, date: "2026-11-04", product: pkg === "bb" ? "bank-builder" : "moonshot", media, caption,
-    extraClaims: { "challenge.step": "Step 1 of 5", "challenge.base": `$${(T.base / 100).toLocaleString("en-US")}`, "challenge.target": `$${(T.target / 100).toLocaleString("en-US")}` } });
+  const rec0 = src.records?.[`${lanes[0]}:A`]?.record ?? {};
+  const date = rec0.date ?? "2026-11-04"; const step = ROAD ? rec0.step : 1;
+  // The post's sport: NFL when the card carries the required NFL leg (tonight's TNF), else NBA (CC to confirm for mixed cards).
+  const sport = (rec0.legs ?? []).some((l) => l.sport === "nfl") ? "nfl" : "nba";
+  packages.push({ pkg, packageId: `${pkg}-${date}`, date, step, sport, product: pkg === "bb" ? "bank-builder" : "moonshot", media, caption,
+    extraClaims: { "challenge.step": `Step ${step} of 5`, "challenge.base": `$${(T.base / 100).toLocaleString("en-US")}`, "challenge.target": `$${(T.target / 100).toLocaleString("en-US")}` } });
 }
 if (problems.length) throw new Error(`packaging refused:\n  ${problems.join("\n  ")}`);
 for (const p of packages) {
@@ -112,7 +123,7 @@ for (const p of packages) {
   for (const m of p.media) fs.writeFileSync(path.join(dir, m.file), m.png);
   fs.writeFileSync(path.join(dir, "caption.txt"), p.caption);
   const manifest = {
-    schema: "gtp.bbm-challenge-post@1", kind: "BBM_CHALLENGE_POST", status: "FINAL", packageId: p.packageId, product: p.product, date: "2026-11-04",
+    schema: "gtp.bbm-challenge-post@1", kind: "BBM_CHALLENGE_POST", status: "FINAL", packageId: p.packageId, product: p.product, date: p.date,
     media: p.media.map(({ png: _png, ...m }) => m),
     caption: { text: p.caption, sha256: sha(Buffer.from(p.caption, "utf8")) },
     source: { file: path.basename(a.source), sha256: sha(srcRaw), engine: src.engine ?? null },
@@ -127,16 +138,16 @@ for (const p of packages) {
   const contentSha256 = sha(Buffer.from(JSON.stringify({ images: p.media.map((m) => m.sha256), captionSha256: captionSha, lanes: lanes.map((l) => [l.laneId, l.recordSha256, l.cardEventSha256, l.payoutEventSha256]) })));
   const variant = p.product;
   const social = {
-    schema: "gtp-social-package@1", revision: 1, designVersion: "1", sport: "nba", date: "2026-11-04", contentType: "BBM_CHALLENGE_POST", variant,
-    dedupeId: `gtp-social:nba:2026-11-04:BBM_CHALLENGE_POST:${variant}`, contentSha256, containsMarketData: true,
-    approval: { status: "FINAL", socialAuthorized: !APPROVED || Boolean(APPROVED[`${p.pkg}-caption`]), captionApproval: !APPROVED || APPROVED[`${p.pkg}-caption`] ? { status: "APPROVED", sha256: captionSha } : { status: "PENDING_FOUNDER", sha256: captionSha, note: "images approved 2026-11-04T22:30:09Z; this caption awaits the founder's approval" }, founderWords: a["founder-words"], founderApprovedAt: new Date(a["founder-approved-at"]).toISOString(), approvalSourceRef: approvalSource, approvedShas: APPROVED, oddsSnapshotOverride: OVERRIDE, authorizationRef: "41c421cf1d / f529fa44fa" },
+    schema: "gtp-social-package@1", revision: 1, designVersion: "1", sport: p.sport, date: p.date, contentType: "BBM_CHALLENGE_POST", variant,
+    dedupeId: `gtp-social:${p.sport}:${p.date}:BBM_CHALLENGE_POST:${variant}`, contentSha256, containsMarketData: true,
+    approval: { status: "FINAL", socialAuthorized: !APPROVED || Boolean(APPROVED[`${p.pkg}-caption`]), captionApproval: !APPROVED || APPROVED[`${p.pkg}-caption`] ? { status: "APPROVED", sha256: captionSha } : { status: "PENDING_FOUNDER", sha256: captionSha, note: "images approved 2026-11-04T22:30:09Z; this caption awaits the founder's approval" }, founderWords: a["founder-words"], founderApprovedAt: new Date(a["founder-approved-at"]).toISOString(), approvalSourceRef: approvalSource, approvedShas: APPROVED, oddsSnapshotOverride: OVERRIDE, authorizationRef: OVERRIDE ? OVERRIDE.commits.join(" / ") : null },
     verification: { passed: true, checks: ["render FINAL from this source", "records FOUNDER_APPROVED with run-2 event shas", "run-2 lane log holds the card and last VERIFIED payout", "image and caption bytes match the render", "record parity", "money reconciliation", "diversity@2", "layout and checker clean"] },
     window: { opensAt: new Date(a["founder-approved-at"]).toISOString(), closesAt: firstStartUtc },
     provenance: { source: manifest.source, render: manifest.render, packageId: p.packageId },
     images: p.media.map((m) => ({ path: path.join(dir, m.file), sha256: m.sha256, width: 1080, height: 1350, scale: 1, laneId: m.laneId })),
     content: { bbm: { product: variant, preliminary: false, superseded: false, doNotPost: false, template: false, lanes } },
     commandCenter: {
-      postId: `2026-11-04:NBA:bbm:${variant}`, title: `${variant === "bank-builder" ? "Bank Builder" : "Moonshot"} · lanes A + B`, sport: "NBA", date: "2026-11-04", firstStartUtc,
+      postId: `${p.date}:${p.sport.toUpperCase()}:bbm:${variant}`, title: `${variant === "bank-builder" ? "Bank Builder" : "Moonshot"} · ${ROAD ? `step ${p.step} of 5` : "lanes A + B"}`, sport: p.sport.toUpperCase(), date: p.date, firstStartUtc,
       suggestedPublishAt: a[`publish-${p.pkg}`] ?? null,
       // PD 2026-11-05: claims come from the card data (money, odds, lines, records, step, date, 21+), never from the
       // caption's own numbers, so the console's number check can refuse a caption number the card does not carry.
@@ -144,6 +155,6 @@ for (const p of packages) {
       captions: [{ id: "A", text: p.caption, tone: "factual" }],
     },
   };
-  fs.writeFileSync(path.join(out, `nba-2026-11-04-bbm-${variant}.json`), `${JSON.stringify(social, null, 2)}\n`);
+  fs.writeFileSync(path.join(out, `${p.sport}-${p.date}-bbm-${variant}.json`), `${JSON.stringify(social, null, 2)}\n`);
   console.log(`${p.packageId}: ${p.media.map((m) => `${m.file} ${m.sha256.slice(0, 16)}`).join(", ")} caption ${manifest.caption.sha256.slice(0, 16)}`);
 }
