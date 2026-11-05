@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-04T17:08:16Z",
- "sourceGeneratedAt": "2026-11-04T17:08:16Z",
+ "generatedAt": "2026-11-05T01:19:19Z",
+ "sourceGeneratedAt": "2026-11-05T01:19:19Z",
  "forecastInputHash": "62fd862ede5124f8",
  "providerEventId": "401873039",
  "matchup": "CLE @ NO",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-04T17:08:16Z",
-  "roleEvidenceAt": "2026-11-04T17:08:16Z",
+  "injuriesCapturedAt": "2026-11-05T01:19:19Z",
+  "roleEvidenceAt": "2026-11-05T01:19:19Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -49,24 +49,7 @@
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
-    "pools": [
-     {
-      "team": "CLE",
-      "pool": "targets",
-      "originalSum": 1.0136,
-      "normalizedSum": 1,
-      "factor": 0.9866,
-      "playerIds": [
-       "nfl-athlete-4832800",
-       "nfl-athlete-5083076",
-       "nfl-athlete-4870653",
-       "nfl-athlete-4241463",
-       "nfl-athlete-5081397",
-       "nfl-athlete-4685702",
-       "nfl-athlete-4601080"
-      ]
-     }
-    ]
+    "pools": []
    }
   },
   "player_pass_int": {
@@ -178,7 +161,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-5083076",
@@ -360,7 +343,7 @@
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4569559",
@@ -506,19 +489,6 @@
   ],
   "pools": [
    {
-    "team": "CLE",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 1,
-    "originalSum": 1.0136,
-    "residualOther": 0,
-    "joined": 7,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
     "team": "NO",
     "pool": "passAttempts",
     "markets": [
@@ -537,10 +507,23 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.9749,
-    "originalSum": 0.9749,
-    "residualOther": 0.0251,
-    "joined": 8,
+    "sum": 0.8455,
+    "originalSum": 0.8455,
+    "residualOther": 0.1545,
+    "joined": 7,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "CLE",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.7935,
+    "originalSum": 0.7935,
+    "residualOther": 0.2065,
+    "joined": 6,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -555,34 +538,30 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 45.477,
-     "p10": 15.83,
-     "p25": 26.63,
-     "median": 41.77,
-     "p75": 60.2,
-     "p90": 80.18,
+     "mean": 44.884,
+     "p10": 15.58,
+     "p25": 26.13,
+     "median": 41.45,
+     "p75": 59.62,
+     "p90": 79.22,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 18.528,
+     "mean": 18.513,
      "p10": 0,
-     "p25": 3.43,
-     "median": 13.65,
-     "p75": 28.1,
-     "p90": 45.2,
+     "p25": 3.45,
+     "median": 13.93,
+     "p75": 27.67,
+     "p90": 43.61,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.3544,
+     "mean": 2.3864,
      "p10": 0,
-     "p25": 0.9866,
-     "median": 1.9732,
-     "p75": 2.9597,
-     "p90": 4.9329,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9866
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -595,24 +574,24 @@
    "playerId": "nfl-athlete-3054850",
    "name": "Alvin Kamara",
    "team": "NO",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
-     "mean": 20.884,
-     "p10": 2.03,
-     "p25": 7.15,
-     "median": 16.55,
-     "p75": 29.94,
-     "p90": 45.81,
+     "mean": 20.506,
+     "p10": 1.68,
+     "p25": 7.12,
+     "median": 16.71,
+     "p75": 29.11,
+     "p90": 44.12,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 21.876,
+     "mean": 22.373,
      "p10": 0,
-     "p25": 6.26,
-     "median": 17.52,
-     "p75": 32.09,
-     "p90": 48.32,
+     "p25": 6.53,
+     "median": 17.28,
+     "p75": 33.07,
+     "p90": 49.98,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -637,12 +616,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 26.094,
-     "p10": 5.11,
-     "p25": 11.65,
-     "median": 22.45,
-     "p75": 36.65,
-     "p90": 51.54,
+     "mean": 26.808,
+     "p10": 5.26,
+     "p25": 12.17,
+     "median": 23.18,
+     "p75": 36.97,
+     "p90": 53.1,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -667,12 +646,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 56.719,
-     "p10": 14.39,
-     "p25": 29.32,
-     "median": 50.23,
-     "p75": 77.37,
-     "p90": 106.44,
+     "mean": 56.694,
+     "p10": 13.32,
+     "p25": 28.19,
+     "median": 50.2,
+     "p75": 78.24,
+     "p90": 109.28,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -697,12 +676,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 34.638,
-     "p10": 3.25,
-     "p25": 13.27,
-     "median": 29.18,
-     "p75": 50.32,
-     "p90": 72.71,
+     "mean": 35.361,
+     "p10": 3.64,
+     "p25": 13.56,
+     "median": 29.51,
+     "p75": 51.14,
+     "p90": 73.68,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -727,25 +706,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 47.029,
-     "p10": 8.52,
-     "p25": 21.4,
-     "median": 40.87,
-     "p75": 65.37,
-     "p90": 94,
+     "mean": 46.555,
+     "p10": 8.28,
+     "p25": 21.07,
+     "median": 40.33,
+     "p75": 65.65,
+     "p90": 93.6,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.5542,
-     "p10": 0.9866,
-     "p25": 1.9732,
-     "median": 3.9463,
-     "p75": 5.9195,
-     "p90": 8.8792,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9866
-     },
+     "mean": 4.6161,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 9,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -761,12 +736,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 25.325,
+     "mean": 25.975,
      "p10": 0,
-     "p25": 7.11,
-     "median": 19.91,
-     "p75": 37.03,
-     "p90": 57.59,
+     "p25": 7.48,
+     "median": 20.41,
+     "p75": 38.82,
+     "p90": 57.6,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -788,28 +763,24 @@
    "playerId": "nfl-athlete-4832800",
    "name": "Denzel Boston",
    "team": "CLE",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 42.347,
-     "p10": 5.49,
-     "p25": 17.9,
-     "median": 36.17,
-     "p75": 60.21,
-     "p90": 86.91,
+     "mean": 41.97,
+     "p10": 5.23,
+     "p25": 17.66,
+     "median": 35.87,
+     "p75": 59.72,
+     "p90": 85.5,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.856,
-     "p10": 0.9866,
-     "p25": 1.9732,
-     "median": 2.9597,
-     "p75": 4.9329,
-     "p90": 7.8927,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9866
-     },
+     "mean": 3.9084,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 8,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -825,34 +796,30 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 11.387,
+     "mean": 11.174,
      "p10": 0,
-     "p25": 0.32,
-     "median": 5.98,
-     "p75": 16.87,
-     "p90": 30.88,
+     "p25": 0.21,
+     "median": 5.65,
+     "p75": 16.46,
+     "p90": 30.12,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 21.834,
+     "mean": 21.897,
      "p10": 0,
-     "p25": 3.96,
-     "median": 15.77,
-     "p75": 32.86,
-     "p90": 51.7,
+     "p25": 4.42,
+     "median": 16.41,
+     "p75": 32.99,
+     "p90": 51.03,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.4303,
+     "mean": 2.4634,
      "p10": 0,
-     "p25": 0.9866,
-     "median": 1.9732,
-     "p75": 3.9463,
-     "p90": 4.9329,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9866
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -868,25 +835,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 39.784,
-     "p10": 6.36,
-     "p25": 16.93,
-     "median": 33.69,
-     "p75": 55.95,
-     "p90": 81.52,
+     "mean": 40.605,
+     "p10": 5.71,
+     "p25": 17.16,
+     "median": 34.61,
+     "p75": 57.38,
+     "p90": 82.32,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.1672,
-     "p10": 0.9866,
-     "p25": 1.9732,
-     "median": 3.9463,
-     "p75": 5.9195,
-     "p90": 7.8927,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9866
-     },
+     "mean": 4.2239,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -902,12 +865,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
-     "mean": 19.871,
-     "p10": 0.91,
-     "p25": 5.6,
-     "median": 14.84,
-     "p75": 28.39,
-     "p90": 44.26,
+     "mean": 20.497,
+     "p10": 0.89,
+     "p25": 5.81,
+     "median": 15.59,
+     "p75": 29.88,
+     "p90": 46.16,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -932,12 +895,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 13.623,
+     "mean": 13.767,
      "p10": 0,
      "p25": 0,
-     "median": 8,
-     "p75": 20.99,
-     "p90": 36.13,
+     "median": 7.66,
+     "p75": 20.53,
+     "p90": 36.89,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -962,34 +925,30 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 8.237,
+     "mean": 8.095,
      "p10": 0,
      "p25": 0,
-     "median": 2.78,
-     "p75": 12.03,
-     "p90": 23.86,
+     "median": 2.73,
+     "p75": 11.62,
+     "p90": 23.73,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 15.103,
+     "mean": 15.227,
      "p10": 0,
      "p25": 0,
-     "median": 9.5,
-     "p75": 23.2,
-     "p90": 40.25,
+     "median": 9.71,
+     "p75": 23.43,
+     "p90": 39.48,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.8013,
+     "mean": 1.8258,
      "p10": 0,
-     "p25": 0.9866,
-     "median": 1.9732,
-     "p75": 2.9597,
-     "p90": 3.9463,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9866
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1005,12 +964,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 11.04,
+     "mean": 11.519,
      "p10": 0,
-     "p25": 0.13,
-     "median": 5.39,
-     "p75": 16.44,
-     "p90": 30.23,
+     "p25": 0.33,
+     "median": 6.08,
+     "p75": 17.23,
+     "p90": 30.88,
      "pricingState": "NOT_PROBED"
     },
     "player_pass_yds": {
@@ -1035,12 +994,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 11.908,
+     "mean": 11.613,
      "p10": 0,
      "p25": 0,
-     "median": 6.05,
-     "p75": 18.41,
-     "p90": 33.25,
+     "median": 5.42,
+     "p75": 18.31,
+     "p90": 32.26,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -1065,12 +1024,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
-     "mean": 11.734,
+     "mean": 11.685,
      "p10": 0,
-     "p25": 0.37,
-     "median": 6.32,
-     "p75": 17.14,
-     "p90": 32.16,
+     "p25": 0.19,
+     "median": 6.12,
+     "p75": 17.43,
+     "p90": 32.07,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1086,25 +1045,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 24.001,
+     "mean": 23.751,
      "p10": 0,
-     "p25": 5.47,
-     "median": 18.13,
-     "p75": 35.55,
-     "p90": 57.16,
+     "p25": 4.78,
+     "median": 18.04,
+     "p75": 34.96,
+     "p90": 55.8,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.2658,
+     "mean": 2.2966,
      "p10": 0,
-     "p25": 0.9866,
-     "median": 1.9732,
-     "p75": 2.9597,
-     "p90": 4.9329,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9866
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1141,12 +1096,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 8.062,
+     "mean": 8.25,
      "p10": 0,
      "p25": 0,
-     "median": 1.59,
-     "p75": 11.59,
-     "p90": 25.27,
+     "median": 1.86,
+     "p75": 11.41,
+     "p90": 25.61,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1162,12 +1117,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 8.828,
+     "mean": 9.435,
      "p10": 0,
      "p25": 0,
-     "median": 2.97,
-     "p75": 12.76,
-     "p90": 26.15,
+     "median": 3.31,
+     "p75": 13.67,
+     "p90": 27.75,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1183,12 +1138,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 15.351,
+     "mean": 15.046,
      "p10": 0,
      "p25": 0,
-     "median": 7.83,
-     "p75": 23.94,
-     "p90": 43.49,
+     "median": 7.28,
+     "p75": 23.02,
+     "p90": 42.29,
      "pricingState": "NOT_PROBED"
     }
    }

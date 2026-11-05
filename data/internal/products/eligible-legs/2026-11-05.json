@@ -1,0 +1,1087 @@
+{
+ "schemaVersion": 1,
+ "artifact": "product-eligible-legs",
+ "dataClass": "internal",
+ "date": "2026-11-05",
+ "asOf": "2026-11-05T15:20:59Z",
+ "generatedAt": "2026-11-05T15:21:00.431Z",
+ "marketPricedLegPolicy": {
+  "state": "ADMITTED_PENDING_FOUNDER_DECISION",
+  "gate": "F1",
+  "since": "2026-09-21"
+ },
+ "counts": {
+  "total": 22,
+  "eligible": 0
+ },
+ "legs": [
+  {
+   "schemaVersion": 1,
+   "legId": "nfl:nfl-401873037:nfl_moneyline:home",
+   "sport": "nfl",
+   "eventId": "nfl-401873037",
+   "eventStartUtc": "2026-11-06T01:15Z",
+   "entityIds": [
+    "nfl-team-BAL",
+    "nfl-team-JAX"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "nfl_moneyline",
+   "side": "home",
+   "line": null,
+   "forecastOwner": "nfl/forecasts",
+   "forecastId": "nfl-regular-season-public-v1@v2",
+   "forecastClass": "EXPERIMENTAL_MODEL",
+   "modelStatus": "PUBLIC_EXPERIMENTAL",
+   "probability": null,
+   "marketImpliedProbability": null,
+   "oddsForSide": null,
+   "publishedAt": "2026-11-05T01:19:19Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "FORECAST_EXPERIMENTAL",
+    "PRICE_UNAVAILABLE"
+   ],
+   "correlationKeys": [
+    "sport:nfl",
+    "event:nfl:nfl-401873037",
+    "family:team_result",
+    "entity:nfl:nfl-team-BAL",
+    "entity:nfl:nfl-team-JAX",
+    "start:996626"
+   ],
+   "sourceReceiptRefs": [
+    "nfl/forecasts/latest.json"
+   ],
+   "displayMatchup": "JAX @ BAL",
+   "displaySelection": "Baltimore Ravens to win",
+   "registryState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "nfl:nfl-401873037:nfl_moneyline:away",
+   "sport": "nfl",
+   "eventId": "nfl-401873037",
+   "eventStartUtc": "2026-11-06T01:15Z",
+   "entityIds": [
+    "nfl-team-JAX",
+    "nfl-team-BAL"
+   ],
+   "marketFamily": "team_result",
+   "marketKey": "nfl_moneyline",
+   "side": "away",
+   "line": null,
+   "forecastOwner": "nfl/forecasts",
+   "forecastId": "nfl-regular-season-public-v1@v2",
+   "forecastClass": "EXPERIMENTAL_MODEL",
+   "modelStatus": "PUBLIC_EXPERIMENTAL",
+   "probability": null,
+   "marketImpliedProbability": null,
+   "oddsForSide": null,
+   "publishedAt": "2026-11-05T01:19:19Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "FORECAST_EXPERIMENTAL",
+    "PRICE_UNAVAILABLE"
+   ],
+   "correlationKeys": [
+    "sport:nfl",
+    "event:nfl:nfl-401873037",
+    "family:team_result",
+    "entity:nfl:nfl-team-JAX",
+    "entity:nfl:nfl-team-BAL",
+    "start:996626"
+   ],
+   "sourceReceiptRefs": [
+    "nfl/forecasts/latest.json"
+   ],
+   "displayMatchup": "JAX @ BAL",
+   "displaySelection": "Jacksonville Jaguars to win",
+   "registryState": "EXPERIMENTAL_PUBLIC"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401932715:ufc_h2h:Johnny Walker",
+   "sport": "ufc",
+   "eventId": "401932715",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Johnny Walker",
+    "ufc-fighter-name:Waldo Cortes Acosta"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Johnny Walker",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.34965034965034963,
+   "oddsForSide": {
+    "american": 186,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401932715",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Johnny Walker",
+    "entity:ufc:ufc-fighter-name:Waldo Cortes Acosta"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Johnny Walker vs Waldo Cortes Acosta",
+   "displaySelection": "Johnny Walker to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401932715:ufc_h2h:Waldo Cortes Acosta",
+   "sport": "ufc",
+   "eventId": "401932715",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Johnny Walker",
+    "ufc-fighter-name:Waldo Cortes Acosta"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Waldo Cortes Acosta",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6923076923076923,
+   "oddsForSide": {
+    "american": -225,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401932715",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Johnny Walker",
+    "entity:ufc:ufc-fighter-name:Waldo Cortes Acosta"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Johnny Walker vs Waldo Cortes Acosta",
+   "displaySelection": "Waldo Cortes Acosta to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401928111:ufc_h2h:Tatiana Suarez",
+   "sport": "ufc",
+   "eventId": "401928111",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Tatiana Suarez",
+    "ufc-fighter-name:Virna Jandiroba"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Tatiana Suarez",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6688741721854304,
+   "oddsForSide": {
+    "american": -202,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401928111",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Tatiana Suarez",
+    "entity:ufc:ufc-fighter-name:Virna Jandiroba"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Tatiana Suarez vs Virna Jandiroba",
+   "displaySelection": "Tatiana Suarez to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401928111:ufc_h2h:Virna Jandiroba",
+   "sport": "ufc",
+   "eventId": "401928111",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Tatiana Suarez",
+    "ufc-fighter-name:Virna Jandiroba"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Virna Jandiroba",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.37453183520599254,
+   "oddsForSide": {
+    "american": 167,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401928111",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Tatiana Suarez",
+    "entity:ufc:ufc-fighter-name:Virna Jandiroba"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Tatiana Suarez vs Virna Jandiroba",
+   "displaySelection": "Virna Jandiroba to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401928119:ufc_h2h:Davey Grant",
+   "sport": "ufc",
+   "eventId": "401928119",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Davey Grant",
+    "ufc-fighter-name:Elijah Smith"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Davey Grant",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.29673590504451036,
+   "oddsForSide": {
+    "american": 237,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401928119",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Davey Grant",
+    "entity:ufc:ufc-fighter-name:Elijah Smith"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Davey Grant vs Elijah Smith",
+   "displaySelection": "Davey Grant to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401928119:ufc_h2h:Elijah Smith",
+   "sport": "ufc",
+   "eventId": "401928119",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Davey Grant",
+    "ufc-fighter-name:Elijah Smith"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Elijah Smith",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.7422680412371134,
+   "oddsForSide": {
+    "american": -288,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401928119",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Davey Grant",
+    "entity:ufc:ufc-fighter-name:Elijah Smith"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Davey Grant vs Elijah Smith",
+   "displaySelection": "Elijah Smith to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401928113:ufc_h2h:Billy Elekana",
+   "sport": "ufc",
+   "eventId": "401928113",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Billy Elekana",
+    "ufc-fighter-name:Lucas Fernando"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Billy Elekana",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.2898550724637681,
+   "oddsForSide": {
+    "american": 245,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401928113",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Billy Elekana",
+    "entity:ufc:ufc-fighter-name:Lucas Fernando"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Billy Elekana vs Lucas Fernando",
+   "displaySelection": "Billy Elekana to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401928113:ufc_h2h:Lucas Fernando",
+   "sport": "ufc",
+   "eventId": "401928113",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Billy Elekana",
+    "ufc-fighter-name:Lucas Fernando"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Lucas Fernando",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.7590361445783133,
+   "oddsForSide": {
+    "american": -315,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401928113",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Billy Elekana",
+    "entity:ufc:ufc-fighter-name:Lucas Fernando"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Billy Elekana vs Lucas Fernando",
+   "displaySelection": "Lucas Fernando to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401932011:ufc_h2h:Andre Petroski",
+   "sport": "ufc",
+   "eventId": "401932011",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Andre Petroski",
+    "ufc-fighter-name:Mantas Kondratavičius"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Andre Petroski",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.30303030303030304,
+   "oddsForSide": {
+    "american": 230,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401932011",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Andre Petroski",
+    "entity:ufc:ufc-fighter-name:Mantas Kondratavičius"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Andre Petroski vs Mantas Kondratavičius",
+   "displaySelection": "Andre Petroski to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401932011:ufc_h2h:Mantas Kondratavičius",
+   "sport": "ufc",
+   "eventId": "401932011",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Andre Petroski",
+    "ufc-fighter-name:Mantas Kondratavičius"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Mantas Kondratavičius",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.7402597402597403,
+   "oddsForSide": {
+    "american": -285,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401932011",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Andre Petroski",
+    "entity:ufc:ufc-fighter-name:Mantas Kondratavičius"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Andre Petroski vs Mantas Kondratavičius",
+   "displaySelection": "Mantas Kondratavičius to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401928115:ufc_h2h:Karine Silva",
+   "sport": "ufc",
+   "eventId": "401928115",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Karine Silva",
+    "ufc-fighter-name:Gabriella Fernandes"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Karine Silva",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.6865203761755486,
+   "oddsForSide": {
+    "american": -219,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401928115",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Karine Silva",
+    "entity:ufc:ufc-fighter-name:Gabriella Fernandes"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Karine Silva vs Gabriella Fernandes",
+   "displaySelection": "Karine Silva to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401928115:ufc_h2h:Gabriella Fernandes",
+   "sport": "ufc",
+   "eventId": "401928115",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Karine Silva",
+    "ufc-fighter-name:Gabriella Fernandes"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Gabriella Fernandes",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.36496350364963503,
+   "oddsForSide": {
+    "american": 174,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401928115",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Karine Silva",
+    "entity:ufc:ufc-fighter-name:Gabriella Fernandes"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Karine Silva vs Gabriella Fernandes",
+   "displaySelection": "Gabriella Fernandes to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401932012:ufc_h2h:Mitch Raposo",
+   "sport": "ufc",
+   "eventId": "401932012",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Mitch Raposo",
+    "ufc-fighter-name:Marcos Degli"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Mitch Raposo",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.3472222222222222,
+   "oddsForSide": {
+    "american": 188,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401932012",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Mitch Raposo",
+    "entity:ufc:ufc-fighter-name:Marcos Degli"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Mitch Raposo vs Marcos Degli",
+   "displaySelection": "Mitch Raposo to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401932012:ufc_h2h:Marcos Degli",
+   "sport": "ufc",
+   "eventId": "401932012",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Mitch Raposo",
+    "ufc-fighter-name:Marcos Degli"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Marcos Degli",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.696969696969697,
+   "oddsForSide": {
+    "american": -230,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401932012",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Mitch Raposo",
+    "entity:ufc:ufc-fighter-name:Marcos Degli"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Mitch Raposo vs Marcos Degli",
+   "displaySelection": "Marcos Degli to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401928120:ufc_h2h:Jose Delano",
+   "sport": "ufc",
+   "eventId": "401928120",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Jose Delano",
+    "ufc-fighter-name:Murtazali Magomedov"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Jose Delano",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.5283018867924528,
+   "oddsForSide": {
+    "american": -112,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401928120",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Jose Delano",
+    "entity:ufc:ufc-fighter-name:Murtazali Magomedov"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Jose Delano vs Murtazali Magomedov",
+   "displaySelection": "Jose Delano to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401928120:ufc_h2h:Murtazali Magomedov",
+   "sport": "ufc",
+   "eventId": "401928120",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Jose Delano",
+    "ufc-fighter-name:Murtazali Magomedov"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Murtazali Magomedov",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.5192307692307693,
+   "oddsForSide": {
+    "american": -108,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401928120",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Jose Delano",
+    "entity:ufc:ufc-fighter-name:Murtazali Magomedov"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Jose Delano vs Murtazali Magomedov",
+   "displaySelection": "Murtazali Magomedov to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401911642:ufc_h2h:Keiichiro Nakamura",
+   "sport": "ufc",
+   "eventId": "401911642",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Keiichiro Nakamura",
+    "ufc-fighter-name:Ollie Schmid"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Keiichiro Nakamura",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.7777777777777778,
+   "oddsForSide": {
+    "american": -350,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401911642",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Keiichiro Nakamura",
+    "entity:ufc:ufc-fighter-name:Ollie Schmid"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Keiichiro Nakamura vs Ollie Schmid",
+   "displaySelection": "Keiichiro Nakamura to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401911642:ufc_h2h:Ollie Schmid",
+   "sport": "ufc",
+   "eventId": "401911642",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Keiichiro Nakamura",
+    "ufc-fighter-name:Ollie Schmid"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Ollie Schmid",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.26666666666666666,
+   "oddsForSide": {
+    "american": 275,
+    "bookmaker": "consensus(8 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401911642",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Keiichiro Nakamura",
+    "entity:ufc:ufc-fighter-name:Ollie Schmid"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Keiichiro Nakamura vs Ollie Schmid",
+   "displaySelection": "Ollie Schmid to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401928116:ufc_h2h:Priscila Cachoeira",
+   "sport": "ufc",
+   "eventId": "401928116",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Priscila Cachoeira",
+    "ufc-fighter-name:Nina Milošević"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Priscila Cachoeira",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.2222222222222222,
+   "oddsForSide": {
+    "american": 350,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401928116",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Priscila Cachoeira",
+    "entity:ufc:ufc-fighter-name:Nina Milošević"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Priscila Cachoeira vs Nina Milošević",
+   "displaySelection": "Priscila Cachoeira to win",
+   "registryState": "SCAFFOLD_ONLY"
+  },
+  {
+   "schemaVersion": 1,
+   "legId": "ufc:401928116:ufc_h2h:Nina Milošević",
+   "sport": "ufc",
+   "eventId": "401928116",
+   "eventStartUtc": null,
+   "entityIds": [
+    "ufc-fighter-name:Priscila Cachoeira",
+    "ufc-fighter-name:Nina Milošević"
+   ],
+   "marketFamily": "fight_result",
+   "marketKey": "ufc_h2h",
+   "side": "Nina Milošević",
+   "line": null,
+   "forecastOwner": "ufc/odds-latest",
+   "forecastId": null,
+   "forecastClass": "MARKET_IMPLIED_NO_FORECAST",
+   "modelStatus": "SCAFFOLD_ONLY",
+   "probability": null,
+   "marketImpliedProbability": 0.8275862068965517,
+   "oddsForSide": {
+    "american": -480,
+    "bookmaker": "consensus(7 books)",
+    "capturedAt": "2026-11-03T18:33:11Z",
+    "receipt": "docs/receipts/ODDS_AUTHORIZATION_UFC.md"
+   },
+   "publishedAt": "2026-11-03T18:33:11Z",
+   "asOf": "2026-11-05T15:20:59Z",
+   "productEligible": false,
+   "eligibilityReasonCodes": [
+    "SPORT_NOT_ELIGIBLE",
+    "MARKET_PRICED_NO_FORECAST",
+    "STALE",
+    "MISSING_IDENTITY"
+   ],
+   "correlationKeys": [
+    "sport:ufc",
+    "event:ufc:401928116",
+    "family:fight_result",
+    "entity:ufc:ufc-fighter-name:Priscila Cachoeira",
+    "entity:ufc:ufc-fighter-name:Nina Milošević"
+   ],
+   "sourceReceiptRefs": [
+    "ufc/odds-latest.json"
+   ],
+   "displayMatchup": "Priscila Cachoeira vs Nina Milošević",
+   "displaySelection": "Nina Milošević to win",
+   "registryState": "SCAFFOLD_ONLY"
+  }
+ ]
+}

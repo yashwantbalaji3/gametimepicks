@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-04T17:08:16Z",
- "sourceGeneratedAt": "2026-11-04T17:08:16Z",
- "forecastInputHash": "666cf549c0b6154a",
+ "generatedAt": "2026-11-05T01:19:19Z",
+ "sourceGeneratedAt": "2026-11-05T01:19:19Z",
+ "forecastInputHash": "23c98f0574080dfe",
  "providerEventId": "401873048",
  "matchup": "ARI @ SEA",
  "kickoffUtc": "2026-11-08T21:25Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-04T17:08:16Z",
-  "roleEvidenceAt": "2026-11-04T17:08:16Z",
+  "injuriesCapturedAt": "2026-11-05T01:19:19Z",
+  "roleEvidenceAt": "2026-11-05T01:19:19Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -31,6 +31,13 @@
      "name": "Gardner Minshew",
      "share": 0.5,
      "reason": "withheld for Gardner Minshew (ARI): his modelled share of ARI's pass attempts is 0.50, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    },
+    {
+     "team": "SEA",
+     "playerId": "nfl-athlete-3924327",
+     "name": "Drew Lock",
+     "share": 0.696,
+     "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
     }
    ],
    "conservation": {
@@ -107,7 +114,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 54,
+  "absent": 52,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -246,8 +253,8 @@
   },
   "SEA": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 1,
@@ -368,23 +375,19 @@
     {
      "playerId": "nfl-athlete-3912547",
      "name": "Sam Darnold",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_pass_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-3924327",
      "name": "Drew Lock",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
       }
      ]
     }
@@ -413,21 +416,11 @@
    },
    {
     "team": "SEA",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-3912547",
-     "name": "Sam Darnold"
-    },
-    "snapshotAt": "2026-11-04T15:20:57Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-3924327",
-      "name": "Drew Lock"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
-     "nfl-athlete-3912547"
-    ]
+     "nfl-athlete-3924327"
+    ],
+    "removed": []
    }
   ],
   "passerShareFloor": [
@@ -452,9 +445,17 @@
     "team": "SEA",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3912547"
+     "nfl-athlete-3924327"
     ],
-    "withheld": [],
+    "withheld": [
+     {
+      "team": "SEA",
+      "playerId": "nfl-athlete-3924327",
+      "name": "Drew Lock",
+      "share": 0.696,
+      "reason": "withheld for Drew Lock (SEA): his modelled share of SEA's pass attempts is 0.70, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
     "unjoined": []
    }
   ],
@@ -469,19 +470,6 @@
     "originalSum": 0.9808,
     "residualOther": 0.0192,
     "joined": 8,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "SEA",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.9314,
-    "originalSum": 0.9314,
-    "residualOther": 0.0686,
-    "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
    },
@@ -509,12 +497,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 86.395,
-     "p10": 26.38,
-     "p25": 47.85,
-     "median": 79.33,
-     "p75": 117.09,
-     "p90": 154.53,
+     "mean": 86.557,
+     "p10": 27.22,
+     "p25": 49.02,
+     "median": 79.8,
+     "p75": 115.88,
+     "p90": 155.22,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -539,12 +527,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 37.998,
-     "p10": 10.6,
-     "p25": 19.68,
-     "median": 34.01,
-     "p75": 51.04,
-     "p90": 71.37,
+     "mean": 37.819,
+     "p10": 9.88,
+     "p25": 19.52,
+     "median": 33.38,
+     "p75": 52.24,
+     "p90": 72.3,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -569,12 +557,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 47.108,
-     "p10": 11.77,
-     "p25": 24.7,
-     "median": 42.17,
-     "p75": 63.96,
-     "p90": 89.06,
+     "mean": 47.263,
+     "p10": 12.06,
+     "p25": 24.46,
+     "median": 42.7,
+     "p75": 64.51,
+     "p90": 88.54,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -599,21 +587,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 23.066,
-     "p10": 1.77,
-     "p25": 7.49,
-     "median": 18.25,
-     "p75": 33.17,
-     "p90": 50.62,
+     "mean": 23.017,
+     "p10": 1.6,
+     "p25": 7.46,
+     "median": 17.79,
+     "p75": 33.38,
+     "p90": 50.77,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 13.258,
+     "mean": 13.274,
      "p10": 0,
      "p25": 0,
-     "median": 7.92,
-     "p75": 20.27,
-     "p90": 34.7,
+     "median": 7.95,
+     "p75": 19.74,
+     "p90": 35.03,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -638,12 +626,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 44.134,
-     "p10": 7.49,
-     "p25": 19.71,
-     "median": 38.15,
-     "p75": 62.05,
-     "p90": 88.21,
+     "mean": 44.125,
+     "p10": 7.59,
+     "p25": 19.62,
+     "median": 37.51,
+     "p75": 62.31,
+     "p90": 89.08,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -668,21 +656,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 28.018,
-     "p10": 4.3,
-     "p25": 11.69,
-     "median": 22.93,
-     "p75": 39.44,
-     "p90": 57.18,
+     "mean": 27.669,
+     "p10": 3.77,
+     "p25": 10.87,
+     "median": 23,
+     "p75": 39.25,
+     "p90": 58.33,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 13.177,
+     "mean": 13.359,
      "p10": 0,
      "p25": 0,
-     "median": 7.56,
-     "p75": 20.09,
-     "p90": 35.49,
+     "median": 7.74,
+     "p75": 20.23,
+     "p90": 35.32,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -707,21 +695,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 12.862,
+     "mean": 13.107,
      "p10": 0,
-     "p25": 0.97,
-     "median": 7.19,
-     "p75": 19.6,
-     "p90": 34.59,
+     "p25": 0.84,
+     "median": 7.5,
+     "p75": 19.29,
+     "p90": 34.72,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 14.703,
+     "mean": 14.82,
      "p10": 0,
      "p25": 0,
-     "median": 8.55,
-     "p75": 22.56,
-     "p90": 39.12,
+     "median": 8.87,
+     "p75": 22.73,
+     "p90": 39.45,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -746,21 +734,21 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 19.896,
-     "p10": 0.65,
-     "p25": 5.07,
-     "median": 14.56,
-     "p75": 29.26,
-     "p90": 46.17,
+     "mean": 20.769,
+     "p10": 0.63,
+     "p25": 5.28,
+     "median": 15.84,
+     "p75": 30.48,
+     "p90": 48.44,
      "pricingState": "NOT_PROBED"
     },
     "player_reception_yds": {
-     "mean": 13.623,
+     "mean": 13.857,
      "p10": 0,
      "p25": 0,
-     "median": 8.33,
-     "p75": 20.72,
-     "p90": 36.43,
+     "median": 8.61,
+     "p75": 21.11,
+     "p90": 36.5,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -785,12 +773,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 21.288,
+     "mean": 21.616,
      "p10": 0,
-     "p25": 3.6,
-     "median": 15.5,
+     "p25": 3.87,
+     "median": 15.98,
      "p75": 32.36,
-     "p90": 50.9,
+     "p90": 51.89,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -815,12 +803,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 23.375,
+     "mean": 24.208,
      "p10": 0,
-     "p25": 5.93,
-     "median": 18.08,
-     "p75": 35.25,
-     "p90": 53.92,
+     "p25": 6.1,
+     "median": 18.35,
+     "p75": 36.15,
+     "p90": 55.59,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -845,12 +833,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 9.474,
+     "mean": 9.41,
      "p10": 0,
-     "p25": 0.16,
-     "median": 4.69,
-     "p75": 13.84,
-     "p90": 26.19,
+     "p25": 0.15,
+     "median": 4.91,
+     "p75": 14.32,
+     "p90": 25.72,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -875,12 +863,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
-     "mean": 22.845,
+     "mean": 22.481,
      "p10": 0,
-     "p25": 5.01,
-     "median": 16.68,
-     "p75": 33.78,
-     "p90": 54.73,
+     "p25": 4.87,
+     "median": 16.75,
+     "p75": 33.94,
+     "p90": 53.29,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -905,12 +893,12 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
-     "mean": 14.08,
+     "mean": 14.073,
      "p10": 0,
-     "p25": 1.14,
-     "median": 8.27,
-     "p75": 21.12,
-     "p90": 36.1,
+     "p25": 1.03,
+     "median": 8.3,
+     "p75": 21.03,
+     "p90": 36.85,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -926,12 +914,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 15.734,
+     "mean": 16.067,
      "p10": 0,
      "p25": 0,
-     "median": 9.82,
-     "p75": 24.34,
-     "p90": 41.27,
+     "median": 9.92,
+     "p75": 24.91,
+     "p90": 42.65,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -956,12 +944,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 14.511,
+     "mean": 13.947,
      "p10": 0,
      "p25": 0,
-     "median": 8.53,
-     "p75": 22.33,
-     "p90": 38.99,
+     "median": 8.02,
+     "p75": 21.19,
+     "p90": 37.78,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
@@ -986,12 +974,12 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
-     "mean": 6.794,
+     "mean": 6.947,
      "p10": 0,
      "p25": 0,
-     "median": 2.38,
-     "p75": 9.64,
-     "p90": 19.88,
+     "median": 2.63,
+     "p75": 10.04,
+     "p90": 19.93,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1007,37 +995,16 @@
    "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
-     "mean": 7.258,
+     "mean": 7.11,
      "p10": 0,
      "p25": 0,
-     "median": 1.9,
-     "p75": 10.32,
-     "p90": 21.97,
+     "median": 2.03,
+     "p75": 10.12,
+     "p90": 21.75,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
      "probability": 0.0703,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3912547",
-   "name": "Sam Darnold",
-   "team": "SEA",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 215.2958,
-     "p10": 108.2287,
-     "p25": 147.7237,
-     "median": 202.134,
-     "p75": 268.586,
-     "p90": 339.3983,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0509,
      "pricingState": "NOT_PROBED"
     }
    }
