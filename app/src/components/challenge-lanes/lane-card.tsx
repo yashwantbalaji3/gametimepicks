@@ -33,7 +33,7 @@ export type LaneView = {
   graphics: Array<{ date: string; step: number; packageId: string | null; imageSha256: string | null; captionSha256?: string | null; graphicVersion?: string | null; approvedVersionSha256?: string | null; imagePath: string | null; approved: boolean; postUrl: string | null; postedAt: string | null }>;
   runs: Array<{ runId: string; number: number; started: string | null; status: string; stepsWon: number; current: boolean; ruleTag?: string | null }>;
   ruleVersion?: string | null; ruleLabel?: string | null; stepTarget?: { label: string; value: string | null } | null;
-  evidence?: { class: string; label: string } | null; selection?: { mode: string | null; label: string } | null; laneType?: { type: string; label: string } | null;
+  evidence?: { class: string; label: string } | null; selection?: { mode: string | null; label: string } | null; laneType?: { type: string; label: string } | null; productDay?: string | null;
 };
 
 const RUNG_TEXT: Record<string, string> = { completed: "won", active: "current", failed: "lost", upcoming: "to come" };

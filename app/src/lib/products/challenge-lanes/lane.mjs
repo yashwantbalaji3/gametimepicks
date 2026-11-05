@@ -159,6 +159,7 @@ export const FLAG_TEXT = Object.freeze({
   B_MINUTES_DROP: "Minutes dropping", B_MINUTES_UNCERTAIN: "Minutes uncertain",
   ML_SMALL_SAMPLE: "Small sample", ML_ROSTER_TURNOVER: "Roster turnover", ML_KEY_OUT: "Key player out", ML_KEY_DTD: "Key player day-to-day",
   ML_TOP5_OUT: "A top-5 minutes player out", ML_KEY_UNCERTAIN: "Key player status uncertain", ML_BACK_TO_BACK: "Back-to-back",
+  E_SNAPSHOT_OVERRIDE: "Odds captured under a dated founder exception (older than 90 min)",
 });
 /* Only codes the site knows are shown (betting-engine: treat unknown codes as absent); *_WEIGHT ranking markers never are. */
 export const flagWords = (f) => FLAG_TEXT[f?.code] ?? null;
@@ -343,7 +344,7 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
      bankroll in every state since 566ab9cfd5 ($0 on BUSTED); with no verified price, "Busted" (no number is guessed). */
   const tracked = d.trackedBankrollCents == null ? (lost ? "Busted" : AWAITING_PRICES) : money(d.trackedBankrollCents);
   return {
-    laneId: d.laneId, product: d.product, letter: d.slot, name: `Lane ${d.slot}`, laneType,
+    laneId: d.laneId, product: d.product, letter: d.slot, name: `Lane ${d.slot}`, laneType, productDay: productDay ?? null,
     runId: d.runId, runNumber: d.runNumber, startedAt: String(d.runs.at(-1)?.startedAt ?? "").slice(0, 10) || null,
     step: d.step, steps: d.steps, stepText: lost ? `LOST AT STEP ${d.step} OF ${d.steps}` : d.stepText, maxLegs: d.maxLegs ?? null, lost,
     trackedLabel: lost ? "Bankroll after the loss" : "Tracked bankroll · settled",

@@ -20,7 +20,7 @@ export const COMBINED_LABEL = Object.freeze({ LEG_PRODUCT: "calculated leg produ
 /** Founder 2026-11-04 ~19:40Z: the label on every DAILY RESEARCH SELECTION card, verbatim. */
 export const SELECTION_LABEL = Object.freeze({ RESEARCH: "RESEARCH SELECTION — NO VALIDATED EDGE CLAIM", STRICT: null });
 /** Disclosed-limitation flag codes (public: codes only; the full text carries line-dependent counts and stays encrypted). */
-export const FLAG_CODES = Object.freeze(["B_ROLE_UNSTABLE", "B_MINUTES_VOLATILE", "B_MINUTES_DROP", "B_MINUTES_UNCERTAIN", "C_LINEUP_UNCERTAIN", "C_LINEUP_MEDIUM", "C_LINEUP_HIGH", "ML_SMALL_SAMPLE", "ML_ROSTER_TURNOVER", "ML_KEY_OUT", "ML_KEY_DTD", "ML_TOP5_OUT", "ML_KEY_UNCERTAIN", "ML_BACK_TO_BACK"]);
+export const FLAG_CODES = Object.freeze(["B_ROLE_UNSTABLE", "B_MINUTES_VOLATILE", "B_MINUTES_DROP", "B_MINUTES_UNCERTAIN", "C_LINEUP_UNCERTAIN", "C_LINEUP_MEDIUM", "C_LINEUP_HIGH", "ML_SMALL_SAMPLE", "ML_ROSTER_TURNOVER", "ML_KEY_OUT", "ML_KEY_DTD", "ML_TOP5_OUT", "ML_KEY_UNCERTAIN", "ML_BACK_TO_BACK", "E_SNAPSHOT_OVERRIDE"]);
 /** Flag strings ("CODE legId: text") → public [{ legId, code, level }]; the internal HIGH ranking weight is dropped. */
 export function publicFlags(flags = []) {
   const out = [];
@@ -36,7 +36,9 @@ export function publicFlags(flags = []) {
 /* ───────────────────────────── public / private split (the repo is public; a book line is price data) ───────────────────────────── */
 
 /** Book-derived or line-dependent leg fields: never in a plain public file, only in the encrypted display. */
-export const PRIVATE_LEG_FIELDS = Object.freeze(["line", "book", "price", "quotedAt", "fetchedAt", "hitRate", "quote", "flagText", "lineupContext", "evidenceLine"]);
+export const PRIVATE_LEG_FIELDS = Object.freeze(["line", "book", "price", "quotedAt", "fetchedAt", "hitRate", "quote", "flagText", "lineupContext", "evidenceLine", "priceCheck", "display", "espnNow"]);
+/** Card-level fields that carry prices, money or line-dependent counts: never in the public projection. */
+export const PRIVATE_CARD_FIELDS = Object.freeze(["combined", "money", "reasons", "displayCard", "priceCheckAll"]);
 /** The public view of a card@2 leg: identity, side, model projection and class; no line, price, book or hit rate. */
 export const publicLeg = (l) => Object.fromEntries(Object.entries(l).filter(([k]) => !PRIVATE_LEG_FIELDS.includes(k)));
 /** The private (encrypted-display) view of a card@2 leg: everything computed against the line. Hit rates as {window, k, n}. */

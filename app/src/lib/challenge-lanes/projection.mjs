@@ -10,9 +10,9 @@
  */
 import { canonical, sha256, verifyChain } from "./chain.mjs";
 import { LANES, MILESTONES, laneState, inPlay, publicStatusOf } from "./lanes.mjs";
-import { publicLeg, LANE_TYPE_LABEL } from "./card-fields.mjs";
+import { publicLeg, LANE_TYPE_LABEL, PRIVATE_CARD_FIELDS } from "./card-fields.mjs";
 /* A card@2 (classified) card never carries its book line, price or line-dependent hit rates in the public file. */
-const publicCard = (c) => (c?.classification ? { ...c, legs: c.legs.map(publicLeg), combined: undefined, money: undefined, reasons: undefined } : c);
+const publicCard = (c) => (c?.classification ? { ...Object.fromEntries(Object.entries(c).filter(([k]) => !PRIVATE_CARD_FIELDS.includes(k))), legs: c.legs.map(publicLeg) } : c);
 
 export const LANE_PROJECTION_SCHEMA = "gtp.challenge-lane.public@1";
 export const PUBLIC_PRICES = Object.freeze({ state: "WITHHELD_P1", note: "Payouts and prices are withheld until the founder approves a price source whose terms permit display (P1)." });
@@ -34,7 +34,8 @@ function publicEvent(e, withheldMoney) {
     case "RUN_STARTED": return { ...head, sha256: e.sha256, laneId: e.laneId, runId: e.runId, product: e.product, baseCents: e.baseCents, targetCents: e.targetCents, steps: e.steps, startedAt: e.startedAt, approvedBy: e.approvedBy, ...def({ ruleVersion: e.rulesVersion, maxLegs: e.rulesVersion ? e.maxLegs : undefined, stepTargetsCents: e.stepTargetsCents, supersedes: e.supersedes ?? undefined }) };
     case "CARD_FROZEN": return { ...head, sha256: e.sha256, packageId: e.packageId, mediaIndex: e.mediaIndex ?? null, suggestedCards: e.suggestedCards, card: publicCard(e.card) };
     case "STAKE_SET": return { ...head, withheld: withheldMoney ? "P1" : null, stakeCents: withheldMoney ? null : e.stakeCents, placedWager: e.placedWager };
-    case "LEG_SETTLED": return { ...head, sha256: e.sha256, legId: e.legId, gameId: e.gameId, outcome: e.outcome, final: e.final, resultSource: e.source };
+    /* A prop leg's settled record keeps the player's actual stat but never the book line (price data; the repo is public). */
+    case "LEG_SETTLED": return { ...head, sha256: e.sha256, legId: e.legId, gameId: e.gameId, outcome: e.outcome, final: e.final && "line" in e.final ? Object.fromEntries(Object.entries(e.final).filter(([k]) => k !== "line")) : e.final, resultSource: e.source };
     case "STEP_SETTLED": return { ...head, sha256: withheldMoney ? null : e.sha256, outcome: e.outcome, bankrollAfterCents: withheldMoney ? null : e.bankrollAfterCents };
     case "STATUS": return { ...head, sha256: e.sha256, status: e.status, reason: e.reason ?? null, ...def({ code: e.code, nextRunId: e.nextRunId }) };
     case "GRAPHIC_RENDERED": return { ...head, sha256: e.sha256, packageId: e.packageId ?? null, imageSha256: e.imageSha256 ?? null, captionSha256: e.captionSha256 ?? null, rendererCommit: e.rendererCommit ?? null, imagePath: publicImagePath(e.imagePath) };
