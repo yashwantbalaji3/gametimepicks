@@ -64,7 +64,7 @@ const EXTRA = `
 .gph.solo{justify-content:center;gap:34px}.gph.solo .winner2 .slab .nick{font-size:104px}.gph.solo .meter{margin-top:0}
 .tdb.solo{margin-top:34px;gap:20px;justify-content:center}.tdb.solo .tdh{margin-bottom:8px}.tdb.solo .tdr{flex:none;height:190px;max-height:none;grid-template-columns:56px 1fr 112px 170px;gap:14px;padding:0 24px}.tdb.solo .tdr .n{font-size:50px}.tdb.solo .tdr .pn2{font-size:50px}.tdb.solo .tdr .tag{font-size:34px}.tdb.solo .tdr .pc{font-size:66px}
 .secl{margin-top:8px;text-align:center;font:800 28px/1.1 var(--display);letter-spacing:3px;color:#39FF88}
-.tdv{text-align:right}.tdv .pc{display:block}.tdv .yes{display:block;margin-top:4px;font:700 28px/1.1 var(--display);white-space:nowrap;color:#AEB8B1}
+.tdv{text-align:right}.tdv .pc{display:block;color:#F5F7F6}.tdv .yes{display:block;margin-top:4px;font:700 28px/1.1 var(--display);white-space:nowrap;color:#AEB8B1}
 .estl{margin-top:8px;text-align:center;font:800 24px/1.1 var(--display);letter-spacing:1px;color:#F2C14E}
 .tn.dense{gap:4px;margin-top:8px}.tn.dense .tnr .tm{font-size:28px}.tn.dense .tnr .p{font-size:24px}.tn.dense .tnr .wn{font-size:24px;padding:4px 2px 2px}.tn.dense .tnr .bar{height:18px}
 .tn.dense .tnr,.tn.dense .tnh{grid-template-columns:128px 66px 76px 1fr 76px 66px 88px}

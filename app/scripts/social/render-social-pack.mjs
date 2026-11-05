@@ -109,7 +109,7 @@ function nflCardGame(v, r) {
   const t = instant(r.kickoffUtc);
   const away = nflTeamOf(v.away.abbr, v.away.name); const home = nflTeamOf(v.home.abbr, v.home.name);
   const w = v.record.winProbability;
-  return { eventId: r.eventId, away, home, winner: r.winner === home.abbr ? home : away, awayP: w.away, homeP: w.home, awayPct: pctNumber(w.away), homePct: pctNumber(w.home), tipDay: weekdayLong(t), tipTime: tipClock(t), startWord: "Kickoff", chip: `NFL · ${chipDay(t)} · ${tipClock(t)}` };
+  return { eventId: r.eventId, away, home, winner: r.winner === home.abbr ? home : away, awayP: w.away, homeP: w.home, awayPct: pctNumber(w.away), homePct: pctNumber(w.home), tipDay: weekdayLong(t), tipTime: etClock(t), startWord: "Kickoff", chip: `NFL · ${chipDay(t)} · ${etClock(t)}` };
 }
 
 /** The frozen/official record of each game of the week, rebuilt without the view. */
@@ -150,7 +150,7 @@ export function gameWinnerCard(g, { name, sub, estimateLabel = null, foot }) {
 /** Per-game NFL posts, one for each Sunday/Monday game not yet started. */
 export function prepareNflGameWinners({ seasonType = 2, week, asOf }) {
   assertAsOf(asOf);
-  const views = loadForecastViews(PUBLIC()).filter((v) => v.seasonType === seasonType && v.week === week && ["Sun", "Mon"].includes(etWeekday(v.kickoffUtc)));
+  const views = loadForecastViews(PUBLIC()).filter((v) => v.seasonType === seasonType && v.week === week && ["Thu", "Sun", "Mon"].includes(etWeekday(v.kickoffUtc)));
   const records = nflRecords(seasonType, week);
   const refs = [ref("data/nfl/forecasts/latest.json"), ref("data/nfl/forecasts/frozen-latest.json")];
   const posts = []; const refused = [];
@@ -233,7 +233,7 @@ function nflMarket(view, row, captures, asOf) {
 const NFL_BOOK_LABEL = (k) => NBA_PROP_LINE_ADAPTER.bookLabel(k);
 
 function roundupCards(rows, week, viewOf, markets = null) {
-  const games = rows.map((r) => ({ ...nflCardGame(viewOf(r), r), tipTime: tipClock(instant(r.kickoffUtc)), market: markets?.get(r.eventId) }));
+  const games = rows.map((r) => ({ ...nflCardGame(viewOf(r), r), tipTime: etClock(instant(r.kickoffUtc)), market: markets?.get(r.eventId) }));
   return v2Cards([tonightCard({ games, chip: `NFL · Week ${week} · ${chipDay(instant(rows[0].kickoffUtc))}`, kicker: "NFL Sunday", sub: `Week ${week} winner predictions, model win probability`, timeHead: "KICK ET", priced: Boolean(markets), ...NFL_V2 })], `nfl-w${String(week).padStart(2, "0")}-sunday`);
 }
 
@@ -400,7 +400,7 @@ export function prepareNflTop5({ seasonType = 2, week, asOf, sundayOnly = false,
     const isProb = spec.method === "probability";
     const quoteTimes = rows.map((r) => r.quotedAt).filter(Boolean);
     const missing = rows.filter((r) => !r.quotedAt).map((r) => ({ playerId: r.key, name: r.name, reason: r.comparison.reason }));
-    const cards = v2Cards([v2Top5Card({ title: spec.label, chip: `NFL · Week ${week}${sundayOnly ? " · Sunday" : ""}`, rows: rows.map((r) => ({ ...r, team: teams.get(r.team), tip: tipClock(instant(r.kickoffUtc)) })), sub: isProb ? "Chance to score a touchdown" : undefined, section: isProb ? null : MODEL_SECTION, real: !isProb, note: !isProb && quoteTimes.length ? COMPARISON_LEGEND : null, ...NFL_V2 })], `nfl-w${String(week).padStart(2, "0")}-${b.id}`);
+    const cards = v2Cards([v2Top5Card({ title: spec.label, chip: `NFL · Week ${week}${sundayOnly ? " · Sunday" : ""}`, rows: rows.map((r) => ({ ...r, team: teams.get(r.team), tip: etClock(instant(r.kickoffUtc)) })), sub: isProb ? "Chance to score a touchdown" : undefined, section: isProb ? null : MODEL_SECTION, real: !isProb, note: !isProb && quoteTimes.length ? COMPARISON_LEGEND : null, ...NFL_V2 })], `nfl-w${String(week).padStart(2, "0")}-${b.id}`);
     const caption = checkCaption(`GameTime Picks NFL Week ${week} top 5 ${spec.label.toLowerCase()}${est ? ` (${est.replace(/·/g, "-")})` : ""}: ${rows.map((r) => `${r.rank}. ${r.name} ${r.text}`).join(", ")}. ${FOOT.projections} ${legalLine}`);
     const gen = wb.generatedAt;
     posts.push(withSendWindow({
@@ -439,7 +439,7 @@ export function prepareNflPlayerStats({ seasonType = 2, week, asOf }) {
     const m = `${v.away.abbr} @ ${v.home.abbr}`;
     const awayPlayers = team(v.away.abbr); const homePlayers = team(v.home.abbr);
     const showsEstimate = [...awayPlayers, ...homePlayers].some((p) => Object.entries(p.stats).some(([f, x]) => x != null && board.families?.[f]?.state === "ESTIMATE"));
-    const cards = v2Cards(nflPlayerPages({ away: nflTeamOf(v.away.abbr, v.away.name), home: nflTeamOf(v.home.abbr, v.home.name), chip: `NFL · ${chipDay(t)} · ${tipClock(t)}`, awayPlayers, homePlayers }), `nfl-w${String(week).padStart(2, "0")}-players-${id}`);
+    const cards = v2Cards(nflPlayerPages({ away: nflTeamOf(v.away.abbr, v.away.name), home: nflTeamOf(v.home.abbr, v.home.name), chip: `NFL · ${chipDay(t)} · ${etClock(t)}`, awayPlayers, homePlayers }), `nfl-w${String(week).padStart(2, "0")}-players-${id}`);
     posts.push({
       designVersion: DESIGN_VERSION, sport: "nfl", date: etDate(t), contentType: CONTENT_TYPE.NFL_PLAYER_STATS, variant: id, eventId: id, cards, snapshotRefs: [ref(rel)], eligibilityClass: showsEstimate ? ELIGIBILITY.ESTIMATE : ELIGIBILITY.OFFICIAL, disclosures: showsEstimate ? [estimate, ...DISCLOSE] : DISCLOSE,
       title: `${m}: projected player stats`, firstStartUtc: toIso(t), caption: checkCaption(`GameTime Picks NFL Week ${week}: ${m} projected player stats. ${FOOT.projections} ${legalLine}`), ccCaption: `${m} projected player stats. Model projections.`, ccCaptionB: `${m} player projections.`, extraClaims: ccWeek(week),
@@ -486,7 +486,7 @@ export function nflPropRows({ players, board, eventId, kickoffUtc, offers, asOf 
   return rows;
 }
 
-const kickoffEst = (ms) => etLabel(ms).split(", ")[1];
+const kickoffEst = (ms) => `${timeOnly(ms)} ET`;
 
 /** Exactly two images per Sunday game: the priced winner card, then a separate ranked Top 3 anytime TD card. No props graphic. */
 export function prepareNflGamePosts({ seasonType = 2, week, asOf, captures = null }) {
@@ -518,7 +518,7 @@ export function prepareNflGamePosts({ seasonType = 2, week, asOf, captures = nul
     const age = quoteAgeOf(shown, asOf);
     const byTeam = new Map([[away.abbr, away], [home.abbr, home]]);
     const game = { ...nflCardGame(v, g), market, kickoffText: kickoffEst(t) };
-    const chip = `NFL · ${chipDay(t)} · ${tipClock(t)}`;
+    const chip = `NFL · ${chipDay(t)} · ${etClock(t)}`;
     const cards = [
       ...v2Cards([nflHeroCard(game)], "w"),
       ...v2Cards([nflTdCard({ away, home, chip, rows: td.map((r) => ({ ...r, team: byTeam.get(r.teamAbbr) })) })], "t"),
@@ -765,7 +765,7 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
     const b = gate.doc.boards.find((x) => x.key === k);
     if (b.state !== "RANKED") { refused.push({ job: `nba-top5-${k}`, reason: b.reason }); continue; }
     const byAbbr = new Map(games.flatMap((g) => [[g.away.abbr, g.away], [g.home.abbr, g.home]]));
-    const rows = b.rows.map((r) => ({ key: r.providerAthleteId, rank: r.rank, name: r.name, team: byAbbr.get(r.team), opponent: r.opponent, tip: tipClock(instant(r.tipUtc)), text: Number(r.value).toFixed(1), value: r.value, line: top5LineOf(lineFor.get(`${r.providerAthleteId}:${k}`)), kickoffUtc: r.tipUtc }));
+    const rows = b.rows.map((r) => ({ key: r.providerAthleteId, rank: r.rank, name: r.name, team: byAbbr.get(r.team), opponent: r.opponent, tip: etClock(instant(r.tipUtc)), text: Number(r.value).toFixed(1), value: r.value, line: top5LineOf(lineFor.get(`${r.providerAthleteId}:${k}`)), kickoffUtc: r.tipUtc }));
     const f = Math.min(...rows.map((r) => instant(r.kickoffUtc)));
     const cap = `Top 5 projected ${b.label.toLowerCase()} in the NBA tonight, from our model.`;
     const base = (o) => ({ ...META, slateGames: games.length, contentType: CONTENT_TYPE.NBA_DAILY_TOP5, eligibilityClass: ELIGIBILITY.OFFICIAL, title: `NBA top 5 ${b.label.toLowerCase()} ${date}`, firstStartUtc: toIso(f), caption: pregameCaption(cap), ccCaption: cap, ccCaptionB: `NBA top 5 ${b.label.toLowerCase()} tonight.`, extraClaims: [{ key: "topN", display: "5", evidenceRef: rel }], window: { opensAt: asOf, closesAt: toIso(f) }, recommended: recommendedPostTime({ games: rows, afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(f), ...o });
