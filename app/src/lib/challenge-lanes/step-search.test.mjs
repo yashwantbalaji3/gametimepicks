@@ -101,3 +101,12 @@ test("every card leg carries a unique legId (the selection identity)", () => {
   assert.ok(pair.legs.every((l) => typeof l.legId === "string" && l.legId === selectionIdentity(l.sport === "nfl" ? C.ml : C.nbaPts)));
   assert.equal(new Set(pair.legs.map((l) => l.legId)).size, 2);
 });
+
+test("Nov 5 dated snapshot exception: 19:00Z quotes usable past 90 min for tonight's games; latestPostAt = first leg start", async () => {
+  const { NOV5_SNAPSHOT_OVERRIDE } = await import("./levels.mjs");
+  const later = { ...BB, now: "2026-11-05T23:00:00Z" };
+  assert.ok(searchStep({ candidates: [C.rec], quotes: [q(C.rec, 140)], ...later }).cards[0].reasons.some((x) => x.startsWith("E_STALE_QUOTE")), "off by default");
+  const r = searchStep({ candidates: [C.rec], quotes: [q(C.rec, 140)], ...later, params: { freshnessOverride: NOV5_SNAPSHOT_OVERRIDE } });
+  assert.equal(r.ranked[0].latestPostAt, "2026-11-06T01:15:00.000Z");
+  assert.ok(r.ranked[0].flags.some((x) => x.startsWith("E_SNAPSHOT_OVERRIDE")));
+});

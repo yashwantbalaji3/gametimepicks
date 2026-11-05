@@ -38,6 +38,9 @@ export function latestPostAt(legs, { freshnessOverride = null, maxQuoteAgeMs = 9
   const quoteLimit = inWindow ? Date.parse(freshnessOverride.expiresAt) : fetched + maxQuoteAgeMs;
   return new Date(Math.min(tip, quoteLimit)).toISOString();
 }
+/* Founder approval 2026-11-05T16:04:37Z, item 2 (~/gtp-evidence/nov5-founder-approval-items1-5.md, sha256 64bbd869…):
+   "Step 2 graphics may show tonight's capture for tonight's games only, with snapshot time, never as live." */
+export const NOV5_SNAPSHOT_OVERRIDE = Object.freeze({ id: "2026-11-05-founder-step2-snapshot", capturedFrom: "2026-11-05T18:50:00Z", capturedTo: "2026-11-05T19:30:00Z", expiresAt: "2026-11-06T04:59:59Z", label: "ODDS SNAPSHOT · Thu 3:00 PM ET", receipt: "~/gtp-evidence/nov5-founder-approval-items1-5.md (sha256 64bbd86930ca8409552e1980b9e7b1dbae833ce35e8ad340913a67ef134b1c7d), item 2" });
 export const PROP_FAMILIES = Object.freeze({ pts: "player_points", reb: "player_rebounds", ast: "player_assists" });
 
 export const LEVEL_B_PARAMS = Object.freeze({

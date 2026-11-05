@@ -21,6 +21,7 @@ import { canonical, sha256 } from "./chain.mjs";
 import { priceRatio, payoutCents, decimalToAmerican } from "./payout.mjs";
 import { stepPosition, RULES_VERSION } from "./rules-v2.mjs";
 import { selectionIdentity, propositionIdentity } from "./card-fields.mjs";
+import { latestPostAt } from "./levels.mjs";
 import { ELIGIBLE_OPERATOR_KEYS } from "../sports/odds/eligible-operators.mjs";
 
 export const COMBINED_PRODUCT_LABEL = "mathematical product of separately observed prices, not a quoted parlay";
@@ -46,7 +47,12 @@ function legView(c, quotesByKey, { now, params, bookmakers }) {
   const d = r ? dec(r) : null;
   const [lo, hi] = D("legDecimalRange", params);
   if (d != null && (d < lo || d > hi)) reasons.push(`E_PRICE_BOUNDS ${key}: ${d.toFixed(4)}`);
-  if (q && !(Date.parse(now) - Date.parse(q.fetchedAt) <= D("maxQuoteAgeMs", params))) reasons.push(`E_STALE_QUOTE ${key}: fetched ${q.fetchedAt}`);
+  if (q && !(Date.parse(now) - Date.parse(q.fetchedAt) <= D("maxQuoteAgeMs", params))) {
+    /* a dated founder exception (e.g. NOV5_SNAPSHOT_OVERRIDE) turns the stale refusal into a disclosed snapshot flag */
+    const ov = params?.freshnessOverride; const f = Date.parse(q.fetchedAt);
+    if (ov && f >= Date.parse(ov.capturedFrom) && f <= Date.parse(ov.capturedTo) && Date.parse(now) < Date.parse(ov.expiresAt)) flags.push(`E_SNAPSHOT_OVERRIDE ${key}: ${ov.id}`);
+    else reasons.push(`E_STALE_QUOTE ${key}: fetched ${q.fetchedAt}`);
+  }
   if (!(Date.parse(c.startUtc) > Date.parse(now))) reasons.push(`STARTED ${key}`);
   if (c.injury && !D("allowedInjury", params).includes(c.injury.status)) reasons.push(`C_AVAILABILITY ${key}: ${c.injury.status}`);
   if (c.role && c.role.stable === false) flags.push(`B_ROLE_UNSTABLE ${key}`);
@@ -108,7 +114,7 @@ export function searchStep({ candidates, quotes, product, step, bankrollCents, n
       candidateId, product, step, classification, reasons, flags, legCount: set.length,
       legs: set.map(({ ratio: _r, ...l }) => l),
       combined: decimal == null ? null : { decimal, american: decimalToAmerican(decimal), label: set.length > 1 ? COMBINED_PRODUCT_LABEL : "selection odds" },
-      money, targetCents: pos.targetCents, band, pctFromTarget: money ? Math.round((money.grossPayoutCents / pos.targetCents - 1) * 1000) / 10 : null,
+      money, targetCents: pos.targetCents, band, latestPostAt: set.every((l) => l.fetchedAt) ? latestPostAt(set.map((l) => ({ startUtc: l.startUtc, fetchedAt: l.fetchedAt })), { freshnessOverride: params?.freshnessOverride ?? null }) : null, pctFromTarget: money ? Math.round((money.grossPayoutCents / pos.targetCents - 1) * 1000) / 10 : null,
       rankKeys: { weakest: Math.min(...set.map((l) => l.strength ?? 0)), levelA: set.every((l) => l.level === "LEVEL_A"), legCount: set.length, flagCount: flags.length },
     };
   });
