@@ -94,3 +94,10 @@ test("NFL hit-rate windows at the exact line from per-game rows; null lines skip
   assert.equal(td.windows[0].hits, 2);
   assert.equal(td.shrunk.rate, null, "no market price → no shrunk rate");
 });
+
+test("every card leg carries a unique legId (the selection identity)", () => {
+  const r = searchStep({ candidates: [C.ml, C.nbaPts], quotes: [q(C.ml, -150), q(C.nbaPts, 110)], ...MS });
+  const pair = r.cards.find((c) => c.legCount === 2);
+  assert.ok(pair.legs.every((l) => typeof l.legId === "string" && l.legId === selectionIdentity(l.sport === "nfl" ? C.ml : C.nbaPts)));
+  assert.equal(new Set(pair.legs.map((l) => l.legId)).size, 2);
+});
