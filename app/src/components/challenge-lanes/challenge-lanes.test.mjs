@@ -804,6 +804,21 @@ test("DIVERSIFICATION diversity@2 (founder 2026-11-04): zero repeated selections
   assert.match(read("src/lib/products/challenge-lanes/load.mjs"), /const bad = diversityViolations\(all\);\n  if \(bad\.length\) return lanesOf\(product\)\.map\(\(laneId\) => unavailableLaneView/);
 });
 
+test("PARITY on the product day: an open lane with no record for today reads AWAITING with no carried-over target; the expectation comes from the record", async () => {
+  const { laneParity, parityReport } = await import("../../lib/products/challenge-lanes/parity.mjs");
+  const o = await v2Sample("bb-b");
+  const last = o.pub.runs.at(-1).days.at(-1).date;
+  const next = new Date(Date.parse(`${last}T12:00:00Z`) + 86400000).toISOString().slice(0, 10);
+  const v = lane.laneView(o.pub, { display: o.priced, productDay: next });
+  assert.equal(v.status, "AWAITING"); assert.equal(v.stepTarget, null);
+  const rep = parityReport([laneParity({ doc: o.pub, prices: o.prices, view: v })]);
+  assert.deepEqual(rep.failures.filter((f) => /status|step target/.test(f)), []);
+  /* A view claiming AWAITING on the record's own day still fails; so does a carried-over target. */
+  const same = lane.laneView(o.pub, { display: o.priced, productDay: last });
+  assert.ok(parityReport([laneParity({ doc: o.pub, prices: o.prices, view: { ...same, status: "AWAITING" } })]).failures.includes("bb-b status"));
+  assert.ok(parityReport([laneParity({ doc: o.pub, prices: o.prices, view: { ...v, stepTarget: { label: "STEP TARGET", value: "$500" } } })]).failures.includes("bb-b step target (NOT_IN_RECORD)"));
+});
+
 test("progression animation is CSS-only and prefers-reduced-motion turns it off", () => {
   const css = read("src/app/globals.css");
   assert.match(css, /@keyframes cl-rung-in/);

@@ -344,7 +344,7 @@ export function laneView(doc, { teams = null, imageVerified = () => false, displ
      bankroll in every state since 566ab9cfd5 ($0 on BUSTED); with no verified price, "Busted" (no number is guessed). */
   const tracked = d.trackedBankrollCents == null ? (lost ? "Busted" : AWAITING_PRICES) : money(d.trackedBankrollCents);
   return {
-    laneId: d.laneId, product: d.product, letter: d.slot, name: `Lane ${d.slot}`, laneType,
+    laneId: d.laneId, product: d.product, letter: d.slot, name: `Lane ${d.slot}`, laneType, productDay: productDay ?? null,
     runId: d.runId, runNumber: d.runNumber, startedAt: String(d.runs.at(-1)?.startedAt ?? "").slice(0, 10) || null,
     step: d.step, steps: d.steps, stepText: lost ? `LOST AT STEP ${d.step} OF ${d.steps}` : d.stepText, maxLegs: d.maxLegs ?? null, lost,
     trackedLabel: lost ? "Bankroll after the loss" : "Tracked bankroll · settled",

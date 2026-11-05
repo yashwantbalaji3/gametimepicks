@@ -27,7 +27,12 @@ export function laneParity({ doc, prices, view }) {
   row("runId", run.runId, view.runId);
   row("step", doc.current.step, view.step);
   row("steps", doc.steps, view.steps);
-  row("status", doc.current.publicStatus, view.status);
+  /* AWAITING QUALIFIED SELECTION (PD 2026-11-04): an open lane whose latest record day is before the site's product day
+     shows AWAITING, with no carried-over step target. The expectation is derived from the RECORD and the product day the
+     view states, never from the view's own status. */
+  const lastDay = doc.runs.at(-1)?.days?.at(-1) ?? null;
+  const awaitingExpected = Boolean(view.productDay) && !["LOST", "COMPLETED", "FINISHED SHORT"].includes(doc.current.publicStatus) && (!lastDay || lastDay.date < view.productDay);
+  row("status", awaitingExpected ? "AWAITING" : doc.current.publicStatus, view.status);
   row("base", money(doc.baseCents), view.base);
   row("target", money(doc.targetCents), view.target);
   row("projection sha", doc.contentSha256, view.sourceSha256);
@@ -64,7 +69,7 @@ export function laneParity({ doc, prices, view }) {
   /* LANE SPECIALIZATION (proposed): the record's lane type and label, verbatim on the site. */
   const lt = run.laneType ?? doc.laneType ?? null;
   rowOpt("lane type", lt ? [lt, run.laneTypeLabel ?? doc.laneTypeLabel ?? lt.replaceAll("_", " ")] : null, view.laneType ? [view.laneType.type, view.laneType.label] : null);
-  rowOpt("step target", typeof day?.targetPayoutCents === "number" && doc.current?.publicStatus !== "LOST" ? { label: day.targetPayoutLabel ?? null, value: money(day.targetPayoutCents) } : null, view.stepTarget ?? null);
+  rowOpt("step target", typeof day?.targetPayoutCents === "number" && doc.current?.publicStatus !== "LOST" && !awaitingExpected ? { label: day.targetPayoutLabel ?? null, value: money(day.targetPayoutCents) } : null, view.stepTarget ?? null);
   const pr = prices?.runs?.find((r) => r.runId === run.runId);
   const pd = pr?.days?.filter((d) => d.date === day?.date).at(-1) ?? null;
   row("prices bound to projection", prices?.projectionSha256, doc.contentSha256);
