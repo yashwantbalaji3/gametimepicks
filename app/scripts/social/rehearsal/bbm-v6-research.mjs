@@ -57,7 +57,8 @@ function finalProblems(c) {
   if (!c.priceEventSha256) p.push("no PRICE_VERIFIED event (priceEventSha256 is null)");
   if (!c.approvalStatus || /PENDING|REJECT/i.test(c.approvalStatus)) p.push(`approval is ${c.approvalStatus ?? "missing"}`);
   const dec = c.legs.reduce((x, l) => x * decimalOf(l.price), 1);
-  if (Math.abs(dec - c.combined.decimal) > 1e-6) p.push(`combined decimal ${c.combined.decimal} is not the leg product ${dec}`);
+  // The engine may round the displayed decimal to 4 places; the gross is still checked against the exact leg product.
+  if (Math.abs(dec - c.combined.decimal) > 5e-5) p.push(`combined decimal ${c.combined.decimal} is not the leg product ${dec}`);
   const gross = c.money.stakeCents * dec;
   if (Math.abs(gross - c.money.grossPayoutCents) > 1) p.push(`gross ${c.money.grossPayoutCents} is not stake × ${dec.toFixed(6)} = ${gross.toFixed(2)}`);
   if (c.money.grossPayoutCents - c.money.stakeCents !== c.money.profitCents) p.push(`profit ${c.money.profitCents} is not gross minus stake`);
