@@ -257,7 +257,7 @@ export const FINAL_COPY_AUTHORIZATION_NFL_W9 = Object.freeze({
 // Founder ~22:30Z Nov 5, verbatim "Deliver these NBA packages into the live Command Center as finalized, banner-free,
 // single-approval posts" (~/gtp-evidence/nov5-founder-weekend-directive-excerpts.md): the two Nov 5 NBA game posts only.
 export const FINAL_COPY_AUTHORIZATION_NBA_2026_11_05 = Object.freeze({
-  ref: "nov5-founder-weekend-directive-excerpts.md NBA finalized-posts line", sha256: "80818f48756cce69926cc1bc62f545361164e309c83f2a8be4aa3a49de605ab7", at: "2026-11-05T22:30:00Z",
+  ref: "nov5-founder-weekend-directive-excerpts.md NBA finalized-posts line", sha256: "e39659c03c3e5aac83f389fb70e6b46f1306aaf5934d1c5aa0e24947005d597f", at: "2026-11-05T22:30:00Z",
 });
 const sameRef = (f, F) => f.ref === F.ref && f.sha256 === F.sha256 && f.at === F.at;
 const nflW9 = (p) => p.sport === "nfl" && ["NFL_GAME_POST", "NFL_WEEKLY_TOP5"].includes(p.contentType) && p.date >= "2026-11-05" && p.date <= "2026-11-09" && p.content?.week === 9;

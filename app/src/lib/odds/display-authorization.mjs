@@ -282,6 +282,25 @@ export const MATCHUP_GRAPHICS_PRICE_AUTHORIZATION = Object.freeze({
  * May captured prices of `market` print on `sport` matchup social graphics posted on `etDate`? Never throws.
  * @returns {{ ok: boolean, reasons: string[], entry: object|null }}
  */
+/**
+ * NFL WEEK 9 SNAPSHOT LINE AGE (founder, ~/gtp-evidence/nov5-founder-weekend-directive-excerpts.md sha256 e39659c0…, verbatim:
+ * "Reuse the existing saved, verifiable odds data for all Sunday and Monday NFL graphics." / "The snapshot override changes
+ * price-age handling, not the truthfulness of the underlying records."; items 1-5, sha256 64bbd869…, "through Mon Nov 9 as
+ * dated snapshots"). Only the one capture at 19:01:50Z (raw sha256 6d1bffea2c2b689e…), only for social images, and only
+ * before the last Week 9 kickoff; every pregame, injury and identity check still applies. Anything else keeps the standard age.
+ */
+export const NFL_W9_SNAPSHOT_LINE_AGE = Object.freeze({
+  capturedAt: "2026-11-05T19:01:50Z", captureSha256Prefix: "6d1bffea2c2b689e", validUntil: "2026-11-10T01:15:00Z",
+  refs: Object.freeze(["nov5-founder-weekend-directive-excerpts.md sha256 e39659c03c3e5aac83f389fb70e6b46f1306aaf5934d1c5aa0e24947005d597f", "nov5-founder-approval-items1-5.md sha256 64bbd86930ca8409552e1980b9e7b1dbae833ce35e8ad340913a67ef134b1c7d"]),
+  lineAgeExceptionApproved: true,
+});
+/** Max age in hours for one NFL social quote judged at asOf: the dated exception for the Week 9 capture, else `standard`. */
+export function nflSocialLineMaxAgeHours(capturedAt, asOf, standard, x = NFL_W9_SNAPSHOT_LINE_AGE) {
+  const cap = Date.parse(capturedAt), at = Date.parse(asOf), until = Date.parse(x.validUntil);
+  if (x.lineAgeExceptionApproved === true && cap === Date.parse(x.capturedAt) && at < until) return (until - cap) / 3600_000;
+  return standard;
+}
+
 export function matchupGraphicsPriceAuthorization(sport, etDate, market, record = MATCHUP_GRAPHICS_PRICE_AUTHORIZATION) {
   const list = record && Object.prototype.hasOwnProperty.call(record, sport) && Array.isArray(record[sport]) ? record[sport] : [];
   const entry = list.find((e) => e?.etDate === etDate) ?? null;

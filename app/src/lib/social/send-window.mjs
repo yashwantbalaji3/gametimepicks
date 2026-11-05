@@ -3,16 +3,19 @@
  * oldest printed quote plus the sport's maximum age (NFL 12 hours, NBA 6). A post with no quote runs to first start.
  */
 import { etLabel, instant, toIso } from "./social-package.mjs";
+import { nflSocialLineMaxAgeHours } from "../odds/display-authorization.mjs";
 
 export const SEND_MAX_AGE_HOURS = Object.freeze({ nfl: 12, nba: 6 });
 
 /** @param {{ sport:string, firstStartUtc:string, quoteTimes?:string[] }} o */
 export function sendWindow({ sport, firstStartUtc, quoteTimes = [] }) {
   const start = instant(firstStartUtc);
-  const maxAgeHours = SEND_MAX_AGE_HOURS[sport];
-  if (!Number.isFinite(start) || !maxAgeHours) throw new Error(`sendWindow: no rule for ${sport} ${firstStartUtc}`);
+  const standard = SEND_MAX_AGE_HOURS[sport];
+  if (!Number.isFinite(start) || !standard) throw new Error(`sendWindow: no rule for ${sport} ${firstStartUtc}`);
   const times = quoteTimes.map(instant).filter(Number.isFinite);
   const oldest = times.length ? Math.min(...times) : null;
+  // The dated NFL Week 9 snapshot exception (display-authorization.mjs) is the only change to the standard age.
+  const maxAgeHours = sport === "nfl" && oldest != null ? nflSocialLineMaxAgeHours(toIso(oldest), toIso(oldest), standard) : standard;
   const expiry = oldest == null ? Infinity : oldest + maxAgeHours * 3600000;
   const latest = Math.min(start, expiry);
   return { firstStartUtc: toIso(start), quoteTimeUtc: oldest == null ? null : toIso(oldest), maxAgeHours, latestValidSendUtc: toIso(latest), latestValidSendEt: etLabel(latest), governedBy: expiry < start ? "QUOTE_AGE" : "FIRST_START" };

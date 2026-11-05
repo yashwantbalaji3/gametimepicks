@@ -40,6 +40,9 @@ import {
 } from "../../src/lib/social/social-package.mjs";
 import { BOOK_RULE, MONEYLINE_MARKET, americanText, matchMoneylineEvents, observedPrice } from "../../src/lib/social/nba-moneyline.mjs";
 import { NFL_LINE_MAX_AGE_HOURS } from "../../src/lib/sports/nfl/prop-line-adapter.mjs";
+import { nflSocialLineMaxAgeHours } from "../../src/lib/odds/display-authorization.mjs";
+/** True when an NFL social quote is too old at asOf (the dated Week 9 snapshot exception included). */
+const nflStale = (asOf, capturedAt) => ageHours(asOf, capturedAt) > nflSocialLineMaxAgeHours(capturedAt, asOf, NFL_LINE_MAX_AGE_HOURS);
 import { LINE_MAX_AGE_HOURS, REFERENCE_BOOK_ORDER } from "../../src/lib/sports/nba/line-comparison.mjs";
 import { NBA_PROP_LINE_ADAPTER } from "../../src/lib/sports/nba/prop-line-adapter.mjs";
 import { flaggedCellsShown, withheldKeys } from "../../src/lib/social/display-exception.mjs";
@@ -222,7 +225,8 @@ const quoteAgeOf = (quotes, asOf) => {
   const times = quotes.map((q) => q.quotedAt).sort();
   if (!times.length) return { quotes: 0, stale: false, maxHours: NFL_LINE_MAX_AGE_HOURS, oldestQuotedAt: null, oldestAgeHours: null };
   const oldestAgeHours = ageHours(asOf, times[0]);
-  return { quotes: times.length, stale: oldestAgeHours > NFL_LINE_MAX_AGE_HOURS, maxHours: NFL_LINE_MAX_AGE_HOURS, oldestQuotedAt: times[0], oldestAgeHours };
+  const maxHours = nflSocialLineMaxAgeHours(times[0], asOf, NFL_LINE_MAX_AGE_HOURS);
+  return { quotes: times.length, stale: oldestAgeHours > maxHours, maxHours, oldestQuotedAt: times[0], oldestAgeHours };
 };
 /** The observed price of the predicted side. Null when no clean quote exists. */
 function nflMarket(view, row, captures, asOf) {
@@ -300,7 +304,7 @@ const top5Reason = (r) => (!r ? "NO_LINE" : r.market?.line?.state !== "SHOWN" ? 
  */
 export function nflTop5Line({ value, text, family, eventId, playerId, kickoffUtc, offers, asOf }) {
   const { quote, reason } = nflPropOfferStatus(offers, { eventId, playerId, market: family, kickoffUtc, asOf });
-  const stale = Boolean(quote) && ageHours(asOf, quote.capturedAt) > NFL_LINE_MAX_AGE_HOURS;
+  const stale = Boolean(quote) && nflStale(asOf, quote.capturedAt);
   const c = nflPropComparison({ projection: value, quote, reason, stale, expected: { eventId, playerId, market: family } });
   const meta = (o) => ({ state: o.state, reason: o.reason, side: o.side, line: o.line ?? null, price: o.price, difference: o.difference ?? null, book: quote?.book ?? null, quotedAt: quote?.capturedAt ?? null, comparisonIsNotEdge: true });
   const printed = Number(String(text).replace(/,/g, ""));
@@ -316,7 +320,7 @@ export function nflTdYes({ eventId, playerId, kickoffUtc, offers, asOf }) {
   const { quote, reason } = nflPropOfferStatus(offers, { eventId, playerId, market: "anytime_td", kickoffUtc, asOf });
   if (!quote) return { quote: null, reason };
   if (!Number.isInteger(quote.price) || Math.abs(quote.price) < 100) return { quote: null, reason: "INVALID_ODDS" };
-  if (ageHours(asOf, quote.capturedAt) > NFL_LINE_MAX_AGE_HOURS) return { quote: null, reason: "STALE_LINE" };
+  if (nflStale(asOf, quote.capturedAt)) return { quote: null, reason: "STALE_LINE" };
   return { quote, reason: null };
 }
 
@@ -476,9 +480,9 @@ export function nflPropRows({ players, board, eventId, kickoffUtc, offers, asOf 
     const est = state === "ESTIMATE";
     const held = (board.families[s.family].withheldTeams ?? []).map((w) => w?.team);
     const all = players.filter((p) => !held.includes(p.team) && Number.isFinite(p.markets?.[s.family]?.median)).map((p) => { const o = nflPropOfferStatus(offers, { eventId, playerId: p.playerId, market: s.family, kickoffUtc, asOf }); return { p, q: o.quote, why: o.reason }; });
-    const priced = all.filter((x) => x.q && !(ageHours(asOf, x.q.capturedAt) > NFL_LINE_MAX_AGE_HOURS));
+    const priced = all.filter((x) => x.q && !(nflStale(asOf, x.q.capturedAt)));
     for (const { p, q, why } of (priced.length ? priced : all).sort((a, b) => b.p.markets[s.family].median - a.p.markets[s.family].median || a.p.playerId.localeCompare(b.p.playerId)).slice(0, s.rows)) {
-      const stale = Boolean(q) && ageHours(asOf, q.capturedAt) > NFL_LINE_MAX_AGE_HOURS;
+      const stale = Boolean(q) && nflStale(asOf, q.capturedAt);
       const comparison = nflPropComparison({ projection: p.markets[s.family].median, quote: q, reason: why, stale, expected: { eventId, playerId: p.playerId, market: s.family } });
       rows.push({ comparison, vs: comparisonCell(comparison, americanText), key: `${p.playerId}.${s.family}`, playerId: p.playerId, market: s.family, name: p.name, team: p.team, family: s.label, projection: `${formatValue(FAMILY_KIND[s.family], p.markets[s.family].median)}`, line: q && !stale ? String(q.line) : "No line", over: q?.overPrice != null ? americanText(q.overPrice) : "No price", under: q?.underPrice != null ? americanText(q.underPrice) : "No price", estimate: est, quote: q });
     }
@@ -507,7 +511,7 @@ export function prepareNflGamePosts({ seasonType = 2, week, asOf, captures = nul
     const t = instant(g.kickoffUtc);
     const away = nflTeamOf(v.away.abbr, v.away.name); const home = nflTeamOf(v.home.abbr, v.home.name);
     const rawMarket = nflMarket(v, g, captures, asOf);
-    const staleMarket = Boolean(rawMarket) && ageHours(asOf, rawMarket.quotedAt) > NFL_LINE_MAX_AGE_HOURS;
+    const staleMarket = Boolean(rawMarket) && nflStale(asOf, rawMarket.quotedAt);
     const market = staleMarket ? null : rawMarket;
     // Confirmed inactive per the injury source when the roster feed lags (operator list, recorded in the run command).
     const inactive = new Set((process.env.GTP_SOCIAL_INACTIVE_IDS ?? "").split(",").filter(Boolean));
