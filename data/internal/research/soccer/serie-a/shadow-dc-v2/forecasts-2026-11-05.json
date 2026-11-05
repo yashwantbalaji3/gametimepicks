@@ -1,0 +1,370 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "serie-a",
+ "season": "2026-27",
+ "date": "2026-11-05",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-11-05T17:40:45.000Z",
+ "runs": [
+  {
+   "at": "2026-11-05T17:40:45.000Z",
+   "added": 5
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Roma|Sassuolo",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874803",
+   "providerEventId": "401874803",
+   "kickoffUtc": "2026-11-07T19:45:00.000Z",
+   "matchup": "AS Roma v Sassuolo",
+   "homeClub": "AS Roma",
+   "awayClub": "Sassuolo",
+   "historyNames": {
+    "home": "Roma",
+    "away": "Sassuolo"
+   },
+   "espnTeamIds": {
+    "home": "104",
+    "away": "3997"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-05T17:40:45.000Z",
+   "probs": {
+    "home": 0.653776,
+    "draw": 0.201395,
+    "away": 0.144829
+   },
+   "over25": 0.56709,
+   "under25": 0.43291,
+   "expectedGoals": {
+    "home": 2.0874,
+    "away": 0.8694
+   },
+   "lambdas": {
+    "home": 2.0875,
+    "away": 0.8694
+   },
+   "rho": -0.013746,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 156,
+    "away": 119
+   },
+   "fit": {
+    "cutoffIso": "2026-11-05T17:40:45.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 30
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.741058,
+     "draw": 0.161364,
+     "away": 0.097578
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Napoli|Lazio",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874810",
+   "providerEventId": "401874810",
+   "kickoffUtc": "2026-11-08T11:30:00.000Z",
+   "matchup": "Napoli v Lazio",
+   "homeClub": "Napoli",
+   "awayClub": "Lazio",
+   "historyNames": {
+    "home": "Napoli",
+    "away": "Lazio"
+   },
+   "espnTeamIds": {
+    "home": "114",
+    "away": "112"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-05T17:40:45.000Z",
+   "probs": {
+    "home": 0.464188,
+    "draw": 0.280537,
+    "away": 0.255276
+   },
+   "over25": 0.3983,
+   "under25": 0.6017,
+   "expectedGoals": {
+    "home": 1.3517,
+    "away": 0.927
+   },
+   "lambdas": {
+    "home": 1.3517,
+    "away": 0.927
+   },
+   "rho": -0.013746,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 156,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-11-05T17:40:45.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 30
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.385597,
+     "draw": 0.288034,
+     "away": 0.326368
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Genoa|Milan",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401875018",
+   "providerEventId": "401875018",
+   "kickoffUtc": "2026-11-08T14:00:00.000Z",
+   "matchup": "Genoa v AC Milan",
+   "homeClub": "Genoa",
+   "awayClub": "AC Milan",
+   "historyNames": {
+    "home": "Genoa",
+    "away": "Milan"
+   },
+   "espnTeamIds": {
+    "home": "3263",
+    "away": "103"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-05T17:40:45.000Z",
+   "probs": {
+    "home": 0.222637,
+    "draw": 0.257747,
+    "away": 0.519616
+   },
+   "over25": 0.45338,
+   "under25": 0.54662,
+   "expectedGoals": {
+    "home": 0.9281,
+    "away": 1.5609
+   },
+   "lambdas": {
+    "home": 0.9281,
+    "away": 1.561
+   },
+   "rho": -0.013746,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 118,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-11-05T17:40:45.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 30
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.234197,
+     "draw": 0.232115,
+     "away": 0.533688
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Monza|Atalanta",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874800",
+   "providerEventId": "401874800",
+   "kickoffUtc": "2026-11-08T14:00:00.000Z",
+   "matchup": "Monza v Atalanta",
+   "homeClub": "Monza",
+   "awayClub": "Atalanta",
+   "historyNames": {
+    "home": "Monza",
+    "away": "Atalanta"
+   },
+   "espnTeamIds": {
+    "home": "4007",
+    "away": "105"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-05T17:40:45.000Z",
+   "probs": {
+    "home": 0.157066,
+    "draw": 0.207795,
+    "away": 0.635139
+   },
+   "over25": 0.563573,
+   "under25": 0.436427,
+   "expectedGoals": {
+    "home": 0.9043,
+    "away": 2.0371
+   },
+   "lambdas": {
+    "home": 0.9043,
+    "away": 2.0372
+   },
+   "rho": -0.013746,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 118,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-11-05T17:40:45.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 30
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.164756,
+     "draw": 0.213661,
+     "away": 0.621583
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Inter|Como",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874808",
+   "providerEventId": "401874808",
+   "kickoffUtc": "2026-11-08T17:00:00.000Z",
+   "matchup": "Internazionale v Como",
+   "homeClub": "Internazionale",
+   "awayClub": "Como",
+   "historyNames": {
+    "home": "Inter",
+    "away": "Como"
+   },
+   "espnTeamIds": {
+    "home": "110",
+    "away": "2572"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-05T17:40:45.000Z",
+   "probs": {
+    "home": 0.529646,
+    "draw": 0.226236,
+    "away": 0.244118
+   },
+   "over25": 0.60538,
+   "under25": 0.39462,
+   "expectedGoals": {
+    "home": 1.9017,
+    "away": 1.2286
+   },
+   "lambdas": {
+    "home": 1.9018,
+    "away": 1.2286
+   },
+   "rho": -0.013746,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 156,
+    "away": 80
+   },
+   "fit": {
+    "cutoffIso": "2026-11-05T17:40:45.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 30
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.561721,
+     "draw": 0.229636,
+     "away": 0.208643
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 5
+ }
+}
