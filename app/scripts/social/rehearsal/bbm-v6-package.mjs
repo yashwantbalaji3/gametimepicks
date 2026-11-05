@@ -18,6 +18,7 @@ import path from "node:path";
 
 import { parseArgs } from "../render-social-pack.mjs";
 import { LIVE_PACKAGES } from "../render-bbm.mjs";
+import { RULES_V2 } from "../bbm-cards-v6.mjs";
 
 const a = parseArgs(process.argv.slice(2));
 const sha = (b) => crypto.createHash("sha256").update(b).digest("hex");
@@ -118,7 +119,7 @@ for (const [pkg, lanes] of plan) {
   // The post's sport: NFL when the card carries the required NFL leg (tonight's TNF), else NBA (CC to confirm for mixed cards).
   const sport = (rec0.legs ?? []).some((l) => l.sport === "nfl") ? "nfl" : "nba";
   packages.push({ pkg, packageId: `${pkg}-${date}`, date, step, sport, product: pkg === "bb" ? "bank-builder" : "moonshot", media, caption,
-    extraClaims: { "challenge.step": `Step ${step} of 5`, "challenge.base": `$${(T.base / 100).toLocaleString("en-US")}`, "challenge.target": `$${(T.target / 100).toLocaleString("en-US")}` } });
+    extraClaims: { ...(step > 1 ? { "challenge.completed": `Step ${step - 1}`, "challenge.opening": `$${(rec0.money.stakeCents / 100).toLocaleString("en-US", { minimumFractionDigits: rec0.money.stakeCents % 100 ? 2 : 0 })}` } : {}), "challenge.stepTarget": `~$${(RULES_V2.milestonesCents[pkg === "bb" ? "bank-builder" : "moonshot"][step - 1] / 100).toLocaleString("en-US")}`, "challenge.step": `Step ${step} of 5`, "challenge.base": `$${(T.base / 100).toLocaleString("en-US")}`, "challenge.target": `$${(T.target / 100).toLocaleString("en-US")}` } });
 }
 if (problems.length) throw new Error(`packaging refused:\n  ${problems.join("\n  ")}`);
 for (const p of packages) {
