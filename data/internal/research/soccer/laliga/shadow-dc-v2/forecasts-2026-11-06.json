@@ -1,0 +1,94 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "laliga",
+ "season": "2026-27",
+ "date": "2026-11-06",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-11-06T16:57:36.000Z",
+ "runs": [
+  {
+   "at": "2026-11-06T16:57:36.000Z",
+   "added": 1
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Ath Madrid|Barcelona",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882816",
+   "providerEventId": "401882816",
+   "kickoffUtc": "2026-11-08T20:00:00.000Z",
+   "matchup": "Atlético Madrid v Barcelona",
+   "homeClub": "Atlético Madrid",
+   "awayClub": "Barcelona",
+   "historyNames": {
+    "home": "Ath Madrid",
+    "away": "Barcelona"
+   },
+   "espnTeamIds": {
+    "home": "1068",
+    "away": "83"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-06T16:57:36.000Z",
+   "probs": {
+    "home": 0.335659,
+    "draw": 0.228173,
+    "away": 0.436168
+   },
+   "over25": 0.64389,
+   "under25": 0.35611,
+   "expectedGoals": {
+    "home": 1.5385,
+    "away": 1.7781
+   },
+   "lambdas": {
+    "home": 1.5385,
+    "away": 1.7781
+   },
+   "rho": -0.001094,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 158,
+    "away": 158
+   },
+   "fit": {
+    "cutoffIso": "2026-11-06T16:57:36.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 20
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.359621,
+     "draw": 0.229324,
+     "away": 0.411055
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 1
+ }
+}

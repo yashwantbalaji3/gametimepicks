@@ -1,0 +1,94 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "serie-a",
+ "season": "2026-27",
+ "date": "2026-11-06",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-11-06T16:57:36.000Z",
+ "runs": [
+  {
+   "at": "2026-11-06T16:57:36.000Z",
+   "added": 1
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Fiorentina|Juventus",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401875003",
+   "providerEventId": "401875003",
+   "kickoffUtc": "2026-11-08T19:45:00.000Z",
+   "matchup": "Fiorentina v Juventus",
+   "homeClub": "Fiorentina",
+   "awayClub": "Juventus",
+   "historyNames": {
+    "home": "Fiorentina",
+    "away": "Juventus"
+   },
+   "espnTeamIds": {
+    "home": "109",
+    "away": "111"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-06T16:57:36.000Z",
+   "probs": {
+    "home": 0.247262,
+    "draw": 0.265748,
+    "away": 0.48699
+   },
+   "over25": 0.444535,
+   "under25": 0.555465,
+   "expectedGoals": {
+    "home": 0.9751,
+    "away": 1.4797
+   },
+   "lambdas": {
+    "home": 0.9751,
+    "away": 1.4797
+   },
+   "rho": -0.013744,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 156,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-11-06T16:57:36.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 30
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.335207,
+     "draw": 0.279136,
+     "away": 0.385657
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 1
+ }
+}
