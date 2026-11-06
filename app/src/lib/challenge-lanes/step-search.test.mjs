@@ -111,6 +111,14 @@ test("Nov 5 dated snapshot exception: 19:00Z quotes usable past 90 min for tonig
   assert.ok(r.ranked[0].flags.some((x) => x.startsWith("E_SNAPSHOT_OVERRIDE")));
 });
 
+test("Nov 6 dated snapshot exception: a 23:44Z quote for a 03:00Z tip posts until the tip, not fetch + 90 min", async () => {
+  const { NOV6_SNAPSHOT_OVERRIDE, latestPostAt } = await import("./levels.mjs");
+  const legs = [{ startUtc: "2026-11-07T03:00Z", fetchedAt: "2026-11-06T23:44:30Z" }];
+  assert.equal(latestPostAt(legs), "2026-11-07T01:14:30.000Z");
+  assert.equal(latestPostAt(legs, { freshnessOverride: NOV6_SNAPSHOT_OVERRIDE }), "2026-11-07T03:00:00.000Z");
+  assert.equal(latestPostAt([...legs, { startUtc: "2026-11-07T01:00Z", fetchedAt: "2026-11-06T23:44:30Z" }], { freshnessOverride: NOV6_SNAPSHOT_OVERRIDE }), "2026-11-07T01:00:00.000Z");
+});
+
 test("NFL team W-L windows from final scores (season, last5, venue), ties excluded from n, shrunk only with a no-vig", async () => {
   const { nflTeamWindows } = await import("./nfl-team-record.mjs");
   const g = (id, home, hp, away, ap) => [{ family: "nfl.final-score", gameId: id, isFinal: true, teamId: home, homeAway: "HOME", stats: { points: hp } }, { family: "nfl.final-score", gameId: id, isFinal: true, teamId: away, homeAway: "AWAY", stats: { points: ap } }];

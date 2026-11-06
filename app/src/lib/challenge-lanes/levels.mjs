@@ -41,6 +41,8 @@ export function latestPostAt(legs, { freshnessOverride = null, maxQuoteAgeMs = 9
 /* Founder approval 2026-11-05T16:04:37Z, item 2 (~/gtp-evidence/nov5-founder-approval-items1-5.md, sha256 64bbd869…):
    "Step 2 graphics may show tonight's capture for tonight's games only, with snapshot time, never as live." */
 export const NOV5_SNAPSHOT_OVERRIDE = Object.freeze({ id: "2026-11-05-founder-step2-snapshot", capturedFrom: "2026-11-05T18:50:00Z", capturedTo: "2026-11-05T19:30:00Z", expiresAt: "2026-11-06T04:59:59Z", label: "ODDS SNAPSHOT · Thu 3:00 PM ET", receipt: "~/gtp-evidence/nov5-founder-approval-items1-5.md (sha256 64bbd86930ca8409552e1980b9e7b1dbae833ce35e8ad340913a67ef134b1c7d), item 2" });
+/* Founder 2026-11-06 ~23:40Z, Step 3 NBA only: "show the original odds and a truthful ODDS SNAPSHOT timestamp" (props 23:44Z, h2h 23:45Z). */
+export const NOV6_SNAPSHOT_OVERRIDE = Object.freeze({ id: "2026-11-06-founder-step3-snapshot", capturedFrom: "2026-11-06T23:40:00Z", capturedTo: "2026-11-06T23:50:00Z", expiresAt: "2026-11-07T04:59:59Z", label: "ODDS SNAPSHOT · Fri 6:45 PM ET", receipt: "~/gtp-evidence/nov6-founder-step3-directive-excerpts.md (sha256 fe5bc006e6ad5ae350702d803244ce3201fafe530b0cf5e2d6a9de9ac0a59afc)" });
 export const PROP_FAMILIES = Object.freeze({ pts: "player_points", reb: "player_rebounds", ast: "player_assists" });
 
 export const LEVEL_B_PARAMS = Object.freeze({
