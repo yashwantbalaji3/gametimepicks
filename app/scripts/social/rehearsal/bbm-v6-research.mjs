@@ -271,6 +271,8 @@ function parity(m) {
   for (const [k, v] of Object.entries(want)) if (cells[k] !== v) mis.push(`${k}: printed ${cells[k]} record ${v}`);
   if (c.classification === "LEVEL_B" && Object.keys(cells).some((k) => /\.proj$/.test(k))) mis.push("a Level B card with a probability row");
   if (("price.verified" in cells) !== (CLEAN ? false : c.priceEventSha256 != null)) mis.push("the verified mark does not match the record's price verification");
+  // Tip times: each leg's printed time is its record startUtc in America/New_York (founder 2026-11-06: 03:00Z is 10:00 PM ET).
+  if (CLEAN) c.legs.forEach((l, i) => { const want = etTime(l.startUtc); if (!String(cells[`leg${i + 1}.game`] ?? "").includes(want)) mis.push(`leg${i + 1} tip ${cells[`leg${i + 1}.game`]} does not show ${want} (from ${l.startUtc})`); });
   if (CLEAN && cells["price.snapshot"] !== (ROAD ? snapshotOf(c) : `Odds snapshot · ${captureEt(c)}`)) mis.push(`snapshot ${cells["price.snapshot"]} is not the record's capture time`);
   return mis;
 }
