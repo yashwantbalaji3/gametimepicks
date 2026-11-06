@@ -362,7 +362,8 @@ export function bbmCardV6(model, { testData = false } = {}) {
   const clean = model.clean === true && model.view === VIEW.CARD && model.payout && !tpl;
   // The last completed step shows what the lane banked (the opening tracked amount of this step), not its ~target.
   const lastWon = model.rungs.filter((r) => r.state === RUNG.COMPLETED).at(-1)?.step;
-  const rungs = clean ? model.rungs.map((r) => (r.state === RUNG.ACTIVE ? { ...r, exactCents: model.payout.grossCents } : r.step === lastWon && model.bankrollCents != null ? { ...r, exactCents: model.bankrollCents } : r)) : model.rungs;
+  // Every completed step shows what was banked when the lane's history gives it (model.wonCents[step]); else the last one shows the opening amount.
+  const rungs = clean ? model.rungs.map((r) => (r.state === RUNG.ACTIVE ? { ...r, exactCents: model.payout.grossCents } : r.state === RUNG.COMPLETED && model.wonCents?.[r.step] != null ? { ...r, exactCents: model.wonCents[r.step] } : r.step === lastWon && model.bankrollCents != null ? { ...r, exactCents: model.bankrollCents } : r)) : model.rungs;
   const meter = model.product === "moonshot" ? rocket(cells, rungs, P) : battery(cells, rungs, P);
   const outs = Object.fromEntries((model.legResults ?? []).map((r) => [r.legId, r.outcome]));
   let mid; let bottom = "";

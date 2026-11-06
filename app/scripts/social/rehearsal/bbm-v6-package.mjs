@@ -83,6 +83,7 @@ const packages = [];
 // --road 1 (PD 2026-11-05): ONE card per product from the continuing lane in the source (bb-b / ms-b); the founder's
 // caption comes from --caption-bb / --caption-ms (files) and its sha must be in --approved-shas once he approves it.
 const ROAD = a.road != null && a.road !== "0";
+const WON = Object.fromEntries(String(a.won ?? "").split(",").filter(Boolean).map((x) => { const [k, v] = x.split("="); return [k, v.split(":").map(Number)]; }));
 const recKeys = Object.keys(src.records ?? {});
 const plan = ROAD ? [["bb", recKeys.filter((k) => k.startsWith("bb-")).map((k) => k.split(":")[0])], ["ms", recKeys.filter((k) => k.startsWith("ms-")).map((k) => k.split(":")[0])]] : [["bb", ["bb-a", "bb-b"]], ["ms", ["ms-a", "ms-b"]]];
 if (ROAD && plan.some(([, ls]) => ls.length !== 1)) problems.push(`road mode expects one card per product, got ${JSON.stringify(plan)}`);
@@ -132,7 +133,9 @@ for (const [pkg, lanes] of plan) {
   // The post's sport: NFL when the card carries the required NFL leg (tonight's TNF), else NBA (CC to confirm for mixed cards).
   const sport = (rec0.legs ?? []).some((l) => l.sport === "nfl") ? "nfl" : "nba";
   packages.push({ pkg, packageId: `${pkg}-${date}`, date, step, sport, product: pkg === "bb" ? "bank-builder" : "moonshot", media, caption,
-    extraClaims: { ...(step > 1 ? { "challenge.completed": `Step ${step - 1}`, "challenge.opening": `$${(rec0.money.stakeCents / 100).toLocaleString("en-US", { minimumFractionDigits: rec0.money.stakeCents % 100 ? 2 : 0 })}` } : {}), "challenge.stepTarget": `~$${(RULES_V2.milestonesCents[pkg === "bb" ? "bank-builder" : "moonshot"][step - 1] / 100).toLocaleString("en-US")}`, "challenge.step": `Step ${step} of 5`, "challenge.base": `$${(T.base / 100).toLocaleString("en-US")}`, "challenge.target": `$${(T.target / 100).toLocaleString("en-US")}` } });
+    extraClaims: { ...Object.fromEntries(Array.from({ length: Math.max(0, step - 1) }, (_, i) => [`challenge.completed.${i + 1}`, `Step ${i + 1}`])),
+      ...Object.fromEntries((WON[lanes[0]] ?? []).map((c, i) => [`challenge.won.${i + 1}`, `$${(c / 100).toLocaleString("en-US", { minimumFractionDigits: c % 100 ? 2 : 0 })}`])),
+      ...(step > 1 ? { "challenge.completed": `Step ${step - 1}`, "challenge.opening": `$${(rec0.money.stakeCents / 100).toLocaleString("en-US", { minimumFractionDigits: rec0.money.stakeCents % 100 ? 2 : 0 })}` } : {}), "challenge.stepTarget": `~$${(RULES_V2.milestonesCents[pkg === "bb" ? "bank-builder" : "moonshot"][step - 1] / 100).toLocaleString("en-US")}`, "challenge.step": `Step ${step} of 5`, "challenge.base": `$${(T.base / 100).toLocaleString("en-US")}`, "challenge.target": `$${(T.target / 100).toLocaleString("en-US")}` } });
 }
 if (problems.length) throw new Error(`packaging refused:\n  ${problems.join("\n  ")}`);
 for (const p of packages) {

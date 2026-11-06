@@ -30,6 +30,7 @@ const CLEAN = FINAL || CANDIDATE;
 // step bands, the required NFL game and different games per card are asserted (fail-closed).
 const ROAD = a.road != null && a.road !== "0";
 const ROAD_GAME = a["require-game"] ?? null;
+const WON = Object.fromEntries(String(a.won ?? "").split(",").filter(Boolean).map((x) => { const [k, v] = x.split("="); return [k, v.split(":").map(Number)]; }));
 const RENDER_AT = Date.now();
 const out = path.resolve(a.out);
 const raw = fs.readFileSync(a.selection);
@@ -216,9 +217,12 @@ for (const { laneId, name, sel: src, file: srcFile, alt } of jobs) {
     if (new Set(c.legs.map((l) => l.gameId)).size !== c.legs.length) throw new Error(`${name}: two legs from one game`);
   }
   const rungs = RULES_V2.milestonesCents[product].map((m, i) => ({ step: i + 1, milestoneCents: m, state: i + 1 < step ? RUNG.COMPLETED : i + 1 === step ? RUNG.ACTIVE : RUNG.UPCOMING }));
+  if (ROAD && WON[laneId] && (WON[laneId].length !== step - 1 || WON[laneId].at(-1) !== c.money.stakeCents)) throw new Error(`${name}: --won ${WON[laneId].join(":")} must list ${step - 1} banked amounts ending at the stake ${c.money.stakeCents}`);
   const sports = [...new Set(c.legs.map((l) => String(l.sport ?? "nba").toUpperCase()))].sort((x, y) => (x === "NFL" ? -1 : y === "NFL" ? 1 : 0));
   const chipDay = new Intl.DateTimeFormat("en-US", { timeZone: "UTC", weekday: "short", month: "short", day: "numeric" }).format(new Date(`${c.date}T12:00:00Z`)).replace(",", "");
   models.push({ laneId, name, alt: alt === true, sourceFile: srcFile, record: c, legsRaw: c.legs, model: {
+    // --won bb-b=20700:53519 (the banked amount after each completed step, in order); the last must equal this stake.
+    wonCents: WON[laneId] ? Object.fromEntries(WON[laneId].map((c2, i) => [i + 1, c2])) : undefined,
     road: ROAD, chipText: ROAD ? `${sports.join(" · ")} · ${chipDay}` : undefined,
     product, letter: ROAD ? null : L.letter, laneId, date: c.date, step, steps: 5, rungs, ...TERMS[product], bankrollCents: c.money.stakeCents, badge: BADGE.ACTIVE, view: VIEW.CARD, template: false,
     laneType: c.laneType ?? lane.laneType ?? undefined, legs: CLEAN ? c.legs.map((l, i) => cleanLegOf(l, legs[i], name)) : legs, clean: CLEAN, selectionLabel: CLEAN ? null : c.selectionLabel ?? (c.classification === "LEVEL_B" ? "Research selection — no validated edge claim" : null), reviewRibbon: REVIEW, showStepTarget: !CLEAN,
