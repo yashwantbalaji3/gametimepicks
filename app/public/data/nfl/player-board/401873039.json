@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-06T16:45:54Z",
- "sourceGeneratedAt": "2026-11-06T16:45:54Z",
+ "generatedAt": "2026-11-06T19:47:27Z",
+ "sourceGeneratedAt": "2026-11-06T19:47:27Z",
  "forecastInputHash": "07b778a37b7a297d",
  "providerEventId": "401873039",
  "matchup": "CLE @ NO",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-06T16:45:54Z",
-  "roleEvidenceAt": "2026-11-06T16:45:54Z",
+  "injuriesCapturedAt": "2026-11-06T19:47:27Z",
+  "roleEvidenceAt": "2026-11-06T19:47:27Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -115,7 +115,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 61,
+  "absent": 59,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -172,7 +172,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4870653",
@@ -275,8 +275,8 @@
   },
   "NO": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -368,16 +368,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-5081999",
-     "name": "CJ Donaldson",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
      "playerId": "nfl-athlete-4879276",
      "name": "Bryce Lance",
      "state": "PROJECTED",
@@ -414,6 +404,12 @@
      "name": "Travis Etienne Jr.",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-5081999",
+     "name": "CJ Donaldson",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4369863",
@@ -520,12 +516,12 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.582,
-    "originalSum": 0.582,
-    "residualOther": 0.418,
-    "joined": 5,
+    "sum": 0.7935,
+    "originalSum": 0.7935,
+    "residualOther": 0.2065,
+    "joined": 6,
     "missed": 0,
-    "state": "UNDER_ALLOCATED"
+    "state": "CONSERVED"
    }
   ],
   "violations": 0
@@ -703,7 +699,7 @@
    "playerId": "nfl-athlete-5083076",
    "name": "Harold Fannin Jr.",
    "team": "CLE",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 47.135,
@@ -1013,27 +1009,6 @@
     },
     "anytime_td": {
      "probability": 0.1192,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-5081999",
-   "name": "CJ Donaldson",
-   "team": "NO",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 11.311,
-     "p10": 0,
-     "p25": 0.08,
-     "median": 5.57,
-     "p75": 16.96,
-     "p90": 31.51,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1034,
      "pricingState": "NOT_PROBED"
     }
    }
