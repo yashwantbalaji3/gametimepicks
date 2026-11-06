@@ -3,18 +3,18 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-11-06T15:57:54Z",
+ "generatedAt": "2026-11-06T17:00:37Z",
  "sport": "nfl",
  "label": "NFL",
  "what": "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
  "caveat": "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
  "counts": {
-  "counted": 161,
+  "counted": 162,
   "hits": 95,
-  "misses": 66,
+  "misses": 67,
   "voided": 3,
   "shown": 60,
-  "total": 164
+  "total": 165
  },
  "hitRate": null,
  "recordBasis": "MIXED",
@@ -28,15 +28,30 @@
   },
   {
    "basis": "PUBLISHED",
-   "counted": 56,
+   "counted": 57,
    "hits": 34,
-   "misses": 22,
-   "hitRate": 0.6071
+   "misses": 23,
+   "hitRate": 0.5965
   }
  ],
  "sampleState": "EMERGING",
- "sampleNote": "161 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
+ "sampleNote": "162 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
  "picks": [
+  {
+   "eventId": "nfl-401873037",
+   "when": "2026-11-05",
+   "eventName": null,
+   "subject": "JAX @ BAL",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "HOME",
+   "actual": "AWAY",
+   "modelProbability": null,
+   "probabilityOfActual": 0.4687,
+   "marketProbabilityOfActual": null,
+   "hit": false
+  },
   {
    "eventId": "nfl-401873036",
    "when": "2026-11-02",
@@ -921,21 +936,6 @@
    "probabilityOfActual": 0.5742,
    "marketProbabilityOfActual": null,
    "hit": true
-  },
-  {
-   "eventId": "nfl-401872967",
-   "when": "2026-10-04",
-   "eventName": null,
-   "subject": "DAL @ HOU",
-   "market": "Winner",
-   "basis": "HISTORICAL_MODEL_FAVORED",
-   "noPick": false,
-   "predicted": "HOME",
-   "actual": "AWAY",
-   "modelProbability": null,
-   "probabilityOfActual": 0.3569,
-   "marketProbabilityOfActual": null,
-   "hit": false
   }
  ]
 }
