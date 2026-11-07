@@ -1173,3 +1173,11 @@ test("the catalogue never tells the planner to fetch a date it can omit", () => 
     }
   }
 });
+
+test("an unconfigured Ask refuses with a public reason that names no configuration (2026-10-14)", async () => {
+  const { decideAsk } = await import("../../../api/_ask-core.mjs");
+  const d = decideAsk({ env: { ASK_GAMETIME_ENABLED: "1", ASK_MODEL_PROVIDER: "anthropic" }, method: "POST", body: { messages: [{ role: "user", text: "hi" }] }, bodyBytes: 20, isProduction: false });
+  assert.equal(d.status, 503);
+  assert.deepEqual(d.missing, ["ANTHROPIC_API_KEY"], "the names stay on the decision");
+  assert.doesNotMatch(d.reason, /[A-Z][A-Z0-9]*_[A-Z0-9_]*(KEY|TOKEN|SECRET|URL)/, "no variable name in the public reason");
+});
