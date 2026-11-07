@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-11-07",
- "generatedAt": "2026-11-07T00:38:57Z",
+ "generatedAt": "2026-11-07T15:40:37Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "188 model candidates · no current comparable touchdown price is available",
+ "reason": "189 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -225,6 +225,27 @@
    "modelVersion": "nfl-anytime-td-opportunity-v1"
   },
   {
+   "playerId": "nfl-athlete-4360238",
+   "name": "Dameon Pierce",
+   "position": "RB",
+   "team": "PHI",
+   "opponent": "NYG",
+   "event": "NYG @ PHI",
+   "providerEventId": "401873044",
+   "kickoffUtc": "2026-11-08T18:00Z",
+   "tdProbability": 0.5758,
+   "probabilitySource": "the game's player board — the published anytime-touchdown family",
+   "probabilityRange": {
+    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
+   "modelVersion": "nfl-anytime-td-opportunity-v1"
+  },
+  {
    "playerId": "nfl-athlete-4430878",
    "name": "Jaxon Smith-Njigba",
    "position": "WR",
@@ -244,30 +265,9 @@
    "pricingState": "NOT_PROBED",
    "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
    "modelVersion": "nfl-anytime-td-opportunity-v1"
-  },
-  {
-   "playerId": "nfl-athlete-4362628",
-   "name": "Ja'Marr Chase",
-   "position": "WR",
-   "team": "CIN",
-   "opponent": "ATL",
-   "event": "CIN @ ATL",
-   "providerEventId": "401873038",
-   "kickoffUtc": "2026-11-08T14:30Z",
-   "tdProbability": 0.5623,
-   "probabilitySource": "the game's player board — the published anytime-touchdown family",
-   "probabilityRange": {
-    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
-   "modelVersion": "nfl-anytime-td-opportunity-v1"
   }
  ],
- "candidateCount": 188,
+ "candidateCount": 189,
  "withheld": [
   {
    "event": "DAL @ IND",
@@ -303,12 +303,6 @@
    "event": "CLE @ NO",
    "team": "CLE",
    "player": "Deshaun Watson",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "NYG @ PHI",
-   "team": "PHI",
-   "player": "Dameon Pierce",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -370,7 +364,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 188,
+  "roleReadyCandidates": 189,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."
