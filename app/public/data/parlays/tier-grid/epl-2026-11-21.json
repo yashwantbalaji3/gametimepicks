@@ -1,0 +1,326 @@
+{
+ "schemaVersion": 1,
+ "artifact": "parlay-tier-grid",
+ "dataClass": "DERIVED_POLICY_VIEW",
+ "moneyClass": "NON_MONEY",
+ "sport": "epl",
+ "date": "2026-11-21",
+ "generatedAt": "2026-11-07T16:38:35Z",
+ "state": "PUBLISHED",
+ "bandsUnreachable": [
+  "low"
+ ],
+ "calmestAvailable": "medium",
+ "tiers": [
+  {
+   "id": "bronze",
+   "minBankroll": 0,
+   "maxBankroll": 50,
+   "cardsPerDay": 1,
+   "bands": [
+    "low"
+   ],
+   "offered": 0,
+   "emptyToday": true,
+   "substitute": {
+    "band": "medium",
+    "slipId": "epl-medium-2026-11-21",
+    "reason": "Nothing on today's board priced in this range. The calmest card available is medium risk, which is a longer price than this bankroll is normally shown — its own record is attached."
+   }
+  },
+  {
+   "id": "silver",
+   "minBankroll": 50,
+   "maxBankroll": 100,
+   "cardsPerDay": 2,
+   "bands": [
+    "low",
+    "medium"
+   ],
+   "offered": 1,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "gold",
+   "minBankroll": 100,
+   "maxBankroll": 250,
+   "cardsPerDay": 3,
+   "bands": [
+    "low",
+    "medium",
+    "high"
+   ],
+   "offered": 2,
+   "emptyToday": false,
+   "substitute": null
+  },
+  {
+   "id": "diamond",
+   "minBankroll": 250,
+   "maxBankroll": null,
+   "cardsPerDay": 4,
+   "bands": [
+    "low",
+    "medium",
+    "high",
+    "longshot"
+   ],
+   "offered": 3,
+   "emptyToday": false,
+   "substitute": null
+  }
+ ],
+ "cells": [
+  {
+   "tier": "bronze",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no combination of today's prices lands in this band — 2 legs → +107 (medium) … +399 (high)"
+  },
+  {
+   "tier": "bronze",
+   "band": "medium",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "bronze",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 1 card a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no combination of today's prices lands in this band — 2 legs → +107 (medium) … +399 (high)"
+  },
+  {
+   "tier": "silver",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "epl-medium-2026-11-21",
+   "reason": null
+  },
+  {
+   "tier": "silver",
+   "band": "high",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "silver",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 2 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "gold",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no combination of today's prices lands in this band — 2 legs → +107 (medium) … +399 (high)"
+  },
+  {
+   "tier": "gold",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "epl-medium-2026-11-21",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "high",
+   "state": "OFFERED",
+   "slipId": "epl-high-2026-11-21",
+   "reason": null
+  },
+  {
+   "tier": "gold",
+   "band": "longshot",
+   "state": "ABOVE_TIER",
+   "slipId": null,
+   "reason": "A daily bankroll in this range is shown 3 cards a day, starting with the calmest. This band is not among them."
+  },
+  {
+   "tier": "diamond",
+   "band": "low",
+   "state": "NO_CARD",
+   "slipId": null,
+   "reason": "no combination of today's prices lands in this band — 2 legs → +107 (medium) … +399 (high)"
+  },
+  {
+   "tier": "diamond",
+   "band": "medium",
+   "state": "OFFERED",
+   "slipId": "epl-medium-2026-11-21",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "high",
+   "state": "OFFERED",
+   "slipId": "epl-high-2026-11-21",
+   "reason": null
+  },
+  {
+   "tier": "diamond",
+   "band": "longshot",
+   "state": "OFFERED",
+   "slipId": "epl-longshot-2026-11-21",
+   "reason": null
+  }
+ ],
+ "cards": [
+  {
+   "band": "medium",
+   "slipId": "epl-medium-2026-11-21",
+   "combinedAmerican": 107,
+   "combinedDecimal": 2.071,
+   "legs": [
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:fulham-v-manchester-city:20261121t1500",
+     "player": null,
+     "matchup": "Manchester City v Fulham",
+     "kickoffUtc": "2026-11-21T15:00:00Z",
+     "team": "Manchester City",
+     "market": "match_result",
+     "marketLabel": "Match result",
+     "side": "home",
+     "line": null,
+     "odds": -248,
+     "decimal": 1.403225806451613,
+     "books": 4
+    },
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:ipswich-town-v-tottenham-hotspur:20261121t1500",
+     "player": null,
+     "matchup": "Tottenham Hotspur v Ipswich Town",
+     "kickoffUtc": "2026-11-21T15:00:00Z",
+     "team": "Tottenham Hotspur",
+     "market": "match_result",
+     "marketLabel": "Match result",
+     "side": "home",
+     "line": null,
+     "odds": -210,
+     "decimal": 1.4761904761904763,
+     "books": 4
+    }
+   ],
+   "status": "pending",
+   "record": null
+  },
+  {
+   "band": "high",
+   "slipId": "epl-high-2026-11-21",
+   "combinedAmerican": 452,
+   "combinedDecimal": 5.52,
+   "legs": [
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:brighton-hove-albion-v-hull-city:20261121t1500",
+     "player": null,
+     "matchup": "Hull City v Brighton and Hove Albion",
+     "kickoffUtc": "2026-11-21T15:00:00Z",
+     "team": null,
+     "market": "total_goals",
+     "marketLabel": "Total goals 2.5",
+     "side": "under",
+     "line": 2.5,
+     "odds": 130,
+     "decimal": 2.3,
+     "books": 1
+    },
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:liverpool-v-manchester-united:20261121t1500",
+     "player": null,
+     "matchup": "Liverpool v Manchester United",
+     "kickoffUtc": "2026-11-21T15:00:00Z",
+     "team": null,
+     "market": "total_goals",
+     "marketLabel": "Total goals 3.5",
+     "side": "over",
+     "line": 3.5,
+     "odds": 140,
+     "decimal": 2.4,
+     "books": 1
+    }
+   ],
+   "status": "pending",
+   "record": null
+  },
+  {
+   "band": "longshot",
+   "slipId": "epl-longshot-2026-11-21",
+   "combinedAmerican": 609,
+   "combinedDecimal": 7.088,
+   "legs": [
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:arsenal-v-newcastle-united:20261121t1500",
+     "player": null,
+     "matchup": "Newcastle United v Arsenal",
+     "kickoffUtc": "2026-11-21T15:00:00Z",
+     "team": null,
+     "market": "total_goals",
+     "marketLabel": "Total goals 2.5",
+     "side": "over",
+     "line": 2.5,
+     "odds": -151,
+     "decimal": 1.6622516556291391,
+     "books": 2
+    },
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:coventry-city-v-crystal-palace:20261121t1500",
+     "player": null,
+     "matchup": "Coventry City v Crystal Palace",
+     "kickoffUtc": "2026-11-21T15:00:00Z",
+     "team": null,
+     "market": "total_goals",
+     "marketLabel": "Total goals 2.5",
+     "side": "under",
+     "line": 2.5,
+     "odds": 108,
+     "decimal": 2.08,
+     "books": 2
+    },
+    {
+     "sport": "epl",
+     "eventId": "soccer:epl:aston-villa-v-sunderland:20261121t1500",
+     "player": null,
+     "matchup": "Aston Villa v Sunderland",
+     "kickoffUtc": "2026-11-21T15:00:00Z",
+     "team": null,
+     "market": "total_goals",
+     "marketLabel": "Total goals 2.5",
+     "side": "under",
+     "line": 2.5,
+     "odds": 105,
+     "decimal": 2.05,
+     "books": 2
+    }
+   ],
+   "status": "pending",
+   "record": null
+  }
+ ],
+ "note": "A policy view of cards published by the risk ladder. No stake is baked in: bankroll is entered in the reader's own browser and never leaves it. Paper-only, educational; not advice."
+}
