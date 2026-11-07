@@ -2,15 +2,15 @@
  "schemaVersion": 1,
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
- "date": "2026-11-06",
- "generatedAt": "2026-11-06T20:47:39Z",
+ "date": "2026-11-07",
+ "generatedAt": "2026-11-07T00:38:57Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "183 model candidates · no current comparable touchdown price is available",
+ "reason": "188 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -66,6 +66,27 @@
    "providerEventId": "401873051",
    "kickoffUtc": "2026-11-10T01:15Z",
    "tdProbability": 0.7629,
+   "probabilitySource": "the game's player board — the published anytime-touchdown family",
+   "probabilityRange": {
+    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
+   "modelVersion": "nfl-anytime-td-opportunity-v1"
+  },
+  {
+   "playerId": "nfl-athlete-3117251",
+   "name": "Christian McCaffrey",
+   "position": "RB",
+   "team": "SF",
+   "opponent": "LV",
+   "event": "LV @ SF",
+   "providerEventId": "401873047",
+   "kickoffUtc": "2026-11-08T21:25Z",
+   "tdProbability": 0.7052,
    "probabilitySource": "the game's player board — the published anytime-touchdown family",
    "probabilityRange": {
     "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
@@ -244,30 +265,9 @@
    "pricingState": "NOT_PROBED",
    "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
    "modelVersion": "nfl-anytime-td-opportunity-v1"
-  },
-  {
-   "playerId": "nfl-athlete-4047365",
-   "name": "Josh Jacobs",
-   "position": "RB",
-   "team": "GB",
-   "opponent": "NE",
-   "event": "GB @ NE",
-   "providerEventId": "401873049",
-   "kickoffUtc": "2026-11-08T21:25Z",
-   "tdProbability": 0.5504,
-   "probabilitySource": "the game's player board — the published anytime-touchdown family",
-   "probabilityRange": {
-    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
-   "modelVersion": "nfl-anytime-td-opportunity-v1"
   }
  ],
- "candidateCount": 183,
+ "candidateCount": 188,
  "withheld": [
   {
    "event": "DAL @ IND",
@@ -294,6 +294,12 @@
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
+   "event": "DET @ MIA",
+   "team": "DET",
+   "player": "Sione Vaki",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
    "event": "CLE @ NO",
    "team": "CLE",
    "player": "Deshaun Watson",
@@ -302,38 +308,14 @@
   {
    "event": "NYG @ PHI",
    "team": "PHI",
-   "player": "Saquon Barkley",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "NYG @ PHI",
-   "team": "PHI",
-   "player": "DeVonta Smith",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "NYG @ PHI",
-   "team": "PHI",
-   "player": "Dontayvion Wicks",
+   "player": "Dameon Pierce",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "NYG @ PHI",
    "team": "NYG",
    "player": "Cam Skattebo",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "NYG @ PHI",
-   "team": "NYG",
-   "player": "Malik Nabers",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "LAR @ WSH",
-   "team": "WSH",
-   "player": "Treylon Burks",
-   "reason": "designated Questionable — only players with no designation are listed"
+   "reason": "designated Doubtful — only players with no designation are listed"
   },
   {
    "event": "LAR @ WSH",
@@ -351,36 +333,6 @@
    "event": "GB @ NE",
    "team": "GB",
    "player": "MarShawn Lloyd",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "LV @ SF",
-   "team": "SF",
-   "player": "Christian McCaffrey",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "LV @ SF",
-   "team": "SF",
-   "player": "Mike Evans",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "LV @ SF",
-   "team": "SF",
-   "player": "Deebo Samuel Sr.",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "ARI @ SEA",
-   "team": "SEA",
-   "player": "Rashid Shaheed",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "ARI @ SEA",
-   "team": "ARI",
-   "player": "Michael Wilson",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -404,19 +356,7 @@
   {
    "event": "BUF @ MIN",
    "team": "BUF",
-   "player": "Dalton Kincaid",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "BUF @ MIN",
-   "team": "BUF",
    "player": "Keon Coleman",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "BUF @ MIN",
-   "team": "BUF",
-   "player": "Ty Johnson",
    "reason": "designated Questionable — only players with no designation are listed"
   }
  ],
@@ -430,7 +370,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 183,
+  "roleReadyCandidates": 188,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."
