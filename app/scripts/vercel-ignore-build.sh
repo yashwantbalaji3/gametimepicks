@@ -217,6 +217,9 @@ BUILD_INPUTS=(
     ':(top)data/compare-projection/'
     ':(top)data/lab-projection/'
     ':(top)data/ask-projection/'
+    # Results V2 pilot: the sealed day files emit-results-v2-assets.mjs copies into the export. Committed by hand, one
+    # commit per surveyed day, so this entry adds no scheduled Production build.
+    ':(top)data/results-projection/'
     ':(top)data/internal/mlb/model-learning/calibrator-manifest.json'
     ':(top)data/internal/nfl/forecast-receipts/'
     ':(top)data/internal/mlb/prediction-snapshots/'
