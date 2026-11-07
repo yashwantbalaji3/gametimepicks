@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-11-07",
-  "platformState": "INCIDENT",
+  "platformState": "MISSED_COVERAGE",
   "sports": {
     "mlb": {
       "state": "NO_EVENT",
@@ -27,16 +27,27 @@
       "missed": []
     },
     "ufc": {
-      "state": "INCIDENT",
-      "reason": "2 event(s) have no forecast and the earliest one's deadline (2026-11-07T20:30:00.000Z, 90 min before its start) has passed",
-      "deadlineUtc": "2026-11-07T20:30:00.000Z",
+      "state": "MISSED_COVERAGE",
+      "reason": "2 of 14 event(s) started with no pre-event forecast; nothing is still pending",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 14,
         "published": 12,
-        "missedCoverage": 0,
-        "awaiting": 2
+        "missedCoverage": 2,
+        "awaiting": 0
       },
-      "missed": []
+      "missed": [
+        {
+          "id": "401932716",
+          "label": "Thomas Petersen vs Gabriel Lorenço",
+          "startUtc": "2026-11-07T22:00Z"
+        },
+        {
+          "id": "401928117",
+          "label": "Wellington Turman vs Seokhyeon Ko",
+          "startUtc": "2026-11-07T22:00Z"
+        }
+      ]
     },
     "epl": {
       "state": "NO_EVENT",
@@ -50,7 +61,7 @@
       }
     }
   },
-  "checkedAt": "2026-11-07T21:39:24.419Z",
+  "checkedAt": "2026-11-07T22:14:34.032Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "NO_EVENT",
