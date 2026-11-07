@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-07T17:55:00Z",
- "sourceGeneratedAt": "2026-11-07T17:55:00Z",
+ "generatedAt": "2026-11-07T19:00:29Z",
+ "sourceGeneratedAt": "2026-11-07T19:00:29Z",
  "forecastInputHash": "9fbae521b29dc40f",
  "providerEventId": "401873051",
  "matchup": "BUF @ MIN",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-07T17:55:00Z",
-  "roleEvidenceAt": "2026-11-07T17:55:00Z",
+  "injuriesCapturedAt": "2026-11-07T19:00:29Z",
+  "roleEvidenceAt": "2026-11-07T19:00:29Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -87,14 +87,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 63,
+  "absent": 60,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "BUF": {
    "counts": {
-    "PROJECTED": 12,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -180,17 +180,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4242433",
-     "name": "Joshua Palmer",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
      "playerId": "nfl-athlete-4429501",
      "name": "Ray Davis",
      "state": "PROJECTED",
@@ -229,6 +218,12 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4242433",
+     "name": "Joshua Palmer",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   },
@@ -875,36 +870,6 @@
     },
     "anytime_td": {
      "probability": 0.1253,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4242433",
-   "name": "Joshua Palmer",
-   "team": "BUF",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 16.141,
-     "p10": 0,
-     "p25": 0,
-     "median": 8.65,
-     "p75": 24.77,
-     "p90": 44.21,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.1974,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1196,
      "pricingState": "NOT_PROBED"
     }
    }
