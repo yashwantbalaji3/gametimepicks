@@ -1,8 +1,8 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-11-07",
-  "checkedAt": "2026-11-07T11:49:30.923Z",
-  "treeHead": "2dabce420",
+  "checkedAt": "2026-11-07T12:02:00.313Z",
+  "treeHead": "a497fc79a",
   "state": "STALE",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 0,
@@ -55,8 +55,8 @@
     },
     {
       "id": "settlement",
-      "state": "NOT_DUE",
-      "reason": "not due until 2026-11-07T12:00:00.000Z",
+      "state": "DUE",
+      "reason": "past 2026-11-07T12:00:00.000Z, inside grace",
       "dueAtIso": "2026-11-07T12:00:00.000Z",
       "label": "Nightly settlement (previous day)",
       "workflow": "nightly-settle",
@@ -136,7 +136,7 @@
     {
       "id": "nfl-markets",
       "state": "STALE",
-      "reason": "receipt is 648.1h old against a 48h bound",
+      "reason": "receipt is 648.3h old against a 48h bound",
       "dueAtIso": "2026-11-07T15:00:00.000Z",
       "receiptAt": "2026-10-11T11:41:55Z",
       "label": "NFL market capture",
