@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-07T19:00:29Z",
- "sourceGeneratedAt": "2026-11-07T19:00:29Z",
- "forecastInputHash": "9fbae521b29dc40f",
+ "generatedAt": "2026-11-07T19:19:48Z",
+ "sourceGeneratedAt": "2026-11-07T19:19:48Z",
+ "forecastInputHash": "bde36149541657c3",
  "providerEventId": "401873051",
  "matchup": "BUF @ MIN",
  "kickoffUtc": "2026-11-10T01:15Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-07T19:00:29Z",
-  "roleEvidenceAt": "2026-11-07T19:00:29Z",
+  "injuriesCapturedAt": "2026-11-07T19:19:48Z",
+  "roleEvidenceAt": "2026-11-07T19:19:48Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,6 +24,15 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "MIN",
+     "playerId": "nfl-athlete-4573398",
+     "name": "Max Brosmer",
+     "share": 0.474,
+     "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    }
+   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -87,7 +96,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 60,
+  "absent": 54,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -229,8 +238,8 @@
   },
   "MIN": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 1,
@@ -238,32 +247,15 @@
    },
    "players": [
     {
-     "playerId": "nfl-athlete-3917315",
-     "name": "Kyler Murray",
+     "playerId": "nfl-athlete-2573079",
+     "name": "Carson Wentz",
      "state": "PROJECTED",
      "families": [
       "anytime_td",
       "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
-    },
-    {
-     "playerId": "nfl-athlete-2573079",
-     "name": "Carson Wentz",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-3042519",
@@ -343,35 +335,33 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-3917315",
+     "name": "Kyler Murray",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-3886598",
      "name": "Jauan Jennings",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4832846",
      "name": "Demond Claiborne",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "QUESTIONABLE"
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4573398",
      "name": "Max Brosmer",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
       }
      ]
     }
@@ -390,25 +380,14 @@
    },
    {
     "team": "MIN",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-3917315",
-     "name": "Kyler Murray"
-    },
-    "snapshotAt": "2026-11-07T13:54:10Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-2573079",
-      "name": "Carson Wentz"
-     },
-     {
-      "playerId": "nfl-athlete-4573398",
-      "name": "Max Brosmer"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth-chart QB1 Kyler Murray is not in the board's passing pool",
     "passers": [
-     "nfl-athlete-3917315"
-    ]
+     "nfl-athlete-2573079",
+     "nfl-athlete-4573398"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-11-07T13:54:10Z"
    }
   ],
   "passerShareFloor": [
@@ -425,9 +404,18 @@
     "team": "MIN",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3917315"
+     "nfl-athlete-2573079",
+     "nfl-athlete-4573398"
     ],
-    "withheld": [],
+    "withheld": [
+     {
+      "team": "MIN",
+      "playerId": "nfl-athlete-4573398",
+      "name": "Max Brosmer",
+      "share": 0.474,
+      "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
     "unjoined": []
    }
   ],
@@ -441,6 +429,19 @@
     "sum": 0.9887,
     "originalSum": 0.9887,
     "residualOther": 0.0113,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "MIN",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.913,
+    "originalSum": 0.913,
+    "residualOther": 0.087,
     "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
@@ -917,36 +918,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-3917315",
-   "name": "Kyler Murray",
-   "team": "MIN",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 19.274,
-     "p10": 0,
-     "p25": 3.23,
-     "median": 13.43,
-     "p75": 28.7,
-     "p90": 46.66,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 186.0271,
-     "p10": 90.4264,
-     "p25": 125.2695,
-     "median": 173.7603,
-     "p75": 233.4791,
-     "p90": 297.5147,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0938,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-3921690",
    "name": "Josh Oliver",
    "team": "MIN",
@@ -963,36 +934,6 @@
     },
     "player_receptions": {
      "mean": 1.3301,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0884,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3886598",
-   "name": "Jauan Jennings",
-   "team": "MIN",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 12.321,
-     "p10": 0,
-     "p25": 0,
-     "median": 6.29,
-     "p75": 19.22,
-     "p90": 34.54,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.3088,
      "p10": 0,
      "p25": 0,
      "median": 1,
@@ -1051,20 +992,17 @@
      "p90": 21.41,
      "pricingState": "NOT_PROBED"
     },
+    "player_pass_yds": {
+     "mean": 194.1117,
+     "p10": 92.9223,
+     "p25": 129.6004,
+     "median": 180.881,
+     "p75": 244.2747,
+     "p90": 312.4415,
+     "pricingState": "NOT_PROBED"
+    },
     "anytime_td": {
      "probability": 0.0671,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4832846",
-   "name": "Demond Claiborne",
-   "team": "MIN",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.0607,
      "pricingState": "NOT_PROBED"
     }
    }
