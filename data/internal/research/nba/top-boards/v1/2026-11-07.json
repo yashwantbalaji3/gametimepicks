@@ -6377,6 +6377,6046 @@
      "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
     }
    }
+  },
+  {
+   "edition": 2,
+   "frozenAt": "2026-11-07T16:54:08Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v1/forecasts/2026-11-07.json",
+    "sha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+    "artifactGeneratedAt": "2026-11-07T14:01:15Z",
+    "artifactInputAsOf": "2026-11-07T14:01:15Z",
+    "runs": 2,
+    "modelVersion": "nba-sim-v1-coherent"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401909938",
+     "tipoffUtc": "2026-11-07T22:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Indiana Pacers",
+      "abbr": "IND",
+      "espnAbbr": "IND",
+      "providerTeamId": "11"
+     },
+     "away": {
+      "name": "Denver Nuggets",
+      "abbr": "DEN",
+      "espnAbbr": "DEN",
+      "providerTeamId": "7"
+     },
+     "forecastGeneratedAt": "2026-11-07T14:01:15Z",
+     "forecastInputAsOf": "2026-11-07T14:01:15Z",
+     "gamePayloadSha256": "d9b086fe29bd537c2a984bfaf73953601663bf9a0eb0f0431767bc97cce84e9d",
+     "state": "ON_EARLIER_EDITION",
+     "flags": []
+    },
+    {
+     "eventId": "401909939",
+     "tipoffUtc": "2026-11-08T00:30Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Atlanta Hawks",
+      "abbr": "ATL",
+      "espnAbbr": "ATL",
+      "providerTeamId": "1"
+     },
+     "away": {
+      "name": "Brooklyn Nets",
+      "abbr": "BKN",
+      "espnAbbr": "BKN",
+      "providerTeamId": "17"
+     },
+     "forecastGeneratedAt": "2026-11-07T16:54:08Z",
+     "forecastInputAsOf": "2026-11-07T16:54:08Z",
+     "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-07|v1|e2|points|401909939|4278039",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nickeil Alexander-Walker",
+        "providerAthleteId": "4278039"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.34
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 26,
+        "p90": 32
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.69,
+       "minutesSd": 6.78,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.34,
+        "expectedMinutes": 32.69,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-07|v1|e2|points|401909939|4278104",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.44
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.88,
+       "minutesSd": 7.36,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.44,
+        "expectedMinutes": 28.88,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-07|v1|e2|points|401909939|2490149",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "CJ McCollum",
+        "providerAthleteId": "2490149"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.91
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9762,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.04,
+       "minutesSd": 6.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.91,
+        "expectedMinutes": 27.04,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-07|v1|e2|points|401909939|3064514",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.3
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.46,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.3,
+        "expectedMinutes": 29.46,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-07|v1|e2|points|401909939|4431680",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Onyeka Okongwu",
+        "providerAthleteId": "4431680"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.72
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 19,
+        "p90": 23
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.84,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.72,
+        "expectedMinutes": 29.84,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-07|v1|e2|points|401909939|4869342",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Dyson Daniels",
+        "providerAthleteId": "4869342"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.9
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 17,
+        "p90": 21
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.55,
+       "minutesSd": 7.05,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.9,
+        "expectedMinutes": 31.55,
+        "p90": 21
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-07|v1|e2|points|401909939|4397020",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luguentz Dort",
+        "providerAthleteId": "4397020"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 8,
+        "mean": 8.65
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 12,
+        "p90": 16
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.31,
+       "minutesSd": 6.58,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 8.65,
+        "expectedMinutes": 24.31,
+        "p90": 16
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 29,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 15,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 22,
+       "INJURY_DESIGNATION": 10,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2578185",
+        "name": "Dorian Finney-Smith",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3146557",
+        "name": "Jock Landale",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4280151",
+        "name": "Corey Kispert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397183",
+        "name": "Aaron Wiggins",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431714",
+        "name": "Jalen Wilson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431941",
+        "name": "RayJ Dennis",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4585618",
+        "name": "Keshon Gilbert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701230",
+        "name": "Jalen Johnson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4702177",
+        "name": "Keon Ellis",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4712863",
+        "name": "Mouhamed Gueye",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4712896",
+        "name": "Noah Clowney",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4873201",
+        "name": "Asa Newell",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105571",
+        "name": "Henri Veesaar",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106262",
+        "name": "Zuby Ejiofor",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5149077",
+        "name": "Kingston Flemings",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-07|v1|e2|rebounds|401909939|4431680",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Onyeka Okongwu",
+        "providerAthleteId": "4431680"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 7,
+        "mean": 7.18
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 9,
+        "p90": 12
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.84,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 7.18,
+        "expectedMinutes": 29.84,
+        "p90": 12
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-07|v1|e2|rebounds|401909939|4869342",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Dyson Daniels",
+        "providerAthleteId": "4869342"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.6
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 9,
+        "p90": 11
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.55,
+       "minutesSd": 7.05,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.6,
+        "expectedMinutes": 31.55,
+        "p90": 11
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-07|v1|e2|rebounds|401909939|4278104",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.02
+       },
+       "range": {
+        "p10": 2,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.88,
+       "minutesSd": 7.36,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.02,
+        "expectedMinutes": 28.88,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-07|v1|e2|rebounds|401909939|3064514",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.77
+       },
+       "range": {
+        "p10": 2,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.46,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.77,
+        "expectedMinutes": 29.46,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-07|v1|e2|rebounds|401909939|4278039",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nickeil Alexander-Walker",
+        "providerAthleteId": "4278039"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.42
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.69,
+       "minutesSd": 6.78,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.42,
+        "expectedMinutes": 32.69,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-07|v1|e2|rebounds|401909939|4397020",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luguentz Dort",
+        "providerAthleteId": "4397020"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.2
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.31,
+       "minutesSd": 6.58,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.2,
+        "expectedMinutes": 24.31,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-07|v1|e2|rebounds|401909939|2490149",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "CJ McCollum",
+        "providerAthleteId": "2490149"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.06
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9762,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.04,
+       "minutesSd": 6.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.06,
+        "expectedMinutes": 27.04,
+        "p90": 6
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 29,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 15,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 22,
+       "INJURY_DESIGNATION": 10,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2578185",
+        "name": "Dorian Finney-Smith",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3146557",
+        "name": "Jock Landale",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4280151",
+        "name": "Corey Kispert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397183",
+        "name": "Aaron Wiggins",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431714",
+        "name": "Jalen Wilson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431941",
+        "name": "RayJ Dennis",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4585618",
+        "name": "Keshon Gilbert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701230",
+        "name": "Jalen Johnson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4702177",
+        "name": "Keon Ellis",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4712863",
+        "name": "Mouhamed Gueye",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4712896",
+        "name": "Noah Clowney",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4873201",
+        "name": "Asa Newell",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105571",
+        "name": "Henri Veesaar",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106262",
+        "name": "Zuby Ejiofor",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5149077",
+        "name": "Kingston Flemings",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-07|v1|e2|assists|401909939|4869342",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Dyson Daniels",
+        "providerAthleteId": "4869342"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 6,
+        "mean": 5.74
+       },
+       "range": {
+        "p10": 2,
+        "p25": 4,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.55,
+       "minutesSd": 7.05,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.74,
+        "expectedMinutes": 31.55,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-07|v1|e2|assists|401909939|2490149",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "CJ McCollum",
+        "providerAthleteId": "2490149"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 3.89
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9762,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.04,
+       "minutesSd": 6.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.89,
+        "expectedMinutes": 27.04,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-07|v1|e2|assists|401909939|3064514",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 3.86
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.46,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.86,
+        "expectedMinutes": 29.46,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-07|v1|e2|assists|401909939|4278039",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nickeil Alexander-Walker",
+        "providerAthleteId": "4278039"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.61
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.69,
+       "minutesSd": 6.78,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.61,
+        "expectedMinutes": 32.69,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-07|v1|e2|assists|401909939|4431680",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Onyeka Okongwu",
+        "providerAthleteId": "4431680"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.06
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.84,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.06,
+        "expectedMinutes": 29.84,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-07|v1|e2|assists|401909939|4278104",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.18
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.88,
+       "minutesSd": 7.36,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.18,
+        "expectedMinutes": 28.88,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-07|v1|e2|assists|401909939|4397020",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luguentz Dort",
+        "providerAthleteId": "4397020"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.46
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.31,
+       "minutesSd": 6.58,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.46,
+        "expectedMinutes": 24.31,
+        "p90": 3
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 29,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 15,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 22,
+       "INJURY_DESIGNATION": 10,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2578185",
+        "name": "Dorian Finney-Smith",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3146557",
+        "name": "Jock Landale",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4280151",
+        "name": "Corey Kispert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397183",
+        "name": "Aaron Wiggins",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431714",
+        "name": "Jalen Wilson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431941",
+        "name": "RayJ Dennis",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4585618",
+        "name": "Keshon Gilbert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701230",
+        "name": "Jalen Johnson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4702177",
+        "name": "Keon Ellis",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4712863",
+        "name": "Mouhamed Gueye",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4712896",
+        "name": "Noah Clowney",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4873201",
+        "name": "Asa Newell",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105571",
+        "name": "Henri Veesaar",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106262",
+        "name": "Zuby Ejiofor",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5149077",
+        "name": "Kingston Flemings",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-07|v1|e2|threes|401909939|4278039",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nickeil Alexander-Walker",
+        "providerAthleteId": "4278039"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.26
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.69,
+       "minutesSd": 6.78,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.26,
+        "expectedMinutes": 32.69,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-07|v1|e2|threes|401909939|4278104",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.86
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.88,
+       "minutesSd": 7.36,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.86,
+        "expectedMinutes": 28.88,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-07|v1|e2|threes|401909939|2490149",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "CJ McCollum",
+        "providerAthleteId": "2490149"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.1
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9762,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.04,
+       "minutesSd": 6.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.1,
+        "expectedMinutes": 27.04,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-07|v1|e2|threes|401909939|4431680",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Onyeka Okongwu",
+        "providerAthleteId": "4431680"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.78
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.84,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.78,
+        "expectedMinutes": 29.84,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-07|v1|e2|threes|401909939|4397020",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luguentz Dort",
+        "providerAthleteId": "4397020"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.7
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 4
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.31,
+       "minutesSd": 6.58,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.7,
+        "expectedMinutes": 24.31,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-07|v1|e2|threes|401909939|3064514",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.35
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.46,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.35,
+        "expectedMinutes": 29.46,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-07|v1|e2|threes|401909939|4869342",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Dyson Daniels",
+        "providerAthleteId": "4869342"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 0,
+        "mean": 0.53
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 1,
+        "p90": 2
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.55,
+       "minutesSd": 7.05,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 0.53,
+        "expectedMinutes": 31.55,
+        "p90": 2
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 29,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 15,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 22,
+       "INJURY_DESIGNATION": 10,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2578185",
+        "name": "Dorian Finney-Smith",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3146557",
+        "name": "Jock Landale",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4280151",
+        "name": "Corey Kispert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397183",
+        "name": "Aaron Wiggins",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431714",
+        "name": "Jalen Wilson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431941",
+        "name": "RayJ Dennis",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4585618",
+        "name": "Keshon Gilbert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701230",
+        "name": "Jalen Johnson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4702177",
+        "name": "Keon Ellis",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4712863",
+        "name": "Mouhamed Gueye",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4712896",
+        "name": "Noah Clowney",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4873201",
+        "name": "Asa Newell",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105571",
+        "name": "Henri Veesaar",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106262",
+        "name": "Zuby Ejiofor",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5149077",
+        "name": "Kingston Flemings",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "pra": {
+     "category": "pra",
+     "label": "PRA",
+     "stat": "pra",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-07|v1|e2|pra|401909939|4278039",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nickeil Alexander-Walker",
+        "providerAthleteId": "4278039"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 28,
+        "mean": 28.37
+       },
+       "range": {
+        "p10": 17,
+        "p25": 22,
+        "p75": 34,
+        "p90": 41
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.69,
+       "minutesSd": 6.78,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 28.37,
+        "expectedMinutes": 32.69,
+        "p90": 41
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-07|v1|e2|pra|401909939|4278104",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 26,
+        "mean": 26.64
+       },
+       "range": {
+        "p10": 15,
+        "p25": 20,
+        "p75": 33,
+        "p90": 39
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.88,
+       "minutesSd": 7.36,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 26.64,
+        "expectedMinutes": 28.88,
+        "p90": 39
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-07|v1|e2|pra|401909939|3064514",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 25,
+        "mean": 25.93
+       },
+       "range": {
+        "p10": 15,
+        "p25": 19,
+        "p75": 32,
+        "p90": 38
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.46,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 25.93,
+        "expectedMinutes": 29.46,
+        "p90": 38
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-07|v1|e2|pra|401909939|4869342",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Dyson Daniels",
+        "providerAthleteId": "4869342"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 25,
+        "mean": 25.24
+       },
+       "range": {
+        "p10": 15,
+        "p25": 19,
+        "p75": 31,
+        "p90": 37
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.55,
+       "minutesSd": 7.05,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 25.24,
+        "expectedMinutes": 31.55,
+        "p90": 37
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-07|v1|e2|pra|401909939|4431680",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Onyeka Okongwu",
+        "providerAthleteId": "4431680"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.96
+       },
+       "range": {
+        "p10": 14,
+        "p25": 19,
+        "p75": 30,
+        "p90": 37
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.84,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.96,
+        "expectedMinutes": 29.84,
+        "p90": 37
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-07|v1|e2|pra|401909939|2490149",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "CJ McCollum",
+        "providerAthleteId": "2490149"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 23,
+        "mean": 23.86
+       },
+       "range": {
+        "p10": 13,
+        "p25": 18,
+        "p75": 29,
+        "p90": 35
+       },
+       "playRate": 0.9762,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.04,
+       "minutesSd": 6.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 23.86,
+        "expectedMinutes": 27.04,
+        "p90": 35
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-07|v1|e2|pra|401909939|4397020",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luguentz Dort",
+        "providerAthleteId": "4397020"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.31
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 17,
+        "p90": 22
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.31,
+       "minutesSd": 6.58,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.31,
+        "expectedMinutes": 24.31,
+        "p90": 22
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 29,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 15,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 22,
+       "INJURY_DESIGNATION": 10,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2578185",
+        "name": "Dorian Finney-Smith",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3146557",
+        "name": "Jock Landale",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4280151",
+        "name": "Corey Kispert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397183",
+        "name": "Aaron Wiggins",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431714",
+        "name": "Jalen Wilson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431941",
+        "name": "RayJ Dennis",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4585618",
+        "name": "Keshon Gilbert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701230",
+        "name": "Jalen Johnson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4702177",
+        "name": "Keon Ellis",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4712863",
+        "name": "Mouhamed Gueye",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4712896",
+        "name": "Noah Clowney",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4873201",
+        "name": "Asa Newell",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105571",
+        "name": "Henri Veesaar",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106262",
+        "name": "Zuby Ejiofor",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5149077",
+        "name": "Kingston Flemings",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsReb": {
+     "category": "ptsReb",
+     "label": "P+R",
+     "stat": "ptsReb",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-07|v1|e2|ptsReb|401909939|4278039",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nickeil Alexander-Walker",
+        "providerAthleteId": "4278039"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.76
+       },
+       "range": {
+        "p10": 14,
+        "p25": 19,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.69,
+       "minutesSd": 6.78,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.76,
+        "expectedMinutes": 32.69,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-07|v1|e2|ptsReb|401909939|4278104",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.46
+       },
+       "range": {
+        "p10": 13,
+        "p25": 18,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.88,
+       "minutesSd": 7.36,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.46,
+        "expectedMinutes": 28.88,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-07|v1|e2|ptsReb|401909939|3064514",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 21,
+        "mean": 22.07
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.46,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.07,
+        "expectedMinutes": 29.46,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-07|v1|e2|ptsReb|401909939|4431680",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Onyeka Okongwu",
+        "providerAthleteId": "4431680"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.91
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.84,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.91,
+        "expectedMinutes": 29.84,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-07|v1|e2|ptsReb|401909939|2490149",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "CJ McCollum",
+        "providerAthleteId": "2490149"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.97
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 25,
+        "p90": 30
+       },
+       "playRate": 0.9762,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.04,
+       "minutesSd": 6.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.97,
+        "expectedMinutes": 27.04,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-07|v1|e2|ptsReb|401909939|4869342",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Dyson Daniels",
+        "providerAthleteId": "4869342"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.5
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 24,
+        "p90": 29
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.55,
+       "minutesSd": 7.05,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.5,
+        "expectedMinutes": 31.55,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-07|v1|e2|ptsReb|401909939|4397020",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luguentz Dort",
+        "providerAthleteId": "4397020"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.85
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 15,
+        "p90": 20
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.31,
+       "minutesSd": 6.58,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.85,
+        "expectedMinutes": 24.31,
+        "p90": 20
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 29,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 15,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 22,
+       "INJURY_DESIGNATION": 10,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2578185",
+        "name": "Dorian Finney-Smith",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3146557",
+        "name": "Jock Landale",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4280151",
+        "name": "Corey Kispert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397183",
+        "name": "Aaron Wiggins",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431714",
+        "name": "Jalen Wilson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431941",
+        "name": "RayJ Dennis",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4585618",
+        "name": "Keshon Gilbert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701230",
+        "name": "Jalen Johnson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4702177",
+        "name": "Keon Ellis",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4712863",
+        "name": "Mouhamed Gueye",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4712896",
+        "name": "Noah Clowney",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4873201",
+        "name": "Asa Newell",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105571",
+        "name": "Henri Veesaar",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106262",
+        "name": "Zuby Ejiofor",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5149077",
+        "name": "Kingston Flemings",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsAst": {
+     "category": "ptsAst",
+     "label": "P+A",
+     "stat": "ptsAst",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-07|v1|e2|ptsAst|401909939|4278039",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Nickeil Alexander-Walker",
+        "providerAthleteId": "4278039"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.95
+       },
+       "range": {
+        "p10": 15,
+        "p25": 19,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.69,
+       "minutesSd": 6.78,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.95,
+        "expectedMinutes": 32.69,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-07|v1|e2|ptsAst|401909939|2490149",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "CJ McCollum",
+        "providerAthleteId": "2490149"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.8
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 31
+       },
+       "playRate": 0.9762,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.04,
+       "minutesSd": 6.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.8,
+        "expectedMinutes": 27.04,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-07|v1|e2|ptsAst|401909939|4278104",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Michael Porter Jr.",
+        "providerAthleteId": "4278104"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.62
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 31
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.88,
+       "minutesSd": 7.36,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.62,
+        "expectedMinutes": 28.88,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-07|v1|e2|ptsAst|401909939|3064514",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Julius Randle",
+        "providerAthleteId": "3064514"
+       },
+       "team": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "opponent": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "homeAway": "away",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 19,
+        "mean": 20.16
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 25,
+        "p90": 30
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.46,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.16,
+        "expectedMinutes": 29.46,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-07|v1|e2|ptsAst|401909939|4869342",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Dyson Daniels",
+        "providerAthleteId": "4869342"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.65
+       },
+       "range": {
+        "p10": 10,
+        "p25": 13,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 31.55,
+       "minutesSd": 7.05,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.65,
+        "expectedMinutes": 31.55,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-07|v1|e2|ptsAst|401909939|4431680",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Onyeka Okongwu",
+        "providerAthleteId": "4431680"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.78
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 22,
+        "p90": 27
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.84,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.78,
+        "expectedMinutes": 29.84,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-07|v1|e2|ptsAst|401909939|4397020",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Luguentz Dort",
+        "providerAthleteId": "4397020"
+       },
+       "team": {
+        "name": "Atlanta Hawks",
+        "abbr": "ATL",
+        "espnAbbr": "ATL",
+        "providerTeamId": "1"
+       },
+       "opponent": {
+        "name": "Brooklyn Nets",
+        "abbr": "BKN",
+        "espnAbbr": "BKN",
+        "providerTeamId": "17"
+       },
+       "homeAway": "home",
+       "eventId": "401909939",
+       "tipoffUtc": "2026-11-08T00:30Z",
+       "projection": {
+        "p50": 10,
+        "mean": 10.11
+       },
+       "range": {
+        "p10": 4,
+        "p25": 6,
+        "p75": 13,
+        "p90": 17
+       },
+       "playRate": 0.9757,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.31,
+       "minutesSd": 6.58,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-07T16:54:08Z",
+        "generatedAt": "2026-11-07T16:54:08Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "6cabca33f8f5b97aea49c9141722cf62947d2cafc943f117e799d85d296cf6bc",
+        "gamePayloadSha256": "afddfa9beebab2e4d368f9b717f123cd1181d0a64c9946a06f17ca1093ead7cf"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 10.11,
+        "expectedMinutes": 24.31,
+        "p90": 17
+       }
+      }
+     ],
+     "eligibleCount": 7,
+     "shownCount": 7,
+     "withheld": {
+      "count": 29,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 15,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INJURY_DESIGNATION": 4,
+       "AVAILABILITY_OUT": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 18,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "LOW_EXPECTED_MINUTES": 22,
+       "INJURY_DESIGNATION": 10,
+       "AVAILABILITY_OUT": 6,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2578185",
+        "name": "Dorian Finney-Smith",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3146557",
+        "name": "Jock Landale",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3150844",
+        "name": "Moritz Wagner",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3907823",
+        "name": "Terance Mann",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4280151",
+        "name": "Corey Kispert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397183",
+        "name": "Aaron Wiggins",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431714",
+        "name": "Jalen Wilson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4431941",
+        "name": "RayJ Dennis",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432194",
+        "name": "Day'Ron Sharpe",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4585618",
+        "name": "Keshon Gilbert",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4687718",
+        "name": "Josh Minott",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701230",
+        "name": "Jalen Johnson",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4702177",
+        "name": "Keon Ellis",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4702670",
+        "name": "Grant Nelson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4712863",
+        "name": "Mouhamed Gueye",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4712896",
+        "name": "Noah Clowney",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4870564",
+        "name": "Joshua Jefferson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4873201",
+        "name": "Asa Newell",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "5037873",
+        "name": "Drake Powell",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5101761",
+        "name": "Mikel Brown Jr.",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105571",
+        "name": "Henri Veesaar",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5105626",
+        "name": "Tyler Bilodeau",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106262",
+        "name": "Zuby Ejiofor",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5107173",
+        "name": "Danny Wolf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5149077",
+        "name": "Kingston Flemings",
+        "team": "ATL",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5174655",
+        "name": "Chaney Johnson",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5175643",
+        "name": "Egor Demin",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5242502",
+        "name": "Ben Saraf",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5279130",
+        "name": "Nolan Traore",
+        "team": "BKN",
+        "eventId": "401909939",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebAst": {
+     "category": "rebAst",
+     "label": "R+A",
+     "stat": null,
+     "marketBasis": "NOT_MODELLED",
+     "basisText": "not modelled — no family simulates it jointly, and adding marginal projections is not its distribution",
+     "components": [
+      "reb",
+      "ast"
+     ],
+     "state": "NOT_MODELLED",
+     "rankingMetric": null,
+     "rows": [],
+     "eligibleCount": 0,
+     "shownCount": 0,
+     "withheld": {
+      "count": 0,
+      "byPrimaryReason": {},
+      "byReason": {},
+      "players": []
+     },
+     "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
+    }
+   }
   }
  ]
 }
