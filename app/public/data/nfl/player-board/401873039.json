@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-08T16:16:32Z",
- "sourceGeneratedAt": "2026-11-08T16:16:32Z",
- "forecastInputHash": "07b778a37b7a297d",
+ "generatedAt": "2026-11-08T16:43:15Z",
+ "sourceGeneratedAt": "2026-11-08T16:43:15Z",
+ "forecastInputHash": "d08954bfd1b1b65b",
  "providerEventId": "401873039",
  "matchup": "CLE @ NO",
  "kickoffUtc": "2026-11-08T18:00Z",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-08T16:16:32Z",
-  "roleEvidenceAt": "2026-11-08T16:16:32Z",
+  "injuriesCapturedAt": "2026-11-08T16:43:15Z",
+  "roleEvidenceAt": "2026-11-08T16:43:15Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,6 +24,22 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "CLE",
+     "playerId": "nfl-athlete-4432762",
+     "name": "Shedeur Sanders",
+     "share": 0.33,
+     "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.33, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    },
+    {
+     "team": "CLE",
+     "playerId": "nfl-athlete-4427238",
+     "name": "Dillon Gabriel",
+     "share": 0.481,
+     "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    }
+   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -132,31 +148,20 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 56,
+  "absent": 53,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "CLE": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 2,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
-    {
-     "playerId": "nfl-athlete-3122840",
-     "name": "Deshaun Watson",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_pass_yds",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
-    },
     {
      "playerId": "nfl-athlete-4685702",
      "name": "Quinshon Judkins",
@@ -257,6 +262,12 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-3122840",
+     "name": "Deshaun Watson",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4569682",
      "name": "Audric Estimé",
      "state": "EXCLUDED_NO_CURRENT_ROLE",
@@ -266,12 +277,12 @@
      "playerId": "nfl-athlete-4432762",
      "name": "Shedeur Sanders",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.33, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.33, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
       }
      ]
     },
@@ -279,12 +290,12 @@
      "playerId": "nfl-athlete-4427238",
      "name": "Dillon Gabriel",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
+     "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
       }
      ]
     }
@@ -436,25 +447,14 @@
   "qbStarter": [
    {
     "team": "CLE",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-3122840",
-     "name": "Deshaun Watson"
-    },
-    "snapshotAt": "2026-11-07T13:54:10Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4432762",
-      "name": "Shedeur Sanders"
-     },
-     {
-      "playerId": "nfl-athlete-4427238",
-      "name": "Dillon Gabriel"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth-chart QB1 Deshaun Watson is not in the board's passing pool",
     "passers": [
-     "nfl-athlete-3122840"
-    ]
+     "nfl-athlete-4432762",
+     "nfl-athlete-4427238"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-11-07T13:54:10Z"
    },
    {
     "team": "NO",
@@ -480,9 +480,25 @@
     "team": "CLE",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3122840"
+     "nfl-athlete-4432762",
+     "nfl-athlete-4427238"
     ],
-    "withheld": [],
+    "withheld": [
+     {
+      "team": "CLE",
+      "playerId": "nfl-athlete-4432762",
+      "name": "Shedeur Sanders",
+      "share": 0.33,
+      "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.33, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     },
+     {
+      "team": "CLE",
+      "playerId": "nfl-athlete-4427238",
+      "name": "Dillon Gabriel",
+      "share": 0.481,
+      "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
     "unjoined": []
    },
    {
@@ -852,36 +868,6 @@
     },
     "anytime_td": {
      "probability": 0.1714,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3122840",
-   "name": "Deshaun Watson",
-   "team": "CLE",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 20.248,
-     "p10": 0.98,
-     "p25": 5.59,
-     "median": 15.54,
-     "p75": 29.52,
-     "p90": 45.87,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_pass_yds": {
-     "mean": 231.431,
-     "p10": 119.7316,
-     "p25": 161.3619,
-     "median": 218.2181,
-     "p75": 287.158,
-     "p90": 360.2229,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1644,
      "pricingState": "NOT_PROBED"
     }
    }
