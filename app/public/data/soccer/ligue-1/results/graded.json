@@ -5,12 +5,12 @@
  "public": true,
  "league": "ligue-1",
  "competition": "Ligue 1",
- "generatedAt": "2026-11-07T15:41:18Z",
+ "generatedAt": "2026-11-08T15:38:41Z",
  "rule": "each match graded once, against the last forecast published before kickoff, from the official final score",
  "summary": {
-  "matches": 55,
-  "logLoss": 0.869,
-  "brier": 0.5028,
+  "matches": 57,
+  "logLoss": 0.8586,
+  "brier": 0.4962,
   "uniformLogLoss": 1.0986,
   "sampleState": "ACCUMULATING"
  },
@@ -1169,6 +1169,48 @@
    "probabilityOfResult": 0.3587,
    "logLoss": 1.0254,
    "brier": 0.6277
+  },
+  {
+   "eventId": "soccer:ligue-1:401876411",
+   "matchup": "AJ Auxerre v Paris FC",
+   "homeClub": "AJ Auxerre",
+   "awayClub": "Paris FC",
+   "kickoffUtc": "2026-11-07T18:00:00.000Z",
+   "forecastAt": "2026-11-07T15:41:18Z",
+   "probs": {
+    "home": 0.329135,
+    "draw": 0.305073,
+    "away": 0.365792
+   },
+   "final": {
+    "home": 0,
+    "away": 1
+   },
+   "result": "A",
+   "probabilityOfResult": 0.3658,
+   "logLoss": 1.0057,
+   "brier": 0.6036
+  },
+  {
+   "eventId": "soccer:ligue-1:401876407",
+   "matchup": "Paris Saint-Germain v Troyes",
+   "homeClub": "Paris Saint-Germain",
+   "awayClub": "Troyes",
+   "kickoffUtc": "2026-11-07T20:05:00.000Z",
+   "forecastAt": "2026-11-07T15:41:18Z",
+   "probs": {
+    "home": 0.873392,
+    "draw": 0.076756,
+    "away": 0.049852
+   },
+   "final": {
+    "home": 1,
+    "away": 0
+   },
+   "result": "H",
+   "probabilityOfResult": 0.8734,
+   "logLoss": 0.1354,
+   "brier": 0.0244
   }
  ]
 }
