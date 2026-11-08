@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-08T23:36:17Z",
+ "generatedAt": "2026-11-08T23:55:09Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -22,7 +22,7 @@
   "forecastsUpcoming": 2,
   "forecastsStarted": 13,
   "marketEvents": 14,
-  "settled": 3
+  "settled": 7
  },
  "nextKickoffUtc": "2026-11-09T01:20Z",
  "nextMatchup": "TB @ CHI",
@@ -33,17 +33,17 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-08T21:19:31Z",
+  "generatedAt": "2026-11-08T23:36:17Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 124,
-  "decisive": 123,
-  "winnerAccuracy": 0.6098,
-  "marginMAE": 10.0161,
-  "totalMAE": 11.0565,
-  "marginInterval80Coverage": 0.7984,
-  "totalInterval80Coverage": 0.8226,
+  "settledForecasts": 128,
+  "decisive": 127,
+  "winnerAccuracy": 0.6142,
+  "marginMAE": 9.9922,
+  "totalMAE": 11.0078,
+  "marginInterval80Coverage": 0.7969,
+  "totalInterval80Coverage": 0.8281,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,13 +57,13 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 124,
-    "decisive": 123,
-    "winnerAccuracy": 0.6098,
-    "marginMAE": 10.0161,
-    "totalMAE": 11.0565,
-    "marginInterval80Coverage": 0.7984,
-    "totalInterval80Coverage": 0.8226
+    "settledForecasts": 128,
+    "decisive": 127,
+    "winnerAccuracy": 0.6142,
+    "marginMAE": 9.9922,
+    "totalMAE": 11.0078,
+    "marginInterval80Coverage": 0.7969,
+    "totalInterval80Coverage": 0.8281
    }
   },
   "unknownSeasonTypeRows": 0,
@@ -329,10 +329,10 @@
     "name": "Denver Broncos"
    },
    "kickoffUtc": "2026-11-08T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 20,
@@ -411,10 +411,10 @@
     "name": "Los Angeles Rams"
    },
    "kickoffUtc": "2026-11-08T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 24,
@@ -452,10 +452,10 @@
     "name": "New York Giants"
    },
    "kickoffUtc": "2026-11-08T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 29,
@@ -493,10 +493,10 @@
     "name": "New York Jets"
    },
    "kickoffUtc": "2026-11-08T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 28,
