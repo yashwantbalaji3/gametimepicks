@@ -20,114 +20,114 @@
   "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
  },
  "summary": {
-  "gamesFinal": 2,
-  "gamesPending": 13,
+  "gamesFinal": 3,
+  "gamesPending": 12,
   "overall": {
-   "checks": 66,
-   "hits": 55,
-   "rate": 0.8333333333333334
+   "checks": 98,
+   "hits": 84,
+   "rate": 0.8571428571428571
   },
   "props": [
    {
     "id": "winner",
     "label": "Model-favored team won",
     "group": "team",
-    "checks": 2,
-    "hits": 1,
+    "checks": 3,
+    "hits": 2,
     "voids": 0,
-    "rate": 0.5,
-    "expectedHits": 1.2
+    "rate": 0.6666666666666666,
+    "expectedHits": 1.9
    },
    {
     "id": "total_range",
     "label": "Total points landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 2,
+    "checks": 3,
     "hits": 2,
     "voids": 0,
-    "rate": 1,
-    "typicalMiss": 3,
-    "rangeWidth": 33.5,
-    "lean": 0
+    "rate": 0.6666666666666666,
+    "typicalMiss": 9,
+    "rangeWidth": 33.7,
+    "lean": 7
    },
    {
     "id": "margin_range",
     "label": "Winning margin landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 2,
-    "hits": 1,
+    "checks": 3,
+    "hits": 2,
     "voids": 0,
-    "rate": 0.5,
-    "typicalMiss": 19.5,
-    "rangeWidth": 33.5,
-    "lean": 19.5
+    "rate": 0.6666666666666666,
+    "typicalMiss": 14.7,
+    "rangeWidth": 33.7,
+    "lean": 14.7
    },
    {
     "id": "player_receptions",
     "label": "Receptions landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 21,
-    "hits": 21,
-    "voids": 4,
-    "rate": 1,
+    "checks": 32,
+    "hits": 31,
+    "voids": 5,
+    "rate": 0.96875,
     "status": "PUBLISHED",
-    "typicalMiss": 1,
+    "typicalMiss": 1.2,
     "rangeWidth": 5.7,
-    "lean": 0.1
+    "lean": 0.4
    },
    {
     "id": "player_reception_yds",
     "label": "Receiving yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 20,
-    "hits": 17,
-    "voids": 4,
-    "rate": 0.85,
+    "checks": 30,
+    "hits": 26,
+    "voids": 6,
+    "rate": 0.8666666666666667,
     "status": "PUBLISHED",
-    "typicalMiss": 19.2,
-    "rangeWidth": 68.9,
-    "lean": -2.3
+    "typicalMiss": 18.8,
+    "rangeWidth": 70.5,
+    "lean": 0.8
    },
    {
     "id": "player_rush_yds",
     "label": "Rushing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 13,
-    "hits": 9,
-    "voids": 1,
-    "rate": 0.6923076923076923,
+    "checks": 18,
+    "hits": 14,
+    "voids": 2,
+    "rate": 0.7777777777777778,
     "status": "ESTIMATE",
-    "typicalMiss": 19.4,
-    "rangeWidth": 49.1,
-    "lean": -14.2
+    "typicalMiss": 16.4,
+    "rangeWidth": 50.6,
+    "lean": -10.6
    },
    {
     "id": "player_pass_yds",
     "label": "Passing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 4,
-    "hits": 3,
+    "checks": 6,
+    "hits": 5,
     "voids": 0,
-    "rate": 0.75,
+    "rate": 0.8333333333333334,
     "status": "ESTIMATE",
-    "typicalMiss": 32,
-    "rangeWidth": 236.3,
-    "lean": 25.5
+    "typicalMiss": 46.3,
+    "rangeWidth": 240.8,
+    "lean": 42
    },
    {
     "id": "likeliest_scorer",
     "label": "Our likeliest touchdown scorer scored",
     "group": "player",
-    "checks": 2,
-    "hits": 1,
+    "checks": 3,
+    "hits": 2,
     "voids": 0,
-    "rate": 0.5
+    "rate": 0.6666666666666666
    }
   ],
   "context": {
@@ -135,12 +135,12 @@
     "oursCloser": 0,
     "booksCloser": 0,
     "even": 0,
-    "noLine": 2
+    "noLine": 3
    },
    "touchdowns": {
-    "playersGraded": 29,
-    "expectedScorers": 7.8,
-    "actualScorers": 8
+    "playersGraded": 43,
+    "expectedScorers": 11.8,
+    "actualScorers": 9
    }
   }
  },
@@ -1383,11 +1383,488 @@
     },
     "sportsbookTotal": null
    },
-   "state": "PENDING",
-   "final": null,
-   "team": [],
-   "players": [],
-   "touchdowns": [],
+   "state": "FINAL",
+   "final": {
+    "away": 19,
+    "home": 9,
+    "total": 28,
+    "margin": -10
+   },
+   "team": [
+    {
+     "prop": "winner",
+     "outcome": "HIT"
+    },
+    {
+     "prop": "total_range",
+     "outcome": "MISS",
+     "actual": 28
+    },
+    {
+     "prop": "margin_range",
+     "outcome": "HIT",
+     "actual": -10
+    },
+    {
+     "prop": "closer_than_sportsbook",
+     "outcome": "NO_LINE",
+     "oursOff": 21,
+     "booksOff": null
+    }
+   ],
+   "players": [
+    {
+     "name": "Jahmyr Gibbs",
+     "team": "DET",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 8,
+     "actual": 0,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Jahmyr Gibbs",
+     "team": "DET",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 34,
+     "low": 7,
+     "high": 74,
+     "actual": 0,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Jahmyr Gibbs",
+     "team": "DET",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 88,
+     "low": 41,
+     "high": 149,
+     "actual": 74,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Amon-Ra St. Brown",
+     "team": "DET",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 7,
+     "low": 3,
+     "high": 13,
+     "actual": 8,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Amon-Ra St. Brown",
+     "team": "DET",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 70,
+     "low": 25,
+     "high": 131,
+     "actual": 86,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Ollie Gordon II",
+     "team": "MIA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 2.9,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Ollie Gordon II",
+     "team": "MIA",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 40,
+     "low": 13,
+     "high": 83,
+     "actual": 55,
+     "outcome": "HIT"
+    },
+    {
+     "name": "De'Von Achane",
+     "team": "MIA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2.9,
+     "low": 0,
+     "high": 5.7,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "De'Von Achane",
+     "team": "MIA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 19,
+     "low": 0,
+     "high": 55,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "De'Von Achane",
+     "team": "MIA",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 36,
+     "low": 10,
+     "high": 79,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Jameson Williams",
+     "team": "DET",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 8,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jameson Williams",
+     "team": "DET",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 46,
+     "low": 8,
+     "high": 106,
+     "actual": 31,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Sam LaPorta",
+     "team": "DET",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 4,
+     "low": 1,
+     "high": 8,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Sam LaPorta",
+     "team": "DET",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 35,
+     "low": 6,
+     "high": 83,
+     "actual": 32,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Malik Washington",
+     "team": "MIA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3.8,
+     "low": 1,
+     "high": 8.6,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Malik Washington",
+     "team": "MIA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 36,
+     "low": 8,
+     "high": 84,
+     "actual": 21,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Caleb Douglas",
+     "team": "MIA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2.9,
+     "low": 1,
+     "high": 6.7,
+     "actual": 6,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Caleb Douglas",
+     "team": "MIA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 31,
+     "low": 3,
+     "high": 81,
+     "actual": 70,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Malik Willis",
+     "team": "MIA",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 11,
+     "low": 0,
+     "high": 44,
+     "actual": 7,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Malik Willis",
+     "team": "MIA",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 193,
+     "low": 100,
+     "high": 333,
+     "actual": 128,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kevin Coleman Jr.",
+     "team": "MIA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.9,
+     "low": 0,
+     "high": 3.8,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Kevin Coleman Jr.",
+     "team": "MIA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 15,
+     "low": 0,
+     "high": 52,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Greg Dulcich",
+     "team": "MIA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2.9,
+     "low": 1,
+     "high": 6.7,
+     "actual": 2,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Greg Dulcich",
+     "team": "MIA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 33,
+     "low": 4,
+     "high": 79,
+     "actual": 14,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Chris Bell",
+     "team": "MIA",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.9,
+     "low": 0,
+     "high": 4.8,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Chris Bell",
+     "team": "MIA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 19,
+     "low": 0,
+     "high": 57,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Sione Vaki",
+     "team": "DET",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 8,
+     "low": 0,
+     "high": 35,
+     "actual": 14,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Isaac TeSlaa",
+     "team": "DET",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Isaac TeSlaa",
+     "team": "DET",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 13,
+     "low": 0,
+     "high": 52,
+     "actual": 9,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jared Goff",
+     "team": "DET",
+     "prop": "player_rush_yds",
+     "status": "ESTIMATE",
+     "median": 1,
+     "low": 0,
+     "high": 16,
+     "actual": 5,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jared Goff",
+     "team": "DET",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 255,
+     "low": 144,
+     "high": 411,
+     "actual": 170,
+     "outcome": "HIT"
+    },
+    {
+     "name": "DJ Herman",
+     "team": "MIA",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 11,
+     "low": 0,
+     "high": 44,
+     "actual": null,
+     "outcome": "VOID"
+    }
+   ],
+   "touchdowns": [
+    {
+     "name": "Jahmyr Gibbs",
+     "team": "DET",
+     "probability": 0.7641,
+     "outcome": "SCORED",
+     "likeliest": true
+    },
+    {
+     "name": "Amon-Ra St. Brown",
+     "team": "DET",
+     "probability": 0.4792,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Ollie Gordon II",
+     "team": "MIA",
+     "probability": 0.4518,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "De'Von Achane",
+     "team": "MIA",
+     "probability": 0.4163,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Jameson Williams",
+     "team": "DET",
+     "probability": 0.4155,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Sam LaPorta",
+     "team": "DET",
+     "probability": 0.3059,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Malik Washington",
+     "team": "MIA",
+     "probability": 0.2618,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Caleb Douglas",
+     "team": "MIA",
+     "probability": 0.2419,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Malik Willis",
+     "team": "MIA",
+     "probability": 0.1986,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Kevin Coleman Jr.",
+     "team": "MIA",
+     "probability": 0.1758,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Justin Jackson",
+     "team": "DET",
+     "probability": 0.1749,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Greg Dulcich",
+     "team": "MIA",
+     "probability": 0.1556,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Chris Bell",
+     "team": "MIA",
+     "probability": 0.1535,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Sione Vaki",
+     "team": "DET",
+     "probability": 0.1337,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Isaac TeSlaa",
+     "team": "DET",
+     "probability": 0.1159,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jared Goff",
+     "team": "DET",
+     "probability": 0.0782,
+     "outcome": "DID_NOT_SCORE"
+    }
+   ],
    "boardNote": null
   },
   {
@@ -1761,5 +2238,5 @@
   }
  ],
  "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
- "generatedAt": "2026-11-08T18:14:36Z"
+ "generatedAt": "2026-11-08T20:54:54Z"
 }
