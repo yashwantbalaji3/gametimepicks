@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-08T16:43:15Z",
- "sourceGeneratedAt": "2026-11-08T16:43:15Z",
+ "generatedAt": "2026-11-08T17:06:23Z",
+ "sourceGeneratedAt": "2026-11-08T17:06:23Z",
  "forecastInputHash": "a35e11909fa3f18b",
  "providerEventId": "401873045",
  "matchup": "NYJ @ KC",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-08T16:43:15Z",
-  "roleEvidenceAt": "2026-11-08T16:43:15Z",
+  "injuriesCapturedAt": "2026-11-08T17:06:23Z",
+  "roleEvidenceAt": "2026-11-08T17:06:23Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -148,14 +148,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 58,
+  "absent": 55,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "NYJ": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -252,17 +252,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-3134353",
-     "name": "Tim Patrick",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-4569371",
      "name": "Isaiah Williams",
      "state": "PROJECTED",
@@ -275,6 +264,12 @@
     {
      "playerId": "nfl-athlete-4569618",
      "name": "Garrett Wilson",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-3134353",
+     "name": "Tim Patrick",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
     },
@@ -490,10 +485,10 @@
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.9236,
-    "originalSum": 0.9236,
-    "residualOther": 0.0764,
-    "joined": 8,
+    "sum": 0.8608,
+    "originalSum": 0.8608,
+    "residualOther": 0.1392,
+    "joined": 7,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -1023,36 +1018,6 @@
     },
     "anytime_td": {
      "probability": 0.1037,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3134353",
-   "name": "Tim Patrick",
-   "team": "NYJ",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 14.641,
-     "p10": 0,
-     "p25": 0,
-     "median": 8.12,
-     "p75": 22.78,
-     "p90": 40.05,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.2293,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.092,
      "pricingState": "NOT_PROBED"
     }
    }

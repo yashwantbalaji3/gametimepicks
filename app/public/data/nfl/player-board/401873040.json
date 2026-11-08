@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-08T16:43:15Z",
- "sourceGeneratedAt": "2026-11-08T16:43:15Z",
+ "generatedAt": "2026-11-08T17:06:23Z",
+ "sourceGeneratedAt": "2026-11-08T17:06:23Z",
  "forecastInputHash": "56dc5944ccf3e535",
  "providerEventId": "401873040",
  "matchup": "DAL @ IND",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-08T16:43:15Z",
-  "roleEvidenceAt": "2026-11-08T16:43:15Z",
+  "injuriesCapturedAt": "2026-11-08T17:06:23Z",
+  "roleEvidenceAt": "2026-11-08T17:06:23Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -53,17 +53,16 @@
      {
       "team": "IND",
       "pool": "targets",
-      "originalSum": 1.0884,
+      "originalSum": 1.0072,
       "normalizedSum": 1,
-      "factor": 0.9188,
+      "factor": 0.9929,
       "playerIds": [
        "nfl-athlete-4431459",
        "nfl-athlete-15818",
        "nfl-athlete-4688813",
        "nfl-athlete-4249030",
        "nfl-athlete-4242335",
-       "nfl-athlete-3051889",
-       "nfl-athlete-4362523"
+       "nfl-athlete-3051889"
       ]
      }
     ]
@@ -104,7 +103,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 53,
+  "absent": 50,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -221,11 +220,11 @@
   },
   "IND": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -316,17 +315,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4362523",
-     "name": "Will Mallory",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-3051889",
      "name": "Laquon Treadwell",
      "state": "PROJECTED",
@@ -354,17 +342,16 @@
      "reason": "designation: Injured Reserve"
     },
     {
+     "playerId": "nfl-athlete-4362523",
+     "name": "Will Mallory",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4683423",
      "name": "Riley Leonard",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   }
@@ -381,21 +368,11 @@
    },
    {
     "team": "IND",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-3917792",
-     "name": "Daniel Jones"
-    },
-    "snapshotAt": "2026-11-07T13:54:10Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4683423",
-      "name": "Riley Leonard"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
      "nfl-athlete-3917792"
-    ]
+    ],
+    "removed": []
    }
   ],
   "passerShareFloor": [
@@ -426,9 +403,9 @@
      "player_receptions"
     ],
     "sum": 1,
-    "originalSum": 1.0884,
+    "originalSum": 1.0072,
     "residualOther": 0,
-    "joined": 7,
+    "joined": 6,
     "missed": 0,
     "state": "NORMALIZED"
    },
@@ -539,15 +516,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.5979,
+     "mean": 2.8074,
      "p10": 0,
-     "p25": 0.9188,
-     "median": 1.8376,
-     "p75": 3.6751,
-     "p90": 5.5127,
+     "p25": 0.9929,
+     "median": 1.9857,
+     "p75": 3.9714,
+     "p90": 5.9571,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9188
+      "factor": 0.9929
      },
      "pricingState": "NOT_PROBED"
     },
@@ -654,15 +631,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.9864,
-     "p10": 1.8376,
-     "p25": 2.7563,
-     "median": 4.5939,
-     "p75": 6.4315,
-     "p90": 9.1878,
+     "mean": 5.3884,
+     "p10": 1.9857,
+     "p25": 2.9786,
+     "median": 4.9643,
+     "p75": 6.95,
+     "p90": 9.9285,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9188
+      "factor": 0.9929
      },
      "pricingState": "NOT_PROBED"
     },
@@ -688,15 +665,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.5547,
-     "p10": 0.9188,
-     "p25": 1.8376,
-     "median": 2.7563,
-     "p75": 4.5939,
-     "p90": 6.4315,
+     "mean": 3.8412,
+     "p10": 0.9929,
+     "p25": 1.9857,
+     "median": 2.9786,
+     "p75": 4.9643,
+     "p90": 6.95,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9188
+      "factor": 0.9929
      },
      "pricingState": "NOT_PROBED"
     },
@@ -722,15 +699,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 4.4985,
-     "p10": 0.9188,
-     "p25": 2.7563,
-     "median": 3.6751,
-     "p75": 6.4315,
-     "p90": 8.269,
+     "mean": 4.8612,
+     "p10": 0.9929,
+     "p25": 2.9786,
+     "median": 3.9714,
+     "p75": 6.95,
+     "p90": 8.9357,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9188
+      "factor": 0.9929
      },
      "pricingState": "NOT_PROBED"
     },
@@ -840,15 +817,15 @@
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_receptions": {
-     "mean": 2.6099,
+     "mean": 2.8203,
      "p10": 0,
-     "p25": 0.9188,
-     "median": 1.8376,
-     "p75": 3.6751,
-     "p90": 5.5127,
+     "p25": 0.9929,
+     "median": 1.9857,
+     "p75": 3.9714,
+     "p90": 5.9571,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9188
+      "factor": 0.9929
      },
      "pricingState": "NOT_PROBED"
     },
@@ -985,54 +962,20 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.8854,
+     "mean": 2.0374,
      "p10": 0,
-     "p25": 0.9188,
-     "median": 1.8376,
-     "p75": 2.7563,
-     "p90": 3.6751,
+     "p25": 0.9929,
+     "median": 1.9857,
+     "p75": 2.9786,
+     "p90": 3.9714,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9188
+      "factor": 0.9929
      },
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
      "probability": 0.0887,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4362523",
-   "name": "Will Mallory",
-   "team": "IND",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 17.395,
-     "p10": 0,
-     "p25": 0.6,
-     "median": 11.84,
-     "p75": 27.04,
-     "p90": 43.03,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.3766,
-     "p10": 0,
-     "p25": 0,
-     "median": 0.9188,
-     "p75": 1.8376,
-     "p90": 2.7563,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9188
-     },
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.08,
      "pricingState": "NOT_PROBED"
     }
    }

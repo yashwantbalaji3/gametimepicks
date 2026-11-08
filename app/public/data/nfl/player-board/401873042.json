@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-08T16:43:15Z",
- "sourceGeneratedAt": "2026-11-08T16:43:15Z",
+ "generatedAt": "2026-11-08T17:06:23Z",
+ "sourceGeneratedAt": "2026-11-08T17:06:23Z",
  "forecastInputHash": "5186a34b0ebc96b7",
  "providerEventId": "401873042",
  "matchup": "DET @ MIA",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-08T16:43:15Z",
-  "roleEvidenceAt": "2026-11-08T16:43:15Z",
+  "injuriesCapturedAt": "2026-11-08T17:06:23Z",
+  "roleEvidenceAt": "2026-11-08T17:06:23Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -126,7 +126,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 50,
+  "absent": 48,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -204,7 +204,7 @@
       "anytime_td",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-5123663",
@@ -230,8 +230,8 @@
   },
   "MIA": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -306,16 +306,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4682745",
-     "name": "Jaylen Wright",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
      "playerId": "nfl-athlete-4869961",
      "name": "Chris Bell",
      "state": "PROJECTED",
@@ -345,6 +335,12 @@
       "player_reception_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4682745",
+     "name": "Jaylen Wright",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4429435",
@@ -870,31 +866,10 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4682745",
-   "name": "Jaylen Wright",
-   "team": "MIA",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 9.808,
-     "p10": 0,
-     "p25": 0.69,
-     "median": 5.93,
-     "p75": 14.51,
-     "p90": 25.53,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1351,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4912274",
    "name": "Sione Vaki",
    "team": "DET",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 13.58,
