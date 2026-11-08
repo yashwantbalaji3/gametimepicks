@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-08T12:46:24Z",
- "sourceGeneratedAt": "2026-11-08T12:46:24Z",
+ "generatedAt": "2026-11-08T13:36:31Z",
+ "sourceGeneratedAt": "2026-11-08T13:36:31Z",
  "forecastInputHash": "43a68fd444e03f83",
  "providerEventId": "401873038",
  "matchup": "CIN @ ATL",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-08T12:46:24Z",
-  "roleEvidenceAt": "2026-11-08T12:46:24Z",
+  "injuriesCapturedAt": "2026-11-08T13:36:31Z",
+  "roleEvidenceAt": "2026-11-08T13:36:31Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -115,7 +115,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 47,
+  "absent": 46,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -247,8 +247,8 @@
   },
   "ATL": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -342,22 +342,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-5344782",
-     "name": "Jack Strand",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
-    },
-    {
      "playerId": "nfl-athlete-4241474",
      "name": "Brian Robinson Jr.",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -366,6 +350,12 @@
     {
      "playerId": "nfl-athlete-4870612",
      "name": "Zachariah Branch",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-5344782",
+     "name": "Jack Strand",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
     },
@@ -390,21 +380,11 @@
    },
    {
     "team": "ATL",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4360423",
-     "name": "Michael Penix Jr."
-    },
-    "snapshotAt": "2026-11-07T13:54:10Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-5344782",
-      "name": "Jack Strand"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
      "nfl-athlete-4360423"
-    ]
+    ],
+    "removed": []
    }
   ],
   "passerShareFloor": [
@@ -921,18 +901,6 @@
     },
     "anytime_td": {
      "probability": 0.0865,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-5344782",
-   "name": "Jack Strand",
-   "team": "ATL",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.0551,
      "pricingState": "NOT_PROBED"
     }
    }

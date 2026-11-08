@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-08T12:46:24Z",
+  "generatedAt": "2026-11-08T13:36:31Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
     "upcomingEvents": 14,
     "eventsWhereTeamForecastIsBlindToAnExclusion": 13,
-    "eventsWithAMaterialExclusion": 2,
+    "eventsWithAMaterialExclusion": 3,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
@@ -28,11 +28,31 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "7f69b17021ade0e4",
-        "excludedCount": 4,
-        "materialExclusions": [],
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "b4dc490abb089387",
+        "excludedCount": 5,
+        "materialExclusions": [
+          {
+            "name": "Jack Strand",
+            "team": "ATL",
+            "state": "Out",
+            "statedAt": "2026-11-08T13:05Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          }
+        ],
         "excluded": [
+          {
+            "name": "Jack Strand",
+            "team": "ATL",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
           {
             "name": "Brian Robinson Jr.",
             "team": "ATL",
@@ -86,8 +106,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "3129aaee571e7769",
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "11c9f5619c8b2d97",
         "excludedCount": 2,
         "materialExclusions": [],
         "excluded": [
@@ -127,8 +147,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "b7a77a69fb0f37c3",
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "16445ac543660711",
         "excludedCount": 1,
         "materialExclusions": [],
         "excluded": [
@@ -159,8 +179,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "575d3771d8710b92",
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "748721e2eee9381b",
         "excludedCount": 0,
         "materialExclusions": [],
         "excluded": []
@@ -182,8 +202,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "503e1fd125a44550",
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "e0a385464004b613",
         "excludedCount": 2,
         "materialExclusions": [],
         "excluded": [
@@ -224,8 +244,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "c91b663001369a6b",
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "6cf921616f785c26",
         "excludedCount": 3,
         "materialExclusions": [],
         "excluded": [
@@ -273,8 +293,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "32cf62d0e36525c5",
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "38f4d0b14cc96f82",
         "excludedCount": 6,
         "materialExclusions": [],
         "excluded": [
@@ -346,8 +366,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "d303fe6258aed6f5",
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "a3f6c7613767e229",
         "excludedCount": 3,
         "materialExclusions": [],
         "excluded": [
@@ -396,8 +416,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "4b30bd3959dfdd10",
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "05d3adfba5c7c55d",
         "excludedCount": 3,
         "materialExclusions": [],
         "excluded": [
@@ -446,8 +466,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "eed25d4f4a8cc01c",
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "aecf766df039f2b3",
         "excludedCount": 4,
         "materialExclusions": [],
         "excluded": [
@@ -504,8 +524,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "db7d6d14e52e904b",
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "196b30366a88e7fe",
         "excludedCount": 3,
         "materialExclusions": [],
         "excluded": [
@@ -553,8 +573,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "5bee845ce4d67bb9",
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "f33d2239c3a51a58",
         "excludedCount": 7,
         "materialExclusions": [
           {
@@ -649,8 +669,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "cdff89d3ab08b703",
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "aca192bc405e5c46",
         "excludedCount": 1,
         "materialExclusions": [],
         "excluded": [
@@ -681,8 +701,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T12:46:24Z",
-        "participationInputHash": "d074ab6e429b7260",
+        "snapshotAsOf": "2026-11-08T13:36:31Z",
+        "participationInputHash": "dd1bf54eb5f27a7e",
         "excludedCount": 5,
         "materialExclusions": [
           {
