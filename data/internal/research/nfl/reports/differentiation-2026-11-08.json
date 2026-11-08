@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation",
   "dataClass": "PRIVATE_RESEARCH",
-  "generatedAt": "2026-11-08T14:14:54Z",
+  "generatedAt": "2026-11-08T15:58:25Z",
   "slateDate": "2026-11-08",
-  "eventCount": 14,
+  "eventCount": 13,
   "engineVersion": "nfl-regular-season-public-v1@v2",
   "config": {
     "lambda": 0.25,
@@ -22,11 +22,11 @@
       "observedVariationIsNoise": false,
       "teamSignalState": "APPLIED",
       "tStatistic": -0.5746,
-      "distinctValues": 14,
+      "distinctValues": 13,
       "spread": 0.53396,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "win probability spans 27.10%-80.50% across 14 events, so the engine is consuming team-specific evidence"
+      "reading": "win probability spans 27.10%-80.50% across 13 events, so the engine is consuming team-specific evidence"
     },
     {
       "head": "total",
@@ -40,37 +40,10 @@
       "spread": 12,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "published totals span 41-53 across 14 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
+      "reading": "published totals span 41-53 across 13 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
     }
   ],
   "events": [
-    {
-      "canonicalEventId": "nfl-401873038",
-      "matchup": "CIN @ ATL",
-      "kickoffUtc": "2026-11-08T14:30Z",
-      "inputHash": "43a68fd444e03f83",
-      "engineVersion": "nfl-regular-season-public-v1@v2",
-      "expected": {
-        "marginMean": -3,
-        "marginMedian": -3,
-        "totalMedian": 48,
-        "totalHead": "matchup-totals-v3-play-efficiency",
-        "winProbHome": 0.3422148348967605,
-        "winProbIsRounded": false,
-        "projected": {
-          "home": 23,
-          "away": 25,
-          "convention": "scores-derived-from-total-and-margin-v1"
-        }
-      },
-      "intervals": {
-        "marginP10": -19,
-        "marginP90": 14,
-        "totalP10": 32,
-        "totalP90": 65
-      },
-      "receiptGeneratedAt": "2026-11-08T00:14:07Z"
-    },
     {
       "canonicalEventId": "nfl-401873040",
       "matchup": "DAL @ IND",
