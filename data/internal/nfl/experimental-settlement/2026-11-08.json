@@ -4,7 +4,7 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-11-08",
- "generatedAt": "2026-11-08T20:54:54Z",
+ "generatedAt": "2026-11-08T21:19:31Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
@@ -76,6 +76,74 @@
     }
    },
    "marketBenchmark": null
+  },
+  {
+   "canonicalEventId": "nfl-401873042",
+   "providerEventId": "401873042",
+   "matchup": "DET @ MIA",
+   "kickoffUtc": "2026-11-08T18:00Z",
+   "seasonType": 2,
+   "week": 9,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-11-08/401873042.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "5186a34b0ebc96b7",
+    "forecastGeneratedAt": "2026-11-08T00:14:07Z",
+    "revisionChain": [
+     {
+      "file": "401873042.json",
+      "generatedAt": "2026-11-08T00:14:07Z",
+      "inputHash": "5186a34b0ebc96b7"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-11-08T20:54:54Z",
+    "settledAt": "2026-11-08T21:19:31Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 9,
+     "away": 19,
+     "margin": -10,
+     "total": 28,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "AWAY",
+     "modelFavoured": "AWAY",
+     "correct": true,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": -5,
+     "actual": -10,
+     "absError": 5,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 49,
+     "actual": 28,
+     "absError": 21,
+     "insideInterval80": false
+    },
+    "score": {
+     "projected": {
+      "home": 22,
+      "away": 27,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 21
+    },
+    "probabilistic": {
+     "brier": 0.073441,
+     "logLoss": 0.316082
+    }
+   },
+   "marketBenchmark": null
   }
  ],
  "pending": [
@@ -96,13 +164,6 @@
   {
    "canonicalEventId": "nfl-401873041",
    "matchup": "DEN @ CAR",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-11-08T18:00Z",
-   "observed": "STATUS_SCHEDULED"
-  },
-  {
-   "canonicalEventId": "nfl-401873042",
-   "matchup": "DET @ MIA",
    "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-11-08T18:00Z",
    "observed": "STATUS_SCHEDULED"
@@ -131,8 +192,9 @@
   {
    "canonicalEventId": "nfl-401873046",
    "matchup": "HOU @ LAC",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-11-08T21:05Z"
+   "state": "AWAITING_OFFICIAL_RESULT",
+   "kickoffUtc": "2026-11-08T21:05Z",
+   "observed": "STATUS_SCHEDULED"
   },
   {
    "canonicalEventId": "nfl-401873047",
@@ -169,24 +231,24 @@
  "recordElsewhere": [],
  "accounting": {
   "receipts": 14,
-  "settled": 1,
-  "pending": 13,
+  "settled": 2,
+  "pending": 12,
   "quarantined": 0,
   "recordElsewhere": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 1,
-  "decisive": 1,
+  "settledForecasts": 2,
+  "decisive": 2,
   "ties": 0,
-  "winnerCorrect": 1,
+  "winnerCorrect": 2,
   "winnerAccuracy": 1,
-  "marginMAE": 14,
-  "totalMAE": 3,
+  "marginMAE": 9.5,
+  "totalMAE": 12,
   "marginInterval80Coverage": 1,
-  "totalInterval80Coverage": 1,
-  "brier": 0.1171,
-  "logLoss": 0.4189
+  "totalInterval80Coverage": 0.5,
+  "brier": 0.0953,
+  "logLoss": 0.3675
  },
  "marketBenchmark": null,
  "comparison": null
