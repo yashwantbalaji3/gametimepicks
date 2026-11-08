@@ -2,92 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-08T20:54:54Z",
+  "generatedAt": "2026-11-08T21:19:31Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 6,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 6,
+    "upcomingEvents": 5,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 5,
     "eventsWithAMaterialExclusion": 3,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873046",
-      "matchup": "HOU @ LAC",
-      "kickoffUtc": "2026-11-08T21:05Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "a3eda7fd5ed85aa5",
-        "simulations": 10000,
-        "generatedAt": "2026-11-08T18:14:36Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T20:54:54Z",
-        "participationInputHash": "d675e66eb52a9fa8",
-        "excludedCount": 6,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "David Njoku",
-            "team": "LAC",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Brenen Thompson",
-            "team": "LAC",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Theo Wease Jr.",
-            "team": "LAC",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "David Montgomery",
-            "team": "HOU",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Cade Stover",
-            "team": "HOU",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Jaylin Noel",
-            "team": "HOU",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873049",
@@ -98,13 +23,13 @@
         "version": 2,
         "inputHash": "4e014919ada8e6ae",
         "simulations": 10000,
-        "generatedAt": "2026-11-08T18:14:36Z"
+        "generatedAt": "2026-11-08T21:19:31Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T20:54:54Z",
-        "participationInputHash": "6bde7fa8045ebce7",
+        "snapshotAsOf": "2026-11-08T21:19:31Z",
+        "participationInputHash": "442a20afcdb2d61c",
         "excludedCount": 5,
         "materialExclusions": [],
         "excluded": [
@@ -165,13 +90,13 @@
         "version": 2,
         "inputHash": "dd993911a90d4040",
         "simulations": 10000,
-        "generatedAt": "2026-11-08T18:14:36Z"
+        "generatedAt": "2026-11-08T21:19:31Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T20:54:54Z",
-        "participationInputHash": "bad8066ae2a08e32",
+        "snapshotAsOf": "2026-11-08T21:19:31Z",
+        "participationInputHash": "0c4f738fbdedf15a",
         "excludedCount": 6,
         "materialExclusions": [
           {
@@ -250,13 +175,13 @@
         "version": 2,
         "inputHash": "ec7f07a4ecac7ef2",
         "simulations": 10000,
-        "generatedAt": "2026-11-08T18:14:36Z"
+        "generatedAt": "2026-11-08T21:19:31Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T20:54:54Z",
-        "participationInputHash": "56d7c30f6fcec854",
+        "snapshotAsOf": "2026-11-08T21:19:31Z",
+        "participationInputHash": "9e5b2e3c6a23c0e2",
         "excludedCount": 7,
         "materialExclusions": [
           {
@@ -346,13 +271,13 @@
         "version": 2,
         "inputHash": "7967623acbcebf74",
         "simulations": 10000,
-        "generatedAt": "2026-11-08T18:14:36Z"
+        "generatedAt": "2026-11-08T21:19:31Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T20:54:54Z",
-        "participationInputHash": "e242a1b10e9ab318",
+        "snapshotAsOf": "2026-11-08T21:19:31Z",
+        "participationInputHash": "e074c5d9e6e25700",
         "excludedCount": 1,
         "materialExclusions": [],
         "excluded": [
@@ -378,13 +303,13 @@
         "version": 2,
         "inputHash": "bde36149541657c3",
         "simulations": 10000,
-        "generatedAt": "2026-11-08T18:14:36Z"
+        "generatedAt": "2026-11-08T21:19:31Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T20:54:54Z",
-        "participationInputHash": "a0d976a9bb7265c9",
+        "snapshotAsOf": "2026-11-08T21:19:31Z",
+        "participationInputHash": "ba69359e0786e591",
         "excludedCount": 5,
         "materialExclusions": [
           {
