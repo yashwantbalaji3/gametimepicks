@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-08T19:57:13Z",
- "sourceGeneratedAt": "2026-11-08T19:57:13Z",
+ "generatedAt": "2026-11-08T20:09:03Z",
+ "sourceGeneratedAt": "2026-11-08T20:09:03Z",
  "forecastInputHash": "dd993911a90d4040",
  "providerEventId": "401873047",
  "matchup": "LV @ SF",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-08T19:57:13Z",
-  "roleEvidenceAt": "2026-11-08T19:57:13Z",
+  "injuriesCapturedAt": "2026-11-08T20:09:03Z",
+  "roleEvidenceAt": "2026-11-08T20:09:03Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -51,23 +51,6 @@
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
     "pools": [
      {
-      "team": "LV",
-      "pool": "targets",
-      "originalSum": 1.0705,
-      "normalizedSum": 1,
-      "factor": 0.9341,
-      "playerIds": [
-       "nfl-athlete-4432665",
-       "nfl-athlete-4890973",
-       "nfl-athlete-4428718",
-       "nfl-athlete-4429086",
-       "nfl-athlete-4382466",
-       "nfl-athlete-4241983",
-       "nfl-athlete-4432775",
-       "nfl-athlete-4603186"
-      ]
-     },
-     {
       "team": "SF",
       "pool": "targets",
       "originalSum": 1.0125,
@@ -83,6 +66,22 @@
        "nfl-athlete-4431466",
        "nfl-athlete-4259147",
        "nfl-athlete-4575665"
+      ]
+     },
+     {
+      "team": "LV",
+      "pool": "targets",
+      "originalSum": 1.0094,
+      "normalizedSum": 1,
+      "factor": 0.9907,
+      "playerIds": [
+       "nfl-athlete-4432665",
+       "nfl-athlete-4890973",
+       "nfl-athlete-4428718",
+       "nfl-athlete-4429086",
+       "nfl-athlete-4382466",
+       "nfl-athlete-4241983",
+       "nfl-athlete-4603186"
       ]
      }
     ]
@@ -123,14 +122,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 65,
+  "absent": 61,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "LV": {
    "counts": {
-    "PROJECTED": 13,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -237,33 +236,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4432775",
-     "name": "Dont'e Thornton Jr.",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4260394",
-     "name": "Aidan O'Connell",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
-    },
-    {
      "playerId": "nfl-athlete-4698191",
      "name": "Chris Collier",
      "state": "PROJECTED",
@@ -280,6 +252,18 @@
       "anytime_td"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4432775",
+     "name": "Dont'e Thornton Jr.",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4260394",
+     "name": "Aidan O'Connell",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   },
@@ -446,21 +430,11 @@
   "qbStarter": [
    {
     "team": "LV",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-14880",
-     "name": "Kirk Cousins"
-    },
-    "snapshotAt": "2026-11-07T13:54:10Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4260394",
-      "name": "Aidan O'Connell"
-     }
-    ],
+    "state": "SINGLE_PASSER",
     "passers": [
      "nfl-athlete-14880"
-    ]
+    ],
+    "removed": []
    },
    {
     "team": "SF",
@@ -493,19 +467,6 @@
   ],
   "pools": [
    {
-    "team": "LV",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 1,
-    "originalSum": 1.0705,
-    "residualOther": 0,
-    "joined": 8,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
     "team": "SF",
     "pool": "targets",
     "markets": [
@@ -515,6 +476,19 @@
     "originalSum": 1.0125,
     "residualOther": 0,
     "joined": 9,
+    "missed": 0,
+    "state": "NORMALIZED"
+   },
+   {
+    "team": "LV",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 1,
+    "originalSum": 1.0094,
+    "residualOther": 0,
+    "joined": 7,
     "missed": 0,
     "state": "NORMALIZED"
    },
@@ -607,15 +581,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 6.1184,
-     "p10": 1.8683,
-     "p25": 3.7366,
-     "median": 5.6049,
-     "p75": 8.4073,
-     "p90": 11.2097,
+     "mean": 6.4887,
+     "p10": 1.9814,
+     "p25": 3.9628,
+     "median": 5.9441,
+     "p75": 8.9162,
+     "p90": 11.8883,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9341
+      "factor": 0.9907
      },
      "pricingState": "NOT_PROBED"
     },
@@ -684,15 +658,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.898,
-     "p10": 0.9341,
-     "p25": 1.8683,
-     "median": 3.7366,
-     "p75": 5.6049,
-     "p90": 7.4731,
+     "mean": 4.1339,
+     "p10": 0.9907,
+     "p25": 1.9814,
+     "median": 3.9628,
+     "p75": 5.9441,
+     "p90": 7.9255,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9341
+      "factor": 0.9907
      },
      "pricingState": "NOT_PROBED"
     },
@@ -718,15 +692,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.1629,
-     "p10": 0.9341,
-     "p25": 1.8683,
-     "median": 2.8024,
-     "p75": 4.6707,
-     "p90": 6.539,
+     "mean": 3.3544,
+     "p10": 0.9907,
+     "p25": 1.9814,
+     "median": 2.9721,
+     "p75": 4.9534,
+     "p90": 6.9348,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9341
+      "factor": 0.9907
      },
      "pricingState": "NOT_PROBED"
     },
@@ -807,15 +781,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.7936,
-     "p10": 0.9341,
-     "p25": 1.8683,
-     "median": 3.7366,
-     "p75": 5.6049,
-     "p90": 7.4731,
+     "mean": 4.0233,
+     "p10": 0.9907,
+     "p25": 1.9814,
+     "median": 3.9628,
+     "p75": 5.9441,
+     "p90": 7.9255,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9341
+      "factor": 0.9907
      },
      "pricingState": "NOT_PROBED"
     },
@@ -875,15 +849,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.0954,
+     "mean": 2.2222,
      "p10": 0,
-     "p25": 0.9341,
-     "median": 1.8683,
-     "p75": 2.8024,
-     "p90": 4.6707,
+     "p25": 0.9907,
+     "median": 1.9814,
+     "p75": 2.9721,
+     "p90": 4.9534,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9341
+      "factor": 0.9907
      },
      "pricingState": "NOT_PROBED"
     },
@@ -960,15 +934,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.3697,
+     "mean": 1.4526,
      "p10": 0,
      "p25": 0,
-     "median": 0.9341,
-     "p75": 1.8683,
-     "p90": 2.8024,
+     "median": 0.9907,
+     "p75": 1.9814,
+     "p90": 2.9721,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9341
+      "factor": 0.9907
      },
      "pricingState": "NOT_PROBED"
     },
@@ -1041,40 +1015,6 @@
    }
   },
   {
-   "playerId": "nfl-athlete-4432775",
-   "name": "Dont'e Thornton Jr.",
-   "team": "LV",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 13.619,
-     "p10": 0,
-     "p25": 0,
-     "median": 7.26,
-     "p75": 21.08,
-     "p90": 37.56,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.2219,
-     "p10": 0,
-     "p25": 0,
-     "median": 0.9341,
-     "p75": 1.8683,
-     "p90": 2.8024,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9341
-     },
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1087,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4259147",
    "name": "Jake Tonges",
    "team": "SF",
@@ -1124,15 +1064,15 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.138,
+     "mean": 1.2069,
      "p10": 0,
      "p25": 0,
-     "median": 0.9341,
-     "p75": 1.8683,
-     "p90": 2.8024,
+     "median": 0.9907,
+     "p75": 1.9814,
+     "p90": 2.9721,
      "conservation": {
       "version": "nfl-share-conservation-v1",
-      "factor": 0.9341
+      "factor": 0.9907
      },
      "pricingState": "NOT_PROBED"
     },
@@ -1248,18 +1188,6 @@
     },
     "anytime_td": {
      "probability": 0.068,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4260394",
-   "name": "Aidan O'Connell",
-   "team": "LV",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.058,
      "pricingState": "NOT_PROBED"
     }
    }
