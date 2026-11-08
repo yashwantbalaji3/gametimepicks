@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "parlay-lab-ledger",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-07T17:15:40Z",
+ "generatedAt": "2026-11-08T09:22:14Z",
  "moneyClass": "PAPER_ONLY",
  "note": "Paper stream with its own ledger. Never part of the Bank Builder / Moonshot bankroll or the settled product record.",
  "policy": {
@@ -15,7 +15,7 @@
    "id": "mlb",
    "label": "MLB",
    "live": false,
-   "blocked": "no price capture for 2026-11-07 (newest capture 2026-10-28); only 0 priced games — the ladder needs 4",
+   "blocked": "no price capture for 2026-11-08 (newest capture 2026-10-28); only 0 priced games — the ladder needs 4",
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": null,
@@ -81,7 +81,7 @@
    "evidence": {
     "pricedGames": 0,
     "pricesCapturedAt": "2026-10-11T11:41:55Z",
-    "priceAgeDays": 27.23,
+    "priceAgeDays": 27.9,
     "settlementSource": "official NFL final scores",
     "settlementProven": true,
     "capabilityGated": false
@@ -139,11 +139,11 @@
    "id": "ufc",
    "label": "UFC",
    "live": false,
-   "blocked": "not cleared to publish model cards — the capability registry lists UFC as SCAFFOLD_ONLY, which may not show forward-looking model output: Formally downgraded 2026-07-23: the moneyline is a de-vigged market price with a capped nudge (no independent signal), and zero bouts are cleanly backtestable because there is no point-in-time pregame odds capture.",
+   "blocked": "not cleared to publish model cards — the capability registry lists UFC as SCAFFOLD_ONLY, which may not show forward-looking model output: Formally downgraded 2026-07-23: the moneyline is a de-vigged market price with a capped nudge (no independent signal), and zero bouts are cleanly backtestable because there is no point-in-time pregame odds capture.; only 0 priced games — the ladder needs 4",
    "evidence": {
-    "pricedGames": 12,
+    "pricedGames": 0,
     "pricesCapturedAt": "2026-11-07T16:43:07Z",
-    "priceAgeDays": 0.02,
+    "priceAgeDays": 0.69,
     "settlementSource": "official UFC bout results through the lab's own settled receipts",
     "settlementProven": true,
     "capabilityGated": true
@@ -204,20 +204,20 @@
    "evidence": {
     "pricedGames": 9,
     "pricesCapturedAt": "2026-11-07T00:39:09Z",
-    "priceAgeDays": 0.69,
+    "priceAgeDays": 1.36,
     "settlementSource": "official full-time results, graded through the EPL settlement contract",
     "settlementProven": true,
     "capabilityGated": false
    },
-   "settledDays": 16,
+   "settledDays": 17,
    "record": {
     "wins": 8,
-    "losses": 15,
+    "losses": 17,
     "pushes": 0,
-    "staked": 23,
+    "staked": 25,
     "returned": 23.98,
-    "hitRate": 0.3478,
-    "roi": 0.0426
+    "hitRate": 0.32,
+    "roi": -0.0408
    },
    "byTier": {
     "low": {
@@ -240,21 +240,21 @@
     },
     "high": {
      "wins": 2,
-     "losses": 4,
+     "losses": 5,
      "pushes": 0,
-     "staked": 6,
+     "staked": 7,
      "returned": 8.83,
-     "hitRate": 0.3333,
-     "roi": 0.4717
+     "hitRate": 0.2857,
+     "roi": 0.2614
     },
     "longshot": {
      "wins": 0,
-     "losses": 0,
+     "losses": 1,
      "pushes": 0,
-     "staked": 0,
+     "staked": 1,
      "returned": 0,
-     "hitRate": null,
-     "roi": null
+     "hitRate": 0,
+     "roi": -1
     }
    }
   },
