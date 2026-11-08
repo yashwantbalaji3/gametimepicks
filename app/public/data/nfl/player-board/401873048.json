@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-08T00:14:07Z",
- "sourceGeneratedAt": "2026-11-08T00:14:07Z",
+ "generatedAt": "2026-11-08T12:46:24Z",
+ "sourceGeneratedAt": "2026-11-08T12:46:24Z",
  "forecastInputHash": "ec7f07a4ecac7ef2",
  "providerEventId": "401873048",
  "matchup": "ARI @ SEA",
@@ -12,8 +12,8 @@
  "week": 9,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-08T00:14:07Z",
-  "roleEvidenceAt": "2026-11-08T00:14:07Z",
+  "injuriesCapturedAt": "2026-11-08T12:46:24Z",
+  "roleEvidenceAt": "2026-11-08T12:46:24Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -88,8 +88,13 @@
  "newArrivals": {},
  "arrivalsShadowed": 0,
  "departedFiltered": 0,
- "practiceSquadFiltered": 2,
+ "practiceSquadFiltered": 4,
  "practiceSquadFilteredPlayers": [
+  {
+   "playerId": "nfl-athlete-4035693",
+   "name": "Velus Jones Jr.",
+   "team": "SEA"
+  },
   {
    "playerId": "nfl-athlete-4428943",
    "name": "Jacardia Wright",
@@ -114,7 +119,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 45,
+  "absent": 43,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -238,9 +243,9 @@
   },
   "SEA": {
    "counts": {
-    "PROJECTED": 9,
+    "PROJECTED": 8,
     "EXCLUDED_UNAVAILABLE": 2,
-    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 1,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
@@ -337,16 +342,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4035693",
-     "name": "Velus Jones Jr.",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-3912547",
      "name": "Sam Darnold",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -357,6 +352,12 @@
      "name": "Rashid Shaheed",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
+    },
+    {
+     "playerId": "nfl-athlete-4035693",
+     "name": "Velus Jones Jr.",
+     "state": "EXCLUDED_NO_CURRENT_ROLE",
+     "reason": "on SEA's practice squad — no game-day elevation source"
     },
     {
      "playerId": "nfl-athlete-3924327",
@@ -882,27 +883,6 @@
     },
     "anytime_td": {
      "probability": 0.1048,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4035693",
-   "name": "Velus Jones Jr.",
-   "team": "SEA",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 7.306,
-     "p10": 0,
-     "p25": 0,
-     "median": 2.04,
-     "p75": 10.32,
-     "p90": 22.19,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0703,
      "pricingState": "NOT_PROBED"
     }
    }
