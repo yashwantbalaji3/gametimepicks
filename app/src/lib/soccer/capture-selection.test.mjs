@@ -60,10 +60,12 @@ test("the forecast builder sorts and takes the last", () => {
   assert.match(block, /\.at\(-1\)|\.pop\(\)/);
 });
 
-test("LIVE ARTIFACT · the published forecasts agree with the NEWEST capture on every kickoff", () => {
+test("LIVE ARTIFACT · the published forecasts agree with the AUTHORITATIVE kickoff on every row (ESPN since Option A), and every fixture is in the NEWEST capture", () => {
   /*
-   * The assertion that would have caught this on day one. A forecast's kickoff is not an opinion —
-   * it is a fact carried by the fixture list, and the two must not be able to disagree.
+   * The assertion that would have caught this on day one. A forecast's kickoff is not an opinion. Until 2026-11-09 the
+   * fixture list carried it; the list's 2026-27 source only ever had each round's provisional Saturday 15:00 block, so
+   * founder Option A moved the kickoff to ESPN's scheduled event (lib/sports/epl/kickoff-truth.mjs). The fixture list
+   * still owns MEMBERSHIP: every forecast must be a fixture of the newest capture. Both must hold, exactly.
    */
   if (!fs.existsSync(FIXTURES)) return;
   const names = fs.readdirSync(FIXTURES).filter((f) => f.startsWith("capture-") && f.endsWith(".json")).sort();
@@ -73,17 +75,24 @@ test("LIVE ARTIFACT · the published forecasts agree with the NEWEST capture on 
   if (!fs.existsSync(forecastPath)) return;
   const forecasts = JSON.parse(fs.readFileSync(forecastPath, "utf8"));
   if (!Array.isArray(forecasts.rows) || !forecasts.rows.length) return;
+  const schedule = JSON.parse(fs.readFileSync(path.join(FIXTURES, "espn-schedule-latest.json"), "utf8"));
+  const espnById = new Map(schedule.rows.map((r) => [r.providerEventId, r]));
+  const pair = (h, a) => `${h}|${a}`;
+  const capturePairs = new Set((capture.rows ?? []).map((r) => pair(r.homeClub, r.awayClub)));
 
-  const kickoffById = new Map((capture.rows ?? []).map((r) => [r.eventId, r.kickoffIso]));
   const mismatched = [];
   for (const row of forecasts.rows) {
-    const truth = kickoffById.get(row.eventId);
-    // An eventId the newest capture does not carry is itself the symptom: the id embeds the kickoff,
-    // so a stale kickoff produces an id no current fixture has.
-    if (truth === undefined) { mismatched.push(`${row.matchup}: eventId ${row.eventId} is not in the newest capture`); continue; }
-    if (truth !== row.kickoffUtc) mismatched.push(`${row.matchup}: forecast ${row.kickoffUtc} vs capture ${truth}`);
+    if (!capturePairs.has(pair(row.homeClub, row.awayClub))) { mismatched.push(`${row.matchup}: not a fixture of the newest capture`); continue; }
+    if (row.kickoffSource !== "ESPN") { mismatched.push(`${row.matchup}: kickoff source ${row.kickoffSource ?? "none"}, not ESPN`); continue; }
+    const e = espnById.get(String(row.espnEventId));
+    if (!e) { mismatched.push(`${row.matchup}: ESPN event ${row.espnEventId} is not in the schedule capture`); continue; }
+    const truth = new Date(Date.parse(e.kickoffUtc)).toISOString().replace(/\.\d{3}Z$/, "Z");
+    if (truth !== row.kickoffUtc) mismatched.push(`${row.matchup}: forecast ${row.kickoffUtc} vs ESPN ${truth}`);
+    // the id embeds the kickoff minute: a stale kickoff produces an id the confirmed fixture does not have
+    const minute = truth.slice(0, 16).replace(/[-:]/g, "").toLowerCase();
+    if (!row.eventId.endsWith(`:${minute}`)) mismatched.push(`${row.matchup}: eventId ${row.eventId} does not carry the confirmed kickoff ${minute}`);
   }
-  assert.deepEqual(mismatched, [], `forecast kickoffs disagree with the fixture list:\n  ${mismatched.join("\n  ")}`);
+  assert.deepEqual(mismatched, [], `forecast kickoffs disagree with the authoritative kickoff:\n  ${mismatched.join("\n  ")}`);
 });
 
 test("ALL-IDENTICAL KICKOFFS · ten fixtures across three days cannot share one slot", () => {
