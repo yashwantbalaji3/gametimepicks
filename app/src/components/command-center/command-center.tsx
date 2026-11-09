@@ -42,7 +42,11 @@ function LaneGames({ lane }: { lane: CommandCenterLane }) {
             {g.crests.map((c, i) => (c ? <TeamLogo key={i} team={c} sport="nba" size="sm" ariaLabel="" /> : null))}
             <span className="font-semibold" style={{ color: "var(--vault-text)" }}>{g.label}</span>
             <span style={{ color: "var(--vault-text-mute)" }}>{g.time}</span>
-            <span className="basis-full" style={{ color: "var(--vault-text-mute)" }}>{g.note}{g.href ? " →" : ""}</span>
+            <span className="basis-full" style={{ color: "var(--vault-text-mute)" }}>
+              {g.note}
+              {g.winChance ? <> · <span data-nba-elo-wp={g.winChance.attr} style={{ color: "var(--vault-text)" }}>{g.winChance.text}</span></> : null}
+              {g.href ? " →" : ""}
+            </span>
           </>
         );
         return (
@@ -54,6 +58,7 @@ function LaneGames({ lane }: { lane: CommandCenterLane }) {
         );
       })}
       {lane.moreGames ? <li className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>+{lane.moreGames} more on the {lane.label} hub</li> : null}
+      {lane.winChanceDisclosure ? <li className="text-[12px] leading-snug" style={{ color: "var(--vault-text-faint)" }} data-nba-elo-wp-disclosure="">Win chance: Elo-derived game-winner estimate. {lane.winChanceDisclosure}</li> : null}
     </ul>
   );
 }

@@ -291,7 +291,7 @@ export default function TodayPage() {
      said "no two-leg card reaches its rung's price" while the lanes said "fewer than two eligible legs on the slate". */
   const moonshotReason = (dailyPortfolio.cards.find((c) => c.product === "moonshot" && c.laneReason)?.laneReason ?? dailyPortfolio.cards.find((c) => c.product === "moonshot" && c.shortfallNote)?.shortfallNote)?.replace(/\.\s*$/, "") ?? null;
   if (!moonshotActive && !noGamesToday) noPlayNotes.push(`Moonshot is no-play${moonshotReason ? ` — ${moonshotReason.charAt(0).toLowerCase()}${moonshotReason.slice(1)}` : ""}. The ladder waits rather than force a card.`);
-  if (slateReadyCount === 0 && !noGamesToday) noPlayNotes.push("No simulation artifact is ready for this slate yet; simulations are deterministic and only shown when genuinely generated — never faked.");
+  if (slateReadyCount === 0 && !noGamesToday) noPlayNotes.push("No game simulation is ready for this slate yet; simulations are shown only when they have actually been run — never faked.");
   noPlayNotes.push("Pending is not a loss: a card settles only against the official final, and unsettled cards are never counted against the record.");
 
   // ── Section 10 · Secondary links — compact link cards out (no large widgets duplicated here). ──

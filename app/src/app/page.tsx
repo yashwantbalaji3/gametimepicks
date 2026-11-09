@@ -50,6 +50,10 @@ import { RECORD_SCOPE_LABEL } from "@/lib/results/current-record";
 import { committedLaneDates, loadCurrentLane } from "@/components/nba/experimental-lane";
 import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { nbaLane } from "@/lib/command-center/nba-lane";
+import { nbaExportedGamePageIds } from "@/components/nba/settled-simulation-data";
+import { publicTheaterRouteIds } from "@/lib/simulation-theater/nba/possession/public-route.mjs";
+import { eloWinProbabilityAttr, eloWinProbabilityOf } from "@/lib/sports/nba/elo-win-probability.mjs";
+import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import { HomeTools, MobileMore, SportsToday } from "@/components/home/mobile-home-parts";
 import { withPlainStatus } from "@/components/home/plain-lanes";
 import { LANE as NBA_LANE } from "@/lib/sports/nba/experimental-public-lane.mjs";
@@ -62,7 +66,7 @@ export const metadata = withRouteMetadata("/", {
 
 const usd2 = (n: number) => `$${Number(n).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
-export default function HomePage() {
+export default async function HomePage() {
   const dataRoot = path.join(process.cwd(), "public", "data");
   // Frame on the same presented slate the Today board uses so every figure lines up with /today.
   const today = currentSlateDate() ?? currentEtDate();
@@ -168,7 +172,25 @@ export default function HomePage() {
      view (nbaTodaySlate: schedule, finals, the current official lane snapshot); each row links to its game's card on
      /nba, built from the same slate in the same build. */
   const nbaNowIso = new Date().toISOString();
-  const nbaHomeLane = nbaLane(nbaTodaySlate(nbaNowIso, loadCurrentLane(serverToday), { laneEnabled: NBA_LANE.enabled }), nbaNowIso, { lastPublished: committedLaneDates().at(-1) ?? null });
+  /* UX slice 2026-11-09: each row deep-links its GAME PAGE when that page is exported (exactly the ids the
+     /nba/simulation route builds — the /nba hub's own recipe, with the flag test INLINE so a flag-OFF build never
+     imports the loader), else the hub card; and it shows the official win chance through the one Elo accessor. */
+  let nbaTheaterIds: string[] = [];
+  if (process.env.GTP_NBA_THEATER_PUBLIC === "1") {
+    const { publicPossessionEvents } = await import("@/lib/simulation-theater/nba/possession/public-loader.mjs");
+    nbaTheaterIds = publicTheaterRouteIds(() => publicPossessionEvents(path.join(process.cwd(), "..")));
+  }
+  const nbaCurrentLane = loadCurrentLane(serverToday);
+  const nbaElo = loadEloWinProbabilityContext();
+  const nbaHomeLane = nbaLane(nbaTodaySlate(nbaNowIso, nbaCurrentLane, { laneEnabled: NBA_LANE.enabled, theaterIds: nbaTheaterIds }), nbaNowIso, {
+    lastPublished: committedLaneDates().at(-1) ?? null,
+    gamePageIds: new Set(nbaExportedGamePageIds(serverToday, nbaTheaterIds)),
+    winChanceOf: (id) => {
+      const v = eloWinProbabilityOf((nbaCurrentLane?.games ?? []).find((g) => String(g.providerEventId) === id) ?? null, { enabled: nbaElo.enabled });
+      return v ? { awayAbbr: v.awayAbbr, homeAbbr: v.homeAbbr, awayPct: v.awayPct, homePct: v.homePct, attr: eloWinProbabilityAttr(v) } : null;
+    },
+    winChanceDisclosure: nbaElo.enabled ? nbaElo.disclosure : null,
+  });
 
   // Presentation-only detail: the NFL player-market count for the card's status line. Never a
   // state input — the owner decides whether the window is live at all.
@@ -338,10 +360,6 @@ export default function HomePage() {
         includeMlbNote
       />
 
-      {/* 0b — Founder UX decision 2026-10-08: games being played right now come first. Client-read from the live
-              gateway at view time; renders nothing when no game is in play. */}
-      <LiveNow sports={["nfl", "mlb"]} />
-
       {/* 1 — Simulation-first hero. It carries no money figure: a paper bankroll beside a paper record
           on the front door reads as a return, and the ONE claim above it is that we are behind the
           market. The record and every settled card live on /results. */}
@@ -362,7 +380,9 @@ export default function HomePage() {
           today's counts, so a first-time reader sees what is active before anything else. */}
       <CommandCenter
         lanes={primaryLanes}
-        heading="Simulation Hub"
+        /* UX slice 2026-11-09: the homepage leads with today's games — the official side (and, for NBA, the official win
+           chance) on every row, each row opening its game page. */
+        heading="Today's games"
         /* GTP-33: the primary hub includes sports whose next event is later this WEEK, so "on today's slate" was
            false for them. "This week" for the whole hub; "today" only for sports whose own state says LIVE_TODAY. */
         subtitle={(() => {
@@ -371,6 +391,11 @@ export default function HomePage() {
           return `${n} sport${n === 1 ? "" : "s"} active this week${today ? ` · ${today} with forecasts on today's slate` : ""}`;
         })()}
       />
+
+      {/* 2b — Live (founder UX decision 2026-10-08, re-ordered 2026-11-09): games in play, directly after today's games.
+              Client-read from the live gateway at view time; renders nothing when no game is in play. */}
+      <LiveNow sports={["nfl", "mlb"]} />
+
 
       {/*
         3 — THE MODEL'S STRONGEST READS, ACROSS EVERY SPORT.
@@ -422,15 +447,6 @@ export default function HomePage() {
       ) : null}
       </div>
 
-      {/* 4 — Suggested parlays: the Parlay Lab's four risk evaluations per lane, rendered from the
-          day's risk-coverage matrix (the evaluation of record). No-play chips render as prominently
-          as published cards — the refusal is the product working, not a gap to hide. */}
-      <div className="hidden sm:contents">
-      {parlayPreview ? (
-        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} todayEt={currentEtDate()} showDetails={false} />
-      ) : null}
-      </div>
-
       {/* 6 — Flagship products, powered by the simulations. Each card carries its own current status,
           which is why the page no longer repeats those statuses in a second slate-summary block. */}
       <div className="hidden sm:contents">
@@ -440,6 +456,15 @@ export default function HomePage() {
         subtitle="Paper-only"
         ariaLabel="Flagship products"
       />
+      </div>
+
+      {/* 4 — Suggested parlays: the Parlay Lab's four risk evaluations per lane, rendered from the
+          day's risk-coverage matrix (the evaluation of record). No-play chips render as prominently
+          as published cards — the refusal is the product working, not a gap to hide. */}
+      <div className="hidden sm:contents">
+      {parlayPreview ? (
+        <SuggestedParlaysPreview live={parlayPreview.live} closed={parlayPreview.closed} tierIntent={TIER_INTENT} todayEt={currentEtDate()} showDetails={false} />
+      ) : null}
       </div>
 
       {/* W4 (2026-10-28): the Parlay Lab recap (YesterdayCard, P251) left Home — it was a second results summary
@@ -482,7 +507,7 @@ export default function HomePage() {
       {/* Release B: the phone summary of the sections above that render from sm up, and the tools row (every width) */}
       <MobileMore items={[
         { label: "Upcoming games", href: "/simulate/" },
-        ...(parlayPreview ? [{ label: "Suggested parlays", href: "/build/" }] : []),
+        ...(parlayPreview ? [{ label: "Parlay Lab", href: "/build/" }] : []),
         { label: "Bank Builder", href: "/bank-builder/" },
         { label: "Moonshot", href: "/moonshot/" },
         { label: "How it works", href: "/learn/" },

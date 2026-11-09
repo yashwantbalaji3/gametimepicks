@@ -49,7 +49,8 @@ test("links go only to pages that exist in this export", () => {
 
 test("Home and the NFL and MLB hubs mount Live Now ahead of their other content", () => {
   const home = read("src/app/page.tsx");
-  assert.ok(home.indexOf("<LiveNow sports={[\"nfl\", \"mlb\"]} />") > 0 && home.indexOf("<LiveNow") < home.indexOf("<LandingHero"), "Home: before the hero");
+  /* UX slice 2026-11-09 (founder mandate via the Program Director): Home leads with today's games, THEN live, then products. */
+  assert.ok(home.indexOf("<LiveNow sports={[\"nfl\", \"mlb\"]} />") > 0 && home.indexOf('heading="Today\'s games"') < home.indexOf("<LiveNow") && home.indexOf("<LiveNow") < home.indexOf("<FlagshipCards"), "Home: after today's games, before the products");
   const nfl = read("src/app/nfl/page.tsx");
   assert.ok(nfl.indexOf("<LiveNow sports={[\"nfl\"]} />") > 0 && nfl.indexOf("<LiveNow") < nfl.indexOf("<SportHubNav"), "NFL hub: under the title");
   const mlb = read("src/app/mlb/page.tsx");

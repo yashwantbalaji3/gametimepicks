@@ -27,8 +27,10 @@ export interface CommandCenterGame {
   time: string;
   /** The row's one fact: the official side, a recorded final, or why there is none. */
   note: string;
-  /** Where the row leads (NBA: the game's card on /nba); null renders the row as text. */
+  /** Where the row leads (NBA: the game page when it is exported, else the game's card on /nba); null renders the row as text. */
   href: string | null;
+  /** The official win chance, printed only through the sport's one accessor (NBA: the Elo estimate), with its attribute. */
+  winChance?: { text: string; attr: string } | null;
 }
 
 export interface CommandCenterLane {
@@ -55,6 +57,8 @@ export interface CommandCenterLane {
   games?: CommandCenterGame[];
   /** Today's games beyond `games`, counted, never listed here. */
   moreGames?: number;
+  /** A disclosure printed once under the rows when any row shows a win chance (NBA: the Elo accuracy disclosure). */
+  winChanceDisclosure?: string | null;
 }
 
 export interface CommandCenterInput {

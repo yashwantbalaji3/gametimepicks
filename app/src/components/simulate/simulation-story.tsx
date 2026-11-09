@@ -165,7 +165,7 @@ export default function SimulationStory({ manifest, skipHref = "#simulation-stor
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex flex-col">
           <h2 id="sim-story-h" className="font-mono uppercase tracking-[0.14em] m-0" style={{ color: "var(--vault-gold)", fontSize: 11 }}>Simulation story</h2>
-          <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{chapters.length} chapters · {manifest.readiness === "archived" ? "the forecast as it stood before the start" : "read from the published artifact"}{reduced ? " · reduced motion: step through by hand" : ""}</span>
+          <span className="font-mono" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>{chapters.length} chapters · {manifest.readiness === "archived" ? "the forecast as it stood before the start" : "read from the published forecast"}{reduced ? " · reduced motion: step through by hand" : ""}</span>
         </div>
         <div className="flex items-center gap-1.5 flex-wrap" role="group" aria-label="Simulation story controls">
           {idle ? <button type="button" style={btn(true)} onClick={() => { emit("simulation_story_started"); if (manifest.readiness === "archived") emit("archived_story_opened");; act("START"); }}>Play</button> : null}
@@ -202,8 +202,10 @@ export default function SimulationStory({ manifest, skipHref = "#simulation-stor
       </article>
 
       <footer className="font-mono flex flex-wrap gap-x-3 gap-y-1" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
-        {manifest.provenance.modelVersion ? <span>model {manifest.provenance.modelVersion}</span> : null}
-        {runs ? <span>{runs.toLocaleString("en-US")} simulated games</span> : <span>no run count recorded</span>}
+        {/* UX slice 2026-11-09: public cards carry no internal identifiers — the exact model id stays reachable as the
+            element's title (and in each page's Technical details); an absent run count prints nothing rather than jargon. */}
+        {manifest.provenance.modelVersion ? <span title={manifest.provenance.modelVersion} data-model-version={manifest.provenance.modelVersion}>model version on file</span> : null}
+        {runs ? <span>{runs.toLocaleString("en-US")} simulated games</span> : null}
         {/* etStamp, not toLocaleString: WebKit joins date and time with " at ", so the server text and Safari's differed (UX-001). */}
         {etStamp(manifest.provenance.generatedAt ?? null) ? <span>produced {etStamp(manifest.provenance.generatedAt ?? null)}</span> : null}
         {etStamp(manifest.provenance.marketCapturedAt ?? null) ? <span>prices captured {etStamp(manifest.provenance.marketCapturedAt ?? null)}</span> : null}

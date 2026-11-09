@@ -108,7 +108,11 @@ test("homepage NBA lane: rows (≤ NBA_LANE_ROWS), each linking to its /nba card
 test("the homepage renders NBA as a Command Center lane from the hub's own view (no second derivation, no Theater import)", () => {
   const home = read("src/app/page.tsx");
   assert.match(home, /nbaLane\(nbaTodaySlate\(/);
-  assert.doesNotMatch(home, /simulation-theater|GTP_NBA_THEATER_PUBLIC/, "/ links the hub cards; only /nba and the route touch the Theater gate");
+  /* UX slice 2026-11-09: the homepage rows deep-link the game page, so / reads the exported ids the route builds — with
+     the /nba hub's own recipe: the flag test INLINE, the loader imported only inside it (a flag-OFF build never bundles it). */
+  assert.match(home, /if \(process\.env\.GTP_NBA_THEATER_PUBLIC === "1"\) \{\n\s*const \{ publicPossessionEvents \} = await import\("@\/lib\/simulation-theater\/nba\/possession\/public-loader\.mjs"\);/);
+  assert.match(home, /gamePageIds: new Set\(nbaExportedGamePageIds\(serverToday, nbaTheaterIds\)\)/);
+  assert.doesNotMatch(home, /import [^\n]*simulation-theater\/nba\/possession\/(public-loader|possession-loader|stored-run)/, "no static import of a Theater loader");
   // founder mandate 2026-10-24: NBA is first-class — its lane sits right after NFL's
   assert.match(home, /const cardLanes = buildCommandCenter\(\{ dataRoot[^\n]*\}\);/);
   assert.match(home, /const commandLanes = \[\.\.\.cardLanes\.slice\(0, afterNfl\), nbaHomeLane, \.\.\.cardLanes\.slice\(afterNfl\)\];/);
@@ -358,4 +362,35 @@ test("one code per team (release owner 2026-10-25): on every committed slate the
     }
   }
   assert.ok(["WSH", "NY", "GS", "NO", "SA", "UTAH"].some((x) => aliases.has(x)), "the committed slates exercise at least one aliased team");
+});
+
+test("UX slice 2026-11-09: a homepage NBA row opens its GAME PAGE when exported (else the hub card) and shows the official win chance with the disclosure once", () => {
+  const s = slate();
+  const ids = s.games.map((g) => String(g.id));
+  assert.ok(ids.length >= 2, "fixture has at least two games");
+  const lane = nbaLane(s, NOW, {
+    gamePageIds: new Set([ids[0]]),
+    winChanceOf: (id) => (id === ids[0] ? { awayAbbr: "AAA", homeAbbr: "HHH", awayPct: 46, homePct: 54, attr: `${id}:0.54` } : null),
+    winChanceDisclosure: "Model Performance: not yet established.",
+  });
+  const [first, second] = lane.games;
+  assert.equal(first.href, `/nba/simulation/${ids[0]}/`, "an exported game page is the row's link");
+  assert.match(second.href, /^\/nba\/#nba-exp-/, "a game without an exported page keeps the hub card");
+  if (first.note.endsWith("favoured")) assert.deepEqual(first.winChance, { text: "AAA 46% · HHH 54%", attr: `${ids[0]}:0.54` });
+  assert.equal(second.winChance, null, "no accessor view → no number");
+  assert.equal(lane.winChanceDisclosure, lane.games.some((g) => g.winChance) ? "Model Performance: not yet established." : null);
+  // and without the options the lane is exactly as before: hub anchors, no percentages
+  const plain = nbaLane(s, NOW);
+  assert.ok(plain.games.every((g) => /^\/nba\/#nba-exp-/.test(g.href) && !g.winChance));
+  assert.equal(plain.winChanceDisclosure ?? null, null);
+});
+
+test("UX-10 (2026-11-09): with its game page exported, a card links that page ONCE ('Game page →'), never a second 'Game Simulation →' to the same URL", () => {
+  const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate(), gamePages: new Set(["g1"]) }));
+  const card = h.split("<article").slice(1)[0];
+  const plain = [...card.matchAll(/href="\/nba\/simulation\/g1\/"/g)].length;
+  assert.equal(plain, 1, "one link to the game page");
+  assert.match(card, /data-nba-game-page="g1"[^>]*>Game page →/);
+  assert.doesNotMatch(card, />Game Simulation →</);
+  assert.match(card, /href="\/nba\/simulation\/g1\/#official-predictions"[^>]*>Official Forecast →/, "the forecast anchor stays");
 });
