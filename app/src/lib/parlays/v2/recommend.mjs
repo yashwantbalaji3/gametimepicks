@@ -73,6 +73,7 @@ export const REASONS = Object.freeze({
   MARKET_CONTEXT_FAMILY: "A leg uses a kind of market whose model was demoted to market context.",
   COVERAGE_UNAVAILABLE: "The market-coverage list could not be read, so no leg can be cleared.",
   PARTICIPANT_STATUS: "A leg's player or team is listed as injured, inactive or not playing.",
+  PARTICIPANT_STATUS_MISSING: "A leg's player has no availability status on record, and a missing status is never read as available.",
   OPERATOR_NOT_VERIFIED: "A leg's price is not from a verified sportsbook, or no sportsbook is recorded for it. Price not verified.",
   PRICE_MISSING: "A leg has no recorded price.",
   PRICE_OUT_OF_RANGE: "A leg's price is outside the −650 to +400 range suggested cards use.",
@@ -113,7 +114,9 @@ export const nbaLegSettles = (nbaPropSettlementGate = null) => {
 };
 
 const HOUR = 3_600_000;
-export const PARTICIPANT_STATUS_FLAG = /^(out|injured|injury|inactive|dnp|did not play|scratch|scratched|doubtful|questionable|suspended|il|ir|day-to-day|not playing)\b/i;
+/** Sports whose player legs the eligibility contract v1 covers (an injuries feed AND a roster capture exist). */
+export const STATUS_SPORTS = new Set(["nfl", "nba"]);
+export const PARTICIPANT_STATUS_FLAG = /^(out|injured|injury|inactive|dnp|did not play|scratch|scratched|doubtful|questionable|suspended|il|ir|day-to-day|not playing|unknown|ineligible|injured reserve|suspension)\b/i;
 /** Markets settled without a line (moneyline / result / winner). Everything else must carry a numeric line. */
 export const LINELESS_MARKET = /moneyline|h2h|match_result|result|winner|fight|to_win|method|double_chance|btts|both_teams/i;
 
@@ -156,6 +159,8 @@ export function legReasons(leg, ctx) {
   else if (legIsMarketContext({ sport, market: leg?.market }, ctx.families)) r.push("MARKET_CONTEXT_FAMILY");
 
   if (typeof leg?.participantStatus === "string" && PARTICIPANT_STATUS_FLAG.test(leg.participantStatus.trim())) r.push("PARTICIPANT_STATUS");
+  // PL-02 (eligibility contract v1): a PLAYER leg in a sport the contract covers needs a stated status (R2)
+  else if (leg?.participant && STATUS_SPORTS.has(sport) && !(typeof leg?.participantStatus === "string" && leg.participantStatus.trim())) r.push("PARTICIPANT_STATUS_MISSING");
 
   if (!ctx.isVerifiedOperator(leg?.book)) r.push("OPERATOR_NOT_VERIFIED");
   if (!Number.isFinite(leg?.price) || leg.price === 0) r.push("PRICE_MISSING");

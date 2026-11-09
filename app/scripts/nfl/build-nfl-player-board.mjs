@@ -30,7 +30,8 @@
  * Usage: node scripts/nfl/build-nfl-player-board.mjs --now <iso>
  * Writes: app/public/data/nfl/player-board/<eventId>.json + latest.json (index)
  */
-import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
+import { eligibilityRecord, resolveEligibility } from "../../src/lib/availability/eligibility.mjs";
+import { teamIdsFromRoster } from "../../src/lib/sports/nfl/participation-eligibility.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -167,7 +168,9 @@ const newArrivalsByEvent = (() => {
  * feed failed. `departedFiltered` records what was removed so the count is never silent.
  */
 /* Session 9 overnight · D1: the ACTIVE roster — the practice squad is not membership (see activeRosterIndex). */
-const { active: rosterByTeam, practiceSquad } = activeRosterIndex(read(path.join(APP, "public/data/nfl/rosters/latest.json")));
+const rosterCapture = read(path.join(APP, "public/data/nfl/rosters/latest.json"));
+const { active: rosterByTeam, practiceSquad } = activeRosterIndex(rosterCapture);
+const teamIdByAbbr = teamIdsFromRoster(rosterCapture);
 
 /*
  * Release J (2026-10-26): WHICH forecast of record each board is published beside. The event window runs this
@@ -316,18 +319,21 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     console.error("REFUSED: injuries capture unreadable — a board will not be published as if nobody were injured");
     process.exit(2);
   }
-  /* Blocking statuses come from the contract's own vocabulary (injuries/contract.mjs). The hand-written
-     regex this replaces missed "Suspension" — seventh letter s, not d — so suspended players read as available. */
-  const ineligible = new Map();
-  for (const e of injuriesArtifact.entries) {
-    if (!e?.athleteId || !isBlockingStatus(e.status)) continue;
-    ineligible.set(`nfl-athlete-${e.athleteId}`, { status: e.status, statedAt: e.statedAt ?? null, name: e.athleteName ?? null });
-  }
+  /* ELIGIBILITY CONTRACT v1 (2026-11-09, INC-2026-11-08-01): the gate is the contract, not "a blocking status the feed
+     still lists". A row reaches the board only when the player resolves ELIGIBLE from the injuries AND roster captures;
+     INELIGIBLE and UNKNOWN rows are removed and named with their state. Every published row carries
+     { state, contractVersion, sources } so approval / send can re-resolve against fresh sources and compare. */
+  const eligibilityCache = new Map();
+  const eligibilityOf = (playerId, team) => {
+    const key = `${team}:${playerId}`;
+    if (!eligibilityCache.has(key)) eligibilityCache.set(key, eligibilityRecord(resolveEligibility({ sport: "nfl", playerId, teamId: teamIdByAbbr[team] ?? null, asOf: NOW, injuries: injuriesArtifact, roster: rosterCapture })));
+    return eligibilityCache.get(key);
+  };
   const gatedOut = [];
   const gate = (playerId, name, team) => {
-    const block = ineligible.get(playerId);
-    if (!block) return false;
-    gatedOut.push({ playerId, name: name ?? block.name, team, status: block.status, statedAt: block.statedAt });
+    const e = eligibilityOf(playerId, team);
+    if (e.state === "ELIGIBLE") return false;
+    if (!gatedOut.some((g) => g.playerId === playerId && g.team === team)) gatedOut.push({ playerId, name, team, status: e.sources.injuries.status ?? e.state, statedAt: e.sources.injuries.statedAt, state: e.state, reasons: e.reasons });
     return true;
   };
 
@@ -433,7 +439,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
    * heading "Likely TD scorers", and it left an unavailable player holding scoring opportunity. The
    * whole row goes, and the coverage receipt says why — removed, never silent.
    */
-  const excluded = gatedOut.map((g) => ({ playerId: g.playerId, name: g.name, team: g.team, reason: `designation: ${g.status}` }));
+  const excluded = gatedOut.map((g) => ({ playerId: g.playerId, name: g.name, team: g.team, reason: g.state === "INELIGIBLE" && g.status !== g.state ? `designation: ${g.status}` : `eligibility ${g.state} (${g.reasons.join(", ")})`, eligibilityState: g.state }));
   {
     const kept = [];
     for (const pl of players) {
@@ -505,6 +511,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
 
   const cleaned = players.filter((p) => Object.keys(p.markets).length > 0);
   players.length = 0; players.push(...cleaned);
+  for (const pl of players) pl.eligibility = eligibilityOf(pl.playerId, pl.team);
 
   /* P693 — a projected player may never appear in the strip that says he is not projected.
      The rule and the full finding live in new-arrivals.mjs; it is applied HERE because only after

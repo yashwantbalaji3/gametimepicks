@@ -29,7 +29,7 @@ export function leg(over = {}) {
     sport: "mlb", eventId: `ev${seq}`, eventLabel: `Away ${seq} @ Home ${seq}`, startUtc: iso(3 * HOUR),
     market: "pitcher_outs", marketLabel: "Outs recorded", selection: `Pitcher ${seq} — Outs recorded Over`, side: "Over", line: 15.5,
     participant: `Pitcher ${seq}`, team: `T${seq}`, book: "DraftKings", price: -110, capturedAt: iso(-5 * MIN),
-    participantStatus: null, forecastClass: "MARKET_IMPLIED_NO_FORECAST", receipts: ["fixture.json"],
+    participantStatus: "Active", forecastClass: "MARKET_IMPLIED_NO_FORECAST", receipts: ["fixture.json"],
     ...over,
   };
 }

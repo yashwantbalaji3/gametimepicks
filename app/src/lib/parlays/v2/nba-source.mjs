@@ -95,7 +95,10 @@ export function nbaCandidateInputs({ results = [], snapshots = [], statusFeed = 
       eventLabel: s?.matchup ?? null,
       marketLabel,
       selection: `${name} — ${marketLabel} ${over ? "Over" : "Under"}`,
-      participantStatus: statusFeed[leg.providerAthleteId] ?? p?.injuryStatus ?? (p && p.participation !== "active" ? p.participation : null),
+      // PL-02 (eligibility contract v1): a stated status always — "Active" only when the snapshot says so (the minutes
+      // model's three-state availability: roster-active with no designation); otherwise its own word ("unknown", …),
+      // and no snapshot row at all ⇒ null ⇒ PARTICIPANT_STATUS_MISSING. Missing status is never read as available.
+      participantStatus: statusFeed[leg.providerAthleteId] ?? p?.injuryStatus ?? (p ? (p.participation === "active" ? "Active" : p.participation ?? null) : null),
       participantName: name,
       playerId: leg.providerAthleteId,
       family: leg.family,

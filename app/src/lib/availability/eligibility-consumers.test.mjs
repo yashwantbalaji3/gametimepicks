@@ -10,7 +10,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { carryForwardDesignations } from "../sports/injuries/carry-forward.mjs";
 import { availabilityFromInjuries } from "../sports/nba/minutes-model.mjs";
-import { evaluateCandidate } from "../parlays/v2/candidate.mjs";
+import { evaluateCandidate, toCandidate } from "../parlays/v2/candidate.mjs";
 import { legReasons, recommendCtx } from "../parlays/v2/recommend.mjs";
 import { opportunityEligibility } from "../sports/nfl/participation-eligibility.mjs";
 
@@ -55,18 +55,21 @@ test("NBA minutes model: three-state availability — Out, Day-To-Day flagged, n
   assert.equal(availabilityFromInjuries(feed, "9", "1").availability, "out");
   assert.equal(availabilityFromInjuries(feed, "9", "2").availability, "questionable");
   assert.equal(availabilityFromInjuries(feed, "9", "3").availability, "unknown", "absent from the feed is not health");
+  assert.equal(availabilityFromInjuries(feed, "9", "3", "active").availability, "active", "R2: the roster independently says active");
+  assert.equal(availabilityFromInjuries(feed, "9", "1", "active").availability, "out", "a listed Out is never overruled by the roster");
 });
 
-const playerLeg = (extra = {}) => ({ sport: "mlb", league: "mlb", eventId: "e1", market: "pitcher_strikeouts", selection: "P — over 5.5", side: "over", line: 5.5, participant: "Pitcher 1", team: "T1",
+const playerLeg = (extra = {}) => ({ sport: "nfl", league: "nfl", eventId: "e1", market: "player_rush_yds", selection: "P — over 55.5", side: "over", line: 5.5, participant: "Pitcher 1", team: "T1",
   book: "DraftKings", price: -110, americanOdds: -110, capturedAt: "2026-11-09T00:30:00Z", startUtc: "2026-11-09T05:00:00Z", gameStart: "2026-11-09T05:00:00Z", participantStatus: null, receipts: ["x.json"], ...extra });
 
 test("PL-02 candidate gate: a player leg with no participant status is ineligible; a positive status passes that gate", () => {
   const ctx = { now: NOW, coverage: null, isVerifiedOperator: () => true, canEnterLeague: () => true };
-  const codes = (c) => evaluateCandidate(c, ctx).eligibility.reasons.map((r) => r.code);
+  const codes = (leg) => evaluateCandidate(toCandidate(leg), ctx).eligibility.reasons.map((r) => r.code);
   assert.ok(codes(playerLeg()).includes("PARTICIPANT_STATUS_MISSING"));
   assert.ok(!codes(playerLeg({ participantStatus: "Active" })).includes("PARTICIPANT_STATUS_MISSING"));
   assert.ok(codes(playerLeg({ participantStatus: "UNKNOWN" })).includes("PARTICIPANT_UNAVAILABLE"), "the contract's UNKNOWN is never a pass");
   assert.ok(!codes(playerLeg({ participant: null })).includes("PARTICIPANT_STATUS_MISSING"), "a game-winner leg has no participant to check");
+  assert.ok(!codes(playerLeg({ sport: "ufc", league: "ufc" })).includes("PARTICIPANT_STATUS_MISSING"), "UFC has no injuries + roster source for the contract to read");
 });
 
 test("PL-02 recommend gate: a player leg with no participant status is refused", () => {

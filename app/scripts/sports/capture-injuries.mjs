@@ -22,6 +22,7 @@ import { ABSENT_DESIGNATION_CARRY_H, carryForwardDesignations } from "../../src/
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const OUT = (sport) => path.join(APP, "..", "data", "internal", "research", "injuries", sport);
+const ROSTER = (sport) => (sport === "nfl" ? path.join(APP, "public", "data", "nfl", "rosters", "latest.json") : path.join(APP, "..", "data", "internal", "research", "nba", "rosters", "latest.json"));
 
 const arg = (n, f = null) => { const i = process.argv.indexOf(n); return i !== -1 && process.argv[i + 1] ? process.argv[i + 1] : f; };
 const NOW = arg("--now");
@@ -53,7 +54,11 @@ for (const [sport, url] of Object.entries(FEEDS)) {
    */
   let previous = null;
   try { previous = JSON.parse(fs.readFileSync(path.join(OUT(sport), "latest.json"), "utf8")); } catch { previous = null; }
-  const carry = carryForwardDesignations({ previousEntries: previous?.entries ?? [], currentEntries: normalized.entries, nowIso: NOW });
+  /* R1 (eligibility contract v1): a carried long-term designation ends only on an explicit activation — the feed listing
+     the player, or the roster capture (taken before this step in every workflow) saying "active" after the designation. */
+  let roster = null;
+  try { roster = JSON.parse(fs.readFileSync(ROSTER(sport), "utf8")); } catch { roster = null; }
+  const carry = carryForwardDesignations({ previousEntries: previous?.entries ?? [], currentEntries: normalized.entries, nowIso: NOW, roster });
   const artifact = {
     schemaVersion: 1,
     sport,

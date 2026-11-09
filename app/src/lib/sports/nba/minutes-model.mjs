@@ -38,13 +38,23 @@ const sampleSd = (xs) => {
 };
 const r3 = (x) => (x == null ? null : Number(x.toFixed(3)));
 
-/** Availability from the injuries feed: "out" when status contains "Out" (case-insensitive). */
-export function availabilityFromInjuries(injuries, teamProviderId, providerAthleteId) {
+/**
+ * Availability from the injuries feed (eligibility contract v1, 2026-11-09 — three states, never "absent ⇒ active"):
+ *   "out"           the feed lists the player Out
+ *   "questionable"  Day-To-Day (flagged, R6; still in the minutes pool)
+ *   "unknown"       no record in the feed (or no feed) and no roster saying active — absence is not health (R2). Still in
+ *                   the minutes pool, so the projection exists internally, but labelled: a product resolves the full
+ *                   contract before featuring it.
+ *   "active"        no feed record AND the roster capture independently says active (R2), or an explicit non-blocking
+ *                   status the feed states.
+ * `rosterStatus` is the caller's roster row status type (roster capture `rosterStatusType`); omitted ⇒ no roster evidence.
+ */
+export function availabilityFromInjuries(injuries, teamProviderId, providerAthleteId, rosterStatus = null) {
   if (!Array.isArray(injuries)) return { availability: "unknown", injuryStatus: null };
   const hit = injuries.find((e) => String(e?.athleteId) === String(providerAthleteId) && (e?.providerTeamId == null || String(e.providerTeamId) === String(teamProviderId)));
-  if (!hit) return { availability: "active", injuryStatus: null };
+  if (!hit) return { availability: String(rosterStatus ?? "").toLowerCase() === "active" ? "active" : "unknown", injuryStatus: null };
   const status = typeof hit.status === "string" ? hit.status : null;
-  return { availability: /out/i.test(status ?? "") ? "out" : "active", injuryStatus: status };
+  return { availability: /out/i.test(status ?? "") ? "out" : /day-to-day|questionable|doubtful/i.test(status ?? "") ? "questionable" : "active", injuryStatus: status };
 }
 
 /** Team games (box-score docs) for one team in one population, strictly before asOf, newest first. */

@@ -97,7 +97,9 @@ test("settlement: under the REAL NBA settlement contract (team markets only) eve
   const out = lab(nbaSlate(), { settlesNba: null });
   assert.equal(out.composed.cards, 0);
   assert.ok(out.composed.refusals.CARD_GATES > 0);
-  const leg = toV2Leg(toNbaAwareCandidate(nbaCandidateInputs({ results: nbaSlate().results }).inputs[0]));
+  // with the slate's snapshots, so the leg carries its stated status (PL-02) and settlement is the only reason left
+  const slate = nbaSlate();
+  const leg = toV2Leg(toNbaAwareCandidate(nbaCandidateInputs({ results: slate.results, snapshots: slate.snapshots }).inputs[0]));
   const r = legReasons(leg, recommendCtx({ nowMs: Date.parse(NOW), coverage: COVERAGE, isVerifiedOperator: FIXTURE_OPERATORS, canEnterSport: FIXTURE_SPORT_GATE }));
   assert.deepEqual(r, ["NO_SETTLEMENT_PATH"]);
 });

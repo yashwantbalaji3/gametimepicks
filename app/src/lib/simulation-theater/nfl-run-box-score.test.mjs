@@ -45,7 +45,7 @@ const IDX = { home: 0, away: 1 };
 
 function setup(id) {
   const r = recOf(id);
-  const ti = P.nflSimTeamInputs(REPO, id, r.home.abbr, r.away.abbr);
+  const ti = P.nflSimTeamInputs(REPO, id, r.home.abbr, r.away.abbr, r.generatedAt);
   assert.ok(ti, `${id}: committed inputs`);
   const prep = ti.inputs.map(E.prepareTeamPlayers);
   const compiled = P.compiledFor(REPO, r);

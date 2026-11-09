@@ -172,7 +172,7 @@ export function gatePoolV03({ rosters, providerTeamId, boxscores, asOfDateUtc, i
   const rows = [], insufficientHistory = [], otherTeamHistory = [], out = [];
   for (const p of team.players) {
     const id = String(p.providerAthleteId);
-    const avail = availabilityFromInjuries(injuries, teamId, id);
+    const avail = availabilityFromInjuries(injuries, teamId, id, p.rosterStatusType ?? null);
     const rec = idx.byAthlete.get(id) ?? null;
     const est = rec ? roleEstimate(rec, seasons) : null;
     const historyBasis = !rec?.lastTeam ? HISTORY_BASES.NONE : rec.lastTeam === teamId ? HISTORY_BASES.SAME_TEAM : HISTORY_BASES.OTHER_TEAM;
