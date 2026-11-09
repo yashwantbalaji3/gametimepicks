@@ -15,6 +15,7 @@ import PlayerAvatar from "@/components/ui/player-avatar";
 import type { CardSide, PredictionCardModel } from "@/lib/command-center/contract";
 import { PUBLIC_STATE_LABEL } from "@/lib/command-center/contract";
 import ModelStatusChip from "./model-status-chip";
+import GameStateTag from "@/components/game/game-state-tag";
 import SaveForecastButton from "@/components/saved/save-forecast-button";
 import { saveCardOf } from "@/lib/saved/saved-schema.mjs";
 
@@ -56,7 +57,10 @@ function signalLine(card: PredictionCardModel): string | null {
 const ORDER: Record<PredictionCardModel["sport"], { first: "away" | "home"; sep: string }> = { mlb: { first: "away", sep: "@" }, nfl: { first: "away", sep: "@" }, epl: { first: "home", sep: "v" }, ufc: { first: "away", sep: "vs" } };
 
 export default function PredictionCard({ card, variant = "compact" }: { card: PredictionCardModel; variant?: "compact" | "full" }) {
-  const signal = signalLine(card);
+  /* Founder acceptance 2026-11-09 (less clutter): a compact card already prints the chance in its forecast ("MIN 49%"), so
+     the PROBABILITY line that repeated it ("49% chance · MIN to win") is dropped there; the full card keeps it. */
+  const repeats = variant === "compact" && card.signal.kind === "PROBABILITY" && card.forecast.value.includes(`${Math.round(card.signal.probability * 100)}%`);
+  const signal = repeats ? null : signalLine(card);
   const order = ORDER[card.sport];
   const first = order.first === "away" ? card.away : card.home;
   const second = order.first === "away" ? card.home : card.away;
@@ -72,20 +76,21 @@ export default function PredictionCard({ card, variant = "compact" }: { card: Pr
       </div>
       <div className="flex items-baseline justify-between gap-2 flex-wrap">
         <span>
+          <GameStateTag state="official" />{" "}
           <span style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{card.forecast.label} </span>
           <span className="font-display" style={{ color: "var(--vault-text)", fontSize: 18, fontWeight: 800, lineHeight: 1.1 }}>{card.forecast.value}</span>
         </span>
         <ModelStatusChip state={card.status.state} label={PUBLIC_STATE_LABEL[card.status.state]} title={card.status.detail} />
       </div>
       {card.forecast.sub ? <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{card.forecast.sub}</span> : null}
-      {signal ? <span style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{signal}</span> : null}
+      {signal ? <span style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{card.signal.kind === "SIM_STRENGTH" ? <><GameStateTag state="simulation" />{" "}</> : null}{signal}</span> : null}
       {variant === "full" && card.why ? <p className="m-0" style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>{card.why}</p> : null}
       {(variant === "full" ? card.risks : card.risks.slice(0, 1)).map((r) => (
         <span key={r} style={{ color: "var(--vault-warn)", fontSize: 12 }}>{r}</span>
       ))}
       {card.result ? (
         <span className="font-mono" style={{ color: card.result.outcome === "HIT" ? "var(--vault-success)" : card.result.outcome === "MISS" ? "var(--vault-danger)" : "var(--vault-text-faint)", fontSize: 12 }}>
-          Final: {card.result.actual} · {card.result.outcome === "HIT" ? "the read landed" : card.result.outcome === "MISS" ? "the read missed" : "no result"}
+          <GameStateTag state="final" /> {card.result.actual} · {card.result.outcome === "HIT" ? "the read landed" : card.result.outcome === "MISS" ? "the read missed" : "no result"}
         </span>
       ) : null}
       <div className="flex items-center justify-between gap-2 flex-wrap">

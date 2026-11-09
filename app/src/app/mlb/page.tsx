@@ -8,6 +8,7 @@
  * data; lean/game counts come from the live board summary.
  */
 import LiveNow from "@/components/live/live-now";
+import LiveShortcut from "@/components/live/live-shortcut";
 import HubHeader, { HubTitle } from "@/components/sport-hub/hub-header";
 import SportSwitcher from "@/components/sports/sport-switcher";
 import { mlbHub } from "@/lib/sport-hub/adapters";
@@ -441,6 +442,7 @@ export default async function MlbLandingPage() {
         <SportSwitcher current="mlb" />
         <HubTitle model={__hubModel} />
         {/* Founder UX decision 2026-10-08: a game in play leads the hub (client-read; nothing when none is live). */}
+        <LiveShortcut sports={["mlb"]} where="mlb" />
         <LiveNow sports={["mlb"]} />
       <SportHubNav
           sport="mlb"

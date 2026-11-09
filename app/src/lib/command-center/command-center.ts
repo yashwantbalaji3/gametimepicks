@@ -29,6 +29,8 @@ export interface CommandCenterGame {
   note: string;
   /** Where the row leads (NBA: the game page when it is exported, else the game's card on /nba); null renders the row as text. */
   href: string | null;
+  /** What the row's fact IS (founder acceptance 2026-11-09): the official forecast, or the settled final. */
+  state?: "official" | "final" | null;
   /** The official win chance, printed only through the sport's one accessor (NBA: the Elo estimate), with its attribute. */
   winChance?: { text: string; attr: string } | null;
 }

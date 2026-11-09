@@ -18,6 +18,7 @@
  * exported ids: settled-simulation-data nbaExportedGamePageIds) holds it — "Game page →", named "Game page: AWAY vs HOME",
  * a 44px target. No ids passed → no link.
  */
+import GameStateTag from "@/components/game/game-state-tag";
 import React from "react";
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
@@ -125,8 +126,8 @@ export function NbaTodayGames({ slate, slip, gamePages, lineSummaries }: {
             const line = forecastLine(g, pending);
             return g.finalNote || line ? (
               <div className="nbx-read">
-                {g.finalNote ? <strong>Final · {g.finalNote}</strong> : null}
-                {line ? <p>{line}</p> : null}
+                {g.finalNote ? <strong><GameStateTag state="final" /> Final · {g.finalNote}</strong> : null}
+                {line ? <p>{g.favoured && !g.finalNote ? <><GameStateTag state="official" />{" "}</> : null}{line}</p> : null}
               </div>
             ) : null;
           })()}
@@ -137,6 +138,7 @@ export function NbaTodayGames({ slate, slip, gamePages, lineSummaries }: {
               {/* UX-10 (2026-11-09): "Game page →" and "Game Simulation →" opened the same /nba/simulation/<id>/ page — one
                   link per destination: the Game Simulation link renders only where no game-page link already opens it. */}
               {g.theaterHref && !gamePages?.has(g.id) ? <Link href={g.theaterHref} prefetch={false} data-nba-theater-link={g.id}>{PUBLIC_TERMS.GAME_SIMULATION} →</Link> : null}
+              {g.theaterHref ? <GameStateTag state="simulation" /> : null}
               {/* Vehicle N: only a Level A leg (hub-slip → levelASlipLegFor) — a game without one gets no button */}
               <HubSlipButton leg={slip?.get(g.id)} />
             </p>

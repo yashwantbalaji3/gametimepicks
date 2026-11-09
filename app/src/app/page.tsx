@@ -34,6 +34,7 @@ import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal"
 
 import LandingHero from "@/components/home/landing-hero";
 import LiveNow from "@/components/live/live-now";
+import LiveShortcut from "@/components/live/live-shortcut";
 import RecentResultsStrip from "@/components/home/recent-results-strip";
 import { corePaperSettlement, siteLatestResults } from "@/lib/results/settled-through-server";
 import FlagshipCards, { type FlagshipCard } from "@/components/home/flagship-cards";
@@ -370,6 +371,10 @@ export default async function HomePage() {
         eventsKnown={todayAcross.state !== "UNKNOWN"}
         latestResultsDate={latestResultsDate}
       />
+
+      {/* Founder condition 2 (2026-11-09): Live left the bars, so Today carries a highly visible one-tap Live shortcut —
+          stronger while games are in progress. */}
+      <LiveShortcut sports={["nfl", "mlb"]} where="home" />
 
       {/* Release B (benchmark PR 1193 gap 3): on phones every sport is above the fold — the lanes' own label + state */}
       <SportsToday lanes={commandLanes} />

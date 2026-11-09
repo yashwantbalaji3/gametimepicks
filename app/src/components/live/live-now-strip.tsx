@@ -15,6 +15,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import TeamLogo from "@/components/team-logo";
+import GameStateTag from "@/components/game/game-state-tag";
 import { liveReadyFor, liveUrl } from "@/lib/live/client";
 
 type Sport = "nfl" | "mlb";
@@ -82,7 +83,8 @@ export default function LiveNowStrip({ sports, hrefs }: { sports: Sport[]; hrefs
           const href = hrefs[`${g.sport}:${g.providerEventId}`] ?? null;
           return (
             <li key={`${g.sport}-${g.providerEventId}`} style={{ border: "1px solid var(--vault-border)", borderRadius: 10, padding: "10px 12px", display: "grid", gap: 6 }}>
-              <p style={{ margin: 0, fontSize: 11, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)" }}>
+              <p style={{ margin: 0, fontSize: 12, letterSpacing: "0.08em", textTransform: "uppercase", color: "var(--vault-text-faint)", display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap" }}>
+                {stale ? null : <GameStateTag state="live" />}
                 {SPORT_LABEL[g.sport]} · {stale ? "last known" : g.state === "DELAYED" ? "delayed" : "live"}{g.label ? ` · ${g.label}` : ""}
               </p>
               {[g.away, g.home].map((t) => (

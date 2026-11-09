@@ -79,6 +79,7 @@ export function nbaLane(slate: NbaTodaySlate, nowIso: string, { lastPublished = 
       : g.favoured ? `${g.favoured.abbr} favoured`
       : slate.forecast === "PENDING" ? "Forecast pending" : `No ${PUBLIC_TERMS.OFFICIAL_FORECAST}`,
     href: nbaGamePageHrefIfExported(g.id, gamePageIds) ?? hubLaneAnchor(g.id),
+    state: g.finalNote ? "final" : g.favoured ? "official" : null,
     winChance: wc ? { text: `${wc.awayAbbr} ${wc.awayPct}% · ${wc.homeAbbr} ${wc.homePct}%`, attr: wc.attr } : null,
   };
   });

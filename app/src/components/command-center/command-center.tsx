@@ -12,6 +12,7 @@
  * ("Game forecasts: not market-validated · Player ranges: paused", each with its evidence in the title); the
  * featured card keeps its own one chip. Every state, label and link is unchanged, and no text is under 12px.
  */
+import GameStateTag from "@/components/game/game-state-tag";
 import Link from "next/link";
 import type { CommandCenterLane } from "@/lib/command-center/command-center";
 import { PUBLIC_STATE_LABEL } from "@/lib/command-center/contract";
@@ -43,6 +44,7 @@ function LaneGames({ lane }: { lane: CommandCenterLane }) {
             <span className="font-semibold" style={{ color: "var(--vault-text)" }}>{g.label}</span>
             <span style={{ color: "var(--vault-text-mute)" }}>{g.time}</span>
             <span className="basis-full" style={{ color: "var(--vault-text-mute)" }}>
+              {g.state ? <><GameStateTag state={g.state} />{" "}</> : null}
               {g.note}
               {g.winChance ? <> · <span data-nba-elo-wp={g.winChance.attr} style={{ color: "var(--vault-text)" }}>{g.winChance.text}</span></> : null}
               {g.href ? " →" : ""}

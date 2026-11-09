@@ -71,6 +71,7 @@ import { currentProductRecord } from "@/lib/results/current-record";
 import { scopedRecordText } from "@/lib/results/current-record";
 import { buildSimulateDay, simulationReadyCount } from "@/lib/simulate/day-view";
 import LiveNow from "@/components/live/live-now";
+import LiveShortcut from "@/components/live/live-shortcut";
 import MoreDisclosure from "@/components/ui/more-disclosure";
 import GamesTable from "@/components/games-experience-table";
 import { buildGamesTableRows, gamesTableDates } from "@/components/games-experience-table-rows";
@@ -345,6 +346,7 @@ export default function TodayPage() {
       />
       {/* UX System V2 (founder directive 2026-10-13): LIVE FIRST. The same view-time strip Home and the hubs use; it
           renders nothing when no game is in play. */}
+      <LiveShortcut sports={["nfl", "mlb"]} where="today" />
       <LiveNow sports={["nfl", "mlb"]} />
 
       {/* 2 — Today's games, each once: started / upcoming / final, each linking to its game page with its official

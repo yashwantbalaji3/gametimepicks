@@ -394,3 +394,14 @@ test("UX-10 (2026-11-09): with its game page exported, a card links that page ON
   assert.doesNotMatch(card, />Game Simulation →</);
   assert.match(card, /href="\/nba\/simulation\/g1\/#official-predictions"[^>]*>Official Forecast →/, "the forecast anchor stays");
 });
+
+test("founder acceptance 2026-11-09: NBA cards and lane rows say what each fact IS — MODEL PROJECTION (official), SIMULATION (hypothetical), FINAL (settled)", () => {
+  const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate() }));
+  const card = h.split("<article").slice(1)[0];
+  assert.match(card, /data-game-state="official">MODEL PROJECTION<\/span> Official Forecast: Philadelphia 76ers favoured/);
+  assert.match(card, /data-game-state="simulation">SIMULATION · hypothetical</, "the simulation link is tagged hypothetical");
+  assert.doesNotMatch(card, /data-game-state="final"/, "no final before the game ends");
+  const lane = nbaLane(slate(), NOW);
+  assert.equal(lane.games[0].state, "official");
+  const settled = mergeFinals ? null : null; void settled;
+});

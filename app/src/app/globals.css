@@ -6141,3 +6141,26 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 /* (b′) The same tone dot without the pill, for a status said inline in a sentence-like row (homepage lanes). */
 .gtp-calm-dot { display: inline-flex; align-items: center; gap: 6px; }
 .gtp-calm-dot::before { content: ""; flex: none; width: 6px; height: 6px; border-radius: 9999px; background: var(--chip-tone, var(--vault-text-faint)); }
+
+/* Live shortcut (components/live/live-shortcut.tsx, founder condition 2 2026-11-09): one tap to the Live hub from Today and
+   the NFL / MLB hubs; a quiet card by default, the brand-green "hot" card while the live gateway reports games in play. */
+.gtp-live-shortcut { display: flex; align-items: center; gap: 12px; min-height: 56px; padding: 10px 16px; border-radius: 14px; border: 1px solid var(--vault-border-strong); background: var(--vault-panel); color: var(--vault-text); text-decoration: none; }
+.gtp-live-shortcut:hover { border-color: var(--vault-accent); }
+.gtp-live-shortcut:focus-visible { outline: 2px solid var(--vault-accent); outline-offset: 2px; }
+.gtp-live-shortcut-dot { width: 10px; height: 10px; flex: none; border-radius: 999px; background: var(--vault-text-mute); }
+.gtp-live-shortcut-text { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.gtp-live-shortcut-text b { font: 700 15px var(--font-display); }
+.gtp-live-shortcut-text span { font-size: 12.5px; color: var(--vault-text-mute); }
+.gtp-live-shortcut-go { font-size: 18px; color: var(--vault-accent); }
+.gtp-live-shortcut.is-hot { border: 2px solid var(--vault-accent); background: color-mix(in srgb, var(--vault-accent) 12%, var(--vault-panel)); }
+.gtp-live-shortcut.is-hot .gtp-live-shortcut-dot { background: var(--vault-danger); box-shadow: 0 0 0 4px color-mix(in srgb, var(--vault-danger) 25%, transparent); }
+@media (prefers-reduced-motion: no-preference) { .gtp-live-shortcut.is-hot .gtp-live-shortcut-dot { animation: gtp-live-pulse var(--motion-ambient-duration) var(--motion-ambient-easing) infinite; } }
+@keyframes gtp-live-pulse { 50% { opacity: .45; } }
+
+/* Game state tags (components/game/game-state-tag.tsx, founder acceptance 2026-11-09): what a card's figure IS. */
+.gtp-state-tag { display: inline-flex; align-items: center; gap: 5px; padding: 1px 8px; border-radius: 999px; border: 1.5px solid; font: 700 12px/1.5 var(--font-mono); letter-spacing: 0.04em; white-space: nowrap; vertical-align: middle; }
+.gtp-state-tag.is-official { color: var(--vault-crown); border-color: var(--vault-crown); }
+.gtp-state-tag.is-simulation { color: var(--vault-accent-mint); border-color: var(--vault-accent); border-style: dashed; }
+.gtp-state-tag.is-live { color: var(--vault-text); border-color: var(--vault-danger); }
+.gtp-state-tag.is-live::before { content: ""; width: 7px; height: 7px; border-radius: 999px; background: var(--vault-danger); }
+.gtp-state-tag.is-final { color: var(--vault-text); border-color: var(--vault-text-mute); }
