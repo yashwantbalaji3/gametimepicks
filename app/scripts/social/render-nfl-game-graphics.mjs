@@ -4,7 +4,7 @@
  * NFL PER-GAME PLAYER PROJECTION GRAPHICS — renderer CLI (Week 8 Sunday/Monday slate, 2026-11-01/02).
  *
  *   cd app && npx tsx scripts/social/render-nfl-game-graphics.mjs --season-type 2 --week 8 --as-of <ISO instant> \
- *       --purpose founder-review [--event <id>] [--out ~/gtp-private/graphics/nfl-w08/] [--scales 1,2] [--no-png]
+ *       --purpose founder-review [--event <id>] [--out ~/gtp-private/graphics/nfl-w08/] [--scales 1,2] [--no-png] [--public-dir <frozen public/>]
  *
  * Flow per game (Sunday and Monday ET kickoffs of the week): the game page's view (forecast-view-load.mjs
  * loadForecastViews: the official snapshot nflOfficialSnapshot) + the committed player board + the roster capture's
@@ -229,7 +229,10 @@ export async function renderNflGameGraphics(args, { publicDir, repoRoot, authori
 }
 
 if (process.argv[1] && path.resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
-  renderNflGameGraphics(parseArgs(process.argv.slice(2))).then(({ outRoot, games, refused, pngs }) => {
+  /* --public-dir <dir> renders from a frozen copy of public/ (e.g. a settled week's inputs); the record resolver still
+     reads this repository. Absent, the live app/public is used. */
+  const cli = parseArgs(process.argv.slice(2));
+  renderNflGameGraphics(cli, cli["public-dir"] ? { publicDir: path.resolve(cli["public-dir"]), repoRoot: path.resolve(APP, "..") } : {}).then(({ outRoot, games, refused, pngs }) => {
     for (const g of games) console.log(`${g.eventId} ${g.doc.game.matchup} ${g.doc.game.etWeekday} · ${Object.entries(g.doc.scope.playersPerTeam).map(([k, n]) => `${k} ${n}`).join(" / ")} · ${g.cards.length} image(s)`);
     for (const r of refused) console.log(`REFUSED ${r.eventId} ${r.matchup}: ${r.reason}`);
     console.log(`${games.length} games · ${pngs.length} PNGs → ${outRoot}`);

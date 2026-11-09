@@ -12,6 +12,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { spawnSync } from "node:child_process";
 import os from "node:os";
 import path from "node:path";
 
@@ -384,4 +385,14 @@ test("no non-test source module imports the NFL graphics edition, cards or rende
   const walk = (d, out = []) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p, out); else if (/\.(tsx?|mjs|jsx?)$/.test(p) && !/\.test\./.test(p)) out.push(p); } return out; };
   const importers = walk(path.join(APP, "src")).filter((f) => /nfl-game-graphics-export|nfl-game-cards|render-nfl-game-graphics/.test(fs.readFileSync(f, "utf8")) && !f.endsWith("nfl-game-graphics-export.mjs"));
   assert.deepEqual(importers.map((f) => path.relative(APP, f)), []);
+});
+
+test("CLI --public-dir renders a settled week from its frozen inputs (the live app/public no longer carries week 8)", () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-nfl-w8-cli-"));
+  const run = (extra) => spawnSync("npx", ["tsx", "scripts/social/render-nfl-game-graphics.mjs", "--season-type", "2", "--week", "8", "--as-of", AS_OF, "--purpose", "founder-review", "--no-png", "--out", out, ...extra], { cwd: APP, encoding: "utf8" });
+  const frozen = run(["--public-dir", FROZEN_PUBLIC]);
+  assert.equal(frozen.status, 0, frozen.stderr || frozen.stdout);
+  const live = run([]);
+  assert.notEqual(live.status, 0, "without the frozen inputs there is no week 8 to render");
+  assert.match(`${live.stderr}${live.stdout}`, /no Sunday\/Monday games in season type 2 week 8/);
 });
