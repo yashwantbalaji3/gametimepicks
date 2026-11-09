@@ -22,7 +22,22 @@ const json = (rel) => JSON.parse(read(rel));
 const code = (rel) => read(rel).replace(/\/\*[\s\S]*?\*\//g, "").replace(/\{\s*\/\*[\s\S]*?\*\/\s*\}/g, "");
 const text = (h) => h.replace(/<[^>]+>/g, " ").replace(/&[a-z#0-9]+;/gi, " ").replace(/\s+/g, " ");
 
-const FORECASTS = json("public/data/soccer/ligue-1/forecasts/latest.json");
+/*
+ * The hub's forecast file. latest.json is the live eight-day window, which is legitimately EMPTY between rounds (the
+ * November international break: 0 rows on 2026-11-09). The behaviour these tests pin is computed from a hub file with
+ * fixtures, so they read latest.json when it has rows, else the newest committed dated hub file that does — a real,
+ * committed forecast file, never a synthetic one. The /sports tile test reads the LIVE file, which is what the chooser
+ * itself renders.
+ */
+const LIVE_FORECASTS = json("public/data/soccer/ligue-1/forecasts/latest.json");
+const FORECASTS = LIVE_FORECASTS.rows?.length ? LIVE_FORECASTS : (() => {
+  const dir = path.join(process.cwd(), "public/data/soccer/ligue-1/forecasts");
+  for (const n of fs.readdirSync(dir).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x)).sort().reverse()) {
+    const doc = JSON.parse(fs.readFileSync(path.join(dir, n), "utf8"));
+    if (doc.rows?.length) return doc;
+  }
+  throw new Error("no committed Ligue 1 forecast file carries a fixture — these tests would prove nothing");
+})();
 const GRADED = json("public/data/soccer/ligue-1/results/graded.json");
 const base = { league: "ligue-1", label: "Ligue 1", hubHref: "/soccer/ligue-1/", resultHref: "/results/picks/ligue-1/" };
 
@@ -111,7 +126,7 @@ test("/sports chooser renders a 'Next:' date on the Ligue 1 tile whenever a fixt
   const html = renderToStaticMarkup(React.createElement(SportChooser));
   const tile = /<a[^>]*href="\/soccer\/ligue-1\/?"[^>]*>([\s\S]*?)<\/a>/.exec(html);
   assert.ok(tile, "the Ligue 1 tile renders");
-  const next = leagueNextFixtureUtc(FORECASTS, GRADED, Date.now());
+  const next = leagueNextFixtureUtc(LIVE_FORECASTS, GRADED, Date.now());
   if (next) assert.match(text(tile[1]), new RegExp(`Next: ${etDayLabel(next)}`));
   else assert.doesNotMatch(text(tile[1]), /Next:/, "no fixture ahead → the tile claims no date");
 });
@@ -205,7 +220,7 @@ test("/today integration: the built games table carries each Ligue 1 fixture in 
   const rows = buildGamesTableRows(today).filter((r) => r.sport === "ligue-1");
   const window = new Set(gamesTableDates(today));
   const expected = new Set([
-    ...FORECASTS.rows.filter((r) => window.has(etDayOf(r.kickoffUtc))).map((r) => `ligue-1:${r.eventId}`),
+    ...LIVE_FORECASTS.rows.filter((r) => window.has(etDayOf(r.kickoffUtc))).map((r) => `ligue-1:${r.eventId}`),
     ...GRADED.matches.filter((m) => window.has(etDayOf(m.kickoffUtc))).map((m) => `ligue-1:${m.eventId}`),
   ]);
   assert.deepEqual(new Set(rows.map((r) => r.id)), expected);
