@@ -18,6 +18,7 @@ import { canonical, sha256 } from "./chain.mjs";
 import { priceRatio, payoutCents, decimalToAmerican } from "./payout.mjs";
 import { stepPosition, RULES_VERSION } from "./rules-v2.mjs";
 import { ELIGIBLE_OPERATOR_KEYS } from "../sports/odds/eligible-operators.mjs";
+import { legBasisRefusals } from "./availability.mjs";
 import { EVIDENCE_LABEL, SELECTION_LABEL, publicFlags, laneTypeOf, laneTypeRefusal, evidenceLine, propositionIdentity } from "./card-fields.mjs";
 export { EVIDENCE_LABEL, PRIVATE_LEG_FIELDS, publicLeg, privateLeg } from "./card-fields.mjs";
 
@@ -114,7 +115,7 @@ export function legFromShortlist(c) {
     forecastVersion: c.forecastVersion ?? null, evidenceSha256: c.evidenceSha256 ?? null,
     projection: c.projection ? { value: c.projection.value ?? null, label: "MODEL PROJECTION", snapshotId: c.projection.snapshotId ?? null } : null,
     hitRate: c.hitRate ? { windows: (c.hitRate.windows ?? []).map((w) => ({ window: w.window, hits: w.hits, n: w.n, text: hitRateText(w) })), shrunk: c.hitRate.shrunk ?? null, lineBasis: c.hitRate.lineBasis ?? null } : null,
-    role: c.role ?? null, injury: c.injury ?? null, dataQuality: c.dataQuality ?? null, lineup: c.lineup ?? null,
+    role: c.role ?? null, injury: c.injury ?? null, availability: c.availability ?? null, dataQuality: c.dataQuality ?? null, lineup: c.lineup ?? null,
     eloSide: c.eloSide ?? undefined, roster: c.roster ?? undefined, flags: c.family === "winner" ? c.flags ?? undefined : undefined, context: c.context ?? undefined,
     probability: null, uncertainty: null, ev: null,
   };
@@ -223,7 +224,8 @@ export function legSignals(leg, { params = null, now } = {}) {
     if (A.shrunkRate != null && A.shrunkRate < floor - 1e-9) r.push(`A_WEAK_EVIDENCE ${leg.legId}: minutes-conditioned rate ${A.shrunkRate.toFixed(3)} < ${floor}`);
   }
   const C = { status: leg.injury?.status ?? null, fetchedAt: leg.injury?.fetchedAt ?? null };
-  if (leg.family !== "winner" && !P("allowedInjury", params).includes(C.status)) r.push(`C_AVAILABILITY ${leg.legId}: ${C.status ?? "unknown"}`);
+  /* ELIG-04: the shared fail-closed rule (availability.mjs); allowedInjury no longer admits a leg on its own */
+  r.push(...legBasisRefusals(leg, { now }));
   /* Lineup sensitivity: the evaluator's teammate-scenario splits (k/n at this line per scenario) decide whether the base
      sample represents tonight. Unknown → HOLD; sensitive or unrepresentative → HOLD. */
   const lu = leg.lineup;

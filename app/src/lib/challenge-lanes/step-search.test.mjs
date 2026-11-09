@@ -6,12 +6,14 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { searchStep, pairProducts, COMBINED_PRODUCT_LABEL, searchDigest } from "./step-search.mjs";
 import { selectionIdentity } from "./card-fields.mjs";
+import { mirrorEligibility } from "./availability.mjs";
 
 const NOW = "2026-11-05T19:10:00Z"; const F = "2026-11-05T19:00:00Z";
 const NFL = "401873037";
 const evB = (rate = 0.66, n = 40) => ({ level: "B", windows: [{ window: "last5", hits: 4, n: 5 }, { window: "last10", hits: 8, n: 10 }, { window: "career", hits: Math.round(n * 0.65), n }], shrunk: { rate } });
-const nfl = (o) => ({ sport: "nfl", gameId: NFL, eventLabel: "JAX @ BAL", startUtc: "2026-11-06T01:15Z", injury: { status: "ACTIVE" }, evidence: evB(), ...o });
-const nba = (o) => ({ sport: "nba", gameId: "401909936", eventLabel: "ORL @ PHX", startUtc: "2026-11-06T02:00Z", injury: { status: "ACTIVE" }, evidence: evB(), ...o });
+const AV = mirrorEligibility({ injuryStatus: null, injuriesFetchedAt: F, rosterStatus: "active", rosterFetchedAt: F, asOf: NOW });
+const nfl = (o) => ({ sport: "nfl", gameId: NFL, eventLabel: "JAX @ BAL", startUtc: "2026-11-06T01:15Z", injury: { status: "ACTIVE" }, availability: AV, evidence: evB(), ...o });
+const nba = (o) => ({ sport: "nba", gameId: "401909936", eventLabel: "ORL @ PHX", startUtc: "2026-11-06T02:00Z", injury: { status: "ACTIVE" }, availability: AV, evidence: evB(), ...o });
 const C = {
   td: nfl({ family: "anytime_td", player: { playerId: "h", name: "Henry", team: "BAL" }, side: "yes", evidence: { level: "A", probability: 0.63, interval95: [0.58, 0.68] } }),
   rec: nfl({ family: "receptions", player: { playerId: "f", name: "Flowers", team: "BAL" }, side: "over", line: 5.5 }),
@@ -60,7 +62,7 @@ test("refusals: exact line, stale quote, injury, opposing selection within a car
   assert.ok(off.cards[0].reasons.some((x) => x.startsWith("E_NO_QUOTE_AT_EXACT_LINE")));
   const stale = searchStep({ candidates: [C.rec], quotes: [q(C.rec, 140, "draftkings", "2026-11-05T15:00:00Z")], ...BB });
   assert.ok(stale.cards[0].reasons.some((x) => x.startsWith("E_STALE_QUOTE")));
-  const hurt = searchStep({ candidates: [{ ...C.rec, injury: { status: "QUESTIONABLE" } }], quotes: [q(C.rec, 140)], ...BB });
+  const hurt = searchStep({ candidates: [{ ...C.rec, injury: { status: "QUESTIONABLE" }, availability: mirrorEligibility({ injuryStatus: "QUESTIONABLE", injuriesFetchedAt: F, rosterStatus: "active", rosterFetchedAt: F, asOf: NOW }) }], quotes: [q(C.rec, 140)], ...BB });
   assert.ok(hurt.cards[0].reasons.some((x) => x.startsWith("C_AVAILABILITY")));
   const opp = searchStep({ candidates: [C.rec, C.recU], quotes: [q(C.rec, 100), q(C.recU, 100)], ...BB });
   assert.ok(opp.cards.find((c) => c.legCount === 2).reasons.some((x) => /CORRELATED_SAME/.test(x)));

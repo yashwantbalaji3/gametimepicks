@@ -23,6 +23,7 @@ import { stepPosition, RULES_VERSION } from "./rules-v2.mjs";
 import { selectionIdentity, propositionIdentity } from "./card-fields.mjs";
 import { latestPostAt } from "./levels.mjs";
 import { ELIGIBLE_OPERATOR_KEYS } from "../sports/odds/eligible-operators.mjs";
+import { legBasisRefusals } from "./availability.mjs";
 
 export const COMBINED_PRODUCT_LABEL = "mathematical product of separately observed prices, not a quoted parlay";
 export const STEP_SEARCH_DEFAULTS = Object.freeze({
@@ -54,7 +55,8 @@ function legView(c, quotesByKey, { now, params, bookmakers }) {
     else reasons.push(`E_STALE_QUOTE ${key}: fetched ${q.fetchedAt}`);
   }
   if (!(Date.parse(c.startUtc) > Date.parse(now))) reasons.push(`STARTED ${key}`);
-  if (c.injury && !D("allowedInjury", params).includes(c.injury.status)) reasons.push(`C_AVAILABILITY ${key}: ${c.injury.status}`);
+  /* ELIG-04: one fail-closed rule shared with levels.mjs (missing or stale availability = UNKNOWN = refused); R5 QB-blind */
+  reasons.push(...legBasisRefusals({ ...c, legId: key }, { now }));
   if (c.role && c.role.stable === false) flags.push(`B_ROLE_UNSTABLE ${key}`);
   const ev = c.evidence ?? {};
   let level = null; let strength = null; let evLow = null;

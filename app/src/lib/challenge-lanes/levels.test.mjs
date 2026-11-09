@@ -5,6 +5,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { canonical, sha256 } from "./chain.mjs";
+import { mirrorEligibility } from "./availability.mjs";
 import { stepPosition } from "./rules-v2.mjs";
 import { LEVEL, RANKING_LABEL, verifyShortlist, legFromShortlist, evaluateLevelSet, evaluateLevelCandidates, constructLevelPair, levelCardRecord, sealCardRecord, hitRateText, indexPropCapture } from "./levels.mjs";
 
@@ -14,7 +15,10 @@ const BOOKS = ["draftkings", "fanduel", "betmgm"];
 const MS1 = stepPosition({ product: "moonshot", step: 1, bankrollCents: 2500 });
 const BB1 = stepPosition({ product: "bank-builder", step: 1, bankrollCents: 10000 });
 
-const row = (o = {}) => ({
+/* availability: an eligibility@1-mirror record derived from the row's injury status (roster active, both stamps fresh) */
+const avail = (status) => mirrorEligibility({ injuryStatus: status === "ACTIVE" ? null : status ?? null, injuriesFetchedAt: FETCHED, rosterStatus: "active", rosterFetchedAt: FETCHED, asOf: NOW });
+const row = (o = {}) => { const r = rowBase(o); return r.family === "winner" || "availability" in o ? r : { ...r, availability: avail(r.injury?.status) }; };
+const rowBase = (o = {}) => ({
   eventId: "1", eventLabel: "AAA @ BBB", startUtc: "2026-11-05T00:00Z", family: "pts", player: { playerId: "p1", name: "Player One", team: "BBB" }, side: "over", line: 20.5,
   hitRate: { windows: [{ window: "last5", hits: 4, n: 5 }, { window: "season-2026-27", hits: 6, n: 8 }, { window: "2025-26", hits: 45, n: 70 }], shrunk: { rate: 0.64, nEffective: 83, method: "test" }, lineBasis: "exact" },
   role: { minutesAvg: 34, minutesSd: 3, gamesPlayed: 8, starts: 8, stable: true }, injury: { status: "ACTIVE", source: "test", fetchedAt: FETCHED }, dataQuality: { ok: true, issues: [] },
