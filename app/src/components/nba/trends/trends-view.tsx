@@ -57,7 +57,7 @@ export default function TrendsView({ trends }: { trends: NbaTrends }) {
                       <a href={`#p-${r.playerId}`} className="trn-name" data-trn-open={r.playerId}>
                         {r.rank != null ? <span className="trn-rank">{r.rank}</span> : null}{r.name}
                       </a>
-                      <span className="trn-sub">{r.team} vs {r.opp}</span>
+                      <span className="trn-sub">{r.team} {r.home ? "vs" : "@"} {r.opp}</span>
                       <span className={`trn-avail is-${r.availability}`} title={r.availabilityNote}>{GLYPH[r.availability]} {AVAILABILITY_LABEL[r.availability]}</span>
                     </th>
                     {TRENDS_STATS.map(([k]) => <Cell key={k} row={r} stat={k} />)}

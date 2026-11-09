@@ -50,7 +50,7 @@ export default function TrendsDrawer() {
         <header className="trn-drawer-head">
           <div>
             <h2 id="trn-drawer-h">{p?.name ?? "Player"}</h2>
-            {p ? <p className="trn-sub">{p.team} vs {p.opp} · {p.availabilityNote}</p> : null}
+            {p ? <p className="trn-sub">{p.team} {p.home ? "vs" : "@"} {p.opp} · {p.availabilityNote}</p> : null}
           </div>
           <button ref={closeRef} type="button" className="trn-close" onClick={close} aria-label="Close player trends">✕</button>
         </header>

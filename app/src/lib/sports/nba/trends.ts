@@ -46,6 +46,8 @@ export type TrendGame = { eventId: string; dateEt: string; team: string; opp: st
 export type TrendWindow = { size: number; played: number; above: Record<TrendStat, number> | null };
 export type TrendRow = {
   playerId: string; name: string; team: string; opp: string;
+  /** tonight: true = at home ("vs"), false = away ("@") */
+  home: boolean;
   availability: TrendAvailability; availabilityNote: string;
   /** tonight's official medians (the lane's own 1-dp figures); null when the lane publishes no projection for him */
   reference: Record<TrendStat, number> | null;
@@ -125,14 +127,14 @@ export function buildTrends(lane: Snapshot | null, sources: readonly TrendSource
         const availabilityNote = isOut(status) ? `Out (${status})` : status ? `Injury designation: ${status}` : !slateIsToday ? "Projection is not tonight's — availability not verified" : "On tonight's official projection · no injury designation";
         const games = historyOf(id);
         const em = Number((p as { expectedMinutes?: number }).expectedMinutes);
-        rows.push({ playerId: id, name: p.name ?? id, team, opp, availability, availabilityNote, reference: hasRef ? reference : null, windows: windowsOf(games, hasRef ? reference : null), games, rank: null, expectedMinutes: Number.isFinite(em) ? em : null });
+        rows.push({ playerId: id, name: p.name ?? id, team, opp, home: side === "home", availability, availabilityNote, reference: hasRef ? reference : null, windows: windowsOf(games, hasRef ? reference : null), games, rank: null, expectedMinutes: Number.isFinite(em) ? em : null });
       }
       for (const u of g.players.unavailable?.[side] ?? []) {
         const id = String(u.providerAthleteId);
         const out = isOut(u.status) || u.reason === "RULED_OUT";
         const games = historyOf(id);
         rows.push({
-          playerId: id, name: u.name ?? id, team, opp,
+          playerId: id, name: u.name ?? id, team, opp, home: side === "home",
           availability: out ? "ineligible" : "not-verified",
           availabilityNote: out ? `Out${u.status ? ` (${u.status})` : ""}` : "No official projection tonight — availability not verified",
           reference: null, windows: windowsOf(games, null), games, rank: null, expectedMinutes: null,
@@ -174,10 +176,10 @@ export function loadNbaTrends(lane: Snapshot | null, todayEt: string): NbaTrends
 }
 
 /** The drawer file: per player, the reference and the games — the same rows the table counts. No price field exists. */
-export type TrendsDrawerPayload = { schema: "gtp.nba-trends-drawer@1"; slateDate: string | null; reference: string; note: string; players: Record<string, { name: string; team: string; opp: string; availability: TrendAvailability; availabilityNote: string; reference: Record<TrendStat, number> | null; games: TrendGame[] }> };
+export type TrendsDrawerPayload = { schema: "gtp.nba-trends-drawer@1"; slateDate: string | null; reference: string; note: string; players: Record<string, { name: string; team: string; opp: string; home: boolean; availability: TrendAvailability; availabilityNote: string; reference: Record<TrendStat, number> | null; games: TrendGame[] }> };
 export function trendsDrawerPayload(t: NbaTrends): TrendsDrawerPayload {
   return {
     schema: "gtp.nba-trends-drawer@1", slateDate: t.slateDate, reference: TRENDS_REFERENCE_LABEL, note: TRENDS_HISTORY_NOTE,
-    players: Object.fromEntries(t.rows.map((r) => [r.playerId, { name: r.name, team: r.team, opp: r.opp, availability: r.availability, availabilityNote: r.availabilityNote, reference: r.reference, games: r.games }])),
+    players: Object.fromEntries(t.rows.map((r) => [r.playerId, { name: r.name, team: r.team, opp: r.opp, home: r.home, availability: r.availability, availabilityNote: r.availabilityNote, reference: r.reference, games: r.games }])),
   };
 }

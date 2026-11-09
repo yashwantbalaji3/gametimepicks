@@ -136,5 +136,23 @@ test("flag OFF: the page 404s outside the literal flag branch, the prune deletes
   } finally { if (prev !== undefined) process.env.GTP_NBA_TRENDS_PUBLIC = prev; }
   // and when the export exists from a flag-OFF build, there is no /trends page in it
   const out = path.join(APP, "out");
-  if (fs.existsSync(out) && process.env.GTP_NBA_TRENDS_PUBLIC !== "1") assert.ok(!fs.existsSync(path.join(out, "trends")), "out/trends was pruned");
+  // (the export's own data file says which build made it: a flag-OFF build writes {"disabled":true})
+  const dataFile = path.join(out, "data", "nba-trends.json");
+  const builtOff = fs.existsSync(dataFile) ? JSON.parse(fs.readFileSync(dataFile, "utf8")).disabled === true : fs.existsSync(out);
+  if (builtOff) {
+    assert.ok(!fs.existsSync(path.join(out, "trends")), "out/trends was pruned");
+    if (fs.existsSync(dataFile)) assert.deepEqual(JSON.parse(fs.readFileSync(dataFile, "utf8")), { disabled: true }, "no trends data ships");
+  }
+});
+
+test("tonight's matchup reads from the player's side: home 'vs', away '@'", () => {
+  const t = T.buildTrends(lane, SOURCES, { slateIsToday: true });
+  const by = Object.fromEntries(t.rows.map((r) => [r.playerId, r]));
+  assert.equal(by.e.home, true);
+  assert.equal(by.o.home, false);
+  return import("../../../components/nba/trends/trends-view.tsx").then(({ default: View }) => {
+    const h = renderToStaticMarkup(React.createElement(View, { trends: t }));
+    assert.match(h, /HHH vs AAA/);
+    assert.match(h, /AAA @ HHH/);
+  });
 });
