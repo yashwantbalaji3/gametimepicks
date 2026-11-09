@@ -259,3 +259,13 @@ test("cross-sport NBA+UFC fixture cards, and settlement routing never grades an 
   assert.equal(legGradingRoute({ sport: "NBA" }).route, "nba", "case does not matter");
   assert.equal(legGradingRoute({ sport: "wnba" }).refusal.code, ROUTE_REFUSAL.UNSUPPORTED_SPORT, "a sport with no grader is still refused");
 });
+
+/* PL-02 (eligibility contract v1) — moved here from availability/eligibility-consumers.test.mjs: the NBA product modules
+   are import-gated to their own tests. */
+test("NBA Parlay Lab: a snapshot's 'active' (merely absent from the injury feed) is never a status — no statusFeed ⇒ PARTICIPANT_STATUS_MISSING", () => {
+  const slate = nbaSlate(); // TEST FIXTURE slate: every snapshot row says participation "active"
+  const out = nbaCandidateInputs({ results: slate.results, snapshots: slate.snapshots });
+  assert.ok(out.inputs.length > 0 && out.inputs.every((i) => i.participantStatus == null));
+  const fed = nbaCandidateInputs({ results: slate.results, snapshots: slate.snapshots, statusFeed: slate.statusFeed });
+  assert.ok(fed.inputs.every((i) => i.participantStatus === "ELIGIBLE"));
+});

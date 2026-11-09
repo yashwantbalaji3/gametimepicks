@@ -65,15 +65,7 @@ test("NBA: the frozen minutes models are NOT edited (governance: a change is a n
   assert.equal(nba("3", null).state, "UNKNOWN", "no record + no roster ⇒ UNKNOWN");
 });
 
-test("NBA Parlay Lab: a snapshot's 'active' (merely absent from the injury feed) is never a status — no statusFeed ⇒ PARTICIPANT_STATUS_MISSING", async () => {
-  const { nbaCandidateInputs } = await import("../parlays/v2/nba-source.mjs");
-  const { nbaSlate } = await import("../parlays/v2/__fixtures__/nba-fixtures.mjs");
-  const slate = nbaSlate(); // TEST FIXTURE slate: every snapshot row says participation "active"
-  const out = nbaCandidateInputs({ results: slate.results, snapshots: slate.snapshots });
-  assert.ok(out.inputs.length > 0 && out.inputs.every((i) => i.participantStatus == null));
-  const fed = nbaCandidateInputs({ results: slate.results, snapshots: slate.snapshots, statusFeed: slate.statusFeed });
-  assert.ok(fed.inputs.every((i) => i.participantStatus === "ELIGIBLE"));
-});
+
 
 
 const playerLeg = (extra = {}) => ({ sport: "nfl", league: "nfl", eventId: "e1", market: "player_rush_yds", selection: "P — over 55.5", side: "over", line: 5.5, participant: "Pitcher 1", team: "T1",
