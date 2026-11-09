@@ -10,7 +10,7 @@
  * page carries the detail.
  */
 import React from "react";
-import Link from "next/link";
+import GameCard, { type GameCardModel } from "@/components/game/game-card";
 import type { ShownRow } from "@/components/games-experience-table-wire";
 
 /** When a sport's official forecast publishes, in the words its own rows use (games-experience-table-rows.ts notes). */
@@ -46,28 +46,21 @@ export function forecastText(r: ShownRow): string {
   return String(r.forecast);
 }
 
-function Row({ r, extra }: { r: ShownRow; extra?: React.ReactNode }) {
+/** A Today row as the SHARED game card's model (components/game/game-card.tsx, 2026-11-09): the same component and the
+    same state tags as Home and the sport hubs. A published forecast is tagged MODEL PROJECTION. */
+export function todayRowModel(r: ShownRow): GameCardModel {
   const has = r.forecast === "Published" || r.forecast === "Frozen";
-  const row = (
-    <li className="flex flex-col gap-0.5 py-2" style={{ borderTop: "1px solid var(--vault-rule)" }}>
-      <div className="flex flex-wrap items-baseline gap-x-2">
-        <span className="tabular-nums" style={{ color: "var(--vault-text-mute)", fontSize: 12.5, minWidth: 72 }}>{r.time}</span>
-        <span style={{ color: "var(--vault-text-faint)", fontSize: 12 }}>{r.sportLabel}</span>
-        <Link href={r.eventHref} className="font-semibold no-underline" style={{ color: "var(--vault-text)", fontSize: 14, minHeight: 44, display: "inline-flex", alignItems: "center" }}>
-          {r.matchup} →
-        </Link>
-        {r.resultHref ? (
-          <Link href={r.resultHref} className="no-underline" style={{ color: "var(--vault-success)", fontSize: 12.5, minHeight: 44, display: "inline-flex", alignItems: "center" }}>Result →</Link>
-        ) : null}
-      </div>
-      <span style={{ color: has ? "var(--vault-text)" : "var(--vault-text-mute)", fontSize: 13 }}>{forecastText(r)}</span>
-    </li>
-  );
-  /* Founder P0 2026-10-29: an NBA row's compact model-vs-sportsbook-line summary (nba-prop-lines.tsx), appended only when
-     the page hands one in — absent, the row is exactly the row without it (no extra child slot). */
-  if (extra == null) return row;
-  const kids = row.props.children as React.ReactNode[];
-  return React.cloneElement(row, undefined, ...kids, extra);
+  return {
+    id: r.eventHref, startLabel: r.time, kicker: r.sportLabel, matchup: r.matchup,
+    facts: [{ state: has ? "official" : null, text: forecastText(r) }],
+    actions: [{ href: r.eventHref, label: r.matchup }, ...(r.resultHref ? [{ href: r.resultHref, label: "Result", tone: "result" as const }] : [])],
+  };
+}
+
+function Row({ r, extra }: { r: ShownRow; extra?: React.ReactNode }) {
+  /* Founder P0 2026-10-29: an NBA row's compact model-vs-sportsbook-line summary (nba-prop-lines.tsx) rides the row only
+     when the page hands one in — absent, the row is exactly the row without it. */
+  return <GameCard model={todayRowModel(r)} density="row" extra={extra ?? null} />;
 }
 
 export default function TodayGames({ rows, dayLabel, asOf, next, lineSummaries }: {

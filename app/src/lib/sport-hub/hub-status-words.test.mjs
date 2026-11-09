@@ -34,7 +34,9 @@ test("DS-001 §2: the hub chip shows the shared reader words, translated only at
   assert.equal(hubStatusDisplay("started or final"), "Started", "a source that only knows the game began never says Live or Final");
   assert.equal(hubStatusDisplay("anything else"), "anything else", "an unmapped value is shown as-is, never invented");
   const card = (await import("node:fs")).readFileSync("src/components/sport-hub/game-summary.tsx", "utf8");
-  assert.equal((card.match(/\{hubStatusDisplay\(r\.status\)\}/g) ?? []).length, 2, "both the event card and the compact row translate the chip");
+  // 2026-11-09: the event card and the compact row are the shared game card's two densities, fed by ONE adapter — so the
+  // chip is translated exactly once, in that adapter, for both
+  assert.equal((card.match(/statusLabel: hubStatusDisplay\(r\.status\)/g) ?? []).length, 1, "the one adapter translates the chip for both densities");
   assert.doesNotMatch(card, /\{r\.status\}/, "no raw status reaches a reader");
 });
 
