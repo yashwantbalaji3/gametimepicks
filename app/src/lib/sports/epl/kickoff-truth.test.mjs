@@ -8,7 +8,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { buildEplClubIndex } from "../../soccer/epl-clubs.ts";
 import { identityFromFixture } from "../../soccer/epl-identity.ts";
-import { confirmFixtureKickoffs, unplayedConfirmed, espnScheduleRows, normalizeUtc, scheduleMonths, KICKOFF_UNVERIFIED, KICKOFF_UNVERIFIED_REASON } from "./kickoff-truth.mjs";
+import { confirmFixtureKickoffs, unplayedConfirmed, espnScheduleRows, normalizeUtc, KICKOFF_UNVERIFIED, KICKOFF_UNVERIFIED_REASON } from "./kickoff-truth.mjs";
 
 const APP = process.cwd();
 const index = buildEplClubIndex();
@@ -102,8 +102,8 @@ test("UNVERIFIED, never a provisional time: no schedule, a stale schedule, no ES
   assert.doesNotMatch(builder, /const unplayed = \(season\.rows/, "the capture's own times never select the forecast population");
 });
 
-test("the schedule capture reads ESPN rows and asks month by month around now (the date-range form is refused upstream)", () => {
-  assert.deepEqual(scheduleMonths("2026-11-09T20:00:00Z"), ["202610", "202611", "202612", "202701"]);
+test("the schedule capture reads ESPN rows through the shared scoreboard owner (month form; the date-range form is refused upstream)", () => {
+  assert.match(fs.readFileSync(path.join(APP, "scripts/epl/capture-epl-espn-schedule.mjs"), "utf8"), /fetchScoreboardWindowEvents\("soccer\/eng\.1", d0, d1\)/);
   const rows = espnScheduleRows([{ id: 7, date: "2026-11-21T12:30Z", status: { type: { name: "STATUS_SCHEDULED" } }, competitions: [{ competitors: [{ homeAway: "home", team: { displayName: "Manchester City" } }, { homeAway: "away", team: { displayName: "Fulham" } }] }] }, { id: 8, date: "x" }]);
   assert.deepEqual(rows, [{ providerEventId: "7", kickoffUtc: "2026-11-21T12:30Z", home: "Manchester City", away: "Fulham", statusRaw: "STATUS_SCHEDULED" }]);
   const wf = fs.readFileSync(path.join(APP, "..", ".github/workflows/epl-matchweek.yml"), "utf8");

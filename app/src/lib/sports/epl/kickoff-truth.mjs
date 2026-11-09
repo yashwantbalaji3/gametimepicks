@@ -19,16 +19,6 @@ export const KICKOFF_UNVERIFIED_REASON = "kickoff not confirmed";
 /** The schedule capture runs with every matchweek refresh (several a day); older than this, nothing is confirmed. */
 export const SCHEDULE_MAX_AGE_HOURS = 36;
 
-/** YYYYMM for every month touching [now - 14 d, now + 60 d] (the scoreboard honours only the month form). */
-export function scheduleMonths(nowIso) {
-  const start = new Date(Date.parse(nowIso) - 14 * 86_400_000), end = new Date(Date.parse(nowIso) + 60 * 86_400_000);
-  const out = [];
-  for (let y = start.getUTCFullYear(), m = start.getUTCMonth(); y < end.getUTCFullYear() || (y === end.getUTCFullYear() && m <= end.getUTCMonth()); m === 11 ? (y += 1, m = 0) : (m += 1)) {
-    out.push(`${y}${String(m + 1).padStart(2, "0")}`);
-  }
-  return out;
-}
-
 /** ESPN scoreboard events → schedule rows (ESPN's own spellings and UTC instant; no club is resolved here). */
 export function espnScheduleRows(events) {
   return (events ?? []).map((e) => {
