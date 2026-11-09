@@ -175,6 +175,9 @@ const get = async (url) => {
 
 /** ESPN's event id for a fixture: exactly one event whose clubs resolve to the fixture's canonical clubs. */
 async function espnEventFor(row) {
+  /* Option A (2026-11-09): the forecast row carries ESPN's own event id from the kickoff confirmation — use it. The date
+     lookup below missed Everton v Coventry (forecast as Sat 7 Nov from a provisional slot; played Fri 6 Nov). */
+  if (row.espnEventId) return { id: String(row.espnEventId), home: row.homeClub, away: row.awayClub };
   const date = String(row.kickoffUtc).slice(0, 10).replace(/-/g, "");
   try {
     const board = await get(`${SITE}/scoreboard?dates=${date}`);
