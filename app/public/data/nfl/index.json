@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-09T00:35:18Z",
+ "generatedAt": "2026-11-09T19:48:08Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,33 +17,33 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 16,
+  "scheduledUpcoming": 15,
   "forecastsTotal": 15,
-  "forecastsUpcoming": 2,
-  "forecastsStarted": 13,
+  "forecastsUpcoming": 1,
+  "forecastsStarted": 14,
   "marketEvents": 14,
-  "settled": 9
+  "settled": 11
  },
- "nextKickoffUtc": "2026-11-09T01:20Z",
- "nextMatchup": "TB @ CHI",
- "nextForecastUtc": "2026-11-09T01:20Z",
- "nextForecastMatchup": "TB @ CHI",
+ "nextKickoffUtc": "2026-11-10T01:15Z",
+ "nextMatchup": "BUF @ MIN",
+ "nextForecastUtc": "2026-11-10T01:15Z",
+ "nextForecastMatchup": "BUF @ MIN",
  "marketCapturedAt": "2026-10-11T11:41:55Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-09T00:23:49Z",
+  "generatedAt": "2026-11-09T00:35:18Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 130,
-  "decisive": 129,
-  "winnerAccuracy": 0.6124,
-  "marginMAE": 9.9308,
-  "totalMAE": 10.8923,
-  "marginInterval80Coverage": 0.8,
-  "totalInterval80Coverage": 0.8308,
+  "settledForecasts": 132,
+  "decisive": 131,
+  "winnerAccuracy": 0.6183,
+  "marginMAE": 9.8788,
+  "totalMAE": 10.9924,
+  "marginInterval80Coverage": 0.803,
+  "totalInterval80Coverage": 0.8258,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,60 +57,19 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 130,
-    "decisive": 129,
-    "winnerAccuracy": 0.6124,
-    "marginMAE": 9.9308,
-    "totalMAE": 10.8923,
-    "marginInterval80Coverage": 0.8,
-    "totalInterval80Coverage": 0.8308
+    "settledForecasts": 132,
+    "decisive": 131,
+    "winnerAccuracy": 0.6183,
+    "marginMAE": 9.8788,
+    "totalMAE": 10.9924,
+    "marginInterval80Coverage": 0.803,
+    "totalInterval80Coverage": 0.8258
    }
   },
   "unknownSeasonTypeRows": 0,
   "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: regular-season cohort; season types never share an aggregate."
  },
  "events": [
-  {
-   "providerEventId": "401873050",
-   "canonicalEventId": "nfl-401873050",
-   "matchup": "TB @ CHI",
-   "home": {
-    "abbr": "CHI",
-    "name": "Chicago Bears"
-   },
-   "away": {
-    "abbr": "TB",
-    "name": "Tampa Bay Buccaneers"
-   },
-   "kickoffUtc": "2026-11-09T01:20Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 27,
-    "away": 19,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.6916,
-    "away": 0.2802
-   },
-   "total": {
-    "median": 46,
-    "p10": 29,
-    "p90": 63,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": false,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "7967623acbcebf74",
-    "generatedAt": "2026-11-09T00:23:49Z"
-   }
-  },
   {
    "providerEventId": "401873051",
    "canonicalEventId": "nfl-401873051",
@@ -135,8 +94,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.4878,
-    "away": 0.4822
+    "home": 0.4874,
+    "away": 0.4818
    },
    "total": {
     "median": 44,
@@ -148,8 +107,8 @@
    "receipt": {
     "model": "nfl-regular-season-public-v1",
     "version": 2,
-    "inputHash": "bde36149541657c3",
-    "generatedAt": "2026-11-09T00:23:49Z"
+    "inputHash": "a7296a32dbe39762",
+    "generatedAt": "2026-11-09T19:48:08Z"
    }
   },
   {
@@ -575,10 +534,10 @@
     "name": "Las Vegas Raiders"
    },
    "kickoffUtc": "2026-11-08T21:25Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 30,
@@ -616,10 +575,10 @@
     "name": "Arizona Cardinals"
    },
    "kickoffUtc": "2026-11-08T21:25Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 30,
@@ -683,6 +642,47 @@
     "version": 2,
     "inputHash": "4e014919ada8e6ae",
     "generatedAt": "2026-11-08T00:14:07Z"
+   }
+  },
+  {
+   "providerEventId": "401873050",
+   "canonicalEventId": "nfl-401873050",
+   "matchup": "TB @ CHI",
+   "home": {
+    "abbr": "CHI",
+    "name": "Chicago Bears"
+   },
+   "away": {
+    "abbr": "TB",
+    "name": "Tampa Bay Buccaneers"
+   },
+   "kickoffUtc": "2026-11-09T01:20Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 27,
+    "away": 19,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.6916,
+    "away": 0.2802
+   },
+   "total": {
+    "median": 46,
+    "p10": 29,
+    "p90": 63,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "7967623acbcebf74",
+    "generatedAt": "2026-11-09T00:23:49Z"
    }
   }
  ],
