@@ -111,14 +111,27 @@ test("the schedule capture reads ESPN rows and asks month by month around now (t
   assert.doesNotMatch(wf, /the previous capture stands"\n/, "the fallback never presents a provisional capture as a schedule");
 });
 
-test("a frozen provisional-slot page names the corrected kickoff and links the current forecast; a current row is never flagged", async () => {
-  const { loadEplForecasts, supersedingEplFixture } = await import("./forecast-view.ts");
+test("kickoff disclosure: SHOWN on a provisional-slot page whose kickoff differs from or lacks ESPN confirmation; NOT shown on current, confirmed or past pages", async () => {
+  const { loadEplForecasts, eplKickoffDisclosure } = await import("./forecast-view.ts");
   const live = loadEplForecasts();
-  const frozen = JSON.parse(fs.readFileSync(path.join(APP, "public/data/soccer/epl/forecasts/2026-11-09.json"), "utf8")).rows.find((r) => r.homeClub === "Brentford" && r.awayClub === "Everton");
-  assert.equal(frozen.slug, "brentford-v-everton-2026-11-21", "the frozen record keeps its provisional slot, unedited");
-  const now = supersedingEplFixture(frozen, live);
-  assert.equal(now?.slug, "brentford-v-everton-2026-11-23");
-  assert.equal(now.kickoffUtc, "2026-11-23T20:00:00Z");
-  for (const r of live.rows) assert.equal(supersedingEplFixture(r, live), null, `${r.slug}: current rows are not superseded`);
-  assert.match(fs.readFileSync(path.join(APP, "src/app/epl/match/[slug]/page.tsx"), "utf8"), /data-epl-kickoff-corrected=""/);
+  const dated = (d) => JSON.parse(fs.readFileSync(path.join(APP, `public/data/soccer/epl/forecasts/${d}.json`), "utf8")).rows;
+  /* SHOWN · differs: the frozen MW11 row keeps its provisional slot (unedited); the live set has it at Mon 20:00Z. */
+  const frozen = dated("2026-11-09").find((r) => r.homeClub === "Brentford" && r.awayClub === "Everton");
+  assert.equal(frozen.slug, "brentford-v-everton-2026-11-21");
+  const d = eplKickoffDisclosure(frozen, live);
+  assert.equal(d?.state, "CORRECTED");
+  assert.equal(d.current.slug, "brentford-v-everton-2026-11-23");
+  assert.equal(d.current.kickoffUtc, "2026-11-23T20:00:00Z");
+  /* SHOWN · not confirmed: the pairing is in the live set's unverified list. */
+  const withUnverified = { ...live, rows: live.rows.filter((r) => r.homeClub !== "Brentford"), unverifiedKickoffs: [{ matchup: "Brentford v Everton", reason: "kickoff not confirmed — no ESPN event for this pairing" }] };
+  assert.equal(eplKickoffDisclosure(frozen, withUnverified)?.state, "UNCONFIRMED");
+  /* NOT shown · a frozen row whose provisional time IS the confirmed one (same slug as the live row). */
+  const same = dated("2026-11-09").find((r) => r.homeClub === "Chelsea" && r.awayClub === "Leeds United");
+  assert.equal(eplKickoffDisclosure(same, live), null);
+  /* NOT shown · every current row. */
+  for (const r of live.rows) assert.equal(eplKickoffDisclosure(r, live), null, `${r.slug}: current rows are not flagged`);
+  /* NOT shown · settled/past matches (MW10 frozen rows): absent from the live set, their pages keep their text. */
+  for (const r of dated("2026-11-06")) assert.equal(eplKickoffDisclosure(r, live), null, `${r.slug}: a past match keeps its existing text`);
+  const page = fs.readFileSync(path.join(APP, "src/app/epl/match/[slug]/page.tsx"), "utf8");
+  assert.match(page, /data-epl-kickoff-corrected=\{kickoffNote\.state\}/);
 });
