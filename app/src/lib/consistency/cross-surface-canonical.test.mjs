@@ -35,6 +35,7 @@ import { unionFrozenForecasts } from "../sports/nfl/public-forecast-union.mjs";
 import { nflPublicRecordResolver } from "../sports/nfl/public-record.mjs";
 import { readWorldModelArtifacts } from "../sports/nfl/world-model-v2/read.mjs";
 import { weekGames } from "../sports/nfl/week-games.ts";
+import { archivedForecastFor } from "../sports/nfl/archived-forecast.ts";
 import { nflHub } from "../sport-hub/adapters.ts";
 import { featuredNfl } from "../command-center/featured.ts";
 import { buildNflHubRoster } from "../live/nfl-hub-data.ts";
@@ -73,6 +74,10 @@ const FROZEN_BEFORE_FINAL_BOARD = Object.freeze({
   "401873026:nfl-athlete-4429615:player_reception_yds": { frozen: 74.81, finalOfficial: 74.09 },
 });
 
+/** Settled: the week rolled and the game left the live union, so its page renders the archived revision (PR 1267). */
+const liveUnion = () => unionFrozenForecasts(readJson(path.join(DATA, "nfl/forecasts/latest.json")), readJson(path.join(DATA, "nfl/forecasts/frozen-latest.json")), { resolve: nflPublicRecordResolver(REPO) });
+const settled = (eventId) => !liveUnion().forecasts.some((f) => String(f.providerEventId) === eventId);
+
 /** THE canonical NFL key set, built once: exactly the inputs forecast-view-load.mjs hands the snapshot. */
 function nflCanonical(eventId) {
   const union = unionFrozenForecasts(
@@ -80,7 +85,9 @@ function nflCanonical(eventId) {
     readJson(path.join(DATA, "nfl/forecasts/frozen-latest.json")),
     { resolve: nflPublicRecordResolver(REPO) },
   );
-  const record = union.forecasts.find((f) => String(f.providerEventId) === eventId);
+  /* After the week rolls, a settled game leaves the live union; its forecast of record is read the way the settled game
+     page reads it (archived-forecast.ts, PR 1267). */
+  const record = union.forecasts.find((f) => String(f.providerEventId) === eventId) ?? archivedForecastFor(DATA, eventId)?.forecast ?? null;
   assert.ok(record, `${eventId}: the forecast of record is committed`);
   const board = readJson(path.join(DATA, "nfl/player-board", `${eventId}.json`));
   const world = readWorldModelArtifacts(PUB).find((a) => String(a.identity.providerEventId) === eventId) ?? null;
@@ -103,9 +110,28 @@ for (const ev of NFL_EVENTS) {
     assert.ok(sameInstant(snap.generatedAt, record.generatedAt), "snapshot version == record revision");
 
     // 1. game page view — the same loader the page calls
-    const view = loadForecastView(PUB, ev.id);
-    assert.ok(view, "game page view exists");
-    assert.equal(view.official.snapshotId, snap.snapshotId, "game page official snapshot id == canonical");
+    if (!settled(ev.id)) {
+      const view = loadForecastView(PUB, ev.id);
+      assert.ok(view, "game page view exists");
+      assert.equal(view.official.snapshotId, snap.snapshotId, "game page official snapshot id == canonical");
+    } else {
+      /* Settled (the week rolled, PR 1267): the game page renders archivedFor() — assert on what it renders, strictly.
+         The page really takes that path for this id (its selection line, and the id is out of the live union). */
+      const page = fs.readFileSync(path.join(APP, "src/app/nfl/game/[eventId]/page.tsx"), "utf8");
+      assert.match(page, /const archivedFor = \(eventId: string\) => archivedForecastFor\(DATA_ROOT, eventId\);/, "the page's archive accessor");
+      assert.match(page, /const archived = \(artifact\?\.forecasts \?\? \[\]\)\.some\(\(x: Forecast\) => x\.providerEventId === params\.eventId\) \? null : archivedFor\(params\.eventId\);/, "the page reads the archive exactly when the id is out of the live union");
+      const a = archivedForecastFor(DATA, ev.id);
+      assert.ok(a, "the settled page's archived record exists");
+      assert.equal(a.forecast.generatedAt, record.generatedAt, "settled page revision == canonical");
+      assert.equal(a.reconciliation.published.generatedAt, record.generatedAt, "the graded record names this revision");
+      assert.deepEqual(a.forecast.forecastSummary, record.forecastSummary, "settled page forecastSummary == canonical");
+      const board = readJson(path.join(DATA, "nfl/player-board", `${ev.id}.json`));
+      const world = readWorldModelArtifacts(PUB).find((w) => String(w.identity.providerEventId) === ev.id) ?? null;
+      const shown = officialSnapshotFor(a.forecast, board, world);
+      assert.equal(shown.refusal, null, "the settled page's official snapshot builds");
+      assert.equal(shown.snapshot.snapshotId, snap.snapshotId, "settled page snapshot id == canonical");
+      assert.deepEqual(shown.snapshot.game, snap.game, "settled page official side and win probabilities (home/away/tie) == canonical");
+    }
 
     // 2. game page hero (`s = f.forecastSummary` from the page's own union) — same object the snapshot sealed
     const s = record.forecastSummary;
@@ -119,18 +145,22 @@ for (const ev of NFL_EVENTS) {
 
     // 4. nfl/index.json — the hub read, homepage / Today featured cards, top reads, product-day and the save card
     const idx = readJson(path.join(DATA, "nfl/index.json")).events.find((e) => String(e.providerEventId) === ev.id);
-    assert.ok(idx, "index carries the game");
-    assert.deepEqual([idx.winProbability.home, idx.winProbability.away, idx.projectedScore.home, idx.projectedScore.away, idx.total.median], [want.home, want.away, want.scoreHome, want.scoreAway, want.totalMedian], "index == canonical");
-    assert.ok(sameInstant(want.generatedAt, idx.receipt.generatedAt), `index revision ${idx.receipt.generatedAt} == canonical ${want.generatedAt}`);
-    assert.equal(idx.receipt.inputHash, want.inputHash, "index input hash == canonical");
-    assert.equal(`${idx.receipt.model}@v${idx.receipt.version}`, snap.modelVersions.game, "index model version == canonical");
+    /* A settled game leaves the pregame index with its week: it must then be ABSENT (no stale number survives there); a
+       game the index still carries is held to every check, settled or not. */
+    if (idx || !settled(ev.id)) {
+      assert.ok(idx, "index carries the game");
+      assert.deepEqual([idx.winProbability.home, idx.winProbability.away, idx.projectedScore.home, idx.projectedScore.away, idx.total.median], [want.home, want.away, want.scoreHome, want.scoreAway, want.totalMedian], "index == canonical");
+      assert.ok(sameInstant(want.generatedAt, idx.receipt.generatedAt), `index revision ${idx.receipt.generatedAt} == canonical ${want.generatedAt}`);
+      assert.equal(idx.receipt.inputHash, want.inputHash, "index input hash == canonical");
+      assert.equal(`${idx.receipt.model}@v${idx.receipt.version}`, snap.modelVersions.game, "index model version == canonical");
+    }
 
     // 5. /nfl hub read (nflHub) — the split bar's numbers
     const hub = nflHub(ev.nowIso);
     const row = (hub.rows ?? []).find((r) => r.id === `nfl:${ev.id}`);
     /* The hub carries a read only while the game is pregame in the committed index; a played game leaves it. */
     const indexAt = readJson(path.join(DATA, "nfl/index.json")).generatedAt;
-    if (Date.parse(idx.kickoffUtc) > Date.parse(indexAt)) {
+    if (idx && Date.parse(idx.kickoffUtc) > Date.parse(indexAt)) {
       assert.ok(row?.read, "the /nfl hub row carries the official read");
       const split = Object.fromEntries(row.read.split.map((x) => [x.label, x.p]));
       assert.deepEqual([split[record.away.abbr], split[record.home.abbr]], [want.away, want.home], "hub read == canonical");

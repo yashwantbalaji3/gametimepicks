@@ -40,7 +40,32 @@ const { loadPublicPossessionTheater, readLaneDay } = await import("../../lib/sim
 const { centralScenario } = await import("../../lib/simulation-theater/nba/possession/payload.mjs");
 const { eloWinProbabilityOf, eloWinProbabilityText } = await import("../../lib/sports/nba/elo-win-probability.mjs");
 const { loadTheater } = await import("../../lib/simulation-theater/loader.mjs");
-const { loadForecastView } = await import("../../lib/sports/nfl/forecast-view-load.mjs");
+const { loadForecastView, officialSnapshotFor } = await import("../../lib/sports/nfl/forecast-view-load.mjs");
+const { gameView } = await import("../../lib/sports/nfl/forecast-view.mjs");
+const { sanitizePlayerBoard } = await import("../../lib/sports/odds/public-offer-sanitizer.mjs");
+const { readWorldModelArtifacts } = await import("../../lib/sports/nfl/world-model-v2/read.mjs");
+const { archivedForecastFor } = await import("../../lib/sports/nfl/archived-forecast.ts");
+/**
+ * The game page's view of an event. Live: the page's own loader (loadForecastView). Settled (the week rolled, PR 1267):
+ * the page renders archivedFor() — so this is the archived revision through the same gameView + official snapshot the
+ * loader uses for a live game, and the page's selection line is checked so this cannot pass while the page reads
+ * something else.
+ */
+const PAGE_SRC = fs.readFileSync(path.join(process.cwd(), "src/app/nfl/game/[eventId]/page.tsx"), "utf8");
+function gamePageView(id) {
+  const live = loadForecastView(path.join(process.cwd(), "public"), id);
+  if (live) return live;
+  assert.match(PAGE_SRC, /const archived = \(artifact\?\.forecasts \?\? \[\]\)\.some\(\(x: Forecast\) => x\.providerEventId === params\.eventId\) \? null : archivedFor\(params\.eventId\);/, "the settled page reads the archive when the id is out of the live union");
+  assert.match(PAGE_SRC, /const archivedFor = \(eventId: string\) => archivedForecastFor\(DATA_ROOT, eventId\);/, "the page's archive accessor");
+  const data = path.join(process.cwd(), "public", "data");
+  const a = archivedForecastFor(data, id);
+  if (!a) return null;
+  let board = null;
+  try { board = JSON.parse(fs.readFileSync(path.join(data, "nfl", "player-board", `${id}.json`), "utf8")); } catch { board = null; }
+  const world = readWorldModelArtifacts(path.join(process.cwd(), "public")).find((w) => String(w.identity.providerEventId) === id) ?? null;
+  const { snapshot, refusal } = officialSnapshotFor(a.forecast, board, world);
+  return gameView({ forecast: a.forecast, world, board: board ? sanitizePlayerBoard(board) : null, official: snapshot, officialRefusal: refusal });
+}
 const { formatValue } = await import("../../lib/sports/nfl/forecast-view.mjs");
 const L = await import("../../lib/simulation-theater/representative-labels.mjs");
 const { compileParams, prepareTeamPlayers, runRng, simulateGame, tiltedTable, N_PERIODS, N_PSTAT, N_TSTAT, PSTAT, TEAM_STAT } = await import("../../lib/sports/nfl/sim-v2/engine.mjs");
@@ -299,7 +324,7 @@ test("NFL week 8 one official forecast: every number the Theater prints under 'O
   let compared = 0;
   for (const id of NFL_WEEK8) {
     const t = loadTheater(REPO, id, SHADOW);
-    const view = loadForecastView(path.join(APP, "public"), id);
+    const view = gamePageView(id);
     assert.ok(view, `${id}: the game page has a view`);
     if (!t.ok || !t.manifest?.representative?.official) continue;
     const rep = t.manifest.representative;
