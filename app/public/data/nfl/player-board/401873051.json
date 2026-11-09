@@ -114,7 +114,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 48,
+  "absent": 50,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -253,8 +253,8 @@
   },
   "MIN": {
    "counts": {
-    "PROJECTED": 6,
-    "EXCLUDED_UNAVAILABLE": 5,
+    "PROJECTED": 7,
+    "EXCLUDED_UNAVAILABLE": 4,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 1,
@@ -280,6 +280,16 @@
       "anytime_td",
       "player_reception_yds",
       "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4360569",
+     "name": "Jordan Mason",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
@@ -333,12 +343,6 @@
      "name": "Kyler Murray",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
-    },
-    {
-     "playerId": "nfl-athlete-4360569",
-     "name": "Jordan Mason",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "availability not confirmed: the injury report and the roster disagree"
     },
     {
      "playerId": "nfl-athlete-3921690",
@@ -831,6 +835,48 @@
      },
      "roster": {
       "status": "active",
+      "fetchedAt": "2026-11-09T00:35:18Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4360569",
+   "name": "Jordan Mason",
+   "team": "MIN",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 36.845,
+     "p10": 8.58,
+     "p25": 18.07,
+     "median": 32.44,
+     "p75": 50.98,
+     "p90": 71.3,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.26,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [
+     "FEED_ACTIVE_ROSTER_DAY_TO_DAY"
+    ],
+    "flags": [
+     "SOURCES_DISAGREE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-02T01:06Z",
+      "fetchedAt": "2026-11-09T00:35:18Z"
+     },
+     "roster": {
+      "status": "day-to-day",
       "fetchedAt": "2026-11-09T00:35:18Z"
      }
     }

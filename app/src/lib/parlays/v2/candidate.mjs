@@ -43,7 +43,7 @@ import { canEnterPredictionProducts } from "../../sport-capability-registry.ts";
 import { legIsMarketContext, marketContextFamilies } from "../card-leg-eligibility.mjs";
 import { isVerifiedOperator as seamPredicate } from "./operators.mjs";
 import { candidatesFromMlbLadder, candidatesFromSportLadder } from "./candidates.mjs";
-import { PARTICIPANT_STATUS_FLAG, LINELESS_MARKET, STATUS_SPORTS } from "./recommend.mjs";
+import { PARTICIPANT_STATUS_FLAG, LINELESS_MARKET, STATUS_SPORTS, AVAILABILITY_NOT_VERIFIED_LABEL, availabilityUnverified } from "./recommend.mjs";
 
 export const CANDIDATE_SCHEMA = "gtp.parlay.candidate@1";
 export const ELIGIBILITY = Object.freeze({ ELIGIBLE: "ELIGIBLE", INELIGIBLE: "INELIGIBLE" });
@@ -230,7 +230,9 @@ export function evaluateCandidate(c, { now, coverage, isVerifiedOperator = seamP
   if (!isVerifiedOperator(c?.book)) r.push("BOOK_INELIGIBLE");
 
   const reasons = [...new Set(r)].sort().map((code) => ({ code, text: CANDIDATE_REASONS[code] }));
-  return { ...c, eligibility: { state: reasons.length ? ELIGIBILITY.INELIGIBLE : ELIGIBILITY.ELIGIBLE, reasons } };
+  // founder decision 2: a player market outside NFL / NBA stays buildable but carries the label (never featured: recommend.mjs)
+  const unverified = availabilityUnverified(c?.league, c?.market, c?.player);
+  return { ...c, eligibility: { state: reasons.length ? ELIGIBILITY.INELIGIBLE : ELIGIBILITY.ELIGIBLE, reasons }, ...(unverified ? { availability: { verified: false, label: AVAILABILITY_NOT_VERIFIED_LABEL } } : {}) };
 }
 
 /**

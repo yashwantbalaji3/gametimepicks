@@ -22,6 +22,8 @@
  * Pure: no IO.
  */
 
+import { NOT_FEATURABLE_FLAGS } from "../../availability/eligibility.mjs";
+
 /**
  * Board participation states that are CLEARED to rank on a public top board: no published designation.
  * AVAILABLE_ROLE_UNCERTAIN is the model's own role caveat (no source confirms roles), not an injury fact.
@@ -75,11 +77,13 @@ export function publicBoardEligibility(player, board, asOf) {
      FORWARD ONLY: a board generated on or after ELIGIBILITY_REQUIRED_FROM must carry a record on every row, and a row
      without one is UNKNOWN — missing evidence is never a pass (INC-2026-11-08-01). An earlier, frozen board ranks
      exactly as it did when it was published. */
+  // a row that CARRIES a record is judged by it whatever the board's date; a row without one only before the cut-over
   const e = player?.eligibility;
   if (!e && !eligibilityRequired(board)) return { eligible: true, reason: null };
   if (!e || typeof e.state !== "string") return { eligible: false, reason: "ELIGIBILITY_MISSING" };
   if (e.state !== "ELIGIBLE") return { eligible: false, reason: `ELIGIBILITY_${e.state}` };
-  if ((e.flags ?? []).includes("QUESTIONABLE")) return { eligible: false, reason: "ELIGIBILITY_QUESTIONABLE" };
+  const held = (e.flags ?? []).find((f) => NOT_FEATURABLE_FLAGS.includes(f));
+  if (held) return { eligible: false, reason: `ELIGIBILITY_${held}` };
   return { eligible: true, reason: null };
 }
 

@@ -97,11 +97,14 @@ test("every public top list reads the ONE allowlist (no INACTIVE-only filter sur
 
 test("eligibility contract v1: on a contract-era board, only ELIGIBLE rows with no R6 flag rank; a missing record fails closed; a pre-contract board ranks as published", () => {
   const e = (state, flags) => ({ state, reasons: [], ...(flags ? { flags } : {}), contractVersion: "eligibility@1", sources: {} });
-  const rows = [player("unk", 900, undefined, e("UNKNOWN")), player("inel", 800, undefined, e("INELIGIBLE")), player("q", 700, undefined, e("ELIGIBLE", ["QUESTIONABLE"])), player("none", 600, undefined, null), player("ok", 50)];
+  const rows = [player("unk", 900, undefined, e("UNKNOWN")), player("inel", 800, undefined, e("INELIGIBLE")), player("q", 700, undefined, e("ELIGIBLE", ["QUESTIONABLE"])), player("none", 600, undefined, null), player("dis", 650, undefined, e("ELIGIBLE", ["SOURCES_DISAGREE"])), player("ok", 50)];
   assert.deepEqual(ids([{ ...board(rows), generatedAt: "2031-10-05T09:00:00Z" }]), ["ok"]);
   const blocked = [];
   rankFamily([{ ...board(rows), generatedAt: "2031-10-05T09:00:00Z" }], "player_reception_yds", "median", { asOf: AS_OF, blocked });
-  assert.deepEqual(blocked.map((b) => b.reason).sort(), ["ELIGIBILITY_INELIGIBLE", "ELIGIBILITY_MISSING", "ELIGIBILITY_QUESTIONABLE", "ELIGIBILITY_UNKNOWN"]);
+  assert.deepEqual(blocked.map((b) => b.reason).sort(), ["ELIGIBILITY_INELIGIBLE", "ELIGIBILITY_MISSING", "ELIGIBILITY_QUESTIONABLE", "ELIGIBILITY_SOURCES_DISAGREE", "ELIGIBILITY_UNKNOWN"]);
+  // a row that carries a record is judged by it even on a pre-cut-over board (the founder's R3a hold is never skipped)
+  const early = { ...board([player("dis", 650, undefined, e("ELIGIBLE", ["SOURCES_DISAGREE"])), player("ok", 50)]), generatedAt: "2026-11-01T12:00:00Z", availability: { ...AVAIL, injuriesCapturedAt: "2026-11-01T11:00:00Z" } };
+  assert.deepEqual(rankFamily([early], "player_reception_yds", "median", { asOf: "2026-11-01T12:00:00Z" }).map((x) => x.player.playerId), ["ok"]);
   // a board published before the cut-over (no record on any row) ranks exactly as it did
   const legacy = { ...board([player("a", 500, undefined, null), player("b", 50, undefined, null)]), generatedAt: "2026-11-01T12:00:00Z", availability: { ...AVAIL, injuriesCapturedAt: "2026-11-01T11:00:00Z" } };
   assert.deepEqual(rankFamily([legacy], "player_reception_yds", "median", { asOf: "2026-11-01T12:00:00Z" }).map((x) => x.player.playerId), ["a", "b"]);

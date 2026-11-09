@@ -87,3 +87,20 @@ test("PL-02 recommend gate: a player leg with no participant status is refused",
   assert.ok(!legReasons(playerLeg({ participantStatus: "Active" }), ctx).includes("PARTICIPANT_STATUS_MISSING"));
   assert.ok(legReasons(playerLeg({ participantStatus: "INELIGIBLE" }), ctx).includes("PARTICIPANT_STATUS"));
 });
+
+test("founder decision 2: outside NFL/NBA a player market is labelled 'availability not verified' and never in a suggested card", () => {
+  const ctx = recommendCtx({ nowMs: Date.parse(NOW), isVerifiedOperator: () => true, canEnterSport: () => true });
+  const mlbProp = playerLeg({ sport: "mlb", league: "mlb", market: "pitcher_outs", participant: "Pitcher 1", participantStatus: "Active" });
+  assert.ok(legReasons(mlbProp, ctx).includes("AVAILABILITY_NOT_VERIFIED"), "MLB pitcher prop: never featured");
+  const cctx = { now: NOW, coverage: null, isVerifiedOperator: () => true, canEnterLeague: () => true };
+  const cand = evaluateCandidate(toCandidate(mlbProp), cctx);
+  assert.deepEqual(cand.availability, { verified: false, label: "availability not verified" }, "labelled where it can still be built");
+  for (const ok of [
+    playerLeg({ sport: "ufc", league: "ufc", market: "fight_winner", participant: "Fighter A", line: null }),
+    playerLeg({ sport: "mlb", league: "mlb", market: "totals", participant: null }),
+    playerLeg({ participantStatus: "ELIGIBLE" }),
+  ]) {
+    assert.ok(!legReasons(ok, ctx).includes("AVAILABILITY_NOT_VERIFIED"), `${ok.sport} ${ok.market}`);
+    assert.equal(evaluateCandidate(toCandidate(ok), cctx).availability, undefined);
+  }
+});

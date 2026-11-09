@@ -5,7 +5,7 @@
  */
 import test from "node:test";
 import assert from "node:assert/strict";
-import { resolveEligibility, ELIGIBILITY_STATES, CONTRACT_VERSION, marketSignal } from "./eligibility.mjs";
+import { resolveEligibility, ELIGIBILITY_STATES, CONTRACT_VERSION, marketSignal, featurable, NOT_FEATURABLE_FLAGS } from "./eligibility.mjs";
 import { carryForwardDesignations } from "../sports/injuries/carry-forward.mjs";
 
 const NOW = "2026-11-09T00:35:18Z";
@@ -93,7 +93,7 @@ test("A6: an explicit Active after the IR date ⇒ ELIGIBLE; a fresh roster 'act
 });
 
 test("R3: the two sources disagree ⇒ UNKNOWN with both stamps (feed Active, roster practice squad / news)", () => {
-  for (const type of ["practice-squad", "news", "day-to-day"]) {
+  for (const type of ["practice-squad", "news"]) {
     const r = resolve({ playerId: "7", teamId: "15", injuries: injuries([{ athleteId: "7", providerTeamId: "15", status: "Active", statedAt: "2026-11-08T10:00Z" }]), roster: nflRoster([{ id: "7", team: "15", type }]) });
     assert.equal(r.state, "UNKNOWN", type);
     assert.equal(r.sources.injuries.status, "Active");
@@ -144,4 +144,21 @@ test("missing inputs are never a pass: no injuries document ⇒ UNKNOWN", () => 
   assert.equal(r.state, "UNKNOWN");
   assert.ok(r.reasons.includes("INJURIES_SOURCE_MISSING"));
   assert.throws(() => resolveEligibility({ sport: "nfl", playerId: "7", injuries: null, roster: null }), /asOf/);
+});
+
+test("R3a (founder decision 1): fresh feed Active + roster day-to-day ⇒ modelled (ELIGIBLE) with the disagreement recorded, never featured", () => {
+  const roster = nflRoster([{ id: "7", team: "15", type: "day-to-day" }]);
+  const active = { athleteId: "7", providerTeamId: "15", status: "Active", statedAt: "2026-11-02T01:06Z" };
+  const r = resolve({ playerId: "7", teamId: "15", injuries: injuries([active]), roster });
+  assert.equal(r.state, "ELIGIBLE", "modelled internally");
+  assert.deepEqual(r.flags, ["SOURCES_DISAGREE"]);
+  assert.deepEqual(r.reasons, ["FEED_ACTIVE_ROSTER_DAY_TO_DAY"]);
+  assert.equal(r.sources.injuries.status, "Active");
+  assert.equal(r.sources.roster.status, "day-to-day");
+  assert.equal(featurable(r), false, "never featured until the sources agree");
+  // a STALE feed's Active proves nothing: UNKNOWN, not modelled
+  assert.equal(resolve({ playerId: "7", teamId: "15", injuries: injuries([active], "2026-11-08T12:00:00Z"), roster }).state, "UNKNOWN");
+  // the sources agree ⇒ featurable
+  assert.equal(featurable(resolve({ playerId: "7", teamId: "15", injuries: injuries([active]), roster: nflRoster([{ id: "7", team: "15", type: "active" }]) })), true);
+  assert.deepEqual([...NOT_FEATURABLE_FLAGS], ["QUESTIONABLE", "SOURCES_DISAGREE"]);
 });

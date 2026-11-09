@@ -21,6 +21,10 @@
  *   R4 each source stamp at most `maxAgeHours` old at `asOf` (6 h at build; callers pass 1 at approval/send), and never
  *      stamped after `asOf`. Stale ⇒ UNKNOWN. Positive evidence of ineligibility still wins: an Out is never softened.
  *   R6 Questionable / Doubtful / Day-To-Day: not blocked, flagged QUESTIONABLE (featured products exclude flagged rows).
+ *   R3a (founder 2026-11-09, decision 1): a FRESH injuries feed that explicitly says "Active" while the roster says
+ *      "day-to-day" is modelled internally (ELIGIBLE) with the disagreement recorded as the SOURCES_DISAGREE flag, and is
+ *      never FEATURED (Top Boards, recommended parlays, Bank Builder / Moonshot, social) until the sources agree.
+ *      Every other disagreement (practice squad, news, …) stays UNKNOWN.
  *   R7 marketSignal(): a featured player with no sportsbook market where peers have one ⇒ MARKET_ABSENT.
  *   (R5, starters vs QB-blind team forecasts, is a game-level rule for the publishing side; `starter` here only makes a
  *   Doubtful starter INELIGIBLE.)
@@ -29,6 +33,7 @@
  * fresh sources and compare.
  */
 import { isBlockingStatus, isLongTermStatus } from "../sports/injuries/contract.mjs";
+import { activationAfter } from "./transactions.mjs";
 
 export const CONTRACT_VERSION = "eligibility@1";
 export const ELIGIBILITY_STATES = Object.freeze(["ELIGIBLE", "INELIGIBLE", "UNKNOWN"]);
@@ -68,7 +73,7 @@ export function rosterIndex(roster) {
  *   sources: { injuries: { status: string|null, statedAt: string|null, fetchedAt: string|null }, roster: { status: string|null, fetchedAt: string|null } },
  *   contractVersion: string }}
  */
-export function resolveEligibility({ sport = "nfl", playerId, teamId = null, asOf, injuries, roster, maxAgeHours = BUILD_MAX_AGE_HOURS, starter = false }) {
+export function resolveEligibility({ sport = "nfl", playerId, teamId = null, asOf, injuries, roster, maxAgeHours = BUILD_MAX_AGE_HOURS, starter = false, activations = [] }) {
   const at = ms(asOf);
   if (at == null) throw new TypeError("resolveEligibility: asOf must be an ISO instant");
   const id = String(playerId ?? "").replace(/^nfl-athlete-/, "");
@@ -96,12 +101,15 @@ export function resolveEligibility({ sport = "nfl", playerId, teamId = null, asO
   const done = (state) => ({ state, reasons: [...new Set(reasons)], flags, sources, contractVersion: CONTRACT_VERSION });
 
   // ── designations (R1, blocking, R6) — positive evidence of ineligibility wins over every unknown ──
-  const status = entry?.status ?? null;
+  let status = entry?.status ?? null;
   if (status && isLongTermStatus(status, sport)) {
     const activated = entry.carriedForward === true && rec?.status === "active" && (!team || rec.teamId === team)
       && ms(entry.statedAt) != null && ms(ros?.fetchedAt) > ms(entry.statedAt) && fresh(ros.fetchedAt);
-    if (!activated) { reasons.push("LONG_TERM_DESIGNATION"); return done("INELIGIBLE"); }
-    reasons.push("ACTIVATED_BY_ROSTER");
+    // founder decision 4: a verified transaction activation dated after the designation (and at or before asOf) ends it
+    const tx = entry.carriedForward === true ? activationAfter((activations ?? []).filter((a) => ms(a.date) != null && ms(a.date) <= at), id, entry.statedAt) : null;
+    if (!activated && !tx) { reasons.push("LONG_TERM_DESIGNATION"); return done("INELIGIBLE"); }
+    reasons.push(activated ? "ACTIVATED_BY_ROSTER" : "ACTIVATED_BY_TRANSACTION");
+    status = null; // the designation has ended: from here the player is judged as one the feed does not list (R2)
   } else if (status && isBlockingStatus(status, sport)) {
     reasons.push("BLOCKING_DESIGNATION");
     return done("INELIGIBLE");
@@ -116,6 +124,11 @@ export function resolveEligibility({ sport = "nfl", playerId, teamId = null, asO
   if (!rec) { reasons.push("NO_ROSTER_RECORD"); return done("UNKNOWN"); }
   if (team && rec.teamId !== team) { reasons.push("ROSTER_TEAM_MISMATCH"); return done("UNKNOWN"); }
   const questionable = flags.includes("QUESTIONABLE");
+  if (status && /^active$/i.test(status) && rec.status === "day-to-day") {
+    reasons.push("FEED_ACTIVE_ROSTER_DAY_TO_DAY");
+    flags.push("SOURCES_DISAGREE");
+    return done("ELIGIBLE");
+  }
   if (rec.status === "active" || (questionable && rec.status === "day-to-day")) {
     if (!status && !reasons.length) reasons.push("ROSTER_ACTIVE");
     return done("ELIGIBLE");
@@ -137,6 +150,14 @@ export function gameEligibility(forecast) {
   return { publishable: true, reasons: [], contractVersion: CONTRACT_VERSION };
 }
 
+/**
+ * Flags that keep an ELIGIBLE player off every FEATURED surface (Top Boards, recommended parlays, Bank Builder / Moonshot,
+ * social) while he is still modelled: R6 and the founder's R3a disagreement.
+ */
+export const NOT_FEATURABLE_FLAGS = Object.freeze(["QUESTIONABLE", "SOURCES_DISAGREE"]);
+/** May a surface FEATURE this player? Only an ELIGIBLE record with none of the not-featurable flags. */
+export const featurable = (record) => record?.state === "ELIGIBLE" && !(record.flags ?? []).some((f) => NOT_FEATURABLE_FLAGS.includes(f));
+
 /** R7: the market signal for a featured player. */
 export function marketSignal({ playerHasMarket, peersWithMarket = 0 }) {
   return !playerHasMarket && peersWithMarket > 0 ? ["MARKET_ABSENT"] : [];
@@ -150,6 +171,7 @@ export const ELIGIBILITY_REASON_TEXT = Object.freeze({
   DOUBTFUL_STARTER: "a starter listed doubtful",
   NOT_ON_ROSTER: "no longer on the team's roster",
   ACTIVATED_BY_ROSTER: "activated on the roster",
+  ACTIVATED_BY_TRANSACTION: "activated or reinstated in a recorded transaction",
   ROSTER_ACTIVE: "on the active roster",
   INJURIES_SOURCE_MISSING: "no injury report on record",
   INJURIES_STALE: "the injury report is out of date",
@@ -158,6 +180,7 @@ export const ELIGIBILITY_REASON_TEXT = Object.freeze({
   NO_ROSTER_RECORD: "not on any captured roster",
   ROSTER_TEAM_MISMATCH: "listed on another team's roster",
   SOURCES_DISAGREE: "the injury report and the roster disagree",
+  FEED_ACTIVE_ROSTER_DAY_TO_DAY: "listed active on the injury report but day-to-day on the roster — modelled, not featured until they agree",
   ROSTER_NOT_ACTIVE: "not on the active roster (practice squad or injury list)",
 });
 /** One plain sentence for a resolution: "availability not confirmed: the injury report and the roster disagree". */

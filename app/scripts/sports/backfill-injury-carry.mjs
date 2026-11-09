@@ -39,7 +39,10 @@ else captures.push(current);
 // R1: the roster capture is the explicit-activation source (a carried designation ends when it says "active")
 let roster = null;
 try { roster = JSON.parse(fs.readFileSync(path.join(ROOT, "app/public/data/nfl/rosters/latest.json"), "utf8")); } catch { roster = null; }
-const result = recoverFromHistory({ captures, nowIso: NOW, roster });
+// founder decision 4: the stored transaction activations end recovered designations too (none stored ⇒ none applied)
+let activations = [];
+try { activations = JSON.parse(fs.readFileSync(path.join(ROOT, "data/internal/research/transactions/nfl/latest.json"), "utf8")).activations ?? []; } catch { activations = []; }
+const result = recoverFromHistory({ captures, nowIso: NOW, roster, activations });
 const fresh = new Set(result.carried.map((e) => String(e.athleteId)));
 const entries = result.entries.map((e) => (fresh.has(String(e.athleteId)) && e.carriedForward ? { ...e, backfilled: true, backfilledAt: NOW } : e));
 const marked = entries.filter((e) => e.carriedForward === true).length;

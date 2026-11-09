@@ -39,6 +39,7 @@
  */
 
 import { isBlockingStatus, isLongTermStatus } from "./contract.mjs";
+import { activationAfter } from "../../availability/transactions.mjs";
 
 /** RETIRED 2026-11-09 (eligibility contract v1, R1): long-term designations no longer expire. Kept, as null, only so
  *  the capture artifact can state there is no window (`carryForward.windowHours: null`). */
@@ -66,9 +67,10 @@ function rosterActiveSince(roster) {
  * @param {Array<object>} o.currentEntries   entries normalised from the new feed
  * @param {string}        o.nowIso           the capture moment
  * @param {object|null}   [o.roster]         the roster capture taken with this one (NFL public / NBA research shape)
+ * @param {Array<object>} [o.activations]    verified transaction activations (availability/transactions.mjs parseActivations)
  * @returns {{entries: Array<object>, carried: Array<object>, skipped: Record<string, number>}}
  */
-export function carryForwardDesignations({ previousEntries = [], currentEntries = [], nowIso, roster = null } = {}) {
+export function carryForwardDesignations({ previousEntries = [], currentEntries = [], nowIso, roster = null, activations = [] } = {}) {
   const nowMs = Date.parse(nowIso ?? "");
   if (!Number.isFinite(nowMs)) throw new Error("carryForwardDesignations: nowIso required");
 
@@ -76,7 +78,7 @@ export function carryForwardDesignations({ previousEntries = [], currentEntries 
   const seen = new Set(current.map((e) => String(e?.athleteId ?? "")).filter(Boolean));
   const carried = [];
   // Diagnostics count BLOCKING designations only, so the numbers describe decisions, not noise.
-  const skipped = { spokenInFeed: 0, gameWeekOut: 0, activatedByRoster: 0, undated: 0 };
+  const skipped = { spokenInFeed: 0, gameWeekOut: 0, activatedByRoster: 0, activatedByTransaction: 0, undated: 0 };
   const ros = rosterActiveSince(roster);
 
   for (const e of Array.isArray(previousEntries) ? previousEntries : []) {
@@ -89,6 +91,8 @@ export function carryForwardDesignations({ previousEntries = [], currentEntries 
     if (!Number.isFinite(stated)) { skipped.undated += 1; continue; }
     // R1: the only way out is an explicit activation — a roster capture AFTER the designation saying active
     if (ros.active.has(id) && Number.isFinite(ros.at) && ros.at > stated) { skipped.activatedByRoster += 1; continue; }
+    // founder decision 4: a verified transaction (activated / reinstated) dated after the designation ends it too
+    if (activationAfter(activations, id, e.statedAt)) { skipped.activatedByTransaction += 1; continue; }
     carried.push({ ...e, carriedForward: true, absentFromFeedSince: e.absentFromFeedSince ?? nowIso });
     seen.add(id); // never carry the same athlete twice
   }
@@ -113,9 +117,9 @@ export function carryForwardDesignations({ previousEntries = [], currentEntries 
  * @param {Array<{generatedAt:string, entries:Array<object>}>} o.captures  oldest → newest; the last is current
  * @param {string} o.nowIso
  */
-export function recoverFromHistory({ captures = [], nowIso, roster = null } = {}) {
+export function recoverFromHistory({ captures = [], nowIso, roster = null, activations = [] } = {}) {
   const list = (Array.isArray(captures) ? captures : []).filter((c) => c && Array.isArray(c.entries));
-  if (!list.length) return { entries: [], carried: [], skipped: { spokenInFeed: 0, gameWeekOut: 0, activatedByRoster: 0, undated: 0 } };
+  if (!list.length) return { entries: [], carried: [], skipped: { spokenInFeed: 0, gameWeekOut: 0, activatedByRoster: 0, activatedByTransaction: 0, undated: 0 } };
   const current = list[list.length - 1];
   const lastSeen = new Map();
   list.forEach((c, i) => { for (const e of c.entries) if (e?.athleteId != null) lastSeen.set(String(e.athleteId), { entry: e, idx: i }); });
@@ -127,5 +131,5 @@ export function recoverFromHistory({ captures = [], nowIso, roster = null } = {}
     const firstMissing = list[idx + 1]?.generatedAt ?? null;
     previousEntries.push({ ...entry, absentFromFeedSince: entry.absentFromFeedSince ?? firstMissing });
   }
-  return carryForwardDesignations({ previousEntries, currentEntries: current.entries, nowIso, roster });
+  return carryForwardDesignations({ previousEntries, currentEntries: current.entries, nowIso, roster, activations });
 }
