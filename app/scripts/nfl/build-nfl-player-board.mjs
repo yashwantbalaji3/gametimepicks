@@ -30,7 +30,7 @@
  * Usage: node scripts/nfl/build-nfl-player-board.mjs --now <iso>
  * Writes: app/public/data/nfl/player-board/<eventId>.json + latest.json (index)
  */
-import { eligibilityRecord, resolveEligibility } from "../../src/lib/availability/eligibility.mjs";
+import { eligibilityRecord, eligibilityText, resolveEligibility } from "../../src/lib/availability/eligibility.mjs";
 import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
 import { teamIdsFromRoster } from "../../src/lib/sports/nfl/participation-eligibility.mjs";
 import fs from "node:fs";
@@ -440,7 +440,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
    * heading "Likely TD scorers", and it left an unavailable player holding scoring opportunity. The
    * whole row goes, and the coverage receipt says why — removed, never silent.
    */
-  const excluded = gatedOut.map((g) => ({ playerId: g.playerId, name: g.name, team: g.team, reason: g.state === "INELIGIBLE" && g.status !== g.state ? `designation: ${g.status}` : `eligibility ${g.state} (${g.reasons.join(", ")})`, eligibilityState: g.state }));
+  const excluded = gatedOut.map((g) => ({ playerId: g.playerId, name: g.name, team: g.team, reason: g.state === "INELIGIBLE" && g.status !== g.state ? `designation: ${g.status}` : eligibilityText(g), eligibilityState: g.state }));
   {
     const kept = [];
     for (const pl of players) {

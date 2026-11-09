@@ -142,5 +142,26 @@ export function marketSignal({ playerHasMarket, peersWithMarket = 0 }) {
   return !playerHasMarket && peersWithMarket > 0 ? ["MARKET_ABSENT"] : [];
 }
 
+/** Reader words for each state and reason — a public page prints these, never the codes. */
+export const ELIGIBILITY_STATE_TEXT = Object.freeze({ ELIGIBLE: "cleared to play", INELIGIBLE: "not eligible to play", UNKNOWN: "availability not confirmed" });
+export const ELIGIBILITY_REASON_TEXT = Object.freeze({
+  LONG_TERM_DESIGNATION: "on injured reserve or suspended, with no activation since",
+  BLOCKING_DESIGNATION: "ruled out on the injury report",
+  DOUBTFUL_STARTER: "a starter listed doubtful",
+  NOT_ON_ROSTER: "no longer on the team's roster",
+  ACTIVATED_BY_ROSTER: "activated on the roster",
+  ROSTER_ACTIVE: "on the active roster",
+  INJURIES_SOURCE_MISSING: "no injury report on record",
+  INJURIES_STALE: "the injury report is out of date",
+  ROSTER_SOURCE_MISSING: "no roster on record",
+  ROSTER_STALE: "the roster is out of date",
+  NO_ROSTER_RECORD: "not on any captured roster",
+  ROSTER_TEAM_MISMATCH: "listed on another team's roster",
+  SOURCES_DISAGREE: "the injury report and the roster disagree",
+  ROSTER_NOT_ACTIVE: "not on the active roster (practice squad or injury list)",
+});
+/** One plain sentence for a resolution: "availability not confirmed: the injury report and the roster disagree". */
+export const eligibilityText = (r) => `${ELIGIBILITY_STATE_TEXT[r.state] ?? "availability not confirmed"}${r.reasons?.length ? `: ${r.reasons.map((c) => ELIGIBILITY_REASON_TEXT[c] ?? "unconfirmed").join("; ")}` : ""}`;
+
 /** The compact record every consumer stores beside its output. */
 export const eligibilityRecord = (r) => ({ state: r.state, reasons: r.reasons, ...(r.flags?.length ? { flags: r.flags } : {}), contractVersion: r.contractVersion, sources: r.sources });

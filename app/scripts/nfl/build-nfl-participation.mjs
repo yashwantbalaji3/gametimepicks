@@ -26,6 +26,7 @@
  *         app/public/data/nfl/participation-summary.json                  (PUBLIC_DERIVED)
  */
 import { opportunityEligibility, teamIdsFromRoster } from "../../src/lib/sports/nfl/participation-eligibility.mjs";
+import { eligibilityText } from "../../src/lib/availability/eligibility.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -217,7 +218,7 @@ for (const ev of events) {
           // dated by the evidence: the designation's own statement, or else the roster capture that gave the status
           status: src.injuries.status ?? (src.roster.status ? `roster ${src.roster.status}` : e.eligibility.state), statedAt: src.injuries.statedAt ?? src.roster.fetchedAt ?? src.injuries.fetchedAt,
           state: e.eligibility.state, eligibility: e.eligibility,
-          reason: `eligibility ${e.eligibility.state} (${e.eligibility.reasons.join(", ")}) — only an ELIGIBLE player carries an opportunity share`,
+          reason: `${eligibilityText(e.eligibility)} — only a player cleared to play carries an opportunity share`,
         });
         return false;
       });
