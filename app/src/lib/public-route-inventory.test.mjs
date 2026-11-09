@@ -44,7 +44,8 @@ const REMOVED = {
   "/board": "stub",
   "/projections": "stub",
   "/events": "stub",
-  "/trends": "stub",
+  // "/trends" left this list on 2026-11-09 (trends slice): no longer the retired /mlb/board alias but the gated NBA
+  // player-trends page — OFF it 404s and the prune deletes it (trends.test.mjs). It stays out of every nav (NEVER_IN_NAV).
   // "/sports" left this list in Program 148 Release B: the route is LIVE again as the Upcoming
   // Sports schedule directory. The retirement's invariant (no overstated coverage, no liveness
   // claims) did not lapse — it moved to rendered-text guards in product-reset-phase-a.test.mjs and
