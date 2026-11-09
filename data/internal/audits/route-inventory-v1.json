@@ -4,8 +4,8 @@
  "dataClass": "PRIVATE_AUDIT",
  "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
-  "routes": 104,
-  "public": 73,
+  "routes": 105,
+  "public": 74,
   "internal": 10,
   "redirects": 18,
   "archive": 1,
@@ -649,6 +649,15 @@
    "dataOwner": "lib/legal/texts.mjs + content manifest",
    "freshness": "effective date on approval",
    "built": false
+  },
+  {
+   "route": "/products",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "the Products primary (2026-11-09 five-slot nav): one card per paper product, read from the canonical destination list",
+   "dataOwner": "lib/navigation.ts (group products)",
+   "freshness": "static",
+   "built": true
   },
   {
    "route": "/projections",
