@@ -119,7 +119,7 @@ export function gatePool({ rosters, providerTeamId, boxscores, asOfDateUtc, inju
   const out = [];
   for (const p of team.players) {
     const id = String(p.providerAthleteId);
-    const avail = availabilityFromInjuries(injuries, teamId, id, p.rosterStatusType ?? null);
+    const avail = availabilityFromInjuries(injuries, teamId, id);
     let row = sameById.get(id) ?? null;
     let historyBasis = row ? HISTORY_BASES.SAME_TEAM : HISTORY_BASES.NONE;
     let historyTeam = row ? teamId : null;

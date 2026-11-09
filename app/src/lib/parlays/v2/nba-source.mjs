@@ -95,10 +95,10 @@ export function nbaCandidateInputs({ results = [], snapshots = [], statusFeed = 
       eventLabel: s?.matchup ?? null,
       marketLabel,
       selection: `${name} — ${marketLabel} ${over ? "Over" : "Under"}`,
-      // PL-02 (eligibility contract v1): a stated status always — "Active" only when the snapshot says so (the minutes
-      // model's three-state availability: roster-active with no designation); otherwise its own word ("unknown", …),
-      // and no snapshot row at all ⇒ null ⇒ PARTICIPANT_STATUS_MISSING. Missing status is never read as available.
-      participantStatus: statusFeed[leg.providerAthleteId] ?? p?.injuryStatus ?? (p ? (p.participation === "active" ? "Active" : p.participation ?? null) : null),
+      // PL-02 (eligibility contract v1): the snapshot's "active" only means "not on the injury feed", which is not health,
+      // so it is never turned into a status here. A positive status comes from `statusFeed` — the contract's state per
+      // athlete (resolveEligibility: "ELIGIBLE" / "UNKNOWN" / "INELIGIBLE") — or the leg is PARTICIPANT_STATUS_MISSING.
+      participantStatus: statusFeed[leg.providerAthleteId] ?? p?.injuryStatus ?? (p && p.participation !== "active" ? p.participation : null),
       participantName: name,
       playerId: leg.providerAthleteId,
       family: leg.family,

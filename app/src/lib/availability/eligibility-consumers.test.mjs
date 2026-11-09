@@ -2,7 +2,8 @@
  * ELIGIBILITY CONTRACT v1 — the consumers (PD Wave 1, 2026-11-09). Each test names the defect it pins:
  *   R1   carry-forward: a long-term designation persists until an explicit activation (no 336 h expiry)
  *   NFL  participation: a non-ELIGIBLE player gets no opportunity share and is recorded with {state, contractVersion, sources}
- *   NBA  minutes model: three-state availability — Day-To-Day flagged, no record ⇒ "unknown" (never "active")
+ *   NBA  the frozen minutes models stay byte-identical; the contract supplies the three states, and NBA Parlay Lab
+ *        legs take their status from it (a snapshot's "active" is never a status)
  *   PL-02 Parlay Lab: a player leg with no participant status is ineligible (missing status is not health)
  * Run (from app/): npx tsx --test src/lib/availability/eligibility-consumers.test.mjs
  */
@@ -13,6 +14,7 @@ import { availabilityFromInjuries } from "../sports/nba/minutes-model.mjs";
 import { evaluateCandidate, toCandidate } from "../parlays/v2/candidate.mjs";
 import { legReasons, recommendCtx } from "../parlays/v2/recommend.mjs";
 import { opportunityEligibility } from "../sports/nfl/participation-eligibility.mjs";
+import { resolveEligibility } from "./eligibility.mjs";
 
 const NOW = "2026-11-09T00:35:18Z";
 const IR = { sport: "nfl", providerTeamId: "15", athleteId: "4429160", athleteName: "De'Von Achane", status: "Injured Reserve", statedAt: "2026-09-28T20:10Z" };
@@ -50,14 +52,29 @@ test("NFL participation: a non-ELIGIBLE player gets no opportunity share and car
   assert.equal(ok.eligibility.state, "ELIGIBLE");
 });
 
-test("NBA minutes model: three-state availability — Out, Day-To-Day flagged, no record ⇒ unknown (never active)", () => {
+test("NBA: the frozen minutes models are NOT edited (governance: a change is a new candidate); the contract gives the three states", () => {
+  // v0.1 / v0.3 re-derive their committed receipts byte-for-byte, so their "absent ⇒ active" reading stays inside the
+  // frozen model. The products never take it as a status: the contract (resolveEligibility, sport "nba") answers instead.
   const feed = [{ athleteId: "1", providerTeamId: "9", status: "Out" }, { athleteId: "2", providerTeamId: "9", status: "Day-To-Day" }];
-  assert.equal(availabilityFromInjuries(feed, "9", "1").availability, "out");
-  assert.equal(availabilityFromInjuries(feed, "9", "2").availability, "questionable");
-  assert.equal(availabilityFromInjuries(feed, "9", "3").availability, "unknown", "absent from the feed is not health");
-  assert.equal(availabilityFromInjuries(feed, "9", "3", "active").availability, "active", "R2: the roster independently says active");
-  assert.equal(availabilityFromInjuries(feed, "9", "1", "active").availability, "out", "a listed Out is never overruled by the roster");
+  assert.equal(availabilityFromInjuries(feed, "9", "3").availability, "active", "frozen v0 behaviour, unchanged");
+  const roster = { capturedAt: NOW, teams: [{ providerTeamId: "9", state: "CAPTURED", players: [{ providerAthleteId: "2", rosterStatusType: "active" }, { providerAthleteId: "3", rosterStatusType: "active" }] }] };
+  const nba = (id, ros = roster) => resolveEligibility({ sport: "nba", playerId: id, teamId: "9", asOf: NOW, injuries: { generatedAt: NOW, entries: feed }, roster: ros });
+  assert.equal(nba("1").state, "INELIGIBLE");
+  assert.deepEqual([nba("2").state, nba("2").flags], ["ELIGIBLE", ["QUESTIONABLE"]], "Day-To-Day flagged (R6)");
+  assert.equal(nba("3").state, "ELIGIBLE", "no record + roster active (R2)");
+  assert.equal(nba("3", null).state, "UNKNOWN", "no record + no roster ⇒ UNKNOWN");
 });
+
+test("NBA Parlay Lab: a snapshot's 'active' (merely absent from the injury feed) is never a status — no statusFeed ⇒ PARTICIPANT_STATUS_MISSING", async () => {
+  const { nbaCandidateInputs } = await import("../parlays/v2/nba-source.mjs");
+  const { nbaSlate } = await import("../parlays/v2/__fixtures__/nba-fixtures.mjs");
+  const slate = nbaSlate(); // TEST FIXTURE slate: every snapshot row says participation "active"
+  const out = nbaCandidateInputs({ results: slate.results, snapshots: slate.snapshots });
+  assert.ok(out.inputs.length > 0 && out.inputs.every((i) => i.participantStatus == null));
+  const fed = nbaCandidateInputs({ results: slate.results, snapshots: slate.snapshots, statusFeed: slate.statusFeed });
+  assert.ok(fed.inputs.every((i) => i.participantStatus === "ELIGIBLE"));
+});
+
 
 const playerLeg = (extra = {}) => ({ sport: "nfl", league: "nfl", eventId: "e1", market: "player_rush_yds", selection: "P — over 55.5", side: "over", line: 5.5, participant: "Pitcher 1", team: "T1",
   book: "DraftKings", price: -110, americanOdds: -110, capturedAt: "2026-11-09T00:30:00Z", startUtc: "2026-11-09T05:00:00Z", gameStart: "2026-11-09T05:00:00Z", participantStatus: null, receipts: ["x.json"], ...extra });

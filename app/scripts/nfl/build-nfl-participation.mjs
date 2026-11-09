@@ -214,7 +214,8 @@ for (const ev of events) {
         const src = e.eligibility.sources;
         excluded.push({
           playerId: p.playerId, name: p.name ?? null, team: abbr, market: m,
-          status: src.injuries.status ?? (src.roster.status ? `roster ${src.roster.status}` : e.eligibility.state), statedAt: src.injuries.statedAt,
+          // dated by the evidence: the designation's own statement, or else the roster capture that gave the status
+          status: src.injuries.status ?? (src.roster.status ? `roster ${src.roster.status}` : e.eligibility.state), statedAt: src.injuries.statedAt ?? src.roster.fetchedAt ?? src.injuries.fetchedAt,
           state: e.eligibility.state, eligibility: e.eligibility,
           reason: `eligibility ${e.eligibility.state} (${e.eligibility.reasons.join(", ")}) — only an ELIGIBLE player carries an opportunity share`,
         });
@@ -316,10 +317,10 @@ for (const ev of events) {
       // reader sees. Program 182's shares were wrong by more than a factor of four; leaving them in
       // place as the base file while a correction sat beside it would publish the known-wrong one.
       fs.writeFileSync(path.join(dir, `${ev.providerEventId}-superseded-${(existing?.generatedAt ?? "unknown").slice(11, 16).replace(":", "")}Z.json`), JSON.stringify(existing, null, 1) + "\n");
-      const correction = existing?.eligibilityHash !== body.eligibilityHash
-        ? "Player eligibility changed (eligibility contract v1: injuries + roster captures). Only ELIGIBLE players carry an opportunity share; the excluded players are listed with their state and sources."
-        : "Program 182 derived preseason shares by multiplying a regular-season share by an invented rotation factor. The corpus says the leading preseason passer takes 56.7% of team attempts, not the 12.8% that produced. Shares are now MEASURED by depth rank.";
-      fs.writeFileSync(base, JSON.stringify({ ...body, supersedes: existing?.inputHash ?? null, correction }, null, 1) + "\n");
+      const eligibilityChanged = existing?.eligibilityHash !== body.eligibilityHash;
+      fs.writeFileSync(base, JSON.stringify({ ...body, supersedes: existing?.inputHash ?? null, ...(eligibilityChanged
+        ? { correction: "Player eligibility changed (eligibility contract v1: injuries + roster captures). Only ELIGIBLE players carry an opportunity share; the excluded players are listed with their state and sources." }
+        : { correction: "Program 182 derived preseason shares by multiplying a regular-season share by an invented rotation factor. The corpus says the leading preseason passer takes 56.7% of team attempts, not the 12.8% that produced. Shares are now MEASURED by depth rank." }) }, null, 1) + "\n");
     }
   } else {
     fs.writeFileSync(base, JSON.stringify(body, null, 1) + "\n");

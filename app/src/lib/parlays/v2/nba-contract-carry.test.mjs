@@ -15,7 +15,7 @@ const OPEN = { nbaRegistry: PERMISSIVE_REGISTRY, canEnterSport: FIXTURE_SPORT_GA
 test("card legs carry the leg's forecast, availability, settlement rule, correlation keys, both prices and expiry — verbatim", () => {
   const slate = nbaSlate();
   const byKey = new Map(slate.results.filter((r) => r.ok).map((r) => [r.leg.evaluator.identityKey, r.leg]));
-  const out = nbaParlayLab({ results: slate.results, snapshots: slate.snapshots, otherInputs: nflInputs(), now: NOW, coverage: COVERAGE, ...OPEN });
+  const out = nbaParlayLab({ results: slate.results, snapshots: slate.snapshots, statusFeed: slate.statusFeed, otherInputs: nflInputs(), now: NOW, coverage: COVERAGE, ...OPEN });
   const legs = out.recommendation.tiers.flatMap((t) => t.cards).flatMap((c) => c.legs).filter((l) => l.sport === "nba");
   assert.ok(legs.length > 0, "the fixture slate yields NBA card legs");
   for (const l of legs) {

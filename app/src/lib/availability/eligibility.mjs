@@ -124,6 +124,19 @@ export function resolveEligibility({ sport = "nfl", playerId, teamId = null, asO
   return done("UNKNOWN");
 }
 
+/**
+ * R5 (game level): a forecast whose team model is blind to a starting quarterback's absence (team-input-coherence.mjs,
+ * teamInputs.state BLIND_TO_STARTING_QB_ABSENCE) is not publishable as a social post or a challenge-leg basis; a game with
+ * no team-input record is unknown, and unknown is not publishable either (JAX @ BAL, BUF @ MIN, 2026-11).
+ * @param {{ teamInputs: { state: string } | null | undefined }} forecast
+ */
+export function gameEligibility(forecast) {
+  const state = forecast?.teamInputs?.state ?? null;
+  if (state === "BLIND_TO_STARTING_QB_ABSENCE") return { publishable: false, reasons: ["R5_QB_BLIND"], contractVersion: CONTRACT_VERSION };
+  if (state == null || state === "UNKNOWN") return { publishable: false, reasons: ["R5_TEAM_INPUTS_UNKNOWN"], contractVersion: CONTRACT_VERSION };
+  return { publishable: true, reasons: [], contractVersion: CONTRACT_VERSION };
+}
+
 /** R7: the market signal for a featured player. */
 export function marketSignal({ playerHasMarket, peersWithMarket = 0 }) {
   return !playerHasMarket && peersWithMarket > 0 ? ["MARKET_ABSENT"] : [];
