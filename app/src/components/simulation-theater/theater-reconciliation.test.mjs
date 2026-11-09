@@ -42,6 +42,7 @@ const { eloWinProbabilityOf, eloWinProbabilityText } = await import("../../lib/s
 const { loadTheater } = await import("../../lib/simulation-theater/loader.mjs");
 const { loadForecastView, officialSnapshotFor } = await import("../../lib/sports/nfl/forecast-view-load.mjs");
 const { gameView } = await import("../../lib/sports/nfl/forecast-view.mjs");
+const { nflOfficialOfRecord } = await import("../../lib/sports/nfl/official-of-record.mjs");
 const { sanitizePlayerBoard } = await import("../../lib/sports/odds/public-offer-sanitizer.mjs");
 const { readWorldModelArtifacts } = await import("../../lib/sports/nfl/world-model-v2/read.mjs");
 const { archivedForecastFor } = await import("../../lib/sports/nfl/archived-forecast.ts");
@@ -328,7 +329,8 @@ test("NFL week 8 one official forecast: every number the Theater prints under 'O
     assert.ok(view, `${id}: the game page has a view`);
     if (!t.ok || !t.manifest?.representative?.official) continue;
     const rep = t.manifest.representative;
-    assert.equal(rep.snapshotId, view.official.snapshotId, `${id}: one snapshot id on both pages`);
+    /* CANON-01: one NFL forecast-of-record selector for every surface (live union, else the graded archived revision). */
+    assert.equal(rep.snapshotId, nflOfficialOfRecord(path.join(APP, "public"), id).snapshot.snapshotId, `${id}: one snapshot id on both pages`);
     const teams = t.manifest.teams;
     const card = html(React.createElement(OfficialForecastCard, { manifest: t.manifest, teams }));
     const cell = (attr) => { const m = card.match(new RegExp(`${attr}="">([^<]*)<`)); return m ? unescape(m[1]) : null; };
