@@ -490,7 +490,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         })
       ) : (
         <div className="rounded-xl px-4 py-4" style={{ background: "color-mix(in srgb, var(--vault-wash-base) 2%, transparent)", border: "1px dashed var(--vault-border)" }}>
-          <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No game-specific cards passed the gate for this match{detail.homeTeam ? ` (${detail.homeTeam} vs ${detail.awayTeam})` : ""}. Build your own from this game&apos;s eligible legs, or browse all of today&apos;s cards in the <Link href="/build#suggested-cards" style={{ color: "var(--vault-gold-bright)" }}>Parlay Center</Link>.</p>
+          <p className="text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No game-specific cards passed the gate for this match{detail.homeTeam ? ` (${detail.homeTeam} vs ${detail.awayTeam})` : ""}. Build your own from this game&apos;s eligible legs, or browse all of today&apos;s cards in the <Link href="/build#suggested-cards" style={{ color: "var(--vault-gold-bright)" }}>Parlay Lab</Link>.</p>
           <Link href={detail.buildUrl} className="mt-2 inline-flex font-mono uppercase tracking-[0.12em]" style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}>Build from this game →</Link>
         </div>
       )}
@@ -1090,7 +1090,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         </div>
         <div className="mt-4 flex flex-wrap items-center gap-2">
           <Link href={detail.buildUrl} className="gtp-cta-lava vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]" style={{ fontSize: 11, fontWeight: 700, textDecoration: "none", minHeight: 42 }}>Build from this game</Link>
-          <Link href="/build#suggested-cards" className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 42 }}>Open Parlay Center</Link>
+          <Link href="/build#suggested-cards" className="vault-press inline-flex items-center rounded-full px-4 font-mono uppercase tracking-[0.12em]" style={{ border: "1px solid var(--vault-rule)", color: "var(--vault-text-mute)", fontSize: 11, textDecoration: "none", minHeight: 42 }}>Open Parlay Lab</Link>
           {/* The sport HUB, resolved through one map (P231 · I).
               This built the href from the sport key, so `nba` produced `/nba` and `world_cup`
               produced `/world-cup` — both retired to redirect stubs. A computed href is invisible to

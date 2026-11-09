@@ -58,7 +58,7 @@ export interface SuggestedParlaysPreviewProps {
   tierIntent: Record<string, string>;
   /** The build's frozen ET day, so a lane can say whether its card is behind or ahead of the reader. */
   todayEt?: string | null;
-  /** Home passes false: the technical per-lane reasons live on the Parlay Center, so the homepage keeps one
+  /** Home passes false: the technical per-lane reasons live on the Parlay Lab, so the homepage keeps one
    *  sentence per lane plus a link (founder directive 2026-10-23: no internal engineering detail on primary pages;
    *  homepage word ceiling, busiest-state.test). Today keeps the details. */
   showDetails?: boolean;
@@ -115,7 +115,7 @@ export default function SuggestedParlaysPreview({ live, closed, tierIntent, toda
       <div className="flex flex-wrap items-baseline justify-between gap-2">
         <div>
           <div className="font-mono uppercase tracking-[0.14em]" style={{ fontSize: 10.5, color: "var(--vault-text-faint)" }}>
-            Parlay Center
+            Parlay Lab
           </div>
           {/* NOT "Today's" (P232 · C). Lanes are event-driven: UFC and EPL carry the card for their
               next fight night or matchweek, and MLB carries the last published product day. On
@@ -137,7 +137,7 @@ export default function SuggestedParlaysPreview({ live, closed, tierIntent, toda
             textDecoration: "none",
           }}
         >
-          View Suggested Parlays →
+          Open Parlay Lab →
         </Link>
       </div>
 

@@ -22,14 +22,16 @@ test("Mr. Dub is a first-class rail/footer destination (P201 took products off t
   const decl = nav.slice(nav.indexOf('href: "/mr-dub"'));
   const body = decl.slice(0, decl.indexOf("},"));
   assert.match(body, /label: "Mr\. Dub's Portfolio"/, "keeps the founder-renamed label");
-  assert.match(body, /surfaces: \["rail", "footer"\]/, "rail + footer (the Menu sheet derives from the rail)");
+  // 2026-11-09: footer + /products (the Products primary lists every product from the same canonical list)
+  assert.match(body, /surfaces: \["footer"\]/, "footer sitemap");
+  assert.match(nav, /href: "\/mr-dub", label: "Mr\. Dub's Portfolio", group: "products"/, "in the products group /products renders");
   /* UX-001 phase 2: this asserted the "mrdub" bucket string survived in the resolver — a bucket no destination carries and
      no surface renders since P201. The contract it stood for is behaviour, asserted as such: on a phone, /mr-dub lights no
      bar slot (it holds none) and lights itself in the Menu sheet and on the rail. */
   const route = await import("./nav-active-route.ts");
-  assert.equal(route.resolveMobileNavBucket("/mr-dub"), null, "no bar slot claims Mr. Dub");
+  assert.equal(route.resolveMobileNavBucket("/mr-dub"), "products", "the Products slot holds Mr. Dub");
   const rail = (await import("./navigation.ts")).destinationsFor("rail").map((d) => d.href);
-  assert.equal(route.activeHref("/mr-dub/ledger", rail), "/mr-dub", "the rail and the Menu sheet light Mr. Dub on its pages");
+  assert.equal(route.activeHref("/mr-dub/ledger", rail), "/products", "the rail lights Products on Mr. Dub's pages");
 });
 
 test("Bank Builder public copy is natural — no awkward lifecycle terms on the marketing surface", () => {

@@ -62,7 +62,7 @@ export const metadata = withRouteMetadata("/mr-dub/", {
 const CTAS = [
   { href: "/bank-builder", label: "Bank Builder" },
   { href: "/results", label: "Results" },
-  { href: "/build", label: "Parlay Center" },
+  { href: "/build", label: "Parlay Lab" },
   { href: "/mlb", label: "MLB" },
 ];
 

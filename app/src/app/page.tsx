@@ -274,7 +274,7 @@ export default function HomePage() {
   const secondaryLanes = withPlainStatus(commandLanes.filter((l) => !primaryLaneIds.has(l.sport)));
   // ── FLAGSHIP PRODUCTS — paper products powered BY the simulations (+ the track record) ──
   /* W4 (2026-10-28): the Results card left this row — its record was the second of three record summaries on the page
-     (Results card, the Suggested Parlays recap, the Recent results band). The record now appears ONCE, in the Recent
+     (Results card, the Parlay Lab recap, the Recent results band). The record now appears ONCE, in the Recent
      results band below, from the same shared current-era reader. */
   const productCards: FlagshipCard[] = [
     {
@@ -442,7 +442,7 @@ export default function HomePage() {
       />
       </div>
 
-      {/* W4 (2026-10-28): the Suggested Parlays recap (YesterdayCard, P251) left Home — it was a second results summary
+      {/* W4 (2026-10-28): the Parlay Lab recap (YesterdayCard, P251) left Home — it was a second results summary
           beside the Recent results band. It still closes /today's product fold, and every settled card is on /results. */}
       {/* 6 — Recent results: the proof section (charter 5B order). Same owners as /results — the
           record label and pending line arrive from the one Results reader above (current era, labelled); the date is the

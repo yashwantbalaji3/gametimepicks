@@ -299,7 +299,7 @@ export default function TodayPage() {
     { href: "/simulate", label: "Simulate", sub: "Game sims" },
     { href: "/results", label: "Results", sub: "Receipts" },
     { href: "/bank-builder", label: "Bank Builder", sub: "The ladder" },
-    { href: "/build", label: "Parlay Center", sub: "Suggested cards + build your own" },
+    { href: "/build", label: "Parlay Lab", sub: "Suggested cards + build your own" },
     { href: "/simulate", label: "Game Reports", sub: "Model reads" },
     { href: "/learn", label: "How It Works", sub: "Methodology" },
   ];

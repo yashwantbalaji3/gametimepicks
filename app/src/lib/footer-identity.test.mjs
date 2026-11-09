@@ -41,7 +41,7 @@ test("footer links the flagship products (Simulate, Today, Bank Builder, Results
    */
   const built = builtSitemap();
   const expected = [
-    ["/simulate", "Simulations"], ["/today", "Today"], ["/bank-builder", "Bank Builder"],
+    ["/simulate", "Simulations"], ["/today", "Tonight's slate"], ["/products", "Products"], ["/ask", "Ask"], ["/bank-builder", "Bank Builder"],
     ["/results", "Results"], ["/methodology", "Methodology"], ["/learn", "How It Works"],
   ];
   if (built) {

@@ -141,7 +141,7 @@ export default function ResultsDatePage({ params }: PageProps) {
       <TopBoards day={topBoardsFor(date)} without={sportsWithoutBoards()} dayLabel={formatDateLong(date)} />
 
       <ProductReceipts day={productReceiptsFor(date)} />
-      {/* Session 9 overnight · the Suggested Parlays cards this day published, with their settled grades. */}
+      {/* Session 9 overnight · the Parlay Lab cards this day published, with their settled grades. */}
       <SuggestedReceipts date={date} />
 
       {(nbaDecisive > 0 || mlbDecisive > 0 || nbaRows.length > 0 || mlbRows.length > 0) && (

@@ -1,5 +1,5 @@
 /**
- * The Parlay Center explorer's data, emitted as a static file at build time (P257).
+ * The Parlay Lab explorer's data, emitted as a static file at build time (P257).
  *
  * `/build/custom` embedded the whole "Advanced" explorer — every eligible leg, the game-specific cards
  * and the coverage matrix — in its HTML and its client payload, inside a disclosure most readers never

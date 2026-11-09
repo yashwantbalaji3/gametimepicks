@@ -140,7 +140,11 @@ test("5 · Bank Builder status is DERIVED honestly (no-play / awaiting Step / $0
 test("6 · the builder is 'Build-a-Pick'; the builder module never carries the Lab's name", () => {
   assert.ok(/Build-a-Pick/.test(TODAY_ALL), "Build-a-Pick label present");
   const builderModule = read("src/components/today/status-modules.tsx");
-  assert.ok(!/Parlay Lab/i.test(builderModule), "the builder module never labels itself 'Parlay Lab'");
+  /* UX-06 (2026-11-09): "Parlay Lab" is /build's one name. The rule this guarded — the builder (Build-a-Pick) never
+     borrows the Lab's name — holds on the module's own block: only the module that links /build says Parlay Lab. */
+  const lab = builderModule.slice(builderModule.indexOf('title="Parlay Lab"') - 400, builderModule.indexOf('title="Parlay Lab"') + 400);
+  assert.match(lab, /\/build/, "the Parlay Lab module links /build");
+  assert.ok(!/Build-a-Pick[^]{0,200}Parlay Lab/.test(builderModule), "the builder module never labels itself 'Parlay Lab'");
 });
 
 // 7 — uses "Longshot Lab" not "Moonshot" in public body copy (code identifiers allowed).
