@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-world-model-v2-grades",
  "dataClass": "PRIVATE_RESEARCH",
- "officialStatsGeneratedAt": "2026-11-09T00:35:18Z",
+ "officialStatsGeneratedAt": "2026-11-09T19:48:08Z",
  "games": [
   {
    "providerEventId": "401872980",
@@ -771,7 +771,7 @@
    "simulationId": "f08e98a16cba9e80",
    "modelVersion": "2.2.0",
    "generatedAt": "2026-11-08T20:31:20Z",
-   "final": false,
+   "final": true,
    "rows": 40
   },
   {
@@ -782,30 +782,30 @@
    "simulationId": "5e9c78f6b2420751",
    "modelVersion": "2.2.0",
    "generatedAt": "2026-11-09T00:23:49Z",
-   "final": false,
+   "final": true,
    "rows": 40
   },
   {
    "providerEventId": "401873051",
    "matchup": "BUF @ MIN",
    "kickoffUtc": "2026-11-10T01:15Z",
-   "gradedRun": "401873051-20261108T0014Z.json",
-   "simulationId": "386c3cf4cd094bd6",
+   "gradedRun": "401873051-20261109T1948Z.json",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "final": false,
-   "rows": 41
+   "rows": 40
   }
  ],
  "summary": {
   "passingYards": {
-   "graded": 137,
-   "pending": 6,
+   "graded": 141,
+   "pending": 2,
    "noLine": 1,
-   "mae": 58.3985,
-   "bias": 7.8685,
-   "coverage80": 0.8175,
-   "coverage50": 0.5109,
+   "mae": 58.7894,
+   "bias": 5.7166,
+   "coverage80": 0.8156,
+   "coverage50": 0.5035,
    "ladderBrier": 0.2018,
    "versions": [
     "2.1.0",
@@ -813,42 +813,42 @@
    ]
   },
   "rushingYards": {
-   "graded": 431,
-   "pending": 23,
-   "noLine": 74,
-   "mae": 19.4443,
-   "bias": -1.9557,
-   "coverage80": 0.8051,
-   "coverage50": 0.5267,
-   "ladderBrier": 0.1205,
+   "graded": 444,
+   "pending": 6,
+   "noLine": 77,
+   "mae": 19.4804,
+   "bias": -1.7947,
+   "coverage80": 0.8063,
+   "coverage50": 0.5225,
+   "ladderBrier": 0.1206,
    "versions": [
     "2.1.0",
     "2.2.0"
    ]
   },
   "receivingYards": {
-   "graded": 1009,
-   "pending": 46,
-   "noLine": 118,
-   "mae": 18.5216,
-   "bias": -1.5366,
-   "coverage80": 0.8722,
-   "coverage50": 0.6194,
-   "ladderBrier": 0.1137,
+   "graded": 1038,
+   "pending": 16,
+   "noLine": 119,
+   "mae": 18.7593,
+   "bias": -1.821,
+   "coverage80": 0.8699,
+   "coverage50": 0.6137,
+   "ladderBrier": 0.1149,
    "versions": [
     "2.1.0",
     "2.2.0"
    ]
   },
   "receptions": {
-   "graded": 1009,
-   "pending": 46,
-   "noLine": 118,
-   "mae": 1.3994,
-   "bias": -0.1475,
-   "coverage80": 0.9316,
-   "coverage50": 0.7294,
-   "ladderBrier": 0.1159,
+   "graded": 1038,
+   "pending": 16,
+   "noLine": 119,
+   "mae": 1.4037,
+   "bias": -0.1506,
+   "coverage80": 0.9326,
+   "coverage50": 0.7274,
+   "ladderBrier": 0.1162,
    "versions": [
     "2.1.0",
     "2.2.0"
@@ -96387,7 +96387,13 @@
      "300": 0.2806
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 372,
+   "absError": 117.5,
+   "error": -114.10000000000002,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.21866271000000004
   },
   {
    "providerEventId": "401873049",
@@ -96415,7 +96421,13 @@
      "100": 0.1934
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 171,
+   "absError": 118.6,
+   "error": -109.1,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.31159355333333333
   },
   {
    "providerEventId": "401873049",
@@ -96442,7 +96454,13 @@
      "7": 0.2077
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 7,
+   "absError": 3,
+   "error": -2.67,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.35140738600000004
   },
   {
    "providerEventId": "401873049",
@@ -96470,7 +96488,13 @@
      "100": 0.0562
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 1,
+   "absError": 29.8,
+   "error": 37.27,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.10699518333333331
   },
   {
    "providerEventId": "401873049",
@@ -96497,7 +96521,13 @@
      "7": 0.138
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 1,
+   "absError": 2,
+   "error": 2.59,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.14001435599999995
   },
   {
    "providerEventId": "401873049",
@@ -96525,7 +96555,13 @@
      "100": 0.0015
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 0,
+   "error": 7.18,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.002076286666666667
   },
   {
    "providerEventId": "401873049",
@@ -96552,7 +96588,13 @@
      "7": 0.0035
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 0,
+   "error": 0.68,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.0014001879999999997
   },
   {
    "providerEventId": "401873049",
@@ -96580,7 +96622,13 @@
      "100": 0.0223
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 5,
+   "absError": 31.9,
+   "error": 35.85,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.14091499666666665
   },
   {
    "providerEventId": "401873049",
@@ -96608,7 +96656,13 @@
      "100": 0.0189
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 20.1,
+   "error": 26.97,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.04783512
   },
   {
    "providerEventId": "401873049",
@@ -96635,7 +96689,13 @@
      "7": 0.0885
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 2,
+   "error": 2.92,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.08462414399999998
   },
   {
    "providerEventId": "401873049",
@@ -96663,7 +96723,13 @@
      "100": 0.0064
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 25,
+   "absError": 19.8,
+   "error": -10.83,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.10713473000000001
   },
   {
    "providerEventId": "401873049",
@@ -96690,7 +96756,13 @@
      "7": 0.0165
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 3,
+   "absError": 2,
+   "error": -1.66,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.135639398
   },
   {
    "providerEventId": "401873049",
@@ -96718,7 +96790,13 @@
      "100": 0.1682
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 164,
+   "absError": 112.2,
+   "error": -104.31,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.32348593166666667
   },
   {
    "providerEventId": "401873049",
@@ -96745,7 +96823,13 @@
      "7": 0.2366
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 10,
+   "absError": 6,
+   "error": -5.3,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.29984768199999995
   },
   {
    "providerEventId": "401873049",
@@ -96773,7 +96857,7 @@
      "100": 0.0181
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873049",
@@ -96800,7 +96884,7 @@
      "7": 0.0448
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873049",
@@ -96828,7 +96912,13 @@
      "100": 0.0037
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 68,
+   "absError": 54.2,
+   "error": -48.81,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.5033285399999999
   },
   {
    "providerEventId": "401873049",
@@ -96856,7 +96946,13 @@
      "100": 0.0002
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 22,
+   "absError": 17.9,
+   "error": -12.78,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.0022516366666666663
   },
   {
    "providerEventId": "401873049",
@@ -96884,7 +96980,13 @@
      "100": 0.0039
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 11,
+   "absError": 7.4,
+   "error": 1.2799999999999994,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.007389954999999999
   },
   {
    "providerEventId": "401873049",
@@ -96911,7 +97013,13 @@
      "7": 0.0144
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 2,
+   "absError": 1,
+   "error": -0.78,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.007557833999999999
   },
   {
    "providerEventId": "401873049",
@@ -96939,7 +97047,13 @@
      "100": 0.0727
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 35,
+   "absError": 1,
+   "error": 6.520000000000003,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.08990616666666668
   },
   {
    "providerEventId": "401873049",
@@ -96966,7 +97080,13 @@
      "7": 0.1514
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 3,
+   "absError": 0,
+   "error": 0.7200000000000002,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.10918009399999999
   },
   {
    "providerEventId": "401873049",
@@ -96994,7 +97114,13 @@
      "100": 0.0844
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 32,
+   "absError": 17.1,
+   "error": 21.67,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.14263946333333333
   },
   {
    "providerEventId": "401873049",
@@ -97022,7 +97148,13 @@
      "100": 0.0274
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 46,
+   "absError": 25.4,
+   "error": -17.55,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.15175115833333333
   },
   {
    "providerEventId": "401873049",
@@ -97049,7 +97181,13 @@
      "7": 0.0748
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 3,
+   "absError": 1,
+   "error": -0.27,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.09078070800000002
   },
   {
    "providerEventId": "401873049",
@@ -97077,7 +97215,13 @@
      "100": 0.0731
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 102,
+   "absError": 70.1,
+   "error": -61.64,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.5204098933333333
   },
   {
    "providerEventId": "401873049",
@@ -97104,7 +97248,13 @@
      "7": 0.1147
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 5,
+   "absError": 2,
+   "error": -1.67,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.22599876000000005
   },
   {
    "providerEventId": "401873049",
@@ -97132,7 +97282,13 @@
      "300": 0.2245
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 299,
+   "absError": 61.69999999999999,
+   "error": -57.41999999999999,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.19375659666666667
   },
   {
    "providerEventId": "401873049",
@@ -97160,7 +97316,13 @@
      "100": 0.0176
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 3,
+   "absError": 20.6,
+   "error": 26.66,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.06054165833333334
   },
   {
    "providerEventId": "401873049",
@@ -97188,7 +97350,13 @@
      "100": 0.0863
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 36,
+   "absError": 0.29999999999999716,
+   "error": 8.07,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.098489445
   },
   {
    "providerEventId": "401873049",
@@ -97215,7 +97383,13 @@
      "7": 0.1313
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 3,
+   "absError": 0,
+   "error": 0.56,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.10123565600000002
   },
   {
    "providerEventId": "401873049",
@@ -97243,7 +97417,13 @@
      "100": 0.0109
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 3,
+   "error": 15.23,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.014015091666666667
   },
   {
    "providerEventId": "401873049",
@@ -97270,7 +97450,13 @@
      "7": 0.0069
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 1,
+   "error": 1.07,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.005103119999999999
   },
   {
    "providerEventId": "401873049",
@@ -97298,7 +97484,13 @@
      "100": 0.0215
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 49,
+   "absError": 31,
+   "error": -23.54,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.16550627666666667
   },
   {
    "providerEventId": "401873049",
@@ -97325,7 +97517,13 @@
      "7": 0.0525
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 5,
+   "absError": 3,
+   "error": -2.61,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.33313971200000003
   },
   {
    "providerEventId": "401873049",
@@ -97353,7 +97551,13 @@
      "100": 0.0208
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 55,
+   "absError": 32.3,
+   "error": -25.99,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.24887388333333338
   },
   {
    "providerEventId": "401873049",
@@ -97381,7 +97585,13 @@
      "100": 0.0015
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 0,
+   "error": 6.42,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.001507275
   },
   {
    "providerEventId": "401873049",
@@ -97408,7 +97618,13 @@
      "7": 0.0023
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 0,
+   "error": 0.62,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.001069254
   },
   {
    "providerEventId": "401873049",
@@ -97436,7 +97652,13 @@
      "100": 0.0336
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 52,
+   "absError": 31,
+   "error": -23.32,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.25285827
   },
   {
    "providerEventId": "401873049",
@@ -97463,7 +97685,13 @@
      "7": 0.0527
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 3,
+   "absError": 1,
+   "error": -0.56,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.09205215400000001
   },
   {
    "providerEventId": "401873050",
@@ -97491,7 +97719,13 @@
      "100": 0.0601
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 16,
+   "absError": 18.4,
+   "error": 25.240000000000002,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.12764173666666667
   },
   {
    "providerEventId": "401873050",
@@ -97518,7 +97752,13 @@
      "7": 0.1785
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 2,
+   "absError": 2,
+   "error": 2.0599999999999996,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.190145886
   },
   {
    "providerEventId": "401873050",
@@ -97546,7 +97786,13 @@
      "100": 0.0073
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 25,
+   "absError": 14.2,
+   "error": -6.920000000000002,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.09242876166666665
   },
   {
    "providerEventId": "401873050",
@@ -97573,7 +97819,13 @@
      "7": 0.02
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 4,
+   "absError": 3,
+   "error": -2.26,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.25463467799999995
   },
   {
    "providerEventId": "401873050",
@@ -97601,7 +97853,13 @@
      "300": 0.0387
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 243,
+   "absError": 73.9,
+   "error": -69.65,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.2312591683333333
   },
   {
    "providerEventId": "401873050",
@@ -97629,7 +97887,13 @@
      "100": 0.0024
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 4.1,
+   "error": 11.56,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.005754810000000002
   },
   {
    "providerEventId": "401873050",
@@ -97657,7 +97921,13 @@
      "100": 0.0027
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 4.6,
+   "error": 11.73,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.005606091666666667
   },
   {
    "providerEventId": "401873050",
@@ -97685,7 +97955,13 @@
      "100": 0.1486
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 97,
+   "absError": 41.2,
+   "error": -35.67,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.184085265
   },
   {
    "providerEventId": "401873050",
@@ -97713,7 +97989,13 @@
      "100": 0.0028
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 28,
+   "absError": 20.5,
+   "error": -14.19,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.10846350666666665
   },
   {
    "providerEventId": "401873050",
@@ -97740,7 +98022,13 @@
      "7": 0.0191
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 4,
+   "absError": 3,
+   "error": -2.4299999999999997,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.27245579799999997
   },
   {
    "providerEventId": "401873050",
@@ -97768,7 +98056,13 @@
      "100": 0.0383
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 38,
+   "absError": 7.100000000000001,
+   "error": -1.3100000000000023,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.07426041666666666
   },
   {
    "providerEventId": "401873050",
@@ -97795,7 +98089,13 @@
      "7": 0.1308
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 3,
+   "absError": 0,
+   "error": 0.6400000000000001,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.101872412
   },
   {
    "providerEventId": "401873050",
@@ -97823,7 +98123,13 @@
      "100": 0.0076
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 76,
+   "absError": 72.2,
+   "error": -61.92,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.690030805
   },
   {
    "providerEventId": "401873050",
@@ -97850,7 +98156,13 @@
      "7": 0.0073
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 2,
+   "absError": 1,
+   "error": -0.8799999999999999,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.005423966
   },
   {
    "providerEventId": "401873050",
@@ -97878,7 +98190,7 @@
      "100": 0.0006
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873050",
@@ -97906,7 +98218,13 @@
      "100": 0.0144
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 16,
+   "absError": 0.5,
+   "error": 7.449999999999999,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.03287395
   },
   {
    "providerEventId": "401873050",
@@ -97934,7 +98252,13 @@
      "100": 0.0056
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 60,
+   "absError": 47.2,
+   "error": -40.93,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.48998182333333334
   },
   {
    "providerEventId": "401873050",
@@ -97961,7 +98285,13 @@
      "7": 0.0319
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 3,
+   "absError": 1,
+   "error": -0.9199999999999999,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.10153947199999999
   },
   {
    "providerEventId": "401873050",
@@ -97989,7 +98319,13 @@
      "100": 0.018
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 16.9,
+   "error": 24.45,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.03823512833333333
   },
   {
    "providerEventId": "401873050",
@@ -98016,7 +98352,13 @@
      "7": 0.0278
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 2,
+   "error": 2.04,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.030603643999999996
   },
   {
    "providerEventId": "401873050",
@@ -98044,7 +98386,7 @@
      "100": 0.0048
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873050",
@@ -98072,7 +98414,13 @@
      "100": 0.0038
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 11.5,
+   "error": 17.6,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.015504336666666667
   },
   {
    "providerEventId": "401873050",
@@ -98100,7 +98448,13 @@
      "100": 0.0033
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 0,
+   "error": 10.74,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.005561745
   },
   {
    "providerEventId": "401873050",
@@ -98127,7 +98481,13 @@
      "7": 0.0088
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 0,
+   "error": 1.01,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.004554186000000001
   },
   {
    "providerEventId": "401873050",
@@ -98155,7 +98515,7 @@
      "100": 0.0005
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873050",
@@ -98183,7 +98543,13 @@
      "100": 0.1435
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 31,
+   "absError": 29.299999999999997,
+   "error": 33.459999999999994,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.22665979833333336
   },
   {
    "providerEventId": "401873050",
@@ -98211,7 +98577,13 @@
      "100": 0.0149
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 17.5,
+   "error": 24.45,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.038345131666666664
   },
   {
    "providerEventId": "401873050",
@@ -98238,7 +98610,13 @@
      "7": 0.0756
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 2,
+   "error": 2.68,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.06659706400000001
   },
   {
    "providerEventId": "401873050",
@@ -98266,7 +98644,13 @@
      "300": 0.2486
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 279,
+   "absError": 35.599999999999994,
+   "error": -30.78,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.17470884666666664
   },
   {
    "providerEventId": "401873050",
@@ -98294,7 +98678,13 @@
      "100": 0.0063
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 16,
+   "absError": 3.5999999999999996,
+   "error": 3.3099999999999987,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.020466528333333334
   },
   {
    "providerEventId": "401873050",
@@ -98322,7 +98712,13 @@
      "100": 0.1216
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 60,
+   "absError": 20.299999999999997,
+   "error": -10.700000000000003,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.20856258833333333
   },
   {
    "providerEventId": "401873050",
@@ -98349,7 +98745,13 @@
      "7": 0.1337
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 4,
+   "absError": 1,
+   "error": -0.43000000000000016,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.12571588399999997
   },
   {
    "providerEventId": "401873050",
@@ -98377,7 +98779,13 @@
      "100": 0.1102
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 54,
+   "absError": 9.399999999999999,
+   "error": -2.4099999999999966,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.12935238000000002
   },
   {
    "providerEventId": "401873050",
@@ -98404,7 +98812,13 @@
      "7": 0.2695
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 4,
+   "absError": 0,
+   "error": 0.9199999999999999,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.129118344
   },
   {
    "providerEventId": "401873050",
@@ -98432,7 +98846,13 @@
      "100": 0.177
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 97,
+   "absError": 45,
+   "error": -36.3,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.21066795999999996
   },
   {
    "providerEventId": "401873050",
@@ -98459,7 +98879,13 @@
      "7": 0.2726
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 7,
+   "absError": 3,
+   "error": -2.0700000000000003,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.277871282
   },
   {
    "providerEventId": "401873050",
@@ -98487,7 +98913,13 @@
      "100": 0.0221
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 32,
+   "absError": 12.5,
+   "error": -4.920000000000002,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.07416692666666667
   },
   {
    "providerEventId": "401873050",
@@ -98514,7 +98946,13 @@
      "7": 0.0749
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 4,
+   "absError": 2,
+   "error": -1.33,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.17411632400000004
   },
   {
    "providerEventId": "401873050",
@@ -98542,7 +98980,13 @@
      "100": 0.0026
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 13,
+   "absError": 13,
+   "error": -3.6799999999999997,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.003913363333333333
   },
   {
    "providerEventId": "401873050",
@@ -98569,7 +99013,13 @@
      "7": 0.0068
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 1,
+   "absError": 1,
+   "error": -0.09999999999999998,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.0034360999999999997
   },
   {
    "providerEventId": "401873051",
@@ -98578,23 +99028,23 @@
    "team": "BUF",
    "family": "passingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 217.3,
-    "mean": 222.77,
-    "p10": 125.9,
-    "p25": 166.8,
-    "p75": 271.2,
-    "p90": 328.9,
+    "median": 217.2,
+    "mean": 221.26,
+    "p10": 122.6,
+    "p25": 165.2,
+    "p75": 271.4,
+    "p90": 325.8,
     "atLeast": {
-     "175": 0.7131,
-     "200": 0.5925,
-     "225": 0.4634,
-     "250": 0.3388,
-     "275": 0.2358,
-     "300": 0.1613
+     "175": 0.7036,
+     "200": 0.5825,
+     "225": 0.4583,
+     "250": 0.3364,
+     "275": 0.2365,
+     "300": 0.158
     }
    },
    "state": "PENDING"
@@ -98606,23 +99056,23 @@
    "team": "BUF",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 23.7,
-    "mean": 30.5,
-    "p10": 2.2,
-    "p25": 9.7,
-    "p75": 44.4,
-    "p90": 67.6,
+    "median": 24.2,
+    "mean": 30.93,
+    "p10": 2.3,
+    "p25": 9.8,
+    "p75": 44.6,
+    "p90": 68.2,
     "atLeast": {
-     "25": 0.4804,
-     "40": 0.2931,
-     "50": 0.2002,
-     "60": 0.1363,
-     "75": 0.074,
-     "100": 0.0244
+     "25": 0.4868,
+     "40": 0.2952,
+     "50": 0.205,
+     "60": 0.1371,
+     "75": 0.0763,
+     "100": 0.027
     }
    },
    "state": "PENDING"
@@ -98634,23 +99084,23 @@
    "team": "BUF",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 5,
-    "mean": 12.53,
+    "median": 5.3,
+    "mean": 12.6,
     "p10": 0,
     "p25": 0,
-    "p75": 18.5,
+    "p75": 19.2,
     "p90": 36,
     "atLeast": {
-     "25": 0.1819,
-     "40": 0.079,
-     "50": 0.0481,
-     "60": 0.0295,
-     "75": 0.0133,
-     "100": 0.004
+     "25": 0.1854,
+     "40": 0.0787,
+     "50": 0.0475,
+     "60": 0.0273,
+     "75": 0.0125,
+     "100": 0.0024
     }
    },
    "state": "PENDING"
@@ -98662,22 +99112,22 @@
    "team": "BUF",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 1,
-    "mean": 1.31,
+    "mean": 1.29,
     "p10": 0,
     "p25": 0,
     "p75": 2,
     "p90": 3,
     "atLeast": {
-     "3": 0.1773,
-     "4": 0.0968,
-     "5": 0.049,
-     "6": 0.0268,
-     "7": 0.0138
+     "3": 0.1733,
+     "4": 0.0883,
+     "5": 0.046,
+     "6": 0.025,
+     "7": 0.0118
     }
    },
    "state": "PENDING"
@@ -98689,23 +99139,23 @@
    "team": "BUF",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 79.1,
-    "mean": 84.11,
-    "p10": 33.5,
-    "p25": 52.4,
-    "p75": 109.8,
-    "p90": 141.6,
+    "median": 79,
+    "mean": 84.3,
+    "p10": 33.7,
+    "p25": 52.8,
+    "p75": 109.9,
+    "p90": 141.5,
     "atLeast": {
-     "25": 0.9461,
-     "40": 0.8557,
-     "50": 0.7714,
-     "60": 0.6777,
-     "75": 0.5375,
-     "100": 0.3183
+     "25": 0.9458,
+     "40": 0.8552,
+     "50": 0.7767,
+     "60": 0.6829,
+     "75": 0.5376,
+     "100": 0.323
     }
    },
    "state": "PENDING"
@@ -98717,23 +99167,23 @@
    "team": "BUF",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 7.7,
-    "mean": 15.59,
+    "median": 7.6,
+    "mean": 15.43,
     "p10": 0,
     "p25": 0,
-    "p75": 23.4,
-    "p90": 43.7,
+    "p75": 23.5,
+    "p90": 42.5,
     "atLeast": {
-     "25": 0.2338,
-     "40": 0.1181,
-     "50": 0.0726,
-     "60": 0.0454,
-     "75": 0.0241,
-     "100": 0.0072
+     "25": 0.2351,
+     "40": 0.1139,
+     "50": 0.069,
+     "60": 0.0446,
+     "75": 0.0219,
+     "100": 0.0063
     }
    },
    "state": "PENDING"
@@ -98745,22 +99195,22 @@
    "team": "BUF",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 1,
-    "mean": 1.49,
+    "mean": 1.47,
     "p10": 0,
     "p25": 0,
     "p75": 2,
     "p90": 4,
     "atLeast": {
-     "3": 0.2091,
-     "4": 0.1148,
-     "5": 0.0615,
-     "6": 0.0326,
-     "7": 0.0161
+     "3": 0.2123,
+     "4": 0.1156,
+     "5": 0.061,
+     "6": 0.0304,
+     "7": 0.0142
     }
    },
    "state": "PENDING"
@@ -98772,23 +99222,23 @@
    "team": "BUF",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 33.8,
-    "mean": 42.13,
-    "p10": 2.4,
-    "p25": 14.4,
-    "p75": 61.2,
-    "p90": 91.8,
+    "mean": 41.51,
+    "p10": 2,
+    "p25": 14.6,
+    "p75": 60.2,
+    "p90": 89.4,
     "atLeast": {
-     "25": 0.61,
-     "40": 0.4322,
-     "50": 0.3426,
-     "60": 0.2595,
-     "75": 0.1656,
-     "100": 0.0768
+     "25": 0.6114,
+     "40": 0.4292,
+     "50": 0.3326,
+     "60": 0.2508,
+     "75": 0.16,
+     "100": 0.0686
     }
    },
    "state": "PENDING"
@@ -98800,22 +99250,22 @@
    "team": "BUF",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 3,
-    "mean": 3.61,
+    "mean": 3.6,
     "p10": 1,
     "p25": 2,
     "p75": 5,
     "p90": 7,
     "atLeast": {
-     "3": 0.6027,
-     "4": 0.4446,
-     "5": 0.3103,
-     "6": 0.2117,
-     "7": 0.1385
+     "3": 0.6078,
+     "4": 0.4509,
+     "5": 0.3112,
+     "6": 0.2098,
+     "7": 0.1314
     }
    },
    "state": "PENDING"
@@ -98827,22 +99277,22 @@
    "team": "BUF",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 31.5,
+    "median": 31.9,
     "mean": 40.05,
     "p10": 0,
-    "p25": 12.2,
-    "p75": 58.6,
-    "p90": 89.7,
+    "p25": 12,
+    "p75": 58.8,
+    "p90": 89.1,
     "atLeast": {
-     "25": 0.5764,
-     "40": 0.4058,
-     "50": 0.3151,
-     "60": 0.2399,
-     "75": 0.1563,
+     "25": 0.5771,
+     "40": 0.4154,
+     "50": 0.319,
+     "60": 0.2431,
+     "75": 0.156,
      "100": 0.0715
     }
    },
@@ -98855,50 +99305,22 @@
    "team": "BUF",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 3,
-    "mean": 3.18,
+    "mean": 3.2,
     "p10": 0,
     "p25": 1,
     "p75": 5,
-    "p90": 7,
+    "p90": 6,
     "atLeast": {
-     "3": 0.5398,
-     "4": 0.3779,
-     "5": 0.2508,
-     "6": 0.1613,
-     "7": 0.1003
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873051",
-   "playerId": "nfl-athlete-3915411",
-   "name": "Ty Johnson",
-   "team": "BUF",
-   "family": "rushingYards",
-   "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
-   "forecast": {
-    "median": 0.1,
-    "mean": 5.82,
-    "p10": 0,
-    "p25": 0,
-    "p75": 7.1,
-    "p90": 19.4,
-    "atLeast": {
-     "25": 0.0637,
-     "40": 0.0229,
-     "50": 0.0107,
-     "60": 0.0061,
-     "75": 0.0011,
-     "100": 0.0001
+     "3": 0.54,
+     "4": 0.3793,
+     "5": 0.2543,
+     "6": 0.1611,
+     "7": 0.0995
     }
    },
    "state": "PENDING"
@@ -98910,23 +99332,23 @@
    "team": "BUF",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 16.1,
-    "mean": 24.5,
+    "median": 16.3,
+    "mean": 24.33,
     "p10": 0,
-    "p25": 1.8,
-    "p75": 37,
-    "p90": 62,
+    "p25": 2.2,
+    "p75": 36.8,
+    "p90": 61.4,
     "atLeast": {
-     "25": 0.3755,
-     "40": 0.2247,
-     "50": 0.1534,
-     "60": 0.1073,
-     "75": 0.0599,
-     "100": 0.0233
+     "25": 0.3781,
+     "40": 0.2211,
+     "50": 0.1518,
+     "60": 0.1046,
+     "75": 0.0582,
+     "100": 0.0206
     }
    },
    "state": "PENDING"
@@ -98938,22 +99360,22 @@
    "team": "BUF",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 2,
-    "mean": 2.22,
+    "mean": 2.19,
     "p10": 0,
     "p25": 1,
     "p75": 3,
     "p90": 5,
     "atLeast": {
-     "3": 0.3575,
-     "4": 0.2217,
-     "5": 0.1348,
-     "6": 0.0813,
-     "7": 0.0461
+     "3": 0.3536,
+     "4": 0.2212,
+     "5": 0.1319,
+     "6": 0.0761,
+     "7": 0.0435
     }
    },
    "state": "PENDING"
@@ -98965,23 +99387,23 @@
    "team": "BUF",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 0.6,
-    "mean": 7.48,
+    "mean": 7.47,
     "p10": 0,
     "p25": 0,
     "p75": 9.6,
-    "p90": 23.9,
+    "p90": 24.1,
     "atLeast": {
-     "25": 0.094,
-     "40": 0.0384,
-     "50": 0.0215,
-     "60": 0.0119,
-     "75": 0.0045,
-     "100": 0.001
+     "25": 0.0948,
+     "40": 0.0362,
+     "50": 0.0198,
+     "60": 0.0112,
+     "75": 0.0052,
+     "100": 0.0007
     }
    },
    "state": "PENDING"
@@ -98993,23 +99415,23 @@
    "team": "BUF",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 21.2,
-    "mean": 29.44,
+    "median": 21.3,
+    "mean": 29.54,
     "p10": 0,
-    "p25": 5.3,
+    "p25": 5,
     "p75": 43.8,
     "p90": 71.6,
     "atLeast": {
-     "25": 0.4453,
-     "40": 0.2851,
-     "50": 0.2031,
-     "60": 0.146,
-     "75": 0.0901,
-     "100": 0.0352
+     "25": 0.4486,
+     "40": 0.286,
+     "50": 0.2041,
+     "60": 0.1455,
+     "75": 0.089,
+     "100": 0.0366
     }
    },
    "state": "PENDING"
@@ -99021,22 +99443,22 @@
    "team": "BUF",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 2,
-    "mean": 2.39,
+    "mean": 2.41,
     "p10": 0,
     "p25": 1,
     "p75": 3,
     "p90": 5,
     "atLeast": {
-     "3": 0.3932,
-     "4": 0.2486,
-     "5": 0.146,
-     "6": 0.0832,
-     "7": 0.0486
+     "3": 0.3918,
+     "4": 0.2475,
+     "5": 0.1498,
+     "6": 0.0907,
+     "7": 0.0524
     }
    },
    "state": "PENDING"
@@ -99048,23 +99470,23 @@
    "team": "BUF",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 29.8,
-    "mean": 38.11,
+    "median": 29.9,
+    "mean": 38.21,
     "p10": 0,
-    "p25": 10.7,
-    "p75": 56.1,
-    "p90": 86.4,
+    "p25": 11.1,
+    "p75": 56.3,
+    "p90": 87.1,
     "atLeast": {
-     "25": 0.5591,
-     "40": 0.3853,
-     "50": 0.298,
-     "60": 0.2214,
-     "75": 0.14,
-     "100": 0.0627
+     "25": 0.5606,
+     "40": 0.39,
+     "50": 0.2976,
+     "60": 0.2248,
+     "75": 0.1432,
+     "100": 0.0637
     }
    },
    "state": "PENDING"
@@ -99076,9 +99498,9 @@
    "team": "BUF",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 3,
     "mean": 2.98,
@@ -99087,11 +99509,11 @@
     "p75": 4,
     "p90": 6,
     "atLeast": {
-     "3": 0.5096,
-     "4": 0.3465,
-     "5": 0.2234,
-     "6": 0.1347,
-     "7": 0.0792
+     "3": 0.5123,
+     "4": 0.3473,
+     "5": 0.2236,
+     "6": 0.1363,
+     "7": 0.0794
     }
    },
    "state": "PENDING"
@@ -99103,23 +99525,23 @@
    "team": "BUF",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 3.1,
-    "mean": 11.82,
+    "median": 2.2,
+    "mean": 11.45,
     "p10": 0,
     "p25": 0,
-    "p75": 17.5,
-    "p90": 35.7,
+    "p75": 17.1,
+    "p90": 35.2,
     "atLeast": {
-     "25": 0.1738,
-     "40": 0.0814,
-     "50": 0.049,
+     "25": 0.1688,
+     "40": 0.0769,
+     "50": 0.0474,
      "60": 0.0292,
-     "75": 0.0127,
-     "100": 0.0034
+     "75": 0.012,
+     "100": 0.003
     }
    },
    "state": "PENDING"
@@ -99131,22 +99553,22 @@
    "team": "BUF",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 1,
-    "mean": 1.08,
+    "mean": 1.04,
     "p10": 0,
     "p25": 0,
     "p75": 2,
     "p90": 3,
     "atLeast": {
-     "3": 0.1356,
-     "4": 0.0613,
-     "5": 0.0294,
-     "6": 0.0135,
-     "7": 0.0068
+     "3": 0.1286,
+     "4": 0.0624,
+     "5": 0.029,
+     "6": 0.0132,
+     "7": 0.007
     }
    },
    "state": "PENDING"
@@ -99158,23 +99580,23 @@
    "team": "MIN",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 54.3,
-    "mean": 61.32,
-    "p10": 13.1,
+    "median": 54,
+    "mean": 61.53,
+    "p10": 13.6,
     "p25": 29.5,
-    "p75": 85.1,
-    "p90": 118.8,
+    "p75": 85.7,
+    "p90": 118.2,
     "atLeast": {
-     "25": 0.7925,
-     "40": 0.6434,
-     "50": 0.54,
-     "60": 0.4434,
-     "75": 0.3136,
-     "100": 0.1725
+     "25": 0.7971,
+     "40": 0.641,
+     "50": 0.5397,
+     "60": 0.4488,
+     "75": 0.3239,
+     "100": 0.1726
     }
    },
    "state": "PENDING"
@@ -99186,22 +99608,22 @@
    "team": "MIN",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 5,
-    "mean": 5.41,
+    "mean": 5.42,
     "p10": 2,
     "p25": 3,
     "p75": 7,
     "p90": 10,
     "atLeast": {
-     "3": 0.8154,
-     "4": 0.6943,
-     "5": 0.5617,
-     "6": 0.4393,
-     "7": 0.327
+     "3": 0.8248,
+     "4": 0.7035,
+     "5": 0.5681,
+     "6": 0.4389,
+     "7": 0.3261
     }
    },
    "state": "PENDING"
@@ -99213,23 +99635,23 @@
    "team": "MIN",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 36.2,
-    "mean": 43.7,
-    "p10": 4.4,
-    "p25": 17.1,
-    "p75": 63.3,
-    "p90": 92,
+    "median": 35.6,
+    "mean": 42.94,
+    "p10": 4.6,
+    "p25": 16.5,
+    "p75": 61,
+    "p90": 90.6,
     "atLeast": {
-     "25": 0.644,
-     "40": 0.4618,
-     "50": 0.3581,
-     "60": 0.2737,
-     "75": 0.173,
-     "100": 0.0727
+     "25": 0.6353,
+     "40": 0.4518,
+     "50": 0.3429,
+     "60": 0.2559,
+     "75": 0.1601,
+     "100": 0.0732
     }
    },
    "state": "PENDING"
@@ -99241,22 +99663,22 @@
    "team": "MIN",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 4,
-    "mean": 4.28,
+    "mean": 4.19,
     "p10": 1,
     "p25": 2,
     "p75": 6,
     "p90": 8,
     "atLeast": {
-     "3": 0.6882,
-     "4": 0.5405,
-     "5": 0.4067,
-     "6": 0.2959,
-     "7": 0.2024
+     "3": 0.6809,
+     "4": 0.5256,
+     "5": 0.3912,
+     "6": 0.2775,
+     "7": 0.193
     }
    },
    "state": "PENDING"
@@ -99268,23 +99690,23 @@
    "team": "MIN",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 38.6,
-    "mean": 46.25,
-    "p10": 3.7,
-    "p25": 16.8,
-    "p75": 66.6,
-    "p90": 99.1,
+    "median": 38.8,
+    "mean": 46.79,
+    "p10": 3.9,
+    "p25": 17.6,
+    "p75": 67.3,
+    "p90": 99.7,
     "atLeast": {
-     "25": 0.6502,
-     "40": 0.4845,
-     "50": 0.3828,
-     "60": 0.2956,
-     "75": 0.1995,
-     "100": 0.0966
+     "25": 0.6521,
+     "40": 0.4879,
+     "50": 0.3846,
+     "60": 0.3031,
+     "75": 0.2043,
+     "100": 0.0991
     }
    },
    "state": "PENDING"
@@ -99296,22 +99718,22 @@
    "team": "MIN",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 3,
-    "mean": 3.63,
+    "mean": 3.66,
     "p10": 1,
     "p25": 2,
     "p75": 5,
     "p90": 7,
     "atLeast": {
-     "3": 0.6214,
-     "4": 0.4576,
-     "5": 0.316,
-     "6": 0.2065,
-     "7": 0.1281
+     "3": 0.625,
+     "4": 0.4558,
+     "5": 0.3178,
+     "6": 0.2091,
+     "7": 0.1316
     }
    },
    "state": "PENDING"
@@ -99323,23 +99745,23 @@
    "team": "MIN",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 73.6,
-    "mean": 77.59,
-    "p10": 33.4,
-    "p25": 50.4,
-    "p75": 100,
-    "p90": 127.1,
+    "median": 73.7,
+    "mean": 78.26,
+    "p10": 33.5,
+    "p25": 50.8,
+    "p75": 100.8,
+    "p90": 128.2,
     "atLeast": {
-     "25": 0.9483,
-     "40": 0.8485,
-     "50": 0.7536,
-     "60": 0.6501,
-     "75": 0.4826,
-     "100": 0.2501
+     "25": 0.9476,
+     "40": 0.8488,
+     "50": 0.7572,
+     "60": 0.6541,
+     "75": 0.4874,
+     "100": 0.2561
     }
    },
    "state": "PENDING"
@@ -99351,23 +99773,23 @@
    "team": "MIN",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 13.4,
-    "mean": 20.08,
+    "median": 13.5,
+    "mean": 20.39,
     "p10": 0,
-    "p25": 1.5,
-    "p75": 30.3,
-    "p90": 50.8,
+    "p25": 2,
+    "p75": 30.8,
+    "p90": 51,
     "atLeast": {
-     "25": 0.3165,
-     "40": 0.1651,
-     "50": 0.1044,
-     "60": 0.0659,
-     "75": 0.0297,
-     "100": 0.0079
+     "25": 0.3169,
+     "40": 0.1689,
+     "50": 0.1058,
+     "60": 0.0643,
+     "75": 0.0327,
+     "100": 0.0096
     }
    },
    "state": "PENDING"
@@ -99379,22 +99801,22 @@
    "team": "MIN",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 2,
-    "mean": 2.21,
+    "mean": 2.25,
     "p10": 0,
     "p25": 1,
     "p75": 3,
     "p90": 5,
     "atLeast": {
-     "3": 0.3543,
-     "4": 0.2225,
-     "5": 0.1321,
-     "6": 0.0767,
-     "7": 0.0452
+     "3": 0.3638,
+     "4": 0.2267,
+     "5": 0.1381,
+     "6": 0.0797,
+     "7": 0.0468
     }
    },
    "state": "PENDING"
@@ -99406,23 +99828,23 @@
    "team": "MIN",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 0,
-    "mean": 7.89,
+    "mean": 7.72,
     "p10": 0,
     "p25": 0,
-    "p75": 10,
-    "p90": 26.8,
+    "p75": 9.8,
+    "p90": 27,
     "atLeast": {
-     "25": 0.1102,
-     "40": 0.0515,
-     "50": 0.0275,
+     "25": 0.1103,
+     "40": 0.0501,
+     "50": 0.0279,
      "60": 0.0162,
      "75": 0.0075,
-     "100": 0.0021
+     "100": 0.0017
     }
    },
    "state": "PENDING"
@@ -99434,22 +99856,22 @@
    "team": "MIN",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 0,
-    "mean": 0.71,
+    "mean": 0.69,
     "p10": 0,
     "p25": 0,
     "p75": 1,
     "p90": 2,
     "atLeast": {
-     "3": 0.0767,
-     "4": 0.0345,
-     "5": 0.0156,
-     "6": 0.0075,
-     "7": 0.0028
+     "3": 0.0751,
+     "4": 0.0329,
+     "5": 0.016,
+     "6": 0.0068,
+     "7": 0.0033
     }
    },
    "state": "PENDING"
@@ -99461,23 +99883,23 @@
    "team": "MIN",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 0,
-    "mean": 6.41,
+    "mean": 6.79,
     "p10": 0,
     "p25": 0,
-    "p75": 7.5,
-    "p90": 22.5,
+    "p75": 7.9,
+    "p90": 23.6,
     "atLeast": {
-     "25": 0.0853,
-     "40": 0.0341,
-     "50": 0.0199,
-     "60": 0.0106,
-     "75": 0.0035,
-     "100": 0.0006
+     "25": 0.0912,
+     "40": 0.0386,
+     "50": 0.0231,
+     "60": 0.0124,
+     "75": 0.0042,
+     "100": 0.0011
     }
    },
    "state": "PENDING"
@@ -99489,21 +99911,21 @@
    "team": "MIN",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 0,
-    "mean": 0.64,
+    "mean": 0.67,
     "p10": 0,
     "p25": 0,
     "p75": 1,
     "p90": 2,
     "atLeast": {
-     "3": 0.0666,
-     "4": 0.0305,
-     "5": 0.0136,
-     "6": 0.0066,
+     "3": 0.0745,
+     "4": 0.0323,
+     "5": 0.0167,
+     "6": 0.0078,
      "7": 0.003
     }
    },
@@ -99516,22 +99938,22 @@
    "team": "MIN",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 0,
-    "mean": 6.99,
+    "mean": 6.8,
     "p10": 0,
     "p25": 0,
-    "p75": 7,
-    "p90": 25.4,
+    "p75": 7.4,
+    "p90": 24.3,
     "atLeast": {
-     "25": 0.1017,
-     "40": 0.047,
-     "50": 0.0278,
-     "60": 0.0153,
-     "75": 0.0067,
+     "25": 0.0952,
+     "40": 0.0402,
+     "50": 0.0241,
+     "60": 0.0137,
+     "75": 0.0061,
      "100": 0.0019
     }
    },
@@ -99544,22 +99966,22 @@
    "team": "MIN",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 0,
-    "mean": 0.62,
+    "mean": 0.61,
     "p10": 0,
     "p25": 0,
     "p75": 1,
     "p90": 2,
     "atLeast": {
-     "3": 0.0689,
-     "4": 0.0345,
-     "5": 0.0153,
-     "6": 0.0071,
-     "7": 0.0023
+     "3": 0.0654,
+     "4": 0.0285,
+     "5": 0.0128,
+     "6": 0.005,
+     "7": 0.0021
     }
    },
    "state": "PENDING"
@@ -99571,23 +99993,23 @@
    "team": "MIN",
    "family": "passingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 210.7,
-    "mean": 214.34,
-    "p10": 122.4,
+    "median": 211.9,
+    "mean": 215.2,
+    "p10": 121.1,
     "p25": 162.2,
-    "p75": 261.1,
-    "p90": 311.6,
+    "p75": 263.4,
+    "p90": 313.1,
     "atLeast": {
-     "175": 0.6883,
-     "200": 0.5557,
-     "225": 0.4218,
-     "250": 0.2993,
-     "275": 0.1994,
-     "300": 0.126
+     "175": 0.6889,
+     "200": 0.5595,
+     "225": 0.43,
+     "250": 0.3079,
+     "275": 0.2061,
+     "300": 0.1309
     }
    },
    "state": "PENDING"
@@ -99599,23 +100021,23 @@
    "team": "MIN",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 10.2,
-    "mean": 15.17,
+    "median": 10.3,
+    "mean": 15.4,
     "p10": 0,
-    "p25": 2.4,
-    "p75": 22.7,
-    "p90": 37.4,
+    "p25": 2.5,
+    "p75": 23.1,
+    "p90": 38.2,
     "atLeast": {
-     "25": 0.2174,
-     "40": 0.083,
-     "50": 0.0443,
-     "60": 0.0235,
-     "75": 0.009,
-     "100": 0.0015
+     "25": 0.2253,
+     "40": 0.0905,
+     "50": 0.0453,
+     "60": 0.0229,
+     "75": 0.0093,
+     "100": 0.0014
     }
    },
    "state": "PENDING"
@@ -99627,23 +100049,23 @@
    "team": "MIN",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 0.2,
-    "mean": 6.62,
+    "mean": 6.34,
     "p10": 0,
     "p25": 0,
-    "p75": 8.3,
-    "p90": 21.7,
+    "p75": 7.8,
+    "p90": 20.4,
     "atLeast": {
-     "25": 0.0798,
-     "40": 0.0302,
-     "50": 0.0149,
-     "60": 0.0083,
-     "75": 0.0026,
-     "100": 0.0003
+     "25": 0.0735,
+     "40": 0.0263,
+     "50": 0.0146,
+     "60": 0.0081,
+     "75": 0.003,
+     "100": 0.0007
     }
    },
    "state": "PENDING"
@@ -99655,23 +100077,23 @@
    "team": "MIN",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
-    "median": 2.8,
-    "mean": 11.91,
+    "median": 3.2,
+    "mean": 12.07,
     "p10": 0,
     "p25": 0,
-    "p75": 17.5,
-    "p90": 36.1,
+    "p75": 18.4,
+    "p90": 36,
     "atLeast": {
-     "25": 0.1732,
-     "40": 0.0829,
-     "50": 0.0529,
-     "60": 0.0311,
-     "75": 0.0139,
-     "100": 0.0032
+     "25": 0.1807,
+     "40": 0.0824,
+     "50": 0.051,
+     "60": 0.0295,
+     "75": 0.014,
+     "100": 0.0035
     }
    },
    "state": "PENDING"
@@ -99683,27 +100105,27 @@
    "team": "MIN",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "386c3cf4cd094bd6",
+   "simulationId": "706f422b1ccbf20e",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-08T00:14:07Z",
+   "generatedAt": "2026-11-09T19:48:08Z",
    "forecast": {
     "median": 1,
-    "mean": 1.14,
+    "mean": 1.17,
     "p10": 0,
     "p25": 0,
     "p75": 2,
     "p90": 3,
     "atLeast": {
-     "3": 0.1496,
-     "4": 0.0769,
-     "5": 0.0429,
-     "6": 0.0199,
-     "7": 0.0091
+     "3": 0.1584,
+     "4": 0.0809,
+     "5": 0.0418,
+     "6": 0.0208,
+     "7": 0.0095
     }
    },
    "state": "PENDING"
   }
  ],
- "gradedAt": "2026-11-09T00:35:18Z",
- "contentSha256": "77bd9571c4a3ec734380c814f9fe3e6c5928d5a1c8b0145f777b581f6c117c6d"
+ "gradedAt": "2026-11-09T19:48:08Z",
+ "contentSha256": "adc9f397f14688a1a13dadb6a2392c7b4254694893f625175f5bd141a4a7391d"
 }
