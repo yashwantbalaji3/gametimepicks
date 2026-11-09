@@ -94,6 +94,8 @@ export function laneProjection(laneId, runs) {
     ...def({ ruleVersion: cur?.ruleVersion, laneType: pub.at(-1)?.laneType, laneTypeLabel: pub.at(-1)?.laneTypeLabel }),
     current: cur && { ...def({ ruleVersion: cur.ruleVersion }), runId: cur.runId, status: cur.status, publicStatus: cur.publicStatus, pace: cur.pace, statusReason: cur.statusReason, step: cur.step, stepText: cur.stepText, inPlay: cur.inPlay, trackedBankrollCents: cur.trackedBankrollCents, trackedBankrollWithheld: cur.trackedBankrollWithheld, headSha256: cur.headSha256 },
     runs: pub,
+    /* BBM-01: the verified chain this file is a pure function of (no wall-clock field anywhere) */
+    chainHeadSha256: runs.at(-1)?.at(-1)?.sha256 ?? null,
   };
   return { ...doc, contentSha256: sha256(canonical(doc)) };
 }

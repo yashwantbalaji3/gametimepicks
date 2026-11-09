@@ -8,6 +8,7 @@
  *   any acting command also takes --lanes a,b (only those lanes; e.g. --close-unpriced REASON --lanes bb-b holds one lane)
  *   node scripts/challenge-lanes/lanes-display.mjs   --root DIR                                          (encrypted site prices; GTP_ODDS_DISPLAY_KEY)
  *   node scripts/challenge-lanes/lanes-reconcile.mjs --root DIR --date D [--finals FILE] [--public-out DIR]
+ *   node scripts/challenge-lanes/lanes-reconcile.mjs --root DIR --project-only --public-out DIR   (BBM-01: the sole projection writer)
  *
  * --root is required (production: ~/gtp-private/challenge-lanes). --public-out writes <laneId>.json projections
  * (production: app/public/data/challenge-lanes). Prints one JSON report; exit 1 when any lane was refused.
@@ -34,7 +35,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { LANE_IDS, LANES, laneState, selectLaneCards, runStarted, STATUS } from "../../src/lib/challenge-lanes/lanes.mjs";
 import { prepareLane, unpricedLane, reconcileLane, ingestReceipts, restartRun, FINALS_RECORD } from "../../src/lib/challenge-lanes/ops.mjs";
-import { laneProjection, serializeProjection } from "../../src/lib/challenge-lanes/projection.mjs";
+import { writeLaneProjections } from "../../src/lib/challenge-lanes/project-writer.mjs";
 import { currentRun, appendEvents, readRuns, readInboxes, runFiles } from "../../src/lib/challenge-lanes/store.mjs";
 import { captureBbmPrices, priceForCard, BBM_LEDGER_RELPATH } from "../../src/lib/challenge-lanes/odds.mjs";
 import { encryptLanePriceDisplay, PRICE_DISPLAY_REPO_DIR } from "../../src/lib/challenge-lanes/price-display.mjs";
@@ -52,7 +53,7 @@ export async function main(command, argv = process.argv) {
   const fail = (m) => { console.error(`REFUSED: ${m}`); process.exit(2); };
   const ROOT = arg("--root"); const DATE = arg("--date");
   if (!ROOT) fail("--root DIR required (production: ~/gtp-private/challenge-lanes)");
-  if (command !== "display" && !/^\d{4}-\d{2}-\d{2}$/.test(DATE ?? "")) fail("--date YYYY-MM-DD required");
+  if (command !== "display" && !argv.includes("--project-only") && !/^\d{4}-\d{2}-\d{2}$/.test(DATE ?? "")) fail("--date YYYY-MM-DD required");
   const root = path.resolve(ROOT);
   /* --lanes a,b: act on these lanes only (price, close-unpriced, prepare, reconcile). It is how ONE lane is held by hand
      (`--close-unpriced REASON --lanes bb-b`: a founder decision, or an Out ruling on a listed player). Display and the
@@ -205,6 +206,9 @@ export async function main(command, argv = process.argv) {
     }
     console.log(JSON.stringify(report, null, 2));
     return;
+  } else if (command === "reconcile" && argv.includes("--project-only")) {
+    /* BBM-01: regenerate the public projections from the verified chains only (no finals, no events appended) */
+    if (!arg("--public-out")) fail("--project-only needs --public-out DIR");
   } else if (command === "reconcile") {
     const finalsFile = arg("--finals", path.join(REPO, FINALS_RECORD));
     const finalsRecord = JSON.parse(fs.readFileSync(finalsFile, "utf8"));
@@ -223,14 +227,9 @@ export async function main(command, argv = process.argv) {
     if (!runs.length) continue;
     const s = laneState(runs.at(-1));
     Object.assign(report.lanes[laneId] ?? (report.lanes[laneId] = {}), { status: s.status, step: `${Math.min(s.step, s.steps)}/${s.steps}` });
-    const out = arg("--public-out");
-    if (out) {
-      const doc = laneProjection(laneId, runs);
-      fs.mkdirSync(out, { recursive: true });
-      fs.writeFileSync(path.join(out, `${laneId}.json`), serializeProjection(doc));
-      report.lanes[laneId].projectionSha256 = doc.contentSha256;
-    }
   }
+  const out = arg("--public-out");
+  if (out) for (const [laneId, w] of Object.entries(writeLaneProjections({ root, outDir: path.resolve(out) }))) Object.assign(report.lanes[laneId] ?? (report.lanes[laneId] = {}), { projectionSha256: w.projectionSha256, chainHeadSha256: w.chainHeadSha256 });
   console.log(JSON.stringify(report, null, 2));
   if (refusedAny.length) process.exit(1);
 }
