@@ -399,7 +399,9 @@ test("founder acceptance 2026-11-09: NBA cards and lane rows say what each fact 
   const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate() }));
   const card = h.split("<article").slice(1)[0];
   assert.match(card, /data-game-state="official">MODEL PROJECTION<\/span> Official Forecast: Philadelphia 76ers favoured/);
-  assert.match(card, /data-game-state="simulation">SIMULATION · hypothetical</, "the simulation link is tagged hypothetical");
+  assert.match(card, />Game Simulation →<\/a><span class="gtp-state-tag is-simulation" data-game-state="simulation">SIMULATION · hypothetical</, "the simulation link is tagged hypothetical, beside the link");
+  const withPage = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate(), gamePages: new Set(["g1"]) })).split("<article").slice(1)[0];
+  assert.doesNotMatch(withPage, /data-game-state="simulation"/, "no orphan tag when the game-page link replaces the simulation link");
   assert.doesNotMatch(card, /data-game-state="final"/, "no final before the game ends");
   const lane = nbaLane(slate(), NOW);
   assert.equal(lane.games[0].state, "official");

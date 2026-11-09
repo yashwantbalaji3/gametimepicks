@@ -137,8 +137,8 @@ export function NbaTodayGames({ slate, slip, gamePages, lineSummaries }: {
               {g.favoured ? <Link href={g.theaterHref ? `${g.theaterHref}#official-predictions` : `#${forecastRowId(g.id)}`} prefetch={false}>{PUBLIC_TERMS.OFFICIAL_FORECAST} →</Link> : null}
               {/* UX-10 (2026-11-09): "Game page →" and "Game Simulation →" opened the same /nba/simulation/<id>/ page — one
                   link per destination: the Game Simulation link renders only where no game-page link already opens it. */}
-              {g.theaterHref && !gamePages?.has(g.id) ? <Link href={g.theaterHref} prefetch={false} data-nba-theater-link={g.id}>{PUBLIC_TERMS.GAME_SIMULATION} →</Link> : null}
-              {g.theaterHref ? <GameStateTag state="simulation" /> : null}
+              {/* the hypothetical tag rides the simulation link itself, never alone under the card's buttons */}
+              {g.theaterHref && !gamePages?.has(g.id) ? <><Link href={g.theaterHref} prefetch={false} data-nba-theater-link={g.id}>{PUBLIC_TERMS.GAME_SIMULATION} →</Link><GameStateTag state="simulation" /></> : null}
               {/* Vehicle N: only a Level A leg (hub-slip → levelASlipLegFor) — a game without one gets no button */}
               <HubSlipButton leg={slip?.get(g.id)} />
             </p>
