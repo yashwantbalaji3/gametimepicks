@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-08T23:55:09Z",
+  "generatedAt": "2026-11-09T00:23:49Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
     "upcomingEvents": 2,
     "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
-    "eventsWithAMaterialExclusion": 1,
+    "eventsWithAMaterialExclusion": 2,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
@@ -23,16 +23,45 @@
         "version": 2,
         "inputHash": "7967623acbcebf74",
         "simulations": 10000,
-        "generatedAt": "2026-11-08T23:36:17Z"
+        "generatedAt": "2026-11-09T00:23:49Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T23:55:09Z",
-        "participationInputHash": "f00e36827a5641fd",
-        "excludedCount": 1,
-        "materialExclusions": [],
+        "snapshotAsOf": "2026-11-09T00:23:49Z",
+        "participationInputHash": "bc2e7d9c41517cbf",
+        "excludedCount": 3,
+        "materialExclusions": [
+          {
+            "name": "Case Keenum",
+            "team": "CHI",
+            "state": "Out",
+            "statedAt": "2026-11-09T00:04Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          }
+        ],
         "excluded": [
+          {
+            "name": "Case Keenum",
+            "team": "CHI",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Kyle Monangai",
+            "team": "CHI",
+            "state": "Out",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
           {
             "name": "Jalen McMillan",
             "team": "TB",
@@ -55,13 +84,13 @@
         "version": 2,
         "inputHash": "bde36149541657c3",
         "simulations": 10000,
-        "generatedAt": "2026-11-08T23:36:17Z"
+        "generatedAt": "2026-11-09T00:23:49Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-08T23:55:09Z",
-        "participationInputHash": "4181ca7ba0b0a141",
+        "snapshotAsOf": "2026-11-09T00:23:49Z",
+        "participationInputHash": "4f23f3cf7a2aca94",
         "excludedCount": 5,
         "materialExclusions": [
           {

@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-08T23:55:09Z",
+ "generatedAt": "2026-11-09T00:23:49Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -22,7 +22,7 @@
   "forecastsUpcoming": 2,
   "forecastsStarted": 13,
   "marketEvents": 14,
-  "settled": 7
+  "settled": 9
  },
  "nextKickoffUtc": "2026-11-09T01:20Z",
  "nextMatchup": "TB @ CHI",
@@ -33,17 +33,17 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-08T23:36:17Z",
+  "generatedAt": "2026-11-08T23:55:09Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 128,
-  "decisive": 127,
-  "winnerAccuracy": 0.6142,
-  "marginMAE": 9.9922,
-  "totalMAE": 11.0078,
-  "marginInterval80Coverage": 0.7969,
-  "totalInterval80Coverage": 0.8281,
+  "settledForecasts": 130,
+  "decisive": 129,
+  "winnerAccuracy": 0.6124,
+  "marginMAE": 9.9308,
+  "totalMAE": 10.8923,
+  "marginInterval80Coverage": 0.8,
+  "totalInterval80Coverage": 0.8308,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,13 +57,13 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 128,
-    "decisive": 127,
-    "winnerAccuracy": 0.6142,
-    "marginMAE": 9.9922,
-    "totalMAE": 11.0078,
-    "marginInterval80Coverage": 0.7969,
-    "totalInterval80Coverage": 0.8281
+    "settledForecasts": 130,
+    "decisive": 129,
+    "winnerAccuracy": 0.6124,
+    "marginMAE": 9.9308,
+    "totalMAE": 10.8923,
+    "marginInterval80Coverage": 0.8,
+    "totalInterval80Coverage": 0.8308
    }
   },
   "unknownSeasonTypeRows": 0,
@@ -94,13 +94,13 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.6941,
-    "away": 0.2812
+    "home": 0.6916,
+    "away": 0.2802
    },
    "total": {
     "median": 46,
-    "p10": 30,
-    "p90": 64,
+    "p10": 29,
+    "p90": 63,
     "head": "matchup-totals-v3-play-efficiency"
    },
    "hasMarket": false,
@@ -108,7 +108,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "7967623acbcebf74",
-    "generatedAt": "2026-11-08T23:36:17Z"
+    "generatedAt": "2026-11-09T00:23:49Z"
    }
   },
   {
@@ -135,8 +135,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.4895,
-    "away": 0.4838
+    "home": 0.4878,
+    "away": 0.4822
    },
    "total": {
     "median": 44,
@@ -149,7 +149,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "bde36149541657c3",
-    "generatedAt": "2026-11-08T23:36:17Z"
+    "generatedAt": "2026-11-09T00:23:49Z"
    }
   },
   {
@@ -247,10 +247,10 @@
     "name": "Cleveland Browns"
    },
    "kickoffUtc": "2026-11-08T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 23,
@@ -288,10 +288,10 @@
     "name": "Dallas Cowboys"
    },
    "kickoffUtc": "2026-11-08T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 29,

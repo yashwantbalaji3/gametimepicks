@@ -2,15 +2,15 @@
  "schemaVersion": 1,
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
- "date": "2026-11-08",
- "generatedAt": "2026-11-08T23:55:09Z",
+ "date": "2026-11-09",
+ "generatedAt": "2026-11-09T00:23:49Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "25 model candidates · no current comparable touchdown price is available",
+ "reason": "26 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -204,6 +204,27 @@
    "modelVersion": "nfl-anytime-td-opportunity-v1"
   },
   {
+   "playerId": "nfl-athlete-4567750",
+   "name": "Emeka Egbuka",
+   "position": "WR",
+   "team": "TB",
+   "opponent": "CHI",
+   "event": "TB @ CHI",
+   "providerEventId": "401873050",
+   "kickoffUtc": "2026-11-09T01:20Z",
+   "tdProbability": 0.265,
+   "probabilitySource": "the game's player board — the published anytime-touchdown family",
+   "probabilityRange": {
+    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
+   "modelVersion": "nfl-anytime-td-opportunity-v1"
+  },
+  {
    "playerId": "nfl-athlete-4036133",
    "name": "T.J. Hockenson",
    "position": "TE",
@@ -244,44 +265,10 @@
    "pricingState": "NOT_PROBED",
    "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
    "modelVersion": "nfl-anytime-td-opportunity-v1"
-  },
-  {
-   "playerId": "nfl-athlete-4723086",
-   "name": "Colston Loveland",
-   "position": "TE",
-   "team": "CHI",
-   "opponent": "TB",
-   "event": "TB @ CHI",
-   "providerEventId": "401873050",
-   "kickoffUtc": "2026-11-09T01:20Z",
-   "tdProbability": 0.2588,
-   "probabilitySource": "the game's player board — the published anytime-touchdown family",
-   "probabilityRange": {
-    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
-   "modelVersion": "nfl-anytime-td-opportunity-v1"
   }
  ],
- "candidateCount": 25,
- "withheld": [
-  {
-   "event": "TB @ CHI",
-   "team": "CHI",
-   "player": "Kyle Monangai",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "TB @ CHI",
-   "team": "TB",
-   "player": "Emeka Egbuka",
-   "reason": "designated Questionable — only players with no designation are listed"
-  }
- ],
+ "candidateCount": 26,
+ "withheld": [],
  "gates": {
   "required": [
    "calibrated TD probability",
@@ -292,7 +279,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 25,
+  "roleReadyCandidates": 26,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."
