@@ -67,10 +67,11 @@ export function rosterPositions(publicDir) {
  * The canonical inputs of the week's games: views (the site's accessor), raw boards, and the official snapshot of each
  * game rebuilt here from the same committed files (for the independent check).
  */
-export function loadCanonical({ publicDir = path.join(APP, "public"), seasonType, week }) {
+/* `repoRoot` (default publicDir/../..) lets a test read a frozen copy of public/ while the record resolver still reads the repo. */
+export function loadCanonical({ publicDir = path.join(APP, "public"), repoRoot = path.resolve(publicDir, "..", ".."), seasonType, week }) {
   const data = path.join(publicDir, "data", "nfl");
-  const views = loadForecastViews(publicDir).filter((v) => v.seasonType === seasonType && v.week === week);
-  const union = unionFrozenForecasts(readJson(path.join(data, "forecasts/latest.json")), readJson(path.join(data, "forecasts/frozen-latest.json")), { resolve: nflPublicRecordResolver(path.resolve(publicDir, "..", "..")) });
+  const views = loadForecastViews(publicDir, { repoRoot }).filter((v) => v.seasonType === seasonType && v.week === week);
+  const union = unionFrozenForecasts(readJson(path.join(data, "forecasts/latest.json")), readJson(path.join(data, "forecasts/frozen-latest.json")), { resolve: nflPublicRecordResolver(repoRoot) });
   const forecasts = new Map((union?.forecasts ?? []).map((f) => [String(f.providerEventId), f]));
   const worlds = new Map(readWorldModelArtifacts(publicDir).map((a) => [String(a.identity.providerEventId), a]));
   const games = views.map((view) => {
@@ -89,13 +90,13 @@ export function loadCanonical({ publicDir = path.join(APP, "public"), seasonType
  * Everything up to (not including) the PNGs, for every Sunday/Monday game of the week. Throws on any validation
  * failure; a started game is refused (listed), not thrown, unless it was asked for with --event.
  */
-export function prepareNflGameGraphics({ seasonType = 2, week, asOf, purpose = PURPOSE.FOUNDER_REVIEW, eventId = null, publicDir, authorizationRecord }) {
+export function prepareNflGameGraphics({ seasonType = 2, week, asOf, purpose = PURPOSE.FOUNDER_REVIEW, eventId = null, publicDir, repoRoot, authorizationRecord }) {
   if (!Number.isInteger(week)) throw new Error("--week <n> is required");
   if (!asOf || !Number.isFinite(Date.parse(asOf)) || !/T.*(Z|[+-]\d\d:\d\d)$/.test(asOf)) throw new Error("--as-of <ISO instant with zone> is required (no clock is read)");
   if (purpose === PURPOSE.SOCIAL && !displayAuthorization("nfl", "social", authorizationRecord).ok) {
     throw new Error("NFL graphics are not authorized for social posting (socialDisplay false). For a private review set use --purpose founder-review. Nothing written.");
   }
-  const { games, positions, ref: rosterRef } = loadCanonical({ publicDir, seasonType, week });
+  const { games, positions, ref: rosterRef } = loadCanonical({ publicDir, repoRoot, seasonType, week });
   let slate = games.filter((g) => SLATE_DAYS.includes(etWeekday(g.view.kickoffUtc)));
   if (eventId) {
     slate = slate.filter((g) => String(g.view.providerEventId) === String(eventId));
@@ -178,7 +179,7 @@ async function screenshot(browser, cards, scales) {
  * The whole run. Validates everything first; writes only after every check (and the layout pass) passed.
  * @param {Record<string, any>} args  CLI args
  */
-export async function renderNflGameGraphics(args, { publicDir, authorizationRecord } = {}) {
+export async function renderNflGameGraphics(args, { publicDir, repoRoot, authorizationRecord } = {}) {
   const purpose = PURPOSE_ARG[args.purpose ?? "social"];
   if (!purpose) throw new Error("--purpose founder-review|social");
   const week = Number(args.week);
@@ -186,7 +187,7 @@ export async function renderNflGameGraphics(args, { publicDir, authorizationReco
   const outRoot = assertPrivateOutDir(args.out ?? path.join(DEFAULT_PRIVATE_ROOT, `nfl-w${String(week).padStart(2, "0")}`));
   const scales = String(args.scales ?? "1,2").split(",").map(Number);
   if (!scales.length || scales.some((s) => !Number.isInteger(s) || s < 1 || s > 3)) throw new Error("--scales: comma-separated integers 1..3");
-  const { games, refused } = prepareNflGameGraphics({ seasonType, week, asOf: args["as-of"], purpose, eventId: args.event ?? null, publicDir, authorizationRecord });
+  const { games, refused } = prepareNflGameGraphics({ seasonType, week, asOf: args["as-of"], purpose, eventId: args.event ?? null, publicDir, repoRoot, authorizationRecord });
   if (!games.length) throw new Error(`every Sunday/Monday game has started at ${args["as-of"]}. Nothing written.`);
   const allCards = games.flatMap((g) => g.cards.map((c) => ({ ...c, dir: path.join(outRoot, g.eventId) })));
 
