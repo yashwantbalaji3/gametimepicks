@@ -31,6 +31,7 @@
  * Writes: app/public/data/nfl/player-board/<eventId>.json + latest.json (index)
  */
 import { eligibilityRecord, resolveEligibility } from "../../src/lib/availability/eligibility.mjs";
+import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
 import { teamIdsFromRoster } from "../../src/lib/sports/nfl/participation-eligibility.mjs";
 import fs from "node:fs";
 import path from "node:path";
@@ -576,7 +577,9 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     disclaimer: "Model projections. Educational.",
   };
   const unavailableIds = new Map(excluded.map((e) => [e.playerId, e.reason]));
-  for (const [id, b] of ineligible) unavailableIds.set(id, b.status);
+  // the audit's "nobody unavailable" check: every blocking designation, and every player the contract did not clear
+  for (const e of injuriesArtifact.entries) if (e?.athleteId && isBlockingStatus(e.status)) unavailableIds.set(`nfl-athlete-${e.athleteId}`, e.status);
+  for (const [key, e] of eligibilityCache) if (e.state !== "ELIGIBLE") unavailableIds.set(key.slice(key.indexOf(":") + 1), `eligibility ${e.state}`);
   const expected = new Set((shareLevel?.players ?? []).map((r) => `${r.team}:${r.playerId}`).filter((k) => currentUsage.has(k)));
   const violations = auditBoard({ board: artifact, rosterByTeam, practiceSquad, unavailable: unavailableIds, usage: currentUsage, expected, shareOf: (id, team, market) => shareIndex.get(`${id}|${team}|${market}`) });
   artifact.integrity.violations = violations.length;
