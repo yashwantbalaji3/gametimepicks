@@ -28,7 +28,7 @@ const RESULTS_PATH = () => path.join(process.cwd(), "public", "data", "soccer", 
 const FIXTURES_DIR = () => path.join(process.cwd(), "public", "data", "soccer", "epl", "fixtures");
 
 function readScheduleCapture() {
-  try { return JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR(), ESPN_SCHEDULE_FILE), "utf8")); } catch { return null; }
+  try { return JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR(), "..", ESPN_SCHEDULE_FILE), "utf8")); } catch { return null; }
 }
 
 function newestFixtureCapture() {

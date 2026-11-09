@@ -74,7 +74,7 @@ const season = readJson(path.join(EPL, "fixtures", capFile));
  * minute; a fixture ESPN cannot confirm is withheld with "kickoff not confirmed" — never published, frozen or graded
  * on a provisional time.
  */
-const espnSchedule = (() => { try { return readJson(path.join(EPL, "fixtures", ESPN_SCHEDULE_FILE)); } catch { return null; } })();
+const espnSchedule = (() => { try { return readJson(path.join(EPL, ESPN_SCHEDULE_FILE)); } catch { return null; } })();
 const clubIndex = buildEplClubIndex();
 const kickoffs = confirmFixtureKickoffs(season.rows ?? [], espnSchedule, {
   resolve: (n) => clubIndex.resolve(n),

@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * EPL KICKOFF SOURCE — ESPN eng.1 scheduled events → public/data/soccer/epl/fixtures/espn-schedule-latest.json
+ * EPL KICKOFF SOURCE — ESPN eng.1 scheduled events → public/data/soccer/epl/kickoffs/espn-schedule-latest.json
  * (founder Option A, 2026-11-09). The openfootball fixture list carries a provisional "Saturday 15:00" block per round
  * and never received the real broadcast slots, so kickoffs come from ESPN's scheduled events instead
  * (lib/sports/epl/kickoff-truth.mjs confirms each fixture against this file; an unconfirmed fixture is withheld).
@@ -18,7 +18,7 @@ import { fileURLToPath } from "node:url";
 import { ESPN_SCHEDULE_FILE, ESPN_SCHEDULE_SCHEMA, espnScheduleRows, scheduleMonths } from "../../src/lib/sports/epl/kickoff-truth.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
-const OUT = path.join(APP, "public", "data", "soccer", "epl", "fixtures", ESPN_SCHEDULE_FILE);
+const OUT = path.join(APP, "public", "data", "soccer", "epl", ESPN_SCHEDULE_FILE);
 const SCOREBOARD = "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard";
 const EXIT_SOURCE_STALE = 4;
 

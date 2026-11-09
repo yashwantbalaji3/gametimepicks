@@ -11,7 +11,8 @@
  * a forecast as pregame, freezing, grading). A provisional time is never published as confirmed. Pure.
  */
 
-export const ESPN_SCHEDULE_FILE = "espn-schedule-latest.json";
+/** Relative to public/data/soccer/epl — its own directory: fixtures/ holds only membership-verified captures. */
+export const ESPN_SCHEDULE_FILE = "kickoffs/espn-schedule-latest.json";
 export const ESPN_SCHEDULE_SCHEMA = "gtp.epl-espn-schedule@1";
 export const KICKOFF_UNVERIFIED = "KICKOFF_UNVERIFIED";
 export const KICKOFF_UNVERIFIED_REASON = "kickoff not confirmed";

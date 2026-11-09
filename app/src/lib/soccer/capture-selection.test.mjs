@@ -75,7 +75,7 @@ test("LIVE ARTIFACT · the published forecasts agree with the AUTHORITATIVE kick
   if (!fs.existsSync(forecastPath)) return;
   const forecasts = JSON.parse(fs.readFileSync(forecastPath, "utf8"));
   if (!Array.isArray(forecasts.rows) || !forecasts.rows.length) return;
-  const schedule = JSON.parse(fs.readFileSync(path.join(FIXTURES, "espn-schedule-latest.json"), "utf8"));
+  const schedule = JSON.parse(fs.readFileSync(path.join(FIXTURES, "..", "kickoffs", "espn-schedule-latest.json"), "utf8"));
   const espnById = new Map(schedule.rows.map((r) => [r.providerEventId, r]));
   const pair = (h, a) => `${h}|${a}`;
   const capturePairs = new Set((capture.rows ?? []).map((r) => pair(r.homeClub, r.awayClub)));
