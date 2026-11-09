@@ -304,7 +304,11 @@ const marketSlotsOpen = (doc, record) => doc.rows.some((r) => marketSlot(r, reco
  * player; the contract validator is clean. [] when it holds.
  * @param {{ doc: any, snapshot: any, board: any }} o
  */
-export function verifyAgainstSources({ doc, snapshot, board }) {
+/**
+ * `eligibility` (Wave 1, eligibility@1): playerId → resolved record. When given, every printed player must be ELIGIBLE and
+ * featurable; anything else is a violation (the card is refused, never re-ranked).
+ */
+export function verifyAgainstSources({ doc, snapshot, board, eligibility = null }) {
   const v = [...graphicsExportViolations(doc)];
   if (!snapshot) return [...v, "no official snapshot"];
   if (snapshot.snapshotId !== doc.publication.snapshotId) v.push(`snapshot ${snapshot.snapshotId} ≠ export ${doc.publication.snapshotId}`);
@@ -343,6 +347,10 @@ export function verifyAgainstSources({ doc, snapshot, board }) {
     }
     const part = bp.get(r.identity.playerId)?.participation;
     if (EXCLUDED_AVAILABILITY.includes(part)) v.push(`${id}: ruled-out player (${part})`);
+    if (eligibility) {
+      const e = eligibility.get(String(r.identity.playerId).replace(/^nfl-athlete-/, ""));
+      if (!e || e.state !== "ELIGIBLE" || e.featurable === false) v.push(`${id}: player not publishable under eligibility@1 (${e ? `${e.state}: ${e.reasons.join(", ")}` : "no eligibility record"})`);
+    }
   }
   return v;
 }

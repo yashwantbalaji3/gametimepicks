@@ -113,6 +113,14 @@ test("every printed cell equals the official snapshot (rebuilt independently) at
     assert.ok(official > 20, `${id}: ${official} official cells`);
     assert.ok(estimates >= 2, `${id}: ${estimates} labelled estimate cells (both QBs' passing yards at least)`);
     assert.deepEqual(verifyAgainstSources({ doc: g.doc, snapshot, board }), []);
+    // Wave 1: with eligibility records, every printed player must be ELIGIBLE; one UNKNOWN player (an Achane) refuses the card
+    const ids = [...new Set(g.doc.rows.map((r) => String(r.identity.playerId).replace(/^nfl-athlete-/, "")))];
+    const ok = new Map(ids.map((pid) => [pid, { state: "ELIGIBLE", featurable: true, reasons: [] }]));
+    assert.deepEqual(verifyAgainstSources({ doc: g.doc, snapshot, board, eligibility: ok }), []);
+    const bad = new Map(ok); bad.set(ids[0], { state: "UNKNOWN", featurable: false, reasons: ["R2_ABSENT_ROSTER_NOT_ACTIVE"] });
+    assert.ok(verifyAgainstSources({ doc: g.doc, snapshot, board, eligibility: bad }).some((x) => /not publishable under eligibility@1 \(UNKNOWN: R2_ABSENT_ROSTER_NOT_ACTIVE\)/.test(x)));
+    const missing = new Map(ok); missing.delete(ids[0]);
+    assert.ok(verifyAgainstSources({ doc: g.doc, snapshot, board, eligibility: missing }).some((x) => /no eligibility record/.test(x)), "no record fails closed");
   }
 });
 

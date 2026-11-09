@@ -38,7 +38,7 @@ async function pool(items, n, fn) {
 }
 
 /** Gather ESPN inputs per team. */
-export async function readinessInputs({ lane, lines = new Map() }) {
+export async function readinessInputs({ lane, lines = new Map(), asOf }) {
   const teams = lane.games.flatMap((g) => ["away", "home"].map((s) => ({ g, s, ab: g[s].abbr })));
   const T = "https://site.api.espn.com/apis/site/v2/sports/basketball/nba";
   const ros = {}, dep = {};
@@ -74,6 +74,7 @@ export async function readinessInputs({ lane, lines = new Map() }) {
       t.players[i] = { name: p.name, mu: p.expectedMinutes, n, cur: n ? ms.reduce((a, b) => a + b, 0) / n : null, minLo: n ? Math.min(...ms) : null, minHi: n ? Math.max(...ms) : null, injStatus: inj[i] ?? p.injuryStatus ?? null, teamGames: order.length, missedLast: order.length > 0 && !es.has(order[0]), missedTwo: order.length >= 2 && !es.has(order[0]) && !es.has(order[1]), injured: Boolean(p.injuryStatus || inj[i]), medians: { pts: p.medians.pts, reb: p.medians.reb, ast: p.medians.ast }, recent: { pts: avg("PTS"), reb: avg("REB"), ast: avg("AST") }, lines: Object.fromEntries(["pts", "reb", "ast"].map((k) => [k, lines.get(`${i}:${k}`) ?? null])) };
     }
     t.injAll = Object.fromEntries(Object.keys(t.names).filter((i) => i in inj).map((i) => [i, inj[i]]));
+    t.eligibility = { asOf, fetchedAt: asOf, rosterStatus: Object.fromEntries(ros[ab].map((a) => [String(a.id), a.status?.type ?? null])) };
     out[ab] = t;
   }
   return out;
@@ -81,6 +82,19 @@ export async function readinessInputs({ lane, lines = new Map() }) {
 
 // AVAILABILITY & PLAUSIBILITY GUARD (PD for the founder, 2026-11-04; rules R1-R3 from the NBA engine evaluation's Nov 2
 // back-test). Hides rows only; never changes a number. Every hidden row records the rule that hid it.
+import { resolveEligibility } from "../../src/lib/availability/eligibility.mjs";
+/**
+ * Wave 1 (eligibility@1): when a team carries `eligibility` ({ asOf, fetchedAt, rosterStatus: id → ESPN status.type }), each
+ * player is resolved from the injury status + roster status; anyone not ELIGIBLE and featurable is hidden with R_ELIG and
+ * the record (state, contractVersion, sources) is kept in roster.__eligibility. A player absent from the injury list is
+ * shown only when the roster says active (R2); no roster record fails closed.
+ */
+export function nbaEligibility(i, t) {
+  const E = t.eligibility; const status = t.players[i]?.injStatus ?? t.injAll?.[i] ?? null;
+  const injuries = { generatedAt: E.fetchedAt, entries: status ? [{ athleteId: i, status, statedAt: E.fetchedAt }] : [] };
+  const roster = { generatedAt: E.fetchedAt, teams: [{ players: Object.entries(E.rosterStatus ?? {}).map(([id, type]) => ({ id, status: { type } })) }] };
+  return resolveEligibility({ sport: "nba", playerId: i, asOf: E.asOf, injuries, roster });
+}
 export const GUARD = Object.freeze({ minGames: 3, hardMinutes: 42, band: 4 });
 const GUARD_STATUS = /^(out|day|doubtful|inactive|suspen|injured reserve)/i;
 /** Pure. Guard rules that hide this player (empty = shown). `status` is the build-time ESPN injury status. */
@@ -103,6 +117,11 @@ export function unifiedRoster(I) {
       A[i] = { ...a, name: r.name, mu: r.mu, n: r.n, cur: r.cur && Number(r.cur.toFixed(1)) };
       const status = r.injStatus ?? t.injAll?.[i] ?? null;
       const g = guardReasons(r, status);
+      if (t.eligibility) {
+        const e = nbaEligibility(i, t);
+        (roster.__eligibility ??= {})[i] = { state: e.state, featurable: e.featurable, reasons: e.reasons, contractVersion: e.contractVersion, sources: e.sources };
+        if (e.state !== "ELIGIBLE" || !e.featurable) g.push("R_ELIG");
+      }
       if (g.length) { A[i].guard = g; roster.__guard[i] = g; }
       if (g.length || a.reasons.some((x) => HIDE_ROW.has(x))) A[i].hideAll = true;
       else { const h = ["pts", "reb", "ast"].filter((m) => a.cells[m].reasons.length); if (h.length) A[i].hideCells = h; }
@@ -131,7 +150,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   const lane = JSON.parse(fs.readFileSync(path.join(APP, `public/data/nba/experimental-public/${date}.json`), "utf8"));
   const lines = new Map((arg("lines") ? JSON.parse(fs.readFileSync(arg("lines"), "utf8")) : []).filter((r) => r.market.line.state === "SHOWN").map((r) => [`${r.identity.playerId}:${r.identity.market}`, r.market.line.value]));
   fs.mkdirSync(out, { recursive: true });
-  const I = arg("inputs") ? JSON.parse(fs.readFileSync(arg("inputs"), "utf8")) : await readinessInputs({ lane, lines });
+  const I = arg("inputs") ? JSON.parse(fs.readFileSync(arg("inputs"), "utf8")) : await readinessInputs({ lane, lines, asOf: new Date().toISOString().replace(/\.\d+Z$/, "Z") });
   const { roster, table } = unifiedRoster(I);
   const put = (f, o) => { const tmp = path.join(out, `.${f}.tmp`); fs.writeFileSync(tmp, JSON.stringify(o, null, 1)); fs.renameSync(tmp, path.join(out, f)); };
   if (!arg("inputs")) put("ready_in.json", I);

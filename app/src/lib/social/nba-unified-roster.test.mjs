@@ -36,3 +36,15 @@ test("guard never changes a number: medians and expected minutes are not in the 
   const { roster } = unifiedRoster({ AAA: { covShare: 0, sum: 0, n: 0, starters: ["1"], bench: [], names: {}, injAll: {}, players: { 1: p("One", { mu: 45, cur: 30 }) } } });
   assert.ok(!/15|45/.test(JSON.stringify(roster.AAA)));
 });
+
+test("Wave 1 eligibility@1: absent from the injury list but not active on the roster, or off the roster, hides the row with R_ELIG and records the state", () => {
+  const asOf = "2026-11-09T18:00:00Z";
+  const I = { AAA: { covShare: 0, sum: 0, n: 0, starters: ["1", "2", "3", "4"], bench: [], names: {}, injAll: { 4: "Questionable" }, eligibility: { asOf, fetchedAt: asOf, rosterStatus: { 1: "active", 2: "day-to-day", 4: "active" } }, players: {
+    1: p("Active"), 2: p("Absent but day-to-day"), 3: p("Released"), 4: p("Questionable"),
+  } } };
+  const { roster } = unifiedRoster(I);
+  assert.deepEqual(Object.fromEntries(Object.entries(roster.__eligibility).map(([i, e]) => [i, e.state])), { 1: "ELIGIBLE", 2: "UNKNOWN", 3: "INELIGIBLE", 4: "ELIGIBLE" });
+  assert.deepEqual(roster.__guard, { 2: ["R_ELIG"], 3: ["R_ELIG"], 4: ["R_ELIG"] });
+  assert.equal(roster.__eligibility[1].contractVersion, "eligibility@1");
+  assert.equal(roster.AAA[0], "1");
+});
