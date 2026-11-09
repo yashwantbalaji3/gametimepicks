@@ -203,6 +203,18 @@ export function eplForecastGeneratedAt(slug: string): string | null {
 }
 
 /** Resolve one fixture's forecast of record: current when live, archived otherwise. */
+/**
+ * SUPERSEDED BY A CONFIRMED KICKOFF (founder Option A, 2026-11-09). A frozen dated row published on openfootball's
+ * provisional "Saturday 15:00" slot keeps its page (frozen records are never rewritten), but when the live set — whose
+ * kickoffs are ESPN-confirmed — carries the same pairing under another slug, that page must say the kickoff was
+ * corrected and point to the current forecast. Null when the row is itself current or nothing confirmed replaces it.
+ */
+export function supersedingEplFixture(row: Pick<EplForecastRow, "slug" | "homeClub" | "awayClub">, set: EplForecastSet | null = loadEplForecasts()): EplForecastRow | null {
+  if (!row?.homeClub || !row?.awayClub || !set) return null;
+  const hit = set.rows.find((r) => r.homeClub === row.homeClub && r.awayClub === row.awayClub && r.slug && r.slug !== row.slug && (r as { kickoffSource?: string }).kickoffSource === "ESPN");
+  return hit ?? null;
+}
+
 export function findEplForecastAnywhere(slug: string): EplForecastRow | null {
   const current = findEplForecast(loadEplForecasts(), slug);
   if (current) return current;

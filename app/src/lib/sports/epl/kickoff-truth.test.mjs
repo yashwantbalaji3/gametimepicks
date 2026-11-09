@@ -110,3 +110,15 @@ test("the schedule capture reads ESPN rows and asks month by month around now (t
   assert.match(wf, /node scripts\/epl\/capture-epl-espn-schedule\.mjs --now/);
   assert.doesNotMatch(wf, /the previous capture stands"\n/, "the fallback never presents a provisional capture as a schedule");
 });
+
+test("a frozen provisional-slot page names the corrected kickoff and links the current forecast; a current row is never flagged", async () => {
+  const { loadEplForecasts, supersedingEplFixture } = await import("./forecast-view.ts");
+  const live = loadEplForecasts();
+  const frozen = JSON.parse(fs.readFileSync(path.join(APP, "public/data/soccer/epl/forecasts/2026-11-09.json"), "utf8")).rows.find((r) => r.homeClub === "Brentford" && r.awayClub === "Everton");
+  assert.equal(frozen.slug, "brentford-v-everton-2026-11-21", "the frozen record keeps its provisional slot, unedited");
+  const now = supersedingEplFixture(frozen, live);
+  assert.equal(now?.slug, "brentford-v-everton-2026-11-23");
+  assert.equal(now.kickoffUtc, "2026-11-23T20:00:00Z");
+  for (const r of live.rows) assert.equal(supersedingEplFixture(r, live), null, `${r.slug}: current rows are not superseded`);
+  assert.match(fs.readFileSync(path.join(APP, "src/app/epl/match/[slug]/page.tsx"), "utf8"), /data-epl-kickoff-corrected=""/);
+});
