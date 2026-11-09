@@ -2,78 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-09T00:35:18Z",
+  "generatedAt": "2026-11-09T19:48:08Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 2,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
-    "eventsWithAMaterialExclusion": 2,
+    "upcomingEvents": 1,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 1,
+    "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873050",
-      "matchup": "TB @ CHI",
-      "kickoffUtc": "2026-11-09T01:20Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "7967623acbcebf74",
-        "simulations": 10000,
-        "generatedAt": "2026-11-09T00:23:49Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-09T00:35:18Z",
-        "participationInputHash": "bf7966afafb2d0bb",
-        "excludedCount": 3,
-        "materialExclusions": [
-          {
-            "name": "Case Keenum",
-            "team": "CHI",
-            "state": "Out",
-            "statedAt": "2026-11-09T00:04Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Case Keenum",
-            "team": "CHI",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Kyle Monangai",
-            "team": "CHI",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Jalen McMillan",
-            "team": "TB",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873051",
@@ -82,15 +21,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "bde36149541657c3",
+        "inputHash": "a7296a32dbe39762",
         "simulations": 10000,
-        "generatedAt": "2026-11-09T00:23:49Z"
+        "generatedAt": "2026-11-09T19:48:08Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-09T00:35:18Z",
-        "participationInputHash": "f9b9ed0fc91d1957",
+        "snapshotAsOf": "2026-11-09T19:48:08Z",
+        "participationInputHash": "fbb85ebeabe0b30c",
         "excludedCount": 5,
         "materialExclusions": [
           {
