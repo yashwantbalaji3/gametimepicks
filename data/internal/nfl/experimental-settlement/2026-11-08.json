@@ -4,7 +4,7 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-11-08",
- "generatedAt": "2026-11-08T23:55:09Z",
+ "generatedAt": "2026-11-09T00:23:49Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
@@ -587,28 +587,27 @@
    "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-11-08T21:25Z",
    "observed": "STATUS_SCHEDULED"
-  },
-  {
-   "canonicalEventId": "nfl-401873050",
-   "matchup": "TB @ CHI",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-11-09T01:20Z"
-  },
-  {
-   "canonicalEventId": "nfl-401873051",
-   "matchup": "BUF @ MIN",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-11-10T01:15Z"
   }
  ],
  "quarantined": [],
- "recordElsewhere": [],
+ "recordElsewhere": [
+  {
+   "canonicalEventId": "nfl-401873050",
+   "recordFolder": "2026-11-09",
+   "reason": "the forecast of record lives in another receipt folder"
+  },
+  {
+   "canonicalEventId": "nfl-401873051",
+   "recordFolder": "2026-11-09",
+   "reason": "the forecast of record lives in another receipt folder"
+  }
+ ],
  "accounting": {
   "receipts": 14,
   "settled": 8,
-  "pending": 6,
+  "pending": 4,
   "quarantined": 0,
-  "recordElsewhere": 0,
+  "recordElsewhere": 2,
   "reconciles": true
  },
  "metrics": {
