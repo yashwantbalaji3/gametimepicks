@@ -27,6 +27,7 @@ import { committedLaneDates, loadLaneForDate } from "@/components/nba/experiment
 import { nbaExclusionText } from "@/lib/sport-hub/nba-hub";
 import { nbaExportedGamePageIds } from "@/components/nba/settled-simulation-data";
 import { nbaGamePageHrefIfExported } from "@/components/nba/game-page-link.mjs";
+import { eloWinProbabilityOf, eloWinProbabilityText } from "@/lib/sports/nba/elo-win-probability.mjs";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { forecastTableCell, mlbForecastStateForGame } from "@/lib/mlb/full-game/forecast-state.mjs";
 import { loadLeagueForecasts, loadLeagueGraded } from "@/lib/sports/soccer/forecast-view";
@@ -146,8 +147,7 @@ function rowFor(e: SimDayEvent, date: string, ctx: Ctx): GamesTableRow {
     const gamePage = date !== ctx.today && pid ? nbaGamePageHrefIfExported(pid, ctx.nbaGamePages) : null;
     const page = date === ctx.today && pid ? `/nba/#nba-exp-${pid}` : gamePage ?? (ctx.laneDates.has(date) ? `/nba/projections/${date}/` : "/nba/");
     if (g) {
-      const side = g.elo?.favoured ? `${g.elo.favoured} favoured · no win chance published` : null;
-      return { ...base, forecast: "Frozen", read: side, note: null, eventHref: page };
+      return { ...base, forecast: "Frozen", read: nbaTodayRead(g), note: null, eventHref: page };
     }
     const excluded = ctx.lane?.excluded.find((x) => x.providerEventId === pid);
     if (excluded || ctx.lane || started) return { ...base, forecast: "Unavailable", read: null, note: excluded ? `No Official Forecast: ${nbaExclusionText(excluded.reason)}` : "No Official Forecast was frozen for this game before tip-off.", eventHref: page };
@@ -171,6 +171,17 @@ function rowFor(e: SimDayEvent, date: string, ctx: Ctx): GamesTableRow {
       : { ...base, forecast: "Unavailable", read: null, note: e.stateReason, eventHref: e.href };
   }
   return { ...base, forecast: e.state === "SCHEDULE_ONLY" && e.sport === "mlb" ? "Pending" : "Unavailable", read: null, note: e.stateReason, eventHref: e.href };
+}
+
+/**
+ * WEB-03 (2026-11-09): Today prints the NBA Elo win probability through THE ONE ACCESSOR /nba and the game pages use
+ * (eloWinProbabilityOf → eloWinProbabilityText), so the three surfaces never disagree. With no published value (switch
+ * off, provenance or consistency refusal) it keeps the favoured side and says no win chance was published.
+ */
+export function nbaTodayRead(g: Parameters<typeof eloWinProbabilityOf>[0]): string | null {
+  const view = eloWinProbabilityOf(g);
+  if (view) return eloWinProbabilityText(view);
+  return g?.elo?.favoured ? `${g.elo.favoured} favoured · no win chance published` : null;
 }
 
 function mlbHadForecast(date: string, gamePk: string | null): boolean {
