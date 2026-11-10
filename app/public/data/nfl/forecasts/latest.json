@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-forecasts",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-09T23:53:59Z",
- "date": "2026-11-09",
+ "generatedAt": "2026-11-10T00:00:03Z",
+ "date": "2026-11-10",
  "model": {
   "id": "nfl-regular-season-public-v1",
   "version": 2,
@@ -68,10 +68,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the Elo-logistic win head over a 881-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-09T23:53:59Z",
+   "generatedAt": "2026-11-10T00:00:03Z",
    "evidence": {
     "schedule": "2026-11-09T19:44:35Z",
-    "strengthCutoff": "2026-11-09T23:53:59Z",
+    "strengthCutoff": "2026-11-10T00:00:03Z",
     "strengthGamesFolded": 881,
     "regressedToSeason": null
    },
@@ -82,16 +82,16 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.4874,
-     "away": 0.4818,
-     "tieMass": 0.0308,
-     "homeUnrounded": 0.487391371638488,
+     "home": 0.4894,
+     "away": 0.4837,
+     "tieMass": 0.0269,
+     "homeUnrounded": 0.4893526039428525,
      "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
      "median": 0,
      "p10": -17,
-     "p90": 17
+     "p90": 18
     },
     "total": {
      "median": 44,
@@ -100,7 +100,7 @@
      "head": "matchup-totals-v3-play-efficiency"
     },
     "scoreRange": {
-     "homeP10": 10,
+     "homeP10": 9,
      "homeP90": 34,
      "awayP10": 10,
      "awayP90": 34
@@ -120,7 +120,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-09T23:53:59Z",
+    "participationAsOf": "2026-11-10T00:00:03Z",
     "state": "BLIND_TO_STARTING_QB_ABSENCE",
     "absences": [
      {
@@ -146,7 +146,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-09T19:48:08Z"
+    "frozenAt": "2026-11-10T00:00:03Z"
    }
   }
  ],
