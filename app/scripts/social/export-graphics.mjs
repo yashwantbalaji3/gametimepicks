@@ -3,7 +3,7 @@
  * GRAPHICS EXPORT CLI — writes one `gtp-graphics-export@1` document (lib/social/graphics-export.mjs) from the COMMITTED
  * artifacts the website renders. Read-only over the repository; never fetches, never reads .env, never reads the clock.
  *
- *   cd app && npx tsx scripts/social/export-graphics.mjs --sport nfl --season-type 2 --week 8 --as-of 2026-10-30T13:00:00Z [--out <file>]
+ *   cd app && npx tsx scripts/social/export-graphics.mjs --sport nfl --season-type 2 --week 8 --as-of 2026-10-30T13:00:00Z [--out <file>] [--public-dir <frozen public/>]
  *   cd app && npx tsx scripts/social/export-graphics.mjs --sport nba --date 2026-10-30 --as-of 2026-10-30T13:00:00Z [--out <file>]
  *
  * --as-of is REQUIRED (no clock): rows only from games that have not started at that instant. Same inputs + same --as-of
@@ -48,27 +48,35 @@ const readRel = (rel) => {
   try { const buf = fs.readFileSync(path.join(REPO, rel)); return { rel, buf, doc: JSON.parse(buf.toString("utf8")), sha256: sha(buf) }; } catch { return null; }
 };
 
-/** The builder's inputs for an NFL week, read from the committed files (exported for tests). */
-export function nflExportArgs({ seasonType, week, asOf }) {
+/** A public/ file read from `publicDir`, recorded under its repository ref ("app/public/…") so the export is identical. */
+const readPublicRel = (publicDir, rel) => {
+  try { const buf = fs.readFileSync(path.join(publicDir, rel.replace(/^app\/public\//, ""))); return { rel, buf, doc: JSON.parse(buf.toString("utf8")), sha256: sha(buf) }; } catch { return null; }
+};
+
+/**
+ * The builder's inputs for an NFL week, read from the committed files (exported for tests). `publicDir` (default
+ * app/public) lets a settled week be exported from a frozen copy of its inputs; `repoRoot` stays this repository.
+ */
+export function nflExportArgs({ seasonType, week, asOf, publicDir = path.join(APP, "public"), repoRoot = REPO }) {
   const dir = "app/public/data/nfl/player-board";
   const boards = [];
   const boardSha256 = {};
   const inputs = [];
-  for (const f of fs.readdirSync(path.join(REPO, dir)).filter((n) => /^\d+\.json$/.test(n)).sort()) {
-    const r = readRel(`${dir}/${f}`);
+  for (const f of fs.readdirSync(path.join(publicDir, "data", "nfl", "player-board")).filter((n) => /^\d+\.json$/.test(n)).sort()) {
+    const r = readPublicRel(publicDir, `${dir}/${f}`);
     if (!r || r.doc.seasonType !== seasonType || r.doc.week !== week) continue;
     boards.push(r.doc);
     boardSha256[String(r.doc.providerEventId)] = r.sha256;
     inputs.push({ ref: r.rel, sha256: r.sha256 });
   }
   for (const rel of ["app/public/data/nfl/forecasts/latest.json", "app/public/data/nfl/forecasts/frozen-latest.json"]) {
-    const r = readRel(rel);
+    const r = readPublicRel(publicDir, rel);
     inputs.push({ ref: rel, sha256: r?.sha256 ?? null });
   }
   // readiness wording only (the forward-test count of a held family), exactly as the weekly-boards builder reads it
   const fwd = readRel("data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json");
   inputs.push({ ref: "nfl-share-level-forward-receipt", sha256: fwd?.sha256 ?? null });
-  const views = loadForecastViews(path.join(APP, "public")).filter((v) => v.seasonType === seasonType && v.week === week);
+  const views = loadForecastViews(publicDir, { repoRoot }).filter((v) => v.seasonType === seasonType && v.week === week);
   return {
     seasonType, week, asOf, boards, views, boardSha256, inputs,
     forwardFor: (family, modelVersion) => forwardEvidenceFor({ family, modelVersion, forwardReceipt: fwd?.doc ?? null }),
@@ -103,7 +111,7 @@ export function nbaExportArgs({ date, asOf }) {
   return { date, asOf, lane: doc, snapshots, laneSha256: lane?.sha256 ?? null, inputs };
 }
 
-export function runExport(args) {
+export function runExport(args, { publicDir, repoRoot } = {}) {
   const sport = args.sport;
   const asOf = args["as-of"];
   if (!asOf || !Number.isFinite(Date.parse(asOf)) || !/T.*(Z|[+-]\d\d:\d\d)$/.test(asOf)) throw new Error("--as-of <ISO instant with zone> is required (no clock is read)");
@@ -113,7 +121,7 @@ export function runExport(args) {
     const seasonType = Number(args["season-type"] ?? 2);
     const week = Number(args.week);
     if (!Number.isInteger(week) || !Number.isInteger(seasonType)) throw new Error("--week <n> is required for nfl (--season-type defaults to 2)");
-    doc = buildNflGraphicsExport(nflExportArgs({ seasonType, week, asOf }));
+    doc = buildNflGraphicsExport(nflExportArgs({ seasonType, week, asOf, ...(publicDir ? { publicDir } : {}), ...(repoRoot ? { repoRoot } : {}) }));
     key = `nfl-${doc.edition.key}`;
   } else if (sport === "nba") {
     if (!/^\d{4}-\d{2}-\d{2}$/.test(String(args.date ?? ""))) throw new Error("--date YYYY-MM-DD is required for nba");
@@ -141,7 +149,8 @@ async function main() {
     console.log(`${doc.schemaVersion} ${doc.edition.kind} ${doc.edition.key} as of ${doc.asOf} purpose ${doc.purpose} (socialAuthorized ${doc.socialAuthorized}): ${doc.publication.status} · ${doc.rows.length} rows · excluded ${JSON.stringify(doc.scope.excludedByReason)} → ${out}`);
     return doc.publication.status === "PUBLISHED" || doc.publication.status === "LINES_WITHHELD" ? 0 : 3;
   }
-  const { out, doc } = runExport(args);
+  /* --public-dir <dir>: export a settled week from a frozen copy of public/ (the record resolver still reads this repository). */
+  const { out, doc } = runExport(args, args["public-dir"] ? { publicDir: path.resolve(args["public-dir"]), repoRoot: REPO } : {});
   const eligible = doc.rows.filter((r) => r.graphicEligibility.eligible).length;
   console.log(`${doc.schemaVersion} ${doc.sport} ${doc.edition.key} as of ${doc.asOf}: ${doc.publication.status} · ${doc.scope.eventsIncluded.length} games · ${doc.rows.length} rows (${eligible} graphic-eligible) · ${doc.scope.eventsExcludedStarted.length} started games excluded → ${out}`);
   return doc.publication.status === "PUBLISHED" ? 0 : 3;

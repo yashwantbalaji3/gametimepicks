@@ -20,10 +20,16 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { identityFromFixture } from "./epl-identity.ts";
+import { buildEplClubIndex } from "./epl-clubs.ts";
+import { ESPN_SCHEDULE_FILE, confirmFixtureKickoffs } from "../sports/epl/kickoff-truth.mjs";
 import { gradeEplLeg } from "../sports/epl/settlement-contract.mjs";
 
 const RESULTS_PATH = () => path.join(process.cwd(), "public", "data", "soccer", "epl", "results", "latest.json");
 const FIXTURES_DIR = () => path.join(process.cwd(), "public", "data", "soccer", "epl", "fixtures");
+
+function readScheduleCapture() {
+  try { return JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR(), "..", ESPN_SCHEDULE_FILE), "utf8")); } catch { return null; }
+}
 
 function newestFixtureCapture() {
   try {
@@ -33,7 +39,7 @@ function newestFixtureCapture() {
   } catch { return null; }
 }
 
-export function loadCurrentEplResults({ nowIso, artifact: artifactOverride, fixtures: fixturesOverride, freshWindowHours = 36 } = {}) {
+export function loadCurrentEplResults({ nowIso, artifact: artifactOverride, fixtures: fixturesOverride, espnSchedule: espnScheduleOverride, freshWindowHours = 36 } = {}) {
   // `artifact: null` means "none exists" (tests, unconfigured); only UNDEFINED falls to disk.
   const artifact = artifactOverride !== undefined ? artifactOverride : (() => { try { return JSON.parse(fs.readFileSync(RESULTS_PATH(), "utf8")); } catch { return null; } })();
   if (!artifact) {
@@ -53,6 +59,22 @@ export function loadCurrentEplResults({ nowIso, artifact: artifactOverride, fixt
   const fixtures = fixturesOverride ?? newestFixtureCapture();
   const fixtureByCanonical = new Map();
   for (const f of fixtures?.rows ?? []) fixtureByCanonical.set(f.eventId, f);
+  /* Option A (2026-11-09): a fixture whose provisional slot ESPN has since confirmed at another minute is ALSO indexed
+     under its confirmed canonical id — additive, so no earlier join changes. A result can then settle the fixture it
+     belongs to; a forecast published under the provisional id still finds no result (the grader keys on the
+     forecast's own id), so no settled record is touched. Unconfirmable fixtures add nothing. */
+  if (!fixturesOverride) {
+    const schedule = espnScheduleOverride !== undefined ? espnScheduleOverride : readScheduleCapture();
+    if (schedule) {
+      const index = buildEplClubIndex();
+      const { confirmed } = confirmFixtureKickoffs(fixtures?.rows ?? [], schedule, {
+        resolve: (n) => index.resolve(n),
+        rebuildId: (f, kickoffIso) => { const o = identityFromFixture({ homeClub: f.homeClub, awayClub: f.awayClub, kickoffIso, status: "SCHEDULED" }, nowIso, index); return "identity" in o ? o.identity.eventId : null; },
+        nowIso: schedule.capturedAt,
+      });
+      for (const f of confirmed) if (!fixtureByCanonical.has(f.eventId)) fixtureByCanonical.set(f.eventId, f);
+    }
+  }
 
   const quarantined = [];
   const results = [];

@@ -38,10 +38,13 @@ test("the current file always wins over history", () => {
   assert.equal(r.entries.length, 1);
 });
 
-test("history cannot stretch the window", () => {
-  const r = recoverFromHistory({ nowIso: NOW, captures: [cap("2026-08-20T17:00:00Z", [IR("4", "2026-08-19T12:00Z")]), cap("2026-09-10T16:44:34Z", [])] });
+test("history recovers an old long-term designation (R1: no window) unless a roster capture after it says active", () => {
+  const captures = [cap("2026-08-20T17:00:00Z", [IR("4", "2026-08-19T12:00Z")]), cap("2026-09-10T16:44:34Z", [])];
+  assert.equal(recoverFromHistory({ nowIso: NOW, captures }).carried.length, 1);
+  const roster = { generatedAt: "2026-09-10T16:00:00Z", teams: [{ providerTeamId: "1", players: [{ id: "4", status: { type: "active" } }] }] };
+  const r = recoverFromHistory({ nowIso: NOW, captures, roster });
   assert.equal(r.carried.length, 0);
-  assert.equal(r.skipped.tooOld, 1);
+  assert.equal(r.skipped.activatedByRoster, 1);
 });
 
 test("idempotent — a row already carried in the current file is never duplicated", () => {

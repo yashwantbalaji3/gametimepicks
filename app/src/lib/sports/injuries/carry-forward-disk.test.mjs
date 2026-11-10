@@ -13,7 +13,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { ABSENT_DESIGNATION_CARRY_H, carryForwardDesignations } from "./carry-forward.mjs";
+import { carryForwardDesignations } from "./carry-forward.mjs";
 import { isLongTermStatus } from "./contract.mjs";
 
 const read = (sport) =>
@@ -42,8 +42,7 @@ test("REAL DATA · a recent long-term designation on disk survives a feed that f
   // it from a synthetic fresh feed, and require the carry to bring it back. No player is pinned.
   const a = read("nfl");
   const now = new Date().toISOString();
-  const within = (e) => Date.parse(now) - Date.parse(e.statedAt ?? "") <= ABSENT_DESIGNATION_CARRY_H * 3.6e6;
-  const candidate = (a.entries ?? []).find((e) => isLongTermStatus(e.status) && within(e));
+  const candidate = (a.entries ?? []).find((e) => isLongTermStatus(e.status) && Number.isFinite(Date.parse(e.statedAt ?? "")));
   if (!candidate) return; // a quiet fortnight: nothing recent enough to carry, which is a pass, not a skip in disguise
   const fresh = a.entries.filter((e) => e.athleteId !== candidate.athleteId);
   const { entries, carried } = carryForwardDesignations({ previousEntries: a.entries, currentEntries: fresh, nowIso: now });

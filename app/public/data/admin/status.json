@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-11-09T21:35:48.846Z",
+  "generatedAt": "2026-11-10T16:42:42.688Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -8,7 +8,7 @@
     "drawdown": 6400,
     "profit": 13965.4,
     "roiMultiple": 139.65,
-    "portfolioMd5": "021a1a0e88a467c27c8b9dd1a9997ddc"
+    "portfolioMd5": "b34866d76e1209353c5fd2ee557a19ce"
   },
   "moneyGate": {
     "crownMinusDrawdownEqualsBankroll": true,
@@ -16,13 +16,13 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-11-09",
-    "dailyPortfolioDate": "2026-11-09",
+    "date": "2026-11-10",
+    "dailyPortfolioDate": "2026-11-10",
     "activeBankroll": 14065.4,
     "openExposure": 0,
     "worldCupGames": 0,
     "mlbGames": 0,
-    "mlbSlate": "2026-11-09"
+    "mlbSlate": "2026-11-10"
   },
   "sportsbook": {
     "note": "Artifact-level freshness only — the market feed carries no row-level timestamps, so no per-market recency can be claimed.",
@@ -32,14 +32,14 @@
         "state": "STALE",
         "artifactDate": "2026-10-28",
         "generatedAt": "2026-10-28T09:32:41.507Z",
-        "ageDays": 12
+        "ageDays": 13
       },
       {
         "source": "mlb/player-props",
         "state": "STALE",
         "artifactDate": "2026-10-28",
         "generatedAt": "2026-10-28T09:32:42.405Z",
-        "ageDays": 12
+        "ageDays": 13
       }
     ]
   },
@@ -104,8 +104,8 @@
     },
     "forwardCoverage": {
       "present": true,
-      "date": "2026-11-09",
-      "generatedAt": "2026-11-09T21:20:21Z",
+      "date": "2026-11-10",
+      "generatedAt": "2026-11-10T15:39:06Z",
       "sports": [
         {
           "sport": "epl",
@@ -135,14 +135,14 @@
           "sport": "nfl",
           "state": "SCHEDULE_ONLY",
           "counts": {
-            "scheduled": 15,
-            "priced": 15,
+            "scheduled": 14,
+            "priced": 14,
             "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "MODEL_ABSENT_BY_DECISION:15 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
+            "MODEL_ABSENT_BY_DECISION:14 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
           ]
         },
         {
@@ -162,14 +162,14 @@
       ]
     },
     "dailyLifecycle": {
-      "receiptDate": "2026-11-09",
+      "receiptDate": "2026-11-10",
       "present": true,
-      "generatedAt": "2026-11-09T09:41:36Z",
+      "generatedAt": "2026-11-10T09:42:55Z",
       "watchdog": [
         {
           "product": "homer-nukes",
           "kind": "INCIDENT_OPEN",
-          "detail": "NOT_RUN: no Homer Nukes board exists for 2026-11-09"
+          "detail": "NOT_RUN: no Homer Nukes board exists for 2026-11-10"
         }
       ],
       "states": {
@@ -213,7 +213,7 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-11-09T21:35:48.322Z",
+    "lastRunAt": "2026-11-10T16:42:42.039Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
@@ -221,8 +221,8 @@
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
-    "etDate": "2026-11-09",
-    "etTime": "16:35",
+    "etDate": "2026-11-10",
+    "etTime": "11:42",
     "stages": [
       {
         "stage": "schedule",
@@ -302,8 +302,8 @@
   },
   "warnings": [
     "World Cup board is empty (dormant or needs a refresh).",
-    "Sportsbook source mlb/team-markets is STALE (12d old).",
-    "Sportsbook source mlb/player-props is STALE (12d old).",
+    "Sportsbook source mlb/team-markets is STALE (13d old).",
+    "Sportsbook source mlb/player-props is STALE (13d old).",
     "MLB board is empty (dormant or needs a refresh)."
   ],
   "dailyChecklist": [
@@ -332,9 +332,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-11-09",
-  "nextRefreshDate": "2026-11-10",
-  "nextAction": "No active Bank Builder lane for 2026-11-09 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-11-10",
+  "nextRefreshDate": "2026-11-11",
+  "nextAction": "No active Bank Builder lane for 2026-11-10 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }

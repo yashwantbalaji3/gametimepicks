@@ -22,15 +22,41 @@ import { officialSnapshotFor } from "../sports/nfl/forecast-view-load.mjs";
 import { playerOf } from "../consistency/official-snapshot.mjs";
 
 const APP = process.cwd();
-const PUB = path.join(APP, "public");
+/*
+ * WEEK-8 INPUTS, FROZEN (2026-11-09). This file exports the committed week 8; after the rollover week 8 left the live
+ * forecast union and the live weekly boards moved on, so FRIDAY (live boards + 1 min) fell after every week-8 kickoff
+ * and four tests failed on main. The inputs are frozen exactly as main held them before the rollover (commit
+ * 79df3d4832, 2026-11-01T16:00Z: forecasts latest + frozen-latest, weekly-boards latest + 2-08, and the 14 week-8 player
+ * boards, whose availability block was rewritten after the games); every other file is the live
+ * public/ tree (symlinked) and the record resolver reads the real repo. No assertion changed.
+ */
+const WEEK8 = path.join(APP, "src/lib/social/__fixtures__/nfl-week8-forecasts");
+const PUB = (() => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-graphics-export-w8-public-"));
+  const live = path.join(APP, "public");
+  const mirror = (src, dst, keep) => { fs.mkdirSync(dst, { recursive: true }); for (const n of fs.readdirSync(src)) if (!keep.includes(n)) fs.symlinkSync(path.join(src, n), path.join(dst, n)); };
+  mirror(live, root, ["data"]);
+  mirror(path.join(live, "data"), path.join(root, "data"), ["nfl"]);
+  mirror(path.join(live, "data", "nfl"), path.join(root, "data", "nfl"), ["forecasts", "weekly-boards", "player-board"]);
+  const frozenBoards = fs.readdirSync(path.join(WEEK8, "player-board"));
+  mirror(path.join(live, "data", "nfl", "player-board"), path.join(root, "data", "nfl", "player-board"), frozenBoards);
+  for (const n of frozenBoards) fs.copyFileSync(path.join(WEEK8, "player-board", n), path.join(root, "data", "nfl", "player-board", n));
+  mirror(path.join(live, "data", "nfl", "forecasts"), path.join(root, "data", "nfl", "forecasts"), ["latest.json", "frozen-latest.json"]);
+  mirror(path.join(live, "data", "nfl", "weekly-boards"), path.join(root, "data", "nfl", "weekly-boards"), ["latest.json", "2-08.json"]);
+  fs.copyFileSync(path.join(WEEK8, "weekly-boards-2-08.json"), path.join(root, "data", "nfl", "weekly-boards", "2-08.json"));
+  for (const n of ["latest.json", "frozen-latest.json"]) fs.copyFileSync(path.join(WEEK8, n), path.join(root, "data", "nfl", "forecasts", n));
+  fs.copyFileSync(path.join(WEEK8, "weekly-boards-latest.json"), path.join(root, "data", "nfl", "weekly-boards", "latest.json"));
+  return root;
+})();
+const AT = { publicDir: PUB, repoRoot: path.resolve(APP, "..") };
 const read = (rel) => JSON.parse(fs.readFileSync(path.join(PUB, rel), "utf8"));
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-graphics-export-"));
-const run = (args, name) => runExport({ ...args, out: path.join(tmp, name) });
+const run = (args, name) => runExport({ ...args, out: path.join(tmp, name) }, AT);
 
 const WEEK_ARTIFACT = read("data/nfl/weekly-boards/2-08.json");
 const TNF = "401873023"; // CAR @ GB, 2026-10-30T00:15Z — Thursday night of week 8
 /* One minute after the committed boards: the live files regenerate, and a fixed instant goes stale against them. */
-const FRIDAY = new Date(Date.parse(JSON.parse(fs.readFileSync("public/data/nfl/weekly-boards/latest.json", "utf8")).generatedAt) + 60_000).toISOString().replace(/\.\d{3}Z$/, "Z");
+const FRIDAY = new Date(Date.parse(JSON.parse(fs.readFileSync(path.join(PUB, "data/nfl/weekly-boards/latest.json"), "utf8")).generatedAt) + 60_000).toISOString().replace(/\.\d{3}Z$/, "Z");
 const NBA_DATE = "2026-10-29";
 const NBA_BEFORE_TIPS = "2026-10-29T20:00:00Z";
 const NBA_LANE = read(`data/nba/experimental-public/${NBA_DATE}.json`);
@@ -260,7 +286,7 @@ test("determinism: the CLI run twice (separate processes) writes byte-identical 
   for (const i of [1, 2]) {
     for (const [sport, extra] of [["nfl", ["--week", "8"]], ["nba", ["--date", NBA_DATE]]]) {
       const out = path.join(tmp, `det-${sport}-${i}.json`);
-      const res = spawnSync("npx", ["tsx", "scripts/social/export-graphics.mjs", "--sport", sport, ...extra, "--as-of", sport === "nba" ? NBA_BEFORE_TIPS : FRIDAY, "--out", out], { cwd: APP, encoding: "utf8" });
+      const res = spawnSync("npx", ["tsx", "scripts/social/export-graphics.mjs", "--sport", sport, ...extra, "--as-of", sport === "nba" ? NBA_BEFORE_TIPS : FRIDAY, "--out", out, "--public-dir", PUB], { cwd: APP, encoding: "utf8" });
       assert.equal(res.status, 0, res.stderr);
       outs.push([`${sport}`, fs.readFileSync(out)]);
     }
@@ -272,7 +298,7 @@ test("determinism: the CLI run twice (separate processes) writes byte-identical 
 });
 
 test("the export is never written under public/ (never served under /data)", () => {
-  const res = spawnSync("npx", ["tsx", "scripts/social/export-graphics.mjs", "--sport", "nfl", "--week", "8", "--as-of", FRIDAY, "--out", path.join(APP, "public/data/social/x.json")], { cwd: APP, encoding: "utf8" });
+  const res = spawnSync("npx", ["tsx", "scripts/social/export-graphics.mjs", "--sport", "nfl", "--week", "8", "--as-of", FRIDAY, "--out", path.join(APP, "public/data/social/x.json"), "--public-dir", PUB], { cwd: APP, encoding: "utf8" });
   assert.equal(res.status, 1);
   assert.match(res.stderr, /never served/);
   assert.equal(fs.existsSync(path.join(APP, "public/data/social/x.json")), false);
@@ -290,7 +316,7 @@ test("a value that differs between the website and the official snapshot refuses
   nba.snapshots.set(id, { snapshot: snap, refusal: null });
   assert.throws(() => buildNbaGraphicsExport(nba), /lane median .* official snapshot/);
 
-  const nfl = nflExportArgs({ seasonType: 2, week: 8, asOf: FRIDAY });
+  const nfl = nflExportArgs({ seasonType: 2, week: 8, asOf: FRIDAY, ...AT });
   const top = nflFriday.rows[0];
   const view = nfl.views.find((v) => String(v.providerEventId) === top.identity.eventId);
   const fams = view.players.find((p) => p.playerId === top.identity.playerId).families;

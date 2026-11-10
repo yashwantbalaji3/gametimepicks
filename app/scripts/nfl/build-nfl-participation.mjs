@@ -25,7 +25,8 @@
  * Writes: data/internal/nfl/participation/<date>/<providerEventId>.json   (append-only revisions)
  *         app/public/data/nfl/participation-summary.json                  (PUBLIC_DERIVED)
  */
-import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
+import { opportunityEligibility, teamIdsFromRoster } from "../../src/lib/sports/nfl/participation-eligibility.mjs";
+import { eligibilityText } from "../../src/lib/availability/eligibility.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -133,19 +134,25 @@ const activesSource = read(path.join(ROOT, "data/internal/research/nfl/actives/c
  * no reason attached is how a board loses a player nobody can account for.
  */
 const injuries = read(path.join(ROOT, "data/internal/research/injuries/nfl/latest.json"));
-/* Blocking statuses come from the contract's own vocabulary (injuries/contract.mjs). The hand-written
-   regex this replaces missed "Suspension" — seventh letter s, not d — so suspended players read as available. */
-const blockedById = new Map();
-for (const e of injuries?.entries ?? []) {
-  if (!e?.athleteId || !isBlockingStatus(e.status)) continue;
-  blockedById.set(`nfl-athlete-${e.athleteId}`, { status: e.status, statedAt: e.statedAt ?? null, name: e.athleteName ?? null });
-}
+/*
+ * ELIGIBILITY CONTRACT v1 (2026-11-09, INC-2026-11-08-01). "In ONE direction" was the defect: anyone the feed did not
+ * list kept a share, and the feed is a capped rolling list — De'Von Achane's season-ending IR fell off it and he was
+ * projected for a starter's carries. A player now keeps a share only when the contract resolves him ELIGIBLE from the
+ * injuries capture AND the roster capture (lib/availability/eligibility.mjs); INELIGIBLE and UNKNOWN are removed before
+ * ranking and recorded with { state, contractVersion, sources }.
+ */
+const rosterCapture = read(path.join(APP, "public/data/nfl/rosters/latest.json"));
+const eligibilityCtx = { asOf: NOW, injuries, roster: rosterCapture, teamIdByAbbr: teamIdsFromRoster(rosterCapture) };
 /*
  * FAIL LOUD IF THE FEED IS UNREADABLE. An empty blocked set because the capture is missing looks
  * exactly like a healthy week with nobody hurt, and would restore the defect silently.
  */
 if (!injuries?.entries) {
   console.error("REFUSED: injuries capture unreadable — participation will not be built as if nobody were injured");
+  process.exit(2);
+}
+if (!Array.isArray(rosterCapture?.teams)) {
+  console.error("REFUSED: roster capture unreadable — the eligibility contract needs both sources (R2/R3)");
   process.exit(2);
 }
 let excluded = [];
@@ -179,7 +186,7 @@ const refused = [];
 
 /* INPUTS MUST PRECEDE KICKOFF (event-window contract; 2026-10-25 PIT @ NO): an event whose injuries or rosters capture
    is stamped (sourceAsOf) at/after its kickoff gets no rewrite — its pre-kickoff participation record stands. */
-const stampInputs = { injuries, rosters: read(path.join(APP, "public/data/nfl/rosters/latest.json")) };
+const stampInputs = { injuries, rosters: rosterCapture };
 for (const ev of events) {
   const lateInputs = postKickoffInputs(stampInputs, ev.dateUtc);
   if (lateInputs.length) {
@@ -200,13 +207,18 @@ for (const ev of events) {
     for (const m of MARKETS) {
       // Rank by the regular-season share — the ONLY thing it is used for now. Ineligible players
       // are removed BEFORE ranking, so the depth order below describes who can actually play.
+      const eligibilityOf = new Map();
       const eligible = (teamRoles[m]?.players ?? []).filter((p) => {
-        const block = blockedById.get(p.playerId);
-        if (!block) return true;
+        const e = opportunityEligibility(p, abbr, eligibilityCtx);
+        eligibilityOf.set(p.playerId, e.eligibility);
+        if (e.eligible) return true;
+        const src = e.eligibility.sources;
         excluded.push({
-          playerId: p.playerId, name: p.name ?? block.name, team: abbr, market: m,
-          status: block.status, statedAt: block.statedAt,
-          reason: `injuries capture designates ${block.status}${block.statedAt ? ` (stated ${block.statedAt})` : ""} — ineligible players carry no opportunity share`,
+          playerId: p.playerId, name: p.name ?? null, team: abbr, market: m,
+          // dated by the evidence: the designation's own statement, or else the roster capture that gave the status
+          status: src.injuries.status ?? (src.roster.status ? `roster ${src.roster.status}` : e.eligibility.state), statedAt: src.injuries.statedAt ?? src.roster.fetchedAt ?? src.injuries.fetchedAt,
+          state: e.eligibility.state, eligibility: e.eligibility,
+          reason: `${eligibilityText(e.eligibility)} — only a player cleared to play carries an opportunity share`,
         });
         return false;
       });
@@ -220,6 +232,7 @@ for (const ev of events) {
           position: p.position ?? null,
           state,
           stateReason: "no registered actives, inactives, depth-chart or coach-statement source covers this window, so participation cannot be confirmed — this is a refusal with a named cause, not an estimate",
+          eligibility: eligibilityOf.get(p.playerId),
           depthRank: rankIndex + 1,
           regularSeasonShare: r4(p.share),
           preseasonShare: shareForRank(m, rankIndex),
@@ -287,7 +300,11 @@ for (const ev of events) {
     inputStamps: inputStampsOf(stampInputs),
     cutoffSafe: Date.parse(roleShares.rosterAsOf) < Date.parse(ev.dateUtc),
   };
-  body.inputHash = crypto.createHash("md5").update(JSON.stringify({ e: ev.providerEventId, r: roleShares.generatedAt, f: RANK_SHARES, v: SHARE_MODEL_VERSION })).digest("hex").slice(0, 16);
+  /* the eligibility STATES (never the source stamps, which change every capture) — a state change rewrites the event */
+  const states = Object.values(teams).flatMap((t) => Object.values(t.markets).flatMap((mk) => mk.players.map((p) => `${p.playerId}:${p.eligibility?.state}`)))
+    .concat(body.excludedIneligible.map((x) => `${x.playerId}:${x.state}`)).sort();
+  body.eligibilityHash = crypto.createHash("md5").update(JSON.stringify([...new Set(states)])).digest("hex").slice(0, 16);
+  body.inputHash = crypto.createHash("md5").update(JSON.stringify({ e: ev.providerEventId, r: roleShares.generatedAt, f: RANK_SHARES, v: SHARE_MODEL_VERSION, el: body.eligibilityHash })).digest("hex").slice(0, 16);
 
   const day = ev.dateUtc.slice(0, 10);
   const dir = path.join(ROOT, "data/internal/nfl/participation", day);
@@ -301,7 +318,10 @@ for (const ev of events) {
       // reader sees. Program 182's shares were wrong by more than a factor of four; leaving them in
       // place as the base file while a correction sat beside it would publish the known-wrong one.
       fs.writeFileSync(path.join(dir, `${ev.providerEventId}-superseded-${(existing?.generatedAt ?? "unknown").slice(11, 16).replace(":", "")}Z.json`), JSON.stringify(existing, null, 1) + "\n");
-      fs.writeFileSync(base, JSON.stringify({ ...body, supersedes: existing?.inputHash ?? null, correction: "Program 182 derived preseason shares by multiplying a regular-season share by an invented rotation factor. The corpus says the leading preseason passer takes 56.7% of team attempts, not the 12.8% that produced. Shares are now MEASURED by depth rank." }, null, 1) + "\n");
+      const eligibilityChanged = existing?.eligibilityHash !== body.eligibilityHash;
+      fs.writeFileSync(base, JSON.stringify({ ...body, supersedes: existing?.inputHash ?? null, ...(eligibilityChanged
+        ? { correction: "Player eligibility changed (eligibility contract v1: injuries + roster captures). Only ELIGIBLE players carry an opportunity share; the excluded players are listed with their state and sources." }
+        : { correction: "Program 182 derived preseason shares by multiplying a regular-season share by an invented rotation factor. The corpus says the leading preseason passer takes 56.7% of team attempts, not the 12.8% that produced. Shares are now MEASURED by depth rank." }) }, null, 1) + "\n");
     }
   } else {
     fs.writeFileSync(base, JSON.stringify(body, null, 1) + "\n");

@@ -772,7 +772,10 @@ function nbaSection(date: string, today: string): SportDaySection {
       sport: "nba", id: `nba:${e.canonicalEventId ?? e.providerEventId}`,
       matchup: `${away} @ ${home}`, away: { name: away, logo: null }, home: { name: home, logo: null },
       startUtc: e.scheduledStartUtc ?? null, startLabel: e.scheduledStartUtc ? etTime(e.scheduledStartUtc) : "TBD",
-      venue: e.venue ?? null, state: "SCHEDULE_ONLY",
+      /* WEB-09 (2026-11-09): a game the day's lane file covers has its Official Forecast (and Game Simulation) published,
+         so it is a ready model report, not "schedule only" — /simulate said "1 of 9 events have a report ready" on a day
+         with eight published NBA forecasts. No market is shown for NBA here, hence MODEL_ONLY_NO_MARKET. */
+      venue: e.venue ?? null, state: published ? "MODEL_ONLY_NO_MARKET" : "SCHEDULE_ONLY",
       stateReason: published
         ? `${PUBLIC_TERMS.OFFICIAL_FORECAST} published — favoured side and player medians, with a ${PUBLIC_TERMS.GAME_SIMULATION} on the game's card.`
         : date >= today ? availabilityLine("nba", "officialForecast") : `No ${PUBLIC_TERMS.OFFICIAL_FORECAST} was published for this game.`,

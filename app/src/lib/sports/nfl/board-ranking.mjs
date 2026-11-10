@@ -22,6 +22,8 @@
  * Pure: no IO.
  */
 
+import { NOT_FEATURABLE_FLAGS } from "../../availability/eligibility.mjs";
+
 /**
  * Board participation states that are CLEARED to rank on a public top board: no published designation.
  * AVAILABLE_ROLE_UNCERTAIN is the model's own role caveat (no source confirms roles), not an injury fact.
@@ -29,6 +31,13 @@
  * missing string — is blocked. An allowlist, so a new state is blocked until someone decides otherwise.
  */
 export const PUBLIC_BOARD_CLEARED = Object.freeze(["AVAILABLE_ROLE_UNCERTAIN", "ACTIVE_PROJECTED"]);
+/**
+ * Eligibility contract v1 cut-over: boards generated at or after this instant must carry `eligibility` on every row.
+ * The release owner sets it to the release instant (the first board built by the contract-aware builder).
+ */
+export const ELIGIBILITY_REQUIRED_FROM = "2026-11-10T00:00:00Z";
+/** Does this board fall under the eligibility contract? (a board with no parseable generatedAt does — fail closed) */
+export const eligibilityRequired = (board) => { const t = Date.parse(board?.generatedAt ?? ""); return !Number.isFinite(t) || t >= Date.parse(ELIGIBILITY_REQUIRED_FROM); };
 /** The injuries feed's own freshness policy (season-context.mjs: injuries 24 h). */
 export const AVAILABILITY_MAX_AGE_MS = 24 * 3600 * 1000;
 /** A capture stamped this far AFTER the ranking instant is a clock conflict, not a fresher read. */
@@ -64,6 +73,17 @@ export function publicBoardEligibility(player, board, asOf) {
   const p = player?.participation;
   if (typeof p !== "string" || !p) return { eligible: false, reason: "UNKNOWN" };
   if (!PUBLIC_BOARD_CLEARED.includes(p)) return { eligible: false, reason: p };
+  /* ELIGIBILITY CONTRACT v1 (2026-11-09): a top board ranks only rows the contract resolved ELIGIBLE with no R6 flag.
+     FORWARD ONLY: a board generated on or after ELIGIBILITY_REQUIRED_FROM must carry a record on every row, and a row
+     without one is UNKNOWN — missing evidence is never a pass (INC-2026-11-08-01). An earlier, frozen board ranks
+     exactly as it did when it was published. */
+  // a row that CARRIES a record is judged by it whatever the board's date; a row without one only before the cut-over
+  const e = player?.eligibility;
+  if (!e && !eligibilityRequired(board)) return { eligible: true, reason: null };
+  if (!e || typeof e.state !== "string") return { eligible: false, reason: "ELIGIBILITY_MISSING" };
+  if (e.state !== "ELIGIBLE") return { eligible: false, reason: `ELIGIBILITY_${e.state}` };
+  const held = (e.flags ?? []).find((f) => NOT_FEATURABLE_FLAGS.includes(f));
+  if (held) return { eligible: false, reason: `ELIGIBILITY_${held}` };
   return { eligible: true, reason: null };
 }
 

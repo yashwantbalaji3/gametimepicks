@@ -144,7 +144,21 @@ jobs:
             exit 0
           fi
           npx tsx scripts/epl/capture-epl-fixtures.mjs --now "$NOW" --from "$TXT" || \
-            echo "fixtures unchanged, provisional, or unavailable this run — the previous capture stands"
+            echo "fixture list unchanged, provisional, or unavailable this run — the previous capture stands for MEMBERSHIP only; kickoff times come from ESPN (next step) and a fixture ESPN cannot confirm is withheld"
+
+      # ── KICKOFF TIMES: ESPN, NOT THE FIXTURE LIST (founder Option A, 2026-11-09) ─────────────────
+      #
+      # openfootball's 2026-27 file only ever carried each round's provisional "Saturday 15:00" block, and from
+      # 2026-11-03 every published EPL forecast carried that placeholder (Matchweek 10 ran Fri 20:00Z → Sun 16:30Z).
+      # build-epl-forecasts and the results bridge now confirm every kickoff against ESPN eng.1's scheduled events;
+      # if this capture fails, the previous one ages out after 36 h and every fixture reads "kickoff not confirmed"
+      # (withheld) — a provisional slot is never republished as confirmed.
+      - name: Capture ESPN kickoff times (authoritative; unconfirmed fixtures are withheld)
+        working-directory: app
+        run: |
+          set -uo pipefail
+          node scripts/epl/capture-epl-espn-schedule.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" || \
+            echo "ESPN schedule unavailable — the previous capture ages out; fixtures without a confirmed kickoff are withheld (kickoff not confirmed)"
 
       # Prices, under docs/receipts/ODDS_AUTHORIZATION_EPL.md: EPL only, h2h + totals, us region,
       # bulk endpoint only, 500-credit cumulative ceiling, its own ledger. The receipt cannot fund an

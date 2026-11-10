@@ -6,6 +6,8 @@
  * No Plus100 builder, no audit logs, no unrelated projections. Presentation only — the bankroll /
  * ledger are read from the public artifact and never mutated here. Paper-only, educational.
  */
+import LaneStatus from "@/components/challenge-lanes/lane-status";
+import { loadProductLaneStatus } from "@/lib/products/challenge-lanes/load-lane-status.mjs";
 import RecordComposition from "@/components/bank-builder/record-composition";
 import { loadFoldBacklog } from "@/lib/mr-dub/fold-backlog-view";
 import Link from "next/link";
@@ -488,6 +490,8 @@ export default function BankBuilderPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
+      {/* Challenge lanes (site slice 2026-11-09): the canonical lane projections, read through the engine's public reader. */}
+      <LaneStatus product="bank-builder" lanes={loadProductLaneStatus("bank-builder") as Parameters<typeof LaneStatus>[0]["lanes"]} />
       {/* Operating state from THIS product's own artifact (Program 140). The badge previously took
           the MLB slate date, which the daily board keeps current, so a fifteen-day-old set of cards
           rendered under "Live today". `deriveProductState` cannot produce a live label without a

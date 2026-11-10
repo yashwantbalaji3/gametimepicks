@@ -11,6 +11,7 @@ import path from "node:path";
 import { REP_STATE, dedupeRuns, nflOfficial, snapshotOrRefusal, withNbaRepresentative, withNflRepresentative } from "./official-representative.mjs";
 import { NO_OFFICIAL_NBA, NO_OFFICIAL_NFL, OFFICIAL_RUN_TITLE, RECONCILIATION_NOTE, WHAT_IF_BANNER, WHAT_IF_TAG, officialRunIndex, officialRunLine, runRole, teamComparison, whatIfLine } from "./representative-labels.mjs";
 import { loadTheater, nflTheaterOfficial, readNflOfficialInputs } from "./loader.mjs";
+import { nflOfficialOfRecord } from "../sports/nfl/official-of-record.mjs";
 import { defaultChip, defaultSample, publicTheaterLoad } from "./public-theater.mjs";
 import { packTheater, unpackTheater } from "./theater-pack.mjs";
 import { readShadowReceipts, simulationOfRecord } from "../sports/nfl/sim-v2/public-receipt.mjs";
@@ -172,7 +173,10 @@ test("NFL 401873008: the theater opens on the official representative, measured 
   const rep = t.manifest.representative;
   assert.equal(rep.state, REP_STATE.SELECTED);
   const rec = forecastOfRecord(inputs.receipts).get(ID);
-  assert.equal(rep.official.source, rec.file, "the official target is the forecast of record");
+  // CANON-01: the target is the NFL official forecast of record (official-of-record.mjs, the game page's selector) — the
+  // same revision the receipts' forecastOfRecord names, so the numbers below are that receipt's
+  assert.equal(Date.parse(rep.official.generatedAt), Date.parse(rec.receipt.generatedAt), "the official target is the forecast of record's revision");
+  assert.equal(rep.official.snapshotId, nflOfficialOfRecord(path.join(REPO, "app", "public"), ID).snapshot.snapshotId, "one snapshot id with the game page");
   const s = rec.receipt.forecastSummary;
   assert.equal(rep.official.pHome, s.winProbability.homeUnrounded ?? s.winProbability.home);
   assert.equal(rep.official.projectedScore.home, s.projectedScore.home);

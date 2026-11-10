@@ -28,6 +28,9 @@ import { loadEplCorpus } from "../../src/lib/sports/epl/corpus.mjs";
 import { loadEplGradedRecord } from "../../src/lib/sports/epl/graded-record.ts";
 import { splitEplGradedByModel, eplTrackRecordSentence, eplGradedRecordField } from "../../src/lib/soccer/epl-graded-by-model.mjs";
 import { runEplShadow } from "../../src/lib/sports/epl/shadow-run.mjs";
+import { buildEplClubIndex } from "../../src/lib/soccer/epl-clubs.ts";
+import { identityFromFixture } from "../../src/lib/soccer/epl-identity.ts";
+import { ESPN_SCHEDULE_FILE, confirmFixtureKickoffs, unplayedConfirmed } from "../../src/lib/sports/epl/kickoff-truth.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const REPO = path.resolve(APP, "..");
@@ -62,6 +65,23 @@ const capFile = fs.readdirSync(path.join(EPL, "fixtures"))
 if (!capFile) { console.error("no committed season capture — nothing to forecast"); process.exit(2); }
 console.log(`fixtures: ${capFile}`);
 const season = readJson(path.join(EPL, "fixtures", capFile));
+
+/*
+ * KICKOFF TRUTH (founder Option A, 2026-11-09). The capture's kickoffs come from openfootball, whose 2026-27 file only
+ * ever carried each round's provisional "Saturday 15:00" block — from 2026-11-03 every published row had that
+ * placeholder (Matchweek 10 actually ran Fri 20:00Z → Sun 16:30Z). Each fixture's kickoff is now CONFIRMED against
+ * ESPN eng.1's scheduled event (lib/sports/epl/kickoff-truth.mjs), its canonical eventId rebuilt at the confirmed
+ * minute; a fixture ESPN cannot confirm is withheld with "kickoff not confirmed" — never published, frozen or graded
+ * on a provisional time.
+ */
+const espnSchedule = (() => { try { return readJson(path.join(EPL, ESPN_SCHEDULE_FILE)); } catch { return null; } })();
+const clubIndex = buildEplClubIndex();
+const kickoffs = confirmFixtureKickoffs(season.rows ?? [], espnSchedule, {
+  resolve: (n) => clubIndex.resolve(n),
+  rebuildId: (f, kickoffIso) => { const o = identityFromFixture({ homeClub: f.homeClub, awayClub: f.awayClub, kickoffIso, status: "SCHEDULED" }, NOW, clubIndex); return "identity" in o ? o.identity.eventId : null; },
+  nowIso: NOW,
+});
+console.log(`kickoffs: ESPN schedule ${kickoffs.scheduleState}${espnSchedule ? ` (captured ${espnSchedule.capturedAt})` : ""} · ${kickoffs.confirmed.length} confirmed · ${kickoffs.unverified.length} unverified`);
 
 /* Odds are OPTIONAL by design: without them every fixture lands on READY_EXCEPT_ODDS with its reason
    stated, which is honest. Absent odds must never become approximated odds. */
@@ -111,15 +131,17 @@ const nowMs = Date.parse(NOW);
  * runs while unplayed (the grader keeps the pre-kickoff revision), so earlier generation only
  * means an earlier honest snapshot, refreshed daily until lock.
  */
-const unplayed = (season.rows ?? []).filter((f) => {
-  const k = Date.parse(f.kickoffIso ?? "");
-  return Number.isFinite(k) && k > nowMs;
-});
+const unplayed = unplayedConfirmed(kickoffs.confirmed, NOW);
 const currentMw = unplayed.length ? Math.min(...unplayed.map((f) => Number(f.matchweek) || Infinity)) : null;
 const upcoming = unplayed.filter((f) => {
   const k = Date.parse(f.kickoffIso ?? "");
   return Number(f.matchweek) === currentMw || k <= nowMs + LOOKAHEAD_H * 3600_000;
 });
+/* Fixtures of the current round (or earlier stragglers) that ESPN could not confirm: listed with their reason, never forecast. */
+const unverifiedKickoffs = kickoffs.unverified
+  .filter((f) => Date.parse(f.kickoffIso ?? "") > nowMs - 7 * 86_400_000 && (currentMw == null || (Number(f.matchweek) || Infinity) <= currentMw))
+  .map((f) => ({ matchup: `${f.homeClub} v ${f.awayClub}`, matchweek: f.matchweek ?? null, provisionalKickoffUtc: f.kickoffIso ?? null, state: f.kickoffState, reason: f.reason }));
+if (unverifiedKickoffs.length) console.log(`withheld (kickoff not confirmed): ${unverifiedKickoffs.map((u) => u.matchup).join("; ")}`);
 if (currentMw != null) {
   console.log(`eligibility: matchweek ${currentMw} (${upcoming.filter((f) => Number(f.matchweek) === currentMw).length} unplayed fixture(s)) + ${LOOKAHEAD_H}h backstop`);
 }
@@ -149,6 +171,8 @@ const rows = upcoming.map((fixture) => {
     awayClub: fixture.awayClub,
     slug: fixtureSlug(fixture),
     kickoffUtc: fixture.kickoffIso,
+    kickoffSource: fixture.kickoffSource,
+    espnEventId: fixture.espnEventId,
     matchweek: fixture.matchweek ?? null,
     state: out.state,
     rule: out.rule ?? null,
@@ -275,6 +299,8 @@ const artifact = {
   oddsCapturedAt: oddsSnapshot?.capturedAt ?? null,
   fixturesConsidered: upcoming.length,
   counts,
+  kickoffSource: { source: "ESPN eng.1 scheduled events", scheduleState: kickoffs.scheduleState, scheduleCapturedAt: espnSchedule?.capturedAt ?? null },
+  unverifiedKickoffs,
   gradedRecord: eplGradedRecordField(gradedSplit),
   /* Named so a reader can see WHY a fixture is absent from the priced set. */
   rows,
@@ -298,6 +324,9 @@ const publicRows = rows.map((r) => ({
   awayClub: r.awayClub,
   slug: r.slug,
   kickoffUtc: r.kickoffUtc,
+  /* Option A: the kickoff's source (ESPN) and ESPN's event id — the player lane joins lineups by it, not by a date guess. */
+  kickoffSource: r.kickoffSource,
+  espnEventId: r.espnEventId,
   matchweek: r.matchweek,
   state: r.state,
   /* A fixture we could not price says so, with its reason, instead of vanishing from the list. */
@@ -349,6 +378,9 @@ const publicArtifact = {
   generatedAt: NOW,
   oddsCapturedAt: oddsSnapshot?.capturedAt ?? null,
   counts,
+  /* Every row's kickoff is ESPN-confirmed; a fixture ESPN could not confirm is listed here, with no forecast. */
+  kickoffSource: { source: "ESPN eng.1 scheduled events", scheduleState: kickoffs.scheduleState, scheduleCapturedAt: espnSchedule?.capturedAt ?? null },
+  unverifiedKickoffs,
   /*
    * These two strings are the contract with the reader. A guard pins them.
    *

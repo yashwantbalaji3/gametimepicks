@@ -21,7 +21,9 @@ const allMarkets = (v) => ({
   player_reception_yds: { median: v, mean: v },
   player_pass_yds: { median: v * 3, mean: v * 3 },
 });
-const player = (id, v, participation = "AVAILABLE_ROLE_UNCERTAIN") => ({ playerId: id, name: id, team: "AAA", participation, markets: allMarkets(v) });
+/* a contract-era row (eligibility contract v1): the board's builder stamps every row it publishes */
+const ELIGIBLE = Object.freeze({ state: "ELIGIBLE", reasons: ["ROSTER_ACTIVE"], contractVersion: "eligibility@1", sources: {} });
+const player = (id, v, participation = "AVAILABLE_ROLE_UNCERTAIN", eligibility = ELIGIBLE) => ({ playerId: id, name: id, team: "AAA", participation, markets: allMarkets(v), ...(eligibility ? { eligibility } : {}) });
 const board = (players, availability = AVAIL) => ({ providerEventId: "9", matchup: "AAA @ BBB", kickoffUtc: "2031-10-05T17:00Z", availability, players });
 const ids = (boards, family = "player_reception_yds", opts = { asOf: AS_OF }) => rankFamily(boards, family, BOARD_METRIC[family], opts).map((x) => x.player.playerId);
 
@@ -91,4 +93,19 @@ test("every public top list reads the ONE allowlist (no INACTIVE-only filter sur
   const producer = src("scripts/nfl/build-nfl-player-board.mjs");
   assert.match(producer, /availability: \{\s*injuriesCapturedAt: injuriesArtifact\.generatedAt/, "the per-game board records its availability read");
   assert.match(src("scripts/nfl/build-end-zone-vault.mjs"), /role\?\.state === "QUESTIONABLE"\) \{\s*withheld\.push/, "the Vault withholds a questionable player");
+});
+
+test("eligibility contract v1: on a contract-era board, only ELIGIBLE rows with no R6 flag rank; a missing record fails closed; a pre-contract board ranks as published", () => {
+  const e = (state, flags) => ({ state, reasons: [], ...(flags ? { flags } : {}), contractVersion: "eligibility@1", sources: {} });
+  const rows = [player("unk", 900, undefined, e("UNKNOWN")), player("inel", 800, undefined, e("INELIGIBLE")), player("q", 700, undefined, e("ELIGIBLE", ["QUESTIONABLE"])), player("none", 600, undefined, null), player("dis", 650, undefined, e("ELIGIBLE", ["SOURCES_DISAGREE"])), player("ok", 50)];
+  assert.deepEqual(ids([{ ...board(rows), generatedAt: "2031-10-05T09:00:00Z" }]), ["ok"]);
+  const blocked = [];
+  rankFamily([{ ...board(rows), generatedAt: "2031-10-05T09:00:00Z" }], "player_reception_yds", "median", { asOf: AS_OF, blocked });
+  assert.deepEqual(blocked.map((b) => b.reason).sort(), ["ELIGIBILITY_INELIGIBLE", "ELIGIBILITY_MISSING", "ELIGIBILITY_QUESTIONABLE", "ELIGIBILITY_SOURCES_DISAGREE", "ELIGIBILITY_UNKNOWN"]);
+  // a row that carries a record is judged by it even on a pre-cut-over board (the founder's R3a hold is never skipped)
+  const early = { ...board([player("dis", 650, undefined, e("ELIGIBLE", ["SOURCES_DISAGREE"])), player("ok", 50)]), generatedAt: "2026-11-01T12:00:00Z", availability: { ...AVAIL, injuriesCapturedAt: "2026-11-01T11:00:00Z" } };
+  assert.deepEqual(rankFamily([early], "player_reception_yds", "median", { asOf: "2026-11-01T12:00:00Z" }).map((x) => x.player.playerId), ["ok"]);
+  // a board published before the cut-over (no record on any row) ranks exactly as it did
+  const legacy = { ...board([player("a", 500, undefined, null), player("b", 50, undefined, null)]), generatedAt: "2026-11-01T12:00:00Z", availability: { ...AVAIL, injuriesCapturedAt: "2026-11-01T11:00:00Z" } };
+  assert.deepEqual(rankFamily([legacy], "player_reception_yds", "median", { asOf: "2026-11-01T12:00:00Z" }).map((x) => x.player.playerId), ["a", "b"]);
 });
