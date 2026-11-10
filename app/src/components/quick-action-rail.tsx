@@ -49,7 +49,7 @@ const DEFAULT_CARDS: QuickActionCard[] = [
   {
     href: "/build",
     eyebrow: "Suggested cards",
-    title: "Parlay Center",
+    title: "Parlay Lab",
     sub: "Lower-correlation educational slips.",
   },
 ];

@@ -271,7 +271,7 @@ function routePlan(user) {
     push("getNflProductEligibility", fam ? { family: fam } : {});
     return { intent: "PRODUCT_CARDS", needsClarification: false, clarification: null, calls };
   }
-  /* Session 5 · the OFFICIAL published cards — today's (or a named day's) Suggested Parlays, Bank Builder, Moonshot.
+  /* Session 5 · the OFFICIAL published cards — today's (or a named day's) Parlay Lab, Bank Builder, Moonshot.
      After the record branch (a product's record is getProductRecord) and before site help ("what is today's …"). */
   const officialProduct = has("bank builder", "bank-builder") ? "BANK_BUILDER" : has("moonshot") ? "MOONSHOT"
     : has("suggested parlay", "suggested card", "lowest-risk", "lowest risk") ? "SUGGESTED_PARLAYS" : null;

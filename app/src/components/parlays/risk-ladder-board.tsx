@@ -251,7 +251,7 @@ function LadderCardView({ card, pool, unit }: { card: LadderCard; pool: readonly
 
 export default function RiskLadderBoard({
   cards, skipped, overallRoi, gradedDays, pool = [], bettorTiers = [], ledger = null, entryShowsTitle = true,
-  grid = null, slateDate = null, replay = null, recordSince = null,
+  grid = null, slateDate = null, replay = null, recordSince = null, offSeason = null,
 }: {
   cards: readonly LadderCard[];
   /**
@@ -293,11 +293,17 @@ export default function RiskLadderBoard({
   recordSince?: string | null;
   /** False on /build, whose page title is already "Parlay Lab". */
   entryShowsTitle?: boolean;
+  /**
+   * UX-07 (2026-11-09): the ladder is MLB's. In the MLB off-season the four tiers used to print the same "MLB season is
+   * over" card four times — on an NBA/NFL night, a dead end. One card now says so once, names the sports that do have
+   * model suggestions today, and links to them.
+   */
+  offSeason?: { reason: string; otherSports: readonly string[]; suggestionsHref: string | null } | null;
 }) {
   const { prefs } = useReaderPrefs();
   const unit = unitStake(prefs);
 
-  if (cards.length === 0 && skipped.length === 0) return null;
+  if (cards.length === 0 && skipped.length === 0 && !offSeason) return null;
 
   /*
    * A stated tolerance REORDERS; it never hides. Filtering the other tiers out would let a reader
@@ -394,6 +400,21 @@ export default function RiskLadderBoard({
           </article>
         ))}
 
+        {offSeason ? (
+          <article className="flex flex-col gap-1.5 rounded-[14px] p-3.5 md:col-span-2 xl:col-span-4" data-ladder-off-season=""
+            style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-rule)" }}>
+            <span className="font-mono uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+              MLB risk tiers · off-season
+            </span>
+            <span style={{ color: "var(--vault-text-mute)", fontSize: 12 }}>No MLB tier cards until the next season.</span>
+            <span style={{ color: "var(--vault-text-faint)", fontSize: 11, lineHeight: 1.5 }}>{offSeason.reason}</span>
+            {offSeason.otherSports.length && offSeason.suggestionsHref ? (
+              <a href={offSeason.suggestionsHref} className="underline" style={{ color: "var(--vault-text)", fontSize: 12.5 }} data-ladder-off-season-next="">
+                Today&apos;s {offSeason.otherSports.join(" and ")} model suggestions ↓
+              </a>
+            ) : null}
+          </article>
+        ) : null}
         {skipped.map((s) => (
           <article key={s.tier} className="flex flex-col gap-1.5 rounded-[14px] p-3.5"
             style={{ background: "color-mix(in srgb, var(--vault-wash-base) 1.5%, transparent)", border: "1px dashed var(--vault-rule)" }}>

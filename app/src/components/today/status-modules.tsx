@@ -3,7 +3,7 @@
  * hardcode a count, dollar value, step, or record: every figure arrives pre-formatted from the server
  * page's canonical loaders.
  *
- *   5 · BuildAPickModule   — daily suggested-card status + count → /build (label "Parlay Center", P208).
+ *   5 · BuildAPickModule   — daily suggested-card status + count → /build (label "Parlay Lab", P208).
  *   6 · BankBuilderStatus  — step + status + stake/rolled + open exposure + no-play reason → /bank-builder.
  *   7 · LongshotLabStatus  — no-play / unavailable / active + reason → /moonshot (label "Longshot Lab").
  *   8 · NoPlayNotes        — trust-building discipline notes (no-play is a decision, not a failure).
@@ -59,11 +59,11 @@ export function BuildAPickModule({ status, suggestedLine, note }: { status: stri
   return (
     <StatusCard
       eyebrow="Suggested cards"
-      title="Parlay Center"
+      title="Parlay Lab"
       value={status}
       valueTone={/no|none|0/i.test(status) ? "mute" : "gold"}
       lines={[suggestedLine, note]}
-      ctaLabel="Open Parlay Center"
+      ctaLabel="Open Parlay Lab"
       ctaHref="/build"
     />
   );

@@ -136,14 +136,15 @@ export function RunSelector({ runs, selected, onSelect, idBase }: { runs: PbRun[
   );
 }
 
-export function RunRole({ run, central = null, teams = null }: { run: PbRun; central?: PbPayload["selection"]["central"]; teams?: Teams | null }) {
-  const share = teams ? poolShareLine(teams, central ?? null) : null;
+/* UX-03 (2026-11-09): the engine's own win share across its simulated games ("ATL won 48.5% and LAL 51.5%") left the run
+   panel beside the Official Forecast — it read as a second, sometimes opposite favourite. It is printed once, unchanged,
+   in HypotheticalSimulationResult below the run's box score. */
+export function RunRole({ run, central = null }: { run: PbRun; central?: PbPayload["selection"]["central"]; teams?: Teams | null }) {
   if (run.role === "CENTRAL_SCENARIO") {
     return (
       <div className="nbp-role" role="note" data-nbp-role="central">
         <p><b>{DEFAULT_RUN_TITLE} · run {run.runIndex}</b> · {DEFAULT_RUN_SUBTITLE}</p>
         <p className="nbp-note">Chosen by rule, not by hand: {central?.rule ?? run.rule}.</p>
-        {share ? <p className="nbp-note" data-nbp-pool-share="">{share}</p> : null}
       </div>
     );
   }
@@ -151,8 +152,21 @@ export function RunRole({ run, central = null, teams = null }: { run: PbRun; cen
     <div className="nbp-role is-whatif" role="note" data-nbp-role="what-if">
       <p className="nbp-whatif-banner" data-nbp-whatif-banner="">{WHAT_IF_BANNER}</p>
       <p><b>{SCENARIO_LABEL} · {run.title}</b> · one stored run, picked by rule: {run.rule}.</p>
-      {share ? <p className="nbp-note" data-nbp-pool-share="">{share}</p> : null}
     </div>
+  );
+}
+
+export const HYPOTHETICAL_RESULT_TITLE = "Simulation (hypothetical)";
+/** The engine's own result across its simulated games — below the run, labelled hypothetical, numbers verbatim. */
+export function HypotheticalSimulationResult({ teams, central = null, idBase }: { teams: Teams; central?: PbPayload["selection"]["central"]; idBase: string }) {
+  const share = poolShareLine(teams, central ?? null);
+  if (!share) return null;
+  return (
+    <section className="nbp-panel is-outcome" style={{ marginTop: 12 }} aria-labelledby={`${idBase}-hypo`} data-nbp-hypothetical-result="">
+      <h2 id={`${idBase}-hypo`}>{HYPOTHETICAL_RESULT_TITLE}</h2>
+      <p className="nbp-note" style={{ marginTop: 0 }} data-nbp-pool-share="">{share}</p>
+      <p className="nbp-note">A research engine&apos;s hypothetical games, not a forecast. The favoured side at the top of this page is the one GameTimePicks Official Forecast; this result never changes it.</p>
+    </section>
   );
 }
 

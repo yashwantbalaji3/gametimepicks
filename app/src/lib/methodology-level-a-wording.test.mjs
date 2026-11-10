@@ -25,7 +25,7 @@ test("the registry still has sports that are Level A OPEN but not paper-ladder e
 test("the Paper products row and both summary sentences read the Level A axis from the registry, not a typed list", () => {
   assert.match(page, /import \{ canEnterModelSuggestions \} from "@\/lib\/sport-capability-registry";/);
   const row = page.slice(page.indexOf('["Paper products"'), page.indexOf("\n", page.indexOf('["Paper products"')));
-  assert.match(row, /suggestionOnly\(sp\) \? "Never enters the paper ladders\. Its official picks appear in Bank Builder, Moonshot and the Parlay Center only as unpriced model suggestions \(no price, no payout\)\."/);
+  assert.match(row, /suggestionOnly\(sp\) \? "Never enters the paper ladders\. Its official picks appear in Bank Builder, Moonshot and the Parlay Lab only as unpriced model suggestions \(no price, no payout\)\."/);
   assert.match(row, /: "Never enters Bank Builder, Moonshot or Parlays\."\]/, "a CLOSED sport keeps the plain statement");
   assert.match(page, /Separately, \$\{andList\(suggestionSports\.map/);
   assert.match(page, /picks are shown there only as unpriced model suggestions/);

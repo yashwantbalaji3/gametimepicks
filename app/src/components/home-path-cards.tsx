@@ -2,7 +2,7 @@
  * HomePathCards — compact "Where do you want to start?" launcher.
  *
  * A row of plain-language entry cards that map the app to the five clear
- * user paths (Straight Bets · Suggested Parlays · Build Your Own · Bank
+ * user paths (Straight Bets · Parlay Lab · Build Your Own · Bank
  * Builder · Results). Pure navigation: server component, just <Link>s, so
  * any status passed in is computed server-side from the SAME honest
  * loaders the rest of the app uses — never fabricated. Uses the gold/vault

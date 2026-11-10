@@ -71,6 +71,7 @@ import { currentProductRecord } from "@/lib/results/current-record";
 import { scopedRecordText } from "@/lib/results/current-record";
 import { buildSimulateDay, simulationReadyCount } from "@/lib/simulate/day-view";
 import LiveNow from "@/components/live/live-now";
+import LiveShortcut from "@/components/live/live-shortcut";
 import MoreDisclosure from "@/components/ui/more-disclosure";
 import GamesTable from "@/components/games-experience-table";
 import { buildGamesTableRows, gamesTableDates } from "@/components/games-experience-table-rows";
@@ -291,7 +292,7 @@ export default function TodayPage() {
      said "no two-leg card reaches its rung's price" while the lanes said "fewer than two eligible legs on the slate". */
   const moonshotReason = (dailyPortfolio.cards.find((c) => c.product === "moonshot" && c.laneReason)?.laneReason ?? dailyPortfolio.cards.find((c) => c.product === "moonshot" && c.shortfallNote)?.shortfallNote)?.replace(/\.\s*$/, "") ?? null;
   if (!moonshotActive && !noGamesToday) noPlayNotes.push(`Moonshot is no-play${moonshotReason ? ` — ${moonshotReason.charAt(0).toLowerCase()}${moonshotReason.slice(1)}` : ""}. The ladder waits rather than force a card.`);
-  if (slateReadyCount === 0 && !noGamesToday) noPlayNotes.push("No simulation artifact is ready for this slate yet; simulations are deterministic and only shown when genuinely generated — never faked.");
+  if (slateReadyCount === 0 && !noGamesToday) noPlayNotes.push("No game simulation is ready for this slate yet; simulations are shown only when they have actually been run — never faked.");
   noPlayNotes.push("Pending is not a loss: a card settles only against the official final, and unsettled cards are never counted against the record.");
 
   // ── Section 10 · Secondary links — compact link cards out (no large widgets duplicated here). ──
@@ -299,7 +300,7 @@ export default function TodayPage() {
     { href: "/simulate", label: "Simulate", sub: "Game sims" },
     { href: "/results", label: "Results", sub: "Receipts" },
     { href: "/bank-builder", label: "Bank Builder", sub: "The ladder" },
-    { href: "/build", label: "Parlay Center", sub: "Suggested cards + build your own" },
+    { href: "/build", label: "Parlay Lab", sub: "Suggested cards + build your own" },
     { href: "/simulate", label: "Game Reports", sub: "Model reads" },
     { href: "/learn", label: "How It Works", sub: "Methodology" },
   ];
@@ -345,6 +346,7 @@ export default function TodayPage() {
       />
       {/* UX System V2 (founder directive 2026-10-13): LIVE FIRST. The same view-time strip Home and the hubs use; it
           renders nothing when no game is in play. */}
+      <LiveShortcut sports={["nfl", "mlb"]} where="today" />
       <LiveNow sports={["nfl", "mlb"]} />
 
       {/* 2 — Today's games, each once: started / upcoming / final, each linking to its game page with its official

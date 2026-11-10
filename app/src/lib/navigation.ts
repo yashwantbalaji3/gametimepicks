@@ -32,7 +32,7 @@
  *
  * ── The `top` band carries the FIVE primaries (charter E; founder decision 2026-10-08) ───────────
  * Home · Sports · Live · Simulations · Results — the same five on every surface. (Before: P200/P208's six, Home ·
- * Today · Simulate · Picks · Parlay Center · Results, then the Sports directory.) The tablet header and the mobile
+ * Today · Simulate · Picks · Parlay Lab · Results, then the Sports directory.) The tablet header and the mobile
  * top strip had grown to seventeen items — a menu nobody can scan is a menu nobody reads. Every
  * other destination stays fully reachable on the rail (desktop) and in the footer sitemap, and the
  * sport hubs/products are one hop away via Sports/Build. Trimming a surface never removes a
@@ -109,8 +109,15 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * six questions; Results closes the loop as proof, inside this block rather than the record
    * group, so every surface renders the six together.
    */
-  { href: "/", label: "Home", group: "now", glyph: "⌂", desc: "Start here",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "home" },
+  /* ── FIVE PRIMARIES, 2026-11-09 (founder mandate via the Program Director; UX audit UX-05) ──────────────────────
+     Today · Sports · Products · Results · Ask — the same five on the top bar, the rail and the phone bar. This
+     replaces charter E's Home · Sports · Live · Simulations · Results (2026-10-08). The homepage IS today (it leads
+     with tonight's games), so "/" carries the Today label; /today stays a route ("Tonight's slate", footer). Live and
+     Simulations leave the bars: Live is a homepage band and Simulations are reached from every game; both stay in the
+     footer sitemap. Every product (Parlay Lab, Bank Builder, Moonshot, …) is one tap from /products. Nothing is
+     removed from this list: a destination only changes which surfaces carry it. */
+  { href: "/", label: "Today", group: "now", glyph: "▤", desc: "Tonight's games and picks",
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "today" },
   /* P243 · E: Sports is the second of the five primaries — the cross-sport directory, with each
      hub one click deeper in the Sports group below. */
   { href: "/sports", label: "Sports", group: "now", glyph: "🗓", desc: "Schedules and hubs",
@@ -136,18 +143,24 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
      season had ended. A static note cannot track which sports are live, so it states only what is always true. */
   /* Founder UX decision 2026-10-08: LIVE IS A PRIMARY, year-round, on every surface — it takes the slot Parlays held,
      so the five primaries stay one set everywhere (charter E): Home · Sports · Live · Simulations · Results. */
+  /* 2026-11-09: the slot that follows Sports is Products — the hub of every paper product. */
+  { href: "/products", label: "Products", group: "now", glyph: "▰", desc: "Parlay Lab, Bank Builder, Moonshot",
+    surfaces: ["top", "rail", "mobile", "footer"], bucket: "products" },
   { href: "/live", label: "Live", note: "beta", group: "now", glyph: "◉", desc: "Scores now, beside frozen forecasts",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "live" },
-  { href: "/today", label: "Today", group: "now", glyph: "▤", desc: "Tonight's slate",
-    surfaces: ["rail", "footer"], bucket: "today" },
+    surfaces: ["footer"], bucket: "live" },
+  { href: "/today", label: "Tonight's slate", group: "now", glyph: "▤", desc: "Every game tonight, in one list",
+    surfaces: ["footer"], bucket: "today" },
   /* shortLabel: the bar's 9-char budget rejects "Simulations" (11) and WCAG 2.5.3 requires the
      painted word to appear within the accessible name — "Sim" is the contiguous prefix that fits. */
   { href: "/simulate", label: "Simulations", group: "now", glyph: "▶", desc: "Open a game report",
-    surfaces: ["top", "rail", "mobile", "footer"], bucket: "games", shortLabel: "Sim" },
+    surfaces: ["footer"], bucket: "games", shortLabel: "Sim" },
   /* Sixth primary. Off the `mobile` bar by the charter's own bar spec (Home/Today/Simulate/Picks/
      Parlay + Menu); the mobile Menu sheet renders every rail destination the bar lacks. */
   { href: "/results", label: "Results", group: "now", glyph: "≡", desc: "Settled record",
     surfaces: ["top", "rail", "mobile", "footer"], bucket: "results" },
+  /* 2026-11-09: Ask is the fifth primary (it was a rail/footer tool in "Learn & record"). */
+  { href: "/ask", label: "Ask", group: "now", glyph: "◇", note: "Answers from GameTime's own data",
+    desc: "Ask GameTime about games, players and forecasts", surfaces: ["top", "rail", "mobile", "footer"], bucket: "ask" },
   /* P310: the reader's saved forecasts — browser-local, an analytics shortlist, never a wager. Phase 5O: listed INSIDE
      the "now" block (it sat after the record group, so the rail and the phone Menu sheet painted a second "Main"
      heading at the very bottom); the Menu sheet now shows it near the top — two taps from any phone screen. */
@@ -171,25 +184,27 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   /* "Picks" is the reader's word for this job; "Market Center" was ours. The route keeps its
      canonical URL — the label changes everywhere at once because every surface derives from here. */
   { href: "/markets", label: "Picks", group: "products", glyph: "◈", desc: "Model picks vs the price",
-    surfaces: ["rail", "footer"], bucket: "markets" },
+    surfaces: ["footer"], bucket: "markets" },
   /* One shared picks-and-parlays destination (charter E): /build keeps its two modes (suggested →
      custom) and links the ranked picks board; /markets stays a first-class deep route. */
   /* #797 PR B: "Picks & Parlays" sat beside "Picks" — two destinations sharing one word. /build is the parlay
-     destination (H1 "Suggested Parlays", Home's "Open Parlay Center", already "Parlays" on the phone bar), so
+     destination (H1 "Parlay Lab", Home's "Open Parlay Lab", already "Parlays" on the phone bar), so
      it is named that on every surface; "Picks" stays the one picks destination. */
   /* Founder UX decision 2026-10-08: Parlays leaves the primaries for Live and stays one tap from the phone Menu
      (rail-minus-bar), on the desktop rail and in the footer — never orphaned. */
-  { href: "/build", label: "Parlays", group: "products", glyph: "✎", desc: "Cards, picks, or build your own",
-    surfaces: ["rail", "footer"], bucket: "lab" },
+  /* 2026-11-09 (UX-06): one name for the 4-tier parlay product everywhere — Parlay Lab (it was "Parlay Lab",
+     "Parlay Lab" and "Parlays" on different surfaces). */
+  { href: "/build", label: "Parlay Lab", group: "products", glyph: "✎", desc: "Four risk tiers, or build your own",
+    surfaces: ["footer"], bucket: "lab" },
   { href: "/bank-builder", label: "Bank Builder", group: "products", glyph: "▰", desc: "Paper card",
-    surfaces: ["rail", "footer"] },
+    surfaces: ["footer"] },
   { href: "/moonshot", label: "Moonshot", group: "products", glyph: "🌙", desc: "Fast paper ladder",
-    surfaces: ["rail", "footer"] },
+    surfaces: ["footer"] },
   // Revived 2026-08-17. The route was a retired redirect stub for six weeks because the provider
   // home-run feed it read had gone away; it now computes its own probability from StatsAPI, so it
   // is a destination again rather than a name in the archive.
   { href: "/homer-nukes", label: "Homer Nukes", group: "products", glyph: "💣", desc: "Five likeliest homers",
-    surfaces: ["rail", "footer"] },
+    surfaces: ["footer"] },
   /*
    * P251-F4: THE TWO LIVE SIGNATURE PRODUCTS THAT HAD NO DESTINATION.
    *
@@ -200,11 +215,11 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * exist were the two hardest to reach, and this is what fixes that ordering.
    */
   { href: "/endzone-vault", label: "Endzone Vault", group: "products", glyph: "🏈",
-    desc: "Who scores today", surfaces: ["rail", "footer"] },
+    desc: "Who scores today", surfaces: ["footer"] },
   { href: "/cage-chaos", label: "Cage Chaos", group: "products", glyph: "🥊",
-    desc: "How each fight ends", surfaces: ["rail", "footer"] },
+    desc: "How each fight ends", surfaces: ["footer"] },
   { href: "/mr-dub", label: "Mr. Dub's Portfolio", group: "products", glyph: "✓", desc: "Paper bankroll",
-    surfaces: ["rail", "footer"] },
+    surfaces: ["footer"] },
   /*
    * EVERY LIVE LANE'S SIGNATURE PRODUCT, not just baseball's.
    *
@@ -237,9 +252,9 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   /* v1.1.3: the personal destination — what matters to THIS device now. Secondary (rail + footer, and the
      phone Menu sheet via rail-minus-bar). Never a primary: P243 charter E fixes those at five. */
   { href: "/my", label: "My GameTime", group: "you", glyph: "◎", desc: "What you follow, now",
-    surfaces: ["rail", "footer"] },
+    surfaces: ["footer"] },
   { href: "/following", label: "Following", group: "you", glyph: "★", desc: "Teams and players you follow",
-    surfaces: ["rail", "footer"] },
+    surfaces: ["footer"] },
   /*
    * P266 · THE ACCOUNT DESTINATION EXISTS ONLY IN A BUILD THAT HAS A PROJECT.
    *
@@ -257,7 +272,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
     ? [{
         href: "/account", label: "Your bets", group: "you", glyph: "🧾",
         desc: "The bets you placed, and how they have actually gone",
-        surfaces: ["rail", "footer"], bucket: "account",
+        surfaces: ["footer"], bucket: "account",
       } as NavDestination]
     : []),
   // ── RECORD ─────────────────────────────────────────────────────────────────────────────────────
@@ -278,17 +293,17 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
   { href: "/results/picks", label: "Picks vs Outcomes", group: "record", glyph: "◎",
     desc: "What each model predicted, and what happened", surfaces: ["footer"] },
   { href: "/learn", label: "How It Works", group: "record", glyph: "✦", desc: "Start here",
-    surfaces: ["rail", "footer"] },
+    surfaces: ["footer"] },
   { href: "/methodology", label: "Methodology", group: "record", glyph: "◳", desc: "The model in depth",
-    surfaces: ["rail", "footer"] },
+    surfaces: ["footer"] },
   { href: "/system-status", label: "System Status", group: "record", glyph: "◉", desc: "What is running",
-    surfaces: ["rail", "footer"] },
+    surfaces: ["footer"] },
   /* P312: every model's standing — validated, forward-testing, holding, watching, paused, research-only — from the
      receipts that hold it, in reader words. The public face of the research discipline. */
   { href: "/models", label: "Model Lab", group: "record", glyph: "⚗", desc: "Live, tested, or paused",
-    surfaces: ["rail", "footer"] },
+    surfaces: ["footer"] },
   { href: "/about", label: "About", group: "record", glyph: "ⓘ", desc: "About the site",
-    surfaces: ["rail", "footer"] },
+    surfaces: ["footer"] },
 
   // ── FOOTER-ONLY ────────────────────────────────────────────────────────────────────────────────
   /*
@@ -317,7 +332,7 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * place the product sends them. It is the only nav change v1.5 makes.
    */
   { href: "/research/lab", label: "Research Lab", group: "record", glyph: "🔎", note: "MLB · NFL · Premier League",
-    desc: "Search recorded games, player games and season results", surfaces: ["rail", "footer"] },
+    desc: "Search recorded games, player games and season results", surfaces: ["footer"] },
   /*
    * v1.6: ASK GAMETIME.
    *
@@ -331,8 +346,6 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    * Ask answers from GameTime's own tools or says it cannot — which is the more useful promise and the
    * only one the product can keep.
    */
-  { href: "/ask", label: "Ask GameTime", group: "record", glyph: "◇", note: "Answers from GameTime's own data",
-    desc: "Ask about games, players, forecasts and the site", surfaces: ["rail", "footer"] },
   { href: "/responsible-use", label: "Responsible Use", group: "record",
     desc: "Paper-only, educational, no stake is ever filled", surfaces: ["footer"] },
 ];
@@ -356,6 +369,8 @@ export const FOOTER_COLUMN_LABEL: Record<FooterColumn, string> = {
 };
 export function footerColumnOf(d: Pick<NavDestination, "href" | "group" | "bucket">): FooterColumn {
   if (d.href === "/results" || d.href.startsWith("/results/") || d.href === "/models" || d.href === "/system-status") return "results";
+  if (d.href === "/products") return "picks";
+  if (d.href === "/ask") return "about";
   /* The account destination is matched by its bucket: its URL is written once, inside its build-time gate above. */
   if (d.group === "products" || d.href === "/saved" || d.bucket === "account") return "picks";
   if (d.group === "record") return "about";

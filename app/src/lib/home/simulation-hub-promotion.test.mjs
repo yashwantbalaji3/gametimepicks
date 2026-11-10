@@ -81,7 +81,8 @@ test("WIRING · hub membership flows from the product-day authority; every promo
   assert.match(allSportsBlock, /id: "ufc"/);
   // NBA: the entry's state is the lane's evidence-gated answer, never a page-local or schedule-derived one.
   assert.match(allSportsBlock, /id: "nba",\s*state: nbaHomeLane\.state,/, "NBA's hub membership comes from nbaLane");
-  assert.match(src, /nbaLane\(nbaTodaySlate\([^\n]*\{ lastPublished: committedLaneDates\(\)\.at\(-1\) \?\? null \}\)/, "the gate reads the committed official forecasts");
+  // UX slice 2026-11-09: the options object grew (game-page ids, the Elo accessor) and spans lines; the gate is unchanged
+  assert.match(src, /nbaLane\(nbaTodaySlate\([^\n]*\n\s*lastPublished: committedLaneDates\(\)\.at\(-1\) \?\? null,/, "the gate reads the committed official forecasts");
   const { nbaLane } = await import("../command-center/nba-lane.ts");
   const game = { id: "g", tipUtc: "2026-10-22T23:00Z", tipLabel: "7:00 PM ET", away: { abbr: "CLE", name: null, logoTeam: null }, home: { abbr: "PHI", name: null, logoTeam: null }, status: "upcoming", finalNote: null, favoured: null, frozenAt: null, players: null, excludedReason: null, theaterHref: null };
   const day = (forecast, games, next = null) => ({ date: "2026-10-22", dateLabel: "Thu, Oct 22", games, forecast, frozenAt: null, modelVersion: null, next, updatedAt: null });

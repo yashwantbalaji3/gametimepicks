@@ -238,7 +238,7 @@ export default function ResultsParlaysPage() {
             className="mt-4 inline-flex font-mono uppercase tracking-[0.16em]"
             style={{ color: "var(--vault-gold-bright)", fontSize: 11 }}
           >
-            Open Parlay Center →
+            Open Parlay Lab →
           </Link>
         </section>
       )}

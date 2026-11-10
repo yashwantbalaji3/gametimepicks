@@ -162,7 +162,7 @@ test("a risk level's record answers on a day with no ladder; without a tier, tha
   assert.equal(r.status, "OK");
   assert.equal(r.data.products.suggestedParlays.state, "NOT PUBLISHED");
   const text = buildEvidence(ex.evidence).facts.map((f) => f.text).join("\n");
-  assert.match(text, /no official Suggested Parlays ladder was published for 2031-09-28/);
+  assert.match(text, /no official Parlay Lab ladder was published for 2031-09-28/);
   assert.match(text, /Medium Risk published cards since 2031-08-17: 9–31–1 \(wins–losses–pushes\)/);
   const plain = await execWith(withRecord(PUB)).run({ id: "c1", name: "getOfficialProductCards", arguments: { product: "SUGGESTED_PARLAYS", date: "2031-09-28" } });
   assert.equal(plain.status, "UNSUPPORTED");

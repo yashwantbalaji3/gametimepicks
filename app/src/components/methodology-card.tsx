@@ -116,7 +116,7 @@ export default function MethodologyCard() {
             </strong>{" "}
             Low / Medium / High / Longshot get their own results row.
             The hit rate you see on Results matches what you saw on
-            the Parlay Center the day before, not a re-bucketing.
+            the Parlay Lab the day before, not a re-bucketing.
           </li>
           <li>
             <strong style={{ color: "var(--vault-text)" }}>
@@ -201,7 +201,7 @@ export default function MethodologyCard() {
             financial advice.
           </Bullet>
           <Bullet>
-            Single-game NBA cards in the Parlay Center are labeled higher
+            Single-game NBA cards in the Parlay Lab are labeled higher
             variance because every leg shares one matchup. That label is the
             framing, not a hedge.
           </Bullet>

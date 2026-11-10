@@ -16,6 +16,10 @@ import { freshnessFor } from "./freshness";
 import { NBA_MODEL_PERFORMANCE_NOTE, PUBLIC_TERMS } from "@/lib/public-registry";
 import type { ModelStatusItem } from "./contract";
 import { hubLaneAnchor } from "@/lib/sports/nba/projection-board-ops.mjs";
+import { nbaGamePageHrefIfExported } from "@/components/nba/game-page-link.mjs";
+
+/** The official Elo win chance for one game (lib/sports/nba/elo-win-probability.mjs view), or null — never re-derived here. */
+export type NbaLaneWinChance = { awayAbbr: string; homeAbbr: string; awayPct: string | number; homePct: string | number; attr: string };
 
 /**
  * EVIDENCE GATE (the hub's promotion rule — simulation-hub-promotion.test): a schedule alone never promotes a sport. NBA
@@ -40,7 +44,14 @@ export const NBA_LANE_STATUSES: readonly ModelStatusItem[] = Object.freeze([
 ]);
 
 /** `lastPublished`: the newest committed official forecast's slate date (experimental-lane committedLaneDates). */
-export function nbaLane(slate: NbaTodaySlate, nowIso: string, { lastPublished = null }: { lastPublished?: string | null } = {}): CommandCenterLane {
+/**
+ * `gamePageIds`: the exported /nba/simulation/<id>/ pages (settled-simulation-data nbaExportedGamePageIds) — a row links its
+ * game page when it exists (UX slice 2026-11-09: the homepage deep-links the game, not the hub anchor), else the hub card.
+ * `winChanceOf` / `winChanceDisclosure`: the Elo accessor's view per game and its accuracy disclosure (printed once).
+ */
+export function nbaLane(slate: NbaTodaySlate, nowIso: string, { lastPublished = null, gamePageIds = null, winChanceOf = null, winChanceDisclosure = null }: {
+  lastPublished?: string | null; gamePageIds?: ReadonlySet<string> | null; winChanceOf?: ((id: string) => NbaLaneWinChance | null) | null; winChanceDisclosure?: string | null;
+} = {}): CommandCenterLane {
   const n = slate.games.length;
   const daysToNext = slate.next ? (Date.parse(slate.next.tipUtc) - Date.parse(nowIso)) / DAY : null;
   const sincePublish = lastPublished ? (Date.parse(`${slate.date}T12:00:00Z`) - Date.parse(`${lastPublished}T12:00:00Z`)) / DAY : null;
@@ -56,7 +67,9 @@ export function nbaLane(slate: NbaTodaySlate, nowIso: string, { lastPublished = 
     : slate.forecast === "PUBLISHED" ? `${games} · ${PUBLIC_TERMS.OFFICIAL_FORECAST}: favoured side and player projections`
     : slate.forecast === "PENDING" ? `${games} · ${PUBLIC_TERMS.OFFICIAL_FORECAST} publishes before tip-off`
     : `${games} · schedule only`;
-  const rows: CommandCenterGame[] = slate.games.slice(0, NBA_LANE_ROWS).map((g) => ({
+  const rows: CommandCenterGame[] = slate.games.slice(0, NBA_LANE_ROWS).map((g) => {
+    const wc = !g.finalNote && g.favoured && winChanceOf ? winChanceOf(String(g.id)) : null;
+    return {
     id: g.id,
     label: `${g.away.abbr} @ ${g.home.abbr}`,
     crests: [g.away.logoTeam, g.home.logoTeam],
@@ -65,8 +78,11 @@ export function nbaLane(slate: NbaTodaySlate, nowIso: string, { lastPublished = 
       : g.status === "postponed" ? "Postponed"
       : g.favoured ? `${g.favoured.abbr} favoured`
       : slate.forecast === "PENDING" ? "Forecast pending" : `No ${PUBLIC_TERMS.OFFICIAL_FORECAST}`,
-    href: hubLaneAnchor(g.id),
-  }));
+    href: nbaGamePageHrefIfExported(g.id, gamePageIds) ?? hubLaneAnchor(g.id),
+    state: g.finalNote ? "final" : g.favoured ? "official" : null,
+    winChance: wc ? { text: `${wc.awayAbbr} ${wc.awayPct}% · ${wc.homeAbbr} ${wc.homePct}%`, attr: wc.attr } : null,
+  };
+  });
   return {
     sport: "nba", label: "NBA", hubHref: "/nba/", simulateHref: "/simulate/?sport=nba",
     state,
@@ -79,5 +95,6 @@ export function nbaLane(slate: NbaTodaySlate, nowIso: string, { lastPublished = 
     secondary: slate.forecast === "PUBLISHED" ? { label: "Top Boards", href: "/nba/projections/", note: "player projections" } : null,
     games: rows,
     moreGames: Math.max(0, n - NBA_LANE_ROWS),
+    winChanceDisclosure: rows.some((r) => r.winChance) ? winChanceDisclosure : null,
   };
 }

@@ -25,25 +25,28 @@ test("🔴 every surface asks the shared resolver — no local matcher left", ()
 });
 
 test("🔴 one answer per page, each surface lighting the closest destination it carries", () => {
+  /* 2026-11-09 five-slot nav (Today · Sports · Products · Results · Ask): the rail carries the five, Saved and the sport
+     hubs; game surfaces light Today, product pages light Products, and the learn pages (footer only) light nothing. */
   const cases = [
     // path, rail, top/bar (the five primaries)
     ["/", "/", "/"],
-    ["/simulate/nfl-401872981", "/simulate", "/simulate"],
+    ["/simulate/nfl-401872981", "/", "/"],
     ["/mlb/board/2026-10-08", "/mlb", "/sports"],
     ["/nfl/game/401872981", "/nfl", "/sports"],
     ["/soccer/ligue-1", "/soccer/ligue-1", "/sports"],
-    ["/board", "/mlb", "/simulate"],
-    ["/projections/x", "/mlb", "/simulate"],
-    ["/mlb/parlays", "/build", null],
-    ["/parlays", "/build", null],
+    ["/board", "/mlb", "/sports"],
+    ["/projections/x", "/mlb", "/sports"],
+    ["/mlb/parlays", "/products", "/products"],
+    ["/parlays", "/products", "/products"],
     ["/results/nba", "/results", "/results"],
-    ["/results/model-audit", "/learn", "/results"],
-    ["/methodology", "/methodology", null],
-    ["/responsible-use", "/learn", null],
-    ["/today", "/today", null],
-    ["/live/nfl", "/live", "/live"],
-    ["/bank-builder/ledger", "/bank-builder", null],
-    ["/about", "/about", null],
+    ["/results/model-audit", "/results", "/results"],
+    ["/methodology", null, null],
+    ["/responsible-use", null, null],
+    ["/today", "/", "/"],
+    ["/live/nfl", "/", "/"],
+    ["/bank-builder/ledger", "/products", "/products"],
+    ["/ask", "/ask", "/ask"],
+    ["/about", null, null],
     ["/world-cup/groups", "/sports", "/sports"],
     ["/trends", null, null],
   ];
@@ -58,7 +61,7 @@ test("🔴 one answer per page, each surface lighting the closest destination it
 test("🔴 Home owns '/' only, and the bar bucket follows the same chain", () => {
   for (const p of ["/about", "/nfl", "/xyz"]) assert.ok(!ownersOf(p).includes("/"), `${p} never lights Home`);
   assert.equal(resolveMobileNavBucket("/nfl/game/1"), "sports");
-  assert.equal(resolveMobileNavBucket("/simulate/x"), "games");
+  assert.equal(resolveMobileNavBucket("/simulate/x"), "today");
   assert.equal(resolveMobileNavBucket(""), null);
 });
 

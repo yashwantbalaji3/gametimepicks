@@ -69,7 +69,7 @@ test("homepage renders the preview from the lib; the Parlay Center is reached fr
      equal actions, none to today's forecasts. The hero keeps one primary + one secondary; the Parlay Center is linked
      from this preview (href="/build", asserted on the component above) and from the navigation. */
   assert.doesNotMatch(hero, /Open Parlay Center/, "the hero no longer carries a third, equal action");
-  assert.match(page, /\{ label: "Suggested parlays", href: "\/build\/" \}/, "phones still reach the Parlay Center from Home's summary");
+  assert.match(page, /\{ label: "Parlay Lab", href: "\/build\/" \}/, "phones still reach Parlay Lab from Home's summary (UX-06 name)");
 });
 
 test("tier intent language exists for exactly the four canonical tiers", () => {

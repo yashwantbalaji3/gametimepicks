@@ -18,6 +18,7 @@
  * exported ids: settled-simulation-data nbaExportedGamePageIds) holds it — "Game page →", named "Game page: AWAY vs HOME",
  * a 44px target. No ids passed → no link.
  */
+import GameStateTag from "@/components/game/game-state-tag";
 import React from "react";
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
@@ -125,8 +126,8 @@ export function NbaTodayGames({ slate, slip, gamePages, lineSummaries }: {
             const line = forecastLine(g, pending);
             return g.finalNote || line ? (
               <div className="nbx-read">
-                {g.finalNote ? <strong>Final · {g.finalNote}</strong> : null}
-                {line ? <p>{line}</p> : null}
+                {g.finalNote ? <strong><GameStateTag state="final" /> Final · {g.finalNote}</strong> : null}
+                {line ? <p>{g.favoured && !g.finalNote ? <><GameStateTag state="official" />{" "}</> : null}{line}</p> : null}
               </div>
             ) : null;
           })()}
@@ -134,7 +135,10 @@ export function NbaTodayGames({ slate, slip, gamePages, lineSummaries }: {
             <p className="nbx-acts">
               {gamePages?.has(g.id) ? <Link href={nbaGamePageHrefIfExported(g.id, gamePages)!} prefetch={false} aria-label={nbaGamePageLabel(g.away.abbr, g.home.abbr)} data-nba-game-page={g.id}>{NBA_GAME_PAGE_TEXT}</Link> : null}
               {g.favoured ? <Link href={g.theaterHref ? `${g.theaterHref}#official-predictions` : `#${forecastRowId(g.id)}`} prefetch={false}>{PUBLIC_TERMS.OFFICIAL_FORECAST} →</Link> : null}
-              {g.theaterHref ? <Link href={g.theaterHref} prefetch={false} data-nba-theater-link={g.id}>{PUBLIC_TERMS.GAME_SIMULATION} →</Link> : null}
+              {/* UX-10 (2026-11-09): "Game page →" and "Game Simulation →" opened the same /nba/simulation/<id>/ page — one
+                  link per destination: the Game Simulation link renders only where no game-page link already opens it. */}
+              {/* the hypothetical tag rides the simulation link itself, never alone under the card's buttons */}
+              {g.theaterHref && !gamePages?.has(g.id) ? <><Link href={g.theaterHref} prefetch={false} data-nba-theater-link={g.id}>{PUBLIC_TERMS.GAME_SIMULATION} →</Link><GameStateTag state="simulation" /></> : null}
               {/* Vehicle N: only a Level A leg (hub-slip → levelASlipLegFor) — a game without one gets no button */}
               <HubSlipButton leg={slip?.get(g.id)} />
             </p>

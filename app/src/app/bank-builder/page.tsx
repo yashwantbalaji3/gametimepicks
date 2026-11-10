@@ -519,13 +519,6 @@ export default function BankBuilderPage() {
         </span>
       </div>
 
-      {/* v1.7 — which sports could contribute a leg today, from the availability owner. Counts and plain
-          reasons only; it names the market-priced caveat the product carries. Reads no internal artifact. */}
-      <EligibleUniverse availability={loadProductAvailability()} compact scope="Bank Builder" levelASports={levelAModel ? levelASportsShown(levelAModel, "bank-builder") : null} />
-      {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="bank-builder" /> : null}
-      {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none (own section; history below is untouched). */}
-      {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("bank-builder") as unknown as DailyCandidateModel} /> : null}
-
       {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
           purely presentational (every figure is read verbatim from the data loaded above) and sits ABOVE
           the existing dense ladder components, which remain below unchanged. */}
@@ -542,6 +535,17 @@ export default function BankBuilderPage() {
         lanes={climbLanes}
         completedLadders={completedLadders}
       />
+
+      {/* UX-02 (2026-11-09): the page leads with its own H1 and the bankroll (the hero above), as /moonshot leads with
+          "Where Moonshot stands". Today's eligible universe and the model's suggestions follow the hero; they used to
+          sit above it and pushed the H1 to the fourth phone screen. */}
+      {/* v1.7 — which sports could contribute a leg today, from the availability owner. Counts and plain
+          reasons only; it names the market-priced caveat the product carries. Reads no internal artifact. */}
+      <EligibleUniverse availability={loadProductAvailability()} compact scope="Bank Builder" levelASports={levelAModel ? levelASportsShown(levelAModel, "bank-builder") : null} />
+      {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="bank-builder" /> : null}
+      {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none (own section; history below is untouched). */}
+      {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("bank-builder") as unknown as DailyCandidateModel} /> : null}
+
 
       {officialRecordLabel ? (
         <RecordComposition recordLabel={officialRecordLabel} scopeLabel={officialRecord.scope ? RECORD_SCOPE_LABEL[officialRecord.scope] : RECORD_SCOPE_LABEL["all-time"]}

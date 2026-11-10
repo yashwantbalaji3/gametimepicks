@@ -14,7 +14,7 @@ const yearOf = (d: string) => d.slice(0, 4);
  * WHY A RISK TIER HAS NO CARD TODAY (sprint 2026-10-23, Workstream E). The tier tiles above carry the ladder's own
  * one-line reason. This adds the two things a reader needs to act on an empty day, both read from their owners and
  * computed nowhere here:
- *   - which suggested-card lanes are open today and why each closed one is closed (the Parlay Center's own lane gate,
+ *   - which suggested-card lanes are open today and why each closed one is closed (the Parlay Lab's own lane gate,
  *     lib/parlays/lab-record over the lab ledger). NOT the product eligible universe: that gate decides Bank Builder
  *     and Moonshot, and showing it here read "Premier League · not eligible" beside a publishing Premier League lane
  *     (sprint 2026-10-23 follow-up). The tiers above are the MLB ladder; each other sport publishes on its own lane;
@@ -33,7 +33,7 @@ export default function EmptyTierContext({ emptyTiers, lastCards, lanes }: { emp
       </h2>
       <p className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
         The four risk tiers above are built from MLB legs. Other sports publish suggested cards on their own lanes, under the
-        Parlay Center&rsquo;s lane rule: real posted prices, an official settlement path and enough priced games. Bank Builder
+        Parlay Lab&rsquo;s lane rule: real posted prices, an official settlement path and enough priced games. Bank Builder
         and Moonshot use a separate, stricter gate, shown on their pages.
       </p>
       {lanes.length ? (

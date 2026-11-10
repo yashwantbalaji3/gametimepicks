@@ -22,12 +22,13 @@ export const ROUTE_INVENTORY_VERSION = 1;
  */
 export const ROUTE_TABLE = Object.freeze({
   "/": { classification: "public", owner: "product", purpose: "landing: simulation-first story, today hook, product cards, four-sport strip", dataOwner: "daily brief + market coverage + upcoming adapters", freshness: "build-time; freshness badges re-derive client-side" },
+  "/products": { classification: "public", owner: "product", purpose: "the Products primary (2026-11-09 five-slot nav): one card per paper product, read from the canonical destination list", dataOwner: "lib/navigation.ts (group products)", freshness: "static" },
   "/today": { classification: "public", owner: "product", purpose: "daily command center: slate, predictions table, category picks", dataOwner: "daily brief + boards", freshness: "slate-date stamped" },
   "/simulate": { classification: "public", owner: "product", purpose: "date-first/sport-first event selection (today view of the day selector, P209)", dataOwner: "lib/simulate/day-view over per-sport owners", freshness: "each owner's own stamp" },
   "/simulate/d/[date]": { classification: "public", owner: "product", family: true, purpose: "one static page per in-window date — same selector, date as the route (P209)", dataOwner: "lib/simulate/day-view over per-sport owners", freshness: "each owner's own stamp" },
   "/markets": { classification: "public", owner: "product", purpose: "Market Center: ranked disagreement list + reading key (pp, never pts)", dataOwner: "market intelligence artifacts", freshness: "capture stamps" },
-  "/build": { classification: "public", owner: "product", purpose: "Parlay Center · Suggested Parlays mode (default): risk ladder + optimizer cards + lane links (P208)", dataOwner: "risk-ladder + suggested-cards artifacts", freshness: "sourceDate == productDate gate" },
-  "/build/custom": { classification: "public", owner: "product", purpose: "Parlay Center · Build Your Own mode: qualified leg pool + shared slip draft + optimizer marketplace (P208)", dataOwner: "build legs from eligible slate", freshness: "sourceDate == productDate gate" },
+  "/build": { classification: "public", owner: "product", purpose: "Parlay Lab · suggested-cards mode (default): risk ladder + optimizer cards + lane links (P208)", dataOwner: "risk-ladder + suggested-cards artifacts", freshness: "sourceDate == productDate gate" },
+  "/build/custom": { classification: "public", owner: "product", purpose: "Parlay Lab · Build Your Own mode: qualified leg pool + shared slip draft + optimizer marketplace (P208)", dataOwner: "build legs from eligible slate", freshness: "sourceDate == productDate gate" },
   "/bank-builder": { classification: "public", owner: "product", purpose: "conservative paper ladder (ONE 5-step ladder)", dataOwner: "protected locks + lanes", freshness: "product-state contract" },
   "/moonshot": { classification: "public", owner: "product", purpose: "fast three-day paper ladder ($25 → $1,000, two legs a day)", dataOwner: "moonshot-lane active.json", freshness: "product-state contract" },
   /*
