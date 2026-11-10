@@ -102,3 +102,32 @@ test("it stays PRIVATE_RESEARCH — this job publishes nothing a reader sees", (
   assert.match(ACQ, /dataClass: "PRIVATE_RESEARCH"/);
   assert.equal(/app\/public/.test(WF_CODE), false, "a research refresh must not touch a public path");
 });
+
+test("🔴 RED SIGNAL: a failed eligibility-input capture in the window warns and alerts (never silent)", () => {
+  const code = EW.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+  for (const [id, name] of [["nflinjuries", "Capture NFL injury designations"], ["depthcharts", "Capture NFL depth charts on game days"]]) {
+    const step = code.slice(code.indexOf(`- name: ${name}`), code.indexOf("- name:", code.indexOf(`- name: ${name}`) + 8));
+    assert.match(step, new RegExp(`id: ${id}\\b`), `${name} has an id the alert reads`);
+    assert.match(step, /continue-on-error: true/, `${name}: the window still commits`);
+  }
+  const alert = code.slice(code.indexOf("- name: Alert when an eligibility input capture failed"), code.indexOf("- name: Authorized odds capture"));
+  assert.match(alert, /steps\.nflinjuries\.outcome == 'failure'/);
+  assert.match(alert, /steps\.depthcharts\.outcome == 'failure'/);
+  assert.match(alert, /OPS_WEBHOOK_URL: \$\{\{ secrets\.OPS_WEBHOOK_URL \}\}/);
+  assert.match(alert, /OPS_ALERT_KIND: warning/);
+  assert.match(alert, /::warning::/);
+  assert.match(alert, /bash scripts\/ops_alert\.sh/, "the same alert path cron-watchdog uses");
+  assert.ok(code.indexOf("- name: Alert when an eligibility input capture failed") > code.indexOf("- name: Capture NFL depth charts on game days"), "runs after both captures");
+});
+
+test("the NFL injuries file is committed only by the window (one push, no standalone build); sport-schedules still starts the window on a facts change", () => {
+  const SS = fs.readFileSync(path.join(ROOT, ".github/workflows/sport-schedules.yml"), "utf8");
+  const commit = SS.slice(SS.indexOf("- name: Commit injuries captures if content changed"), SS.indexOf("- name:", SS.indexOf("- name: Commit injuries captures if content changed") + 8));
+  const decide = commit.indexOf("NFL_CHANGED=$("), reset = commit.indexOf("git reset -q -- data/internal/research/injuries/nfl/"), git = commit.indexOf('git commit -m "auto: injuries facts capture');
+  assert.ok(decide > 0 && reset > decide && git > reset, "the NFL change is decided first (against HEAD), then the NFL file is unstaged, then NBA commits");
+  assert.equal((commit.match(/echo "nfl_changed=\$NFL_CHANGED"/g) ?? []).length, 2, "the decision is published on both exits (NFL-only and after the NBA push)");
+  assert.match(commit, /git checkout -q -- data\/internal\/research\/injuries\/nfl\//);
+  assert.match(SS, /steps\.injuriescommit\.outputs\.nfl_changed == 'true'/, "a facts change still starts nfl-event-window");
+  const ewCommit = EW.slice(EW.indexOf("- name: Commit the window's artifacts"));
+  assert.match(ewCommit.slice(0, ewCommit.indexOf("git commit")), /data\/internal\/research\/injuries\/nfl\//, "the window commits the NFL injuries file with its data");
+});

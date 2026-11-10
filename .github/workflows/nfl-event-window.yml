@@ -248,6 +248,7 @@ jobs:
       # continue-on-error so a provider blip degrades to the previous capture with its real
       # timestamp — which the freshness bound then reports honestly — rather than failing the window.
       - name: Capture NFL injury designations (freshness input for the whole chain)
+        id: nflinjuries
         # NFL-005 (2026-10-09): `!cancelled()` because the nflverse capture now runs before this step. A failed
         # download must never skip the fresh injury capture the whole pregame chain conditions on.
         if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
@@ -263,6 +264,7 @@ jobs:
       # Content-addressed (`wx`): an unchanged upstream writes nothing. Free and keyless (nflverse). A source failure
       # degrades to the previous capture, which the 3-day bound then refuses honestly — it never fails the window.
       - name: Capture NFL depth charts on game days (QB1 freshness for Level A NFL legs)
+        id: depthcharts
         if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
         continue-on-error: true
         working-directory: app
@@ -273,6 +275,22 @@ jobs:
             1|3|4|6|7) node scripts/nfl/acquire-depth-chart-research.mjs --season "$(date -u +%Y)" ;;
             *) echo "ET weekday $DOW is not an NFL game day or the day before one — depth charts not refreshed" ;;
           esac
+
+      # RED SIGNAL (PD 2026-11-10): both captures above are eligibility inputs and run continue-on-error so the window still
+      # commits. A failure is never silent: a ::warning on the run and the ops alert (the cron-watchdog path,
+      # scripts/ops_alert.sh, OPS_ALERT_KIND warning). Guarded by depth-chart-refresh.test.mjs.
+      - name: Alert when an eligibility input capture failed
+        if: ${{ !cancelled() && (steps.nflinjuries.outcome == 'failure' || steps.depthcharts.outcome == 'failure') }}
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          OPS_ALERT_KIND: warning
+          PHASE: nfl-event-window
+          EXIT_STATUS: "1"
+          ERROR_LINE: "eligibility input capture failed: injuries=${{ steps.nflinjuries.outcome }} depth-charts=${{ steps.depthcharts.outcome }}; the previous capture stays and the freshness bounds refuse what it cannot support"
+        run: |
+          set -euo pipefail
+          echo "::warning::nfl-event-window: eligibility input capture failed (injuries=${{ steps.nflinjuries.outcome }}, depth-charts=${{ steps.depthcharts.outcome }})"
+          bash scripts/ops_alert.sh
 
       # `!cancelled()` (P0 · 2026-09-24) — THE SAME LESSON AS THE BLOCK BELOW, ONE STEP EARLIER.
       #
