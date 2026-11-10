@@ -205,3 +205,20 @@ test("SOURCE PIN · the MLB, EPL and UFC hubs mount the full status panel from t
   }
   assert.match(src("src/app/nfl/page.tsx"), /nfl\/model-status\.json/, "the NFL hub's own receipt-driven table stays the reference surface");
 });
+
+test("WEB-08: NFL player ranges with a breached forward family read WATCH (the board falls back and keeps publishing), never Paused", async () => {
+  const root = tmp();
+  write(root, "admin/model-health.json", { generatedAt: "2026-11-09T02:00:00Z", families: [
+    { id: "nfl_forward_receptions", sport: "nfl", state: "BREACHED", n: 40 },
+    { id: "nfl_forward_rush_yds", sport: "nfl", state: "HOLDING", n: 40 },
+  ] });
+  const ranges = modelStatusFor("nfl", { dataRoot: root, repoRoot: root, nowIso: NOW }).find((i) => i.id === "nfl_player_forward");
+  assert.equal(ranges.state, "WATCH");
+  assert.match(ranges.headline, /fell back to the previous rule/);
+  const { plainStatusLine } = await import("../../components/home/plain-lanes.ts");
+  const line = plainStatusLine([{ family: ranges.family, state: ranges.state }]);
+  assert.doesNotMatch(line, /Player ranges: paused/i);
+  assert.match(line, /Player ranges: watch/);
+  /* The fallback the status describes is real: a FORWARD_BREACHED market is skipped by the v2 board and served by v1. */
+  assert.match(fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/share-level-board.mjs"), "utf8"), /FORWARD_BREACHED falls back to v1/);
+});

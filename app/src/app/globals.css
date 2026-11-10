@@ -6164,3 +6164,10 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 .gtp-state-tag.is-live { color: var(--vault-text); border-color: var(--vault-danger); }
 .gtp-state-tag.is-live::before { content: ""; width: 7px; height: 7px; border-radius: 999px; background: var(--vault-danger); }
 .gtp-state-tag.is-final { color: var(--vault-text); border-color: var(--vault-text-mute); }
+
+/* /players and /teams directory cards (2026-11-09): one class instead of the same inline style object on every card,
+   which the export carried twice per card (HTML + flight) and pushed /players over its weight ceiling. Same values as
+   research-primitives PANEL + the card's own display/link/min-height. */
+.dir-cards { list-style: none; margin: 16px 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+.dir-card { display: block; text-decoration: none; color: var(--vault-text); min-height: 44px; background: var(--vault-panel); border: 1px solid var(--vault-rule); border-radius: 12px; padding: clamp(14px, 2vw, 20px); }
+.dir-card-count { display: block; font-size: 12px; color: var(--vault-text-mute); margin-top: 4px; }

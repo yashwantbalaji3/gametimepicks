@@ -82,7 +82,9 @@ permissions:
 
 jobs:
   quality:
-    runs-on: ubuntu-latest
+    # Pinned (2026-11-09): ubuntu-latest moved to 26.04, where Playwright cannot install Chromium ("does not support
+    # chromium on ubuntu26.04-x64"), so the browser accessibility step could not run. 24.04 is the supported image.
+    runs-on: ubuntu-24.04
     # RAISED 25 -> 40 because the ceiling was cancelling the gate's LAST phase, not because any
     # check was slow to pass. Measured on this same workflow:
     #
@@ -274,7 +276,9 @@ jobs:
   # script-style modules). Run each as `python -m`, in its own job so a Python failure never hides
   # behind (or waits for) the Node build.
   python:
-    runs-on: ubuntu-latest
+    # Pinned (2026-11-09): ubuntu-latest moved to 26.04, where Playwright cannot install Chromium ("does not support
+    # chromium on ubuntu26.04-x64"), so the browser accessibility step could not run. 24.04 is the supported image.
+    runs-on: ubuntu-24.04
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v5
