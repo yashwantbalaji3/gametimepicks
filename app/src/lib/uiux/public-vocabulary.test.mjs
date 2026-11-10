@@ -20,7 +20,11 @@ const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..
 const OUT = path.join(APP, "out");
 const hasBuild = fs.existsSync(path.join(OUT, "index.html"));
 
-const RETIRED_EVERYWHERE = ["Picks Lab", "Build-a-Pick", "Parlay Lab"];
+/* UX-06 (founder-approved direction, 2026-11-09): "Parlay Lab" is again the product's one public name (it was the retired
+   /picks era's name), so it left this list. "Parlay Center" is not added yet: two eligibility-owned strings
+   (components/products/eligible-universe.tsx, engine-v2 nfl-family-eligibility-public.mjs) still say it — their owners'
+   change, after which it joins this list. */
+const RETIRED_EVERYWHERE = ["Picks Lab", "Build-a-Pick"];
 /*
  * Founder directive 2026-10-23 public readiness: the hedging phrases retired in favour of the five public terms
  * (lib/public-registry.ts RETIRED_PUBLIC_PHRASES — Official Forecast · Game Simulation · What-if Scenario · Model
