@@ -29,6 +29,11 @@ export const QB_MARKET_STATUS = Object.freeze({
   passInt: MARKET_STATUS.IMPLEMENTED_EXPERIMENTAL,
 });
 export const mayFeedOfficialPicks = (status) => status === MARKET_STATUS.VALIDATED_OFFICIAL;
+/**
+ * R5 (eligibility contract v1), the one rule for the research section AND the grader: a QB line only where the game's
+ * official forecast knows its starting-QB situation. QB-blind, UNKNOWN, or no team-input record ⇒ no line.
+ */
+export const r5Allows = (teamInputs) => Boolean(teamInputs?.state) && teamInputs.state !== "BLIND_TO_STARTING_QB_ABSENCE" && teamInputs.state !== "UNKNOWN";
 /** Versioned challengers: { challengerId, version, receiptDir, registeredAt }. Empty: no challenger is registered. */
 export const QB_CHALLENGERS = Object.freeze([]);
 export const QB_DASHBOARD_SCHEMA = "gtp.nfl.qb-props-dashboard@1";

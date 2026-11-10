@@ -13,7 +13,7 @@
  * publishable.
  */
 import React from "react";
-import { qbHistory, qbMarketViews } from "@/lib/sports/nfl/qb-props-markets.mjs";
+import { qbHistory, qbMarketViews, r5Allows } from "@/lib/sports/nfl/qb-props-markets.mjs";
 
 type Quant = { p10: number; p50: number; p90: number };
 type PlayerRow = { playerId: string; name?: string | null; team: string; stats?: Record<string, Quant>; countPmf?: Record<string, number[]>; exactCounts?: Record<string, Record<string, number>> };
@@ -28,7 +28,7 @@ const STATUS_WORDS: Record<string, string> = {
 
 /** R5: may this game carry a QB line at all? Only a forecast whose team inputs know the starting-QB situation. */
 export function qbLineAllowed(teamInputs: { state?: string } | null | undefined): boolean {
-  return Boolean(teamInputs?.state) && teamInputs!.state !== "BLIND_TO_STARTING_QB_ABSENCE" && teamInputs!.state !== "UNKNOWN";
+  return r5Allows(teamInputs);
 }
 
 /** The projected QB per team: the largest pass-attempt median (the grader's rule). */

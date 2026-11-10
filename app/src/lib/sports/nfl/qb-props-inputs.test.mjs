@@ -1,0 +1,93 @@
+/**
+ * NFL QB props · grade mode wiring (qb-props-inputs.mjs, qb-props-r5-log.mjs, scripts/nfl/grade-qb-props.mjs).
+ * SYNTHETIC ROOT ONLY: a temporary directory with made-up receipts, box scores, finals and forecasts. No committed final
+ * is read and no real outcome is graded (founder ruling 2026-11-10).
+ * Run (from app/): npx tsx --test src/lib/sports/nfl/qb-props-inputs.test.mjs
+ */
+import test from "node:test";
+import assert from "node:assert/strict";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { spawnSync } from "node:child_process";
+import { LEDGER_REL, loadGradeInputs, runGrade } from "./qb-props-inputs.mjs";
+import { R5_LOG_REL, foldR5Log, r5FromLog } from "./qb-props-r5-log.mjs";
+import { APPROVED_PREREG_SHA256, PREREG_APPROVED_AT } from "./qb-props-grade.mjs";
+
+const SHA = "synthetic-prereg";
+const put = (root, rel, obj) => { const p = path.join(root, rel); fs.mkdirSync(path.dirname(p), { recursive: true }); fs.writeFileSync(p, JSON.stringify(obj)); };
+const q = (v) => ({ p10: v, p50: v, p90: v });
+const qbRow = (id, team) => ({ playerId: `nfl-athlete-${id}`, name: `QB${id}`, team, stats: { passAtt: q(30), cmp: q(20), passYds: q(240), passTd: q(1), int: q(0) }, exactCounts: { passYds: { 230: 5, 250: 5 }, cmp: { 20: 10 }, passAtt: { 30: 10 }, passTd: { 1: 10 }, int: { 0: 10 } } });
+const box = (id, team, passYds) => ({ playerId: `nfl-athlete-${id}`, name: `QB${id}`, teamAbbr: team, passAtt: 30, passCmp: 20, passYds, passTd: 1, passInt: 0 });
+
+function synthRoot() {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "qbp-synth-"));
+  const g = (id, week, date) => ({ providerEventId: id, season: 2026, week, dateUtc: date, home: { abbr: "AAA" }, away: { abbr: "BBB" }, players: [box(1, "AAA", 240), box(2, "BBB", 250)] });
+  put(root, "data/internal/research/nfl/player-events-v1/2026.json", { contentHash: "synthetic", games: [g("11", 11, "2026-11-16T18:00Z"), g("12", 12, "2026-11-23T18:00Z")] });
+  put(root, "data/internal/research/nfl/sim-v2/shadow/2026-11-16/11-a.json", { eventId: "11", generatedAt: "2026-11-16T12:00:00Z", eventStart: "2026-11-16T18:00Z", artifactHash: "h11", playerStatDistributions: [qbRow(1, "AAA"), qbRow(2, "BBB")] });
+  put(root, "data/internal/research/nfl/sim-v2/shadow/2026-11-23/12-a.json", { eventId: "12", generatedAt: "2026-11-23T12:00:00Z", eventStart: "2026-11-23T18:00Z", artifactHash: "h12", playerStatDistributions: [qbRow(1, "AAA"), qbRow(2, "BBB")] });
+  put(root, "data/internal/nfl/official-stats/11.json", { state: "FINAL", players: { a: { team: "AAA", passYds: 240 }, b: { team: "BBB", passYds: 250 } } });
+  put(root, "data/internal/nfl/official-stats/12.json", { state: "IN_PROGRESS", players: {} });
+  put(root, R5_LOG_REL, foldR5Log(null, [{ providerEventId: "11", generatedAt: "2026-11-16T11:00:00Z", teamInputs: { state: "NO_STARTING_QB_ABSENCE" } }], new Map([["11", "2026-11-16T18:00Z"]])));
+  return root;
+}
+
+test("refusal comes first: without an approved AND timestamped hash, no final, box score or receipt is read", () => {
+  assert.deepEqual([...APPROVED_PREREG_SHA256], []);
+  assert.deepEqual({ ...PREREG_APPROVED_AT }, {});
+  const root = synthRoot();
+  const reads = [];
+  const orig = fs.readFileSync;
+  fs.readFileSync = (p, ...a) => { reads.push(String(p)); return orig(p, ...a); };
+  try {
+    assert.deepEqual(runGrade({ root, preregSha256: SHA }), { refused: "no approved pre-registration" });
+    assert.deepEqual(runGrade({ root, preregSha256: SHA, approvals: [SHA], approvedAt: {} }), { refused: "the approved pre-registration has no approval timestamp" });
+  } finally { fs.readFileSync = orig; }
+  assert.deepEqual(reads, [], "nothing was read before the gate");
+  assert.ok(!fs.existsSync(path.join(root, LEDGER_REL)));
+});
+
+test("approved (synthetic): reads every input, applies R5 from the freeze log, excludes non-finals, writes a ledger", () => {
+  const root = synthRoot();
+  const inp = loadGradeInputs(root);
+  assert.equal(inp.entries.length, 2);
+  assert.equal(inp.verified.size, 1, "only FINAL games are verified");
+  assert.equal(inp.inputs.r5LogEvents, 1);
+  assert.equal(inp.eligibilityAt, null, "eligibility@1 is not on this branch");
+  const r = runGrade({ root, preregSha256: SHA, approvals: [SHA], approvedAt: { [SHA]: "2026-11-10T20:00:00Z" }, write: true });
+  assert.equal(r.wrote, LEDGER_REL);
+  const led = JSON.parse(fs.readFileSync(path.join(root, LEDGER_REL), "utf8"));
+  assert.equal(led.counts.qbGames, 2, "game 11, both teams");
+  assert.equal(led.counts.notFinal, 1, "game 12 is not final");
+  assert.equal(led.counts.confirmatoryQbGames, 0, "eligibility PENDING ⇒ nothing confirmatory, whatever R5 says");
+  assert.deepEqual(led.rows.map((x) => [x.team, x.r5, x.eligibility]), [["AAA", true, "PENDING_ELIGIBILITY_CONTRACT"], ["BBB", true, "PENDING_ELIGIBILITY_CONTRACT"]]);
+  assert.equal(led.inputs.preregSha256, SHA);
+  assert.equal(led.inputs.approvedAt, "2026-11-10T20:00:00Z");
+  for (const f of ["passYds", "passCmp", "passAtt", "passTd", "passInt"]) assert.equal(led.confirmatory[f].outcome, "INCONCLUSIVE");
+});
+
+test("R5 freeze log: keeps the latest pre-kickoff forecast; post-kickoff and older forecasts never replace it; no entry ⇒ not allowed", () => {
+  const starts = new Map([["1", "2026-11-16T18:00Z"], ["2", "2026-11-16T18:00Z"]]);
+  let log = foldR5Log(null, [{ providerEventId: "1", generatedAt: "2026-11-16T10:00:00Z", teamInputs: { state: "NO_STARTING_QB_ABSENCE" } }], starts);
+  log = foldR5Log(log, [{ providerEventId: "1", generatedAt: "2026-11-16T12:00:00Z", teamInputs: { state: "BLIND_TO_STARTING_QB_ABSENCE" } }], starts);
+  assert.equal(log.events["1"].teamInputsState, "BLIND_TO_STARTING_QB_ABSENCE", "a later pre-kickoff forecast wins");
+  const after = foldR5Log(log, [{ providerEventId: "1", generatedAt: "2026-11-16T19:00:00Z", teamInputs: { state: "NO_STARTING_QB_ABSENCE" } }, { providerEventId: "1", generatedAt: "2026-11-16T09:00:00Z", teamInputs: { state: "NO_STARTING_QB_ABSENCE" } }], starts);
+  assert.deepEqual(after, log, "post-kickoff and older forecasts change nothing");
+  assert.deepEqual(foldR5Log(log, [], starts), log, "a week rolling off the public files keeps the log");
+  const r5 = r5FromLog(log);
+  assert.equal(r5({ eventId: "1" }), false, "QB-blind ⇒ no line");
+  assert.equal(r5({ eventId: "2" }), false, "no record ⇒ not allowed");
+  assert.equal(r5FromLog(foldR5Log(null, [{ providerEventId: "2", generatedAt: "2026-11-15T00:00:00Z", teamInputs: { state: "NO_STARTING_QB_ABSENCE" } }], starts))({ eventId: "2" }), true);
+});
+
+test("the script: --grade refuses with exit 2 under the frozen constants; counts mode never loads the grade-mode inputs module", () => {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "qbp-prereg-"));
+  const file = path.join(dir, "prereg.md");
+  fs.writeFileSync(file, "synthetic pre-registration\n");
+  const r = spawnSync(process.execPath, ["scripts/nfl/grade-qb-props.mjs", "--grade", "--prereg", file], { cwd: process.cwd(), encoding: "utf8" });
+  assert.equal(r.status, 2, r.stderr);
+  assert.match(r.stderr, /^REFUSED: no approved pre-registration/);
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/nfl/grade-qb-props.mjs"), "utf8");
+  assert.doesNotMatch(src, /^import [^\n]*qb-props-inputs/m, "grade-mode inputs are imported only inside the --grade branch");
+  assert.match(src, /if \(process\.argv\.includes\("--grade"\)\) \{[\s\S]*?await import\("\.\.\/\.\.\/src\/lib\/sports\/nfl\/qb-props-inputs\.mjs"\)/);
+});

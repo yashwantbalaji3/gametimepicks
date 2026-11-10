@@ -32,6 +32,8 @@ export const QB_PROPS_COUNTS_SCHEMA = "gtp.nfl.qb-props-forward-counts@1";
 export const APPROVED_PREREG_SHA256 = Object.freeze([]);
 /** Weeks looked at before any threshold was approved (disclosed 2026-11-10): permanently exploratory, never confirmatory. */
 export const SEEN_EXPLORATORY_WEEKS = Object.freeze([5, 6, 7, 8, 9]);
+/** sha256 → the founder's written approval timestamp (ISO). The confirmatory window opens after it. Empty. */
+export const PREREG_APPROVED_AT = Object.freeze({});
 /** May grading run with this pre-registration file? Only when its sha256 is an approved one. */
 export const gradingApproved = (preregSha256, approvals = APPROVED_PREREG_SHA256) => typeof preregSha256 === "string" && approvals.includes(preregSha256);
 export const QB_FAMILIES = Object.freeze([
