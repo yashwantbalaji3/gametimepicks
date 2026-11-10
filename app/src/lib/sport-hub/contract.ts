@@ -99,6 +99,17 @@ export interface HubGameRow {
   participants?: HubParticipant[];
   /** How the matchup joins its sides: "@" (away at home), "v" (soccer, home first), "vs" (UFC). */
   separator?: "@" | "v" | "vs";
+  /**
+   * A final's standing (2026-11-10): "settled" = the official result of record; "under-review" = a final the owner has
+   * not settled (NBA FINAL_UNDER_REVIEW). Absent: a "final" status is the schedule owner's settled final. Only a settled
+   * final carries the FINAL · settled tag (GameStateTag) on a hub.
+   */
+  resultState?: "settled" | "under-review";
+}
+
+/** Does this row show a SETTLED final (the FINAL · settled tag)? */
+export function isSettledFinal(r: Pick<HubGameRow, "status" | "resultState">): boolean {
+  return String(r.status ?? "").toLowerCase() === "final" && r.resultState !== "under-review";
 }
 
 export interface HubParticipant {

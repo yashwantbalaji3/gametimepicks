@@ -107,6 +107,7 @@ export function nbaHubFrom({ nowIso, schedule, finals, laneIds = null }: { nowIs
       reportState: "NONE",
       reportHref: null,
       reportNote,
+      ...(isFinal ? { resultState: fin.state === "FINAL" ? "settled" as const : "under-review" as const } : {}),
       participants: [away, home].map((s) => ({ name: s.label, logoTeam: s.team ? s.team.espnAbbr : null, logoSport: s.team ? ("nba" as const) : null })),
       separator: "@",
     });
@@ -141,6 +142,7 @@ export function nbaHubFrom({ nowIso, schedule, finals, laneIds = null }: { nowIs
       reportState: "NONE",
       reportHref: null,
       reportNote: `${awayLabel} ${fin.ftAway} – ${homeLabel} ${fin.ftHome}${fin.state === "FINAL_UNDER_REVIEW" ? " (under review)" : ""}`,
+      resultState: fin.state === "FINAL" ? "settled" as const : "under-review" as const,
       participants: [[awayLabel, awayTeam], [homeLabel, homeTeam]].map(([name, team]) => ({ name: name as string, logoTeam: team ? (team as any).espnAbbr : null, logoSport: team ? ("nba" as const) : null })),
       separator: "@",
     });
