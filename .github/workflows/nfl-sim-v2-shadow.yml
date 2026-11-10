@@ -38,15 +38,22 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: "20"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
       - name: Simulate unstarted games whose inputs changed (write-once)
         run: |
           set -euo pipefail
           node app/scripts/nfl/build-nfl-sim-v2-shadow.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      # the QB props scripts reach nflOfficialOfRecord (a .ts module with "@/" imports): tsx, from app/
+      - name: Install app dependencies (tsx)
+        working-directory: app
+        run: npm ci
       - name: QB props slate job (counts + dashboard only; grading of real outcomes LOCKED until the prereg is approved)
+        working-directory: app
         run: |
           set -euo pipefail
-          node app/scripts/nfl/grade-qb-props.mjs --write
-          node app/scripts/nfl/build-qb-props-history.mjs --write
+          npx tsx scripts/nfl/grade-qb-props.mjs --write
+          npx tsx scripts/nfl/build-qb-props-history.mjs --write
       - name: Commit new shadow receipts (add-only)
         run: |
           set -euo pipefail
