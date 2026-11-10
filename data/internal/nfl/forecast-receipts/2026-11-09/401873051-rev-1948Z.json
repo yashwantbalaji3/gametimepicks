@@ -1,0 +1,142 @@
+{
+ "providerEventId": "401873051",
+ "canonicalEventId": "nfl-401873051",
+ "matchup": "BUF @ MIN",
+ "home": {
+  "abbr": "MIN",
+  "name": "Minnesota Vikings"
+ },
+ "away": {
+  "abbr": "BUF",
+  "name": "Buffalo Bills"
+ },
+ "kickoffUtc": "2026-11-10T01:15Z",
+ "seasonType": 2,
+ "week": 9,
+ "venue": "U.S. Bank Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-regular-season-public-v1",
+  "version": 2,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "a7296a32dbe39762",
+  "simulations": 10000,
+  "derivedFrom": [
+   "nfl-win-elo-mov-v1@v1",
+   "nfl-margin-elo-hfa-v1@v1",
+   "nfl-model-v1-elo-analytic@v1",
+   "nfl-gamesim-v1-joint-normal@v1"
+  ],
+  "totalsHead": {
+   "id": "matchup-totals-v3-play-efficiency",
+   "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
+   "gamesFolded": 7411,
+   "foldedThrough": "2026-11-08",
+   "sigma": 13.32677
+  },
+  "winHead": {
+   "id": "nfl-model-v1-elo-analytic",
+   "fallbackFrom": "nfl-win-elo-mov-v1",
+   "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
+  },
+  "marginHead": {
+   "id": "nfl-model-v1-elo-analytic",
+   "fallbackFrom": "nfl-margin-elo-hfa-v1",
+   "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
+  }
+ },
+ "teamSignal": {
+  "state": "APPLIED",
+  "note": "Team strength moves this forecast: the Elo-logistic win head over a 881-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
+ },
+ "generatedAt": "2026-11-09T19:48:08Z",
+ "evidence": {
+  "schedule": "2026-11-09T19:44:35Z",
+  "strengthCutoff": "2026-11-09T19:48:08Z",
+  "strengthGamesFolded": 881,
+  "regressedToSeason": null
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 22,
+   "away": 22,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "winProbability": {
+   "home": 0.4874,
+   "away": 0.4818,
+   "tieMass": 0.0308,
+   "homeUnrounded": 0.487391371638488,
+   "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
+  },
+  "margin": {
+   "median": 0,
+   "p10": -17,
+   "p90": 17
+  },
+  "total": {
+   "median": 44,
+   "p10": 27,
+   "p90": 61,
+   "head": "matchup-totals-v3-play-efficiency"
+  },
+  "scoreRange": {
+   "homeP10": 10,
+   "homeP90": 34,
+   "awayP10": 10,
+   "awayP90": 34
+  },
+  "distribution": {
+   "marginMean": 0.14,
+   "marginSigma": 13.7,
+   "totalMean": 44.0767,
+   "totalSigma": 13.33,
+   "source": "nfl-gamesim-v1-joint-normal"
+  }
+ },
+ "marketComparison": {
+  "state": "NO_MARKET",
+  "note": "No current sportsbook capture covers this game."
+ },
+ "teamInputs": {
+  "version": 1,
+  "consumedByModel": false,
+  "participationAsOf": "2026-11-09T19:48:08Z",
+  "state": "BLIND_TO_STARTING_QB_ABSENCE",
+  "absences": [
+   {
+    "playerId": "nfl-athlete-3917315",
+    "name": "Kyler Murray",
+    "team": "MIN",
+    "status": "Out",
+    "statedAt": "2026-11-07T19:24Z",
+    "depthChartAt": "2026-11-07T13:54:10Z"
+   }
+  ],
+  "comparisonWithheld": true,
+  "note": "This forecast does not account for Kyler Murray (MIN, Out). Our team model rates teams from past results and does not adjust for who plays quarterback, so it is not compared with the sportsbooks for this game — their price already reflects the absence."
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401873051",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Educational and paper-only — not betting advice.",
+ "sideDecision": {
+  "schemaVersion": "side-decision@1",
+  "publishedSide": "HOME",
+  "rule": "MODEL_FAVORED_V1",
+  "abstention": null,
+  "frozenAt": "2026-11-09T19:48:08Z"
+ },
+ "revisionOf": "401873051.json",
+ "priorInputHash": "bde36149541657c3",
+ "inputs": {
+  "injuries": {
+   "sourceAsOf": "2026-11-09T19:48:35Z"
+  },
+  "rosters": {
+   "sourceAsOf": "2026-11-09T19:48:08Z"
+  }
+ }
+}
