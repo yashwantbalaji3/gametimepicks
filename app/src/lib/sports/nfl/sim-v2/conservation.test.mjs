@@ -5,6 +5,9 @@
  *   score = 6·TD + XP + 2·2pt + 3·FG + 2·safety · Σ rec = cmp ≤ att · Σ recYds = passYds
  *   firstTd is the earliest TD of ANY kind, defensive included (MKT-01: a pick-six first ⇒ team = the defence, no player)
  *   P(2+) ≤ P(1+) · team-first-TD probabilities (incl. "none") sum to 1 · same seed ⇒ byte-identical receipt
+ * Founder decision 3 (2026-11-10): the passing identities also hold with TWO QBs and a NON-QB passer (the away fixture);
+ * any run replays by index to the same box; @2.2 exact run counts cover every run and give exact line probabilities.
+ * Historical outcome bias is NOT tested here (it belongs to the grader, after pre-registration).
  * Run (from app/): npx tsx --test src/lib/sports/nfl/sim-v2/conservation.test.mjs
  */
 import test from "node:test";
@@ -13,7 +16,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { compileParams, prepareTeamPlayers, runRng, simulateGame, tiltedTable, N_PERIODS, N_PSTAT, N_TSTAT, PSTAT, TEAM_STAT } from "./engine.mjs";
 import { calibrate, runBatch } from "./simulate.mjs";
-import { buildNflSimulationReceipt, validateSimulationReceipt, COUNT_PMF_FAMILIES, DEF_ST_SCORER } from "./receipt.mjs";
+import { buildNflSimulationReceipt, validateSimulationReceipt, exactOver, COUNT_PMF_FAMILIES, DEF_ST_SCORER, EXACT_COUNT_FAMILIES } from "./receipt.mjs";
 import { readShadowReceipts } from "./public-receipt.mjs";
 
 const ROOT = path.resolve(process.cwd(), "..");
@@ -27,7 +30,15 @@ const team = (tag) => ({
     { playerId: `${tag}-te`, name: "TE", position: "TE", passShare: 0, targetShare: 0.18, carryShare: 0, catchRate: 0.7, ypr: 10.1, ypc: null },
   ],
 });
-const prep = [prepareTeamPlayers(team("h")), prepareTeamPlayers(team("a"))];
+// away: two QBs and a WR who throws (trick plays / injury relief) — every passer must reconcile, not only the starter
+const multiPasser = (tag) => {
+  const t = team(tag);
+  t.players[0].passShare = 0.8;
+  t.players.splice(1, 0, { playerId: `${tag}-qb2`, name: "QB2", position: "QB", passShare: 0.15, targetShare: 0, carryShare: 0.02, catchRate: null, ypr: null, ypc: 4.5 });
+  t.players[3].passShare = 0.05; // wr1 (after the splice)
+  return t;
+};
+const prep = [prepareTeamPlayers(team("h")), prepareTeamPlayers(multiPasser("a"))];
 const tables = [tiltedTable(compiled, 0.05), tiltedTable(compiled, -0.05)];
 const SEED = "c0ffee01";
 const N_GAMES = 1000;
@@ -42,6 +53,7 @@ const sumP = (out, side, k) => { let a = 0; for (let s = 0; s <= prep[side].n; s
 
 test(`§4 NFL invariants hold on every one of ${N_GAMES} seeded games`, () => {
   let defFirst = 0;
+  const passers = new Map(); // away slot → games in which it threw a pass
   for (let i = 0; i < N_GAMES; i++) {
     const { out, events, run } = play(i);
     for (const side of [0, 1]) {
@@ -56,6 +68,20 @@ test(`§4 NFL invariants hold on every one of ${N_GAMES} seeded games`, () => {
       assert.equal(sumP(out, side, "rec"), t("cmp"), `${at}: Σ rec = cmp`);
       assert.ok(t("cmp") <= t("passAtt"), `${at}: cmp ≤ att`);
       assert.equal(sumP(out, side, "recYds"), t("passYds"), `${at}: Σ recYds = passYds`);
+      assert.equal(sumP(out, side, "passYds"), t("passYds"), `${at}: Σ passer passYds = team passYds`);
+      assert.equal(sumP(out, side, "cmp"), t("cmp"), `${at}: Σ passer cmp = team cmp`);
+      assert.equal(sumP(out, side, "passAtt"), t("passAtt"), `${at}: Σ passer att = team att`);
+      assert.equal(sumP(out, side, "int"), t("int"), `${at}: Σ passer int = team int`);
+      for (let s = 0; s <= prep[side].n; s++) {
+        const v = (k) => out.players[side][s * N_PSTAT + PSTAT[k]];
+        assert.ok(v("cmp") <= v("passAtt") && v("passTd") <= v("cmp"), `${at} slot ${s}: per-passer cmp ≤ att, passTd ≤ cmp`);
+        if (side === 1 && v("passAtt") > 0) passers.set(s, (passers.get(s) ?? 0) + 1);
+      }
+    }
+    // score = the scoring events in the drive log, defensive TDs included
+    for (const side of [0, 1]) {
+      const tdEvents = events.filter((e) => (e.result === "TD" && e.offense === side) || (e.result === "OPP_TD" && e.offense === 1 - side)).length;
+      assert.equal(out.team[side][TEAM_STAT.passTd] + out.team[side][TEAM_STAT.rushTd] + out.team[side][TEAM_STAT.defTd], tdEvents, `game ${i} side ${side}: team TDs = TD events in the drive log (incl. DEF/ST)`);
     }
     // the first TD is the earliest TD of any kind, read from the drive log
     const first = events.find((e) => e.result === "TD" || e.result === "OPP_TD") ?? null;
@@ -67,6 +93,7 @@ test(`§4 NFL invariants hold on every one of ${N_GAMES} seeded games`, () => {
     }
   }
   assert.ok(defFirst > 0, "the 1,000 games include defensive-TD-first games (the MKT-01 case is exercised)");
+  assert.ok(passers.size >= 3, `both away QBs and the WR passed in some game (slots ${[...passers.keys()]})`);
 });
 
 test("MKT-01 fixture: a pick-six as the first TD ⇒ firstTd names the defence and no player; the receipt buckets it as DEF/ST", () => {
@@ -91,8 +118,8 @@ function receiptFor(seed, runs = 1500) {
 }
 const R = receiptFor(SEED);
 
-test("receipt @2.1: count PMFs per player sum to 1 and agree with ATD / 2+ (P(2+) ≤ P(1+)); team-first-TD incl. none sums to 1", () => {
-  assert.equal(R.schemaVersion, "simulation-receipt@2.1");
+test("receipt @2.2: count PMFs per player sum to 1 and agree with ATD / 2+ (P(2+) ≤ P(1+)); team-first-TD incl. none sums to 1", () => {
+  assert.equal(R.schemaVersion, "simulation-receipt@2.2");
   assert.deepEqual(validateSimulationReceipt(R), []);
   const qb = R.playerStatDistributions.find((p) => p.playerId === "h-qb");
   assert.ok(qb.countPmf.passTd && qb.countPmf.int, "the QB carries pass TD and interception PMFs");
@@ -114,6 +141,53 @@ test("receipt @2.1: count PMFs per player sum to 1 and agree with ATD / 2+ (P(2+
   const scorers = R.scoringEventDistributions.firstTdScorer;
   assert.ok(scorers.some((s) => s.playerId === DEF_ST_SCORER.playerId), "defensive first TDs are their own bucket");
   assert.ok(Math.abs(scorers.reduce((a, s) => a + s.probability, 0) + t.none - 1) <= 0.01, "Σ first-TD scorers + none = 1");
+});
+
+test("receipt @2.2: exact run counts cover every run, agree with the PMFs, and give exact half-yard line probabilities", () => {
+  const n = R.runCount;
+  assert.deepEqual(R.provenance, { baseSeed: R.baseSeed, runCount: n, artifactHash: R.artifactHash, engine: R.simulationEngine, engineVersion: R.simulationEngineVersion, schema: "simulation-receipt@2.2" });
+  const awayPassers = R.playerStatDistributions.filter((p) => p.team === "AWY" && p.exactCounts?.passYds).map((p) => p.playerId).sort();
+  assert.deepEqual(awayPassers, ["a-qb", "a-qb2", "a-wr1"], "every player who threw in some run carries passing counts; non-passers do not");
+  for (const p of R.playerStatDistributions) {
+    for (const [k, counts] of Object.entries(p.exactCounts ?? {})) {
+      assert.ok(EXACT_COUNT_FAMILIES.includes(k));
+      assert.equal(Object.values(counts).reduce((a, b) => a + b, 0), n, `${p.playerId} ${k}: covers every run`);
+      for (const v of Object.keys(counts)) assert.ok(Number.isInteger(Number(v)), `${p.playerId} ${k}: integer support (${v})`);
+    }
+    for (const [k, pmf] of Object.entries(p.countPmf ?? {})) {
+      const c = p.exactCounts?.[k];
+      if (!c) continue;
+      for (let j = 0; j < 6; j++) assert.ok(Math.abs((c[String(j)] ?? 0) / n - pmf[j]) <= 0.00006, `${p.playerId} ${k}=${j}: PMF = counts / runs`);
+    }
+  }
+  // exact P(over x.5) straight from the runs, recomputed independently from the batch arrays
+  const anchors = { home: 24, away: 21, source: "conservation test", modelVersion: { forecastModel: "t" } };
+  const cal = calibrate({ compiled, anchors, baseSeed: SEED, runs: 600 });
+  const batch = runBatch({ compiled, thetas: cal.thetas, players: prep, baseSeed: SEED, runs: 1500 });
+  const qb = R.playerStatDistributions.find((p) => p.playerId === "h-qb");
+  for (const line of [199.5, 224.5, 249.5]) {
+    let above = 0;
+    for (let i = 0; i < n; i++) if (batch.players[0][(i * (prep[0].n + 1) + 0) * N_PSTAT + PSTAT.passYds] > line) above += 1;
+    assert.equal(exactOver(qb.exactCounts.passYds, line, n), above / n, `P(passYds > ${line})`);
+  }
+  // a receipt that loses a run fails validation
+  const broken = structuredClone(R);
+  const pc = broken.playerStatDistributions.find((p) => p.playerId === "h-qb").exactCounts.passAtt;
+  pc[Object.keys(pc)[0]] -= 1;
+  assert.ok(validateSimulationReceipt(broken).some((m) => /exact counts cover/.test(m)));
+});
+
+test("deterministic replay: any run re-simulated alone by its index gives the batch's box for that run", () => {
+  const batch = runBatch({ compiled, thetas: [0.05, -0.05], players: prep, baseSeed: SEED, runs: 200 });
+  for (const i of [0, 1, 57, 199]) {
+    const { out, run } = play(i);
+    assert.deepEqual([batch.scores[2 * i], batch.scores[2 * i + 1]], run.score, `run ${i}: score`);
+    for (const side of [0, 1]) {
+      const w = (prep[side].n + 1) * N_PSTAT;
+      assert.deepEqual([...batch.players[side].subarray(i * w, (i + 1) * w)], [...Float32Array.from(out.players[side])], `run ${i} side ${side}: player box`);
+    }
+    assert.deepEqual(play(i).events, play(i).events, `run ${i}: the drive log replays`);
+  }
 });
 
 test("same seed ⇒ byte-identical receipt; a different seed changes it", () => {

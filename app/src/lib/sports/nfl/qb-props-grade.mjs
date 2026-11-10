@@ -13,17 +13,21 @@
  *   ACTUALS         the final box score (player-events-v1, ESPN game summary) — only for games the settlement source
  *                   records FINAL and whose team passing yards agree with it (verified); others are excluded and counted.
  *   FAMILIES        passYds, passCmp, passAtt (continuous); passTd, passInt (counts).
- *   METRICS         n; MAE of the receipt median; bias (actual − median); cov80 (p10 ≤ actual ≤ p90); the trailing-mean
- *                   baseline's MAE (the QB's own earlier 2026 games, ≥ 1 game, else excluded from the baseline pair);
- *                   the paired MAE difference with a game-clustered 95% bootstrap interval (deterministic seed). For the
- *                   counts, count log loss / Brier at 0.5 / 1.5 / 2.5 only where the receipt carries a count PMF
- *                   (simulation-receipt@2.1, 2026-11-10 on) — never approximated from quantiles.
+ *   MODEL           the receipt's exact run counts (simulation-receipt@2.2), or for the counts its count PMF (@2.1);
+ *                   a receipt with neither has no model distribution for that family (counted, never approximated).
+ *   BASELINES       qb-props-scores.mjs (frozen): own previous 8 games (yds/cmp/att), team previous-8 Poisson (TD/INT);
+ *                   league average secondary.
+ *   METRICS         per family: the primary score (yds line log loss; cmp/att CRPS; TD/INT count log loss), cov80, width,
+ *                   bias, interval score, ECE at the lines (yds); model − baseline with a game-clustered 95% bootstrap
+ *                   interval (deterministic seed); the pre-registered decision (familyOutcome) on CONFIRMATORY rows only.
  *   STRATA          starter match (projected QB = the actual starter, the QB with the most attempts); eligibility@1 state
  *                   at freeze when the contract is available (`eligibilityAt`), else PENDING_ELIGIBILITY_CONTRACT.
  */
 
-export const QB_PROPS_LEDGER_SCHEMA = "gtp.nfl.qb-props-ledger@0";
-export const QB_PROPS_COUNTS_SCHEMA = "gtp.nfl.qb-props-forward-counts@0";
+import { PASS_YDS_LINES, QB_SCORES_SPEC, INT_ADEQUACY_MINIMUM, empirical, fromCountPmf, ece, leagueBaseline, ownTrailingBaseline, scoreRow, teamPoissonBaseline } from "./qb-props-scores.mjs";
+
+export const QB_PROPS_LEDGER_SCHEMA = "gtp.nfl.qb-props-ledger@1";
+export const QB_PROPS_COUNTS_SCHEMA = "gtp.nfl.qb-props-forward-counts@1";
 /** sha256 of each pre-registration file the founder has APPROVED in writing. Empty: nothing may be graded yet. */
 export const APPROVED_PREREG_SHA256 = Object.freeze([]);
 /** Weeks looked at before any threshold was approved (disclosed 2026-11-10): permanently exploratory, never confirmatory. */
@@ -31,13 +35,17 @@ export const SEEN_EXPLORATORY_WEEKS = Object.freeze([5, 6, 7, 8, 9]);
 /** May grading run with this pre-registration file? Only when its sha256 is an approved one. */
 export const gradingApproved = (preregSha256, approvals = APPROVED_PREREG_SHA256) => typeof preregSha256 === "string" && approvals.includes(preregSha256);
 export const QB_FAMILIES = Object.freeze([
-  { family: "passYds", stat: "passYds", actual: "passYds", kind: "continuous" },
-  { family: "passCmp", stat: "cmp", actual: "passCmp", kind: "continuous" },
-  { family: "passAtt", stat: "passAtt", actual: "passAtt", kind: "continuous" },
-  { family: "passTd", stat: "passTd", actual: "passTd", kind: "count", lines: [0.5, 1.5, 2.5] },
-  { family: "passInt", stat: "int", actual: "passInt", kind: "count", lines: [0.5, 1.5] },
+  { family: "passYds", stat: "passYds", actual: "passYds", kind: "continuous", score: "yds" },
+  { family: "passCmp", stat: "cmp", actual: "passCmp", kind: "continuous", score: "continuous" },
+  { family: "passAtt", stat: "passAtt", actual: "passAtt", kind: "continuous", score: "continuous" },
+  { family: "passTd", stat: "passTd", actual: "passTd", kind: "count", score: "count" },
+  { family: "passInt", stat: "int", actual: "passInt", kind: "count", score: "count" },
 ]);
 export const FROM_DATE = "2026-10-06";
+/** Pre-registration v1 bars (founder decision 4, 2026-11-10), every family. */
+export const MIN_PAIRED_N = 300;
+export const COV80_RANGE = Object.freeze([0.76, 0.84]);
+const SCORE_NAME = { yds: "mean line log loss at 199.5 / 224.5 / 249.5", continuous: "CRPS (integer grid)", count: "count log loss (6+ pooled)" };
 export const BOOTSTRAP = Object.freeze({ resamples: 2000, seed: 20261110 });
 
 const ms = (iso) => { const t = Date.parse(String(iso ?? "").replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z")); return Number.isFinite(t) ? t : null; };
@@ -73,6 +81,7 @@ export function forwardCounts({ entries, eligibilityAt = null, from = FROM_DATE 
   const fams = QB_FAMILIES.map((f) => f.family);
   const byDate = {}; const byElig = {}; const total = Object.fromEntries(fams.map((f) => [f, 0]));
   let qbRows = 0; let withCountPmf = 0;
+  const withModelDistribution = Object.fromEntries(fams.map((f) => [f, 0]));
   for (const { receipt } of records) {
     for (const [team, qb] of Object.entries(projectedQbs(receipt)).sort(([a], [b]) => a.localeCompare(b))) {
       qbRows += 1;
@@ -83,6 +92,7 @@ export function forwardCounts({ entries, eligibilityAt = null, from = FROM_DATE 
       for (const f of QB_FAMILIES) {
         if (!qb.stats?.[f.stat]) continue;
         total[f.family] += 1;
+        if (modelDist(qb, f)) withModelDistribution[f.family] += 1;
         (byDate[day] ??= Object.fromEntries(fams.map((x) => [x, 0])))[f.family] += 1;
         (byElig[elig] ??= Object.fromEntries(fams.map((x) => [x, 0])))[f.family] += 1;
       }
@@ -91,7 +101,7 @@ export function forwardCounts({ entries, eligibilityAt = null, from = FROM_DATE 
   return {
     schema: QB_PROPS_COUNTS_SCHEMA,
     rule: "receipt of record = latest generatedAt < eventStart; projected QB = largest pass-attempt median; NOT joined to any final",
-    receiptsOfRecord: records.length, excluded, qbRows, withCountPmf, total,
+    receiptsOfRecord: records.length, excluded, qbRows, withCountPmf, total, withModelDistribution,
     byKickoffDate: Object.fromEntries(Object.entries(byDate).sort(([a], [b]) => a.localeCompare(b))),
     byEligibility: byElig,
   };
@@ -108,16 +118,23 @@ export function projectedQbs(receipt) {
   return out;
 }
 
-const pmfLogLoss = (pmf, y) => { const p = pmf[Math.min(pmf.length - 1, Math.max(0, y))]; return -Math.log(Math.max(p, 1e-6)); };
-const pmfOver = (pmf, line) => pmf.reduce((a, p, k) => a + (k > line ? p : 0), 0);
+/** The model's predictive distribution for one family: exact run counts (@2.2), else the count PMF (@2.1) for counts. */
+function modelDist(qb, f) {
+  if (qb.exactCounts?.[f.stat]) return empirical(qb.exactCounts[f.stat]);
+  return f.kind === "count" ? fromCountPmf(qb.countPmf?.[f.stat]) : null;
+}
 
 /**
  * @param {{ entries: Array<{file:string, receipt:object}>, games: Array<object>, verified: Map<string, {teamPassYds: Record<string, number>}>,
- *   eligibilityAt?: (args: { playerId: string, teamAbbr: string, asOf: string }) => ({ state: string } | null) }} a
- *   games: player-events-v1 game rows (providerEventId, week, dateUtc, players[] with passAtt / passCmp / passYds / passTd / passInt)
+ *   eligibilityAt?: (args: { playerId: string, teamAbbr: string, asOf: string }) => ({ state: string } | null),
+ *   r5At?: (args: { eventId: string, teamAbbr: string }) => boolean | null, approvedAt?: string | null }} a
+ *   games: player-events-v1 game rows of EVERY season read (the baselines walk back across seasons), with
+ *          providerEventId, season, week, dateUtc, players[] (passAtt / passCmp / passYds / passTd / passInt)
  *   verified: the settlement source's FINAL games, with each team's passing yards (the cross-check)
+ *   approvedAt: the founder's approval timestamp; a row is CONFIRMATORY only when its kickoff is after it, it is not in
+ *          SEEN_EXPLORATORY_WEEKS, eligibility@1 says ELIGIBLE at freeze and R5 allows the line
  */
-export function gradeQbProps({ entries, games, verified, eligibilityAt = null, from = FROM_DATE, preregSha256 = null, approvals = APPROVED_PREREG_SHA256 }) {
+export function gradeQbProps({ entries, games, verified, eligibilityAt = null, r5At = null, approvedAt = null, from = FROM_DATE, preregSha256 = null, approvals = APPROVED_PREREG_SHA256 }) {
   if (!gradingApproved(preregSha256, approvals)) throw new Error("REFUSED: grading needs a pre-registration file whose sha256 the founder approved (APPROVED_PREREG_SHA256)");
   const { records, excluded } = receiptsOfRecord(entries, { from });
   const gameById = new Map(games.map((g) => [String(g.providerEventId), g]));
@@ -136,20 +153,21 @@ export function gradeQbProps({ entries, games, verified, eligibilityAt = null, f
       const actual = g.players.find((p) => p.playerId === pid && p.passAtt != null) ?? null;
       const starter = g.players.filter((p) => p.teamAbbr === team && p.passAtt != null).sort((a, b) => b.passAtt - a.passAtt || a.playerId.localeCompare(b.playerId))[0] ?? null;
       if (!actual) { counts.projectedQbDidNotPlay += 1; continue; }
-      const prior = games.filter((x) => ms(x.dateUtc) < ms(receipt.eventStart)).flatMap((x) => x.players.filter((p) => p.playerId === pid && p.passAtt != null));
       const elig = eligibilityAt ? eligibilityAt({ playerId: pid, teamAbbr: team, asOf: receipt.generatedAt }) : null;
+      const r5 = r5At ? r5At({ eventId: id, teamAbbr: team }) : null;
+      const eligibility = elig?.state ?? "PENDING_ELIGIBILITY_CONTRACT";
+      const afterApproval = approvedAt != null && ms(receipt.eventStart) > ms(approvedAt);
+      const seen = g.season === 2026 && SEEN_EXPLORATORY_WEEKS.includes(g.week);
       rows.push({
-        eventId: id, week: g.week, team, playerId: pid, name: qb.name ?? actual.name, receipt: file, receiptGeneratedAt: receipt.generatedAt, eventStart: receipt.eventStart,
-        starterMatch: starter?.playerId === pid, eligibility: elig?.state ?? "PENDING_ELIGIBILITY_CONTRACT",
+        eventId: id, season: g.season, week: g.week, team, playerId: pid, name: qb.name ?? actual.name, receipt: file, receiptGeneratedAt: receipt.generatedAt, eventStart: receipt.eventStart,
+        starterMatch: starter?.playerId === pid, eligibility, r5,
+        confirmatory: afterApproval && !seen && eligibility === "ELIGIBLE" && r5 === true,
         families: Object.fromEntries(QB_FAMILIES.map((f) => {
-          const q = qb.stats?.[f.stat] ?? null;
           const y = actual[f.actual];
-          const base = prior.length ? mean(prior.map((p) => p[f.actual] ?? 0)) : null;
-          const pmf = f.kind === "count" ? qb.countPmf?.[f.stat] ?? null : null;
-          return [f.family, q && Number.isFinite(y) ? {
-            actual: y, p10: q.p10, p50: q.p50, p90: q.p90, baseline: base == null ? null : r4(base), priorGames: prior.length,
-            ...(pmf ? { logLoss: r4(pmfLogLoss(pmf, y)), brier: Object.fromEntries(f.lines.map((l) => [l, r4((pmfOver(pmf, l) - (y > l ? 1 : 0)) ** 2)])) } : {}),
-          } : null];
+          if (!Number.isFinite(y)) return [f.family, null];
+          const primary = f.kind === "count" ? teamPoissonBaseline(games, team, receipt.eventStart, f.actual) : ownTrailingBaseline(games, pid, receipt.eventStart, f.actual);
+          const league = leagueBaseline(games, g.season, receipt.eventStart, f.actual, f.kind === "count" ? "count" : "continuous");
+          return [f.family, { actual: y, model: scoreRow(modelDist(qb, f), y, f.score), baseline: scoreRow(primary, y, f.score), league: scoreRow(league, y, f.score) }];
         })),
       });
     }
@@ -157,62 +175,91 @@ export function gradeQbProps({ entries, games, verified, eligibilityAt = null, f
   return { rows, counts };
 }
 
-/** Metrics per family over a set of rows (no verdict). */
-export function familyMetrics(rows, family) {
-  const xs = rows.map((r) => ({ eventId: r.eventId, f: r.families[family] })).filter((x) => x.f);
-  const n = xs.length;
-  if (!n) return { n: 0 };
-  const err = xs.map((x) => Math.abs(x.f.actual - x.f.p50));
-  const paired = xs.filter((x) => x.f.baseline != null);
-  const diffByGame = new Map();
-  for (const x of paired) {
-    const d = Math.abs(x.f.actual - x.f.p50) - Math.abs(x.f.actual - x.f.baseline);
-    (diffByGame.get(x.eventId) ?? diffByGame.set(x.eventId, []).get(x.eventId)).push(d);
+/** mulberry32-driven game-clustered bootstrap of the mean paired difference. */
+function clusteredCi(byGame) {
+  const clusters = [...byGame.values()];
+  if (clusters.length < 2) return null;
+  const next = rng(BOOTSTRAP.seed);
+  const stats = [];
+  for (let b = 0; b < BOOTSTRAP.resamples; b++) {
+    let s = 0, c = 0;
+    for (let i = 0; i < clusters.length; i++) { const k = clusters[Math.floor(next() * clusters.length)]; for (const d of k) { s += d; c += 1; } }
+    stats.push(s / c);
   }
-  const clusters = [...diffByGame.values()];
-  let ci = null;
-  if (clusters.length >= 2) {
-    const next = rng(BOOTSTRAP.seed);
-    const stats = [];
-    for (let b = 0; b < BOOTSTRAP.resamples; b++) {
-      let s = 0, c = 0;
-      for (let i = 0; i < clusters.length; i++) { const k = clusters[Math.floor(next() * clusters.length)]; for (const d of k) { s += d; c += 1; } }
-      stats.push(s / c);
-    }
-    stats.sort((a, b) => a - b);
-    ci = [r4(stats[Math.floor(0.025 * stats.length)]), r4(stats[Math.ceil(0.975 * stats.length) - 1])];
-  }
-  const withPmf = xs.filter((x) => x.f.logLoss != null);
-  return {
-    n,
-    games: new Set(xs.map((x) => x.eventId)).size,
-    mae: r4(mean(err)),
-    bias: r4(mean(xs.map((x) => x.f.actual - x.f.p50))),
-    cov80: r4(mean(xs.map((x) => (x.f.actual >= x.f.p10 && x.f.actual <= x.f.p90 ? 1 : 0)))),
-    baselinePaired: paired.length,
-    baselineMae: paired.length ? r4(mean(paired.map((x) => Math.abs(x.f.actual - x.f.baseline)))) : null,
-    modelMinusBaselineMae: paired.length ? r4(mean(paired.map((x) => Math.abs(x.f.actual - x.f.p50) - Math.abs(x.f.actual - x.f.baseline)))) : null,
-    modelMinusBaselineMaeCi95: ci,
-    countPmfN: withPmf.length,
-    ...(withPmf.length ? { logLoss: r4(mean(withPmf.map((x) => x.f.logLoss))) } : {}),
-  };
+  stats.sort((a, b) => a - b);
+  return [r4(stats[Math.floor(0.025 * stats.length)]), r4(stats[Math.ceil(0.975 * stats.length) - 1])];
 }
 
-/** The ledger: totals and per-week n per family, by stratum. Deterministic: no wall-clock field. */
+/** Metrics per family over a set of rows. Lower primary score is better; the difference is model − baseline. */
+export function familyMetrics(rows, family) {
+  const f = QB_FAMILIES.find((x) => x.family === family);
+  const xs = rows.map((r) => ({ eventId: r.eventId, f: r.families[family] })).filter((x) => x.f?.model);
+  const n = xs.length;
+  const out = { n, noModelDistribution: rows.filter((r) => r.families[family] && !r.families[family].model).length };
+  if (!n) return out;
+  const m = xs.map((x) => x.f.model);
+  const paired = xs.filter((x) => x.f.baseline);
+  const byGame = new Map();
+  for (const x of paired) (byGame.get(x.eventId) ?? byGame.set(x.eventId, []).get(x.eventId)).push(x.f.model.primary - x.f.baseline.primary);
+  const leaguePaired = xs.filter((x) => x.f.league);
+  Object.assign(out, {
+    games: new Set(xs.map((x) => x.eventId)).size,
+    primaryScore: SCORE_NAME[f.score],
+    model: { primary: r4(mean(m.map((s) => s.primary))), cov80: r4(mean(m.map((s) => (s.covered80 ? 1 : 0)))), width80: r4(mean(m.map((s) => s.width))), bias: r4(mean(m.map((s) => s.error))), intervalScore: r4(mean(m.map((s) => s.intervalScore))) },
+    pairedN: paired.length, noBaseline: n - paired.length,
+    baseline: paired.length ? { primary: r4(mean(paired.map((x) => x.f.baseline.primary))), cov80: r4(mean(paired.map((x) => (x.f.baseline.covered80 ? 1 : 0)))) } : null,
+    modelMinusBaseline: paired.length ? r4(mean(paired.map((x) => x.f.model.primary - x.f.baseline.primary))) : null,
+    modelMinusBaselineCi95: clusteredCi(byGame),
+    secondaryLeague: leaguePaired.length ? { n: leaguePaired.length, modelMinusLeague: r4(mean(leaguePaired.map((x) => x.f.model.primary - x.f.league.primary))) } : null,
+  });
+  if (f.score === "yds") out.ece = Object.fromEntries(PASS_YDS_LINES.map((l) => [l, r4(ece(xs.map((x) => ({ p: x.f.model.pOver[l], y: x.f.actual > l ? 1 : 0 }))))]));
+  if (family === "passInt") out.intEvents = { interceptions: xs.reduce((a, x) => a + x.f.actual, 0), qbGamesWithInt: xs.filter((x) => x.f.actual > 0).length };
+  return out;
+}
+
+/**
+ * The pre-registered decision for one family (pre-registration v1 §2), from its CONFIRMATORY metrics:
+ *   INCONCLUSIVE  paired n < 300; INT adequacy minimum unset or not reached; no interval; or the interval contains 0
+ *   FAILED        the interval excludes 0 unfavourably, or cov80 outside 0.76–0.84
+ *   MET           the interval excludes 0 favourably (model − baseline < 0) AND cov80 in 0.76–0.84
+ * Failed or inconclusive ⇒ experimental research only, never official. MET is a necessary condition, not a release.
+ */
+export function familyOutcome(family, m, { intMinimum = INT_ADEQUACY_MINIMUM } = {}) {
+  const reasons = [];
+  if (!((m.pairedN ?? 0) >= MIN_PAIRED_N)) reasons.push(`paired n ${m.pairedN ?? 0} < ${MIN_PAIRED_N}`);
+  if (family === "passInt") {
+    if (intMinimum == null) reasons.push("INT adequacy minimum not set by the founder");
+    else if ((m.intEvents?.interceptions ?? 0) < intMinimum) reasons.push(`interceptions ${m.intEvents?.interceptions ?? 0} < adequacy minimum ${intMinimum}`);
+  }
+  const ci = m.modelMinusBaselineCi95;
+  if (!ci) reasons.push("no interval");
+  if (reasons.length) return { outcome: "INCONCLUSIVE", reasons };
+  const cov = m.model.cov80;
+  const covOk = cov >= COV80_RANGE[0] && cov <= COV80_RANGE[1];
+  if (ci[0] > 0) return { outcome: "FAILED", reasons: ["interval excludes 0 unfavourably", ...(covOk ? [] : [`cov80 ${cov} outside ${COV80_RANGE.join("–")}`])] };
+  if (!covOk) return { outcome: "FAILED", reasons: [`cov80 ${cov} outside ${COV80_RANGE.join("–")}`] };
+  if (ci[1] < 0) return { outcome: "MET", reasons: [] };
+  return { outcome: "INCONCLUSIVE", reasons: ["interval contains 0"] };
+}
+
+/** The ledger: confirmatory decision per family, then exploratory/strata descriptives. Deterministic: no wall-clock field. */
 export function buildLedger({ graded, inputs }) {
   const { rows, counts } = graded;
   const fams = QB_FAMILIES.map((f) => f.family);
   const by = (pred) => Object.fromEntries(fams.map((f) => [f, familyMetrics(rows.filter(pred), f)]));
-  const weeks = [...new Set(rows.map((r) => r.week))].sort((a, b) => a - b);
+  const confirmatory = by((r) => r.confirmatory);
+  const weeks = [...new Set(rows.map((r) => `${r.season}-w${r.week}`))].sort();
   const strata = (key) => Object.fromEntries([...new Set(rows.map((r) => String(r[key])))].sort().map((v) => [v, by((r) => String(r[key]) === v)]));
   return {
     schema: QB_PROPS_LEDGER_SCHEMA,
-    status: "EXPERIMENTAL — no verdict; the pre-registration (DRAFT) must be signed off by the founder before the first look",
+    status: "EXPERIMENTAL — confirmatory rows only decide; everything else is descriptive. Failed or inconclusive ⇒ research only.",
     rule: "receipt of record = latest generatedAt < eventStart; projected QB = largest pass-attempt median; actuals = verified finals",
+    scoresSpec: QB_SCORES_SPEC,
     inputs,
-    counts: { ...counts, qbGames: rows.length },
-    all: by(() => true),
-    byWeek: Object.fromEntries(weeks.map((w) => [`week${w}`, Object.fromEntries(fams.map((f) => [f, familyMetrics(rows.filter((r) => r.week === w), f).n]))])),
+    counts: { ...counts, qbGames: rows.length, confirmatoryQbGames: rows.filter((r) => r.confirmatory).length },
+    confirmatory: Object.fromEntries(fams.map((f) => [f, { ...confirmatory[f], ...familyOutcome(f, confirmatory[f]) }])),
+    exploratoryAll: by(() => true),
+    byWeek: Object.fromEntries(weeks.map((w) => [w, Object.fromEntries(fams.map((f) => [f, familyMetrics(rows.filter((r) => `${r.season}-w${r.week}` === w), f).n]))])),
     byStarterMatch: strata("starterMatch"),
     byEligibility: strata("eligibility"),
     rows,

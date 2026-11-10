@@ -1,5 +1,5 @@
 {
- "schema": "gtp.nfl.qb-props-forward-counts@0",
+ "schema": "gtp.nfl.qb-props-forward-counts@1",
  "rule": "receipt of record = latest generatedAt < eventStart; projected QB = largest pass-attempt median; NOT joined to any final",
  "receiptsOfRecord": 86,
  "excluded": {
@@ -14,6 +14,13 @@
   "passAtt": 172,
   "passTd": 172,
   "passInt": 172
+ },
+ "withModelDistribution": {
+  "passYds": 0,
+  "passCmp": 0,
+  "passAtt": 0,
+  "passTd": 0,
+  "passInt": 0
  },
  "byKickoffDate": {
   "2026-10-09": {
