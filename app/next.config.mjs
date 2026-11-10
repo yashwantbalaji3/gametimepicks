@@ -41,8 +41,14 @@ function buildInfoEnv() {
  * output stays blocked by the September preregistration). OFF, the route renders an inert 404 placeholder that
  * scripts/prune-internal-routes.mjs deletes. Guarded by lib/simulation-theater/nba/possession/public-theater-route.test.mjs.
  */
+/*
+ * GTP_NFL_QB_PROPS_PUBLIC — the EXPERIMENTAL QB line on /nfl/simulation/[eventId] (NFL QB props v0, PD 2026-11-10).
+ * Same compile-time pattern; default OFF (never imported). Guarded by components/nfl/qb-props-line.test.mjs (source)
+ * and qb-props-export.test.mjs (out/: no QB line in a flag-OFF build).
+ */
 const theaterFlagEnv = () => ({
   GTP_NFL_THEATER_PUBLIC: process.env.GTP_NFL_THEATER_PUBLIC === "1" ? "1" : "0",
+  GTP_NFL_QB_PROPS_PUBLIC: process.env.GTP_NFL_QB_PROPS_PUBLIC === "1" ? "1" : "0",
   GTP_NBA_THEATER_PUBLIC: process.env.GTP_NBA_THEATER_PUBLIC === "1" ? "1" : "0",
 });
 

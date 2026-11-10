@@ -30,9 +30,13 @@ const readPublic = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
 };
 
-function canonicalFor(eventId: string): CanonicalForecast | null {
+function officialFor(eventId: string): any {
   const art = unionFrozenForecasts(readPublic("nfl/forecasts/latest.json"), readPublic("nfl/forecasts/frozen-latest.json"), { resolve: nflPublicRecordResolver() });
-  const f = (art?.forecasts ?? []).find((x: any) => String(x.providerEventId) === eventId);
+  return (art?.forecasts ?? []).find((x: any) => String(x.providerEventId) === eventId) ?? null;
+}
+
+function canonicalFor(eventId: string): CanonicalForecast | null {
+  const f = officialFor(eventId);
   const s = f?.forecastSummary;
   if (!s?.winProbability || !s?.projectedScore) return null;
   return {
@@ -55,6 +59,18 @@ async function SimulationReplay({ rec }: { rec: NonNullable<ReturnType<typeof si
   if (process.env.GTP_NFL_THEATER_PUBLIC === "1") {
     const { default: PublicTheaterSection } = await import("@/components/simulation-theater/PublicTheaterSection");
     return <PublicTheaterSection rec={rec} />;
+  }
+  return null;
+}
+
+/**
+ * NFL QB props v0 (EXPERIMENTAL, PD 2026-11-10): the QB line, behind GTP_NFL_QB_PROPS_PUBLIC (default OFF — a compile-time
+ * constant, so OFF the component is never part of the build) and R5-gated on the game's official forecast inside it.
+ */
+async function QbProps({ rec, eventId }: { rec: NonNullable<ReturnType<typeof simulationOfRecord>>; eventId: string }) {
+  if (process.env.GTP_NFL_QB_PROPS_PUBLIC === "1") {
+    const { default: QbPropsLine } = await import("@/components/nfl/qb-props-line");
+    return <QbPropsLine receipt={rec.receipt} teamInputs={officialFor(eventId)?.teamInputs ?? null} />;
   }
   return null;
 }
@@ -97,6 +113,7 @@ export default function NflSimulationV2Page({ params }: { params: { eventId: str
           projected game), above the simulation report; flag OFF this renders nothing and the page is unchanged */}
       <SimulationReplay rec={rec} />
       <SimulationV2Report r={r} file={rec.file} canonical={canonicalFor(params.eventId)} gameHref={gameHref} />
+      <QbProps rec={rec} eventId={params.eventId} />
     </div>
   );
 }
