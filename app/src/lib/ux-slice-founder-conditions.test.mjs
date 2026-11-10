@@ -72,3 +72,10 @@ test("4 · ONE shared game card: the hubs (card and row), Today and the homepage
   assert.match(card, /class="gtp-ev /);
   assert.match(row, /class="gtp-cr"/);
 });
+
+test("4 · a row with no link still says why (the compact row's report note survives the shared card)", async () => {
+  const { default: GameCard } = await import("../components/game/game-card.tsx");
+  const h = renderToStaticMarkup(React.createElement(GameCard, { density: "row", model: { id: "u", startLabel: "Sat", matchup: "A vs B", facts: [], actions: [], noAction: "not modelled — no tracked history" } }));
+  assert.match(h, /not modelled — no tracked history/);
+  assert.doesNotMatch(h, /<a /);
+});
