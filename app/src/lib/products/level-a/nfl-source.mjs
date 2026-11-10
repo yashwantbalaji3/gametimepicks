@@ -14,7 +14,11 @@
  *                        its kickoff differs from the forecast's
  *   QB_BLIND / TEAM_INPUTS_UNKNOWN   eligibility.mjs gameEligibility (R5)
  *   QB_UNVERIFIED        either team's expected starting QB (depth-chart QB1, depth-chart.mjs, ≤ QB_CHART_MAX_AGE_MS old)
- *                        is not resolved, or resolveEligibility(starter: true) is not ELIGIBLE and featurable
+ *                        is not resolved, or resolveEligibility(starter: true) is not ELIGIBLE and featurable.
+ *                        The bound is NOT new: QB_CHART_MAX_AGE_MS (board-roster-integrity.mjs) is the existing 3-day
+ *                        depth-chart staleness bound of §12.1 (docs/HANDOFF_2026-10-01_SESSION_4_NFL_ROSTER_USAGE.md), the
+ *                        same bound the player boards and team-input coherence use. The chart is refreshed by
+ *                        nfl-event-window on game days and the day before, so it is at most a day old at any kickoff.
  * Pure: every source is an argument. loadNflSelections reads the committed files.
  */
 import fs from "node:fs";

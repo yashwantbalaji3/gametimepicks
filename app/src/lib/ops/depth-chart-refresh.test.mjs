@@ -28,11 +28,21 @@ const WF = fs.readFileSync(path.join(ROOT, ".github/workflows/nfl-depth-charts.y
 const WF_CODE = WF.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
 const ACQ = fs.readFileSync(path.join(process.cwd(), "scripts/nfl/acquire-depth-chart-research.mjs"), "utf8");
 
+const EW = fs.readFileSync(path.join(ROOT, ".github/workflows/nfl-event-window.yml"), "utf8");
+
 test("🔴 the acquirer is actually SCHEDULED — an armed script nothing invokes never fires", () => {
-  assert.match(WF, /schedule:/, "a workflow_dispatch-only job is how eighteen days happened");
-  assert.match(WF, /acquire-depth-chart-research\.mjs/, "the workflow must run the acquirer");
-  const crons = [...WF.matchAll(/- cron: "([^"]+)"/g)].map((m) => m[1]);
-  assert.ok(crons.length >= 2, `expected a real cadence, got ${JSON.stringify(crons)}`);
+  /* Parlay Lab V3 slice 3 (2026-11-10): the schedule moved INTO the scheduled nfl-event-window job on NFL game days and
+     the day before, so the snapshot commits with that window's data (no Production build of its own). The standalone
+     workflow stays for manual runs. A step nothing schedules is still the failure this test exists for. */
+  assert.match(WF, /acquire-depth-chart-research\.mjs/, "the manual workflow still runs the acquirer");
+  assert.match(EW, /schedule:/);
+  const step = EW.slice(EW.indexOf("- name: Capture NFL depth charts on game days"), EW.indexOf("- name: Authorized odds capture"));
+  assert.match(step, /node scripts\/nfl\/acquire-depth-chart-research\.mjs --season/, "the scheduled window runs the acquirer");
+  assert.match(step, /TZ=America\/New_York date \+%u/);
+  assert.match(step, /1\|3\|4\|6\|7\)/, "ET Mon, Wed, Thu, Sat, Sun: NFL game days and the day before");
+  const commit = EW.slice(EW.indexOf("- name: Commit the window's artifacts"));
+  assert.match(commit.slice(0, commit.indexOf("git commit")), /git add [^\n]*data\/internal\/research\/nfl\/depth-charts\//, "committed WITH the window's data");
+  assert.doesNotMatch(WF, /- cron:/, "no standalone schedule: its commits would each be a Production build");
 });
 
 test("🔴 it never runs on SUNDAY — a research refresh must not compete during the acceptance", () => {

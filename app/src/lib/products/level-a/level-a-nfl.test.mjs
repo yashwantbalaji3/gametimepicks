@@ -127,3 +127,12 @@ test("vocabulary and no-price leak: NFL legs carry no price, odds or payout, and
   assert.ok(!/"(american|odds|book|payout|line)":/i.test(text.replace(/"payout":null/g, "")), "no price field");
   for (const w of [/\brecommended\b/i, /\bedge\b/i, /\block\b/i, /\bconfiden(t|ce)\b/i, /\bguarantee/i, /\bbest bet\b/i]) assert.ok(!w.test(text), String(w));
 });
+
+test("the QB freshness bound is the existing §12.1 constant, imported, not a new number", async () => {
+  const { QB_CHART_MAX_AGE_MS } = await import("../../sports/nfl/board-roster-integrity.mjs");
+  assert.equal(QB_CHART_MAX_AGE_MS, 3 * 86400000);
+  const src = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), "nfl-source.mjs"), "utf8");
+  assert.match(src, /import \{ QB_CHART_MAX_AGE_MS \} from "\.\.\/\.\.\/sports\/nfl\/board-roster-integrity\.mjs";/);
+  assert.doesNotMatch(src.replace(/\/\*[\s\S]*?\*\//g, ""), /86400000|86_400_000|\b3 \* 24\b/, "no second copy of the bound");
+  assert.match(src, /§12\.1/);
+});
