@@ -1,8 +1,10 @@
-# NFL QB props v0: pre-registration v1 (FROZEN, awaiting founder approval of this hash)
+# NFL QB props v0: pre-registration v1.1 (FROZEN, awaiting founder approval of this hash)
 
 **Status: FROZEN, NOT APPROVED.** No grading runs against real outcomes until the founder approves this exact file in writing.
 
-The approval is recorded as this file's sha256 in `APPROVED_PREREG_SHA256` (`app/src/lib/sports/nfl/qb-props-grade.mjs`). The grader refuses any other file. Any edit after approval changes the sha256 and makes a new registration.
+The approval is recorded as this file's sha256 in `APPROVED_PREREG_SHA256` and its timestamp in `PREREG_APPROVED_AT` (`app/src/lib/sports/nfl/qb-props-grade.mjs`). The grader refuses any other file, and refuses an approved file that has no timestamp. Any edit after approval changes the sha256 and makes a new registration.
+
+v1.1 differs from v1 (sha256 `693919cf…77e9`) only by the grade-mode wiring (§4a), the R5 source (§4), the approval timestamp constant (§7) and this note. The bars, scores, baselines and §5 are unchanged.
 
 ## 1. The founder's decisions (2026-11-10), verbatim
 
@@ -82,7 +84,7 @@ All five markets are `IMPLEMENTED_EXPERIMENTAL` today. No data file or job can c
   - exact chances from the run counts: TDs 1+ / 2+ / 3+, yards 200+ / 225+ / 250+, INT 1+ / 2+. Completions and attempts show the range only, with no manufactured line;
   - the QB's actual previous games, labelled **History**, never a forecast and never an input to the chances.
 - **Research section:** `/nfl/simulation/[eventId]`, behind `GTP_NFL_QB_PROPS_PUBLIC` (default OFF). It is labelled EXPERIMENTAL · MODEL PROJECTION, with no prices, edges or confidence words. It is turned on only through the normal release gate, once the simulation, data-integrity, eligibility and functional tests pass.
-- **Per-slate loop:** the `nfl-sim-v2-shadow` workflow runs `app/scripts/nfl/grade-qb-props.mjs --write` after each receipt run. It writes `forward-counts.json` and `dashboard.json` (`data/internal/research/nfl/qb-props/`): market status, forward rows per slate, and the challenger slot. While grading is LOCKED, neither file holds an outcome or a metric.
+- **Per-slate loop:** the `nfl-sim-v2-shadow` workflow runs `app/scripts/nfl/grade-qb-props.mjs --write` after each receipt run. It writes `forward-counts.json`, `dashboard.json` and `r5-at-freeze.json` (`data/internal/research/nfl/qb-props/`): market status, forward rows per slate, the challenger slot and R5 at freeze. While grading is LOCKED, none of them holds an outcome or a metric.
 - **Challenger:** `QB_CHALLENGERS` (empty) holds versioned challengers. A challenger is graded beside the incumbent on the same rows and reported on the dashboard, and never changes a market's status by itself. Retraining or recalibration is a new model version, so a new registration, promoted only through these gates.
 
 ## 3. Scores and baselines (frozen in code)
@@ -108,7 +110,7 @@ Code: `app/src/lib/sports/nfl/qb-props-scores.mjs` (`qb-props-scores@1`), tested
   - kickoff after the founder's approval timestamp (§7);
   - not in 2026 weeks 5–9;
   - eligibility@1 ELIGIBLE at freeze;
-  - R5 allows the QB line (the game forecast is not QB-blind).
+  - R5 allows the QB line (the game forecast is not QB-blind). R5 is read from `data/internal/research/nfl/qb-props/r5-at-freeze.json`. The per-slate job records each game's official-forecast `teamInputs.state` from the latest official forecast generated before kickoff; a later or post-kickoff forecast never replaces it. A game with no entry is not allowed. This is interim until CANON-01's `nflOfficialOfRecord` is on main.
 
   A row with unknown eligibility is never confirmatory.
 - **Weeks 5–9 of 2026** are exploratory forever (`SEEN_EXPLORATORY_WEEKS`).
@@ -121,6 +123,19 @@ Code: `app/src/lib/sports/nfl/qb-props-scores.mjs` (`qb-props-scores@1`), tested
   - no baseline.
 - **Strata:** starter match and eligibility state. They are reported beside the result and never used to choose one.
 - **The look:** happens once per family, when its paired n reaches 300. A failed or inconclusive family is not re-run with edited bars; a new model version is a new registration.
+
+## 4a. Grade mode (wired, refusing)
+
+- **Command:** `node app/scripts/nfl/grade-qb-props.mjs --grade --prereg <this file> --write`.
+- **Gate first:** `runGrade` (`app/src/lib/sports/nfl/qb-props-inputs.mjs`) checks the sha256 against `APPROVED_PREREG_SHA256` and `PREREG_APPROVED_AT` before reading anything. Refused means exit 2, and nothing is read or written.
+- **After the gate, it reads:**
+  - the shadow receipts;
+  - every season of player-events-v1;
+  - the FINAL official stats (`data/internal/nfl/official-stats/`);
+  - the R5 log.
+- **It writes:** `data/internal/research/nfl/qb-props/ledger.json`, with the decision per family from confirmatory rows only and the inputs digest, sha256 and approval timestamp.
+- **Eligibility:** eligibility@1 at freeze is wired once the contract is on main. Until then every row is PENDING, and none is confirmatory.
+- **Tests:** synthetic only (`qb-props-inputs.test.mjs`): nothing is read before the gate, exit 2 under the frozen constants, a ledger on a synthetic root, and the R5 log rules.
 
 ## 5. Implementation choices made under this registration (founder to confirm or replace before approval)
 
@@ -148,5 +163,5 @@ The author of this file has seen descriptive weeks 5–9 results (§6). The foun
 |---|---|
 | Founder approval (written) and timestamp | ________ |
 | Confirmatory window opens | at the first kickoff after that timestamp |
-| sha256 of this file as approved | ________ (also recorded in `APPROVED_PREREG_SHA256`) |
+| sha256 of this file as approved | ________ (also recorded in `APPROVED_PREREG_SHA256`, with the timestamp in `PREREG_APPROVED_AT`) |
 | Grader commit frozen with it | ________ |
