@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { sportNightStatus, OFF_SEASON_TIER_REASON, NBA_VISITOR_CLAUSE, NFL_CLOSED_TEXT } from "./sport-night-status.ts";
+import { sportNightStatus, OFF_SEASON_TIER_REASON, NBA_VISITOR_CLAUSE, NFL_CLOSED_TEXT, NFL_OPEN_TEXT } from "./sport-night-status.ts";
 import { MODEL_SUGGESTION_CAPABILITIES } from "../sport-capability-registry.ts";
 
 const MLB_OVER = "The MLB season is over — the 2026 World Series ended on 2026-10-31. Cards return when games do.";
@@ -34,12 +34,12 @@ test("(2) each sport's copy matches its Level A registry state and reason", () =
   assert.equal(nba.text, `1 game tonight. The official Elo sides are on the NBA page. ${NBA_VISITOR_CLAUSE}`);
   assert.ok(reg("nba").reason.includes(NBA_VISITOR_CLAUSE), "the NBA clause is the registry's own words");
   assert.equal(nfl.suggestions, reg("nfl").state);
-  assert.equal(reg("nfl").state, "CLOSED");
-  assert.equal(nfl.text, `2 games tonight. ${NFL_CLOSED_TEXT}`);
-  assert.ok(reg("nfl").reason.startsWith("No reader for the NFL official game forecast has been reviewed"), "the NFL text restates the registry's CLOSED reason");
+  /* NFL Level A OPEN since founder decision 2026-11-10; the CLOSED wording stays for a re-close */
+  assert.equal(nfl.text, `2 games tonight. ${reg("nfl").state === "OPEN" ? NFL_OPEN_TEXT : NFL_CLOSED_TEXT}`);
+  assert.ok(reg("nfl").state !== "OPEN" || /eligible expected starting quarterbacks, a verified kickoff/.test(reg("nfl").reason), "the open text restates the registry's gates");
   /* visitor copy never names a model version or an internal axis */
   for (const l of [nba, nfl]) assert.ok(!/v\d+\.\d|Level [AB]\b/.test(l.text), l.text);
-  /* nothing here opens a sport: NBA untiered, NFL closed, exactly as recorded */
+  /* NBA stays untiered (founder decision 2026-11-10, decision 2) */
   assert.equal(reg("nba").probabilityPublished, false);
 });
 

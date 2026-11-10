@@ -196,8 +196,10 @@ export const MODEL_SUGGESTION_CAPABILITIES: ReadonlyArray<ModelSuggestionCapabil
     reason: "The public Premier League forecast publishes home/draw/away probabilities for every current pre-event match." },
   { key: "ligue-1", state: "OPEN", forecastOwner: "soccer-league-forecasts (Ligue 1, model-only)", markets: ["1x2"], probabilityPublished: true,
     reason: "The public Ligue 1 forecast publishes model-only home/draw/away probabilities for each fixture, stamped before kickoff." },
-  { key: "nfl", state: "CLOSED", forecastOwner: null, markets: [], probabilityPublished: false,
-    reason: "No reader for the NFL official game forecast has been reviewed for Level A yet; NFL stays out until one is." },
+  /* Founder decision 2026-11-10 (Parlay Lab V3, decision 1): ~/gtp-evidence/nov10-founder-parlay-v3-decisions.md
+     sha256 70bb6a2c4b68057f9e9743c93b0cde1f7815d56a401da375352a20045141dda2. Read only through nflOfficialOfRecord. */
+  { key: "nfl", state: "OPEN", forecastOwner: "nfl official forecast of record (nflOfficialOfRecord: nfl-regular-season-public-v1)", markets: ["winner"], probabilityPublished: true,
+    reason: "The official NFL game forecast of record is frozen before kickoff and publishes each game's side and win probability; a game enters only with eligible expected starting quarterbacks, a verified kickoff and a valid forecast (founder decision 2026-11-10)." },
   { key: "ufc", state: "CLOSED", forecastOwner: null, markets: [], probabilityPublished: false,
     reason: "UFC has no independent official forecast: its moneyline is a de-vigged market price with a capped nudge." },
 ] as ModelSuggestionCapability[]);

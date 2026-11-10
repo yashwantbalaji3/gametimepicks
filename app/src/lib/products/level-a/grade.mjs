@@ -5,6 +5,7 @@
  *   EPL      gradeSoccerLeg match_result (sports/soccer/settlement-contract.mjs) on the EPL lane's official finals
  *   Ligue 1  gradeSoccerLeg match_result on the league's committed finals
  *   NBA      gradeNbaLabLeg moneyline (parlays/nba-lab-grading.mjs → the NBA settlement contract)
+ *   NFL      gradeNflLeg moneyline (sports/nfl/settlement-contract.mjs) on the committed ESPN results (a tie pushes → void)
  *
  * THREE RULES (release owner 2026-10-23):
  *   PENDING IS NEVER A LOSS. No final, an unjoined result, a quarantined score, an unknown market: pending, and the
@@ -22,6 +23,7 @@ import { createHash } from "node:crypto";
 import { settleMlbMoneyline } from "../../mlb/product-settlement/mlb-markets.ts";
 import { gradeSoccerLeg } from "../../sports/soccer/settlement-contract.mjs";
 import { gradeNbaLabLeg } from "../../parlays/nba-lab-grading.mjs";
+import { gradeNflLeg } from "../../sports/nfl/settlement-contract.mjs";
 
 export const LEVEL_A_GRADE_SCHEMA = "gtp.level-a.grade@1";
 export const LEVEL_A_GRADER_VERSION = "level-a-forward-grader@1";
@@ -52,6 +54,13 @@ export function gradeLevelALeg(leg, finals) {
   if (leg.sport === "nba") {
     const g = gradeNbaLabLeg({ sport: "nba", eventId: leg.eventId, market: "moneyline", side }, (eventId) => finals?.nba?.(eventId) ?? null);
     return out(FINAL.has(g.result) ? g.result : "pending", g.reason, g.grader);
+  }
+  if (leg.sport === "nfl") {
+    /* the NFL settlement contract: a tied final pushes (void, never a loss); no final is pending */
+    let r = null;
+    try { r = finals?.nfl?.(leg.eventId) ?? null; } catch { r = null; }
+    const g = gradeNflLeg({ market: "moneyline", side }, r);
+    return out(g.outcome === "WIN" ? "win" : g.outcome === "LOSS" ? "loss" : g.outcome === "PUSH" ? "void" : "pending", g.reason, "nfl-settlement-contract");
   }
   return out("pending", `no Level A grader for ${leg.sport} — held, never a loss`, null);
 }

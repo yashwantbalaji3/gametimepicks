@@ -21,6 +21,8 @@
  *            same rows /epl publishes): the most likely of home / draw / away and its probability; the full 1X2
  *            split is the uncertainty shown beside it. The lane owns that artifact; nothing here names its path.
  *   Ligue 1  app/public/data/soccer/ligue-1/forecasts/latest.json (model-only rows, each with forecastAt): the same.
+ *   NFL      nfl-source.mjs: the official forecast of record (nflOfficialOfRecord) per scheduled game, gated on eligible
+ *            expected starting QBs, a verified kickoff and a valid forecast (founder decision 2026-11-10).
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -28,6 +30,7 @@ import { canEnterModelSuggestions } from "../../sport-capability-registry.ts";
 import { loadEplForecasts, forecastRows as eplForecastRows } from "../../sports/epl/forecast-view.ts";
 import { eloWinProbabilityOf, eloWinProbabilityText } from "../../sports/nba/elo-win-probability.mjs";
 import { loadEloWinProbabilityContext } from "../../sports/nba/elo-win-probability-context.mjs";
+import { loadNflSelections } from "./nfl-source.mjs";
 
 const readJson = (f) => { try { return JSON.parse(fs.readFileSync(f, "utf8")); } catch { return null; } };
 const OUTCOME_LABEL = { home: "home win", draw: "draw", away: "away win" };
@@ -122,8 +125,10 @@ function soccerSelections({ source, league, owner }) {
 }
 
 /** Every OPEN sport's official selections for `date` (plus NBA player projections). */
-export function levelASources({ repoRoot, date }) {
+export function levelASources({ repoRoot, date, now = new Date().toISOString() }) {
   const out = { selections: [], nbaProjections: [] };
+  /* NFL: founder decision 2026-11-10 (Parlay Lab V3 decision 1), through nflOfficialOfRecord only (nfl-source.mjs) */
+  if (canEnterModelSuggestions("nfl")) out.selections.push(...loadNflSelections({ repoRoot, date, now }));
   if (canEnterModelSuggestions("mlb")) out.selections.push(...mlbSelections({ repoRoot, date }));
   if (canEnterModelSuggestions("nba")) { const n = nbaSelections({ repoRoot, date }); out.selections.push(...n.selections); out.nbaProjections = n.projections; }
   if (canEnterModelSuggestions("epl")) out.selections.push(...soccerSelections({ source: eplRows(), league: "epl", owner: "epl-model-v2-elo-poisson public forecast" }));

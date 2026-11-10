@@ -30,6 +30,7 @@ export const OFF_SEASON_TIER_REASON = "No card at this risk level tonight. Each 
  * the page prints the registry's own visitor clause for NBA and a plain statement of NFL's CLOSED state.
  */
 export const NBA_VISITOR_CLAUSE = "NBA suggestions show the side without a chance and are never tiered.";
+export const NFL_OPEN_TEXT = "Official forecasts are open for Parlay Lab suggestions; a game enters only with eligible starting quarterbacks and a verified kickoff.";
 export const NFL_CLOSED_TEXT = "Not yet open for suggestions: the official NFL game forecast has not been reviewed for them yet.";
 
 const capability = (sport: string) => MODEL_SUGGESTION_CAPABILITIES.find((c) => c.key === sport) ?? null;
@@ -45,7 +46,7 @@ export function sportNightStatus({ mlbOffSeasonReason, nbaGames, nflGames }: { m
     : { sport: "nba", label: "NBA", state: "NO_SLATE", suggestions: nba?.state ?? null, text: "No games on tonight’s slate." });
   const nfl = capability("nfl");
   lines.push(nflGames > 0
-    ? { sport: "nfl", label: "NFL", state: "SLATE", suggestions: nfl?.state ?? null, text: nfl?.state === "CLOSED" ? `${games(nflGames)}. ${NFL_CLOSED_TEXT}` : `${games(nflGames)}.` }
+    ? { sport: "nfl", label: "NFL", state: "SLATE", suggestions: nfl?.state ?? null, text: nfl?.state === "CLOSED" ? `${games(nflGames)}. ${NFL_CLOSED_TEXT}` : `${games(nflGames)}. ${NFL_OPEN_TEXT}` }
     : { sport: "nfl", label: "NFL", state: "NO_SLATE", suggestions: nfl?.state ?? null, text: "No games on tonight’s slate." });
   return lines;
 }
