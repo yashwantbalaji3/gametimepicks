@@ -23,9 +23,12 @@ test("(1) an NBA-only night: the MLB season text appears only in the MLB line; t
   assert.ok(!/MLB|season is over/i.test(OFF_SEASON_TIER_REASON));
   assert.equal(lines.find((l) => l.sport === "nba").state, "SLATE");
   assert.equal(lines.find((l) => l.sport === "nfl").text, "No games on tonight’s slate.");
-  /* the page passes the neutral reason to every tier and to the no-card state, never the MLB reason */
-  assert.ok(PAGE.includes("reason: OFF_SEASON_TIER_REASON"));
-  assert.ok(!/reason: offSeasonReason\b/.test(PAGE) && !/reason=\{offSeasonReason \?\?/.test(PAGE));
+  /* the page never repeats the MLB reason on every tier: the tiers get none, one MLB-labelled card carries it
+     (risk-ladder-board offSeason, "MLB risk tiers · off-season"), and the no-card state uses the neutral reason */
+  assert.ok(PAGE.includes("skipped={offSeasonReason ? [] :"));
+  assert.ok(!/\(\{ tier, reason: offSeasonReason/.test(PAGE) && !/reason=\{offSeasonReason \?\?/.test(PAGE), "no tier carries the MLB reason");
+  assert.ok(PAGE.includes("reason={offSeasonReason ? OFF_SEASON_TIER_REASON :"));
+  assert.ok(PAGE.includes("<SportNightStatus lines={sportNight} />"));
 });
 
 test("(2) each sport's copy matches its Level A registry state and reason", () => {

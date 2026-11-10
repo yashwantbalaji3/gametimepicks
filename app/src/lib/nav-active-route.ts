@@ -27,7 +27,9 @@ export type MobileNavBucket =
   | "results"
   | "live"
   | "sports"
-  | "account";
+  | "account"
+  | "products"
+  | "ask";
 
 export interface MobileNavItem {
   bucket: MobileNavBucket;
@@ -61,20 +63,25 @@ export const MOBILE_NAV_ITEMS: ReadonlyArray<MobileNavItem> = destinationsFor("m
  *   - /trends redirects to Results but is retired analysis, not the record: nothing.
  */
 const OWNERS: ReadonlyArray<readonly [string, readonly string[]]> = [
-  ["/picks", ["/build"]], ["/parlays", ["/build"]], ["/parlay-lab", ["/build"]],
-  ["/mlb/parlays", ["/build"]], ["/nba/parlays", ["/build"]],
-  ["/games", ["/simulate"]], ["/events", ["/simulate"]],
-  ["/board", ["/mlb", "/simulate"]], ["/projections", ["/mlb", "/simulate"]],
+  ["/picks", ["/build", "/products"]], ["/parlays", ["/build", "/products"]], ["/parlay-lab", ["/build", "/products"]],
+  ["/mlb/parlays", ["/build", "/products"]], ["/nba/parlays", ["/build", "/products"]],
+  /* 2026-11-09: game surfaces (the simulation lobby, Live and the legacy game hubs) belong to Today — the bar's slot
+     for tonight's games — since Simulations and Live left the bar. */
+  ["/simulate", ["/simulate", "/"]], ["/live", ["/live", "/"]],
+  ["/games", ["/simulate", "/"]], ["/events", ["/simulate", "/"]],
+  ["/board", ["/mlb", "/simulate", "/sports"]], ["/projections", ["/mlb", "/simulate", "/sports"]],
   ["/methodology", ["/methodology", "/learn"]],
   ["/responsible-use", ["/responsible-use", "/learn"]],
   ["/results/model-audit", ["/results/model-audit", "/learn", "/results"]],
   ["/record", ["/results"]],
+  ["/today", ["/today", "/"]],
   ["/nhl", ["/sports"]], ["/ipl", ["/sports"]], ["/world-cup", ["/sports"]], ["/world-cup-specials", ["/sports"]],
   ["/trends", []],
 ];
 
 const HREFS = [...new Set(NAV_DESTINATIONS.map((d) => d.href))];
 const HUBS = new Set(COMPETITIONS.map((c) => c.href));
+const PRODUCT_HREFS = new Set(NAV_DESTINATIONS.filter((d) => d.group === "products").map((d) => d.href));
 
 /** "/a/b/" → "/a/b"; "" and non-strings → null. */
 function normalize(pathname: unknown): string | null {
@@ -92,6 +99,8 @@ export function ownersOf(pathname: string | null | undefined): readonly string[]
   if (explicit) return explicit[1];
   const chain = HREFS.filter((h) => h !== "/" && under(p, h)).sort((a, b) => b.length - a.length);
   if (chain.some((h) => HUBS.has(h))) chain.push("/sports");
+  // 2026-11-09: every paper-product page lights the Products primary (as a sport hub lights Sports)
+  if (chain.some((h) => PRODUCT_HREFS.has(h))) chain.push("/products");
   return chain;
 }
 
@@ -101,7 +110,9 @@ export function activeHref(pathname: string | null | undefined, hrefs: Iterable<
   return ownersOf(pathname).find((h) => carried.has(h)) ?? null;
 }
 
-const BUCKET_OF = new Map(NAV_DESTINATIONS.filter((d) => d.bucket).map((d) => [d.href, d.bucket as MobileNavBucket]));
+/* 2026-11-09: only the bar's own destinations can be lit — a page owned by an off-bar destination (/markets, /build,
+   /bank-builder) lights the primary that holds it (Products) through ownersOf, instead of a bucket no slot carries. */
+const BUCKET_OF = new Map(destinationsFor("mobile").filter((d) => d.bucket).map((d) => [d.href, d.bucket as MobileNavBucket]));
 
 /**
  * The phone-bar bucket for a pathname: the bucket of the first owner that has one, or null (better silent than a

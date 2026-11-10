@@ -142,9 +142,13 @@ test("9 · /results links to /mr-dub labelled as Mr. Dub's Portfolio", () => {
 });
 
 // ── 10. No Parlay Lab residual in the public /results body ───────────────
-test("10 · no 'Parlay Lab' residual in the visible /results body", () => {
-  assert.doesNotMatch(PAGE_CODE, /Parlay Lab/);
-  assert.doesNotMatch(TC_CODE, /Parlay Lab/);
+/* UX-06 (2026-11-09): "Parlay Lab" is again the product's one public name (it was retired in favour of "Parlay Center" /
+   "Suggested Parlays", which this guard kept off /results). The inversion holds the new rule: the old names are gone. */
+test("10 · no 'Parlay Center' / 'Suggested Parlays' residual in the visible /results body", () => {
+  for (const old of [/Parlay Center/, /Suggested Parlays/]) {
+    assert.doesNotMatch(PAGE_CODE, old);
+    assert.doesNotMatch(TC_CODE, old);
+  }
 });
 
 // ── 11. The /mr-dub link uses the full product name, never the bare codename ──

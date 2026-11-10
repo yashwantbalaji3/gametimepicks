@@ -6007,6 +6007,6485 @@
      "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
     }
    }
+  },
+  {
+   "edition": 2,
+   "frozenAt": "2026-11-10T17:31:43Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v1/forecasts/2026-11-10.json",
+    "sha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+    "artifactGeneratedAt": "2026-11-10T16:44:54Z",
+    "artifactInputAsOf": "2026-11-10T16:44:54Z",
+    "runs": 2,
+    "modelVersion": "nba-sim-v1-coherent"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401909960",
+     "tipoffUtc": "2026-11-11T00:30Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "New York Knicks",
+      "abbr": "NYK",
+      "espnAbbr": "NY",
+      "providerTeamId": "18"
+     },
+     "away": {
+      "name": "Milwaukee Bucks",
+      "abbr": "MIL",
+      "espnAbbr": "MIL",
+      "providerTeamId": "15"
+     },
+     "forecastGeneratedAt": "2026-11-10T16:44:54Z",
+     "forecastInputAsOf": "2026-11-10T16:44:54Z",
+     "gamePayloadSha256": "e2132880541177a874ede4333bf988e1b392266a24c5a01b07217450abb3592f",
+     "state": "ON_EARLIER_EDITION",
+     "flags": []
+    },
+    {
+     "eventId": "401909961",
+     "tipoffUtc": "2026-11-11T01:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Philadelphia 76ers",
+      "abbr": "PHI",
+      "espnAbbr": "PHI",
+      "providerTeamId": "20"
+     },
+     "away": {
+      "name": "Boston Celtics",
+      "abbr": "BOS",
+      "espnAbbr": "BOS",
+      "providerTeamId": "2"
+     },
+     "forecastGeneratedAt": "2026-11-10T17:31:43Z",
+     "forecastInputAsOf": "2026-11-10T17:31:43Z",
+     "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-10|v1|e2|points|401909961|4065648",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jayson Tatum",
+        "providerAthleteId": "4065648"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 22,
+        "mean": 22.06
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 32
+       },
+       "playRate": 0.971,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.27,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.06,
+        "expectedMinutes": 30.27,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-10|v1|e2|points|401909961|3917376",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylen Brown",
+        "providerAthleteId": "3917376"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.45
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 25,
+        "p90": 30
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.17,
+       "minutesSd": 6.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.45,
+        "expectedMinutes": 32.17,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-10|v1|e2|points|401909961|4431678",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.17
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 25,
+        "p90": 30
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.17,
+        "expectedMinutes": 33,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-10|v1|e2|points|401909961|3059318",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Joel Embiid",
+        "providerAthleteId": "3059318"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.1
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 23,
+        "p90": 27
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.72,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.1,
+        "expectedMinutes": 28.72,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-10|v1|e2|points|401909961|4251",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Paul George",
+        "providerAthleteId": "4251"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.1
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 20,
+        "p90": 25
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.1,
+       "minutesSd": 6.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.1,
+        "expectedMinutes": 27.1,
+        "p90": 25
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-10|v1|e2|points|401909961|1966",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "LeBron James",
+        "providerAthleteId": "1966"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.46
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.05,
+       "minutesSd": 6.31,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.46,
+        "expectedMinutes": 29.05,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-10|v1|e2|points|401909961|3078576",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Derrick White",
+        "providerAthleteId": "3078576"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.59
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 22
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.05,
+       "minutesSd": 7.11,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.59,
+        "expectedMinutes": 28.05,
+        "p90": 22
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-10|v1|e2|points|401909961|4066354",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Payton Pritchard",
+        "providerAthleteId": "4066354"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.59
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 22
+       },
+       "playRate": 0.9731,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.51,
+       "minutesSd": 6.39,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.59,
+        "expectedMinutes": 25.51,
+        "p90": 22
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-10|v1|e2|points|401909961|5124612",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.16
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 16,
+        "p90": 20
+       },
+       "playRate": 0.98,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.86,
+       "minutesSd": 6.51,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.16,
+        "expectedMinutes": 30.86,
+        "p90": 20
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 20,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3,
+       "INJURY_DESIGNATION": 3,
+       "NULL_MINUTES": 3,
+       "TEAM_POOL_FALLBACK_RATES": 3,
+       "MISSING_DISTRIBUTION": 3
+      },
+      "players": [
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3195",
+        "name": "Mike Conley",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065804",
+        "name": "Sam Hauser",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277951",
+        "name": "Luka Garza",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351852",
+        "name": "Mitchell Robinson",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397251",
+        "name": "Ron Harper Jr.",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397424",
+        "name": "Neemias Queta",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433188",
+        "name": "Devin Carter",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593841",
+        "name": "Baylor Scheierman",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683689",
+        "name": "Jordan Walsh",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702745",
+        "name": "Amari Williams",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106283",
+        "name": "Dillon Mitchell",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5175647",
+        "name": "Hugo Gonzalez",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-10|v1|e2|rebounds|401909961|4065648",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jayson Tatum",
+        "providerAthleteId": "4065648"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 7,
+        "mean": 6.99
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 9,
+        "p90": 11
+       },
+       "playRate": 0.971,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.27,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.99,
+        "expectedMinutes": 30.27,
+        "p90": 11
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-10|v1|e2|rebounds|401909961|3059318",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Joel Embiid",
+        "providerAthleteId": "3059318"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 7,
+        "mean": 6.89
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 9,
+        "p90": 11
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.72,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.89,
+        "expectedMinutes": 28.72,
+        "p90": 11
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-10|v1|e2|rebounds|401909961|3917376",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylen Brown",
+        "providerAthleteId": "3917376"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 5.99
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.17,
+       "minutesSd": 6.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.99,
+        "expectedMinutes": 32.17,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-10|v1|e2|rebounds|401909961|1966",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "LeBron James",
+        "providerAthleteId": "1966"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.31
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.05,
+       "minutesSd": 6.31,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.31,
+        "expectedMinutes": 29.05,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-10|v1|e2|rebounds|401909961|5124612",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 4.99
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 7,
+        "p90": 8
+       },
+       "playRate": 0.98,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.86,
+       "minutesSd": 6.51,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.99,
+        "expectedMinutes": 30.86,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-10|v1|e2|rebounds|401909961|4251",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Paul George",
+        "providerAthleteId": "4251"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.42
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.1,
+       "minutesSd": 6.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.42,
+        "expectedMinutes": 27.1,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-10|v1|e2|rebounds|401909961|4431678",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.45
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.45,
+        "expectedMinutes": 33,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-10|v1|e2|rebounds|401909961|3078576",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Derrick White",
+        "providerAthleteId": "3078576"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.43
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.05,
+       "minutesSd": 7.11,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.43,
+        "expectedMinutes": 28.05,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-10|v1|e2|rebounds|401909961|4066354",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Payton Pritchard",
+        "providerAthleteId": "4066354"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.95
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9731,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.51,
+       "minutesSd": 6.39,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.95,
+        "expectedMinutes": 25.51,
+        "p90": 6
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 20,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3,
+       "INJURY_DESIGNATION": 3,
+       "NULL_MINUTES": 3,
+       "TEAM_POOL_FALLBACK_RATES": 3,
+       "MISSING_DISTRIBUTION": 3
+      },
+      "players": [
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3195",
+        "name": "Mike Conley",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065804",
+        "name": "Sam Hauser",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277951",
+        "name": "Luka Garza",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351852",
+        "name": "Mitchell Robinson",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397251",
+        "name": "Ron Harper Jr.",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397424",
+        "name": "Neemias Queta",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433188",
+        "name": "Devin Carter",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593841",
+        "name": "Baylor Scheierman",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683689",
+        "name": "Jordan Walsh",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702745",
+        "name": "Amari Williams",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106283",
+        "name": "Dillon Mitchell",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5175647",
+        "name": "Hugo Gonzalez",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-10|v1|e2|assists|401909961|4065648",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jayson Tatum",
+        "providerAthleteId": "4065648"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.69
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.971,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.27,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.69,
+        "expectedMinutes": 30.27,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-10|v1|e2|assists|401909961|1966",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "LeBron James",
+        "providerAthleteId": "1966"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.24
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.05,
+       "minutesSd": 6.31,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.24,
+        "expectedMinutes": 29.05,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-10|v1|e2|assists|401909961|4431678",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.57
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.57,
+        "expectedMinutes": 33,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-10|v1|e2|assists|401909961|3078576",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Derrick White",
+        "providerAthleteId": "3078576"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.54
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.05,
+       "minutesSd": 7.11,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.54,
+        "expectedMinutes": 28.05,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-10|v1|e2|assists|401909961|4066354",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Payton Pritchard",
+        "providerAthleteId": "4066354"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.04
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9731,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.51,
+       "minutesSd": 6.39,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.04,
+        "expectedMinutes": 25.51,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-10|v1|e2|assists|401909961|3917376",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylen Brown",
+        "providerAthleteId": "3917376"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 3.83
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.17,
+       "minutesSd": 6.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.83,
+        "expectedMinutes": 32.17,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-10|v1|e2|assists|401909961|4251",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Paul George",
+        "providerAthleteId": "4251"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.38
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.1,
+       "minutesSd": 6.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.38,
+        "expectedMinutes": 27.1,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-10|v1|e2|assists|401909961|3059318",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Joel Embiid",
+        "providerAthleteId": "3059318"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.07
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.72,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.07,
+        "expectedMinutes": 28.72,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-10|v1|e2|assists|401909961|5124612",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.05
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.98,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.86,
+       "minutesSd": 6.51,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.05,
+        "expectedMinutes": 30.86,
+        "p90": 5
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 20,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3,
+       "INJURY_DESIGNATION": 3,
+       "NULL_MINUTES": 3,
+       "TEAM_POOL_FALLBACK_RATES": 3,
+       "MISSING_DISTRIBUTION": 3
+      },
+      "players": [
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3195",
+        "name": "Mike Conley",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065804",
+        "name": "Sam Hauser",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277951",
+        "name": "Luka Garza",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351852",
+        "name": "Mitchell Robinson",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397251",
+        "name": "Ron Harper Jr.",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397424",
+        "name": "Neemias Queta",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433188",
+        "name": "Devin Carter",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593841",
+        "name": "Baylor Scheierman",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683689",
+        "name": "Jordan Walsh",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702745",
+        "name": "Amari Williams",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106283",
+        "name": "Dillon Mitchell",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5175647",
+        "name": "Hugo Gonzalez",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-10|v1|e2|threes|401909961|4431678",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.49
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.49,
+        "expectedMinutes": 33,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-10|v1|e2|threes|401909961|4065648",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jayson Tatum",
+        "providerAthleteId": "4065648"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.45
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.971,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.27,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.45,
+        "expectedMinutes": 30.27,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-10|v1|e2|threes|401909961|4251",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Paul George",
+        "providerAthleteId": "4251"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.38
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.1,
+       "minutesSd": 6.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.38,
+        "expectedMinutes": 27.1,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-10|v1|e2|threes|401909961|3078576",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Derrick White",
+        "providerAthleteId": "3078576"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.07
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.05,
+       "minutesSd": 7.11,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.07,
+        "expectedMinutes": 28.05,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-10|v1|e2|threes|401909961|4066354",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Payton Pritchard",
+        "providerAthleteId": "4066354"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.07
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9731,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.51,
+       "minutesSd": 6.39,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.07,
+        "expectedMinutes": 25.51,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-10|v1|e2|threes|401909961|3917376",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylen Brown",
+        "providerAthleteId": "3917376"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.81
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.17,
+       "minutesSd": 6.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.81,
+        "expectedMinutes": 32.17,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-10|v1|e2|threes|401909961|5124612",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.73
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.98,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.86,
+       "minutesSd": 6.51,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.73,
+        "expectedMinutes": 30.86,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-10|v1|e2|threes|401909961|3059318",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Joel Embiid",
+        "providerAthleteId": "3059318"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.21
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.72,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.21,
+        "expectedMinutes": 28.72,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-10|v1|e2|threes|401909961|1966",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "LeBron James",
+        "providerAthleteId": "1966"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.13
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.05,
+       "minutesSd": 6.31,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.13,
+        "expectedMinutes": 29.05,
+        "p90": 3
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 20,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3,
+       "INJURY_DESIGNATION": 3,
+       "NULL_MINUTES": 3,
+       "TEAM_POOL_FALLBACK_RATES": 3,
+       "MISSING_DISTRIBUTION": 3
+      },
+      "players": [
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3195",
+        "name": "Mike Conley",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065804",
+        "name": "Sam Hauser",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277951",
+        "name": "Luka Garza",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351852",
+        "name": "Mitchell Robinson",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397251",
+        "name": "Ron Harper Jr.",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397424",
+        "name": "Neemias Queta",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433188",
+        "name": "Devin Carter",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593841",
+        "name": "Baylor Scheierman",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683689",
+        "name": "Jordan Walsh",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702745",
+        "name": "Amari Williams",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106283",
+        "name": "Dillon Mitchell",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5175647",
+        "name": "Hugo Gonzalez",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "pra": {
+     "category": "pra",
+     "label": "PRA",
+     "stat": "pra",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-10|v1|e2|pra|401909961|4065648",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jayson Tatum",
+        "providerAthleteId": "4065648"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 34,
+        "mean": 34.75
+       },
+       "range": {
+        "p10": 22,
+        "p25": 27,
+        "p75": 41,
+        "p90": 49
+       },
+       "playRate": 0.971,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.27,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 34.75,
+        "expectedMinutes": 30.27,
+        "p90": 49
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-10|v1|e2|pra|401909961|3917376",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylen Brown",
+        "providerAthleteId": "3917376"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 30,
+        "mean": 30.27
+       },
+       "range": {
+        "p10": 19,
+        "p25": 23,
+        "p75": 36,
+        "p90": 43
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.17,
+       "minutesSd": 6.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 30.27,
+        "expectedMinutes": 32.17,
+        "p90": 43
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-10|v1|e2|pra|401909961|4431678",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 28,
+        "mean": 28.19
+       },
+       "range": {
+        "p10": 17,
+        "p25": 22,
+        "p75": 34,
+        "p90": 40
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 28.19,
+        "expectedMinutes": 33,
+        "p90": 40
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-10|v1|e2|pra|401909961|3059318",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Joel Embiid",
+        "providerAthleteId": "3059318"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 27,
+        "mean": 28.05
+       },
+       "range": {
+        "p10": 17,
+        "p25": 21,
+        "p75": 34,
+        "p90": 40
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.72,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 28.05,
+        "expectedMinutes": 28.72,
+        "p90": 40
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-10|v1|e2|pra|401909961|1966",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "LeBron James",
+        "providerAthleteId": "1966"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 24,
+        "mean": 25.02
+       },
+       "range": {
+        "p10": 15,
+        "p25": 19,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.05,
+       "minutesSd": 6.31,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 25.02,
+        "expectedMinutes": 29.05,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-10|v1|e2|pra|401909961|4251",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Paul George",
+        "providerAthleteId": "4251"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 23,
+        "mean": 23.91
+       },
+       "range": {
+        "p10": 13,
+        "p25": 18,
+        "p75": 29,
+        "p90": 36
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.1,
+       "minutesSd": 6.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 23.91,
+        "expectedMinutes": 27.1,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-10|v1|e2|pra|401909961|3078576",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Derrick White",
+        "providerAthleteId": "3078576"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.56
+       },
+       "range": {
+        "p10": 11,
+        "p25": 16,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.05,
+       "minutesSd": 7.11,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.56,
+        "expectedMinutes": 28.05,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-10|v1|e2|pra|401909961|4066354",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Payton Pritchard",
+        "providerAthleteId": "4066354"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.58
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 31
+       },
+       "playRate": 0.9731,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.51,
+       "minutesSd": 6.39,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.58,
+        "expectedMinutes": 25.51,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-10|v1|e2|pra|401909961|5124612",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.2
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 25,
+        "p90": 30
+       },
+       "playRate": 0.98,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.86,
+       "minutesSd": 6.51,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.2,
+        "expectedMinutes": 30.86,
+        "p90": 30
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 20,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3,
+       "INJURY_DESIGNATION": 3,
+       "NULL_MINUTES": 3,
+       "TEAM_POOL_FALLBACK_RATES": 3,
+       "MISSING_DISTRIBUTION": 3
+      },
+      "players": [
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3195",
+        "name": "Mike Conley",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065804",
+        "name": "Sam Hauser",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277951",
+        "name": "Luka Garza",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351852",
+        "name": "Mitchell Robinson",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397251",
+        "name": "Ron Harper Jr.",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397424",
+        "name": "Neemias Queta",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433188",
+        "name": "Devin Carter",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593841",
+        "name": "Baylor Scheierman",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683689",
+        "name": "Jordan Walsh",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702745",
+        "name": "Amari Williams",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106283",
+        "name": "Dillon Mitchell",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5175647",
+        "name": "Hugo Gonzalez",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsReb": {
+     "category": "ptsReb",
+     "label": "P+R",
+     "stat": "ptsReb",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-10|v1|e2|ptsReb|401909961|4065648",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jayson Tatum",
+        "providerAthleteId": "4065648"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 28,
+        "mean": 29.06
+       },
+       "range": {
+        "p10": 18,
+        "p25": 22,
+        "p75": 35,
+        "p90": 42
+       },
+       "playRate": 0.971,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.27,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 29.06,
+        "expectedMinutes": 30.27,
+        "p90": 42
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-10|v1|e2|ptsReb|401909961|3917376",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylen Brown",
+        "providerAthleteId": "3917376"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 26,
+        "mean": 26.44
+       },
+       "range": {
+        "p10": 16,
+        "p25": 20,
+        "p75": 32,
+        "p90": 38
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.17,
+       "minutesSd": 6.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 26.44,
+        "expectedMinutes": 32.17,
+        "p90": 38
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-10|v1|e2|ptsReb|401909961|3059318",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Joel Embiid",
+        "providerAthleteId": "3059318"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.98
+       },
+       "range": {
+        "p10": 15,
+        "p25": 19,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.72,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.98,
+        "expectedMinutes": 28.72,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-10|v1|e2|ptsReb|401909961|4431678",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 23,
+        "mean": 23.62
+       },
+       "range": {
+        "p10": 14,
+        "p25": 18,
+        "p75": 29,
+        "p90": 34
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 23.62,
+        "expectedMinutes": 33,
+        "p90": 34
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-10|v1|e2|ptsReb|401909961|4251",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Paul George",
+        "providerAthleteId": "4251"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.52
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 25,
+        "p90": 31
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.1,
+       "minutesSd": 6.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.52,
+        "expectedMinutes": 27.1,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-10|v1|e2|ptsReb|401909961|1966",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "LeBron James",
+        "providerAthleteId": "1966"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.78
+       },
+       "range": {
+        "p10": 11,
+        "p25": 14,
+        "p75": 24,
+        "p90": 30
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.05,
+       "minutesSd": 6.31,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.78,
+        "expectedMinutes": 29.05,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-10|v1|e2|ptsReb|401909961|5124612",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.15
+       },
+       "range": {
+        "p10": 9,
+        "p25": 12,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.98,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.86,
+       "minutesSd": 6.51,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.15,
+        "expectedMinutes": 30.86,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-10|v1|e2|ptsReb|401909961|3078576",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Derrick White",
+        "providerAthleteId": "3078576"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 17.02
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 22,
+        "p90": 27
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.05,
+       "minutesSd": 7.11,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.02,
+        "expectedMinutes": 28.05,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-10|v1|e2|ptsReb|401909961|4066354",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Payton Pritchard",
+        "providerAthleteId": "4066354"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.54
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9731,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.51,
+       "minutesSd": 6.39,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.54,
+        "expectedMinutes": 25.51,
+        "p90": 26
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 20,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3,
+       "INJURY_DESIGNATION": 3,
+       "NULL_MINUTES": 3,
+       "TEAM_POOL_FALLBACK_RATES": 3,
+       "MISSING_DISTRIBUTION": 3
+      },
+      "players": [
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3195",
+        "name": "Mike Conley",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065804",
+        "name": "Sam Hauser",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277951",
+        "name": "Luka Garza",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351852",
+        "name": "Mitchell Robinson",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397251",
+        "name": "Ron Harper Jr.",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397424",
+        "name": "Neemias Queta",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433188",
+        "name": "Devin Carter",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593841",
+        "name": "Baylor Scheierman",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683689",
+        "name": "Jordan Walsh",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702745",
+        "name": "Amari Williams",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106283",
+        "name": "Dillon Mitchell",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5175647",
+        "name": "Hugo Gonzalez",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsAst": {
+     "category": "ptsAst",
+     "label": "P+A",
+     "stat": "ptsAst",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-10|v1|e2|ptsAst|401909961|4065648",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jayson Tatum",
+        "providerAthleteId": "4065648"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 27,
+        "mean": 27.76
+       },
+       "range": {
+        "p10": 17,
+        "p25": 21,
+        "p75": 33,
+        "p90": 40
+       },
+       "playRate": 0.971,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.27,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 27.76,
+        "expectedMinutes": 30.27,
+        "p90": 40
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-10|v1|e2|ptsAst|401909961|4431678",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tyrese Maxey",
+        "providerAthleteId": "4431678"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.74
+       },
+       "range": {
+        "p10": 15,
+        "p25": 19,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33,
+       "minutesSd": 6.62,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.74,
+        "expectedMinutes": 33,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-10|v1|e2|ptsAst|401909961|3917376",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylen Brown",
+        "providerAthleteId": "3917376"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.28
+       },
+       "range": {
+        "p10": 14,
+        "p25": 18,
+        "p75": 30,
+        "p90": 35
+       },
+       "playRate": 0.9753,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.17,
+       "minutesSd": 6.7,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.28,
+        "expectedMinutes": 32.17,
+        "p90": 35
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-10|v1|e2|ptsAst|401909961|3059318",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Joel Embiid",
+        "providerAthleteId": "3059318"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.16
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 26,
+        "p90": 31
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.72,
+       "minutesSd": 6.67,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.16,
+        "expectedMinutes": 28.72,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-10|v1|e2|ptsAst|401909961|1966",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "LeBron James",
+        "providerAthleteId": "1966"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.7
+       },
+       "range": {
+        "p10": 11,
+        "p25": 14,
+        "p75": 24,
+        "p90": 29
+       },
+       "playRate": 0.9746,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.05,
+       "minutesSd": 6.31,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.7,
+        "expectedMinutes": 29.05,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-10|v1|e2|ptsAst|401909961|4251",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Paul George",
+        "providerAthleteId": "4251"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.49
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 24,
+        "p90": 30
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.1,
+       "minutesSd": 6.63,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.49,
+        "expectedMinutes": 27.1,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-10|v1|e2|ptsAst|401909961|3078576",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Derrick White",
+        "providerAthleteId": "3078576"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.12
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.05,
+       "minutesSd": 7.11,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.12,
+        "expectedMinutes": 28.05,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-10|v1|e2|ptsAst|401909961|4066354",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Payton Pritchard",
+        "providerAthleteId": "4066354"
+       },
+       "team": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "opponent": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "homeAway": "away",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.63
+       },
+       "range": {
+        "p10": 9,
+        "p25": 12,
+        "p75": 22,
+        "p90": 27
+       },
+       "playRate": 0.9731,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.51,
+       "minutesSd": 6.39,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.63,
+        "expectedMinutes": 25.51,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-10|v1|e2|ptsAst|401909961|5124612",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "VJ Edgecombe",
+        "providerAthleteId": "5124612"
+       },
+       "team": {
+        "name": "Philadelphia 76ers",
+        "abbr": "PHI",
+        "espnAbbr": "PHI",
+        "providerTeamId": "20"
+       },
+       "opponent": {
+        "name": "Boston Celtics",
+        "abbr": "BOS",
+        "espnAbbr": "BOS",
+        "providerTeamId": "2"
+       },
+       "homeAway": "home",
+       "eventId": "401909961",
+       "tipoffUtc": "2026-11-11T01:00Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.21
+       },
+       "range": {
+        "p10": 7,
+        "p25": 11,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.98,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.86,
+       "minutesSd": 6.51,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-10T17:31:43Z",
+        "generatedAt": "2026-11-10T17:31:43Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "00d4fc4278fee90d69ec037f218e172f27d922a34dbeefa87d1957a4e41a849e",
+        "gamePayloadSha256": "d543ef3fd3467818a7b145120fbc1de37c0c42667472772624e54cb1e039c3df"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.21,
+        "expectedMinutes": 30.86,
+        "p90": 24
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 24,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 14,
+       "LOW_EXPECTED_MINUTES": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 16,
+       "LOW_EXPECTED_MINUTES": 20,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 3,
+       "INJURY_DESIGNATION": 3,
+       "NULL_MINUTES": 3,
+       "TEAM_POOL_FALLBACK_RATES": 3,
+       "MISSING_DISTRIBUTION": 3
+      },
+      "players": [
+       {
+        "providerAthleteId": "2581018",
+        "name": "Kentavious Caldwell-Pope",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3195",
+        "name": "Mike Conley",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3904625",
+        "name": "Tacko Fall",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "3912848",
+        "name": "Dean Wade",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4065804",
+        "name": "Sam Hauser",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4277951",
+        "name": "Luka Garza",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351851",
+        "name": "Anfernee Simons",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4351852",
+        "name": "Mitchell Robinson",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397251",
+        "name": "Ron Harper Jr.",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397424",
+        "name": "Neemias Queta",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432446",
+        "name": "Jabari Walker",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433144",
+        "name": "Caleb Love",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433188",
+        "name": "Devin Carter",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593841",
+        "name": "Baylor Scheierman",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4683689",
+        "name": "Jordan Walsh",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702745",
+        "name": "Amari Williams",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4711297",
+        "name": "Justin Edwards",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4870562",
+        "name": "Dominick Barlow",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4871141",
+        "name": "Ariel Hukporti",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4873090",
+        "name": "Labaron Philon Jr.",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5099752",
+        "name": "Rayan Rupert",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105637",
+        "name": "Adem Bona",
+        "team": "PHI",
+        "eventId": "401909961",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5106283",
+        "name": "Dillon Mitchell",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5175647",
+        "name": "Hugo Gonzalez",
+        "team": "BOS",
+        "eventId": "401909961",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebAst": {
+     "category": "rebAst",
+     "label": "R+A",
+     "stat": null,
+     "marketBasis": "NOT_MODELLED",
+     "basisText": "not modelled — no family simulates it jointly, and adding marginal projections is not its distribution",
+     "components": [
+      "reb",
+      "ast"
+     ],
+     "state": "NOT_MODELLED",
+     "rankingMetric": null,
+     "rows": [],
+     "eligibleCount": 0,
+     "shownCount": 0,
+     "withheld": {
+      "count": 0,
+      "byPrimaryReason": {},
+      "byReason": {},
+      "players": []
+     },
+     "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
+    }
+   }
   }
  ]
 }

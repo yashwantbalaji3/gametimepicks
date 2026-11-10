@@ -19,7 +19,8 @@ test("a crest beside a printed name is decorative — in the image AND in its fa
   assert.match(badge, /aria-hidden=\{decorative \? true : undefined\}/);
   const logo = src("src/components/team-logo.tsx");
   assert.equal((logo.match(/decorative=\{ariaLabel === ""\}/g) ?? []).length, 2, "both fallback paths honour ariaLabel=\"\"");
-  assert.match(src("src/components/sport-hub/game-summary.tsx"), /size="lg" highlight=\{favored\} ariaLabel="" \/>/);
+  // 2026-11-09: the hub card's crest is drawn by the shared game card
+  assert.match(src("src/components/game/game-card.tsx"), /size="lg" highlight=\{s\.favoured\} ariaLabel="" \/>/);
 });
 
 test("MLB slate tiles name their real destination and never print '?'", () => {

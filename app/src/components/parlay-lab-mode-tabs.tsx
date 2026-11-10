@@ -30,7 +30,7 @@ export const PARLAY_LAB_MODES: ReadonlyArray<{
 }> = [
   {
     key: "suggested",
-    label: "Suggested Parlays",
+    label: "Suggested cards",
     sub: "Model-ranked lane spreads",
   },
   {

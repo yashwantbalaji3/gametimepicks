@@ -125,11 +125,11 @@ test("the LIVE Moonshot lane is structurally sound and never ships a pre-graded 
 test("Moonshot is reachable: the canonical list carries it on rail + footer; mobile ceded its slot to the six primary (P201)", () => {
   const rail = read("src/components/command-rail.tsx") + read("src/lib/navigation.ts");
   const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
-  assert.match(rail, /href: "\/moonshot"/, "command rail has a Moonshot entry");
+  assert.match(rail, /href: "\/moonshot"/, "the canonical list the rail reads carries Moonshot");
   assert.match(nav, /href: "\/moonshot"/, "the canonical list still carries Moonshot");
-  // P201 (charter F1): the bar is the six primary destinations, so the products lost their slots
-  // and highlight nothing — null, like /about. Reachability lives on the rail and in the footer.
-  assert.equal(resolveMobileNavBucket("/moonshot"), null, "no false highlight for a slot that no longer exists");
+  // 2026-11-09 five-slot nav: Moonshot is reached through the Products primary (/products) and the footer, and its
+  // pages light the Products slot.
+  assert.equal(resolveMobileNavBucket("/moonshot"), "products");
 });
 
 test("Today + Bank Builder + Mr. Dub link to the Moonshot tracker", () => {

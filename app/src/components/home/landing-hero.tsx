@@ -56,8 +56,8 @@ export default function LandingHero({ readyCount, activeSports, eventsToday, eve
       </p>
 
       {/* W4 (2026-10-28): ONE primary action — today's official forecasts — and one secondary. The hero used to carry
-          three equal buttons (Simulate / Picks → /markets / Parlay Center) and none led to the forecasts, the core
-          product. Picks and the Parlay Center stay one tap away in the navigation. URLs unchanged. */}
+          three equal buttons (Simulate / Picks → /markets / Parlay Lab) and none led to the forecasts, the core
+          product. Picks and the Parlay Lab stay one tap away in the navigation. URLs unchanged. */}
       <div className="flex flex-wrap gap-2.5">
         <Link
           href={HERO_PRIMARY.href}

@@ -26,7 +26,7 @@ import { NBA_THEATER_VARS } from "../nba-theater-css";
 import type { NbaPalette } from "../nba-types";
 import type { PbPayload, PbUnavailable, PbWire } from "./possession-types";
 import {
-  OnCourt, BreakNotice, EndCard, EngineFacts, Linescore, OfficialComparison, OfficialProjectionPanel, OUTCOME_PANEL_TITLE, PlayByPlay, PossessionBanner,
+  OnCourt, BreakNotice, EndCard, EngineFacts, HypotheticalSimulationResult, Linescore, OfficialComparison, OfficialProjectionPanel, OUTCOME_PANEL_TITLE, PlayByPlay, PossessionBanner,
   PossessionBoxScore, PossessionIndicator, PossessionScoreboard, PossessionUnavailable, ReconciliationChecks, RunRole, RunSelector, ScoringProgression,
 } from "./possession-parts";
 import { createTransport, transport } from "@/lib/simulation-theater/transport-machine.mjs";
@@ -277,6 +277,8 @@ export default function NbaPossessionTheater({ wire, palette, devHooks = false, 
         <h3 className="nba-h3">{COMPARE_TITLE}</h3>
         <OfficialComparison rows={compare} teams={teams} />
       </section>
+
+      <HypotheticalSimulationResult teams={teams} central={payload.selection.central ?? null} idBase={uid} />
 
       <section className="nbp-panel" style={{ marginTop: 12 }} aria-labelledby={`${uid}-about`} data-nbp-about-panel="">
         <h2 id={`${uid}-about`} tabIndex={-1}>About this simulation</h2>

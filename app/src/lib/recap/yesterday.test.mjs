@@ -98,7 +98,7 @@ test("S1B · the heading says 'How … went' only for yesterday; an older card d
   const old = renderToStaticMarkup(React.createElement(YesterdayCard, { recap: recap("2026-09-27") }));
   /* P0 U1 (2026-10-28): "last settled" → "last CARD settled". The old wording sat beside Home's paper-ledger
      "settled through" date and read as a second, contradictory settled-through date for the site. */
-  assert.match(old, /Suggested Parlays · last card settled Sunday, September 27 · none since/);
+  assert.match(old, /Parlay Lab · last card settled Sunday, September 27 · none since/);
   assert.doesNotMatch(old, /· last settled /, "never the ambiguous 'last settled' that reads as a settled-through date");
   assert.doesNotMatch(old, /How Sunday, September 27 went/, "an older day is never presented as yesterday's");
   assert.match(old, /0 hit, 3 missed/, "the record itself is unchanged");

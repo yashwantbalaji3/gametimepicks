@@ -161,10 +161,13 @@ export default function TeamLogo({
     /* P251-F10: the constant half of these declarations moved to .gtp-team-logo in globals.css,
        byte-for-byte. Only the size varies per instance, so only the size is still inline — this
        component renders 545 times on /results alone, at ~360 bytes of repeated style each. */
+    /* 2026-11-09 (shared game card weight): the small crest — the one dense lists repeat (NBA hub cards, compact rows,
+       Home's lane rows) — carries its size as a class (.gtp-team-logo.is-sm, globals.css) instead of two inline custom
+       properties: 40 B less per crest. Every other size keeps its inline size, unchanged. */
     <span
-      className="gtp-team-logo"
+      className={size === "sm" ? "gtp-team-logo is-sm" : "gtp-team-logo"}
       data-highlight={highlight ? "true" : undefined}
-      style={{ ["--gtp-tl-size" as string]: `${px}px`, ["--gtp-tl-img" as string]: `${px - 8}px` }}
+      style={size === "sm" ? undefined : { ["--gtp-tl-size" as string]: `${px}px`, ["--gtp-tl-img" as string]: `${px - 8}px` }}
     >
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img

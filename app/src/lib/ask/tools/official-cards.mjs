@@ -58,7 +58,7 @@ export async function getOfficialProductCards(args, ctx) {
         state: day.cards.some((c) => !tier || c.tier === tier) ? "PUBLISHED" : "NO QUALIFYING CARD",
         record,
       }
-      : { published: false, date, state: "NOT PUBLISHED", detail: `no official Suggested Parlays ladder was published for ${date}`, latestPublishedDate: (official.suggestedDates ?? []).at(-1) ?? null, record };
+      : { published: false, date, state: "NOT PUBLISHED", detail: `no official Parlay Lab ladder was published for ${date}`, latestPublishedDate: (official.suggestedDates ?? []).at(-1) ?? null, record };
   }
   for (const key of ["BANK_BUILDER", "MOONSHOT"]) {
     if (!wanted.includes(key)) continue;

@@ -29,7 +29,8 @@ const model = { rows: Array.from({ length: 30 }, (_, i) => {
     reportNote: status === "final" ? `${a[0]} 101 – ${b[0]} 99` : null, participants: [{ name: a[0], logoTeam: a[1], logoSport: "nba" }, { name: b[0], logoTeam: b[1], logoSport: "nba" }], separator: "@" };
 }) };
 const html = renderToStaticMarkup(React.createElement(GameSummary, { rows: model.rows, unitLabel: "game", compact: true }));
-const rows = html.match(/<li class="gtp-cr">[\s\S]*?<\/li>/g) ?? [];
+/* 2026-11-09: the row is the shared game card's row density (components/game/game-card.tsx) — same .gtp-cr classes, one marker attribute */
+const rows = html.match(/<li class="gtp-cr"[^>]*>[\s\S]*?<\/li>/g) ?? [];
 
 test("every game in the window is still a row (nothing hidden)", () => {
   assert.equal(rows.length, model.rows.length);

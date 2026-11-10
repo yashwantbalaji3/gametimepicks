@@ -132,6 +132,8 @@ test("research boundary: no product, board, snapshot, producer or workflow reads
         || rel === "src/lib/consistency/audit.mjs"
         // Theater entry points (release owner 2026-10-21): the /nba hub and its lane cards link to built Theater pages
         || rel === "src/app/nba/page.tsx" || rel === "src/components/nba/experimental-lane.tsx"
+        // UX slice 2026-11-09: the homepage NBA rows link built game pages — the /nba hub's recipe, pinned below
+        || rel === "src/app/page.tsx"
         // the same entry-point rule for /nba/projections' line summaries: which built game pages exist, to link them (2026-10-30)
         || rel === "src/components/nba/prop-line-game-links.ts";
       if (!ok) offenders.push(rel);
@@ -145,6 +147,8 @@ test("research boundary: no product, board, snapshot, producer or workflow reads
   assert.deepEqual(laneImports, ["@/lib/simulation-theater/nba/possession/public-route.mjs"]);
   const hubImports = [...read("src/app/nba/page.tsx").matchAll(/(?:from |import\()"([^"]*possession[^"]*)"/g)].map((m) => m[1]).sort();
   assert.deepEqual(hubImports, ["@/lib/simulation-theater/nba/possession/public-loader.mjs", "@/lib/simulation-theater/nba/possession/public-route.mjs"]);
+  const homeImports = [...read("src/app/page.tsx").matchAll(/(?:from |import\()"([^"]*possession[^"]*)"/g)].map((m) => m[1]).sort();
+  assert.deepEqual(homeImports, ["@/lib/simulation-theater/nba/possession/public-loader.mjs", "@/lib/simulation-theater/nba/possession/public-route.mjs"]);
   // the gate's one import from the library: the read-only artifact reader and the shared replay gate, nothing else
   const auditImports = [...read("src/lib/consistency/audit.mjs").matchAll(/^import[^;]*from "([^"]*possession[^"]*)";$/gm)];
   assert.deepEqual(auditImports.map((m) => m[1]), ["../simulation-theater/nba/possession/stored-run.mjs"]);

@@ -1,8 +1,8 @@
 /**
- * /build — THE PARLAY CENTER, Suggested Parlays mode (P208 · Release A).
+ * /build — THE PARLAY CENTER, Parlay Lab mode (P208 · Release A).
  *
  * One destination, two starting intents rendered as two real routes:
- *   /build         — Suggested Parlays (this page): browse model-composed cards by risk tier, each
+ *   /build         — Parlay Lab (this page): browse model-composed cards by risk tier, each
  *                    with its own record, swap legs, or take a card into the builder as a draft.
  *   /build/custom  — Build Your Own: construct a card leg by leg from the qualified pool.
  *
@@ -37,7 +37,7 @@ import { buildParlayLabV2Model } from "@/lib/parlays/v2/board-model.mjs";
 import TierBoard, { type ParlayLabV2Model } from "@/components/parlays/v2/TierBoard";
 import EmptyTierContext from "@/components/parlays/empty-tier-context";
 import LevelASuggestions, { type LevelAModel } from "@/components/products/level-a-suggestions";
-import { levelAPageModel, levelAEnabled } from "@/lib/products/level-a/model.mjs";
+import { levelAPageModel, levelAEnabled, levelASportsShown } from "@/lib/products/level-a/model.mjs";
 import { lastCardPerTier } from "@/lib/results/v2/suggested-history.mjs";
 import { loadLabRecord } from "@/lib/parlays/lab-record";
 import ParlayCenterNoCard, { type OtherLaneCards } from "@/components/parlays/parlay-center-no-card";
@@ -58,7 +58,7 @@ const OTHER_LANES = [
 const PARLAY_LAB_V2 = process.env.NEXT_PUBLIC_PARLAY_LAB_V2 === "1";
 
 export const metadata = withRouteMetadata("/build/", {
-  title: "Parlay Center · GameTime Picks",
+  title: "Parlay Lab · GameTime Picks",
   description:
     "Start with a model-suggested parlay card — filtered by sport and risk, each with its own settled record — or build your own from qualified legs. Educational, paper-only.",
 });
@@ -134,7 +134,12 @@ export default function ParlayCenterSuggestedPage() {
         <RiskLadderBoard
           entryShowsTitle={false}
           cards={riskLadder?.cards ?? []}
-          skipped={offSeasonReason ? (["low", "medium", "high", "longshot"] as const).map((tier) => ({ tier, reason: OFF_SEASON_TIER_REASON })) : riskLadder?.skipped ?? []}
+          skipped={offSeasonReason ? [] : riskLadder?.skipped ?? []}
+          offSeason={offSeasonReason ? {
+            reason: offSeasonReason,
+            otherSports: levelASportsShown(levelAModel, "parlay-lab").map((s: string) => s.toUpperCase()),
+            suggestionsHref: levelAModel ? "#level-a-parlay-lab" : null,
+          } : null}
           overallRoi={riskLadder?.record.overall.roi ?? null}
           gradedDays={riskLadder?.record.gradedDays ?? 0}
           bettorTiers={riskLadder?.bettorTiers ?? []}
@@ -208,8 +213,8 @@ export default function ParlayCenterSuggestedPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       <PicksSurfaceHeader
-        eyebrow="Parlay Center"
-        title="Suggested Parlays"
+        eyebrow="Four risk tiers"
+        title="Parlay Lab"
         /* P185 scoping, restated for the split page: THIS page's status is decided by what THIS
            page can show — the ladder and the optimizer's cards. The builder's pool now has its own
            page (/build/custom) whose header speaks for it. */

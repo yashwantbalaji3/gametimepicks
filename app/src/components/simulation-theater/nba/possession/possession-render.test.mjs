@@ -301,3 +301,23 @@ test("consumer wording (founder mandate 2026-10-24): models named in words, exac
     assert.ok(text(h).includes(LABELS.SIM_BOX_NOTE));
   }
 });
+
+test("UX-03 (2026-11-09): ONE favourite near the top — the engine's own win share is printed once, unchanged, below the run, under 'Simulation (hypothetical)'", () => {
+  for (const load of LOADS) {
+    const h = render(load);
+    const shares = [...h.matchAll(/data-nbp-pool-share=""/g)].length;
+    const central = load.payload.selection.central;
+    if (!central) { assert.equal(shares, 0); continue; }
+    assert.equal(shares, 1, "printed once");
+    const at = h.indexOf("data-nbp-pool-share");
+    assert.ok(at > h.indexOf("data-nbp-outcome-box"), "below the run's box score");
+    assert.ok(at > h.indexOf("data-nbp-official"), "after the Official Forecast panel");
+    assert.ok(h.indexOf("data-nbp-hypothetical-result") < at && at < h.indexOf("data-nbp-about-panel"), "inside its own labelled section, before About");
+    assert.match(h, /<h2 id="[^"]+-hypo">Simulation \(hypothetical\)<\/h2>/);
+    const role = h.slice(h.indexOf("data-nbp-role"), h.indexOf("</div>", h.indexOf("data-nbp-role")));
+    assert.doesNotMatch(role, /simulated games, \w+ won/, "the run panel beside the official card carries no win share");
+    // numbers unchanged: the same text the label owner produces
+    const h2 = (100 * central.poolHomeWinShare).toFixed(1);
+    assert.ok(text(h).includes(`won ${h2}%`), "the engine's share is verbatim");
+  }
+});
