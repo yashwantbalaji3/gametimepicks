@@ -71,6 +71,7 @@ import { currentProductRecord } from "@/lib/results/current-record";
 import { scopedRecordText } from "@/lib/results/current-record";
 import { buildSimulateDay, simulationReadyCount } from "@/lib/simulate/day-view";
 import LiveNow from "@/components/live/live-now";
+import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import LiveShortcut from "@/components/live/live-shortcut";
 import MoreDisclosure from "@/components/ui/more-disclosure";
 import GamesTable from "@/components/games-experience-table";
@@ -357,6 +358,7 @@ export default function TodayPage() {
         asOf={etStamp(nowMs)}
         next={nextDate ? { dayLabel: dayName(nextDate), rows: gamesRows.filter((r) => r.date === nextDate) } : null}
         lineSummaries={nbaLineSummaries}
+        eloDisclosure={(() => { const c = loadEloWinProbabilityContext(); return c.enabled ? c.disclosure : null; })()}
       />
 
       {/* 1b — P251-F9: the payoff for following a club. Renders nothing until a reader has followed one. v1.1.2: the strip

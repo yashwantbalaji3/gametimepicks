@@ -19,7 +19,8 @@ import { hubLaneAnchor } from "@/lib/sports/nba/projection-board-ops.mjs";
 import { nbaGamePageHrefIfExported } from "@/components/nba/game-page-link.mjs";
 
 /** The official Elo win chance for one game (lib/sports/nba/elo-win-probability.mjs view), or null — never re-derived here. */
-export type NbaLaneWinChance = { awayAbbr: string; homeAbbr: string; awayPct: string | number; homePct: string | number; attr: string };
+/** The ONE read (elo-win-chance-read.mjs): the shown text + attribute, or the shared withheld reason. */
+export type NbaLaneWinChance = { text: string; attr: string } | { withheld: string };
 
 /**
  * EVIDENCE GATE (the hub's promotion rule — simulation-hub-promotion.test): a schedule alone never promotes a sport. NBA
@@ -80,7 +81,8 @@ export function nbaLane(slate: NbaTodaySlate, nowIso: string, { lastPublished = 
       : slate.forecast === "PENDING" ? "Forecast pending" : `No ${PUBLIC_TERMS.OFFICIAL_FORECAST}`,
     href: nbaGamePageHrefIfExported(g.id, gamePageIds) ?? hubLaneAnchor(g.id),
     state: g.finalNote ? "final" : g.favoured ? "official" : null,
-    winChance: wc ? { text: `${wc.awayAbbr} ${wc.awayPct}% · ${wc.homeAbbr} ${wc.homePct}%`, attr: wc.attr } : null,
+    winChance: wc && "text" in wc ? { text: wc.text, attr: wc.attr } : null,
+    ...(wc && "withheld" in wc ? { note: `${g.favoured!.abbr} favoured · ${wc.withheld}` } : {}),
   };
   });
   return {

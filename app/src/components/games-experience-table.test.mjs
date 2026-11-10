@@ -7,6 +7,8 @@
  * Batch 1 · #7: Ligue 1 rows trace to the league hub's own files — the forecast row (forecasts/latest.json) or, once
  * played, the graded row (results/graded.json) — by event id.
  */
+import { loadLaneForDate } from "./nba/experimental-lane.tsx";
+import { eloWinChanceRead } from "../lib/sports/nba/elo-win-chance-read.mjs";
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
@@ -48,8 +50,12 @@ test("a probability appears only where the sport publishes one for that exact ev
       assert.ok(f?.probs, `${r.matchup}: Ligue 1 number without a published forecast or graded row`);
       assert.equal(r.read, `${f.homeClub} ${Math.round(f.probs.home * 100)}% · Draw ${Math.round(f.probs.draw * 100)}% · ${f.awayClub} ${Math.round(f.probs.away * 100)}%`, r.matchup);
     } else if (r.sport === "nba") {
-      assert.match(r.read, /favoured · no win chance published$/, r.matchup); // founder mandate 2026-10-24: reader words, same disclosure
-      assert.doesNotMatch(r.read, /\d%/, `${r.matchup}: NBA publishes no probability`);
+      /* CONS-DAYVIEW (2026-11-09): an NBA row prints the official Elo win chance ONLY through the one read Home uses
+         (elo-win-chance-read.mjs → the PR 1219 accessor) — that exact text, or its withheld reason; never its own number. */
+      const g = (loadLaneForDate(r.date)?.games ?? []).find((x) => r.id.endsWith(String(x.providerEventId)));
+      assert.ok(g?.elo?.favoured, `${r.matchup}: an NBA read only for a lane game with a favoured side`);
+      const want = eloWinChanceRead(g, {});
+      assert.equal(r.read, `${g.elo.favoured} favoured · ${want.shown ? want.text : want.reason}`, r.matchup);
     } else {
       assert.fail(`${r.sport} ${r.matchup}: this sport publishes no per-row number here`);
     }
