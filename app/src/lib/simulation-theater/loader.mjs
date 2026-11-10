@@ -10,11 +10,8 @@ import path from "node:path";
 
 import { readShadowReceipts, simulationOfRecord } from "../sports/nfl/sim-v2/public-receipt.mjs";
 import { adaptReceipt } from "./adapter-nfl-sim-v2.mjs";
-import { nflOfficial, withNflRepresentative } from "./official-representative.mjs";
-import { officialSnapshotFor } from "../sports/nfl/forecast-view-load.mjs";
-import { unionFrozenForecasts } from "../sports/nfl/public-forecast-union.mjs";
-import { nflPublicRecordResolver } from "../sports/nfl/public-record.mjs";
-import { readWorldModelArtifacts } from "../sports/nfl/world-model-v2/read.mjs";
+import { withNflRepresentative } from "./official-representative.mjs";
+import { nflOfficialOfRecord } from "../sports/nfl/official-of-record.mjs";
 
 /**
  * OFFICIAL FORECAST INPUTS (Cross-Product Prediction Consistency, 2026-10-20). The Theater's default run is the stored run
@@ -50,30 +47,24 @@ export function readNflOfficialInputs(repoRoot, eventId) {
 }
 
 /**
- * ONE OFFICIAL FORECAST (Track C, 2026-10-29). The game page reads the official snapshot through the forecast-view loader
- * (lib/sports/nfl/forecast-view-load.mjs: the public forecast union latest ∪ frozen-latest → officialSnapshotFor with the
- * raw player board and the World Model artifact). The Theater used to rebuild it from the internal receipts instead: the
- * same numbers, but a DIFFERENT snapshotId (CAR @ GB 401873023: game page f993be25…, Theater 9b927788…), so the two
- * pages named two snapshots for one forecast. The Theater now uses the game page's accessor whenever the game page has
- * the event; only an event the public union no longer carries (a settled week) falls back to the receipt path.
- * @returns {{ snapshot: object|null, refusal: object|null, source: "GAME_PAGE_ACCESSOR"|"FORECAST_RECEIPTS" }}
+ * ONE OFFICIAL FORECAST (Track C 2026-10-29; CANON-01 2026-11-09). The Theater's official snapshot is the NFL official
+ * forecast of record — lib/sports/nfl/official-of-record.mjs nflOfficialOfRecord, the selector the game page, the
+ * settled game page and grading read: the live public union while the game is in it, the archived revision the graded
+ * record names once the week rolls. It used to fall back to a second builder over the internal receipts for a settled
+ * week (official-representative.mjs nflOfficial): same revision, but no World Model source and a different hash, so 58
+ * of 58 settled Theater pages named a different snapshot than their game page (CAR @ GB 401873023: 47d5131f… vs
+ * f6fccaa4…). No record ⇒ no official snapshot (typed refusal); never a rebuilt one.
+ * @returns {{ snapshot: object|null, refusal: object|null, source: "GAME_PAGE_ACCESSOR"|"ARCHIVED_RECORD"|"NONE" }}
  */
 export function nflGamePageOfficial(repoRoot, eventId) {
-  const id = String(eventId);
-  const publicDir = path.join(repoRoot, "app", "public");
-  const data = path.join(publicDir, "data", "nfl");
-  const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
-  const art = unionFrozenForecasts(readJson(path.join(data, "forecasts/latest.json")), readJson(path.join(data, "forecasts/frozen-latest.json")), { resolve: nflPublicRecordResolver(repoRoot) });
-  const f = (art?.forecasts ?? []).find((x) => String(x.providerEventId) === id) ?? null;
-  if (!f) return null;
-  const world = readWorldModelArtifacts(publicDir).find((a) => String(a.identity?.providerEventId) === id) ?? null;
-  const { snapshot, refusal } = officialSnapshotFor(f, readJson(path.join(data, "player-board", `${id}.json`)), world);
-  return { snapshot, refusal: refusal ? { code: refusal, message: `game-page official snapshot refused: ${refusal}` } : null, source: "GAME_PAGE_ACCESSOR" };
+  const r = nflOfficialOfRecord(path.join(repoRoot, "app", "public"), eventId);
+  if (!r) return null;
+  return { snapshot: r.snapshot, refusal: r.refusal ? { code: r.refusal, message: `official forecast of record refused: ${r.refusal}` } : null, source: r.basis === "LIVE" ? "GAME_PAGE_ACCESSOR" : "ARCHIVED_RECORD" };
 }
 
-/** The official snapshot (or its typed refusal) for one event: the game page's accessor first (see above). */
+/** The official snapshot (or its typed refusal) for one event: the forecast of record, or none. */
 export function nflTheaterOfficial(repoRoot, eventId) {
-  return nflGamePageOfficial(repoRoot, eventId) ?? { ...nflOfficial(String(eventId), readNflOfficialInputs(repoRoot, eventId)), source: "FORECAST_RECEIPTS" };
+  return nflGamePageOfficial(repoRoot, eventId) ?? { snapshot: null, refusal: { code: "NO_RECORD", message: "no official forecast of record for this event (neither the live union nor the graded archive holds it)" }, source: "NONE" };
 }
 
 /**

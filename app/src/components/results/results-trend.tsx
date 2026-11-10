@@ -102,7 +102,9 @@ export default function ResultsTrend({
         <summary style={{ fontSize: 12, color: "var(--vault-text-mute)", cursor: "pointer" }}>
           The numbers behind these charts
         </summary>
-        <div style={{ overflowX: "auto", marginTop: 8 }}>
+        {/* Authored region, like the explorer's tables: inside a closed <details> the runtime scroll-region net can miss
+            the overflow (WebKit, CI 2026-11-10), leaving a sideways scroller a keyboard cannot reach. */}
+        <div role="region" aria-label="Daily and cumulative record" tabIndex={0} style={{ overflowX: "auto", marginTop: 8 }}>
           <table style={{ borderCollapse: "collapse", fontSize: 12, width: "100%", minWidth: 460 }}>
             <caption className="sr-only">Daily and cumulative record for {label}</caption>
             <thead>

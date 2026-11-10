@@ -132,8 +132,13 @@ test("BUILT · UFC bout rows anchor to their rendered detail, never to a route t
     const target = path.join(OUT, href.replace(/^\//, ""), "index.html");
     assert.ok(fs.existsSync(target), `UFC links ${href} and that page was never generated`);
   }
-  // …an unmodelled bout says why it has no read, and is never given a link at all…
-  assert.match(renderedText(html), /not modelled — no tracked history/);
+  // …an unmodelled bout says why it has no read, and is never given a link at all — exactly when the card has one. The
+  // card's own counts ("13 scheduled · 13 with a supported read") say how many are unmodelled: a fully modelled card
+  // (UFC 334, 2026-11-09) has none to explain, and a card with any must explain them (slate-independent, both ways).
+  const counts = /(\d+) scheduled(?: · \d+ with a report)? · (\d+) with a supported read/.exec(renderedText(html));
+  assert.ok(counts, "the card states its scheduled and supported-read counts");
+  const unmodelled = Number(counts[1]) - Number(counts[2]);
+  assert.equal(/not modelled — no tracked history/.test(renderedText(html)), unmodelled > 0, `${unmodelled} unmodelled bout(s): the notice is shown iff there is one`);
   // …and the card page keeps its own in-page anchors, which are a different affordance.
   assert.ok(/id="bout-\d+"/.test(html), "the card's bout sections keep their anchors");
 });

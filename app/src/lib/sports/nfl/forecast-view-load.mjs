@@ -43,9 +43,9 @@ export function officialSnapshotFor(forecast, board, world = null) {
 }
 
 /** @param {string} publicDir the app's public/ directory */
-export function loadForecastViews(publicDir) {
+/** @param {string} publicDir the app's public/ directory; @param {{ repoRoot?: string }} [opts] defaults to publicDir/../.. */
+export function loadForecastViews(publicDir, { repoRoot = path.resolve(publicDir, "..", "..") } = {}) {
   const data = path.join(publicDir, "data/nfl");
-  const repoRoot = path.resolve(publicDir, "..", "..");
   // an excluded public copy stands for its record (public-record.mjs); if that cannot be read, the copy is kept for the
   // page but the official snapshot below refuses it (isRecordEligible), so no excluded number is presented as official
   const art = unionFrozenForecasts(readJson(path.join(data, "forecasts/latest.json")), readJson(path.join(data, "forecasts/frozen-latest.json")), { resolve: nflPublicRecordResolver(repoRoot) });
