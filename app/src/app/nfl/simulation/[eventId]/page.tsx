@@ -64,13 +64,16 @@ async function SimulationReplay({ rec }: { rec: NonNullable<ReturnType<typeof si
 }
 
 /**
- * NFL QB props v0 (EXPERIMENTAL, PD 2026-11-10): the QB line, behind GTP_NFL_QB_PROPS_PUBLIC (default OFF — a compile-time
+ * NFL QB props (EXPERIMENTAL research section, founder 2026-11-10): five QB markets + history, behind GTP_NFL_QB_PROPS_PUBLIC (default OFF — a compile-time
  * constant, so OFF the component is never part of the build) and R5-gated on the game's official forecast inside it.
  */
 async function QbProps({ rec, eventId }: { rec: NonNullable<ReturnType<typeof simulationOfRecord>>; eventId: string }) {
   if (process.env.GTP_NFL_QB_PROPS_PUBLIC === "1") {
     const { default: QbPropsLine } = await import("@/components/nfl/qb-props-line");
-    return <QbPropsLine receipt={rec.receipt} teamInputs={officialFor(eventId)?.teamInputs ?? null} />;
+    // HISTORY only: the QBs' actual earlier games (player-events-v1); never an input to the simulated chances
+    const dir = path.join(REPO_ROOT, "data/internal/research/nfl/player-events-v1");
+    const games = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /^\d{4}\.json$/.test(f)).sort().flatMap((f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).games ?? []) : [];
+    return <QbPropsLine receipt={rec.receipt} teamInputs={officialFor(eventId)?.teamInputs ?? null} games={games} />;
   }
   return null;
 }

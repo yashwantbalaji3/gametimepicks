@@ -10,7 +10,6 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { buildLedger, familyOutcome, gradeQbProps as gradeApproved, projectedQbs, receiptsOfRecord, forwardCounts, gradingApproved, APPROVED_PREREG_SHA256, SEEN_EXPLORATORY_WEEKS } from "./qb-props-grade.mjs";
-import { INT_ADEQUACY_MINIMUM } from "./qb-props-scores.mjs";
 
 /* SYNTHETIC fixtures only: the grader runs here under a test-only approval, never on real outcomes */
 const TEST_APPROVAL = { preregSha256: "synthetic-test", approvals: ["synthetic-test"] };
@@ -97,8 +96,8 @@ test("confirmatory rows: after approval, outside weeks 5–9, eligibility@1 ELIG
   assert.deepEqual(conf({ eligibilityAt: null }), [], "eligibility unknown (contract pending) is never confirmatory");
 });
 
-test("pre-registered decision: n ≥ 300 paired, cov80 0.76–0.84, CI excludes 0 favourably; INT inconclusive until the founder sets its minimum", () => {
-  const m = (ci, cov = 0.8, n = 300, ints = 400) => ({ pairedN: n, modelMinusBaselineCi95: ci, model: { cov80: cov }, intEvents: { interceptions: ints } });
+test("pre-registered decision: n ≥ 300 paired, cov80 0.76–0.84, CI excludes 0 favourably; no fixed INT event minimum", () => {
+  const m = (ci, cov = 0.8, n = 300) => ({ pairedN: n, modelMinusBaselineCi95: ci, model: { cov80: cov } });
   assert.equal(familyOutcome("passYds", m([-0.2, -0.01])).outcome, "MET");
   assert.equal(familyOutcome("passYds", m([-0.2, -0.01], 0.8, 299)).outcome, "INCONCLUSIVE");
   assert.equal(familyOutcome("passYds", m([-0.1, 0.1])).outcome, "INCONCLUSIVE");
@@ -106,10 +105,8 @@ test("pre-registered decision: n ≥ 300 paired, cov80 0.76–0.84, CI excludes 
   assert.equal(familyOutcome("passYds", m([-0.2, -0.01], 0.85)).outcome, "FAILED");
   assert.equal(familyOutcome("passYds", m([-0.2, -0.01], 0.76)).outcome, "MET");
   assert.equal(familyOutcome("passYds", m(null)).outcome, "INCONCLUSIVE");
-  assert.equal(INT_ADEQUACY_MINIMUM, null, "INT ADEQUACY MINIMUM: founder to set");
-  assert.deepEqual(familyOutcome("passInt", m([-0.2, -0.01])), { outcome: "INCONCLUSIVE", reasons: ["INT adequacy minimum not set by the founder"] });
-  assert.equal(familyOutcome("passInt", m([-0.2, -0.01], 0.8, 300, 9), { intMinimum: 10 }).outcome, "INCONCLUSIVE");
-  assert.equal(familyOutcome("passInt", m([-0.2, -0.01], 0.8, 300, 10), { intMinimum: 10 }).outcome, "MET");
+  assert.equal(familyOutcome("passInt", m([-0.2, -0.01])).outcome, "MET", "INT: the same bars, no event-count gate");
+  assert.equal(familyOutcome("passInt", m([-0.3, 0.2])).outcome, "INCONCLUSIVE", "sparse events show as an unsettled interval");
 });
 
 test("ledger: the decision is read from confirmatory rows only; small n stays INCONCLUSIVE; secondary league baseline reported", () => {
@@ -120,6 +117,9 @@ test("ledger: the decision is read from confirmatory rows only; small n stays IN
   assert.equal(ledger.confirmatory.passYds.noModelDistribution, 1);
   assert.ok(ledger.confirmatory.passYds.secondaryLeague, "league average is computed beside the primary");
   assert.deepEqual(Object.keys(ledger.confirmatory.passYds.ece), ["199.5", "224.5", "249.5"]);
+  // count markets always report events and non-events per line, with the model's mean chance (calibration)
+  assert.deepEqual(ledger.confirmatory.passInt.events, { eligibleQbGames: 1, total: 1, byLine: { 0.5: { events: 1, nonEvents: 0, eventFrequency: 1, nonEventFrequency: 0, modelMeanP: 0.3 }, 1.5: { events: 0, nonEvents: 1, eventFrequency: 0, nonEventFrequency: 1, modelMeanP: 0 } } });
+  assert.deepEqual(Object.keys(ledger.confirmatory.passTd.events.byLine), ["0.5", "1.5", "2.5"]);
   assert.doesNotMatch(JSON.stringify(ledger), /"verdict"|beats/i);
 });
 

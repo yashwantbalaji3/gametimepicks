@@ -1,10 +1,12 @@
-# NFL QB props v0: pre-registration v1 (awaiting founder approval)
+# NFL QB props v0: pre-registration v1 (FROZEN, awaiting founder approval of this hash)
 
-**Status: NOT APPROVED.** No grading runs against real outcomes until the founder approves this exact file in writing.
+**Status: FROZEN, NOT APPROVED.** No grading runs against real outcomes until the founder approves this exact file in writing.
 
 The approval is recorded as this file's sha256 in `APPROVED_PREREG_SHA256` (`app/src/lib/sports/nfl/qb-props-grade.mjs`). The grader refuses any other file. Any edit after approval changes the sha256 and makes a new registration.
 
 ## 1. The founder's decisions (2026-11-10), verbatim
+
+### 1a. The four validation decisions
 
 Source: `~/gtp-evidence/nov10-founder-qbp-four-decisions.md`, the Program Director's record of the text the founder typed in the PD session (full text in PD transcript 78e9aef1). The text is quoted below without edits.
 
@@ -19,11 +21,26 @@ Relayed by the Program Director with the same decisions (2026-11-10), verbatim:
 
 > Primary: paired 95% game-clustered CI of (model − baseline) excludes 0 in the favourable direction. Scores: count log loss for TD/INT; log loss + ECE at lines for yds; CRPS/interval score for att/cmp. All five families: n ≥ 300 eligible QB-games; cov80 in 0.76–0.84; also report width, bias, calibration. Failed or inconclusive ⇒ research only.
 >
-> INT ADEQUACY MINIMUM: founder to set.
->
 > Eligibility = eligibility@1 ELIGIBLE at freeze plus R5. Window: kickoffs after the frozen file's approval timestamp. Weeks 5–9 exploratory forever.
 
-**INT ADEQUACY MINIMUM: founder to set.** In code: `INT_ADEQUACY_MINIMUM = null` (`app/src/lib/sports/nfl/qb-props-scores.mjs`). While it is unset, the interceptions family is always INCONCLUSIVE.
+### 1b. Decision 2: no fixed interception-count gate (replaces any fixed INT minimum; decision 4's "too few events => INCONCLUSIVE" now acts through the interval)
+
+Source: `~/gtp-evidence/nov10-founder-qbp-int-decision.md` (the PD's record of the founder's text; full text in PD transcript 78e9aef1), quoted without edits:
+
+> - Neither 100 nor 150. No fixed observed-INT minimum gates implementation, generation, display or evaluation.
+> - Build all five QB markets now (pass TD, yds, cmp, att, INT): distributions, line probabilities, relevant historical stats, sim-derived outcomes.
+> - Three distinct statuses, never confused: Implemented/Experimental, Forward Evaluation, Validated/Official.
+> - Report eligible QB-games, observed INT events, event/non-event frequencies, uncertainty intervals, calibration, baseline comparisons. Insufficient evidence => INCONCLUSIVE, which does not block implementation or experimental availability. The prespecified forward protocol and the defensible-evidence requirement for superiority claims are kept.
+> - After every slate: grade frozen forecasts vs official finals; per-market dashboard; systematic errors/calibration; versioned challenger pipeline; retrain/recalibrate when justified; promote only through gates; no silent production change.
+> - Experimental markets may appear in a clearly separated research section once simulation, data-integrity, eligibility and functional tests pass. Never labelled as proven edges, high-confidence or official; no manufactured odds/lines/records/probabilities.
+> - #1302 isolated; #1295 not interrupted; two-session policy; no extra audits or approval loops.
+> PD reading: the other decision-4 bars (n >= 300, CI excludes 0, cov80 0.76-0.84) still define Validated/Official. Point 5 allows the research section through the normal release gate once those tests pass.
+
+Relayed by the Program Director (2026-11-10), verbatim with one omission marked "…":
+
+> There is NO fixed INT-count minimum. … the grader always reports, per market: eligible QB-games, observed INT events, event and non-event frequencies, intervals, calibration and baseline comparisons. If the interval doesn't settle it, the result is INCONCLUSIVE. The other bars stay as the Validated/Official criteria (n ≥ 300, paired CI excludes 0 in the favourable direction, cov80 0.76–0.84).
+>
+> Three statuses, each a field in code and in the prereg: IMPLEMENTED_EXPERIMENTAL / FORWARD_EVALUATION / VALIDATED_OFFICIAL. They are never merged, and only the last one may feed official picks.
 
 ## 2. The bars, per family
 
@@ -34,16 +51,39 @@ The same bars apply to all five families: passing yards, completions, attempts, 
 | n | ≥ 300 eligible QB-games in the confirmatory window, each with a model score and a primary-baseline score (the paired n) |
 | Primary | paired 95% game-clustered bootstrap CI of mean(model − baseline) on the family's primary score excludes 0 favourably (upper bound < 0; lower scores are better) |
 | Coverage | the model's 80% interval coverage (cov80) lies in 0.76–0.84 |
-| INT only | the sparse-event adequacy minimum is reached (founder to set; until then INCONCLUSIVE) |
-| Reported, no bar | interval width, bias of the median, calibration (ECE at the yards lines), the interval score, the league-average secondary |
+| Reported, no bar | interval width, bias of the median, calibration (ECE at the yards lines and at the count lines), the interval score, the league-average secondary; for passing TDs and interceptions always: eligible QB-games, total events, events / non-events and their frequencies at each line (TD 0.5 / 1.5 / 2.5, INT 0.5 / 1.5) with the model's mean chance |
+
+There is no fixed event-count minimum for any family, interceptions included. Too few events shows as an interval that does not settle, which is INCONCLUSIVE.
 
 **Decision** (`familyOutcome`, `app/src/lib/sports/nfl/qb-props-grade.mjs`):
 
-- **INCONCLUSIVE:** paired n < 300; the INT minimum is unset or not reached; no interval; or the interval contains 0.
+- **INCONCLUSIVE:** paired n < 300; no interval; or the interval contains 0.
 - **FAILED:** the interval excludes 0 unfavourably, or cov80 lies outside 0.76–0.84.
 - **MET:** the interval excludes 0 favourably and cov80 lies in 0.76–0.84.
 
-Failed or inconclusive ⇒ experimental research only, never official. MET is necessary for release but not sufficient: the public flag stays OFF until it is separately approved.
+Failed or inconclusive ⇒ experimental research only, never official. MET is necessary for VALIDATED_OFFICIAL but not sufficient (§2a). INCONCLUSIVE does not block implementation or experimental availability.
+
+## 2a. Market status (three states, never merged)
+
+In code: `MARKET_STATUS` and `QB_MARKET_STATUS` (`app/src/lib/sports/nfl/qb-props-markets.mjs`), a frozen constant changed only by a reviewed commit.
+
+| Status | Meaning | How a market gets there | May feed official picks |
+|---|---|---|---|
+| `IMPLEMENTED_EXPERIMENTAL` | built from the simulation; research section only (flag OFF until the release gate) | now: all five markets | no |
+| `FORWARD_EVALUATION` | frozen forecasts graded after every slate under this registration | the founder approves this file's hash | no |
+| `VALIDATED_OFFICIAL` | may feed official picks | the family's decision is MET on confirmatory rows, AND the founder approves the promotion | yes (`mayFeedOfficialPicks`) |
+
+All five markets are `IMPLEMENTED_EXPERIMENTAL` today. No data file or job can change a status, so there is no silent production change.
+
+## 2b. The five markets, the per-slate loop and the challenger
+
+- **Markets:** passing TDs, passing yards, completions, attempts and interceptions, all from the same simulation (the receipt of record). Each shows:
+  - the run distribution (median and 80% range);
+  - exact chances from the run counts: TDs 1+ / 2+ / 3+, yards 200+ / 225+ / 250+, INT 1+ / 2+. Completions and attempts show the range only, with no manufactured line;
+  - the QB's actual previous games, labelled **History**, never a forecast and never an input to the chances.
+- **Research section:** `/nfl/simulation/[eventId]`, behind `GTP_NFL_QB_PROPS_PUBLIC` (default OFF). It is labelled EXPERIMENTAL · MODEL PROJECTION, with no prices, edges or confidence words. It is turned on only through the normal release gate, once the simulation, data-integrity, eligibility and functional tests pass.
+- **Per-slate loop:** the `nfl-sim-v2-shadow` workflow runs `app/scripts/nfl/grade-qb-props.mjs --write` after each receipt run. It writes `forward-counts.json` and `dashboard.json` (`data/internal/research/nfl/qb-props/`): market status, forward rows per slate, and the challenger slot. While grading is LOCKED, neither file holds an outcome or a metric.
+- **Challenger:** `QB_CHALLENGERS` (empty) holds versioned challengers. A challenger is graded beside the incumbent on the same rows and reported on the dashboard, and never changes a market's status by itself. Retraining or recalibration is a new model version, so a new registration, promoted only through these gates.
 
 ## 3. Scores and baselines (frozen in code)
 
@@ -92,7 +132,7 @@ The author of this file has seen descriptive weeks 5–9 results (§6). The foun
 4. **Primary score for cmp/att:** CRPS (the interval score is reported).
 5. **Probability floor:** 1e-6, applied before a log.
 6. **Paired n:** "n ≥ 300 eligible QB-games" is read as the paired n, meaning rows with both a model and a primary-baseline score.
-7. **INT adequacy:** the unit of the minimum is the founder's choice. The ledger reports both total interceptions and QB-games with ≥ 1 INT.
+7. **Count calibration lines:** TD 0.5 / 1.5 / 2.5 and INT 0.5 / 1.5. These are reported only, never a bar.
 8. **League average:** uses the same season's earlier team-games. For yds/cmp/att it takes the starting QB (most attempts), as a normal; for TD/INT, a Poisson of the team totals.
 
 ## 6. Disclosure: what has already been seen

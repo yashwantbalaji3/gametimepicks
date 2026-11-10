@@ -42,13 +42,17 @@ jobs:
         run: |
           set -euo pipefail
           node app/scripts/nfl/build-nfl-sim-v2-shadow.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      - name: QB props slate job (counts + dashboard only; grading of real outcomes LOCKED until the prereg is approved)
+        run: |
+          set -euo pipefail
+          node app/scripts/nfl/grade-qb-props.mjs --write
       - name: Commit new shadow receipts (add-only)
         run: |
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           mkdir -p data/internal/research/nfl/sim-v2/shadow
-          git add data/internal/research/nfl/sim-v2/shadow/
+          git add data/internal/research/nfl/sim-v2/shadow/ data/internal/research/nfl/qb-props/forward-counts.json data/internal/research/nfl/qb-props/dashboard.json
           if git diff --cached --quiet; then
             echo "no new shadow receipt (inputs unchanged or no game inside 8 days)"
             exit 0

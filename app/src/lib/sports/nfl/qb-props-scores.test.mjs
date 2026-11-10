@@ -7,21 +7,21 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import {
-  COUNT_TOP, ECE_BINS, INT_ADEQUACY_MINIMUM, OWN_GAMES, PASS_YDS_LINES, PROB_FLOOR, TEAM_GAMES,
+  COUNT_CALIBRATION_LINES, COUNT_TOP, ECE_BINS, OWN_GAMES, PASS_YDS_LINES, PROB_FLOOR, TEAM_GAMES,
   countLogLoss, crps, ece, empirical, fromCountPmf, interval80, intervalScore, leagueBaseline, lineLogLoss, normal,
   ownPriorGames, ownTrailingBaseline, pOver, poisson, quantile, scoreRow, teamPoissonBaseline,
 } from "./qb-props-scores.mjs";
 
 const close = (a, b, eps = 1e-9, msg) => assert.ok(Math.abs(a - b) <= eps, `${msg ?? ""} ${a} vs ${b}`);
 
-test("frozen constants: 8 own games, 8 team games, the founder's example lines, INT minimum unset", () => {
+test("frozen constants: 8 own games, 8 team games, the founder's example lines, count calibration lines", () => {
   assert.equal(OWN_GAMES, 8);
   assert.equal(TEAM_GAMES, 8);
   assert.deepEqual([...PASS_YDS_LINES], [199.5, 224.5, 249.5]);
   assert.equal(ECE_BINS, 10);
   assert.equal(PROB_FLOOR, 1e-6);
   assert.equal(COUNT_TOP, 6);
-  assert.equal(INT_ADEQUACY_MINIMUM, null);
+  assert.deepEqual(JSON.parse(JSON.stringify(COUNT_CALIBRATION_LINES)), { passTd: [0.5, 1.5, 2.5], passInt: [0.5, 1.5] });
 });
 
 test("distributions: exact counts, count PMF, normal on the integer grid, Poisson", () => {

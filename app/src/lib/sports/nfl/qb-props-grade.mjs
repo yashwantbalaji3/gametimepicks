@@ -24,7 +24,7 @@
  *                   at freeze when the contract is available (`eligibilityAt`), else PENDING_ELIGIBILITY_CONTRACT.
  */
 
-import { PASS_YDS_LINES, QB_SCORES_SPEC, INT_ADEQUACY_MINIMUM, empirical, fromCountPmf, ece, leagueBaseline, ownTrailingBaseline, scoreRow, teamPoissonBaseline } from "./qb-props-scores.mjs";
+import { COUNT_CALIBRATION_LINES, PASS_YDS_LINES, QB_SCORES_SPEC, empirical, fromCountPmf, ece, leagueBaseline, ownTrailingBaseline, scoreRow, teamPoissonBaseline } from "./qb-props-scores.mjs";
 
 export const QB_PROPS_LEDGER_SCHEMA = "gtp.nfl.qb-props-ledger@1";
 export const QB_PROPS_COUNTS_SCHEMA = "gtp.nfl.qb-props-forward-counts@1";
@@ -167,7 +167,8 @@ export function gradeQbProps({ entries, games, verified, eligibilityAt = null, r
           if (!Number.isFinite(y)) return [f.family, null];
           const primary = f.kind === "count" ? teamPoissonBaseline(games, team, receipt.eventStart, f.actual) : ownTrailingBaseline(games, pid, receipt.eventStart, f.actual);
           const league = leagueBaseline(games, g.season, receipt.eventStart, f.actual, f.kind === "count" ? "count" : "continuous");
-          return [f.family, { actual: y, model: scoreRow(modelDist(qb, f), y, f.score), baseline: scoreRow(primary, y, f.score), league: scoreRow(league, y, f.score) }];
+          const cl = COUNT_CALIBRATION_LINES[f.family] ?? [];
+          return [f.family, { actual: y, model: scoreRow(modelDist(qb, f), y, f.score, cl), baseline: scoreRow(primary, y, f.score, cl), league: scoreRow(league, y, f.score, cl) }];
         })),
       });
     }
@@ -213,24 +214,32 @@ export function familyMetrics(rows, family) {
     secondaryLeague: leaguePaired.length ? { n: leaguePaired.length, modelMinusLeague: r4(mean(leaguePaired.map((x) => x.f.model.primary - x.f.league.primary))) } : null,
   });
   if (f.score === "yds") out.ece = Object.fromEntries(PASS_YDS_LINES.map((l) => [l, r4(ece(xs.map((x) => ({ p: x.f.model.pOver[l], y: x.f.actual > l ? 1 : 0 }))))]));
-  if (family === "passInt") out.intEvents = { interceptions: xs.reduce((a, x) => a + x.f.actual, 0), qbGamesWithInt: xs.filter((x) => x.f.actual > 0).length };
+  if (f.kind === "count") {
+    // founder decision 2026-11-10 (no fixed event minimum): always report the events, per line, beside the interval
+    out.events = {
+      eligibleQbGames: n,
+      total: xs.reduce((a, x) => a + x.f.actual, 0),
+      byLine: Object.fromEntries(COUNT_CALIBRATION_LINES[family].map((l) => {
+        const ev = xs.filter((x) => x.f.actual > l).length;
+        return [l, { events: ev, nonEvents: n - ev, eventFrequency: r4(ev / n), nonEventFrequency: r4((n - ev) / n), modelMeanP: r4(mean(xs.map((x) => x.f.model.pOver[l]))) }];
+      })),
+    };
+    out.ece = Object.fromEntries(COUNT_CALIBRATION_LINES[family].map((l) => [l, r4(ece(xs.map((x) => ({ p: x.f.model.pOver[l], y: x.f.actual > l ? 1 : 0 }))))]));
+  }
   return out;
 }
 
 /**
  * The pre-registered decision for one family (pre-registration v1 §2), from its CONFIRMATORY metrics:
- *   INCONCLUSIVE  paired n < 300; INT adequacy minimum unset or not reached; no interval; or the interval contains 0
+ *   INCONCLUSIVE  paired n < 300; no interval; or the interval contains 0 (there is no fixed event-count minimum for
+ *                 any family, INT included — founder 2026-11-10: insufficient evidence shows as an unsettled interval)
  *   FAILED        the interval excludes 0 unfavourably, or cov80 outside 0.76–0.84
  *   MET           the interval excludes 0 favourably (model − baseline < 0) AND cov80 in 0.76–0.84
  * Failed or inconclusive ⇒ experimental research only, never official. MET is a necessary condition, not a release.
  */
-export function familyOutcome(family, m, { intMinimum = INT_ADEQUACY_MINIMUM } = {}) {
+export function familyOutcome(family, m) {
   const reasons = [];
   if (!((m.pairedN ?? 0) >= MIN_PAIRED_N)) reasons.push(`paired n ${m.pairedN ?? 0} < ${MIN_PAIRED_N}`);
-  if (family === "passInt") {
-    if (intMinimum == null) reasons.push("INT adequacy minimum not set by the founder");
-    else if ((m.intEvents?.interceptions ?? 0) < intMinimum) reasons.push(`interceptions ${m.intEvents?.interceptions ?? 0} < adequacy minimum ${intMinimum}`);
-  }
   const ci = m.modelMinusBaselineCi95;
   if (!ci) reasons.push("no interval");
   if (reasons.length) return { outcome: "INCONCLUSIVE", reasons };

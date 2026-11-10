@@ -26,8 +26,8 @@ export const PASS_YDS_LINES = Object.freeze([199.5, 224.5, 249.5]);
 export const ECE_BINS = 10;
 export const PROB_FLOOR = 1e-6;
 export const COUNT_TOP = 6; // y ≥ 6 pooled, as in the receipt's count PMF
-/** Sparse-event adequacy for interceptions. FOUNDER TO SET — while null, the INT family is always INCONCLUSIVE. */
-export const INT_ADEQUACY_MINIMUM = null;
+/** Count-family lines at which calibration (ECE) and event frequencies are reported — reported only, never a bar. */
+export const COUNT_CALIBRATION_LINES = Object.freeze({ passTd: Object.freeze([0.5, 1.5, 2.5]), passInt: Object.freeze([0.5, 1.5]) });
 
 const ms = (iso) => { const t = Date.parse(String(iso ?? "").replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z")); return Number.isFinite(t) ? t : null; };
 const mean = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
@@ -153,13 +153,13 @@ export function leagueBaseline(games, season, kickoff, actual, kind) {
 }
 
 /** Every score for one distribution and one outcome. `kind`: "yds" | "continuous" | "count". */
-export function scoreRow(d, y, kind) {
+export function scoreRow(d, y, kind, countLines = []) {
   if (!d) return null;
   const iv = interval80(d);
   const med = quantile(d, 0.5);
   const out = { median: med, q10: iv[0], q90: iv[1], width: iv[1] - iv[0], covered80: y >= iv[0] && y <= iv[1], error: y - med, intervalScore: intervalScore(iv, y) };
   if (kind === "yds") Object.assign(out, { primary: lineLogLoss(d, y), pOver: Object.fromEntries(PASS_YDS_LINES.map((l) => [l, pOver(d, l)])) });
   else if (kind === "continuous") Object.assign(out, { primary: crps(d, y) });
-  else Object.assign(out, { primary: countLogLoss(d, y) });
+  else Object.assign(out, { primary: countLogLoss(d, y), pOver: Object.fromEntries(countLines.map((l) => [l, pOver(d, l)])) });
   return out;
 }
