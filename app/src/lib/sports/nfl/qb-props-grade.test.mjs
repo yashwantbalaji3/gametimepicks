@@ -10,7 +10,7 @@ import assert from "node:assert/strict";
 import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { assertDistinctQbGames, buildLedger, familyOutcome, gradeQbProps as gradeApproved, projectedQbs, receiptsOfRecord, forwardCounts, gradingApproved, APPROVED_PREREG_SHA256, PREREG_APPROVED_AT, SEEN_EXPLORATORY_WEEKS } from "./qb-props-grade.mjs";
+import { MIN_PAIRED_N, assertDistinctQbGames, buildLedger, familyOutcome, gradeQbProps as gradeApproved, projectedQbs, receiptsOfRecord, forwardCounts, gradingApproved, APPROVED_PREREG_SHA256, PREREG_APPROVED_AT, SEEN_EXPLORATORY_WEEKS } from "./qb-props-grade.mjs";
 
 /* SYNTHETIC fixtures only: the grader runs here under a test-only approval, never on real outcomes */
 const TEST_APPROVAL = { preregSha256: "synthetic-test", approvals: ["synthetic-test"] };
@@ -110,18 +110,26 @@ test("pre-registered decision: n ≥ 300 paired, cov80 0.76–0.84, CI excludes 
   assert.equal(familyOutcome("passInt", m([-0.3, 0.2])).outcome, "INCONCLUSIVE", "sparse events show as an unsettled interval");
 });
 
-test("ledger: the decision is read from confirmatory rows only; small n stays INCONCLUSIVE; secondary league baseline reported", () => {
+test("ledger: confirmatory rows below the look carry counts only (no comparison, no cov80); exploratory rows are described", () => {
   const ledger = buildLedger({ graded: gradeQbProps({ entries: entries4, games: allGames, verified: verified4, ...confirmOpts }), inputs: {} });
   assert.equal(ledger.counts.confirmatoryQbGames, 2);
-  for (const f of ["passYds", "passCmp", "passAtt", "passTd", "passInt"]) assert.equal(ledger.confirmatory[f].outcome, "INCONCLUSIVE", f);
+  assert.deepEqual(ledger.counts.byWindow, { CONFIRMATORY: 2, EXPLORATORY_SEEN_WEEKS_5_9: 4, EXPLORATORY: 0 });
+  assert.deepEqual(ledger.rows.map((r) => `${r.eventId}${r.team}:${r.window}`), ["1AAA:EXPLORATORY_SEEN_WEEKS_5_9", "1BBB:EXPLORATORY_SEEN_WEEKS_5_9", "2AAA:EXPLORATORY_SEEN_WEEKS_5_9", "2CCC:EXPLORATORY_SEEN_WEEKS_5_9", "4AAA:CONFIRMATORY", "4BBB:CONFIRMATORY"]);
+  for (const f of ["passYds", "passCmp", "passAtt", "passTd", "passInt"]) {
+    const c = ledger.confirmatory[f];
+    assert.equal(c.lookTaken, false, f);
+    assert.equal(c.verdict, null, f);
+    assert.equal(c.progress, `${c.pairedN}/300`, f);
+    for (const k of ["model", "baseline", "modelMinusBaseline", "modelMinusBaselineCi95", "ece", "secondaryLeague", "look"]) assert.ok(!(k in c), `${f}: no ${k} before the look`);
+  }
   assert.equal(ledger.confirmatory.passYds.n, 1, "BBB's receipt row has no exact counts");
   assert.equal(ledger.confirmatory.passYds.noModelDistribution, 1);
-  assert.ok(ledger.confirmatory.passYds.secondaryLeague, "league average is computed beside the primary");
-  assert.deepEqual(Object.keys(ledger.confirmatory.passYds.ece), ["199.5", "224.5", "249.5"]);
+  assert.ok(ledger.exploratory.passTd.n >= 1 && "modelMinusBaseline" in ledger.exploratory.passTd, "exploratory rows (weeks 5–9) are described in full");
+  assert.ok(!("exploratoryAll" in ledger), "no aggregate mixes confirmatory rows into a comparison");
   // count markets always report events and non-events per line, with the model's mean chance (calibration)
   assert.deepEqual(ledger.confirmatory.passInt.events, { eligibleQbGames: 1, total: 1, byLine: { 0.5: { events: 1, nonEvents: 0, eventFrequency: 1, nonEventFrequency: 0, modelMeanP: 0.3 }, 1.5: { events: 0, nonEvents: 1, eventFrequency: 0, nonEventFrequency: 1, modelMeanP: 0 } } });
   assert.deepEqual(Object.keys(ledger.confirmatory.passTd.events.byLine), ["0.5", "1.5", "2.5"]);
-  assert.doesNotMatch(JSON.stringify(ledger), /"verdict"|beats/i);
+  assert.doesNotMatch(JSON.stringify(ledger), /beats/i);
 });
 
 test("deterministic: the same inputs give byte-identical ledgers; the grader reads no clock", () => {
@@ -186,4 +194,51 @@ test("the approved window: confirmatory only with kickoff strictly after 2026-11
   });
   assert.deepEqual([...new Set(g.rows.filter((r) => r.confirmatory).map((r) => r.eventId))], ["91", "93"], "at the approval instant: not after it; week 7: a seen week");
   assert.deepEqual([...new Set(g.rows.map((r) => r.eventId))], ["90", "91", "92", "93"], "the others are graded as exploratory, never dropped");
+});
+
+/* single look: synthetic graded rows (no grader input), one per (game, team) */
+const lookRow = (i, delta, { cov = true } = {}) => {
+  const sc = (primary) => ({ primary, covered80: cov, width: 10, error: 0, intervalScore: 10, pOver: { 199.5: 0.5, 224.5: 0.5, 249.5: 0.5, 0.5: 0.5, 1.5: 0.2, 2.5: 0.1 } });
+  // ~80% covered so cov80 sits inside 0.76–0.84 when cov is left to vary
+  const covered = i % 5 !== 0;
+  const fam = (y) => ({ actual: y, model: { ...sc(1 + delta), covered80: cov && covered }, baseline: sc(1), league: sc(1) });
+  return { eventId: String(1000 + Math.floor(i / 2)), team: i % 2 ? "BBB" : "AAA", playerId: `nfl-athlete-${i}`, season: 2026, week: 12 + Math.floor(i / 60), eventStart: `2026-11-${String(13 + Math.floor(i / 60)).padStart(2, "0")}T18:00Z`, confirmatory: true, eligibility: "ELIGIBLE", starterMatch: true, r5: true,
+    families: { passYds: fam(240), passCmp: fam(22), passAtt: fam(33), passTd: fam(1), passInt: fam(0) } };
+};
+const lookLedger = (rows, previous = null, sha = "synthetic-test") => buildLedger({ graded: { rows, counts: {} }, inputs: { preregSha256: sha }, previous });
+
+test("single look: no verdict below 300 paired; computed once when paired n first reaches 300; never changes after", () => {
+  assert.equal(MIN_PAIRED_N, 300);
+  // the model is better (lower score) on every early game
+  const good = Array.from({ length: 299 }, (_, i) => lookRow(i, -0.05 - (i % 7) * 0.01));
+  const l1 = lookLedger(good);
+  for (const [f, c] of Object.entries(l1.confirmatory)) { assert.equal(c.lookTaken, false, f); assert.equal(c.verdict, null, f); assert.equal(c.progress, "299/300", f); }
+  const l2 = lookLedger([...good, lookRow(299, -0.06), lookRow(300, -0.07)], l1);
+  for (const [f, c] of Object.entries(l2.confirmatory)) {
+    assert.equal(c.lookTaken, true, f);
+    assert.equal(c.verdict, "MET", f);
+    assert.equal(c.look.pairedN, 301, `${f}: the look uses every confirmatory row graded so far`);
+    assert.equal(c.look.rowKeys.length, 301);
+  }
+  // 200 later games where the model is much worse: a fresh look would now FAIL — the frozen one must not move
+  const bad = Array.from({ length: 200 }, (_, i) => lookRow(301 + i, 0.5));
+  const fresh = lookLedger([...good, lookRow(299, -0.06), lookRow(300, -0.07), ...bad]);
+  assert.equal(fresh.confirmatory.passYds.verdict, "FAILED", "the later rows alone would flip a fresh look");
+  const l3 = lookLedger([...good, lookRow(299, -0.06), lookRow(300, -0.07), ...bad], l2);
+  for (const [f, c] of Object.entries(l3.confirmatory)) {
+    assert.equal(c.verdict, "MET", `${f}: the verdict is frozen`);
+    assert.deepEqual(c.look, l2.confirmatory[f].look, `${f}: the look is carried verbatim`);
+    assert.equal(c.progress, "501/300", `${f}: the running n keeps counting`);
+  }
+  // a ledger graded under another pre-registration is a new registration: nothing is carried
+  assert.equal(lookLedger(good, l2, "another-sha").confirmatory.passYds.lookTaken, false);
+});
+
+test("rerun ⇒ byte-identical: the ledger with itself as `previous` reproduces itself, before and after the look", () => {
+  const rows = Array.from({ length: 320 }, (_, i) => lookRow(i, -0.05));
+  for (const n of [120, 320]) {
+    const a = lookLedger(rows.slice(0, n));
+    const b = lookLedger(rows.slice(0, n), JSON.parse(JSON.stringify(a)));
+    assert.equal(JSON.stringify(b), JSON.stringify(a), `n = ${n}`);
+  }
 });

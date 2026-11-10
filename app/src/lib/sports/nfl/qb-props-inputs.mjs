@@ -89,7 +89,9 @@ export function runGrade({ root, preregSha256, approvals = APPROVED_PREREG_SHA25
   const at = approvedAt[preregSha256];
   const { entries, games, verified, r5At, eligibilityAt, inputs } = loadGradeInputs(root);
   const graded = gradeQbProps({ entries, games, verified, r5At, eligibilityAt, approvedAt: at, preregSha256, approvals });
-  const ledger = buildLedger({ graded, inputs: { ...inputs, preregSha256, approvedAt: at } });
+  // the committed ledger: a look already taken is carried forward verbatim (single look)
+  const previous = readJson(path.join(root, LEDGER_REL));
+  const ledger = buildLedger({ graded, inputs: { ...inputs, preregSha256, approvedAt: at }, previous });
   let wrote = null;
   if (write) {
     const out = path.join(root, LEDGER_REL);

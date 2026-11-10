@@ -277,25 +277,58 @@ export function familyOutcome(family, m) {
   return { outcome: "INCONCLUSIVE", reasons: ["interval contains 0"] };
 }
 
-/** The ledger: confirmatory decision per family, then exploratory/strata descriptives. Deterministic: no wall-clock field. */
-export function buildLedger({ graded, inputs }) {
-  const { rows, counts } = graded;
-  assertDistinctQbGames(rows);
+/** A row's window label: confirmatory, the seen weeks 5–9 (exploratory forever), or otherwise exploratory. */
+export const rowWindow = (r) => (r.confirmatory ? "CONFIRMATORY" : r.season === 2026 && SEEN_EXPLORATORY_WEEKS.includes(r.week) ? "EXPLORATORY_SEEN_WEEKS_5_9" : "EXPLORATORY");
+
+/** Below the look, only counts — no score comparison, no interval, no bar quantity (cov80) is shown for confirmatory rows. */
+function runningSummary(m) {
+  const pairedN = m.pairedN ?? 0;
+  return { n: m.n, games: m.games ?? 0, pairedN, noModelDistribution: m.noModelDistribution, noBaseline: m.noBaseline ?? 0, ...(m.events ? { events: m.events } : {}), progress: `${pairedN}/${MIN_PAIRED_N}` };
+}
+const sha16 = (s) => { let h = 0x811c9dc5; for (let i = 0; i < s.length; i++) { h ^= s.charCodeAt(i); h = Math.imul(h, 0x01000193) >>> 0; } return h.toString(16).padStart(8, "0"); };
+
+/**
+ * SINGLE LOOK (pre-registration v1.3, "The look"). Per family, over confirmatory rows: while paired n < 300 the ledger
+ * carries a running descriptive summary with lookTaken false and verdict null. The run in which paired n first reaches
+ * 300 computes the decision ONCE (familyOutcome on every confirmatory row graded so far) and stores it with the rows it
+ * used; every later run copies that look verbatim from the previous ledger — the verdict never changes.
+ */
+export function confirmatoryLook(family, rows, prev = null) {
+  const m = familyMetrics(rows, family);
+  const run = runningSummary(m);
+  if (prev?.lookTaken) return { ...run, lookTaken: true, verdict: prev.verdict, look: prev.look };
+  if (run.pairedN < MIN_PAIRED_N) return { ...run, lookTaken: false, verdict: null };
+  const { outcome, reasons } = familyOutcome(family, m);
+  const keys = rows.filter((r) => r.families[family]?.model && r.families[family]?.baseline).map((r) => `${r.eventId}|${r.team}|${r.playerId}`).sort();
+  const atKickoff = rows.map((r) => r.eventStart).sort((a, b) => (ms(a) ?? 0) - (ms(b) ?? 0)).at(-1) ?? null;
+  return { ...run, lookTaken: true, verdict: outcome, look: { pairedN: run.pairedN, lastKickoffInLook: atKickoff, rowKeysDigest: sha16(keys.join("\n")), rowKeys: keys, reasons, metrics: m } };
+}
+
+/**
+ * The ledger: the single-look decision per family on confirmatory rows, then exploratory descriptives on the NON-confirmatory
+ * rows only (so no aggregate peeks at the confirmatory comparison before the look). `previous`: the committed ledger, whose
+ * taken looks are carried forward when it was graded under the same pre-registration. Deterministic: no wall-clock field.
+ */
+export function buildLedger({ graded, inputs, previous = null }) {
+  const { rows: gradedRows, counts } = graded;
+  assertDistinctQbGames(gradedRows);
+  const rows = gradedRows.map((r) => ({ ...r, window: rowWindow(r) }));
   const fams = QB_FAMILIES.map((f) => f.family);
-  const by = (pred) => Object.fromEntries(fams.map((f) => [f, familyMetrics(rows.filter(pred), f)]));
-  const confirmatory = by((r) => r.confirmatory);
+  const exploratory = rows.filter((r) => !r.confirmatory);
+  const by = (pred) => Object.fromEntries(fams.map((f) => [f, familyMetrics(exploratory.filter(pred), f)]));
+  const carry = previous && previous.inputs?.preregSha256 === inputs?.preregSha256 ? previous.confirmatory ?? {} : {};
   const weeks = [...new Set(rows.map((r) => `${r.season}-w${r.week}`))].sort();
-  const strata = (key) => Object.fromEntries([...new Set(rows.map((r) => String(r[key])))].sort().map((v) => [v, by((r) => String(r[key]) === v)]));
+  const strata = (key) => Object.fromEntries([...new Set(exploratory.map((r) => String(r[key])))].sort().map((v) => [v, by((r) => String(r[key]) === v)]));
   return {
     schema: QB_PROPS_LEDGER_SCHEMA,
-    status: "EXPERIMENTAL — confirmatory rows only decide; everything else is descriptive. Failed or inconclusive ⇒ research only.",
+    status: "EXPERIMENTAL — confirmatory rows only decide, once, when paired n first reaches 300; everything else is descriptive. Failed or inconclusive ⇒ research only.",
     rule: "receipt of record = latest generatedAt < eventStart; projected QB = largest pass-attempt median; actuals = verified finals",
     scoresSpec: QB_SCORES_SPEC,
     inputs,
-    counts: { ...counts, qbGames: rows.length, confirmatoryQbGames: rows.filter((r) => r.confirmatory).length },
-    confirmatory: Object.fromEntries(fams.map((f) => [f, { ...confirmatory[f], ...familyOutcome(f, confirmatory[f]) }])),
-    exploratoryAll: by(() => true),
-    byWeek: Object.fromEntries(weeks.map((w) => [w, Object.fromEntries(fams.map((f) => [f, familyMetrics(rows.filter((r) => `${r.season}-w${r.week}` === w), f).n]))])),
+    counts: { ...counts, qbGames: rows.length, confirmatoryQbGames: rows.filter((r) => r.confirmatory).length, byWindow: Object.fromEntries(["CONFIRMATORY", "EXPLORATORY_SEEN_WEEKS_5_9", "EXPLORATORY"].map((w) => [w, rows.filter((r) => r.window === w).length])) },
+    confirmatory: Object.fromEntries(fams.map((f) => [f, confirmatoryLook(f, rows.filter((r) => r.confirmatory), carry[f])])),
+    exploratory: by(() => true),
+    byWeek: Object.fromEntries(weeks.map((w) => [w, Object.fromEntries(fams.map((f) => [f, rows.filter((r) => `${r.season}-w${r.week}` === w && r.families[f]?.model).length]))])),
     byStarterMatch: strata("starterMatch"),
     byEligibility: strata("eligibility"),
     rows,

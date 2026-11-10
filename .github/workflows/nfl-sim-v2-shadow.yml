@@ -85,3 +85,35 @@ jobs:
           done
           echo "::error::push never landed after 4 attempts"
           exit 1
+      # QB props grading (pre-registration v1.3, founder-approved 2026-11-10T18:55:07Z): finals and box scores land in
+      # nfl-event-window, which triggers this workflow, so the ledger is updated after each game goes final. The gate
+      # refuses (exit 2, red, blocks nothing above) unless the file hashes to an approved sha256. Deterministic: no
+      # wall-clock field, so an unchanged slate rewrites identical bytes and commits nothing.
+      - name: QB props grade (ledger + dashboard)
+        working-directory: app
+        run: |
+          set -euo pipefail
+          npx tsx scripts/nfl/grade-qb-props.mjs --grade --prereg ../docs/NFL_QB_PROPS_PREREGISTRATION_V1_3.md --write
+      - name: Commit QB props ledger + dashboard
+        working-directory: app
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ../data/internal/research/nfl/qb-props/ledger.json ../data/internal/research/nfl/qb-props/dashboard.json
+          if git diff --cached --quiet; then
+            echo "qb props ledger unchanged (no new final)"
+            exit 0
+          fi
+          git commit -m "auto: nfl qb props ledger $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
+          for a in 1 2 3 4; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "push rejected (attempt $a) — merging origin/main (never rebase)"
+            git fetch origin main
+            git merge --no-edit origin/main
+            sleep $((a * 5))
+          done
+          echo "::error::push never landed after 4 attempts"
+          exit 1

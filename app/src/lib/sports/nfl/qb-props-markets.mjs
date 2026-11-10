@@ -15,6 +15,8 @@
  *              dashboard, and never able to change a market's status by itself.
  */
 
+import { APPROVED_PREREG_SHA256, PREREG_APPROVED_AT, gradeRefusal } from "./qb-props-grade.mjs";
+
 export const MARKET_STATUS = Object.freeze({
   IMPLEMENTED_EXPERIMENTAL: "IMPLEMENTED_EXPERIMENTAL",
   FORWARD_EVALUATION: "FORWARD_EVALUATION",
@@ -97,13 +99,17 @@ export function qbHistory(games, playerId, kickoff, n = HISTORY_GAMES) {
 }
 
 /**
- * The per-slate dashboard (written after every slate by the grader job). While grading is LOCKED it carries status,
- * forward counts and the challenger slot only — no outcome, no metric.
+ * The per-slate dashboard (written after every slate by the grader job). The lock FOLLOWS THE GATE: grading is open only
+ * for a ledger graded under a pre-registration that gradeRefusal() accepts (approved AND timestamped). Locked, it carries
+ * status, forward counts and the challenger slot only — no outcome, no metric. Open, each market carries its single-look
+ * state (progress n/300, lookTaken, verdict — null until the look).
  */
-export function buildDashboard({ counts, ledger = null, gradingLocked, incumbent }) {
+export function buildDashboard({ counts, ledger = null, incumbent, approvals = APPROVED_PREREG_SHA256, approvedAt = PREREG_APPROVED_AT }) {
+  const sha = ledger?.inputs?.preregSha256 ?? null;
+  const gradingLocked = !ledger || gradeRefusal(sha, approvals, approvedAt) !== null;
   return {
     schema: QB_DASHBOARD_SCHEMA,
-    grading: gradingLocked ? "LOCKED — real outcomes are not graded until the founder approves the final pre-registration hash" : "APPROVED",
+    grading: gradingLocked ? "LOCKED — real outcomes are not graded until the founder approves the final pre-registration hash" : `APPROVED — pre-registration sha256 ${sha}, approved ${approvedAt[sha]}`,
     incumbent,
     challengers: QB_CHALLENGERS.map((c) => ({ ...c, effectOnStatus: "none — reported beside the incumbent; promotion only through the gates" })),
     markets: Object.fromEntries(QB_MARKETS.map((m) => [m.market, {
@@ -113,7 +119,7 @@ export function buildDashboard({ counts, ledger = null, gradingLocked, incumbent
       forwardRows: counts.total[m.market],
       withModelDistribution: counts.withModelDistribution[m.market],
       byKickoffDate: Object.fromEntries(Object.entries(counts.byKickoffDate).map(([d, c]) => [d, c[m.market]])),
-      ...(ledger && !gradingLocked ? { confirmatory: ledger.confirmatory[m.market] } : {}),
+      ...(gradingLocked ? {} : { confirmatory: (({ n, games, pairedN, progress, lookTaken, verdict }) => ({ n, games, pairedN, progress, lookTaken, verdict }))(ledger.confirmatory[m.market]) }),
     }])),
   };
 }

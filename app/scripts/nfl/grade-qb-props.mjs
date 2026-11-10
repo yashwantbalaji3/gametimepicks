@@ -21,6 +21,9 @@ import { fileURLToPath } from "node:url";
 import { readShadowReceipts } from "../../src/lib/sports/nfl/sim-v2/public-receipt.mjs";
 import { forwardCounts, FROM_DATE, gradeRefusal } from "../../src/lib/sports/nfl/qb-props-grade.mjs";
 import { buildDashboard } from "../../src/lib/sports/nfl/qb-props-markets.mjs";
+
+const LEDGER_REL = "data/internal/research/nfl/qb-props/ledger.json";
+const DASHBOARD_REL = "data/internal/research/nfl/qb-props/dashboard.json";
 import { NFL_SIM_V2_ENGINE, NFL_SIM_V2_VERSION } from "../../src/lib/sports/nfl/sim-v2/engine.mjs";
 import { SIMULATION_RECEIPT_SCHEMA } from "../../src/lib/sports/nfl/sim-v2/receipt.mjs";
 
@@ -39,9 +42,20 @@ if (process.argv.includes("--grade")) {
   const { runGrade } = await import("../../src/lib/sports/nfl/qb-props-inputs.mjs");
   const r = runGrade({ root: ROOT, preregSha256: sha, write: process.argv.includes("--write") });
   if (r.refused) refuse(r.refused);
-  console.log(`qb-props ledger: ${r.ledger.counts.qbGames} QB-games · ${r.ledger.counts.confirmatoryQbGames} confirmatory${r.wrote ? ` · wrote ${r.wrote}` : ""}`);
+  const progress = Object.entries(r.ledger.confirmatory).map(([f, c]) => `${f} ${c.progress}${c.lookTaken ? ` ${c.verdict}` : ""}`).join(" · ");
+  console.log(`qb-props ledger: ${r.ledger.counts.qbGames} QB-games · ${r.ledger.counts.confirmatoryQbGames} confirmatory · ${progress}${r.wrote ? ` · wrote ${r.wrote}` : ""}`);
+  if (process.argv.includes("--write")) writeDashboard(forwardCounts({ entries: readShadowReceipts(ROOT), from: FROM_DATE }), r.ledger);
   process.exit(0);
 }
+
+function writeDashboard(counts, ledger) {
+  const dash = buildDashboard({ counts, ledger, incumbent: { engine: NFL_SIM_V2_ENGINE, engineVersion: NFL_SIM_V2_VERSION, receiptSchema: SIMULATION_RECEIPT_SCHEMA } });
+  const out = path.join(ROOT, DASHBOARD_REL);
+  fs.mkdirSync(path.dirname(out), { recursive: true });
+  fs.writeFileSync(out, `${JSON.stringify(dash, null, 1)}\n`);
+  return DASHBOARD_REL;
+}
+const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 
 const entries = readShadowReceipts(ROOT);
 const counts = forwardCounts({ entries, from: arg("--from", FROM_DATE) });
@@ -52,8 +66,7 @@ if (process.argv.includes("--write")) {
   const out = path.join(ROOT, "data/internal/research/nfl/qb-props/forward-counts.json");
   fs.mkdirSync(path.dirname(out), { recursive: true });
   fs.writeFileSync(out, text);
-  const dash = buildDashboard({ counts, gradingLocked: true, incumbent: { engine: NFL_SIM_V2_ENGINE, engineVersion: NFL_SIM_V2_VERSION, receiptSchema: SIMULATION_RECEIPT_SCHEMA } });
-  const dout = path.join(path.dirname(out), "dashboard.json");
-  fs.writeFileSync(dout, `${JSON.stringify(dash, null, 1)}\n`);
-  console.log(`wrote ${path.relative(ROOT, out)} and ${path.relative(ROOT, dout)}`);
+  // the lock follows the gate: the committed ledger (written only by an approved grade run) opens it
+  const dout = writeDashboard(counts, readJson(path.join(ROOT, LEDGER_REL)));
+  console.log(`wrote ${path.relative(ROOT, out)} and ${dout}`);
 }

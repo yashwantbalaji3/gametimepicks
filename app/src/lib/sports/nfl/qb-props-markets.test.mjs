@@ -3,6 +3,7 @@
  * Run (from app/): npx tsx --test src/lib/sports/nfl/qb-props-markets.test.mjs
  */
 import test from "node:test";
+import { APPROVED_PREREG_SHA256 } from "./qb-props-grade.mjs";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
@@ -21,7 +22,7 @@ test("no official-pick code reads the QB props modules (only the research sectio
   const hits = [];
   const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (/\.(mjs|ts|tsx)$/.test(e.name) && !/\.test\./.test(e.name) && /qb-props-(markets|grade|scores)/.test(fs.readFileSync(p, "utf8"))) hits.push(path.relative(process.cwd(), p)); } };
   walk(path.join(process.cwd(), "src"));
-  assert.deepEqual(hits.sort(), ["src/components/nfl/qb-props-line.tsx", "src/lib/sports/nfl/qb-props-grade.mjs", "src/lib/sports/nfl/qb-props-history-file.mjs", "src/lib/sports/nfl/qb-props-inputs.mjs", "src/lib/sports/nfl/qb-props-scores.mjs"]);
+  assert.deepEqual(hits.sort(), ["src/components/nfl/qb-props-line.tsx", "src/lib/sports/nfl/qb-props-grade.mjs", "src/lib/sports/nfl/qb-props-history-file.mjs", "src/lib/sports/nfl/qb-props-inputs.mjs", "src/lib/sports/nfl/qb-props-markets.mjs", "src/lib/sports/nfl/qb-props-scores.mjs"]);
 });
 
 test("five markets from one receipt row: exact run counts give the range and exact chances; without them no chance is invented", () => {
@@ -46,9 +47,15 @@ test("history: actual previous games played strictly before kickoff, most recent
   assert.equal(h[0].opponent, "BBB");
 });
 
-test("dashboard: status, forward rows, empty challenger slot; locked grading shows no outcome", () => {
+test("dashboard: status, forward rows, empty challenger slot; the lock follows the gate", () => {
   const counts = { total: { passTd: 4, passYds: 4, passCmp: 4, passAtt: 4, passInt: 4 }, withModelDistribution: { passTd: 1, passYds: 1, passCmp: 1, passAtt: 1, passInt: 1 }, byKickoffDate: { "2026-11-16": { passTd: 4, passYds: 4, passCmp: 4, passAtt: 4, passInt: 4 } } };
-  const d = buildDashboard({ counts, ledger: { confirmatory: { passTd: { n: 1 } } }, gradingLocked: true, incumbent: { engine: "e" } });
+  const conf = { n: 4, games: 2, pairedN: 3, progress: "3/300", lookTaken: false, verdict: null, model: { cov80: 0.5 } };
+  const ledger = (sha) => ({ inputs: { preregSha256: sha }, confirmatory: Object.fromEntries(["passTd", "passYds", "passCmp", "passAtt", "passInt"].map((m) => [m, conf])) });
+  assert.match(buildDashboard({ counts, incumbent: { engine: "e" } }).grading, /^LOCKED/, "no ledger ⇒ locked");
+  const open = buildDashboard({ counts, ledger: ledger(APPROVED_PREREG_SHA256[0]), incumbent: { engine: "e" } });
+  assert.equal(open.grading, `APPROVED — pre-registration sha256 ${APPROVED_PREREG_SHA256[0]}, approved 2026-11-10T18:55:07Z`);
+  assert.deepEqual(open.markets.passInt.confirmatory, { n: 4, games: 2, pairedN: 3, progress: "3/300", lookTaken: false, verdict: null }, "single-look state only; no metric copied");
+  const d = buildDashboard({ counts, ledger: ledger("not-approved"), incumbent: { engine: "e" } });
   assert.match(d.grading, /^LOCKED/);
   assert.deepEqual(d.challengers, []);
   assert.equal(QB_CHALLENGERS.length, 0);

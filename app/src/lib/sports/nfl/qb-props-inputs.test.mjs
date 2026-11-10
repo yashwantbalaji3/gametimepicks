@@ -65,7 +65,7 @@ test("approved (synthetic): reads every input, applies R5 from the forecast of r
   assert.deepEqual(led.rows.map((x) => [x.team, x.r5, x.eligibility]), [["AAA", true, "PENDING_ELIGIBILITY_CONTRACT"], ["BBB", true, "PENDING_ELIGIBILITY_CONTRACT"]]);
   assert.equal(led.inputs.preregSha256, SHA);
   assert.equal(led.inputs.approvedAt, "2026-11-10T20:00:00Z");
-  for (const f of ["passYds", "passCmp", "passAtt", "passTd", "passInt"]) assert.equal(led.confirmatory[f].outcome, "INCONCLUSIVE");
+  for (const f of ["passYds", "passCmp", "passAtt", "passTd", "passInt"]) assert.deepEqual([led.confirmatory[f].lookTaken, led.confirmatory[f].verdict], [false, null]);
 });
 
 test("R5 from nflOfficialOfRecord: QB-blind, UNKNOWN, no team inputs or no record ⇒ not allowed", () => {
@@ -89,6 +89,15 @@ test("approved constants (v1.3) on a synthetic root: the gate passes with the fr
   assert.equal(r.ledger.counts.qbGames, 2);
   assert.equal(r.ledger.counts.confirmatoryQbGames, 0, "eligibility PENDING on this synthetic root ⇒ nothing confirmatory");
   assert.ok(!fs.existsSync(path.join(root, LEDGER_REL)), "no write without --write");
+});
+
+test("per-game rerun on a synthetic root: --write twice ⇒ byte-identical ledger (the previous ledger is read back)", () => {
+  const root = synthRoot();
+  const sha = APPROVED_PREREG_SHA256[0];
+  runGrade({ root, preregSha256: sha, write: true });
+  const first = fs.readFileSync(path.join(root, LEDGER_REL));
+  runGrade({ root, preregSha256: sha, write: true });
+  assert.ok(first.equals(fs.readFileSync(path.join(root, LEDGER_REL))), "rerun ⇒ identical bytes");
 });
 
 test("the script: --grade refuses with exit 2 under the frozen constants; counts mode never loads the grade-mode inputs module", () => {
