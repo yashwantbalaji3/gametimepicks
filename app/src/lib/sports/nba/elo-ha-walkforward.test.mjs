@@ -1,5 +1,5 @@
 /**
- * nba-elo-ha-walkforward@1 — the home-advantage walk-forward challenger and its pre-registration gate. SYNTHETIC
+ * nba-elo-ha-walkforward@1 + nba-elo-inseason-walkforward@1 — the walk-forward challengers and their pre-registration gate. SYNTHETIC
  * corpora, forecasts and outcomes only, and a synthetic approval: no real outcome is ever scored here (blind until the
  * founder approves the pre-registration).
  *
@@ -13,7 +13,8 @@ import path from "node:path";
 
 import {
   CHALLENGER_ID, PREREG_DOC, PREREG_DRAFT_SHA256, APPROVED_PREREG_SHA256, PREREG_APPROVED_AT, MIN_PAIRED_N, VERDICT,
-  historySamples, seasonSamples, trainingSamples, fitHomeAdvantage, challengerForecast, scoringRefusal, scoreChallenger,
+  historySamples, seasonSamples, trainingSamples, fitHomeAdvantage, challengerForecast, scoringRefusal, scoreChallengers,
+  INSEASON_CHALLENGER_ID, officialPreseasonRatings, inseasonState, inseasonForecast,
 } from "./elo-ha-walkforward.mjs";
 import { buildTeamRatings, winProbability, NBA_ELO_PARAMS } from "./team-rating.mjs";
 import { PREREG } from "./grader-metrics.mjs";
@@ -198,48 +199,163 @@ test("pre-registration drift: the committed draft's bytes hash to PREREG_DRAFT_S
 
 test("blind: with the committed (empty) approvals, scoring refuses — even for the draft's own sha256", () => {
   assert.equal(scoringRefusal(PREREG_DRAFT_SHA256), "no approved pre-registration");
-  assert.throws(() => scoreChallenger([], { preregSha256: PREREG_DRAFT_SHA256 }), /REFUSED: no approved pre-registration/);
+  assert.throws(() => scoreChallengers([], { preregSha256: PREREG_DRAFT_SHA256 }), /REFUSED: no approved pre-registration/);
   assert.equal(scoringRefusal("x", ["x"], {}), "the approved pre-registration has no approval timestamp");
 });
 
 /** SYNTHETIC scored rows: n games after the synthetic approval instant + `before` exploratory ones. */
-function rows({ n, before = 0, challengerEdge = 0, seed = 9 }) {
+function rows({ n, before = 0, challengerEdge = 0, haEdge = 0, seed = 9 }) {
   const rnd = mulberry32(seed);
   const out = [];
   for (let i = 0; i < n + before; i += 1) {
     const truth = 0.35 + 0.3 * rnd();
     const y = rnd() < truth ? 1 : 0;
     const official = Math.min(0.95, truth + 0.12);
-    const challenger = Math.min(0.95, Math.max(0.05, official - challengerEdge));
+    const inseason = Math.min(0.95, Math.max(0.05, official - challengerEdge));
+    const haOnly = Math.min(0.95, Math.max(0.05, official - haEdge));
     const tipUtc = new Date(Date.parse(i < before ? "2030-01-01T00:00:00Z" : "2030-03-01T00:00:00Z") + i * 3600e3).toISOString();
-    out.push({ providerEventId: `syn-${i}`, tipUtc, homeWon: y, official, challenger });
+    out.push({ providerEventId: `syn-${i}`, tipUtc, homeWon: y, official, inseason, haOnly });
   }
   return out;
 }
 const SYN = { preregSha256: "synthetic-test", approvals: ["synthetic-test"], approvedAt: { "synthetic-test": "2030-02-01T00:00:00Z" } };
 
-test("scoring (synthetic approval): verdicts follow the pre-registered rule", () => {
-  assert.equal(scoreChallenger(rows({ n: 299, challengerEdge: 0.12 }), SYN).verdict, VERDICT.INSUFFICIENT_N);
-  const better = scoreChallenger(rows({ n: 600, challengerEdge: 0.12 }), SYN);
-  assert.equal(better.verdict, VERDICT.CHALLENGER_BETTER);
+test("scoring (synthetic approval): ONE primary verdict — the in-season challenger vs the official", () => {
+  assert.equal(scoreChallengers(rows({ n: 299, challengerEdge: 0.12 }), SYN).primary.verdict, VERDICT.INSUFFICIENT_N);
+  const better = scoreChallengers(rows({ n: 600, challengerEdge: 0.12 }), SYN);
+  assert.equal(better.primary.challenger, INSEASON_CHALLENGER_ID);
+  assert.equal(better.primary.verdict, VERDICT.CHALLENGER_BETTER);
   assert.ok(better.primary.ci95[1] < 0);
-  assert.equal(scoreChallenger(rows({ n: 600, challengerEdge: -0.12 }), SYN).verdict, VERDICT.CHALLENGER_WORSE);
-  assert.equal(scoreChallenger(rows({ n: 600, challengerEdge: 0 }), SYN).verdict, VERDICT.INCONCLUSIVE);
+  assert.equal(scoreChallengers(rows({ n: 600, challengerEdge: -0.12 }), SYN).primary.verdict, VERDICT.CHALLENGER_WORSE);
+  assert.equal(scoreChallengers(rows({ n: 600, challengerEdge: 0 }), SYN).primary.verdict, VERDICT.INCONCLUSIVE);
   assert.equal(better.promotes, false);
   assert.equal(better.minN, 300);
 });
 
+test("scoring: the HA-only challenger and calibration are reported secondaries, never a verdict", () => {
+  // a clearly better HA-only challenger with an inconclusive primary: the verdict stays the primary's
+  const r = scoreChallengers(rows({ n: 600, challengerEdge: 0, haEdge: 0.12 }), SYN);
+  assert.equal(r.primary.verdict, VERDICT.INCONCLUSIVE);
+  assert.ok(r.secondary.haOnly.pairedLogLoss.ci95[1] < 0);
+  assert.equal(r.secondary.haOnly.verdict, undefined);
+  for (const k of ["official", "inseason", "haOnly"]) {
+    const c = r.secondary.calibration[k];
+    assert.equal(c.n, 600);
+    assert.ok(c.eceCi95[0] <= c.ece && c.ece <= c.eceCi95[1]);
+    assert.ok(c.homeBiasCi95[0] <= c.homeBias && c.homeBias <= c.homeBiasCi95[1]);
+  }
+  assert.ok(r.secondary.calibration.official.homeBias > 0.05, "the planted +0.12 over-favour shows in the official's home bias");
+});
+
 test("scoring: exploratory games are counted, never scored — changing their outcomes changes nothing", () => {
   const rs = rows({ n: 400, before: 150, challengerEdge: 0.05 });
-  const a = scoreChallenger(rs, SYN);
-  const b = scoreChallenger(rs.map((r, i) => (i < 150 ? { ...r, homeWon: 1 - r.homeWon, challenger: 0.99 } : r)), SYN);
+  const a = scoreChallengers(rs, SYN);
+  const b = scoreChallengers(rs.map((r, i) => (i < 150 ? { ...r, homeWon: 1 - r.homeWon, inseason: 0.99, haOnly: 0.01 } : r)), SYN);
   assert.deepEqual(a, b);
   assert.equal(a.n, 400);
   assert.equal(a.window.exploratoryCountedNotScored, 150);
-  assert.throws(() => scoreChallenger([...rs, rs[0]], SYN), /duplicate game/);
+  assert.throws(() => scoreChallengers([...rs, rs[0]], SYN), /duplicate game/);
 });
 
-test("the challenger feeds no public surface: nothing outside its own tests imports it", () => {
+/* ───────────── nba-elo-inseason-walkforward@1 (SYNTHETIC season) ───────────── */
+
+const IDS = ["1", "2", "3", "4"];
+/** SYNTHETIC finals record (finals-record.mjs shape) for one season of games among four team ids. */
+function seasonFinals({ n = 120, seed = 21, extra = [] } = {}) {
+  const rnd = mulberry32(seed);
+  const finals = [];
+  for (let i = 0; i < n; i += 1) {
+    const h = Math.floor(rnd() * 4); let a = Math.floor(rnd() * 3); if (a >= h) a += 1;
+    const homeWins = rnd() < 0.55 + 0.05 * (h - a);
+    const dateUtc = new Date(Date.UTC(2032, 9, 22) + Math.floor(i / 2) * 86400e3 + (i % 2) * 3600e3).toISOString().replace(/:\d\d\.\d{3}Z$/, "Z");
+    finals.push({ providerEventId: `f${i}`, dateUtc, phase: "REGULAR", exhibition: false, neutralSite: false, home: { providerTeamId: IDS[h] }, away: { providerTeamId: IDS[a] }, ftHome: homeWins ? 110 : 100, ftAway: homeWins ? 100 : 110 });
+  }
+  return { finals: [...finals, ...extra], conflicts: [] };
+}
+const START = new Map([["1", 1550], ["2", 1500], ["3", 1480], ["4", 1470]]);
+const inseasonGame = ({ dateUtc = "2032-12-10T00:30Z", inputAsOf = "2032-12-09T11:00:00Z", neutralSite = false } = {}) => ({
+  providerEventId: "target", dateUtc, neutralSite, home: { providerTeamId: "1" }, away: { providerTeamId: "2" },
+  forecast: { inputAsOf, elo: { home: { rating: 1550 }, away: { rating: 1500 }, pHome: Number(winProbability(1550, 1500, { neutralSite }).toFixed(4)) } },
+});
+
+test("officialPreseasonRatings: the constant frozen official rating per team id; refuses if a team's rating moved", () => {
+  const fz = (h, a, rh, ra) => ({ label: LABELS[2], home: { providerTeamId: h }, away: { providerTeamId: a }, forecast: { elo: { home: { rating: rh }, away: { rating: ra } } } });
+  const ok = officialPreseasonRatings([fz("1", "2", 1550, 1500), fz("2", "3", 1500, 1480), { ...fz("1", "4", 9999, 1), label: LABELS[1] }]);
+  assert.equal(ok.ok, true);
+  assert.deepEqual([...ok.ratings.entries()], [["1", 1550], ["2", 1500], ["3", 1480]]);
+  assert.deepEqual(officialPreseasonRatings([fz("1", "2", 1550, 1500), fz("1", "3", 1551, 1480)]), { ok: false, reason: "OFFICIAL_RATINGS_NOT_CONSTANT", teamId: "1" });
+});
+
+test("in-season update = the model card's rule as team-rating.mjs fold() implements it (K 20, win/loss, HA 70)", () => {
+  const rec = seasonFinals({ n: 60 });
+  const st = inseasonState(START, rec, { cutoffUtc: "2040-01-01T00:00:00Z", gameEt: "2040-01-01" });
+  assert.equal(st.updates, 60);
+  // the same games through the official fold, one season, starting at the same ratings via a synthetic seed season
+  let R = new Map(START);
+  for (const f of rec.finals) {
+    const h = f.home.providerTeamId, a = f.away.providerTeamId;
+    const e = winProbability(R.get(h), R.get(a));
+    const s = f.ftHome > f.ftAway ? 1 : 0;
+    R = new Map(R).set(h, R.get(h) + NBA_ELO_PARAMS.K * (s - e)).set(a, R.get(a) + NBA_ELO_PARAMS.K * ((1 - s) - (1 - e)));
+  }
+  assert.deepEqual([...st.ratings.entries()], [...R.entries()]);
+  // and starting from 1500 everywhere it matches buildTeamRatings on the same rows exactly
+  const flat = new Map(IDS.map((id) => [id, 1500]));
+  const st2 = inseasonState(flat, rec, { cutoffUtc: "2040-01-01T00:00:00Z", gameEt: "2040-01-01" });
+  const corpus = rec.finals.map((f) => ({ providerEventId: f.providerEventId, home: f.home.providerTeamId, away: f.away.providerTeamId, ftHome: f.ftHome, ftAway: f.ftAway, dateUtc: f.dateUtc, season: 2033, phase: 2, neutralSite: false }));
+  const built = buildTeamRatings(corpus, { throughDateUtc: "2040-01-01T00:00:00Z" });
+  for (const id of IDS) assert.equal(Number(st2.ratings.get(id).toFixed(4)), built.ratings[id]);
+});
+
+test("in-season walk-forward leakage: no final on/after the game's ET date or after inputAsOf moves the forecast", () => {
+  const rec = seasonFinals();
+  const history = historySamples(syntheticCorpus(), { throughDateUtc: "2040-01-01T00:00:00Z" });
+  const game = inseasonGame();
+  const base = inseasonForecast(game, { history, startRatings: START, finalsRecord: rec });
+  assert.equal(base.ok, true);
+  assert.equal(base.challenger, INSEASON_CHALLENGER_ID);
+  const flipAfter = { ...rec, finals: rec.finals.map((f) => (Date.parse(f.dateUtc) >= Date.parse("2032-12-09T05:00:00Z") ? { ...f, ftHome: f.ftAway, ftAway: f.ftHome } : f)) };
+  assert.deepEqual(inseasonForecast(game, { history, startRatings: START, finalsRecord: flipAfter }), base);
+  // a final dated the same ET date, even before inputAsOf, is not used
+  const sameDay = { ...rec, finals: [...rec.finals, { providerEventId: "same", dateUtc: "2032-12-09T06:00Z", phase: "REGULAR", exhibition: false, neutralSite: false, home: { providerTeamId: "1" }, away: { providerTeamId: "2" }, ftHome: 90, ftAway: 130 }] };
+  assert.deepEqual(inseasonForecast(game, { history, startRatings: START, finalsRecord: sameDay }), base);
+  // an earlier final DOES move the ratings (the updates are live)
+  const flipBefore = { ...rec, finals: rec.finals.map((f, i) => (i === 0 ? { ...f, ftHome: f.ftAway, ftAway: f.ftHome } : f)) };
+  assert.notEqual(inseasonForecast(game, { history, startRatings: START, finalsRecord: flipBefore }).ratingHome, base.ratingHome);
+  assert.ok(base.updates > 0 && base.updates < rec.finals.length);
+});
+
+test("in-season: preseason, exhibition and under-review finals never update; a neutral final updates without home advantage and is not a fit sample", () => {
+  const rec = seasonFinals({ n: 10 });
+  const mk = (id, extra) => ({ providerEventId: id, dateUtc: "2032-10-23T02:00Z", home: { providerTeamId: "3" }, away: { providerTeamId: "4" }, ftHome: 120, ftAway: 80, phase: "REGULAR", exhibition: false, neutralSite: false, ...extra });
+  const base = inseasonState(START, rec, { cutoffUtc: "2040-01-01T00:00:00Z", gameEt: "2040-01-01" });
+  const withJunk = { finals: [...rec.finals, mk("pre", { phase: "PRESEASON" }), mk("exh", { exhibition: true }), mk("rev", {})], conflicts: [{ providerEventId: "rev" }] };
+  assert.deepEqual(inseasonState(START, withJunk, { cutoffUtc: "2040-01-01T00:00:00Z", gameEt: "2040-01-01" }), base);
+  const neutral = inseasonState(START, { finals: [mk("n", { neutralSite: true })], conflicts: [] }, { cutoffUtc: "2040-01-01T00:00:00Z", gameEt: "2040-01-01" });
+  const e = winProbability(1480, 1470, { neutralSite: true });
+  assert.equal(neutral.ratings.get("3"), 1480 + 20 * (1 - e));
+  assert.deepEqual(neutral.samples, []);
+});
+
+test("in-season: the home advantage is re-fit on this model's own pre-game differences; refusals; determinism", () => {
+  const rec = seasonFinals();
+  const history = historySamples(syntheticCorpus(), { throughDateUtc: "2040-01-01T00:00:00Z" });
+  const game = inseasonGame();
+  const a = inseasonForecast(game, { history, startRatings: START, finalsRecord: rec });
+  const b = inseasonForecast(game, { history, startRatings: START, finalsRecord: { ...rec, finals: [...rec.finals].reverse() } });
+  assert.deepEqual(a, b);
+  const expected = 1 / (1 + Math.pow(10, -(a.ratingHome - a.ratingAway + a.homeAdvantage) / 400));
+  assert.ok(Math.abs(a.pHome - expected) < 1e-4);
+  const st = inseasonState(START, rec, { cutoffUtc: game.forecast.inputAsOf, gameEt: "2032-12-09" });
+  const own = fitHomeAdvantage([...history.filter((x) => Date.parse(x.dateUtc) < Date.parse(game.forecast.inputAsOf)), ...st.samples]);
+  assert.equal(a.homeAdvantage, Number(own.h.toFixed(4)));
+  assert.equal(inseasonForecast(inseasonGame({ neutralSite: true }), { history, startRatings: START, finalsRecord: rec }).homeAdvantage, 0);
+  assert.equal(inseasonForecast(game, { history, startRatings: new Map([["1", 1500]]), finalsRecord: rec }).reason, "NO_START_RATING");
+  assert.equal(inseasonForecast(inseasonGame({ inputAsOf: "2032-12-10T01:00:00Z" }), { history, startRatings: START, finalsRecord: rec }).reason, "FORECAST_NOT_BEFORE_TIP");
+  assert.equal(inseasonForecast(game, { history: [], startRatings: START, finalsRecord: { finals: [], conflicts: [] } }).reason, "NO_HISTORY");
+});
+
+test("the challengers feed no public surface: nothing outside their own tests imports the module", () => {
   const roots = ["src/app", "src/components", "src/lib", "scripts"].map((d) => path.join(process.cwd(), d));
   const hits = [];
   const walk = (d) => {
