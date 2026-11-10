@@ -437,6 +437,9 @@ export function simulateGame({ compiled, tables, players = null, rng, postseason
       else nextY = Math.min(99, Math.max(1, 100 - endY + sampleHist(compiled.start.FG_MISS, rng)));
     } else if (res === R.OPP_TD) {
       T[def][TEAM_STAT.defTd] += 1;
+      // MKT-01 (2026-11-10): a defensive / return touchdown can be the game's first TD — it is recorded as such (team =
+      // the scoring defence, no offensive player). Draws no randomness, so every simulated stat is unchanged.
+      if (!firstTd) firstTd = { side: def, slot: -1, type: "DEF" };
       addPoints(def, 6, clockEnd, period);
       T[def][TEAM_STAT.xpAtt] += 1;
       const made = rng() < conversions.xpMake;

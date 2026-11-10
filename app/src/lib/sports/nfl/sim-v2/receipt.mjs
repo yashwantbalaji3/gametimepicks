@@ -13,7 +13,16 @@ import { fnv1a64 } from "../../../forecast-ledger/identity.mjs";
 import { safeNflRunBoxScore } from "../../../simulation-theater/nfl-run-box-score.mjs";
 import { RUN_BOX_RECORD_FIELD, buildRunBoxRecord } from "../../../simulation-theater/nfl-stored-run-box.mjs";
 
-export const SIMULATION_RECEIPT_SCHEMA = "simulation-receipt@2";
+/**
+ * @2.1 (2026-11-10, additive): per-player COUNT PMFs for passTd / int / rushTd / recTd (`countPmf`: P(0), P(1), …,
+ * P(COUNT_PMF_MAX−1), then P(≥ COUNT_PMF_MAX)), and MKT-01 — defensive TDs are their own first-TD bucket
+ * (`firstTdScorer` row DEF_ST per team; `teamFirstTdByType`). Readers accept @2 receipts unchanged.
+ */
+export const SIMULATION_RECEIPT_SCHEMA = "simulation-receipt@2.1";
+export const ACCEPTED_RECEIPT_SCHEMAS = Object.freeze(["simulation-receipt@2", "simulation-receipt@2.1"]);
+export const COUNT_PMF_FAMILIES = Object.freeze(["passTd", "int", "rushTd", "recTd"]);
+export const COUNT_PMF_MAX = 6;
+export const DEF_ST_SCORER = Object.freeze({ playerId: "DEF_ST", name: "Defense / special teams", position: null });
 export const RUN_SCHEMA_VERSION = "nfl-drive-run@1";
 export const REPRESENTATIVE_LABEL = "REPRESENTATIVE SIMULATED GAME";
 export const COHERENCE_CHECKS = Object.freeze([
@@ -118,6 +127,14 @@ function playerDistributions(batch, side, prep, teamAbbr) {
       if (any) { stats[k] = quant(v); active = true; }
     }
     if (!active) continue;
+    // count PMFs for the count props (a quantile cannot price "over 1.5"): P(0..MAX−1), then P(≥MAX), over the same runs
+    const countPmf = {};
+    for (const k of COUNT_PMF_FAMILIES) {
+      if (!stats[k]) continue;
+      const c = new Array(COUNT_PMF_MAX + 1).fill(0);
+      for (let i = 0; i < batch.runs; i++) c[Math.min(COUNT_PMF_MAX, Math.max(0, batch.players[side][(i * (n + 1) + slot) * N_PSTAT + PSTAT[k]]))] += 1;
+      countPmf[k] = c.map((x) => r4(x / batch.runs));
+    }
     let atd = 0;
     let two = 0;
     for (let i = 0; i < batch.runs; i++) {
@@ -127,7 +144,7 @@ function playerDistributions(batch, side, prep, teamAbbr) {
       if (tds >= 2) two++;
     }
     const meta = slot < n ? prep.slots[slot] : { playerId: "OTHER", name: "Other / unallocated", position: null };
-    rows.push({ ...meta, team: teamAbbr, anytimeTd: r4(atd / batch.runs), twoPlusTd: r4(two / batch.runs), stats });
+    rows.push({ ...meta, team: teamAbbr, anytimeTd: r4(atd / batch.runs), twoPlusTd: r4(two / batch.runs), stats, ...(Object.keys(countPmf).length ? { countPmf } : {}) });
   }
   return rows;
 }
@@ -196,18 +213,23 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
   // First TD scorer distribution, from the first TD event of each run.
   const ft = new Map();
   let teamFirst = [0, 0];
+  const teamFirstDef = [0, 0];
   let noTd = 0;
   for (let i = 0; i < n; i++) {
     const side = batch.firstTd[3 * i];
     if (side < 0) { noTd++; continue; }
     teamFirst[side]++;
-    const slot = batch.firstTd[3 * i + 1];
+    const def = batch.firstTd[3 * i + 2] === 2; // MKT-01: a defensive / return TD is its own bucket
+    if (def) teamFirstDef[side]++;
+    const slot = def ? "DEF" : batch.firstTd[3 * i + 1];
     const k = `${side}|${slot}`;
     ft.set(k, (ft.get(k) ?? 0) + 1);
   }
-  const slotMeta = (side, slot) => (prep && slot >= 0 && slot < prep[side].n ? prep[side].slots[slot] : { playerId: "OTHER", name: "Other / unallocated", position: null });
+  const slotMeta = (side, slot) => (slot === "DEF" ? DEF_ST_SCORER : prep && slot >= 0 && slot < prep[side].n ? prep[side].slots[slot] : { playerId: "OTHER", name: "Other / unallocated", position: null });
   const firstTdScorer = [...ft.entries()].map(([k, c]) => {
-    const [side, slot] = k.split("|").map(Number);
+    const [sideS, slotS] = k.split("|");
+    const side = Number(sideS);
+    const slot = slotS === "DEF" ? "DEF" : Number(slotS);
     return { ...slotMeta(side, slot), team: side === 0 ? event.home.abbr : event.away.abbr, probability: r4(c / n) };
   }).sort((a, b) => b.probability - a.probability || (a.playerId < b.playerId ? -1 : 1));
 
@@ -298,6 +320,10 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
     scoringEventDistributions: {
       firstTdScorer,
       teamFirstTd: { home: r4(teamFirst[0] / n), away: r4(teamFirst[1] / n), none: r4(noTd / n) },
+      teamFirstTdByType: {
+        home: { offense: r4((teamFirst[0] - teamFirstDef[0]) / n), defenseSpecialTeams: r4(teamFirstDef[0] / n) },
+        away: { offense: r4((teamFirst[1] - teamFirstDef[1]) / n), defenseSpecialTeams: r4(teamFirstDef[1] / n) },
+      },
       teamTdCount: { home: teamTd(0), away: teamTd(1) },
     },
     representativeRuns,
@@ -316,7 +342,7 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
  */
 export function validateSimulationReceipt(r) {
   const p = [];
-  if (r?.schemaVersion !== SIMULATION_RECEIPT_SCHEMA) p.push("schemaVersion");
+  if (!ACCEPTED_RECEIPT_SCHEMAS.includes(r?.schemaVersion)) p.push("schemaVersion");
   if (!["SHADOW", "EXPERIMENTAL", "PUBLIC"].includes(r?.promotionState)) p.push("promotionState");
   if (r?.promotionState === "PUBLIC") p.push("PUBLIC promotion is a founder/model gate — no receipt may claim it on its own");
   if (r?.marketReceiptId != null || !/^NOT_AN_INPUT/.test(String(r?.marketUse ?? ""))) p.push("market must not be an input");
@@ -330,6 +356,9 @@ export function validateSimulationReceipt(r) {
   }
   for (const pl of r?.playerStatDistributions ?? []) {
     if (pl.anytimeTd != null && pl.twoPlusTd != null && pl.twoPlusTd > pl.anytimeTd) p.push(`${pl.playerId}: P(2+ TD) > P(anytime TD)`);
+    for (const [k, pmf] of Object.entries(pl.countPmf ?? {})) {
+      if (Math.abs(pmf.reduce((a, b) => a + b, 0) - 1) > 0.005) p.push(`${pl.playerId}: ${k} count PMF does not sum to 1`);
+    }
   }
   return p;
 }

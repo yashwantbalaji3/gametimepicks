@@ -10,6 +10,8 @@ import { DRIVE_RESULTS, RUNOFF_NOTE_TEXT, quarterOf } from "./format.mjs";
 
 export const ENGINE_ID = "nfl-drive-sim-v2";
 export const RECEIPT_SCHEMA = "simulation-receipt@2";
+/** @2.1 is additive (count PMFs, the DEF/ST first-TD bucket — sim-v2/receipt.mjs): every @2 field is unchanged. */
+export const RECEIPT_SCHEMAS = Object.freeze([RECEIPT_SCHEMA, "simulation-receipt@2.1"]);
 export const SUPPORTED_RUN_SCHEMAS = Object.freeze(["nfl-drive-run@1"]);
 /** The World Model V2 artifact marker (S14: an `artifact` field, not an engine id; build-nfl-world-model-v2.mjs:221). */
 export const WM2_ARTIFACT = "nfl-world-model-v2-simulation";
@@ -25,7 +27,7 @@ export function checkEngineIdentity(r, { file = null } = {}) {
     return { code: "ENGINE_MISMATCH", reason: `a World Model V2 artifact (${WM2_ARTIFACT}) is a different engine, not ${ENGINE_ID}` };
   }
   if (r.simulationEngine !== ENGINE_ID) return { code: "ENGINE_MISMATCH", reason: `engine ${r.simulationEngine ?? "(none)"} is not ${ENGINE_ID}` };
-  if (r.schemaVersion !== RECEIPT_SCHEMA) return { code: "SCHEMA_UNSUPPORTED", reason: `receipt schema ${r.schemaVersion ?? "(none)"} is not ${RECEIPT_SCHEMA}` };
+  if (!RECEIPT_SCHEMAS.includes(r.schemaVersion)) return { code: "SCHEMA_UNSUPPORTED", reason: `receipt schema ${r.schemaVersion ?? "(none)"} is not one of ${RECEIPT_SCHEMAS.join(", ")}` };
   if (!SUPPORTED_RUN_SCHEMAS.includes(r.runSchemaVersion)) return { code: "SCHEMA_UNSUPPORTED", reason: `run schema ${r.runSchemaVersion ?? "(none)"} is not supported` };
   return null;
 }
