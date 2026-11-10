@@ -47,7 +47,8 @@ test("footer links the flagship products (Simulate, Today, Bank Builder, Results
   if (built) {
     for (const [href, label] of expected) {
       // The static export writes trailing slashes.
-      assert.match(built, new RegExp(`href="${href}/?"[^>]*>${label}`), `links ${label}`);
+      // the export escapes an apostrophe ("Tonight&#x27;s slate")
+      assert.match(built, new RegExp(`href="${href}/?"[^>]*>${label.replace(/'/g, "(?:'|&#x27;)")}`), `links ${label}`);
     }
     return;
   }
