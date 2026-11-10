@@ -412,19 +412,32 @@ test("founder acceptance 2026-11-09: NBA cards and lane rows say what each fact 
   const settled = mergeFinals ? null : null; void settled;
 });
 
-test("shared game card on /nba: every card is the compact GameCard, ONE link to the game, under 900 B of HTML (committed 2026-11-09 slate)", async () => {
-  const { nbaTodaySlate } = await import("../../lib/sport-hub/nba-hub.ts");
+test("shared game card on /nba: every card is the compact GameCard, ONE link to the game, under 900 B pregame (committed 2026-11-09 slate)", async () => {
   const { loadLaneForDate } = await import("./experimental-lane.tsx");
   const lane = loadLaneForDate("2026-11-09");
-  const s = nbaTodaySlate("2026-11-09T17:00:00Z", lane, { laneEnabled: true, theaterIds: lane.games.map((g) => g.providerEventId) });
-  const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: s, gamePages: new Set(s.games.map((g) => g.id)) }));
-  const cards = h.split("<li id=").slice(1);
-  assert.equal(cards.length, s.games.length, "a card per game");
-  const avg = cards.reduce((a, c) => a + c.length + 7, 0) / cards.length;
-  assert.ok(avg < 900, `${Math.round(avg)} B of HTML per card (main's MatchupCard measured 1,082 B)`);
-  for (const c of cards) {
+  const schedule = JSON.parse(read("public/data/nba/schedule/latest.json"));
+  const finals = JSON.parse(read("public/data/nba/results/finals-2026-27.json"));
+  const ids = lane.games.map((g) => g.providerEventId);
+  const render = (fin) => {
+    const s = nbaTodaySlateFrom({ nowIso: "2026-11-09T17:00:00Z", schedule, finals: fin, lane, theaterIds: ids });
+    return { s, cards: renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: s, gamePages: new Set(s.games.map((g) => g.id)) })).split("<li id=").slice(1) };
+  };
+  // pinned to the pregame state (no finals) — the committed finals file grows nightly, so the bound must not depend on it
+  const pre = render(null);
+  assert.equal(pre.cards.length, pre.s.games.length, "a card per game");
+  const avg = (cs) => cs.reduce((a, c) => a + c.length + 7, 0) / cs.length;
+  assert.ok(avg(pre.cards) < 900, `${Math.round(avg(pre.cards))} B of HTML per pregame card (main's MatchupCard measured 1,082 B)`);
+  for (const c of pre.cards) {
     assert.match(c, /^"nba-exp-\d+" class="nbx-card"/, "the hub-lane anchor id other surfaces link to");
     assert.equal((c.match(/<a /g) ?? []).length, 1, "one link per card");
     assert.match(c, /data-game-state="official">MODEL PROJECTION<\/span> [^<]+ favoured/);
   }
+  // a final card carries one more fact — the settled result, tagged — beside the still-tagged frozen forecast
+  const post = render(finals);
+  const finalCards = post.cards.filter((c) => /data-game-state="final"/.test(c));
+  for (const c of finalCards) {
+    assert.match(c, /data-game-state="official">MODEL PROJECTION<\/span> [^<]+ favoured/, "the frozen forecast stays tagged beside the final");
+    assert.doesNotMatch(c, />Official Forecast: /, "no untagged forecast line");
+  }
+  if (finalCards.length) assert.ok(avg(finalCards) < 1082, `${Math.round(avg(finalCards))} B per final card — under main's pregame MatchupCard`);
 });

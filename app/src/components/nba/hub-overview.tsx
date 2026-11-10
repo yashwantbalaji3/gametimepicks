@@ -136,7 +136,8 @@ export function NbaTodayGames({ slate, slip, gamePages, lineSummaries }: {
           facts: [
             ...(g.finalNote ? [{ state: "final" as const, text: `Final · ${g.finalNote}`, headline: true }] : []),
             /* the MODEL PROJECTION tag already names the Official Forecast, so a favoured side reads "Atlanta Hawks favoured" */
-            ...(g.favoured && !g.finalNote ? [{ state: "official" as const, text: `${g.favoured.name ?? g.favoured.abbr} favoured` }]
+            /* a final card keeps the frozen forecast beside the result, each tagged for what it is */
+            ...(g.favoured ? [{ state: "official" as const, text: `${g.favoured.name ?? g.favoured.abbr} favoured` }]
               : line ? [{ state: null, text: line }] : []),
           ],
           afterFacts: summary == null ? null : <div className="nbx-read" data-nba-line-summary="">{summary}</div>,
