@@ -2,36 +2,36 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-11-09T00:43:44Z",
+  "generatedAt": "2026-11-10T01:43:58Z",
   "nextCluster": {
     "kickoffUtc": "2026-11-21T15:00:00.000Z",
     "fixtures": 10,
-    "hoursAway": 302.27
+    "hoursAway": 277.27
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
       "stampedAt": "2026-10-24T14:16:20Z",
-      "ageHours": 370.46
+      "ageHours": 395.46
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-11-07T00:39:09Z",
-      "ageHours": 48.08
+      "ageHours": 73.08
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-11-09T00:43:41Z",
+      "stampedAt": "2026-11-10T01:43:55Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-11-09T00:43:42Z",
+      "stampedAt": "2026-11-10T01:43:56Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-11-09T00:43:29Z",
+      "stampedAt": "2026-11-10T01:43:43Z",
       "ageHours": 0
     }
   },
@@ -52,18 +52,18 @@
       "headroom": 60,
       "kickoffWindowHours": 30,
       "spendingFirings": 127,
-      "skippedFirings": 394
+      "skippedFirings": 392
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-11-09T00:43:41Z",
+    "generatedAt": "2026-11-10T01:43:55Z",
     "counts": {
       "READY_EXCEPT_ODDS": 10
     },
     "rows": 10
   },
   "playerSet": {
-    "generatedAt": "2026-11-09T00:43:42Z",
+    "generatedAt": "2026-11-10T01:43:56Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
       "fixtures": 10,
@@ -103,14 +103,19 @@
     "all": true
   },
   "productLane": {
-    "live": true,
-    "blocked": null
+    "live": false,
+    "blocked": "the last price capture (Nov 6) is more than 3 days old"
   },
   "blockers": [
     {
       "id": "calibration-backtest",
       "state": "ENGINEERING",
       "detail": "77 matches are now paired with a market baseline, past the 30 the stopping rule needs. The sample no longer blocks this: the preregistered backtest has not been run."
+    },
+    {
+      "id": "product-lane-closed",
+      "state": "REALITY_GATED",
+      "detail": "the Lab gate has closed this lane: the last price capture (Nov 6) is more than 3 days old. It reopens by itself when the evidence returns."
     }
   ]
 }

@@ -18,7 +18,7 @@ import { currentEtDate } from "@/lib/freshness";
 import { etStamp } from "@/lib/et-stamp.mjs";
 import { mlbForecastState } from "@/lib/mlb/full-game/forecast-state.mjs";
 import { mlbSeasonCompleteCopyFor } from "@/lib/mlb/season-complete-data";
-import { DEFAULT_LABELS, hubStatusWord, type HubGameRow, type HubRead, type SportHubModel } from "./contract";
+import { DEFAULT_LABELS, hubStatusWord, liveStateAt, type HubGameRow, type HubRead, type SportHubModel } from "./contract";
 import { loadNflEvents, currentPeriodKey, eventsInPeriod } from "@/lib/events/read-model";
 
 const ET = "America/New_York";
@@ -301,7 +301,7 @@ export function nflHub(nowIso: string): SportHubModel {
           startUtc: e.scheduledUtc,
           startLabel: e.scheduledUtc ? etDateTimeLabel(e.scheduledUtc) : "TBD",
           matchup: e.participants.away && e.participants.home ? `${e.participants.away} at ${e.participants.home}` : e.eventId,
-          status: hubStatusWord(e.status, started),
+          status: hubStatusWord(liveStateAt(e.status, e.scheduledUtc, nowIso), started),
           started,
           read: nflReadFor(nflIndex, e.providerAliases[0]?.id),
           reportState: e.dimensions.model === "PUBLISHED" ? (started ? "ARCHIVE" : "READY") : "NONE",

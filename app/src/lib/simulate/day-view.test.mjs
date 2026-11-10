@@ -172,3 +172,17 @@ test("GTP-11 review fix: a past date keeps its NBA games (it never reads 'No NBA
   const nba = buildSimulateDay(past, { today }).sections.find((s) => s.sport === "nba");
   assert.ok(nba.events.length > 0, `${past} had NBA games in the capture`);
 });
+
+test("WEB-09: an NBA game with a published Official Forecast counts as a ready report (the headline count includes NBA)", () => {
+  const READY = READY_STATES;
+  const v = buildSimulateDay();
+  const nba = v.sections.find((s) => s.sport === "nba")?.events ?? [];
+  for (const e of nba) {
+    const published = /View the Official Forecast/.test(e.actionLabel ?? "");
+    assert.equal(READY.includes(e.state), published, `${e.matchup}: published=${published} but state ${e.state}`);
+  }
+  /* The count rule: the headline's ready count is the number of rendered rows in a ready state, NBA included. */
+  const all = v.sections.flatMap((s) => s.events);
+  assert.equal(v.totals.ready, all.filter((e) => READY.includes(e.state)).length);
+  assert.ok(v.totals.ready >= nba.filter((e) => /View the Official Forecast/.test(e.actionLabel ?? "")).length);
+});
