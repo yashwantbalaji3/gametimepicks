@@ -43,7 +43,8 @@ test("the section: projected QB per team, five markets from one simulation, exac
   assert.match(text, /1\+: 80%/, "1+ pass TD = 1 − P(0) from the count PMF");
   assert.match(text, /2\+: 45%/, "2+ pass TD");
   assert.match(text, /200\+: 80% · 225\+: 80% · 250\+: 30%/, "yards chances exactly from the run counts");
-  assert.match(text, /Experimental/, "market status shown");
+  assert.match(text, /Under forward evaluation/, "market status shown (FORWARD_EVALUATION)");
+  assert.doesNotMatch(text, /Validated/, "no market is validated");
   assert.match(text, /History: actual results in his previous 2 games before this kickoff\. Not a forecast\./);
   assert.match(text, /2026 wk 3 vs XYZ/);
   assert.doesNotMatch(text, /2026 wk 9/, "a game at or after kickoff is never history");

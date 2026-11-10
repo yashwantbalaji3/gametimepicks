@@ -20,13 +20,16 @@ export const MARKET_STATUS = Object.freeze({
   FORWARD_EVALUATION: "FORWARD_EVALUATION",
   VALIDATED_OFFICIAL: "VALIDATED_OFFICIAL",
 });
-/** The status of each market, changed only by a reviewed commit after its gate. */
+/**
+ * The status of each market, changed only by a reviewed commit after its gate. FORWARD_EVALUATION since the founder
+ * approved pre-registration v1.3 (2026-11-10T18:55:07Z). VALIDATED_OFFICIAL needs a MET decision AND a founder promotion.
+ */
 export const QB_MARKET_STATUS = Object.freeze({
-  passTd: MARKET_STATUS.IMPLEMENTED_EXPERIMENTAL,
-  passYds: MARKET_STATUS.IMPLEMENTED_EXPERIMENTAL,
-  passCmp: MARKET_STATUS.IMPLEMENTED_EXPERIMENTAL,
-  passAtt: MARKET_STATUS.IMPLEMENTED_EXPERIMENTAL,
-  passInt: MARKET_STATUS.IMPLEMENTED_EXPERIMENTAL,
+  passTd: MARKET_STATUS.FORWARD_EVALUATION,
+  passYds: MARKET_STATUS.FORWARD_EVALUATION,
+  passCmp: MARKET_STATUS.FORWARD_EVALUATION,
+  passAtt: MARKET_STATUS.FORWARD_EVALUATION,
+  passInt: MARKET_STATUS.FORWARD_EVALUATION,
 });
 export const mayFeedOfficialPicks = (status) => status === MARKET_STATUS.VALIDATED_OFFICIAL;
 /**

@@ -9,11 +9,11 @@ import path from "node:path";
 import { MARKET_STATUS, QB_CHALLENGERS, QB_MARKETS, QB_MARKET_STATUS, buildDashboard, mayFeedOfficialPicks, qbHistory, qbMarketViews } from "./qb-props-markets.mjs";
 import { QB_FAMILIES } from "./qb-props-grade.mjs";
 
-test("three distinct statuses; only VALIDATED_OFFICIAL may feed official picks; every market starts IMPLEMENTED_EXPERIMENTAL", () => {
+test("three distinct statuses; only VALIDATED_OFFICIAL may feed official picks; every market is FORWARD_EVALUATION (prereg v1.3 approved), none VALIDATED_OFFICIAL", () => {
   assert.deepEqual(Object.values(MARKET_STATUS), ["IMPLEMENTED_EXPERIMENTAL", "FORWARD_EVALUATION", "VALIDATED_OFFICIAL"]);
   assert.deepEqual(Object.values(MARKET_STATUS).map(mayFeedOfficialPicks), [false, false, true]);
   assert.deepEqual(Object.keys(QB_MARKET_STATUS), QB_FAMILIES.map((f) => f.family).sort((a, b) => ["passTd", "passYds", "passCmp", "passAtt", "passInt"].indexOf(a) - ["passTd", "passYds", "passCmp", "passAtt", "passInt"].indexOf(b)));
-  for (const s of Object.values(QB_MARKET_STATUS)) assert.equal(s, MARKET_STATUS.IMPLEMENTED_EXPERIMENTAL);
+  for (const s of Object.values(QB_MARKET_STATUS)) { assert.equal(s, MARKET_STATUS.FORWARD_EVALUATION); assert.equal(mayFeedOfficialPicks(s), false); }
   assert.ok(Object.isFrozen(QB_MARKET_STATUS));
 });
 
@@ -52,6 +52,6 @@ test("dashboard: status, forward rows, empty challenger slot; locked grading sho
   assert.match(d.grading, /^LOCKED/);
   assert.deepEqual(d.challengers, []);
   assert.equal(QB_CHALLENGERS.length, 0);
-  assert.deepEqual(d.markets.passInt, { label: "Interceptions", status: "IMPLEMENTED_EXPERIMENTAL", mayFeedOfficialPicks: false, forwardRows: 4, withModelDistribution: 1, byKickoffDate: { "2026-11-16": 4 } });
+  assert.deepEqual(d.markets.passInt, { label: "Interceptions", status: "FORWARD_EVALUATION", mayFeedOfficialPicks: false, forwardRows: 4, withModelDistribution: 1, byKickoffDate: { "2026-11-16": 4 } });
   assert.doesNotMatch(JSON.stringify(d), /"confirmatory"|"(mae|bias|cov80|logLoss|actual|ece)"/, "nothing graded leaks while locked");
 });

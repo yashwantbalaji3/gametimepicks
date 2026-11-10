@@ -28,12 +28,15 @@ import { COUNT_CALIBRATION_LINES, PASS_YDS_LINES, QB_SCORES_SPEC, empirical, fro
 
 export const QB_PROPS_LEDGER_SCHEMA = "gtp.nfl.qb-props-ledger@1";
 export const QB_PROPS_COUNTS_SCHEMA = "gtp.nfl.qb-props-forward-counts@1";
-/** sha256 of each pre-registration file the founder has APPROVED in writing. Empty: nothing may be graded yet. */
-export const APPROVED_PREREG_SHA256 = Object.freeze([]);
+/**
+ * sha256 of each pre-registration file the founder has APPROVED in writing. v1.3 (docs/NFL_QB_PROPS_PREREGISTRATION_V1_3.md),
+ * approved 2026-11-10 (~/gtp-evidence/nov10-founder-qbp-prereg-v13-approval.md); qb-props-grade.test.mjs pins the file's bytes.
+ */
+export const APPROVED_PREREG_SHA256 = Object.freeze(["718ad39b572c5bb4e6df42146cd717c7876aad78c34a4b37dc5f0a4d9de24a14"]);
 /** Weeks looked at before any threshold was approved (disclosed 2026-11-10): permanently exploratory, never confirmatory. */
 export const SEEN_EXPLORATORY_WEEKS = Object.freeze([5, 6, 7, 8, 9]);
-/** sha256 → the founder's written approval timestamp (ISO). The confirmatory window opens after it. Empty. */
-export const PREREG_APPROVED_AT = Object.freeze({});
+/** sha256 → the founder's written approval timestamp (ISO). The confirmatory window opens strictly after it. */
+export const PREREG_APPROVED_AT = Object.freeze({ "718ad39b572c5bb4e6df42146cd717c7876aad78c34a4b37dc5f0a4d9de24a14": "2026-11-10T18:55:07Z" });
 /** May grading run with this pre-registration file? Only when its sha256 is an approved one. */
 export const gradingApproved = (preregSha256, approvals = APPROVED_PREREG_SHA256) => typeof preregSha256 === "string" && approvals.includes(preregSha256);
 /** Why grade mode refuses (null ⇒ approved and timestamped). Pure, no import beyond this file, so the script checks it first. */

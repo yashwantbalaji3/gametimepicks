@@ -35,8 +35,8 @@ function synthRoot() {
 }
 
 test("refusal comes first: without an approved AND timestamped hash, no final, box score or receipt is read", () => {
-  assert.deepEqual([...APPROVED_PREREG_SHA256], []);
-  assert.deepEqual({ ...PREREG_APPROVED_AT }, {});
+  assert.equal(APPROVED_PREREG_SHA256.length, 1, "v1.3 only");
+  assert.ok(!APPROVED_PREREG_SHA256.includes(SHA));
   const root = synthRoot();
   const reads = [];
   const orig = fs.readFileSync;
@@ -77,6 +77,18 @@ test("R5 from nflOfficialOfRecord: QB-blind, UNKNOWN, no team inputs or no recor
   const src = fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/qb-props-inputs.mjs"), "utf8");
   assert.match(src, /import \{ nflOfficialOfRecord \} from "\.\/official-of-record\.mjs"/, "the one selector, no second one");
   assert.doesNotMatch(src, /unionFrozenForecasts|frozen-latest\.json"\)/, "no forecast-file reading of its own");
+});
+
+test("approved constants (v1.3) on a synthetic root: the gate passes with the frozen defaults and the window opens at 18:55:07Z", () => {
+  const root = synthRoot();
+  const sha = APPROVED_PREREG_SHA256[0];
+  const r = runGrade({ root, preregSha256: sha });
+  assert.equal(r.refused, undefined);
+  assert.equal(r.ledger.inputs.approvedAt, PREREG_APPROVED_AT[sha]);
+  assert.equal(r.ledger.inputs.approvedAt, "2026-11-10T18:55:07Z");
+  assert.equal(r.ledger.counts.qbGames, 2);
+  assert.equal(r.ledger.counts.confirmatoryQbGames, 0, "eligibility PENDING on this synthetic root ⇒ nothing confirmatory");
+  assert.ok(!fs.existsSync(path.join(root, LEDGER_REL)), "no write without --write");
 });
 
 test("the script: --grade refuses with exit 2 under the frozen constants; counts mode never loads the grade-mode inputs module", () => {

@@ -7,9 +7,10 @@
  */
 import test from "node:test";
 import assert from "node:assert/strict";
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
-import { assertDistinctQbGames, buildLedger, familyOutcome, gradeQbProps as gradeApproved, projectedQbs, receiptsOfRecord, forwardCounts, gradingApproved, APPROVED_PREREG_SHA256, SEEN_EXPLORATORY_WEEKS } from "./qb-props-grade.mjs";
+import { assertDistinctQbGames, buildLedger, familyOutcome, gradeQbProps as gradeApproved, projectedQbs, receiptsOfRecord, forwardCounts, gradingApproved, APPROVED_PREREG_SHA256, PREREG_APPROVED_AT, SEEN_EXPLORATORY_WEEKS } from "./qb-props-grade.mjs";
 
 /* SYNTHETIC fixtures only: the grader runs here under a test-only approval, never on real outcomes */
 const TEST_APPROVAL = { preregSha256: "synthetic-test", approvals: ["synthetic-test"] };
@@ -133,8 +134,13 @@ test("deterministic: the same inputs give byte-identical ledgers; the grader rea
   }
 });
 
-test("approval gate: nothing is approved yet; grading refuses without an approved pre-registration sha256", () => {
-  assert.deepEqual([...APPROVED_PREREG_SHA256], [], "no pre-registration has been approved");
+test("approval gate: exactly pre-registration v1.3 is approved, and its committed bytes hash to the approved sha256", () => {
+  assert.deepEqual([...APPROVED_PREREG_SHA256], ["718ad39b572c5bb4e6df42146cd717c7876aad78c34a4b37dc5f0a4d9de24a14"]);
+  assert.deepEqual({ ...PREREG_APPROVED_AT }, { "718ad39b572c5bb4e6df42146cd717c7876aad78c34a4b37dc5f0a4d9de24a14": "2026-11-10T18:55:07Z" });
+  assert.ok(Object.isFrozen(APPROVED_PREREG_SHA256) && Object.isFrozen(PREREG_APPROVED_AT));
+  const doc = fs.readFileSync(path.join(process.cwd(), "..", "docs", "NFL_QB_PROPS_PREREGISTRATION_V1_3.md"));
+  assert.equal(crypto.createHash("sha256").update(doc).digest("hex"), APPROVED_PREREG_SHA256[0], "the approved file must not drift: any edit is a new registration");
+  assert.equal(gradingApproved(APPROVED_PREREG_SHA256[0]), true);
   assert.equal(gradingApproved("anything"), false);
   assert.throws(() => gradeApproved({ entries, games, verified }), /REFUSED/);
   assert.throws(() => gradeApproved({ entries, games, verified, preregSha256: "x" }), /REFUSED/);
@@ -163,4 +169,21 @@ test("n counts DISTINCT QB-game outcomes: a repeated (eventId, team, playerId) r
   assert.throws(() => buildLedger({ graded: dup, inputs: {} }), /REFUSED: duplicate QB-game outcome/);
   // the same QB for the other team in the same game is a different key, not a duplicate
   assert.doesNotThrow(() => assertDistinctQbGames([{ ...g.rows[0] }, { ...g.rows[0], team: "ZZZ" }]));
+});
+
+test("the approved window: confirmatory only with kickoff strictly after 2026-11-10T18:55:07Z, never in 2026 weeks 5–9", () => {
+  const sha = APPROVED_PREREG_SHA256[0];
+  const at = PREREG_APPROVED_AT[sha];
+  const mk = (id, week, start) => ({
+    entry: { file: `w/${id}.json`, receipt: receipt(id, "2026-11-10T12:00:00Z", start, [qbRow(10, "AAA", 32, { exactCounts: exact }), qbRow(20, "BBB", 31)]) },
+    game: { providerEventId: id, season: 2026, week, dateUtc: start, players: [box(10, "AAA", { passAtt: 33, passCmp: 24, passYds: 240, passTd: 2, passInt: 1 }), box(20, "BBB", { passAtt: 30, passCmp: 19, passYds: 210, passTd: 0, passInt: 2 })] },
+  });
+  const cases = [mk("90", 10, "2026-11-10T18:55:07Z"), mk("91", 10, "2026-11-10T18:56Z"), mk("92", 7, "2026-11-13T01:15Z"), mk("93", 11, "2026-11-13T01:15Z")];
+  const g = gradeApproved({
+    entries: cases.map((c) => c.entry), games: [...hist, ...cases.map((c) => c.game)],
+    verified: new Map(cases.map((c) => [c.game.providerEventId, { teamPassYds: { AAA: 240, BBB: 210 } }])),
+    preregSha256: sha, approvedAt: at, eligibilityAt: () => ({ state: "ELIGIBLE" }), r5At: () => true,
+  });
+  assert.deepEqual([...new Set(g.rows.filter((r) => r.confirmatory).map((r) => r.eventId))], ["91", "93"], "at the approval instant: not after it; week 7: a seen week");
+  assert.deepEqual([...new Set(g.rows.map((r) => r.eventId))], ["90", "91", "92", "93"], "the others are graded as exploratory, never dropped");
 });
