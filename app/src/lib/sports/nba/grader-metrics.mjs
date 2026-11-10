@@ -15,6 +15,7 @@
 
 import { isDisputedFinal } from "./experimental-grading-ledger.mjs";
 import { aggregateScores, PLAYER_MARKETS, TEAM_MARKETS, DISTRIBUTION_SCORES_VERSION } from "./distribution-scores.mjs";
+import { BOOTSTRAP_DEFAULTS, clusterBootstrap, bootstrapStatistic } from "./bootstrap.mjs";
 
 /** §6 minimum n and §7 SHADOW → PUBLIC FORECAST bars, verbatim. */
 export const PREREG = Object.freeze({
@@ -74,6 +75,7 @@ function winnerMetrics(games) {
       reliability: rel.table,
     };
   }
+  out.elo.published = publishedEloMetrics(games);
   // Baselines reported alongside (§4). The home-rate baseline uses the graded sample's own rate (in-sample, labelled).
   out.baselines = {
     coin: { brier: PREREG.coin.brier, logLoss: r4(PREREG.coin.logLoss) },
@@ -85,6 +87,45 @@ function winnerMetrics(games) {
     market: { state: "NO_AUTHORIZED_PRICE", note: "§4: market baseline only when an authorized price exists (none today)" },
   };
   return out;
+}
+
+const logLossOf = ({ p, y }) => -(y ? Math.log(clamp(p)) : Math.log(1 - clamp(p)));
+const eceOf = (pairs) => reliability(pairs).ece;
+
+/**
+ * THE PUBLISHED ELO (founder decision 2 of 2026-11-10: the Elo game-winner estimate is shown as MODEL PROJECTION and needs
+ * its own validation bar). Scores the frozen official value per game — `winner.elo.p`, the frozen forecast.elo.pHome the
+ * lane publishes — on FORWARD rows only: graded and written before tip (§8). Reports n, log loss, Brier, ECE (§4's 10
+ * bins), mean pHome against the realised home-win rate, and a game-clustered 95% percentile bootstrap interval for each
+ * (one cluster per game; the evaluator's B, seed and alpha). The bars applied to it are §7's winner bars, verbatim
+ * (marketStates → winnerElo). Report only: nothing here changes what is displayed.
+ */
+export function publishedEloMetrics(games, opts = {}) {
+  const pairs = games
+    .filter((g) => g.timing?.preTip === true)
+    .map((g) => g.winner?.elo)
+    .filter((w) => w && Number.isFinite(w.p) && (w.y === 0 || w.y === 1))
+    .map((w) => ({ p: w.p, y: w.y }));
+  const bs = { ...BOOTSTRAP_DEFAULTS, ...opts };
+  const ci = (r) => (r.lo == null ? null : [r.lo, r.hi]);
+  const ll = clusterBootstrap(pairs.map((x) => [logLossOf(x)]), bs);
+  const br = clusterBootstrap(pairs.map(({ p, y }) => [(p - y) ** 2]), bs);
+  const bias = clusterBootstrap(pairs.map(({ p, y }) => [p - y]), bs);
+  const ece = bootstrapStatistic(pairs, eceOf, bs);
+  return {
+    rule: "frozen official forecast.elo.pHome per game (the value the lane publishes); forward rows only — graded and written before tip (§8)",
+    n: pairs.length,
+    logLoss: r4(mean(pairs.map(logLossOf))),
+    brier: r4(mean(pairs.map(({ p, y }) => (p - y) ** 2))),
+    ece: pairs.length ? eceOf(pairs) : null,
+    eceBins: PREREG.eceBins,
+    meanPHome: r4(mean(pairs.map((x) => x.p))),
+    realisedHomeRate: r4(mean(pairs.map((x) => x.y))),
+    homeBias: r4(mean(pairs.map(({ p, y }) => p - y))),
+    homeBiasRule: "mean(pHome − home win): positive = the Elo over-favours the home side",
+    ci95: { logLoss: ci(ll), brier: ci(br), ece: ci(ece), homeBias: ci(bias) },
+    bootstrap: { method: "game-clustered percentile bootstrap (one cluster per game)", B: bs.B, seed: bs.seed, alpha: bs.alpha },
+  };
 }
 
 function intervalMetrics(games, key) {
@@ -286,11 +327,21 @@ export function marketStates(m) {
     brier: w.sim.brier != null && w.sim.brier <= B.brierMax,
   };
   const early = (ece, n) => ece != null && n >= PREREG.rejectEceAboveAtN.n && ece > PREREG.rejectEceAboveAtN.ece;
+  const pe = w.elo.published;
+  const eloBars = {
+    logLossVsCoin: pe.logLoss != null && pe.logLoss <= PREREG.coin.logLoss - B.coinLogLossMargin,
+    ece: pe.ece != null && pe.ece <= B.eceMax,
+    brier: pe.brier != null && pe.brier <= B.brierMax,
+  };
   const mm = m.margin, tt = m.total;
   const marginBars = { mae: mm.mae != null && mm.mae <= PREREG.margin.maeMax, coverage: inBand(mm.coverage80, PREREG.margin.coverage), bias: mm.bias != null && Math.abs(mm.bias) <= PREREG.margin.absBiasMax };
   const totalBars = { mae: tt.mae != null && tt.mae <= PREREG.total.maeMax, coverage: inBand(tt.coverage80, PREREG.total.coverage), bias: tt.bias != null && Math.abs(tt.bias) <= PREREG.total.absBiasMax };
   const out = {
     winner: { state: state(w.sim.n, B.minN, Object.values(winnerBars).every(Boolean), early(w.sim.ece, w.sim.n)), n: w.sim.n, minN: B.minN, bars: winnerBars },
+    winnerElo: {
+      state: state(pe.n, B.minN, Object.values(eloBars).every(Boolean), early(pe.ece, pe.n)), n: pe.n, minN: B.minN, bars: eloBars,
+      rule: "§7's winner bars applied verbatim to the PUBLISHED Elo (the sim-vs-Elo slack has no meaning for Elo itself); §10's early ECE rule as for the sim head. Report only: the displayed Elo is unchanged by this state",
+    },
     margin: { state: state(mm.n, PREREG.margin.minN, Object.values(marginBars).every(Boolean), false), n: mm.n, minN: PREREG.margin.minN, bars: marginBars },
     total: { state: state(tt.n, PREREG.total.minN, Object.values(totalBars).every(Boolean), false), n: tt.n, minN: PREREG.total.minN, bars: totalBars, unrecordedBar: "sim total SD > sim margin SD is not recorded by the grader" },
   };
