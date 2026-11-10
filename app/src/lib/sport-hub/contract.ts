@@ -187,6 +187,19 @@ export function hubStatusWord(state: HubStatusInput | string | null | undefined,
 }
 
 /**
+ * WEB-04 (2026-11-09): a schedule snapshot can say IN_PROGRESS long after a game ended (the NFL hub's snapshot was ~18 h
+ * old: HOU@LAC, GB@NE, TB@CHI read "Live" the next day). Past kickoff + 5 h, an IN_PROGRESS state is no longer
+ * believed: it reads STARTED ("Started", the word for a source that knows only that the game began), never "Live".
+ * A final status stays final. Pure; `nowIso` is the build instant the hub is rendered at.
+ */
+export const LIVE_MAX_AFTER_START_MS = 5 * 60 * 60 * 1000;
+export function liveStateAt(state: string | null | undefined, startUtc: string | null | undefined, nowIso: string): string | null | undefined {
+  if (String(state ?? "").toUpperCase() !== "IN_PROGRESS") return state;
+  const start = Date.parse(String(startUtc ?? "")), now = Date.parse(nowIso);
+  return Number.isFinite(start) && Number.isFinite(now) && now - start > LIVE_MAX_AFTER_START_MS ? "STARTED" : state;
+}
+
+/**
  * DS-001 §2 — the word a READER sees for a hub status. `hubStatusWord` stays the internal value (it is compared
  * elsewhere, e.g. isLiveRow); only the chip is translated, so every sport's card says Upcoming / Live / Final in
  * the same words /live uses (lib/live/lifecycle.mjs LIFECYCLE_LABEL). A source that only knows the game began
