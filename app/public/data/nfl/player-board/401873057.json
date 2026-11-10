@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-10T03:12:22Z",
- "sourceGeneratedAt": "2026-11-10T03:12:22Z",
- "forecastInputHash": "3d454ce3174a2c20",
+ "generatedAt": "2026-11-10T17:02:36Z",
+ "sourceGeneratedAt": "2026-11-10T17:02:36Z",
+ "forecastInputHash": "59757fb8484e6c23",
  "providerEventId": "401873057",
  "matchup": "JAX @ TEN",
  "kickoffUtc": "2026-11-15T18:00Z",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-10T03:12:22Z",
-  "roleEvidenceAt": "2026-11-10T03:12:22Z",
+  "injuriesCapturedAt": "2026-11-10T17:02:36Z",
+  "roleEvidenceAt": "2026-11-10T17:02:36Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -65,7 +65,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 55,
+  "absent": 62,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -217,8 +217,8 @@
   },
   "TEN": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 13,
+    "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -249,6 +249,17 @@
      "participation": "ACTIVE_PROJECTED"
     },
     {
+     "playerId": "nfl-athlete-4871023",
+     "name": "Carnell Tate",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
      "playerId": "nfl-athlete-4569587",
      "name": "Wan'Dale Robinson",
      "state": "PROJECTED",
@@ -258,6 +269,18 @@
       "player_receptions"
      ],
      "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4428557",
+     "name": "Tyjae Spears",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4883647",
@@ -337,18 +360,6 @@
       "anytime_td"
      ],
      "participation": "ACTIVE_PROJECTED"
-    },
-    {
-     "playerId": "nfl-athlete-4871023",
-     "name": "Carnell Tate",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
-     "playerId": "nfl-athlete-4428557",
-     "name": "Tyjae Spears",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
     }
    ]
   }
@@ -560,6 +571,37 @@
     "anytime_td": {
      "probability": 0.333925,
      "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4871023",
+   "name": "Carnell Tate",
+   "team": "TEN",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 57.77,
+     "p10": 14.82,
+     "p25": 29.97,
+     "median": 51.88,
+     "p75": 79.4,
+     "p90": 109.38,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 4.961,
+     "p10": 2,
+     "p25": 3,
+     "median": 5,
+     "p75": 6,
+     "p90": 8,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.315445,
+     "participation": "QUESTIONABLE",
      "pricingState": "NOT_PROBED"
     }
    }
@@ -803,6 +845,46 @@
     "anytime_td": {
      "probability": 0.108243,
      "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4428557",
+   "name": "Tyjae Spears",
+   "team": "TEN",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 10.876,
+     "p10": 0,
+     "p25": 0.61,
+     "median": 6.23,
+     "p75": 16.24,
+     "p90": 28.14,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_reception_yds": {
+     "mean": 18.899,
+     "p10": 0,
+     "p25": 4.37,
+     "median": 13.92,
+     "p75": 28.26,
+     "p90": 44.71,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.219,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.075901,
+     "participation": "QUESTIONABLE",
      "pricingState": "NOT_PROBED"
     }
    }

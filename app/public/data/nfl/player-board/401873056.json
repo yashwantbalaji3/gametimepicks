@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-10T03:12:22Z",
- "sourceGeneratedAt": "2026-11-10T03:12:22Z",
- "forecastInputHash": "ef9d273f3a7a600d",
+ "generatedAt": "2026-11-10T17:02:36Z",
+ "sourceGeneratedAt": "2026-11-10T17:02:36Z",
+ "forecastInputHash": "a078bebe0816cbea",
  "providerEventId": "401873056",
  "matchup": "HOU @ CLE",
  "kickoffUtc": "2026-11-15T18:00Z",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-10T03:12:22Z",
-  "roleEvidenceAt": "2026-11-10T03:12:22Z",
+  "injuriesCapturedAt": "2026-11-10T17:02:36Z",
+  "roleEvidenceAt": "2026-11-10T17:02:36Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -65,14 +65,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 54,
+  "absent": 59,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "HOU": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -99,6 +99,16 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4035538",
+     "name": "David Montgomery",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4429939",
@@ -196,12 +206,6 @@
      "participation": "ACTIVE_PROJECTED"
     },
     {
-     "playerId": "nfl-athlete-4035538",
-     "name": "David Montgomery",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
      "playerId": "nfl-athlete-4586312",
      "name": "Jaylin Noel",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -211,14 +215,25 @@
   },
   "CLE": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 0,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
+    {
+     "playerId": "nfl-athlete-3122840",
+     "name": "Deshaun Watson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
+    },
     {
      "playerId": "nfl-athlete-4685702",
      "name": "Quinshon Judkins",
@@ -324,12 +339,6 @@
       "anytime_td"
      ],
      "participation": "ACTIVE_PROJECTED"
-    },
-    {
-     "playerId": "nfl-athlete-3122840",
-     "name": "Deshaun Watson",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
     }
    ]
   }
@@ -347,7 +356,9 @@
    {
     "team": "CLE",
     "state": "SINGLE_PASSER",
-    "passers": [],
+    "passers": [
+     "nfl-athlete-3122840"
+    ],
     "removed": []
    }
   ],
@@ -366,9 +377,13 @@
    {
     "team": "CLE",
     "floor": 0.75,
-    "passers": [],
+    "passers": [
+     "nfl-athlete-3122840"
+    ],
     "withheld": [],
-    "unjoined": []
+    "unjoined": [
+     "nfl-athlete-3122840"
+    ]
    }
   ],
   "pools": [],
@@ -571,6 +586,28 @@
    }
   },
   {
+   "playerId": "nfl-athlete-4035538",
+   "name": "David Montgomery",
+   "team": "HOU",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 24.799,
+     "p10": 4.27,
+     "p25": 10.49,
+     "median": 20.89,
+     "p75": 34.75,
+     "p90": 50.07,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.185874,
+     "participation": "QUESTIONABLE",
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
    "playerId": "nfl-athlete-4686422",
    "name": "Xavier Hutchinson",
    "team": "HOU",
@@ -681,6 +718,37 @@
     "anytime_td": {
      "probability": 0.172111,
      "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3122840",
+   "name": "Deshaun Watson",
+   "team": "CLE",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 129.52,
+     "p10": 16.36,
+     "p25": 55.93,
+     "median": 119.67,
+     "p75": 189.25,
+     "p90": 255.53,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_rush_yds": {
+     "mean": 18.952,
+     "p10": 0.54,
+     "p25": 4.79,
+     "median": 13.81,
+     "p75": 27.81,
+     "p90": 44.43,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.136777,
+     "participation": "QUESTIONABLE",
      "pricingState": "NOT_PROBED"
     }
    }

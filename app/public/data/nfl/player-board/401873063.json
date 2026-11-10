@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-10T03:12:22Z",
- "sourceGeneratedAt": "2026-11-10T03:12:22Z",
- "forecastInputHash": "e7355c6ff23f1a60",
+ "generatedAt": "2026-11-10T17:02:36Z",
+ "sourceGeneratedAt": "2026-11-10T17:02:36Z",
+ "forecastInputHash": "61ce6d0876fd14b6",
  "providerEventId": "401873063",
  "matchup": "SF @ DAL",
  "kickoffUtc": "2026-11-15T21:25Z",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-10T03:12:22Z",
-  "roleEvidenceAt": "2026-11-10T03:12:22Z",
+  "injuriesCapturedAt": "2026-11-10T17:02:36Z",
+  "roleEvidenceAt": "2026-11-10T17:02:36Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -65,14 +65,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 29,
+  "absent": 36,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "SF": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -120,6 +120,16 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-16737",
+     "name": "Mike Evans",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
      "playerId": "nfl-athlete-4241464",
      "name": "Mac Jones",
      "state": "PROJECTED",
@@ -127,6 +137,17 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3126486",
+     "name": "Deebo Samuel Sr.",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4428209",
@@ -169,18 +190,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-16737",
-     "name": "Mike Evans",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
-     "playerId": "nfl-athlete-3126486",
-     "name": "Deebo Samuel Sr.",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
      "playerId": "nfl-athlete-4360438",
      "name": "Brandon Aiyuk",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -190,8 +199,8 @@
   },
   "DAL": {
    "counts": {
-    "PROJECTED": 6,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 7,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -230,6 +239,16 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4426354",
+     "name": "George Pickens",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
      "playerId": "nfl-athlete-4240603",
      "name": "Malik Davis",
      "state": "PROJECTED",
@@ -261,12 +280,6 @@
     {
      "playerId": "nfl-athlete-4429676",
      "name": "Tyler Goodson",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
-     "playerId": "nfl-athlete-4426354",
-     "name": "George Pickens",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Out"
     },
@@ -483,6 +496,41 @@
    }
   },
   {
+   "playerId": "nfl-athlete-3126486",
+   "name": "Deebo Samuel Sr.",
+   "team": "SF",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 8.341,
+     "p10": 0,
+     "p25": 0,
+     "median": 1.7,
+     "p75": 11.71,
+     "p90": 26.05,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_reception_yds": {
+     "mean": 18.438,
+     "p10": 0,
+     "p25": 2.78,
+     "median": 13.07,
+     "p75": 27.6,
+     "p90": 44.84,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.917,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 4,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
    "playerId": "nfl-athlete-4241464",
    "name": "Mac Jones",
    "team": "SF",
@@ -521,6 +569,32 @@
      "median": 6,
      "p75": 9,
      "p90": 11,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4426354",
+   "name": "George Pickens",
+   "team": "DAL",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 50.4,
+     "p10": 8.77,
+     "p25": 22.95,
+     "median": 43.32,
+     "p75": 70.65,
+     "p90": 101.67,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 3.907,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 5,
+     "p90": 7,
      "pricingState": "NOT_PROBED"
     }
    }
@@ -598,6 +672,32 @@
      "p25": 2,
      "median": 3,
      "p75": 5,
+     "p90": 6,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-16737",
+   "name": "Mike Evans",
+   "team": "SF",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 42.912,
+     "p10": 3.4,
+     "p25": 16.15,
+     "median": 35.58,
+     "p75": 61.28,
+     "p90": 90.93,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 3.194,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 4,
      "p90": 6,
      "pricingState": "NOT_PROBED"
     }

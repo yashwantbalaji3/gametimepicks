@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-10T03:12:22Z",
- "sourceGeneratedAt": "2026-11-10T03:12:22Z",
- "forecastInputHash": "df635c2a7f1c6278",
+ "generatedAt": "2026-11-10T17:02:36Z",
+ "sourceGeneratedAt": "2026-11-10T17:02:36Z",
+ "forecastInputHash": "27c05f9bf448ae6b",
  "providerEventId": "401873055",
  "matchup": "CAR @ NO",
  "kickoffUtc": "2026-11-15T18:00Z",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-10T03:12:22Z",
-  "roleEvidenceAt": "2026-11-10T03:12:22Z",
+  "injuriesCapturedAt": "2026-11-10T17:02:36Z",
+  "roleEvidenceAt": "2026-11-10T17:02:36Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -93,7 +93,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 53,
+  "absent": 55,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -237,8 +237,8 @@
   },
   "NO": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -261,16 +261,10 @@
      "name": "Spencer Rattler",
      "state": "PROJECTED",
      "families": [
+      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
-      }
-     ]
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4569682",
@@ -328,6 +322,15 @@
      "participation": "ACTIVE_PROJECTED"
     },
     {
+     "playerId": "nfl-athlete-5081999",
+     "name": "CJ Donaldson",
+     "state": "PROJECTED",
+     "families": [
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
      "playerId": "nfl-athlete-4880281",
      "name": "Jordyn Tyson",
      "state": "PROJECTED",
@@ -366,12 +369,6 @@
      "reason": "designation: Injured Reserve"
     },
     {
-     "playerId": "nfl-athlete-5081999",
-     "name": "CJ Donaldson",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
      "playerId": "nfl-athlete-4369863",
      "name": "Cedric Tillman",
      "state": "WITHHELD_ROLE_UNCERTAIN",
@@ -392,21 +389,14 @@
    },
    {
     "team": "NO",
-    "state": "APPLIED",
-    "starter": {
-     "playerId": "nfl-athlete-4360689",
-     "name": "Tyler Shough"
-    },
-    "snapshotAt": "2026-11-07T13:54:10Z",
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4426339",
-      "name": "Spencer Rattler"
-     }
-    ],
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-4360689"
-    ]
+     "nfl-athlete-4360689",
+     "nfl-athlete-4426339"
+    ],
+    "removed": [],
+    "snapshotAt": "2026-11-07T13:54:10Z"
    }
   ],
   "passerShareFloor": [
@@ -425,11 +415,13 @@
     "team": "NO",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4360689"
+     "nfl-athlete-4360689",
+     "nfl-athlete-4426339"
     ],
     "withheld": [],
     "unjoined": [
-     "nfl-athlete-4360689"
+     "nfl-athlete-4360689",
+     "nfl-athlete-4426339"
     ]
    }
   ],
@@ -942,11 +934,37 @@
    }
   },
   {
+   "playerId": "nfl-athlete-5081999",
+   "name": "CJ Donaldson",
+   "team": "NO",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 11.264,
+     "p10": 0,
+     "p25": 0.26,
+     "median": 5.83,
+     "p75": 16.68,
+     "p90": 31.01,
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
    "playerId": "nfl-athlete-4426339",
    "name": "Spencer Rattler",
    "team": "NO",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
+    "player_pass_yds": {
+     "mean": 78.301,
+     "p10": 0,
+     "p25": 18.54,
+     "median": 61.1,
+     "p75": 122.24,
+     "p90": 178.75,
+     "pricingState": "NOT_PROBED"
+    },
     "player_rush_yds": {
      "mean": 9.28,
      "p10": 0,

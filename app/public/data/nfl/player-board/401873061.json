@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-10T03:12:22Z",
- "sourceGeneratedAt": "2026-11-10T03:12:22Z",
- "forecastInputHash": "75b8e2fb5a148c8f",
+ "generatedAt": "2026-11-10T17:02:36Z",
+ "sourceGeneratedAt": "2026-11-10T17:02:36Z",
+ "forecastInputHash": "31096a8ece0e5da8",
  "providerEventId": "401873061",
  "matchup": "LAR @ ARI",
  "kickoffUtc": "2026-11-15T21:05Z",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-10T03:12:22Z",
-  "roleEvidenceAt": "2026-11-10T03:12:22Z",
+  "injuriesCapturedAt": "2026-11-10T17:02:36Z",
+  "roleEvidenceAt": "2026-11-10T17:02:36Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -65,7 +65,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 39,
+  "absent": 41,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -199,8 +199,8 @@
   },
   "ARI": {
    "counts": {
-    "PROJECTED": 7,
-    "EXCLUDED_UNAVAILABLE": 6,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 5,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -238,6 +238,16 @@
       "player_receptions"
      ],
      "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4427728",
+     "name": "Bam Knight",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4429275",
@@ -295,12 +305,6 @@
      "name": "James Conner",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
-    },
-    {
-     "playerId": "nfl-athlete-4427728",
-     "name": "Bam Knight",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-3045523",
@@ -643,6 +647,28 @@
     "anytime_td": {
      "probability": 0.119038,
      "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4427728",
+   "name": "Bam Knight",
+   "team": "ARI",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 15.515,
+     "p10": 0,
+     "p25": 1.85,
+     "median": 10.05,
+     "p75": 22.91,
+     "p90": 38.65,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.106511,
+     "participation": "QUESTIONABLE",
      "pricingState": "NOT_PROBED"
     }
    }
