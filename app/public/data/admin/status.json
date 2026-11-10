@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-11-09T21:35:48.846Z",
+  "generatedAt": "2026-11-10T09:26:29.575Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -8,7 +8,7 @@
     "drawdown": 6400,
     "profit": 13965.4,
     "roiMultiple": 139.65,
-    "portfolioMd5": "021a1a0e88a467c27c8b9dd1a9997ddc"
+    "portfolioMd5": "b34866d76e1209353c5fd2ee557a19ce"
   },
   "moneyGate": {
     "crownMinusDrawdownEqualsBankroll": true,
@@ -17,7 +17,7 @@
   },
   "slate": {
     "date": "2026-11-09",
-    "dailyPortfolioDate": "2026-11-09",
+    "dailyPortfolioDate": "2026-11-10",
     "activeBankroll": 14065.4,
     "openExposure": 0,
     "worldCupGames": 0,
@@ -32,14 +32,14 @@
         "state": "STALE",
         "artifactDate": "2026-10-28",
         "generatedAt": "2026-10-28T09:32:41.507Z",
-        "ageDays": 12
+        "ageDays": 13
       },
       {
         "source": "mlb/player-props",
         "state": "STALE",
         "artifactDate": "2026-10-28",
         "generatedAt": "2026-10-28T09:32:42.405Z",
-        "ageDays": 12
+        "ageDays": 13
       }
     ]
   },
@@ -105,7 +105,7 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-11-09",
-      "generatedAt": "2026-11-09T21:20:21Z",
+      "generatedAt": "2026-11-09T21:44:41Z",
       "sports": [
         {
           "sport": "epl",
@@ -164,7 +164,7 @@
     "dailyLifecycle": {
       "receiptDate": "2026-11-09",
       "present": true,
-      "generatedAt": "2026-11-09T09:41:36Z",
+      "generatedAt": "2026-11-09T21:44:40Z",
       "watchdog": [
         {
           "product": "homer-nukes",
@@ -174,11 +174,11 @@
       ],
       "states": {
         "bank-builder": {
-          "state": "OFF_SEASON",
+          "state": "NO_PLAY",
           "policyVersion": "bank-builder@1"
         },
         "moonshot": {
-          "state": "OFF_SEASON",
+          "state": "NO_PLAY",
           "policyVersion": "moonshot@2"
         },
         "end-zone-vault": {
@@ -198,7 +198,7 @@
           "policyVersion": "epl-cards@1"
         },
         "mlb-cards": {
-          "state": "OFF_SEASON",
+          "state": "NO_PLAY",
           "policyVersion": "mlb-cards@1"
         },
         "multi-cards": {
@@ -213,65 +213,65 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-11-09T21:35:48.322Z",
+    "lastRunAt": "2026-11-10T09:26:28.963Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
-    "phase": "mlb-daily-production"
+    "phase": "nightly-settle"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
-    "etDate": "2026-11-09",
-    "etTime": "16:35",
+    "etDate": "2026-11-10",
+    "etTime": "04:26",
     "stages": [
       {
         "stage": "schedule",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "06:47",
         "producedBy": "morning-projections"
       },
       {
         "stage": "board",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "06:47",
         "producedBy": "morning-projections"
       },
       {
         "stage": "teamMarkets",
         "present": false,
-        "state": "late",
+        "state": "pending",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "playerProps",
         "present": false,
-        "state": "late",
+        "state": "pending",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "simulations",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "predictions",
-        "present": true,
-        "state": "ready",
+        "present": false,
+        "state": "pending",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       }
     ],
-    "readyCount": 4,
+    "readyCount": 0,
     "totalStages": 6,
-    "lateCount": 2,
-    "signal": "RED",
-    "summary": "2 stage(s) overdue: teamMarkets (due 07:17 ET via mlb-daily-production), playerProps (due 07:17 ET via mlb-daily-production)"
+    "lateCount": 0,
+    "signal": "YELLOW",
+    "summary": "0/6 produced; the rest are not due yet"
   },
   "learningLoop": {
     "signal": "GREEN",
@@ -302,9 +302,10 @@
   },
   "warnings": [
     "World Cup board is empty (dormant or needs a refresh).",
-    "Sportsbook source mlb/team-markets is STALE (12d old).",
-    "Sportsbook source mlb/player-props is STALE (12d old).",
-    "MLB board is empty (dormant or needs a refresh)."
+    "Sportsbook source mlb/team-markets is STALE (13d old).",
+    "Sportsbook source mlb/player-props is STALE (13d old).",
+    "MLB board is empty (dormant or needs a refresh).",
+    "Slate (2026-11-09) is behind today (2026-11-10) — refresh/roll forward."
   ],
   "dailyChecklist": [
     {
@@ -313,7 +314,7 @@
     },
     {
       "step": "Slate is current",
-      "done": true
+      "done": false
     },
     {
       "step": "Products generated (WC or MLB)",
@@ -332,9 +333,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-11-09",
-  "nextRefreshDate": "2026-11-10",
-  "nextAction": "No active Bank Builder lane for 2026-11-09 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-11-10",
+  "nextRefreshDate": "2026-11-11",
+  "nextAction": "No active Bank Builder lane for 2026-11-10 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
