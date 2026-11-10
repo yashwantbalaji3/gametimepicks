@@ -1,5 +1,5 @@
 /**
- * NFL QB PROPS · GRADE-MODE INPUTS (pre-registration v1.1). Reads committed files only, and only AFTER the approval gate
+ * NFL QB PROPS · GRADE-MODE INPUTS (pre-registration v1.2). Reads committed files only, and only AFTER the approval gate
  * has passed: scripts/nfl/grade-qb-props.mjs calls loadGradeInputs() only once gradingApproved() is true, so before
  * approval no final is ever read.
  *
@@ -7,11 +7,9 @@
  *   actuals   data/internal/research/nfl/player-events-v1/<season>.json, every season (the baselines walk back across seasons)
  *   verified  data/internal/nfl/official-stats/<eventId>.json with state FINAL; per team, the sum of passing yards (the
  *             grader drops a game whose box-score passing yards disagree with it)
- *   R5        data/internal/research/nfl/qb-props/r5-at-freeze.json — the per-slate job records, for every game with a
- *             receipt, the teamInputs.state of its official forecast (app/public/data/nfl/forecasts latest ∪
- *             frozen-latest) generated before kickoff, keeping the latest such forecast. The public files only carry the
- *             current week, so the state is captured while it is there; grade mode reads the log only. A game with no
- *             log entry is not allowed (unknown ≠ allowed). Interim until CANON-01's nflOfficialOfRecord is on main.
+ *   R5        the teamInputs.state of the game's official forecast of record — nflOfficialOfRecord (CANON-01, the one
+ *             selector: the live union, or after the week rolls the revision the graded record names). No record or no
+ *             team-input state ⇒ not allowed (unknown ≠ allowed).
  *   eligibility@1 at freeze: not on this branch — `eligibilityAt` stays null (every row PENDING ⇒ none confirmatory)
  *             until the contract is on main and wired here.
  */
@@ -19,8 +17,9 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { readShadowReceipts } from "./sim-v2/public-receipt.mjs";
-import { r5FromLog, readR5Log } from "./qb-props-r5-log.mjs";
-import { APPROVED_PREREG_SHA256, PREREG_APPROVED_AT, buildLedger, gradeQbProps, gradingApproved } from "./qb-props-grade.mjs";
+import { nflOfficialOfRecord } from "./official-of-record.mjs";
+import { r5Allows } from "./qb-props-markets.mjs";
+import { APPROVED_PREREG_SHA256, PREREG_APPROVED_AT, buildLedger, gradeQbProps, gradeRefusal } from "./qb-props-grade.mjs";
 
 export const PLAYER_EVENTS_DIR = "data/internal/research/nfl/player-events-v1";
 export const OFFICIAL_STATS_DIR = "data/internal/nfl/official-stats";
@@ -52,21 +51,27 @@ export function readVerifiedFinals(root) {
   return verified;
 }
 
-
+/** R5 per game from the official forecast of record (one lookup per event, memoised). */
+export function r5FromRecord(root) {
+  const publicDir = path.join(root, "app", "public");
+  const memo = new Map();
+  const state = (id) => { if (!memo.has(id)) memo.set(id, nflOfficialOfRecord(publicDir, id)?.forecast?.teamInputs?.state ?? null); return memo.get(id); };
+  return { r5At: ({ eventId }) => r5Allows({ state: state(String(eventId)) }), states: memo };
+}
 
 /** Everything grade mode needs, plus a digest of what was read (recorded in the ledger's `inputs`). */
 export function loadGradeInputs(root) {
   const entries = readShadowReceipts(root);
   const { games, files } = readPlayerEventGames(root);
   const verified = readVerifiedFinals(root);
-  const r5Log = readR5Log(root);
-  const r5At = r5FromLog(r5Log);
+  const { r5At, states } = r5FromRecord(root);
+  for (const e of entries) r5At({ eventId: e.receipt?.eventId });
   const inputs = {
     receiptsRead: entries.length,
     receiptsDigest: sha(entries.map((e) => `${e.file}:${e.receipt?.artifactHash ?? ""}`).join("\n")).slice(0, 16),
     actuals: files,
     verifiedFinals: verified.size,
-    r5LogEvents: Object.keys(r5Log?.events ?? {}).length,
+    r5: { source: "nflOfficialOfRecord", events: states.size, withTeamInputs: [...states.values()].filter(Boolean).length },
     eligibility: "PENDING_ELIGIBILITY_CONTRACT",
   };
   return { entries, games, verified, r5At, eligibilityAt: null, inputs };
@@ -79,9 +84,9 @@ export const LEDGER_REL = "data/internal/research/nfl/qb-props/ledger.json";
  * `approvals` / `approvedAt` default to the frozen code constants; tests pass synthetic ones on a synthetic root.
  */
 export function runGrade({ root, preregSha256, approvals = APPROVED_PREREG_SHA256, approvedAt = PREREG_APPROVED_AT, write = false } = {}) {
-  if (!gradingApproved(preregSha256, approvals)) return { refused: "no approved pre-registration" };
+  const refused = gradeRefusal(preregSha256, approvals, approvedAt);
+  if (refused) return { refused };
   const at = approvedAt[preregSha256];
-  if (!at) return { refused: "the approved pre-registration has no approval timestamp" };
   const { entries, games, verified, r5At, eligibilityAt, inputs } = loadGradeInputs(root);
   const graded = gradeQbProps({ entries, games, verified, r5At, eligibilityAt, approvedAt: at, preregSha256, approvals });
   const ledger = buildLedger({ graded, inputs: { ...inputs, preregSha256, approvedAt: at } });

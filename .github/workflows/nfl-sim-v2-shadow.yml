@@ -54,12 +54,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           mkdir -p data/internal/research/nfl/sim-v2/shadow
           git add data/internal/research/nfl/sim-v2/shadow/
-          # QB props: history.json is a BUILD_INPUT, so the derived files ride only with new receipts (no build of their
-          # own); the R5 freeze log (read by the grader only, not a build input) is committed whenever it changes
+          # QB props: history.json is a BUILD_INPUT, so the derived files ride only with new receipts (no build of their own)
           if ! git diff --cached --quiet; then
             git add data/internal/research/nfl/qb-props/forward-counts.json data/internal/research/nfl/qb-props/dashboard.json data/internal/research/nfl/qb-props/history.json
           fi
-          git add data/internal/research/nfl/qb-props/r5-at-freeze.json
           if git diff --cached --quiet; then
             echo "no new shadow receipt (inputs unchanged or no game inside 8 days)"
             exit 0

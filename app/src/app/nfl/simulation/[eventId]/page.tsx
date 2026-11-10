@@ -72,7 +72,11 @@ async function QbProps({ rec, eventId }: { rec: NonNullable<ReturnType<typeof si
     const { default: QbPropsLine } = await import("@/components/nfl/qb-props-line");
     // HISTORY only (the QBs' actual earlier games, a compact precomputed file); never an input to the simulated chances
     const { readQbHistoryFor } = await import("@/lib/sports/nfl/qb-props-history-file.mjs");
-    return <QbPropsLine receipt={rec.receipt} teamInputs={officialFor(eventId)?.teamInputs ?? null} history={readQbHistoryFor(REPO_ROOT, eventId)} />;
+    // R5 reads the official forecast of record (CANON-01), the same selector the grader uses
+    const { nflOfficialOfRecord } = await import("@/lib/sports/nfl/official-of-record.mjs");
+    const record = nflOfficialOfRecord(path.join(process.cwd(), "public"), eventId);
+    const teamInputs = (record?.forecast as { teamInputs?: { state?: string } } | undefined)?.teamInputs ?? null;
+    return <QbPropsLine receipt={rec.receipt} teamInputs={teamInputs} history={readQbHistoryFor(REPO_ROOT, eventId)} />;
   }
   return null;
 }

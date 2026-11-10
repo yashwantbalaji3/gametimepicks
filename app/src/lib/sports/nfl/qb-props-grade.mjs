@@ -36,6 +36,12 @@ export const SEEN_EXPLORATORY_WEEKS = Object.freeze([5, 6, 7, 8, 9]);
 export const PREREG_APPROVED_AT = Object.freeze({});
 /** May grading run with this pre-registration file? Only when its sha256 is an approved one. */
 export const gradingApproved = (preregSha256, approvals = APPROVED_PREREG_SHA256) => typeof preregSha256 === "string" && approvals.includes(preregSha256);
+/** Why grade mode refuses (null ⇒ approved and timestamped). Pure, no import beyond this file, so the script checks it first. */
+export function gradeRefusal(preregSha256, approvals = APPROVED_PREREG_SHA256, approvedAt = PREREG_APPROVED_AT) {
+  if (!gradingApproved(preregSha256, approvals)) return "no approved pre-registration";
+  if (!approvedAt[preregSha256]) return "the approved pre-registration has no approval timestamp";
+  return null;
+}
 export const QB_FAMILIES = Object.freeze([
   { family: "passYds", stat: "passYds", actual: "passYds", kind: "continuous", score: "yds" },
   { family: "passCmp", stat: "cmp", actual: "passCmp", kind: "continuous", score: "continuous" },
