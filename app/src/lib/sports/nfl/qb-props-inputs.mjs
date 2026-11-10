@@ -1,5 +1,5 @@
 /**
- * NFL QB PROPS · GRADE-MODE INPUTS (pre-registration v1.2). Reads committed files only, and only AFTER the approval gate
+ * NFL QB PROPS · GRADE-MODE INPUTS (pre-registration v1.3). Reads committed files only, and only AFTER the approval gate
  * has passed: scripts/nfl/grade-qb-props.mjs calls loadGradeInputs() only once gradingApproved() is true, so before
  * approval no final is ever read.
  *

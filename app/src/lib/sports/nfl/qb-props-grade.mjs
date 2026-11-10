@@ -181,7 +181,22 @@ export function gradeQbProps({ entries, games, verified, eligibilityAt = null, r
       });
     }
   }
+  assertDistinctQbGames(rows);
   return { rows, counts };
+}
+
+/**
+ * Each row is ONE distinct QB-game outcome, keyed (eventId, team, playerId); n counts distinct outcomes. A repeated key
+ * refuses the grade (gradeQbProps) and the ledger (buildLedger) — never deduplicated silently.
+ */
+export function assertDistinctQbGames(rows) {
+  const seen = new Set();
+  for (const r of rows) {
+    const key = `${r.eventId}|${r.team}|${r.playerId}`;
+    if (seen.has(key)) throw new Error(`REFUSED: duplicate QB-game outcome ${key} — each (eventId, team, playerId) is graded once`);
+    seen.add(key);
+  }
+  return seen.size;
 }
 
 /** mulberry32-driven game-clustered bootstrap of the mean paired difference. */
@@ -262,6 +277,7 @@ export function familyOutcome(family, m) {
 /** The ledger: confirmatory decision per family, then exploratory/strata descriptives. Deterministic: no wall-clock field. */
 export function buildLedger({ graded, inputs }) {
   const { rows, counts } = graded;
+  assertDistinctQbGames(rows);
   const fams = QB_FAMILIES.map((f) => f.family);
   const by = (pred) => Object.fromEntries(fams.map((f) => [f, familyMetrics(rows.filter(pred), f)]));
   const confirmatory = by((r) => r.confirmatory);

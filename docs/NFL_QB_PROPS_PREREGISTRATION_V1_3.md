@@ -1,10 +1,10 @@
-# NFL QB props v0: pre-registration v1.2 (FROZEN, awaiting founder approval of this hash)
+# NFL QB props v0: pre-registration v1.3 (FROZEN, awaiting founder approval of this hash)
 
 **Status: FROZEN, NOT APPROVED.** No grading runs against real outcomes until the founder approves this exact file in writing.
 
 The approval is recorded as this file's sha256 in `APPROVED_PREREG_SHA256` and its timestamp in `PREREG_APPROVED_AT` (`app/src/lib/sports/nfl/qb-props-grade.mjs`). The grader refuses any other file, and refuses an approved file that has no timestamp. Any edit after approval changes the sha256 and makes a new registration.
 
-v1.1 differed from v1 (sha256 `693919cf…77e9`) only by the grade-mode wiring (§4a), the R5 source (§4), the approval timestamp constant (§7) and this note. v1.2 differs from v1.1 (sha256 `514c5d94…01c2`) only by the R5 source: CANON-01's `nflOfficialOfRecord` is on main, so R5 reads it and the interim R5 freeze log is removed (§2b, §4, §4a). The bars, scores, baselines and §5 are unchanged.
+v1.1 differed from v1 (sha256 `693919cf…77e9`) only by the grade-mode wiring (§4a), the R5 source (§4), the approval timestamp constant (§7) and this note. v1.2 differs from v1.1 (sha256 `514c5d94…01c2`) only by the R5 source: CANON-01's `nflOfficialOfRecord` is on main, so R5 reads it and the interim R5 freeze log is removed (§2b, §4, §4a). v1.3 differs from v1.2 (sha256 `8c3fbfc1…751d`) only by the founder's conditions on the v1.2 approval: the cmp/att baselines (own-8 and league average) are a normal truncated at 0, CRPS sums over the support plus the actual, and each row is a distinct QB-game outcome with duplicates refused (§3, §4a, §5.1, §5.8). The bars are unchanged.
 
 ## 1. The founder's decisions (2026-11-10), verbatim
 
@@ -89,16 +89,19 @@ All five markets are `IMPLEMENTED_EXPERIMENTAL` today. No data file or job can c
 
 ## 3. Scores and baselines (frozen in code)
 
-Code: `app/src/lib/sports/nfl/qb-props-scores.mjs` (`qb-props-scores@1`), tested in `qb-props-scores.test.mjs` on synthetic inputs only.
+Code: `app/src/lib/sports/nfl/qb-props-scores.mjs` (`qb-props-scores@2`), tested in `qb-props-scores.test.mjs` on synthetic inputs only.
 
 | Family | Primary score (lower is better) | Primary baseline | Secondary |
 |---|---|---|---|
 | Passing yards | mean binary log loss of P(over) at 199.5 / 224.5 / 249.5; ECE at each line reported | the QB's own previous 8 games played | league average |
-| Completions | CRPS on the integer grid; 80% interval score reported | the QB's own previous 8 games played | league average |
-| Attempts | CRPS on the integer grid; 80% interval score reported | the QB's own previous 8 games played | league average |
+| Completions | CRPS on the integer grid, over the distribution's support plus the actual; 80% interval score reported | the QB's own previous 8 games played, truncated at 0 | league average, truncated at 0 |
+| Attempts | CRPS on the integer grid, over the distribution's support plus the actual; 80% interval score reported | the QB's own previous 8 games played, truncated at 0 | league average, truncated at 0 |
 | Passing TDs | count log loss −log P(y), with 6+ pooled | Poisson, λ = the team's mean over its previous 8 games | league average |
 | Interceptions | count log loss −log P(y), with 6+ pooled | Poisson, λ = the team's mean over its previous 8 games | league average |
 
+- **One row, one outcome:** each graded row is a distinct QB-game outcome, keyed (eventId, team, playerId), and every n in this file counts distinct outcomes. The grader and the ledger refuse a repeated key (`assertDistinctQbGames`); a duplicate is never deduplicated silently.
+- **Truncation:** completions and attempts cannot be negative, so their normal baselines are truncated at 0 on the integer grid: P(X = k) = [Φ((k + .5 − μ)/σ) − Φ((k − .5 − μ)/σ)] / [1 − Φ((−.5 − μ)/σ)] for k ≥ 0, else 0, and the cdf likewise. Passing yards stay untruncated, because negative passing yards are possible.
+- **CRPS range:** Σ_k (F(k) − 1{y ≤ k})² over k from min(support low, y) to max(support high, y). No term comes from a value the distribution rules out.
 - **Model distribution:** the receipt's exact run counts (`simulation-receipt@2.2`, `exactCounts`, 1-yard / 1-count resolution) give exact line probabilities as a ratio of run counts. For TD/INT, the count PMF in @2.1 receipts is also accepted. A row with neither has no model score: it is counted and never approximated from quantiles.
 - **Walk-forward:** every baseline input has a kickoff strictly before the graded game's kickoff. Prior games may come from earlier seasons (player-events-v1, 2023 on).
 - **Sportsbook-implied:** used only where an authorized private capture exists. None is wired, and nothing public is used.
@@ -135,20 +138,20 @@ Code: `app/src/lib/sports/nfl/qb-props-scores.mjs` (`qb-props-scores@1`), tested
   - each graded game's official forecast of record (`nflOfficialOfRecord`), for R5.
 - **It writes:** `data/internal/research/nfl/qb-props/ledger.json`, with the decision per family from confirmatory rows only and the inputs digest, sha256 and approval timestamp.
 - **Eligibility:** eligibility@1 at freeze is wired once the contract is on main. Until then every row is PENDING, and none is confirmatory.
-- **Tests:** synthetic only (`qb-props-inputs.test.mjs`): nothing is read before the gate, exit 2 under the frozen constants, a ledger on a synthetic root, and the R5 rules through `nflOfficialOfRecord`.
+- **Tests:** synthetic only (`qb-props-inputs.test.mjs`): nothing is read before the gate, exit 2 under the frozen constants, a ledger on a synthetic root, and the R5 rules through `nflOfficialOfRecord`; `qb-props-grade.test.mjs` refuses a duplicate QB-game key; `qb-props-scores.test.mjs` checks the truncated pmf (sums to 1, zero mass below 0) and a pinned CRPS regression value.
 
 ## 5. Implementation choices made under this registration (founder to confirm or replace before approval)
 
 The author of this file has seen descriptive weeks 5–9 results (§6). The founder's rules do not fix the choices below, so they are listed for the founder to confirm or replace. None of them is a threshold.
 
-1. **Distribution form of the own-8 baseline:** a normal with the sample mean and sample SD (n − 1) of those 8 games, read on the integer grid. A zero SD means no baseline (counted).
+1. **Distribution form of the own-8 baseline:** a normal with the sample mean and sample SD (n − 1) of those 8 games, read on the integer grid. A zero SD means no baseline (counted). For completions and attempts the normal is truncated at 0 (§3), since negative counts are impossible; passing yards stay untruncated, since negative passing yards are possible.
 2. **Exactly 8 prior games played:** a game counts as played when passAtt ≥ 1. Prior games may cross seasons. A QB with fewer than 8 has no baseline, and the row leaves the paired n (counted).
 3. **Yards lines:** 199.5 / 224.5 / 249.5, the founder's example taken verbatim. ECE uses 10 equal-width bins.
 4. **Primary score for cmp/att:** CRPS (the interval score is reported).
 5. **Probability floor:** 1e-6, applied before a log.
 6. **Paired n:** "n ≥ 300 eligible QB-games" is read as the paired n, meaning rows with both a model and a primary-baseline score.
 7. **Count calibration lines:** TD 0.5 / 1.5 / 2.5 and INT 0.5 / 1.5. These are reported only, never a bar.
-8. **League average:** uses the same season's earlier team-games. For yds/cmp/att it takes the starting QB (most attempts), as a normal; for TD/INT, a Poisson of the team totals.
+8. **League average:** uses the same season's earlier team-games. For yds/cmp/att it takes the starting QB (most attempts), as a normal (truncated at 0 for cmp/att, as in 5.1); for TD/INT, a Poisson of the team totals.
 
 ## 6. Disclosure: what has already been seen
 

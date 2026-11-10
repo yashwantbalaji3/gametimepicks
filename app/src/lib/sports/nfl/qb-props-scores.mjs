@@ -5,20 +5,23 @@
  * model's comes only from the receipt's exact run counts (simulation-receipt@2.2) or count PMF — never a fitted curve.
  *
  *   PRIMARY BASELINE   passYds / cmp / passAtt: the QB's own previous 8 games played (passAtt ≥ 1, any season), as a
- *                      normal with their sample mean and sample SD (n − 1), read on the integer grid.
+ *                      normal with their sample mean and sample SD (n − 1), read on the integer grid. cmp / passAtt use
+ *                      the normal TRUNCATED at 0 (no mass on impossible negative counts); passYds stays untruncated
+ *                      (negative passing yards are possible). The league-average secondary follows the same rule.
  *                      passTd / int: Poisson with λ = the team's mean over its previous 8 games.
  *   SECONDARY          league average: the same forms over every team-game of the same season before kickoff (starting
  *                      QB = most attempts, for the continuous families). Reported, never primary. A sportsbook-implied
  *                      baseline exists only where an authorized private capture exists; none is wired (nothing public).
  *   SCORES             passYds: binary log loss of P(over) averaged over PASS_YDS_LINES, and ECE per line.
- *                      cmp / passAtt: CRPS on the integer grid (primary) and the 80% interval score.
+ *                      cmp / passAtt: CRPS on the integer grid over the distribution's support plus the actual
+ *                      (primary) and the 80% interval score.
  *                      passTd / int: count log loss −log P(y), y ≥ 6 pooled (the receipt's 6+ bucket).
  *                      All families: cov80, interval width, bias of the median.
  * A baseline without its full 8 prior games, or with zero spread, is null: that row leaves the paired comparison and is
  * counted, never filled in.
  */
 
-export const QB_SCORES_SPEC = "qb-props-scores@1";
+export const QB_SCORES_SPEC = "qb-props-scores@2";
 export const OWN_GAMES = 8;
 export const TEAM_GAMES = 8;
 /** The founder's example lines (decision 1, 2026-11-10), used verbatim. */
@@ -64,6 +67,20 @@ export function normal(mu, sigma) {
   const cdf = (k) => phi((k + 0.5 - mu) / sigma);
   return { kind: "normal", mu, sigma, cdf, pmf: (k) => cdf(k) - cdf(k - 1), lo: Math.floor(mu - 10 * sigma), hi: Math.ceil(mu + 10 * sigma) };
 }
+/**
+ * The normal truncated at 0 on the integer grid, for counts that cannot be negative (completions, attempts):
+ * P(X = k) = [Φ(k + .5) − Φ(k − .5)] / [1 − Φ(−.5)] for k ≥ 0, else 0 (Φ of the standardised value); cdf likewise.
+ */
+export function truncatedNormal(mu, sigma) {
+  if (!(Number.isFinite(mu) && sigma > 0)) return null;
+  const below = phi((-0.5 - mu) / sigma);
+  const mass = 1 - below;
+  if (!(mass > PROB_FLOOR)) return null;
+  const cdf = (k) => (k < 0 ? 0 : Math.min(1, (phi((k + 0.5 - mu) / sigma) - below) / mass));
+  return { kind: "truncatedNormal", mu, sigma, cdf, pmf: (k) => (k < 0 ? 0 : cdf(k) - cdf(k - 1)), lo: 0, hi: Math.max(0, Math.ceil(mu + 10 * sigma)) };
+}
+/** Negative values are possible only for passing yards; every other continuous family is a count truncated at 0. */
+const continuousForm = (actual) => (actual === "passYds" ? normal : truncatedNormal);
 export function poisson(lambda) {
   if (!(lambda >= 0)) return null;
   const pmf = (k) => { if (k < 0) return 0; let p = Math.exp(-lambda); for (let i = 1; i <= k; i++) p *= lambda / i; return p; };
@@ -81,10 +98,13 @@ export const pOver = (d, line) => (d.over ? d.over(line) : 1 - d.cdf(Math.floor(
 export function lineLogLoss(d, y, lines = PASS_YDS_LINES) {
   return mean(lines.map((l) => { const p = clampP(pOver(d, l)); return y > l ? -Math.log(p) : -Math.log(1 - p); }));
 }
-/** CRPS on the integer grid: Σ_k (F(k) − 1{y ≤ k})². */
+/**
+ * CRPS on the integer grid: Σ_k (F(k) − 1{y ≤ k})², summed over the distribution's support plus the actual only —
+ * min(lo, y) … max(hi, y). Below that range every term is 0; nothing is scored on values the distribution rules out.
+ */
 export function crps(d, y) {
   let s = 0;
-  for (let k = Math.min(0, d.lo, y) - 1; k <= Math.max(d.hi, y) + 1; k++) s += (d.cdf(k) - (y <= k ? 1 : 0)) ** 2;
+  for (let k = Math.min(d.lo, y); k <= Math.max(d.hi, y); k++) s += (d.cdf(k) - (y <= k ? 1 : 0)) ** 2;
   return s;
 }
 /** The 80% interval [q10, q90] and its interval score (α = 0.2). */
@@ -126,7 +146,7 @@ export function ownTrailingBaseline(games, playerId, kickoff, actual) {
   const rows = ownPriorGames(games, playerId, kickoff);
   if (!rows) return null;
   const xs = rows.map((p) => p[actual] ?? 0);
-  return normal(mean(xs), sd(xs));
+  return continuousForm(actual)(mean(xs), sd(xs));
 }
 /** Primary baseline for passTd / passInt: Poisson with the team's mean over its previous 8 games. */
 export function teamPoissonBaseline(games, team, kickoff, actual) {
@@ -149,7 +169,7 @@ export function leagueBaseline(games, season, kickoff, actual, kind) {
     }
   }
   if (xs.length < 2) return null;
-  return kind === "count" ? poisson(mean(xs)) : normal(mean(xs), sd(xs));
+  return kind === "count" ? poisson(mean(xs)) : continuousForm(actual)(mean(xs), sd(xs));
 }
 
 /** Every score for one distribution and one outcome. `kind`: "yds" | "continuous" | "count". */

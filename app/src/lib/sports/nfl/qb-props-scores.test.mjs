@@ -9,7 +9,7 @@ import path from "node:path";
 import {
   COUNT_CALIBRATION_LINES, COUNT_TOP, ECE_BINS, OWN_GAMES, PASS_YDS_LINES, PROB_FLOOR, TEAM_GAMES,
   countLogLoss, crps, ece, empirical, fromCountPmf, interval80, intervalScore, leagueBaseline, lineLogLoss, normal,
-  ownPriorGames, ownTrailingBaseline, pOver, poisson, quantile, scoreRow, teamPoissonBaseline,
+  ownPriorGames, ownTrailingBaseline, pOver, poisson, quantile, scoreRow, teamPoissonBaseline, truncatedNormal,
 } from "./qb-props-scores.mjs";
 
 const close = (a, b, eps = 1e-9, msg) => assert.ok(Math.abs(a - b) <= eps, `${msg ?? ""} ${a} vs ${b}`);
@@ -101,4 +101,56 @@ test("league baseline: same season only, before kickoff; counts are team totals,
 test("pure module: no clock, no fs, no network", () => {
   const src = fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/qb-props-scores.mjs"), "utf8").replace(/\/\*[\s\S]*?\*\/|\/\/.*$/gm, "");
   assert.doesNotMatch(src, /Date\.now\(|new Date\(|from "node:|fetch\(/);
+});
+
+/* v1.3 (founder condition c): impossible negative counts */
+const stdPhi = (z) => { let s = 0, t = z; for (let k = 0; k < 120; k++) { s += t; t *= (-z * z) / 2 * (2 * k + 1) / ((k + 1) * (2 * k + 3)); } return 0.5 + s / Math.sqrt(2 * Math.PI); };
+
+test("cmp/att baseline: the normal truncated at 0 — pmf sums to 1, zero mass below 0, the founder's formula", () => {
+  for (const [mu, sigma] of [[2, 3], [0.5, 4], [22, 5], [35, 8]]) {
+    const d = truncatedNormal(mu, sigma);
+    assert.equal(d.lo, 0);
+    for (const k of [-1, -2, -10]) { assert.equal(d.pmf(k), 0); assert.equal(d.cdf(k), 0); }
+    let s = 0; for (let k = 0; k <= d.hi + 50; k++) s += d.pmf(k);
+    close(s, 1, 1e-9, `mass on k ≥ 0 for N(${mu}, ${sigma})`);
+    const den = 1 - stdPhi((-0.5 - mu) / sigma);
+    for (const k of [0, 1, Math.round(mu)]) close(d.pmf(k), (stdPhi((k + 0.5 - mu) / sigma) - stdPhi((k - 0.5 - mu) / sigma)) / den, 1e-6, `P(X=${k})`);
+  }
+  assert.equal(truncatedNormal(5, 0), null, "zero spread ⇒ no baseline");
+  // the untruncated normal keeps its mass below 0 — the reason cmp/att no longer use it
+  assert.ok(normal(2, 3).cdf(-1) > 0.15);
+});
+
+test("baseline forms: cmp/att (own-8 and league) are truncated at 0; passing yards stay untruncated", () => {
+  const low = [0, 1, 2, 3, 1, 0, 2, 4];
+  const gs = low.map((c, i) => game(`t${i}`, 2026, `2026-09-${String(1 + i).padStart(2, "0")}T17:00Z`, [{ playerId: "T", teamAbbr: "TTT", passAtt: c + 1, passCmp: c, passYds: c * 3 - 4, passTd: 0, passInt: 0 }]));
+  const k = "2026-10-01T17:00Z";
+  for (const a of ["passCmp", "passAtt"]) {
+    assert.equal(ownTrailingBaseline(gs, "T", k, a).kind, "truncatedNormal", a);
+    assert.equal(leagueBaseline(gs, 2026, k, a, "continuous").kind, "truncatedNormal", `league ${a}`);
+  }
+  assert.equal(ownTrailingBaseline(gs, "T", k, "passYds").kind, "normal");
+  assert.equal(leagueBaseline(gs, 2026, k, "passYds", "continuous").kind, "normal");
+  assert.ok(ownTrailingBaseline(gs, "T", k, "passYds").cdf(-1) > 0, "negative passing yards keep their mass");
+});
+
+test("CRPS regression: summed over the support plus the actual only; no penalty from impossible negatives", () => {
+  // brute force over a wide grid equals the support-only sum for a distribution with no mass below 0
+  const d = truncatedNormal(2, 3);
+  const brute = (dist, y) => { let s = 0; for (let k = -200; k <= 400; k++) s += ((k < dist.lo ? 0 : dist.cdf(k)) - (y <= k ? 1 : 0)) ** 2; return s; };
+  for (const y of [0, 1, 3, 9]) close(crps(d, y), brute(d, y), 1e-9, `y=${y}`);
+  // pinned regression value: N(2, 3) truncated at 0, actual 0 (independent sum over k ≥ 0 with the series Φ)
+  const den = 1 - stdPhi(-2.5 / 3);
+  // k ≤ 14 (z ≤ 4.2): the series Φ is exact there and the tail terms are below 1e-9
+  let pin = 0; for (let k = 0; k <= 14; k++) pin += ((stdPhi((k + 0.5 - 2) / 3) - stdPhi(-2.5 / 3)) / den - 1) ** 2;
+  close(crps(d, 0), pin, 1e-6, "truncated CRPS at y = 0");
+  // the old scoring (untruncated normal, grid from min(0, lo) − 1) put score on impossible k < 0: Σ_{k<0} F(k)² > 0
+  const n = normal(2, 3);
+  let negTerms = 0; for (let k = n.lo - 1; k < 0; k++) negTerms += n.cdf(k) ** 2;
+  assert.ok(negTerms > 0.05, `old impossible-outcome terms ${negTerms}`);
+  let newNeg = 0; for (let k = d.lo - 50; k < 0; k++) newNeg += d.cdf(k) ** 2;
+  assert.equal(newNeg, 0, "the truncated baseline has no term below 0");
+  // a point mass far from 0 is scored only from its support to the actual (no terms from 0 upward)
+  assert.equal(crps(empirical({ 300: 1 }), 297), 3);
+  assert.equal(crps(empirical({ 20: 1 }), 23), 3);
 });

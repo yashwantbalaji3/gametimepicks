@@ -9,7 +9,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { buildLedger, familyOutcome, gradeQbProps as gradeApproved, projectedQbs, receiptsOfRecord, forwardCounts, gradingApproved, APPROVED_PREREG_SHA256, SEEN_EXPLORATORY_WEEKS } from "./qb-props-grade.mjs";
+import { assertDistinctQbGames, buildLedger, familyOutcome, gradeQbProps as gradeApproved, projectedQbs, receiptsOfRecord, forwardCounts, gradingApproved, APPROVED_PREREG_SHA256, SEEN_EXPLORATORY_WEEKS } from "./qb-props-grade.mjs";
 
 /* SYNTHETIC fixtures only: the grader runs here under a test-only approval, never on real outcomes */
 const TEST_APPROVAL = { preregSha256: "synthetic-test", approvals: ["synthetic-test"] };
@@ -153,4 +153,14 @@ test("counts only: forward rows per family from receipts alone — never a final
   // the script's default mode imports no final and no grading function
   const src = fs.readFileSync(path.join(process.cwd(), "scripts/nfl/grade-qb-props.mjs"), "utf8");
   assert.doesNotMatch(src, /official-stats|player-events-v1|gradeQbProps|buildLedger/);
+});
+
+test("n counts DISTINCT QB-game outcomes: a repeated (eventId, team, playerId) refuses the grade and the ledger", () => {
+  const g = gradeQbProps({ entries: entries4, games: allGames, verified: verified4 });
+  assert.equal(assertDistinctQbGames(g.rows), g.rows.length, "every graded row is a distinct outcome");
+  const dup = { ...g, rows: [...g.rows, { ...g.rows[0] }] };
+  assert.throws(() => assertDistinctQbGames(dup.rows), /REFUSED: duplicate QB-game outcome 1\|AAA\|/);
+  assert.throws(() => buildLedger({ graded: dup, inputs: {} }), /REFUSED: duplicate QB-game outcome/);
+  // the same QB for the other team in the same game is a different key, not a duplicate
+  assert.doesNotThrow(() => assertDistinctQbGames([{ ...g.rows[0] }, { ...g.rows[0], team: "ZZZ" }]));
 });
