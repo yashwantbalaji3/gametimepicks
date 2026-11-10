@@ -40,9 +40,10 @@ test("rail: a folded group names its first destinations, and the preview hides o
   assert.match(RAIL, /className="gtp-rail-group group /, "the <details> is the Tailwind group the preview keys off");
   assert.match(RAIL, /gtp-rail-group-preview[^"]*group-open:hidden/);
   assert.match(RAIL, /\{previewOf\(g\.items\)\}/);
-  /* 2026-11-09: the rail is the five primaries + Saved (Main) and the sport hubs; the learn/record pages moved to the
-     footer sitemap, so the folding machinery above has no group to fold today but stays for the next one. */
-  assert.deepEqual([...new Set(destinationsFor("rail").map((d) => d.group))], ["now", "sports"]);
+  /* 2026-11-10: the rail is the five primaries + Saved (Main), the sport hubs, and ONE folded group, Learn & record */
+  assert.deepEqual([...new Set(destinationsFor("rail").map((d) => d.group))], ["now", "sports", "record"]);
+  const record = destinationsFor("rail").filter((d) => d.group === "record").map((d) => d.label);
+  assert.equal(record[0], "How It Works", "the Learn group's preview leads with How It Works");
 });
 
 test("search: the dialog is portaled to <body>, never rendered inside the rail or the header", () => {

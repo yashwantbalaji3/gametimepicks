@@ -292,18 +292,20 @@ export const NAV_DESTINATIONS: readonly NavDestination[] = [
    */
   { href: "/results/picks", label: "Picks vs Outcomes", group: "record", glyph: "◎",
     desc: "What each model predicted, and what happened", surfaces: ["footer"] },
+  /* 2026-11-10 (#1304 a11y): the desktop rail keeps ONE folded group — Learn & record — so the explainers stay one click
+     from any page on desktop (and in the phone Menu sheet, rail-minus-bar). The five primaries are unchanged. */
   { href: "/learn", label: "How It Works", group: "record", glyph: "✦", desc: "Start here",
-    surfaces: ["footer"] },
+    surfaces: ["rail", "footer"] },
   { href: "/methodology", label: "Methodology", group: "record", glyph: "◳", desc: "The model in depth",
-    surfaces: ["footer"] },
+    surfaces: ["rail", "footer"] },
   { href: "/system-status", label: "System Status", group: "record", glyph: "◉", desc: "What is running",
-    surfaces: ["footer"] },
+    surfaces: ["rail", "footer"] },
   /* P312: every model's standing — validated, forward-testing, holding, watching, paused, research-only — from the
      receipts that hold it, in reader words. The public face of the research discipline. */
   { href: "/models", label: "Model Lab", group: "record", glyph: "⚗", desc: "Live, tested, or paused",
-    surfaces: ["footer"] },
+    surfaces: ["rail", "footer"] },
   { href: "/about", label: "About", group: "record", glyph: "ⓘ", desc: "About the site",
-    surfaces: ["footer"] },
+    surfaces: ["rail", "footer"] },
 
   // ── FOOTER-ONLY ────────────────────────────────────────────────────────────────────────────────
   /*

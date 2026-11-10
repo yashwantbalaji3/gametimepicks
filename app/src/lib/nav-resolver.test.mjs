@@ -25,8 +25,8 @@ test("🔴 every surface asks the shared resolver — no local matcher left", ()
 });
 
 test("🔴 one answer per page, each surface lighting the closest destination it carries", () => {
-  /* 2026-11-09 five-slot nav (Today · Sports · Products · Results · Ask): the rail carries the five, Saved and the sport
-     hubs; game surfaces light Today, product pages light Products, and the learn pages (footer only) light nothing. */
+  /* 2026-11-09 five-slot nav (Today · Sports · Products · Results · Ask): the rail carries the five, Saved, the sport
+     hubs and (2026-11-10) the folded Learn & record group; game surfaces light Today, product pages light Products. */
   const cases = [
     // path, rail, top/bar (the five primaries)
     ["/", "/", "/"],
@@ -39,14 +39,14 @@ test("🔴 one answer per page, each surface lighting the closest destination it
     ["/mlb/parlays", "/products", "/products"],
     ["/parlays", "/products", "/products"],
     ["/results/nba", "/results", "/results"],
-    ["/results/model-audit", "/results", "/results"],
-    ["/methodology", null, null],
-    ["/responsible-use", null, null],
+    ["/results/model-audit", "/learn", "/results"],
+    ["/methodology", "/methodology", null],
+    ["/responsible-use", "/learn", null],
     ["/today", "/", "/"],
     ["/live/nfl", "/", "/"],
     ["/bank-builder/ledger", "/products", "/products"],
     ["/ask", "/ask", "/ask"],
-    ["/about", null, null],
+    ["/about", "/about", null],
     ["/world-cup/groups", "/sports", "/sports"],
     ["/trends", null, null],
   ];
