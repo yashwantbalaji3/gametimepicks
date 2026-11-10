@@ -22,7 +22,7 @@
  * Usage: node scripts/nfl/build-nfl-role-evidence.mjs --now <iso> [--lookahead-hours 30]
  * Writes: data/internal/nfl/role-evidence/<date>.json (PRIVATE) + a public summary in the index
  */
-import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
+import { isBlockingStatus, isLongTermStatus } from "../../src/lib/sports/injuries/contract.mjs";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -114,8 +114,10 @@ for (const ev of events) {
        */
       const statedMs = Date.parse(inj?.statedAt ?? "");
       const kickoffMs = Date.parse(ev.dateUtc);
-      const designationRecent = Number.isFinite(statedMs) && Number.isFinite(kickoffMs)
-        && kickoffMs - statedMs <= DESIGNATION_CARRY_H * 3.6e6 && statedMs <= kickoffMs;
+      // R1 (eligibility contract v1, 2026-11-09): a LONG-TERM designation (IR, Suspension) holds until an explicit
+      // activation, however old; the two-week window applies to game-week designations only.
+      const designationRecent = isLongTermStatus(status) || (Number.isFinite(statedMs) && Number.isFinite(kickoffMs)
+        && kickoffMs - statedMs <= DESIGNATION_CARRY_H * 3.6e6 && statedMs <= kickoffMs);
       const feedDegraded = rosterFresh.state !== "FRESH" || injuryFresh.state !== "FRESH";
       if (feedDegraded && isBlockingStatus(status) && designationRecent) {
         state = "OUT";

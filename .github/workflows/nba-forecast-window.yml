@@ -163,6 +163,7 @@ jobs:
             node scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD || exit 1
             # The exact injury snapshot the receipts hash, so the hash can be checked against history.
             git add ../data/internal/research/injuries/nba/latest.json
+            if [ -f ../data/internal/research/transactions/nba/latest.json ]; then git add ../data/internal/research/transactions/nba/latest.json; fi
             # The roster the receipts hash, when this run re-captured it (normalised files only; raw/ is never committed).
             if [ "$ROSTER_CAPTURED" = "1" ]; then
               git add ../data/internal/research/nba/rosters/latest.json "../data/internal/research/nba/rosters/${NOW:0:10}.json"

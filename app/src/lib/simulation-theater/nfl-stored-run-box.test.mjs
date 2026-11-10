@@ -43,7 +43,7 @@ const committed = simulationOfRecord(SHADOW, EVENT).receipt;
 /** The shadow build's recipe on the committed inputs, with a small batch (the producer's own functions). */
 function produce({ runs = 800, generatedAt = "2026-10-25T12:00:00Z" } = {}) {
   const r = committed;
-  const ti = P.nflSimTeamInputs(REPO, EVENT, r.home.abbr, r.away.abbr);
+  const ti = P.nflSimTeamInputs(REPO, EVENT, r.home.abbr, r.away.abbr, r.generatedAt);
   assert.ok(ti, "committed role shares / injuries / rosters");
   const prep = ti.inputs.map(E.prepareTeamPlayers);
   const compiled = P.compiledFor(REPO, r);

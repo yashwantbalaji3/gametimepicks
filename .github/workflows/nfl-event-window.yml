@@ -606,6 +606,8 @@ jobs:
           # Session 4: the 2026 player-event partition and the role-share pool folded from it are committed
           # with the boards built from them (role-shares-v1/ was missing, so the committed pool stayed stale).
           git add data/internal/research/odds/nfl/ data/internal/research/nfl/reports/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json data/internal/research/injuries/nfl/ data/internal/research/nfl/replay/ data/internal/research/nfl/player-events-v1/2026.json data/internal/research/nfl/role-shares-v1/
+          # transaction facts (eligibility contract, founder decision 4): own add — a missing path must never empty the add above
+          if [ -d data/internal/research/transactions ]; then git add data/internal/research/transactions/; fi
           if git diff --cached --quiet; then
             echo "nothing changed — no commit"
             exit 0

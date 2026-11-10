@@ -22,7 +22,9 @@ const availabilityFor = (kickoffUtc) => {
   return Number.isFinite(k) ? { injuriesCapturedAt: new Date(k - 6 * 3600e3).toISOString(), injuries: "FRESH", rosters: "FRESH" } : undefined;
 };
 const board = (eventId, kickoffUtc, players, families = { player_rush_yds: fam("PUBLISHED"), player_pass_yds: fam("ESTIMATE"), anytime_td: fam("PUBLISHED") }) =>
-  ({ providerEventId: eventId, matchup: "AAA @ BBB", kickoffUtc, generatedAt: "2031-10-01T10:00:00Z", availability: availabilityFor(kickoffUtc), families, players });
+  ({ providerEventId: eventId, matchup: "AAA @ BBB", kickoffUtc, generatedAt: "2031-10-01T10:00:00Z", availability: availabilityFor(kickoffUtc), families,
+    // a contract-era board (eligibility contract v1): the builder stamps every published row
+    players: players.map((p) => ({ eligibility: { state: "ELIGIBLE", reasons: ["ROSTER_ACTIVE"], contractVersion: "eligibility@1", sources: {} }, ...p })) });
 const noPrices = { slotFor: () => ({ pricingState: "NOT_PROBED" }) };
 
 test("🔴 ranking: out players never rank, a missing metric is never zero-filled, ties break on the model's mean then id", () => {

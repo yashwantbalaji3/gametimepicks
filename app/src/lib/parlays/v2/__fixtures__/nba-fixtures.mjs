@@ -132,7 +132,10 @@ export function nbaSlate({ registry = PERMISSIVE_REGISTRY, snapshotFor = permiss
       results.push(nbaLegFromEvaluation({ evaluation: e, snapshot: s, verification: verify(e, p), registry }));
     }
   }
-  return { snapshots, evaluations, results };
+  /* PL-02 (eligibility contract v1): the caller states each athlete's contract state; a snapshot's "active" (not on the
+     injury feed) is never a status. Fixture players are ELIGIBLE unless `opts.participation` marks them otherwise. */
+  const statusFeed = Object.fromEntries(games.flatMap((g) => g.players.map((p) => [p.id, opts.participation?.[p.id] && opts.participation[p.id] !== "active" ? "INELIGIBLE" : "ELIGIBLE"])));
+  return { snapshots, evaluations, results, statusFeed };
 }
 
 /** TEST FIXTURE UFC bouts (fight-winner, lineless) for NBA + UFC cards. */

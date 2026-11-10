@@ -27,9 +27,11 @@ export function leg(over = {}) {
   seq += 1;
   return {
     sport: "mlb", eventId: `ev${seq}`, eventLabel: `Away ${seq} @ Home ${seq}`, startUtc: iso(3 * HOUR),
-    market: "pitcher_outs", marketLabel: "Outs recorded", selection: `Pitcher ${seq} — Outs recorded Over`, side: "Over", line: 15.5,
-    participant: `Pitcher ${seq}`, team: `T${seq}`, book: "DraftKings", price: -110, capturedAt: iso(-5 * MIN),
-    participantStatus: null, forecastClass: "MARKET_IMPLIED_NO_FORECAST", receipts: ["fixture.json"],
+    /* a GAME market: founder decision 2 (2026-11-09) keeps MLB player props (no verified availability) out of every
+       suggested card, so the fixture's passing leg is the game's total runs, which has no player to verify */
+    market: "totals", marketLabel: "Total runs", selection: `Away ${seq} @ Home ${seq} — Total runs Over`, side: "Over", line: 8.5,
+    participant: null, team: `T${seq}`, book: "DraftKings", price: -110, capturedAt: iso(-5 * MIN),
+    participantStatus: "Active", forecastClass: "MARKET_IMPLIED_NO_FORECAST", receipts: ["fixture.json"],
     ...over,
   };
 }
