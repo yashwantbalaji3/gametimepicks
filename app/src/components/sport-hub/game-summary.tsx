@@ -1,6 +1,7 @@
 import type React from "react";
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
+import GameCard, { type GameCardModel } from "@/components/game/game-card";
 import { orderRows, isInProgress, hubStatusDisplay, hubCounts, drawableSplit, type HubGameRow, type HubParticipant, type HubRead } from "@/lib/sport-hub/contract";
 
 /**
@@ -28,46 +29,6 @@ const READ_TONE: Record<HubRead["kind"], { label: string; cls: string }> = {
   BASELINE_ONLY: { label: "baseline only", cls: "gtp-c-mute" },
 };
 
-function Action({ row }: { row: HubGameRow }) {
-  if (row.reportState === "NONE" || !row.reportHref) {
-    return <span className="text-[12px] gtp-c-mute">{row.reportNote ?? "No report"}</span>;
-  }
-  return (
-    <Link href={row.reportHref} className="vault-press gtp-ev-cta inline-flex items-center gap-1 rounded-full px-4 text-[13px] font-semibold no-underline">
-      {row.reportState === "ARCHIVE" ? "View archived report" : "Open report"} <span aria-hidden>→</span>
-      <span className="sr-only"> for {row.matchup}</span>
-    </Link>
-  );
-}
-
-/*
- * S1 (2026-09-30): THE MATCHUP IS THE CARD. The first version stacked both sides as 24px crests beside
- * abbreviations with the separator on a line of its own, so sixteen NFL games read as a list of
- * three-letter codes. Each side is now a column — a real crest (or initials), the name allowed to wrap
- * rather than truncate — facing the other across the separator, and the side the MODEL favours is the
- * brighter one. A market price never marks a favourite (HubRead.favored is model-only by contract).
- */
-function Side({ p, favored, dim }: { p: HubParticipant; favored: boolean; dim: boolean }) {
-  return (
-    <div className="flex min-w-0 flex-col items-center gap-2 text-center">
-      {p.logoTeam && p.logoSport
-        ? <TeamLogo team={p.logoTeam} sport={p.logoSport} size="lg" highlight={favored} ariaLabel="" />
-        : (
-          <span aria-hidden className="inline-flex items-center justify-center rounded-full shrink-0 text-[15px] font-semibold"
-            style={{ width: 52, height: 52, background: "var(--vault-wash-soft)", border: `1px solid ${favored ? "var(--vault-accent)" : "var(--vault-border)"}`, color: "var(--vault-text)" }}>
-            {initials(p.name)}
-          </span>
-        )}
-      <span className={`line-clamp-2 break-words text-[15px] font-semibold leading-tight ${dim ? "gtp-c-mute" : "gtp-c-text"}`}>
-        {p.name}
-      </span>
-      {favored ? <span className="sr-only">(model favourite)</span> : null}
-    </div>
-  );
-}
-
-const initials = (name: string) => name.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("");
-
 const pct = (p: number) => `${Math.round(p * 100)}%`;
 
 /** The owner's own outcome probabilities as one bar. Rendered only from drawableSplit — never a derived complement. */
@@ -93,70 +54,40 @@ function SplitBar({ split, favored, sides }: { split: Array<{ label: string; p: 
   );
 }
 
-function EventCard({ row: r, unitLabel, extra = null }: { row: HubGameRow; unitLabel: string; extra?: React.ReactNode }) {
-  const hasSides = Array.isArray(r.participants) && r.participants.length === 2;
+/**
+ * THE SHARED GAME CARD (2026-11-09): a hub row becomes ONE GameCardModel — the same model Home and Today render — and the
+ * hub draws it as a card (.gtp-ev) or, on a schedule-only hub, a one-line row (.gtp-cr). A model read is the headline and
+ * is tagged MODEL PROJECTION; a market price is shown muted and labelled as the market's (never tagged as ours).
+ */
+export function hubRowModel(r: HubGameRow, unitLabel: string): GameCardModel {
   const tone = r.read ? READ_TONE[r.read.kind] : null;
   const isModel = r.read?.kind === "MODEL_FORECAST" || r.read?.kind === "MODEL_PICK";
   const favored = isModel ? r.read?.favored : undefined;
   const favoredIsSide = Boolean(favored && r.participants?.some((p) => p.name === favored));
   const split = isModel ? drawableSplit(r.read) : null;
-  return (
-    <li className="gtp-ev rounded-2xl p-4 sm:p-5 flex flex-col gap-4">
-      <div className="flex items-center justify-between gap-2">
-        <span className="text-[12.5px] font-medium gtp-c-mute">{r.startLabel}</span>
-        <span className="gtp-ev-status rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em]">{hubStatusDisplay(r.status)}</span>
-      </div>
-      {hasSides ? (
-        <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2" aria-label={r.matchup}>
-          <Side p={r.participants![0]} favored={favoredIsSide && r.participants![0].name === favored} dim={favoredIsSide && r.participants![0].name !== favored} />
-          <span className="pt-5 text-[12px] font-medium gtp-c-mute">{r.separator ?? "vs"}</span>
-          <Side p={r.participants![1]} favored={favoredIsSide && r.participants![1].name === favored} dim={favoredIsSide && r.participants![1].name !== favored} />
-        </div>
-      ) : (
-        <div className="text-[16px] font-semibold gtp-c-text">{r.matchup}</div>
-      )}
-      <div className="gtp-ev-read rounded-xl px-3.5 py-3">
-        {r.read ? (
-          <>
-            {/* A model read is the card's headline; a market price is shown, muted, and labelled as the market's. */}
-            <div className={`${isModel ? "text-[18px] font-bold leading-snug" : "text-[14px]"} ${tone!.cls}`}>{r.read.label}</div>
-            <div className="mt-0.5 text-[12px] gtp-c-mute">{tone!.label}{r.read.detail ? ` · ${r.read.detail}` : ""}</div>
-            {split ? <div className="mt-3"><SplitBar split={split} favored={favored} sides={(r.participants ?? []).map((p) => p.name)} /></div> : null}
-          </>
-        ) : (
-          <div className="text-[13px] gtp-c-mute">No supported read for this {unitLabel.toLowerCase().replace(/s$/, "")}</div>
-        )}
-      </div>
-      <div className="mt-auto flex flex-wrap items-center gap-2"><Action row={r} />{extra}</div>
-    </li>
-  );
+  const hasSides = Array.isArray(r.participants) && r.participants.length === 2;
+  const live = r.reportState !== "NONE" && r.reportHref;
+  return {
+    id: String(r.id), startLabel: r.startLabel, statusLabel: hubStatusDisplay(r.status), matchup: r.matchup, separator: r.separator ?? "vs",
+    sides: hasSides ? r.participants!.map((p) => ({ name: p.name, logo: p.logoTeam && p.logoSport ? { team: p.logoTeam, sport: p.logoSport } : null, favoured: favoredIsSide && p.name === favored, dim: favoredIsSide && p.name !== favored })) : null,
+    facts: r.read ? [{ state: isModel ? "official" : null, text: r.read.label, sub: `${tone!.label}${r.read.detail ? ` · ${r.read.detail}` : ""}`, headline: isModel }] : [],
+    visual: split ? <SplitBar split={split} favored={favored} sides={(r.participants ?? []).map((p) => p.name)} /> : null,
+    actions: live ? [{ href: r.reportHref!, label: r.reportState === "ARCHIVE" ? "View archived report" : "Open report", primary: true, srLabel: `for ${r.matchup}` }] : [],
+    noRead: `No supported read for this ${unitLabel.toLowerCase().replace(/s$/, "")}`,
+    noAction: r.reportNote ?? "No report",
+  };
+}
+
+function EventCard({ row: r, unitLabel, extra = null }: { row: HubGameRow; unitLabel: string; extra?: React.ReactNode }) {
+  return <GameCard model={hubRowModel(r, unitLabel)} extra={extra} />;
 }
 
 /*
- * SESSION 11 — THE COMPACT ROW, FOR A SCHEDULE-ONLY HUB. The NBA hub lists every game in a ten-day window and
- * publishes no read, so each ~4KB card (two crests, an empty read box, a note) repeated "No supported read" on
- * every game and put /nba over its 200KB evidence budget at 32 games (≈100 once the regular season starts).
- * The same facts — when, who, lifecycle, the final or why there is no report — in one line per game. Every
- * game is still listed; a read, if one ever exists, is still printed with its kind.
+ * SESSION 11 — THE COMPACT ROW, FOR A SCHEDULE-ONLY HUB: the same facts in one line per game (now the shared card's
+ * row density, .gtp-cr — one class per element, the weight rule that row was built for).
  */
 function CompactRow({ row: r }: { row: HubGameRow }) {
-  const tone = r.read ? READ_TONE[r.read.kind] : null;
-  return (
-    /* WEIGHT (2026-10-23): one class per element, the declarations byte-for-byte in globals.css (.gtp-cr*) — this row
-       repeats once per game in the window (~70 on an in-season /nba, HTML + flight) and cost ~1 KB each inlined. */
-    <li className="gtp-cr">
-      <span className="gtp-cr-t">{r.startLabel}</span>
-      {/* GTP-15: each side's crest, small and decorative (alt="" — the matchup text names both teams). */}
-      <span className="gtp-cr-m">
-        {(r.participants ?? []).slice(0, 1).map((p) => p.logoTeam && p.logoSport ? <TeamLogo key={p.name} team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel="" /> : null)}
-        {r.matchup}
-        {(r.participants ?? []).slice(1, 2).map((p) => p.logoTeam && p.logoSport ? <TeamLogo key={p.name} team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel="" /> : null)}
-      </span>
-      <span className="gtp-cr-s">{hubStatusDisplay(r.status)}</span>
-      {r.read ? <span className={tone!.cls}>{r.read.label} <span className="gtp-c-mute">· {tone!.label}</span></span> : null}
-      <span className="gtp-cr-a"><Action row={r} /></span>
-    </li>
-  );
+  return <GameCard model={hubRowModel(r, "games")} density="row" />;
 }
 
 export default function GameSummary({

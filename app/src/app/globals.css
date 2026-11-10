@@ -6165,6 +6165,14 @@ textarea:focus-visible { outline: none; box-shadow: var(--vault-focus-ring); bor
 .gtp-state-tag.is-live::before { content: ""; width: 7px; height: 7px; border-radius: 999px; background: var(--vault-danger); }
 .gtp-state-tag.is-final { color: var(--vault-text); border-color: var(--vault-text-mute); }
 
+/* Shared game card · row density (components/game/game-card.tsx): the matchup is the row's link; secondary links and the
+   tagged fact sit on the same flex-wrap line as .gtp-cr. */
+.gtp-gc-m { color: var(--vault-text); text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+.gtp-gc-m:hover { text-decoration: underline; }
+.gtp-gc-link { color: var(--vault-text-mute); min-height: 44px; display: inline-flex; align-items: center; }
+.gtp-gc-link.is-result { color: var(--vault-success); }
+.gtp-gc-fact { flex-basis: 100%; font-size: 13px; color: var(--vault-text); }
+
 /* /players and /teams directory cards (2026-11-09): one class instead of the same inline style object on every card,
    which the export carried twice per card (HTML + flight) and pushed /players over its weight ceiling. Same values as
    research-primitives PANEL + the card's own display/link/min-height. */
