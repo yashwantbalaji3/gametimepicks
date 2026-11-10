@@ -36,9 +36,10 @@ export function foldR5Log(prev, forecasts, eventStartById) {
   return { schema: R5_LOG_SCHEMA, rule: "latest official forecast generated before kickoff; teamInputs.state; r5Allows decides", events: Object.fromEntries(Object.entries(events).sort(([a], [b]) => a.localeCompare(b))) };
 }
 /** The current official forecasts from the public files (what the site serves this week). */
-export function currentOfficialForecasts(root, { resolve = nflPublicRecordResolver(root) } = {}) {
+export function currentOfficialForecasts(root) {
   const dir = path.join(root, FORECASTS_DIR);
-  return unionFrozenForecasts(readJson(path.join(dir, "latest.json")), readJson(path.join(dir, "frozen-latest.json")), { resolve })?.forecasts ?? [];
+  // the record resolver, so an excluded public copy is folded as its record (record-eligibility.test.mjs pins this)
+  return unionFrozenForecasts(readJson(path.join(dir, "latest.json")), readJson(path.join(dir, "frozen-latest.json")), { resolve: nflPublicRecordResolver(root) })?.forecasts ?? [];
 }
 /** R5 per game from the log; no entry ⇒ not allowed. */
 export const r5FromLog = (log) => ({ eventId }) => { const e = log?.events?.[String(eventId)]; return e ? r5Allows({ state: e.teamInputsState }) : false; };

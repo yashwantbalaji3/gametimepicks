@@ -70,10 +70,9 @@ async function SimulationReplay({ rec }: { rec: NonNullable<ReturnType<typeof si
 async function QbProps({ rec, eventId }: { rec: NonNullable<ReturnType<typeof simulationOfRecord>>; eventId: string }) {
   if (process.env.GTP_NFL_QB_PROPS_PUBLIC === "1") {
     const { default: QbPropsLine } = await import("@/components/nfl/qb-props-line");
-    // HISTORY only: the QBs' actual earlier games (player-events-v1); never an input to the simulated chances
-    const dir = path.join(REPO_ROOT, "data/internal/research/nfl/player-events-v1");
-    const games = fs.existsSync(dir) ? fs.readdirSync(dir).filter((f) => /^\d{4}\.json$/.test(f)).sort().flatMap((f) => JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).games ?? []) : [];
-    return <QbPropsLine receipt={rec.receipt} teamInputs={officialFor(eventId)?.teamInputs ?? null} games={games} />;
+    // HISTORY only (the QBs' actual earlier games, a compact precomputed file); never an input to the simulated chances
+    const { readQbHistoryFor } = await import("@/lib/sports/nfl/qb-props-history-file.mjs");
+    return <QbPropsLine receipt={rec.receipt} teamInputs={officialFor(eventId)?.teamInputs ?? null} history={readQbHistoryFor(REPO_ROOT, eventId)} />;
   }
   return null;
 }

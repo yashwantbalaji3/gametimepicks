@@ -91,3 +91,17 @@ test("the script: --grade refuses with exit 2 under the frozen constants; counts
   assert.doesNotMatch(src, /^import [^\n]*qb-props-inputs/m, "grade-mode inputs are imported only inside the --grade branch");
   assert.match(src, /if \(process\.argv\.includes\("--grade"\)\) \{[\s\S]*?await import\("\.\.\/\.\.\/src\/lib\/sports\/nfl\/qb-props-inputs\.mjs"\)/);
 });
+
+test("history file: per receipt of record, each projected QB's previous games before that kickoff only; the page reads one event", async () => {
+  const { buildQbHistoryFile, readQbHistoryFor, HISTORY_REL } = await import("./qb-props-history-file.mjs");
+  const root = synthRoot();
+  const inp = loadGradeInputs(root);
+  const doc = buildQbHistoryFile(inp.entries, inp.games);
+  assert.deepEqual(Object.keys(doc.events), ["11", "12"]);
+  assert.deepEqual(doc.events["11"]["nfl-athlete-1"], [], "nothing precedes game 11; the game itself is never history");
+  assert.deepEqual(doc.events["12"]["nfl-athlete-1"].map((h) => [h.week, h.passYds, h.opponent]), [[11, 240, "BBB"]]);
+  put(root, HISTORY_REL, doc);
+  assert.deepEqual(readQbHistoryFor(root, "12"), doc.events["12"]);
+  assert.deepEqual(readQbHistoryFor(root, "999"), {});
+  assert.deepEqual(readQbHistoryFor("/nonexistent", "12"), {}, "unreadable ⇒ no history, never an error");
+});

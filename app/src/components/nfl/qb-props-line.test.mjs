@@ -31,9 +31,11 @@ test("R5: a QB-blind forecast, an UNKNOWN one, or no team-input record shows not
   assert.equal(qbLineAllowed({ state: "NO_STARTING_QB_ABSENCE" }), true);
 });
 
-test("the section: projected QB per team, five markets from one simulation, exact chances, history labelled, never a price", () => {
+test("the section: projected QB per team, five markets from one simulation, exact chances, history labelled, never a price", async () => {
   assert.deepEqual(projectedQbRows(receipt).map((p) => p.playerId), ["nfl-athlete-3", "nfl-athlete-1"]);
-  const html = renderToStaticMarkup(React.createElement(QbPropsLine, { receipt, teamInputs: { state: "NO_STARTING_QB_ABSENCE" }, games }));
+  const { qbHistory } = await import("../../lib/sports/nfl/qb-props-markets.mjs");
+  const history = { "nfl-athlete-1": qbHistory(games, "nfl-athlete-1", receipt.eventStart) };
+  const html = renderToStaticMarkup(React.createElement(QbPropsLine, { receipt, teamInputs: { state: "NO_STARTING_QB_ABSENCE" }, history }));
   const text = html.replace(/<[^>]+>/g, " ");
   assert.ok(html.includes(QB_PROPS_LABEL) && QB_PROPS_LABEL === "EXPERIMENTAL · MODEL PROJECTION");
   for (const m of ["Passing TDs", "Passing yards", "Completions", "Attempts", "Interceptions"]) assert.ok(text.includes(m), m);

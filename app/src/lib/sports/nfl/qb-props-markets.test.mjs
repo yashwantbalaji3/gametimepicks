@@ -21,7 +21,7 @@ test("no official-pick code reads the QB props modules (only the research sectio
   const hits = [];
   const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (/\.(mjs|ts|tsx)$/.test(e.name) && !/\.test\./.test(e.name) && /qb-props-(markets|grade|scores)/.test(fs.readFileSync(p, "utf8"))) hits.push(path.relative(process.cwd(), p)); } };
   walk(path.join(process.cwd(), "src"));
-  assert.deepEqual(hits.sort(), ["src/components/nfl/qb-props-line.tsx", "src/lib/sports/nfl/qb-props-grade.mjs", "src/lib/sports/nfl/qb-props-inputs.mjs", "src/lib/sports/nfl/qb-props-r5-log.mjs", "src/lib/sports/nfl/qb-props-scores.mjs"]);
+  assert.deepEqual(hits.sort(), ["src/components/nfl/qb-props-line.tsx", "src/lib/sports/nfl/qb-props-grade.mjs", "src/lib/sports/nfl/qb-props-history-file.mjs", "src/lib/sports/nfl/qb-props-inputs.mjs", "src/lib/sports/nfl/qb-props-r5-log.mjs", "src/lib/sports/nfl/qb-props-scores.mjs"]);
 });
 
 test("five markets from one receipt row: exact run counts give the range and exact chances; without them no chance is invented", () => {

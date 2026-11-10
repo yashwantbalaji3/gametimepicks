@@ -13,7 +13,7 @@
  * publishable.
  */
 import React from "react";
-import { qbHistory, qbMarketViews, r5Allows } from "@/lib/sports/nfl/qb-props-markets.mjs";
+import { qbMarketViews, r5Allows } from "@/lib/sports/nfl/qb-props-markets.mjs";
 
 type Quant = { p10: number; p50: number; p90: number };
 type PlayerRow = { playerId: string; name?: string | null; team: string; stats?: Record<string, Quant>; countPmf?: Record<string, number[]>; exactCounts?: Record<string, Record<string, number>> };
@@ -46,7 +46,10 @@ export function projectedQbRows(r: QbReceipt): PlayerRow[] {
 const pct = (x: number) => `${Math.round(x * 100)}%`;
 const mute = { color: "var(--vault-text-mute)" } as const;
 
-export default function QbPropsLine({ receipt, teamInputs, games = [] }: { receipt: QbReceipt; teamInputs: { state?: string } | null; games?: any[] }) {
+type HistoryRow = { season: number; week: number; date: string; opponent: string | null; passCmp: number; passAtt: number; passYds: number; passTd: number; passInt: number };
+
+/** `history`: playerId → previous games played before this kickoff (qb-props-history-file.mjs). */
+export default function QbPropsLine({ receipt, teamInputs, history = {} }: { receipt: QbReceipt; teamInputs: { state?: string } | null; history?: Record<string, HistoryRow[]> }) {
   if (!qbLineAllowed(teamInputs)) return null;
   const rows = projectedQbRows(receipt);
   if (!rows.length) return null;
@@ -56,7 +59,7 @@ export default function QbPropsLine({ receipt, teamInputs, games = [] }: { recei
       <h2 id="qb-props-h" className="font-display" style={{ fontSize: 18, margin: "4px 0 8px", color: "var(--vault-text)" }}>Quarterbacks in the simulation</h2>
       {rows.map((p) => {
         const views = qbMarketViews(p);
-        const history = qbHistory(games, p.playerId.startsWith("nfl-athlete-") ? p.playerId : `nfl-athlete-${p.playerId}`, receipt.eventStart ?? "");
+        const past = history[p.playerId.startsWith("nfl-athlete-") ? p.playerId : `nfl-athlete-${p.playerId}`] ?? [];
         return (
           <div key={p.playerId} style={{ marginBottom: 16 }}>
             <h3 style={{ fontSize: 14, margin: "8px 0 4px" }}>{p.name ?? p.playerId} <span style={mute}>{p.team}</span></h3>
@@ -74,12 +77,12 @@ export default function QbPropsLine({ receipt, teamInputs, games = [] }: { recei
                 ))}
               </tbody>
             </table>
-            {history.length ? (
+            {past.length ? (
               <table className="w-full text-[12px]" data-nfl-qb-history="" style={{ marginTop: 6 }}>
-                <caption style={{ textAlign: "left", fontSize: 11, ...mute }}>History: actual results in his previous {history.length} games before this kickoff. Not a forecast.</caption>
+                <caption style={{ textAlign: "left", fontSize: 11, ...mute }}>History: actual results in his previous {past.length} games before this kickoff. Not a forecast.</caption>
                 <thead><tr><th scope="col" style={{ textAlign: "left" }}>Game</th><th scope="col">Comp / Att</th><th scope="col">Yds</th><th scope="col">TD</th><th scope="col">INT</th></tr></thead>
                 <tbody>
-                  {history.map((h) => (
+                  {past.map((h) => (
                     <tr key={`${h.season}-${h.week}-${h.date}`}>
                       <th scope="row" style={{ textAlign: "left" }}>{h.season} wk {h.week}{h.opponent ? ` vs ${h.opponent}` : ""}</th>
                       <td>{h.passCmp} / {h.passAtt}</td><td>{h.passYds}</td><td>{h.passTd}</td><td>{h.passInt}</td>
