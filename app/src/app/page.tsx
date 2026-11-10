@@ -53,7 +53,7 @@ import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { nbaLane } from "@/lib/command-center/nba-lane";
 import { nbaExportedGamePageIds } from "@/components/nba/settled-simulation-data";
 import { publicTheaterRouteIds } from "@/lib/simulation-theater/nba/possession/public-route.mjs";
-import { eloWinProbabilityAttr, eloWinProbabilityOf } from "@/lib/sports/nba/elo-win-probability.mjs";
+import { eloWinChanceRead } from "@/lib/sports/nba/elo-win-chance-read.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import { HomeTools, MobileMore, SportsToday } from "@/components/home/mobile-home-parts";
 import { withPlainStatus } from "@/components/home/plain-lanes";
@@ -186,9 +186,10 @@ export default async function HomePage() {
   const nbaHomeLane = nbaLane(nbaTodaySlate(nbaNowIso, nbaCurrentLane, { laneEnabled: NBA_LANE.enabled, theaterIds: nbaTheaterIds }), nbaNowIso, {
     lastPublished: committedLaneDates().at(-1) ?? null,
     gamePageIds: new Set(nbaExportedGamePageIds(serverToday, nbaTheaterIds)),
+    /* CONS-DAYVIEW: the ONE read Today's rows also use (elo-win-chance-read.mjs → the PR 1219 accessor) */
     winChanceOf: (id) => {
-      const v = eloWinProbabilityOf((nbaCurrentLane?.games ?? []).find((g) => String(g.providerEventId) === id) ?? null, { enabled: nbaElo.enabled });
-      return v ? { awayAbbr: v.awayAbbr, homeAbbr: v.homeAbbr, awayPct: v.awayPct, homePct: v.homePct, attr: eloWinProbabilityAttr(v) } : null;
+      const r = eloWinChanceRead((nbaCurrentLane?.games ?? []).find((g) => String(g.providerEventId) === id) ?? null, { enabled: nbaElo.enabled });
+      return r.shown ? { text: r.text, attr: r.attr } : { withheld: r.reason };
     },
     winChanceDisclosure: nbaElo.enabled ? nbaElo.disclosure : null,
   });

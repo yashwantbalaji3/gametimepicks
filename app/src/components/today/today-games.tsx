@@ -63,7 +63,7 @@ function Row({ r, extra }: { r: ShownRow; extra?: React.ReactNode }) {
   return <GameCard model={todayRowModel(r)} density="row" extra={extra ?? null} />;
 }
 
-export default function TodayGames({ rows, dayLabel, asOf, next, lineSummaries }: {
+export default function TodayGames({ rows, dayLabel, asOf, next, lineSummaries, eloDisclosure = null }: {
   /** Today's rows (ET day), in start order. */
   rows: ShownRow[];
   /** e.g. "Wednesday, October 28". */
@@ -75,6 +75,9 @@ export default function TodayGames({ rows, dayLabel, asOf, next, lineSummaries }
   /** Compact model-vs-sportsbook-line summaries keyed by the row's eventHref (NBA rows only; undefined while the NBA line
       display switch is off — nba-prop-lines.tsx nbaPropLineSummaries). */
   lineSummaries?: ReadonlyMap<string, React.ReactNode>;
+  /** CONS-DAYVIEW: the Elo accuracy disclosure (loadEloWinProbabilityContext), printed ONCE when an NBA row shows a win
+      chance — the rule every surface that prints the number follows. Null → nothing. */
+  eloDisclosure?: string | null;
 }) {
   const groups = groupTodayGames(rows);
   return (
@@ -105,6 +108,9 @@ export default function TodayGames({ rows, dayLabel, asOf, next, lineSummaries }
             {next.rows.map((r) => <Row key={`${r.sport}-${r.eventHref}-${r.matchup}-${r.time}`} r={r} />)}
           </ul>
         </div>
+      ) : null}
+      {eloDisclosure && [...rows, ...(next?.rows ?? [])].some((r) => r.sport === "nba" && /\d%/.test(r.read ?? "")) ? (
+        <p className="m-0" style={{ color: "var(--vault-text-faint)", fontSize: 12 }} data-nba-elo-wp-disclosure="">NBA win chance: Elo-derived game-winner estimate. {eloDisclosure}</p>
       ) : null}
     </section>
   );

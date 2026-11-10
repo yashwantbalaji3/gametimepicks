@@ -370,7 +370,7 @@ test("UX slice 2026-11-09: a homepage NBA row opens its GAME PAGE when exported 
   assert.ok(ids.length >= 2, "fixture has at least two games");
   const lane = nbaLane(s, NOW, {
     gamePageIds: new Set([ids[0]]),
-    winChanceOf: (id) => (id === ids[0] ? { awayAbbr: "AAA", homeAbbr: "HHH", awayPct: 46, homePct: 54, attr: `${id}:0.54` } : null),
+    winChanceOf: (id) => (id === ids[0] ? { text: "AAA 46% · HHH 54%", attr: `${id}:0.54` } : null),
     winChanceDisclosure: "Model Performance: not yet established.",
   });
   const [first, second] = lane.games;
