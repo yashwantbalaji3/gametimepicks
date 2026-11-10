@@ -44,15 +44,15 @@ test("the real lane gives enough NBA game-winner legs to exercise the rule", () 
   for (const l of REAL) assert.match(receiptOf(l.eventId)?.payloadSha256 ?? "", /^[0-9a-f]{64}$/, `${l.eventId}: the side's own receipt hash, for the §1.4 cross-check`);
 });
 
-test("SWITCH: its own committed constant (one file), separate from the Level A switch; only \"1\" overrides; works either way", () => {
+test("SWITCH: its own committed constant (one file), OFF by founder decision 2026-11-10; no env flag turns it on", () => {
   assert.equal(typeof NBA_GAME_WINNER_TIERS_PUBLIC, "boolean");
   const defs = [];
   const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const f = path.join(d, e.name); if (e.isDirectory()) walk(f); else if (/\.(mjs|ts|tsx)$/.test(e.name) && !/\.test\./.test(e.name) && /export const NBA_GAME_WINNER_TIERS_PUBLIC\b/.test(fs.readFileSync(f, "utf8"))) defs.push(path.relative(process.cwd(), f)); } };
   walk(path.resolve(process.cwd(), "src"));
   assert.deepEqual(defs, ["src/lib/products/level-a/nba-game-winner-tiers.mjs"], "the switch is defined in exactly one file");
-  assert.equal(nbaGameWinnerTiersEnabled({}), NBA_GAME_WINNER_TIERS_PUBLIC, "with no override the constant decides");
-  assert.equal(nbaGameWinnerTiersEnabled({ NEXT_PUBLIC_NBA_GAME_WINNER_TIERS: "1" }), true);
-  assert.equal(nbaGameWinnerTiersEnabled({ NEXT_PUBLIC_NBA_GAME_WINNER_TIERS: "true" }), NBA_GAME_WINNER_TIERS_PUBLIC, "only exactly \"1\" overrides");
+  assert.equal(NBA_GAME_WINNER_TIERS_PUBLIC, false, "founder decision 2026-11-10 (Parlay Lab V3 decision 2): NBA Elo never tiers");
+  assert.equal(nbaGameWinnerTiersEnabled({}), false);
+  assert.equal(nbaGameWinnerTiersEnabled({ NEXT_PUBLIC_NBA_GAME_WINNER_TIERS: "1" }), false, "no env flag re-enables it");
   assert.equal(LEVEL_A_SUGGESTIONS_PUBLIC, true, "Level A is public; the NBA tiers have their OWN switch either way");
 });
 

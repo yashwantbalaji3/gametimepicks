@@ -15,7 +15,7 @@ type Leg = {
   sport: string; eventId: string; eventLabel: string; startUtc: string; market: string;
   selection: { code: string; label: string }; probability: number | null; probabilityNote: string | null; shownPct?: string; label?: string;
   forecast: { owner: string; modelId: string | null; stampedAt: string; ref: string | null };
-  uncertainty: { kind: string; home?: number | null; draw?: number | null; away?: number | null; note?: string; text?: string } | null;
+  uncertainty: { kind: string; home?: number | null; draw?: number | null; away?: number | null; note?: string; text?: string; caveat?: string } | null;
   settlement: { grader: string; market: string; side: string };
 };
 type Card = { policy: string; disclosure?: string | null; tier: string | null; tierLabel: string | null; legs: Leg[]; sports: string[]; jointProbability: number; method: string; dependency: string; whySelected: string; label: string };
@@ -53,8 +53,12 @@ function LegRow({ l }: { l: Leg }) {
         Official forecast · frozen {etStamp(l.forecast.stampedAt) ?? l.forecast.stampedAt} · no sportsbook price · settles on the official final
       </span>
       {/* founder decision 2026-10-23: the Elo rating's game-winner probability — the shared accessor's text, display only */}
+      {/* founder decision 2026-11-10 (Parlay Lab V3 decision 2): research only, labelled MODEL PROJECTION; the text is the game page's own */}
       {l.uncertainty?.kind === "elo-win-probability" && l.uncertainty.text ? (
-        <span style={{ color: "var(--vault-text-mute)" }} data-nba-elo-wp={`${l.eventId}:${l.uncertainty.home}`}>{l.uncertainty.text}</span>
+        <span style={{ color: "var(--vault-text-mute)" }}>
+          <span className="font-mono uppercase tracking-[0.12em]" style={{ fontSize: 10, color: "var(--vault-text-faint)" }} data-model-projection="">MODEL PROJECTION</span>{" "}
+          <span data-nba-elo-wp={`${l.eventId}:${l.uncertainty.home}`}>{l.uncertainty.text}</span>
+        </span>
       ) : null}
       {l.probabilityNote ? <span style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }}>{l.probabilityNote}</span> : null}
       <span><AddToSlip keys={[slipLegOf(l).key]} name={`${l.selection.label}, ${l.eventLabel}`} /></span>
@@ -179,10 +183,21 @@ function LevelAReference({ model, refused }: { model: LevelAModel; refused: Arra
     <>
       {model.untiered.length ? (
         <div className="text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>
-          <p className="m-0 font-semibold" style={{ color: "var(--vault-text)" }}>Official sides that are not tiered</p>
+          <p className="m-0 font-semibold" style={{ color: "var(--vault-text)" }}>Research · official sides that are not tiered</p>
           <ul className="m-0 mt-1 flex flex-col gap-1 p-0" role="list">{model.untiered.map((l) => <LegRow key={`${l.sport}:${l.eventId}`} l={l} />)}</ul>
           {/* WEIGHT (measured 2026-10-23): the Elo accuracy disclosure once per list, not once per leg (+16.7 KB on a 15-game page) */}
-          {(() => { const d = model.untiered.find((l) => l.uncertainty?.kind === "elo-win-probability" && l.uncertainty.note)?.uncertainty?.note; return d ? <p className="m-0 mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }} data-nba-elo-wp-disclosure="">{d}</p> : null; })()}
+          {/* the one-line calibration caveat (founder decision 2026-11-10); the full accuracy disclosure once, folded */}
+          {(() => {
+            const u = model.untiered.find((l) => l.uncertainty?.kind === "elo-win-probability" && l.uncertainty.note)?.uncertainty;
+            return u ? (
+              <>
+                {u.caveat ? <p className="m-0 mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }} data-nba-elo-wp-caveat="">{u.caveat}</p> : null}
+                <details className="mt-1"><summary className="cursor-pointer" style={{ minHeight: 40, color: "var(--vault-text-faint)", fontSize: 11.5 }}>How accurate is the Elo estimate?</summary>
+                  <p className="m-0 mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }} data-nba-elo-wp-disclosure="">{u.note}</p>
+                </details>
+              </>
+            ) : null;
+          })()}
         </div>
       ) : null}
       {model.nbaProjections.length ? (
