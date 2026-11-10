@@ -102,7 +102,10 @@ const h = report.scores.poisson.bySeason[HOLDOUT];
 const artifact = {
   schemaVersion: 1, artifact: "soccer-league-forecasts", dataClass: "PUBLIC", public: true,
   league: L.key, competition: L.name, country: L.country, generatedAt: NOW,
-  model: { id: EPL_MODEL_ID, fitThrough: NOW, matchesFitted: state.matchesFitted, description: "the Premier League split-Poisson model (v1), fit on this league's own results" },
+  /* MOD-10 (2026-11-09): the label names this league's model, never another league's. The id stays the code's own
+     identifier (the same split-Poisson code, refit here; joins and validation records key on it); dated artifacts
+     already written keep their original text (frozen records are not rewritten). */
+  model: { id: EPL_MODEL_ID, label: `${L.name} split-Poisson model (v1)`, fitThrough: NOW, matchesFitted: state.matchesFitted, description: `a split-Poisson model (v1), fit only on ${L.name}'s own results` },
   validation: {
     verdict: report.verdict,
     holdout: { season: HOLDOUT, matches: h.n, logLoss: h.logLoss, empiricalLogLoss: report.scores.empirical.bySeason[HOLDOUT].logLoss, drawEceAllScored: report.scores.poisson.overall.drawEce },

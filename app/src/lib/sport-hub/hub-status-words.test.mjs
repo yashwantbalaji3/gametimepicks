@@ -4,7 +4,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 
-import { hubStatusWord } from "./contract.ts";
+import { hubStatusWord, liveStateAt, LIVE_MAX_AFTER_START_MS } from "./contract.ts";
 import { mlbHub, nflHub } from "./adapters.ts";
 
 const WORDS = new Set(["scheduled", "in progress", "final", "postponed", "started or final"]);
@@ -40,3 +40,18 @@ test("DS-001 §2: the hub chip shows the shared reader words, translated only at
   assert.doesNotMatch(card, /\{r\.status\}/, "no raw status reaches a reader");
 });
 
+
+test("WEB-04: a stale IN_PROGRESS is not 'Live' past kickoff + 5 h; FINAL stays final; a game inside the window stays live", () => {
+  const start = "2026-11-08T21:25:00Z";
+  const at = (ms) => new Date(Date.parse(start) + ms).toISOString();
+  assert.equal(liveStateAt("IN_PROGRESS", start, at(60 * 60 * 1000)), "IN_PROGRESS");
+  assert.equal(liveStateAt("IN_PROGRESS", start, at(LIVE_MAX_AFTER_START_MS + 1)), "STARTED");
+  assert.equal(hubStatusWord(liveStateAt("IN_PROGRESS", start, at(18 * 60 * 60 * 1000)), true), "started or final");
+  assert.equal(liveStateAt("FINAL", start, at(18 * 60 * 60 * 1000)), "FINAL");
+  assert.equal(liveStateAt("IN_PROGRESS", null, at(18 * 60 * 60 * 1000)), "IN_PROGRESS", "no start time: nothing to judge by");
+  /* The NFL hub on its committed snapshot: no row past kickoff + 5 h reads "in progress" (the hub ran ~18 h stale). */
+  const now = new Date().toISOString();
+  for (const g of nflHub(now).rows) {
+    if (g.startUtc && Date.parse(now) - Date.parse(g.startUtc) > LIVE_MAX_AFTER_START_MS) assert.notEqual(g.status, "in progress", `${g.matchup}: Live ${Math.round((Date.parse(now) - Date.parse(g.startUtc)) / 3600000)} h after kickoff`);
+  }
+});

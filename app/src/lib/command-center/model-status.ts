@@ -126,7 +126,10 @@ export function modelStatusFor(sport: CardSport, ctx: StatusContext): ModelStatu
     return [
       item("nfl_team", "Game forecasts", teamState, team?.headline ? "Experimental · tested on past seasons" : "Status unknown",
         (team?.detail ?? "The NFL model-status artifact could not be read at build time.").replace(/beat the sportsbook market/g, "out-predict the sportsbook market"), null, "nfl/model-status.json"),
-      item("nfl_player_forward", "Player ranges", forward.length ? (fwdBreached ? "PAUSED" : fwdHolding ? "HOLDING" : "FORWARD_TEST") : "UNKNOWN",
+      /* WEB-08 (2026-11-09): a breached forward family is NOT paused — the board falls back to the previous rule and the
+         game pages keep publishing its ranges (share-level-board.mjs, FORWARD_BREACHED → v1). The status says the same
+         state the pages are in: WATCH ("a family fell back"), never "paused". */
+      item("nfl_player_forward", "Player ranges", forward.length ? (fwdBreached ? "WATCH" : fwdHolding ? "HOLDING" : "FORWARD_TEST") : "UNKNOWN",
         forward.length ? (fwdBreached ? "A family fell back to the previous rule" : fwdHolding ? "Holding in the forward test" : "Blind forward test running") : "Status unknown",
         forward.length
           ? `Receptions, yards and touchdown chances are graded week by week against preregistered bars; a family that breaches them falls back to the previous rule automatically. ${fwdN} player-games graded so far.`
