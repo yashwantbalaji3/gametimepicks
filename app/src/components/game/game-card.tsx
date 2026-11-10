@@ -17,7 +17,7 @@ import GameStateTag, { type GameState } from "@/components/game/game-state-tag";
 
 export type GameCardSide = { name: string; logo?: { team: string; sport: string } | null; favoured?: boolean; dim?: boolean };
 export type GameCardFact = { state: GameState | null; text: string; sub?: string | null; headline?: boolean; aside?: React.ReactNode };
-export type GameCardAction = { href: string; label: string; primary?: boolean; srLabel?: string; tone?: "result" };
+export type GameCardAction = { href: string; label: string; primary?: boolean; srLabel?: string; tone?: "result"; ariaLabel?: string; data?: Record<string, string>; after?: React.ReactNode };
 export type GameCardModel = {
   id: string;
   startLabel: string;
@@ -36,6 +36,12 @@ export type GameCardModel = {
   noRead?: string | null;
   /** shown in place of the actions when there are none (why there is no report) */
   noAction?: string | null;
+  /** compact: the element id other surfaces deep-link to (NBA: hubLaneAnchor's `nba-exp-<id>`) */
+  anchorId?: string;
+  /** compact: a status node instead of the label (NBA: the reader's-clock status for an upcoming game) */
+  statusNode?: React.ReactNode;
+  /** compact: a block after the facts (NBA: the model-vs-line summary when its switch is on) */
+  afterFacts?: React.ReactNode;
 };
 
 function Side({ s }: { s: GameCardSide }) {
@@ -65,7 +71,31 @@ function Act({ a }: { a: GameCardAction }) {
 
 const Fact = ({ f }: { f: GameCardFact }) => <>{f.state ? <><GameStateTag state={f.state} />{" "}</> : null}{f.text}{f.aside ? <> · {f.aside}</> : null}</>;
 
-export default function GameCard({ model: m, density = "card", extra = null }: { model: GameCardModel; density?: "card" | "row"; extra?: React.ReactNode }) {
+export default function GameCard({ model: m, density = "card", extra = null }: { model: GameCardModel; density?: "card" | "row" | "compact"; extra?: React.ReactNode }) {
+  if (density === "compact") {
+    /* COMPACT CARD — the dense hub grid (NBA: up to 15 a night inside the /nba page-weight budget). One class per element
+       (.nbx-* in globals.css), crests at 24px, the tagged facts, ONE link to the game and the page's own extras. */
+    return (
+      <li id={m.anchorId} className="nbx-card">
+        <p className="nbx-top"><span>{m.startLabel}</span><span className="nbx-chip">{m.statusNode ?? m.statusLabel}</span></p>
+        {m.sides?.length === 2 ? (
+          <h3 className="nbx-match">
+            {m.sides[0].logo ? <TeamLogo team={m.sides[0].logo.team} sport={m.sides[0].logo.sport as never} size="sm" highlight={m.sides[0].favoured} ariaLabel="" /> : <span />}
+            <b data-on={m.sides[0].favoured ? "" : undefined}>{m.sides[0].name}</b><i>{m.separator ?? "@"}</i><b data-on={m.sides[1].favoured ? "" : undefined}>{m.sides[1].name}</b>
+            {m.sides[1].logo ? <TeamLogo team={m.sides[1].logo.team} sport={m.sides[1].logo.sport as never} size="sm" highlight={m.sides[1].favoured} ariaLabel="" /> : <span />}
+          </h3>
+        ) : <h3 className="nbx-match">{m.matchup}</h3>}
+        {m.facts.length ? <div className="nbx-read">{m.facts.map((f, i) => (f.headline ? <strong key={i}><Fact f={f} /></strong> : <p key={i}><Fact f={f} /></p>))}</div> : null}
+        {m.afterFacts ?? null}
+        {m.actions.length || extra ? (
+          <p className="nbx-acts">
+            {m.actions.map((a) => <React.Fragment key={a.href}><Link href={a.href} prefetch={false} aria-label={a.ariaLabel} {...(a.data ?? {})}>{a.label} →</Link>{a.after ?? null}</React.Fragment>)}
+            {extra}
+          </p>
+        ) : null}
+      </li>
+    );
+  }
   if (density === "row") {
     return (
       <li className="gtp-cr" data-game-card="row">
