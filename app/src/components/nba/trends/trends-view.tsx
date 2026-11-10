@@ -7,7 +7,7 @@
 import Link from "next/link";
 import PageHero from "@/components/page-hero";
 import TrendsDrawer from "./trends-drawer";
-import { TRENDS_HISTORY_NOTE, TRENDS_REFERENCE_LABEL, TRENDS_STATS, type NbaTrends, type TrendAvailability, type TrendRow } from "@/lib/sports/nba/trends";
+import { MINUTES_REVIEW_NOTE, TRENDS_HISTORY_NOTE, TRENDS_REFERENCE_LABEL, TRENDS_STATS, type NbaTrends, type TrendAvailability, type TrendRow } from "@/lib/sports/nba/trends";
 
 export const AVAILABILITY_LABEL: Record<TrendAvailability, string> = { eligible: "Eligible", "not-verified": "Not verified", ineligible: "Ineligible" };
 const GLYPH: Record<TrendAvailability, string> = { eligible: "✓", "not-verified": "?", ineligible: "✕" };
@@ -42,7 +42,7 @@ export default function TrendsView({ trends }: { trends: NbaTrends }) {
       ) : (
         <>
           <p className="trn-meta">
-            <span className="gtp-kind-chip-lite">{TRENDS_REFERENCE_LABEL}</span> slate {slateDate}{slateIsToday ? "" : " · not tonight's slate, so no player is marked eligible"} · {trends.gamesRead} regular-season games read · <Link href="/nba/projections/">Top Boards →</Link>
+            <span className="gtp-kind-chip-lite">{TRENDS_REFERENCE_LABEL}</span> slate {slateDate}{slateIsToday ? "" : " · not tonight's slate, so no player is ranked"} · {trends.gamesRead} regular-season games read · <Link href="/nba/projections/">Top Boards →</Link>
           </p>
           <div className="trn-scroll" role="region" aria-label="Player trends table" tabIndex={0}>
             <table className="trn-table" id="trends-table">
@@ -59,6 +59,7 @@ export default function TrendsView({ trends }: { trends: NbaTrends }) {
                       </a>
                       <span className="trn-sub">{r.team} {r.home ? "vs" : "@"} {r.opp}</span>
                       <span className={`trn-avail is-${r.availability}`} title={r.availabilityNote}>{GLYPH[r.availability]} {AVAILABILITY_LABEL[r.availability]}</span>
+                      {r.minutesUnderReview ? <span className="trn-review" data-trn-minutes-review="">{MINUTES_REVIEW_NOTE}</span> : null}
                     </th>
                     {TRENDS_STATS.map(([k]) => <Cell key={k} row={r} stat={k} />)}
                   </tr>
@@ -67,7 +68,7 @@ export default function TrendsView({ trends }: { trends: NbaTrends }) {
             </table>
           </div>
           <p className="trn-fine">
-            # orders eligible players by tonight&apos;s expected minutes, never by these counts. A game counts only when its official final is recorded
+            # orders players cleared to play (eligibility@1) by tonight&apos;s expected minutes, never by these counts; a minutes projection under review is not numbered. A game counts only when its official final is recorded
             and the box score agrees with it; a game a player did not play is not counted, never read as 0. Not betting advice.
           </p>
           <TrendsDrawer />

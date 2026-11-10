@@ -15,14 +15,18 @@
  *     non-integer value is not a game for him — never a 0.
  * "Above" = the game's stat is strictly greater than the reference median. Counts are HISTORY, never a probability.
  *
- * AVAILABILITY (the lane's own fields — the existing NBA status; nothing is inferred):
- *   ineligible    the lane lists him unavailable with an Out status or a RULED_OUT reason, or his injuryStatus is Out
- *   not-verified  an injury designation (Day-To-Day, Questionable, …), a projection withheld for another reason, or a
- *                 lane that is not tonight's slate (its freeze is not a current reading)
- *   eligible      on tonight's roster-gated official projection with no injury designation
- * Only eligible players are ranked. Everyone else is listed under their state, unranked.
+ * AVAILABILITY — ONE source, eligibility@1 (lib/availability/eligibility.mjs resolveEligibility, sport "nba"), over the
+ * NBA injury report and roster captures at the build instant (6 h freshness). The lane's own injuryStatus is not read.
+ *   eligible      ELIGIBLE and featurable (no QUESTIONABLE / SOURCES_DISAGREE flag — the featured-surface rule)
+ *   not-verified  UNKNOWN (stale or missing source, no roster record, …) or ELIGIBLE with a not-featurable flag
+ *   ineligible    INELIGIBLE (ruled out, long-term designation, not on the roster)
+ * A lane that is not tonight's slate ranks nobody (its projection is not tonight's). UNKNOWN is never ranked.
  *
- * ORDER: eligible players are numbered by tonight's EXPECTED MINUTES (the projections board's own order), never by how
+ * NBA-MIN-01 (Harden 46.8 expected minutes, 2026-11-10): the model is not changed. A row whose expected minutes exceed
+ * MINUTES_REVIEW_ABOVE stays on the page with the note "minutes projection under review" and is left out of the
+ * minutes-ordered numbered list.
+ *
+ * ORDER: eligible players (minutes not under review) are numbered by tonight's EXPECTED MINUTES (the projections board's own order), never by how
  * often they beat the median. Sorting by "games above" would put the players the v0.1 model under-projects on top — a
  * list that reads as "overs", which a history count must never become.
  */
@@ -30,6 +34,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import type { Snapshot } from "@/components/nba/experimental-lane";
+import { eligibilityRecord, eligibilityText, featurable, resolveEligibility } from "@/lib/availability/eligibility.mjs";
 import { boxscoreAthlete, isFinalBoxscore, LINE_STATE, measureAthlete } from "@/lib/sports/nba/boxscore-line.mjs";
 import { boxscorePointsCheck } from "@/lib/sports/nba/experimental-grading-ledger.mjs";
 import { etDateOf, finalFor, nbaSeasonLabel } from "@/lib/sports/nba/finals-record.mjs";
@@ -40,6 +45,10 @@ export type TrendStat = (typeof TRENDS_STATS)[number][0];
 export const TRENDS_WINDOWS = Object.freeze([5, 10, 20] as const);
 export const TRENDS_REFERENCE_LABEL = "MODEL PROJECTION";
 export const TRENDS_HISTORY_NOTE = "Counts of past games above tonight's MODEL PROJECTION median. History, not a probability.";
+
+/** NBA-MIN-01: expected minutes above this are a projection under review (not ranked). */
+export const MINUTES_REVIEW_ABOVE = 42;
+export const MINUTES_REVIEW_NOTE = "minutes projection under review";
 
 export type TrendAvailability = "eligible" | "not-verified" | "ineligible";
 export type TrendGame = { eventId: string; dateEt: string; team: string; opp: string; home: boolean; minutes: number; pts: number; reb: number; ast: number };
@@ -58,7 +67,13 @@ export type TrendRow = {
   rank: number | null;
   /** tonight's official expected minutes (the lane's own figure), for the order only */
   expectedMinutes: number | null;
+  /** NBA-MIN-01: expected minutes > MINUTES_REVIEW_ABOVE — shown, never numbered */
+  minutesUnderReview: boolean;
+  /** the eligibility@1 record this row's availability came from */
+  eligibility: ReturnType<typeof eligibilityRecord>;
 };
+/** eligibility@1 inputs: the build instant and the two NBA captures (null = missing → UNKNOWN). */
+export type TrendEligibilityInputs = { asOf: string; injuries: { generatedAt: string; entries: object[] } | null; roster: { teams?: { providerTeamId?: string | number; espnAbbr?: string }[] } | null };
 export type NbaTrends = { slateDate: string | null; slateIsToday: boolean; gamesRead: number; rows: TrendRow[] };
 
 type BoxDoc = { providerEventId?: string; phase?: number; dateUtc?: string; status?: string; boxscoreAvailable?: boolean; teams?: { providerTeamId: string; abbr: string; homeAway: string }[]; players?: { providerAthleteId: string }[] };
@@ -66,7 +81,10 @@ type Final = { state: string; ftHome?: number; ftAway?: number };
 /** A game the graders would read: its box score and its official final. */
 export type TrendSourceGame = { doc: BoxDoc; final: Final };
 
-const isOut = (s: string | null | undefined) => /^out$/i.test(String(s ?? "").trim());
+/** One player's availability, from eligibility@1 only. */
+export function trendAvailabilityOf(rec: ReturnType<typeof resolveEligibility>): TrendAvailability {
+  return featurable(rec) ? "eligible" : rec.state === "INELIGIBLE" ? "ineligible" : "not-verified";
+}
 
 /** One game's eligibility for trends: regular season, before the slate, FINAL on the record, points agree. */
 export function gameCounts(g: TrendSourceGame, slateDate: string): boolean {
@@ -101,10 +119,10 @@ const windowsOf = (games: TrendGame[], ref: Record<TrendStat, number> | null): T
   });
 
 /**
- * PURE: the trends rows for a lane and a set of source games. `slateIsToday` false → nobody is eligible (the lane's
- * availability is not a current reading).
+ * PURE: the trends rows for a lane, a set of source games and the eligibility@1 inputs. `slateIsToday` false → nobody
+ * is ranked (the lane's projection is not tonight's).
  */
-export function buildTrends(lane: Snapshot | null, sources: readonly TrendSourceGame[], { slateIsToday }: { slateIsToday: boolean }): NbaTrends {
+export function buildTrends(lane: Snapshot | null, sources: readonly TrendSourceGame[], { slateIsToday, eligibility }: { slateIsToday: boolean; eligibility: TrendEligibilityInputs }): NbaTrends {
   if (!lane?.date || !lane.games.length) return { slateDate: lane?.date ?? null, slateIsToday, gamesRead: 0, rows: [] };
   const slate = lane.date;
   const counted = sources.filter((g) => gameCounts(g, slate)).sort((a, b) => String(b.doc.dateUtc).localeCompare(String(a.doc.dateUtc)));
@@ -114,6 +132,13 @@ export function buildTrends(lane: Snapshot | null, sources: readonly TrendSource
     for (const g of counted) { const t = trendGameOf(g.doc, id); if (t) out.push(t); if (out.length === max) break; }
     return out;
   };
+  const teamIdOf = new Map((eligibility.roster?.teams ?? []).map((t) => [String(t.espnAbbr ?? ""), t.providerTeamId == null ? null : String(t.providerTeamId)]));
+  const eligibilityOf = (playerId: string, team: string) => {
+    const rec = resolveEligibility({ sport: "nba", playerId, teamId: teamIdOf.get(team) ?? null, asOf: eligibility.asOf, injuries: eligibility.injuries, roster: eligibility.roster });
+    const availability = trendAvailabilityOf(rec);
+    const note = availability === "not-verified" && rec.state === "ELIGIBLE" ? `${eligibilityText(rec)} · flagged ${rec.flags.join(", ").toLowerCase().replace(/_/g, " ")}, so not ranked` : eligibilityText(rec);
+    return { availability, note, record: eligibilityRecord(rec) };
+  };
   const rows: TrendRow[] = [];
   for (const g of lane.games) {
     for (const side of ["away", "home"] as const) {
@@ -122,28 +147,27 @@ export function buildTrends(lane: Snapshot | null, sources: readonly TrendSource
         const id = String(p.providerAthleteId);
         const reference = Object.fromEntries(TRENDS_STATS.map(([k]) => [k, Number(p.medians?.[k])])) as Record<TrendStat, number>;
         const hasRef = TRENDS_STATS.every(([k]) => Number.isFinite(reference[k]));
-        const status = (p as { injuryStatus?: string | null }).injuryStatus ?? null;
-        const availability: TrendAvailability = isOut(status) ? "ineligible" : status || !slateIsToday ? "not-verified" : "eligible";
-        const availabilityNote = isOut(status) ? `Out (${status})` : status ? `Injury designation: ${status}` : !slateIsToday ? "Projection is not tonight's — availability not verified" : "On tonight's official projection · no injury designation";
+        const e = eligibilityOf(id, team);
         const games = historyOf(id);
         const em = Number((p as { expectedMinutes?: number }).expectedMinutes);
-        rows.push({ playerId: id, name: p.name ?? id, team, opp, home: side === "home", availability, availabilityNote, reference: hasRef ? reference : null, windows: windowsOf(games, hasRef ? reference : null), games, rank: null, expectedMinutes: Number.isFinite(em) ? em : null });
+        const minutesUnderReview = Number.isFinite(em) && em > MINUTES_REVIEW_ABOVE;
+        rows.push({ playerId: id, name: p.name ?? id, team, opp, home: side === "home", availability: e.availability, availabilityNote: e.note, reference: hasRef ? reference : null, windows: windowsOf(games, hasRef ? reference : null), games, rank: null, expectedMinutes: Number.isFinite(em) ? em : null, minutesUnderReview, eligibility: e.record });
       }
       for (const u of g.players.unavailable?.[side] ?? []) {
         const id = String(u.providerAthleteId);
-        const out = isOut(u.status) || u.reason === "RULED_OUT";
+        const e = eligibilityOf(id, team);
         const games = historyOf(id);
         rows.push({
           playerId: id, name: u.name ?? id, team, opp, home: side === "home",
-          availability: out ? "ineligible" : "not-verified",
-          availabilityNote: out ? `Out${u.status ? ` (${u.status})` : ""}` : "No official projection tonight — availability not verified",
-          reference: null, windows: windowsOf(games, null), games, rank: null, expectedMinutes: null,
+          availability: e.availability, availabilityNote: `${e.note} · no official projection tonight`,
+          reference: null, windows: windowsOf(games, null), games, rank: null, expectedMinutes: null, minutesUnderReview: false, eligibility: e.record,
         });
       }
     }
   }
-  // number ONLY eligible players with a reference, by expected minutes (then name) — never by the history counts
-  const ranked = rows.filter((r) => r.availability === "eligible" && r.reference)
+  // number ONLY eligible players on tonight's slate with a reference and minutes not under review, by expected minutes
+  // (then name) — never by the history counts
+  const ranked = rows.filter((r) => slateIsToday && r.availability === "eligible" && r.reference && !r.minutesUnderReview)
     .sort((a, b) => (b.expectedMinutes ?? -1) - (a.expectedMinutes ?? -1) || a.name.localeCompare(b.name));
   ranked.forEach((r, i) => { r.rank = i + 1; });
   const order: Record<TrendAvailability, number> = { eligible: 0, "not-verified": 1, ineligible: 2 };
@@ -169,17 +193,27 @@ export function loadTrendSources(slateDate: string): TrendSourceGame[] {
   return out;
 }
 
+/**
+ * eligibility@1's NBA inputs at the build instant: the injury report and roster captures (data/internal/research,
+ * PRIVATE_RESEARCH — read only while /trends is gated OFF/internal; they become BUILD_INPUTS, and the roster capture's
+ * neverReadBy note is resolved, before the route is reclassified public).
+ */
+export function loadTrendEligibilityInputs(asOf: string): TrendEligibilityInputs {
+  const root = path.resolve(process.cwd(), "..", "data", "internal", "research");
+  return { asOf, injuries: readJson(path.join(root, "injuries", "nba", "latest.json")), roster: readJson(path.join(root, "nba", "rosters", "latest.json")) };
+}
+
 /** The page's model: the current lane (tonight's slate, else the newest committed one, marked not current). */
-export function loadNbaTrends(lane: Snapshot | null, todayEt: string): NbaTrends {
+export function loadNbaTrends(lane: Snapshot | null, todayEt: string, asOf: string = new Date().toISOString()): NbaTrends {
   if (!lane?.date) return { slateDate: null, slateIsToday: false, gamesRead: 0, rows: [] };
-  return buildTrends(lane, loadTrendSources(lane.date), { slateIsToday: lane.date === todayEt });
+  return buildTrends(lane, loadTrendSources(lane.date), { slateIsToday: lane.date === todayEt, eligibility: loadTrendEligibilityInputs(asOf) });
 }
 
 /** The drawer file: per player, the reference and the games — the same rows the table counts. No price field exists. */
-export type TrendsDrawerPayload = { schema: "gtp.nba-trends-drawer@1"; slateDate: string | null; reference: string; note: string; players: Record<string, { name: string; team: string; opp: string; home: boolean; availability: TrendAvailability; availabilityNote: string; reference: Record<TrendStat, number> | null; games: TrendGame[] }> };
+export type TrendsDrawerPayload = { schema: "gtp.nba-trends-drawer@1"; slateDate: string | null; reference: string; note: string; players: Record<string, { name: string; team: string; opp: string; home: boolean; availability: TrendAvailability; availabilityNote: string; minutesUnderReview: boolean; reference: Record<TrendStat, number> | null; games: TrendGame[] }> };
 export function trendsDrawerPayload(t: NbaTrends): TrendsDrawerPayload {
   return {
     schema: "gtp.nba-trends-drawer@1", slateDate: t.slateDate, reference: TRENDS_REFERENCE_LABEL, note: TRENDS_HISTORY_NOTE,
-    players: Object.fromEntries(t.rows.map((r) => [r.playerId, { name: r.name, team: r.team, opp: r.opp, home: r.home, availability: r.availability, availabilityNote: r.availabilityNote, reference: r.reference, games: r.games }])),
+    players: Object.fromEntries(t.rows.map((r) => [r.playerId, { name: r.name, team: r.team, opp: r.opp, home: r.home, availability: r.availability, availabilityNote: r.availabilityNote, minutesUnderReview: r.minutesUnderReview, reference: r.reference, games: r.games }])),
   };
 }
