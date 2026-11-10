@@ -24,6 +24,14 @@ export interface SportNightLine {
 /** The tier reason on a night MLB is over: sport-neutral, so no tier claims the whole site has no games. */
 export const OFF_SEASON_TIER_REASON = "No card at this risk level tonight. Each sport’s status for tonight is listed above.";
 
+/*
+ * Visitor wording, tied to the registry (sport-night-status.test.mjs checks both). The registry's full reasons name model
+ * versions and internal axes ("v0.1", "Level A"), which visitor copy never prints (paper-products-visitor-strings), so
+ * the page prints the registry's own visitor clause for NBA and a plain statement of NFL's CLOSED state.
+ */
+export const NBA_VISITOR_CLAUSE = "NBA suggestions show the side without a chance and are never tiered.";
+export const NFL_CLOSED_TEXT = "Not yet open for suggestions: the official NFL game forecast has not been reviewed for them yet.";
+
 const capability = (sport: string) => MODEL_SUGGESTION_CAPABILITIES.find((c) => c.key === sport) ?? null;
 const games = (n: number) => `${n} game${n === 1 ? "" : "s"} tonight`;
 
@@ -33,11 +41,11 @@ export function sportNightStatus({ mlbOffSeasonReason, nbaGames, nflGames }: { m
   if (mlbOffSeasonReason) lines.push({ sport: "mlb", label: "MLB", state: "OFF_SEASON", suggestions: mlb?.state ?? null, text: mlbOffSeasonReason });
   const nba = capability("nba");
   lines.push(nbaGames > 0
-    ? { sport: "nba", label: "NBA", state: "SLATE", suggestions: nba?.state ?? null, text: `${games(nbaGames)}. The official Elo sides are on the NBA page. ${nba?.reason ?? ""}`.trim() }
+    ? { sport: "nba", label: "NBA", state: "SLATE", suggestions: nba?.state ?? null, text: `${games(nbaGames)}. The official Elo sides are on the NBA page. ${NBA_VISITOR_CLAUSE}` }
     : { sport: "nba", label: "NBA", state: "NO_SLATE", suggestions: nba?.state ?? null, text: "No games on tonight’s slate." });
   const nfl = capability("nfl");
   lines.push(nflGames > 0
-    ? { sport: "nfl", label: "NFL", state: "SLATE", suggestions: nfl?.state ?? null, text: `${games(nflGames)}. Not yet open for suggestions: ${nfl?.reason ?? ""}`.trim() }
+    ? { sport: "nfl", label: "NFL", state: "SLATE", suggestions: nfl?.state ?? null, text: nfl?.state === "CLOSED" ? `${games(nflGames)}. ${NFL_CLOSED_TEXT}` : `${games(nflGames)}.` }
     : { sport: "nfl", label: "NFL", state: "NO_SLATE", suggestions: nfl?.state ?? null, text: "No games on tonight’s slate." });
   return lines;
 }
