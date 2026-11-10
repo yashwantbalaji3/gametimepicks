@@ -8,7 +8,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { sportNightStatus, OFF_SEASON_TIER_REASON, NBA_VISITOR_CLAUSE, NFL_CLOSED_TEXT, NFL_OPEN_TEXT } from "./sport-night-status.ts";
+import { sportNightStatus, OFF_SEASON_TIER_REASON, NBA_VISITOR_CLAUSE, NFL_CLOSED_TEXT, NFL_OPEN_TEXT, MLB_OFF_SEASON_TEXT } from "./sport-night-status.ts";
 import { MODEL_SUGGESTION_CAPABILITIES } from "../sport-capability-registry.ts";
 
 const MLB_OVER = "The MLB season is over — the 2026 World Series ended on 2026-10-31. Cards return when games do.";
@@ -18,7 +18,8 @@ const PAGE = fs.readFileSync(path.join(path.dirname(fileURLToPath(import.meta.ur
 test("(1) an NBA-only night: the MLB season text appears only in the MLB line; the tier reason is sport-neutral", () => {
   const lines = sportNightStatus({ mlbOffSeasonReason: MLB_OVER, nbaGames: 6, nflGames: 0 });
   const nonMlb = lines.filter((l) => l.sport !== "mlb").map((l) => l.text).join(" ");
-  assert.equal(lines.find((l) => l.sport === "mlb").text, MLB_OVER);
+  assert.equal(lines.find((l) => l.sport === "mlb").text, MLB_OFF_SEASON_TEXT, "MLB's line is MLB's own; the full reason stays on the MLB tier card");
+  assert.ok(lines.every((l) => !l.text.includes(MLB_OVER)), "the reason is not printed twice");
   assert.ok(!/MLB season is over/i.test(nonMlb));
   assert.ok(!/MLB|season is over/i.test(OFF_SEASON_TIER_REASON));
   assert.equal(lines.find((l) => l.sport === "nba").state, "SLATE");

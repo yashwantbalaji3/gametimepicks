@@ -29,6 +29,7 @@ export const OFF_SEASON_TIER_REASON = "No card at this risk level tonight. Each 
  * versions and internal axes ("v0.1", "Level A"), which visitor copy never prints (paper-products-visitor-strings), so
  * the page prints the registry's own visitor clause for NBA and a plain statement of NFL's CLOSED state.
  */
+export const MLB_OFF_SEASON_TEXT = "Off-season: no MLB games until next season. The MLB risk-tier card gives the reason.";
 export const NBA_VISITOR_CLAUSE = "NBA suggestions show the side without a chance and are never tiered.";
 export const NFL_OPEN_TEXT = "Official forecasts are open for Parlay Lab suggestions; a game enters only with eligible starting quarterbacks and a verified kickoff.";
 export const NFL_CLOSED_TEXT = "Not yet open for suggestions: the official NFL game forecast has not been reviewed for them yet.";
@@ -39,7 +40,8 @@ const games = (n: number) => `${n} game${n === 1 ? "" : "s"} tonight`;
 export function sportNightStatus({ mlbOffSeasonReason, nbaGames, nflGames }: { mlbOffSeasonReason: string | null; nbaGames: number; nflGames: number }): SportNightLine[] {
   const lines: SportNightLine[] = [];
   const mlb = capability("mlb");
-  if (mlbOffSeasonReason) lines.push({ sport: "mlb", label: "MLB", state: "OFF_SEASON", suggestions: mlb?.state ?? null, text: mlbOffSeasonReason });
+  /* the full reason is on the MLB risk-tier card (risk-ladder-board offSeason); this line only states MLB's night */
+  if (mlbOffSeasonReason) lines.push({ sport: "mlb", label: "MLB", state: "OFF_SEASON", suggestions: mlb?.state ?? null, text: MLB_OFF_SEASON_TEXT });
   const nba = capability("nba");
   lines.push(nbaGames > 0
     ? { sport: "nba", label: "NBA", state: "SLATE", suggestions: nba?.state ?? null, text: `${games(nbaGames)}. The official Elo sides are on the NBA page. ${NBA_VISITOR_CLAUSE}` }
