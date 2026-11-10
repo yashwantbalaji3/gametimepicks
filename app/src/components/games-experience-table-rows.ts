@@ -152,11 +152,7 @@ function rowFor(e: SimDayEvent, date: string, ctx: Ctx): GamesTableRow {
     const gamePage = date !== ctx.today && pid ? nbaGamePageHrefIfExported(pid, ctx.nbaGamePages) : null;
     const page = date === ctx.today && pid ? `/nba/#nba-exp-${pid}` : gamePage ?? (ctx.laneDates.has(date) ? `/nba/projections/${date}/` : "/nba/");
     if (g) {
-      /* CONS-DAYVIEW (2026-11-09): the win chance through the ONE read Home uses (elo-win-chance-read.mjs → the PR 1219
-         accessor): the identical text, or the same withheld words — never a second derivation. */
-      const wc = g.elo?.favoured ? eloWinChanceRead(g, { enabled: ctx.eloEnabled }) : null;
-      const side = g.elo?.favoured ? `${g.elo.favoured} favoured · ${wc!.shown ? wc!.text : wc!.reason}` : null;
-      return { ...base, forecast: "Frozen", read: side, note: null, eventHref: page };
+      return { ...base, forecast: "Frozen", read: nbaTodayRead(g, ctx.eloEnabled), note: null, eventHref: page };
     }
     const excluded = ctx.lane?.excluded.find((x) => x.providerEventId === pid);
     if (excluded || ctx.lane || started) return { ...base, forecast: "Unavailable", read: null, note: excluded ? `No Official Forecast: ${nbaExclusionText(excluded.reason)}` : "No Official Forecast was frozen for this game before tip-off.", eventHref: page };
@@ -180,6 +176,18 @@ function rowFor(e: SimDayEvent, date: string, ctx: Ctx): GamesTableRow {
       : { ...base, forecast: "Unavailable", read: null, note: e.stateReason, eventHref: e.href };
   }
   return { ...base, forecast: e.state === "SCHEDULE_ONLY" && e.sport === "mlb" ? "Pending" : "Unavailable", read: null, note: e.stateReason, eventHref: e.href };
+}
+
+/**
+ * WEB-03 (2026-11-09) + CONS-DAYVIEW: Today prints the NBA Elo win probability through THE ONE READ every list surface
+ * uses (elo-win-chance-read.mjs → eloWinProbabilityOf, the PR 1219 accessor): the accessor's own sentence
+ * (eloWinProbabilityText, as /nba and the game pages print it) — or, with no published value (switch off, provenance or
+ * consistency refusal), the favoured side and the one withheld reason Home also gives.
+ */
+export function nbaTodayRead(g: Parameters<typeof eloWinChanceRead>[0], enabled?: boolean): string | null {
+  const r = eloWinChanceRead(g, enabled === undefined ? {} : { enabled });
+  if (r.shown) return r.fullText;
+  return g?.elo?.favoured ? `${g.elo.favoured} favoured · ${r.reason}` : null;
 }
 
 function mlbHadForecast(date: string, gamePk: string | null): boolean {

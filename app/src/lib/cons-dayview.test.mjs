@@ -45,7 +45,9 @@ for (const enabled of [ELO_WIN_PROBABILITY.enabled, false]) {
         const t = today.find((r) => r.id.endsWith(id));
         const h = home.find((r) => String(r.id) === id);
         if (!t) continue; // a past date's game can roll off Today's schedule window; every game Today DOES list is compared
-        assert.equal(t.read, `${g.elo.favoured} favoured · ${want.shown ? want.text : want.reason}`, `${date} ${id}: Today's read`);
+        // Today prints the accessor's own sentence (WEB-03, live since #1295) or the favoured side + the one reason
+        assert.equal(t.read, want.shown ? want.fullText : `${g.elo.favoured} favoured · ${want.reason}`, `${date} ${id}: Today's read`);
+        if (want.shown) assert.ok(t.read.endsWith(want.text), `${date} ${id}: Today and Home print the identical numbers`);
         if (h && !/^Final/.test(h.note)) {
           if (want.shown) {
             assert.equal(h.winChance?.text, want.text, `${date} ${id}: Home prints the identical number`);
@@ -66,7 +68,8 @@ test("no surface prints the old fixed wording or derives its own number", async 
   const fs = await import("node:fs");
   const src = fs.readFileSync("src/components/games-experience-table-rows.ts", "utf8");
   assert.doesNotMatch(src, /no win chance published/);
-  assert.doesNotMatch(src, /eloWinProbabilityOf|winProbability\.home/, "Today reads only through the one read");
+  assert.doesNotMatch(src, /eloWinProbabilityOf\(|eloWinProbabilityText\(|winProbability\.home/, "Today reads only through the one read");
+  assert.match(src, /export function nbaTodayRead\([^)]*\)[^{]*\{\n\s+const r = eloWinChanceRead\(/, "WEB-03's nbaTodayRead IS the one read (no second implementation)");
   assert.match(fs.readFileSync("src/app/page.tsx", "utf8"), /eloWinChanceRead\(/);
   assert.doesNotMatch(fs.readFileSync("src/app/page.tsx", "utf8"), /eloWinProbabilityOf\(/, "Home reads only through the one read");
 });
