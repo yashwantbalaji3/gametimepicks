@@ -109,6 +109,8 @@ export default function GameCard({ model: m, density = "card", extra = null }: {
         {m.facts.length ? m.facts.map((f, i) => <span key={i} className="gtp-gc-fact"><Fact f={f} />{f.sub ? <span className="gtp-c-mute"> · {f.sub}</span> : null}</span>)
           : m.noRead ? <span className="gtp-c-mute">{m.noRead}</span> : null}
         {m.actions.slice(m.actions[0] && !m.actions[0].tone ? 1 : 0).map((a) => <span key={a.href} className="gtp-cr-a"><Act a={a} /></span>)}
+        {/* no link at all: say why (the hubs' "not modelled — no tracked history", "No report"), as the compact row always did */}
+        {m.actions.length === 0 && m.noAction ? <span className="gtp-cr-a gtp-c-mute">{m.noAction}</span> : null}
         {extra}
       </li>
     );
