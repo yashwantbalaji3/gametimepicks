@@ -175,7 +175,7 @@ test("SOURCE PIN · the homepage renders both hub sections through the Command C
   const home = src("src/app/page.tsx");
   assert.match(home, /buildCommandCenter\(\{ dataRoot/, "lanes come from the library");
   assert.match(home, /days: \{ mlb: mlbDay, epl: eplDay, nfl: nflDay, ufc: ufcDay \}/, "fed by the product-day owner's answers");
-  assert.match(home, /<CommandCenter[\s\S]*heading="Simulation Hub"/);
+  assert.match(home, /<CommandCenter[\s\S]*heading="Today's games"/, "UX slice 2026-11-09: the primary hub is today's games");
   assert.match(home, /<CommandCenter[\s\S]*heading="Other coverage"/);
   for (const f of ["src/components/command-center/command-center.tsx", "src/components/command-center/prediction-card.tsx", "src/components/command-center/model-status-chip.tsx"]) {
     assert.doesNotMatch(src(f), /readFileSync|\.json"/, `${f} renders the contract only`);

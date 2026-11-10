@@ -5,7 +5,7 @@
  * a persistent draft summary, and the advanced eligible-leg marketplace below. The draft is the
  * shared slip store — the same state a suggested card seeds via "Customize this card"
  * (?card=<slipId>), the same legs the props board and risk ladder add, one identity rule, one
- * payout math, one conflict engine. See /build for the Suggested Parlays mode.
+ * payout math, one conflict engine. See /build for the Parlay Lab mode.
  *
  * ?card=<slipId> seeds the draft from that suggested ladder card, resolved server-side from the
  * published artifact — so the link is shareable and the seed is exactly the card of record.
@@ -28,7 +28,7 @@ import path from "node:path";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata = withRouteMetadata("/build/custom/", {
-  title: "Build Your Own · Parlay Center · GameTime Picks",
+  title: "Build Your Own · Parlay Lab · GameTime Picks",
   description:
     "Build a custom paper card from qualified legs across sports. Filter, search, add legs, enter any stake, see the projected paper return — or start from a suggested card and edit it. Educational, paper-only.",
 });
@@ -74,7 +74,7 @@ export default function ParlayCenterCustomPage() {
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
       <PicksSurfaceHeader
-        eyebrow="Parlay Center"
+        eyebrow="Parlay Lab"
         title="Build Your Own"
         status={picksSurfaceStatus({ shownCount: pool.length, slateDate: ladderDate, today: currentEtDate(), producerRan: riskLadderProducerRan(dataRoot, ladderDate) })}
         statusLabel={pool.length === 0 && riskLadderProducerRan(dataRoot, ladderDate) ? "No qualifying legs" : undefined}
@@ -91,7 +91,7 @@ export default function ParlayCenterCustomPage() {
       {pool.length === 0 ? (
         <p className="m-0 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }} data-model-slip-pointer="">
           Model-only picks (no prices) can be collected in the model slip from the{" "}
-          <Link href="/build" style={{ color: "var(--vault-text)" }}>Parlay Center</Link>, Bank Builder and Moonshot.
+          <Link href="/build" style={{ color: "var(--vault-text)" }}>Parlay Lab</Link>, Bank Builder and Moonshot.
         </p>
       ) : null}
 

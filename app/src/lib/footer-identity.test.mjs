@@ -41,13 +41,14 @@ test("footer links the flagship products (Simulate, Today, Bank Builder, Results
    */
   const built = builtSitemap();
   const expected = [
-    ["/simulate", "Simulations"], ["/today", "Today"], ["/bank-builder", "Bank Builder"],
+    ["/simulate", "Simulations"], ["/today", "Tonight's slate"], ["/products", "Products"], ["/ask", "Ask"], ["/bank-builder", "Bank Builder"],
     ["/results", "Results"], ["/methodology", "Methodology"], ["/learn", "How It Works"],
   ];
   if (built) {
     for (const [href, label] of expected) {
       // The static export writes trailing slashes.
-      assert.match(built, new RegExp(`href="${href}/?"[^>]*>${label}`), `links ${label}`);
+      // the export escapes an apostrophe ("Tonight&#x27;s slate")
+      assert.match(built, new RegExp(`href="${href}/?"[^>]*>${label.replace(/'/g, "(?:'|&#x27;)")}`), `links ${label}`);
     }
     return;
   }

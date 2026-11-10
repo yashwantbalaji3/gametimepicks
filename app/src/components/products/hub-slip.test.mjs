@@ -80,7 +80,7 @@ test("/nba: today's card gets the button only for the Level A game, beside its f
   });
   const slip = await hubSlipLegs("nba", slate.games.map((g) => g.id), { model: MODEL });
   const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate, slip }));
-  const cards = h.split("<article").slice(1);
+  const cards = h.split("<li id=").slice(1);
   assert.equal(cards.length, 2);
   assert.match(cards[0], /Official Forecast →[\s\S]*Game Simulation →[\s\S]*aria-label="Add to slip: PHI \(official side\), CLE @ PHI"/);
   assert.match(cards[1], /Official Forecast →/, "the other game keeps its forecast link…");
@@ -103,5 +103,5 @@ test("each hub asks the helper for its own sport, renders the button only from i
   const helper = read("src/components/products/hub-slip.tsx");
   assert.match(helper, /model \? slipLegFor\(model, sport, id\) : await levelASlipLegFor\(sport, id\)/);
   assert.match(helper, /return legs\.size \? <ModelSlipBar catalog=\{\[\.\.\.legs\.values\(\)\]\} \/> : null;/, "no bar, so no slip island, without a leg");
-  assert.match(read("src/components/nba/hub-overview.tsx"), /<HubSlipButton leg=\{slip\?\.get\(g\.id\)\} \/>/);
+  assert.match(read("src/components/nba/hub-overview.tsx"), /extra=\{slip\?\.get\(g\.id\) \? <HubSlipButton leg=\{slip\.get\(g\.id\)\} \/> : null\}/);
 });

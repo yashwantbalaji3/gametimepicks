@@ -12,13 +12,13 @@ import Link from "next/link";
 export type ParlayCenterMode = "suggested" | "custom";
 
 const TABS: ReadonlyArray<{ mode: ParlayCenterMode; href: string; label: string; sub: string }> = [
-  { mode: "suggested", href: "/build", label: "Suggested Parlays", sub: "Start from a suggested card" },
+  { mode: "suggested", href: "/build", label: "Suggested cards", sub: "Start from a suggested card" },
   { mode: "custom", href: "/build/custom", label: "Build Your Own", sub: "Pick legs, set a paper stake" },
 ];
 
 export default function ParlayCenterTabs({ active }: { active: ParlayCenterMode }) {
   return (
-    <nav aria-label="Parlay Center modes" className="flex items-stretch gap-2">
+    <nav aria-label="Parlay Lab modes" className="flex items-stretch gap-2">
       {TABS.map((t) => {
         const on = t.mode === active;
         return (

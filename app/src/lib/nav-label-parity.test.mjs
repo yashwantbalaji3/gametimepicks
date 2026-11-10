@@ -54,14 +54,17 @@ test("every menu destination is a search page, under its menu label, exactly onc
 
 test("the retired search names are gone — and /today is never 'Today's Picks'", () => {
   const rows = searchPageRows();
-  assert.equal(rows.find((r) => r.href === "/today/")?.label, "Today");
-  assert.equal(rows.find((r) => r.href === "/build/")?.label, "Parlays");
+  /* 2026-11-09: "/" carries the Today label, so /today is "Tonight's slate" (still never "Today's Picks"), and /build is
+     Parlay Lab (UX-06). */
+  assert.equal(rows.find((r) => r.href === "/today/")?.label, "Tonight's slate");
+  assert.equal(rows.find((r) => r.href === "/build/")?.label, "Parlay Lab");
   assert.equal(rows.find((r) => r.href === "/system-status/")?.label, "System Status");
   for (const old of ["Today's Picks", "Parlay Center", "System status"]) {
     assert.ok(!rows.some((r) => r.label === old), `no search page row is named "${old}"`);
   }
   /* A reader typing the old name still lands: it is a search WORD on the one row, not a second name. */
   assert.ok(rows.find((r) => r.href === "/build/").terms.includes("parlay center"));
+  assert.ok(rows.find((r) => r.href === "/build/").terms.includes("suggested parlays"));
 });
 
 test("each surface renders the registry's label, never its own", () => {

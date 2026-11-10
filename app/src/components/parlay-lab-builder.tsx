@@ -107,7 +107,7 @@ interface Props {
   embedded?: boolean;
 }
 
-// PR `feature/suggested-parlay-depth-and-mixed` (2026-06-05): Suggested Parlays
+// PR `feature/suggested-parlay-depth-and-mixed` (2026-06-05): Parlay Lab
 // now include a clearly labeled "Mixed" tab — cross-sport cards built from real,
 // model-ranked legs of modeled sports (NBA + MLB today). Every leg is genuine
 // (never fabricated); a slip carrying any non-modeled sport is still excluded.
@@ -1020,7 +1020,7 @@ function BuilderHeader({
         : "Today's suggested parlays.";
   const subcopy =
     mode === "build"
-      ? "Create a custom card from modeled-sport legs. Custom cards are not official Suggested Parlays and are not publicly tracked."
+      ? "Create a custom card from modeled-sport legs. Custom cards are not official Parlay Lab and are not publicly tracked."
       : mode === "bankroll"
         ? "Set a bankroll, pick a risk preference, and the planner suggests stake sizes across today's model-ranked slips. Educational — not financial advice."
         : optimizerActive
@@ -1103,7 +1103,7 @@ function ModesIntro() {
       style={{ color: "var(--vault-text-mute)", maxWidth: 680 }}
     >
       Three ways to use Parlay Lab:{" "}
-      <strong style={strong}>Suggested Parlays</strong> are the model&apos;s
+      <strong style={strong}>Parlay Lab</strong> are the model&apos;s
       top-ranked slips for this slate.{" "}
       <strong style={strong}>Build Your Own</strong> assembles a custom slip
       (not officially tracked).{" "}

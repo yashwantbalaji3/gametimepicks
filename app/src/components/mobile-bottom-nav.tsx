@@ -115,6 +115,23 @@ function NavGlyph({ bucket, active }: { bucket: MobileNavBucket; active: boolean
           <path d="m8.5 12.5 2.5 2.5 4.5-5" />
         </svg>
       );
+    case "products":
+      // Stacked cards — the paper products.
+      return (
+        <svg {...props}>
+          <rect x="4" y="8" width="16" height="12" rx="2" />
+          <path d="M6.5 5h11" />
+          <path d="M9 2.5h6" />
+        </svg>
+      );
+    case "ask":
+      // Speech bubble — Ask GameTime.
+      return (
+        <svg {...props}>
+          <path d="M4 5h16v11H9l-5 4z" />
+          <path d="M8.5 10.5h7" />
+        </svg>
+      );
     case "sports":
       // Calendar — the Sports & Events schedules hub.
       return (
