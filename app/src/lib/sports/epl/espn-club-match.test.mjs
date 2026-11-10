@@ -1,6 +1,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import os from "node:os";
 import path from "node:path";
 import { createHash } from "node:crypto";
 import { fileURLToPath } from "node:url";
@@ -66,12 +67,14 @@ test("squad lookup is by canonical club; unknown or duplicated clubs give no squ
  *     compare disagreed ONLY on Bournemouth home fixtures — the known 2026-09-12 defect.
  */
 /**
- * KNOWN DEFECT, PINNED (founder approval B, 2026-11-09). These 18 frozen player-projection snapshots were built while
+ * KNOWN DEFECT, PINNED (founder approval B, 2026-11-09; extended 18 → 20 by the founder 2026-11-10 for the two
+ * snapshots main's old-builder matchweek refreshes wrote at 01:28Z and 01:43Z, before #1295 shipped the ESPN builder).
+ * These 20 frozen player-projection snapshots are historical records missing their ESPN id: they were built while
  * every EPL fixture carried openfootball's provisional "Saturday 15:00" kickoff; the ESPN lookup by that date missed
  * the games ESPN placed on other days, so they carry no espnEventId (EPL-KICKOFF-HIST in the master backlog; correction
  * is a separate founder decision). Frozen records are never edited, so the exception is EXACT: only these files, only
  * at these bytes (sha256), only these fixtures. Any other snapshot — every future one included — or any change to a
- * pinned file still fails, and a pin that no longer matches a missing id fails too.
+ * pinned file still fails, and a pin that no longer matches a missing id fails too. A narrow exception, not a validation.
  */
 const KNOWN_MISSING_ESPN_ID = Object.freeze({
   "snapshot-202611030054.json": { sha256: "713a77f2a064ecaeabd75b059a9db931ef2195df8c13f5a6e569c041cd249e01", slugs: ["everton-v-coventry-city-2026-11-07", "crystal-palace-v-liverpool-2026-11-07", "sunderland-v-chelsea-2026-11-07", "ipswich-town-v-bournemouth-2026-11-07", "brighton-and-hove-albion-v-brentford-2026-11-07", "manchester-united-v-aston-villa-2026-11-07"] },
@@ -91,30 +94,55 @@ const KNOWN_MISSING_ESPN_ID = Object.freeze({
   "snapshot-202611081803.json": { sha256: "9912cb6da2f41ebcd26c5afe3133a2bdfb6d25b482bdc9255223ae85ebf0226a", slugs: ["liverpool-v-manchester-united-2026-11-21", "hull-city-v-brighton-and-hove-albion-2026-11-21", "brentford-v-everton-2026-11-21"] },
   "snapshot-202611081858.json": { sha256: "d1be1806185b044e1c6fa54f03dc3e8d5b6b441ae0cc9fc4bef921bbf3bc0b2e", slugs: ["liverpool-v-manchester-united-2026-11-21", "hull-city-v-brighton-and-hove-albion-2026-11-21", "brentford-v-everton-2026-11-21"] },
   "snapshot-202611081919.json": { sha256: "372f8eb1695a68e57a25cd5853151fd35217b046f616216ae34dbf2c7f8f9ca7", slugs: ["liverpool-v-manchester-united-2026-11-21", "hull-city-v-brighton-and-hove-albion-2026-11-21", "brentford-v-everton-2026-11-21"] },
-  "snapshot-202611090043.json": { sha256: "1fd7dafd4d4a1809caa4f93e4fa24180d3eab7b705266ef2f34889dcfb5c0f08", slugs: ["liverpool-v-manchester-united-2026-11-21", "hull-city-v-brighton-and-hove-albion-2026-11-21", "brentford-v-everton-2026-11-21"] },
+  "snapshot-202611090043.json": { sha256: "1fd7dafd4d4a1809caa4f93e4fa24180d3eab7b705266ef2f34889dcfb5c0f08", slugs: ["liverpool-v-manchester-united-2026-11-21", "hull-city-v-brighton-and-hove-albion-2026-11-21", "brentford-v-everton-2026-11-21"] },  "snapshot-202611100128.json": { sha256: "66cfdb6562673b84c823b80969b74d6829d00b0d2a40ea2dc34438a0fa5b9e70", slugs: ["liverpool-v-manchester-united-2026-11-21", "hull-city-v-brighton-and-hove-albion-2026-11-21", "brentford-v-everton-2026-11-21"] },
+  "snapshot-202611100143.json": { sha256: "5f9a97254b3303e7927adf38cd67cf09807d3ea82fc444140bd46a271b922e5c", slugs: ["liverpool-v-manchester-united-2026-11-21", "hull-city-v-brighton-and-hove-albion-2026-11-21", "brentford-v-everton-2026-11-21"] },
+});
+
+/** The pin guard over a snapshot directory: pinned bytes unchanged, every missing id pinned, no stale pin. */
+function checkMissingEspnIdPins(dir, pins) {
+  const files = fs.readdirSync(dir).filter((f) => /^snapshot-\d{12}\.json$/.test(f));
+  assert.ok(files.length > 0, "snapshots must be readable, or this probe is vacuous");
+  /* The pinned files are exactly the bytes that were reviewed. */
+  for (const [file, pin] of Object.entries(pins)) {
+    assert.equal(createHash("sha256").update(fs.readFileSync(path.join(dir, file))).digest("hex"), pin.sha256, `${file}: a pinned frozen snapshot changed`);
+  }
+  const pinnedSeen = new Set();
+  const docs = files.map((f) => [f, JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"))]);
+  for (const [f, doc] of docs) {
+    for (const fx of doc.fixtures ?? []) {
+      if (fx.espnEventId) continue;
+      const pin = pins[f];
+      assert.ok(pin?.slugs.includes(fx.slug), `${f} ${fx.slug} has no espnEventId — the grader would take the lookup path`);
+      pinnedSeen.add(`${f}|${fx.slug}`);
+    }
+  }
+  assert.deepEqual([...pinnedSeen].sort(), Object.entries(pins).flatMap(([file, pin]) => pin.slugs.map((x) => `${file}|${x}`)).sort(), "every pin matches a fixture still missing its id (no stale pin)");
+  return docs;
+}
+
+test("pin guard: the 20 pinned snapshots pass alone; a 21st unpinned snapshot missing its ESPN id fails", () => {
+  assert.equal(Object.keys(KNOWN_MISSING_ESPN_ID).length, 20);
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "epl-pin-"));
+  try {
+    for (const file of Object.keys(KNOWN_MISSING_ESPN_ID)) fs.copyFileSync(path.join(PROJ_DIR, file), path.join(tmp, file));
+    checkMissingEspnIdPins(tmp, KNOWN_MISSING_ESPN_ID);
+    /* A future old-builder snapshot: same provisional fixtures, a new name, not pinned. */
+    fs.copyFileSync(path.join(PROJ_DIR, "snapshot-202611100143.json"), path.join(tmp, "snapshot-202611100200.json"));
+    assert.throws(() => checkMissingEspnIdPins(tmp, KNOWN_MISSING_ESPN_ID), /snapshot-202611100200\.json .* has no espnEventId/);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
 });
 
 test("probe: committed snapshots — grader event path unchanged; side fix changes only Bournemouth home lineups", () => {
-  const files = fs.readdirSync(PROJ_DIR).filter((f) => /^snapshot-\d{12}\.json$/.test(f));
-  assert.ok(files.length > 0, "snapshots must be readable, or this probe is vacuous");
+  const docs = checkMissingEspnIdPins(PROJ_DIR, KNOWN_MISSING_ESPN_ID);
   const oldNorm = (n) => String(n ?? "").toLowerCase().replace(/[^a-z]/g, "");
-  /* The pinned files are exactly the bytes that were reviewed. */
-  for (const [file, pin] of Object.entries(KNOWN_MISSING_ESPN_ID)) {
-    assert.equal(createHash("sha256").update(fs.readFileSync(path.join(PROJ_DIR, file))).digest("hex"), pin.sha256, `${file}: a pinned frozen snapshot changed`);
-  }
-  const pinnedSeen = new Set();
   let fixtures = 0;
   let published = 0;
   const changed = new Set();
-  for (const f of files) {
-    const doc = JSON.parse(fs.readFileSync(path.join(PROJ_DIR, f), "utf8"));
+  for (const [f, doc] of docs) {
     for (const fx of doc.fixtures ?? []) {
       fixtures += 1;
-      if (!fx.espnEventId) {
-        const pin = KNOWN_MISSING_ESPN_ID[f];
-        assert.ok(pin?.slugs.includes(fx.slug), `${f} ${fx.slug} has no espnEventId — the grader would take the lookup path`);
-        pinnedSeen.add(`${f}|${fx.slug}`);
-      }
       if (fx.lineupState !== "PUBLISHED") continue;
       published += 1;
       const teams = [...new Set(fx.players.map((p) => p.teamName))].map((teamName) => ({ teamName }));
@@ -125,6 +153,5 @@ test("probe: committed snapshots — grader event path unchanged; side fix chang
     }
   }
   assert.ok(fixtures > 100 && published > 0);
-  assert.deepEqual([...pinnedSeen].sort(), Object.entries(KNOWN_MISSING_ESPN_ID).flatMap(([file, pin]) => pin.slugs.map((x) => `${file}|${x}`)).sort(), "every pin matches a fixture still missing its id (no stale pin)");
   assert.deepEqual([...changed].sort(), ["bournemouth-v-brentford-2026-09-12"]);
 });
