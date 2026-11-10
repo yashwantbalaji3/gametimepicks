@@ -42,6 +42,9 @@ import { lastCardPerTier } from "@/lib/results/v2/suggested-history.mjs";
 import { loadLabRecord } from "@/lib/parlays/lab-record";
 import ParlayCenterNoCard, { type OtherLaneCards } from "@/components/parlays/parlay-center-no-card";
 import { loadCurrentSportLabLadder } from "@/lib/parlays/sport-lab-cards";
+import SportNightStatus from "@/components/parlays/sport-night-status";
+import { sportNightStatus, OFF_SEASON_TIER_REASON } from "@/lib/parlays/sport-night-status";
+import { nbaGamesOn, nflGamesOn } from "@/lib/parlays/sport-night-counts";
 
 /* The other suggested-card lanes, each with its own page (the "Other lanes" links below). */
 const OTHER_LANES = [
@@ -77,6 +80,8 @@ export default function ParlayCenterSuggestedPage() {
   /* TRUTH-001: the ladder producer ran for this date (its artifact exists, even with zero cards) or the season is
      over — either way nothing is "pending". */
   const ladderProducerRan = riskLadderProducerRan(dataRoot, ladderDate) || !!offSeasonReason;
+  /* UX-06/07: the MLB off-season reason is MLB's alone; every other sport states its own night from the Level A registry. */
+  const sportNight = offSeasonReason ? sportNightStatus({ mlbOffSeasonReason: offSeasonReason, nbaGames: nbaGamesOn(dataRoot, ladderDate), nflGames: nflGamesOn(dataRoot, ladderDate) }) : null;
   /* The precomputed 4x4 tier grid — server-resolved, so every reader with the same bankroll sees
      the same set and the mapping is auditable rather than re-derived per browser. */
   const tierGrid = loadTierGrid(dataRoot, "mlb");
@@ -129,7 +134,7 @@ export default function ParlayCenterSuggestedPage() {
         <RiskLadderBoard
           entryShowsTitle={false}
           cards={riskLadder?.cards ?? []}
-          skipped={offSeasonReason ? (["low", "medium", "high", "longshot"] as const).map((tier) => ({ tier, reason: offSeasonReason })) : riskLadder?.skipped ?? []}
+          skipped={offSeasonReason ? (["low", "medium", "high", "longshot"] as const).map((tier) => ({ tier, reason: OFF_SEASON_TIER_REASON })) : riskLadder?.skipped ?? []}
           overallRoi={riskLadder?.record.overall.roi ?? null}
           gradedDays={riskLadder?.record.gradedDays ?? 0}
           bettorTiers={riskLadder?.bettorTiers ?? []}
@@ -226,9 +231,11 @@ export default function ParlayCenterSuggestedPage() {
 
       {v2Model ? <TierBoard model={v2Model} /> : null}
 
+      {sportNight ? <SportNightStatus lines={sportNight} /> : null}
+
       {noCardToday ? (
         <ParlayCenterNoCard lastCardDate={lastCardDate} otherLanes={otherLaneCards}
-          reason={offSeasonReason ?? `Nothing on the ${etDayLabel(ladderDate) ?? ladderDate} slate cleared the card rules, so no card is published rather than forcing one.`}>
+          reason={offSeasonReason ? OFF_SEASON_TIER_REASON : `Nothing on the ${etDayLabel(ladderDate) ?? ladderDate} slate cleared the card rules, so no card is published rather than forcing one.`}>
           {todayBlocks}
           {suggestedSection}
         </ParlayCenterNoCard>
