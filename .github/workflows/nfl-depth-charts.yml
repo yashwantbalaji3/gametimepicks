@@ -29,11 +29,10 @@
 name: nfl-depth-charts
 
 on:
+  # Parlay Lab V3 slice 3 (2026-11-10): the scheduled refresh moved INTO nfl-event-window.yml on NFL game days and the
+  # day before, so the snapshot commits with that window's data (depth charts are a build input since slice 2; a
+  # standalone commit here was a Production build of its own). Manual runs stay available.
   workflow_dispatch:
-  schedule:
-    # 08:12 UTC Wednesday and Saturday. Never Sunday.
-    - cron: "12 8 * * 3"
-    - cron: "12 8 * * 6"
 
 concurrency:
   group: nfl-depth-charts

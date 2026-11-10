@@ -56,7 +56,10 @@ const range = (sizes) => (sizes.length === 1 ? (sizes[0] === 2 ? "two" : String(
  * @param {{ crossSportLegs: object[], nbaLegs: object[], disclosure?: string | null, enabled?: boolean }} input
  */
 export function levelAMixed({ crossSportLegs = [], nbaLegs = [], disclosure = null, enabled = levelAMixedEnabled() }) {
-  const pool = [...crossSportLegs.filter((l) => l.tierable && typeof l.probability === "number"), ...nbaLegs.filter((l) => l.sport === "nba" && typeof l.probability === "number")];
+  /* Founder decision 2026-11-10 (Parlay Lab V3 decision 2): NBA Elo never assigns a risk tier, so no NBA leg enters a
+     mixed card, whatever the caller passes. `nbaLegs` is kept in the signature for the historical callers and ignored. */
+  void nbaLegs;
+  const pool = crossSportLegs.filter((l) => l.sport !== "nba" && l.tierable && typeof l.probability === "number");
   const sports = sportsOf(pool);
   const tooFew = sports.length < 2 ? `a mixed card needs legs from two sports; today ${sports.length === 0 ? "no sport has" : `only ${sports.map((s) => SPORT_NAME[s] ?? s).join("")} has`} a leg with a published probability` : null;
   const parlayLab = PUBLIC_RISK_TIERS.map((tier) => {

@@ -29,11 +29,14 @@ import { best, levelACardKey } from "./engine.mjs";
 export const NBA_GW_POLICY = "nba-game-winner-tiers@1";
 export const NBA_GW_RULE_DOC = "docs/LEVEL_A_NBA_GAME_WINNER_TIERING_RULE.md";
 
-/** THE SWITCH. One committed constant. Flipped to true in Release H (2026-10-24) after the §7 evidence on the committed
- *  10-24 lane matched (founder conditional approval 2026-10-23: no further routine go). Rollback = set it back to false. */
-export const NBA_GAME_WINNER_TIERS_PUBLIC = true;
+/** THE SWITCH. One committed constant. Flipped to true in Release H (2026-10-24); set back to FALSE by founder decision
+ *  2026-11-10 (Parlay Lab V3 decision 2, ~/gtp-evidence/nov10-founder-parlay-v3-decisions.md sha256 70bb6a2c…): NBA Elo
+ *  "never used for an official risk tier" until a calibrated NBA forecast is promoted through the normal approval. Forward
+ *  only: cards already recorded stay in the record and are graded as they were. The env flag no longer turns it on
+ *  (a preview could otherwise publish NBA tiers); re-enabling is a new founder decision and a committed change here. */
+export const NBA_GAME_WINNER_TIERS_PUBLIC = false;
 export const NBA_GW_FLAG = "NEXT_PUBLIC_NBA_GAME_WINNER_TIERS";
-export const nbaGameWinnerTiersEnabled = (env = { [NBA_GW_FLAG]: process.env.NEXT_PUBLIC_NBA_GAME_WINNER_TIERS }) => NBA_GAME_WINNER_TIERS_PUBLIC || env[NBA_GW_FLAG] === "1";
+export const nbaGameWinnerTiersEnabled = () => NBA_GAME_WINNER_TIERS_PUBLIC;
 
 export const NBA_GW_REFUSAL = Object.freeze({
   NOT_NBA_GAME_WINNER: "not an NBA game-winner leg",

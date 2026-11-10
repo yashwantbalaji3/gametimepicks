@@ -145,6 +145,15 @@ export function eloAccuracyDisclosure({ graded, minN }) {
 }
 
 /**
+ * The one-line calibration caveat beside an NBA Elo side in the Parlay Lab research section (founder decision 2026-11-10,
+ * Parlay Lab V3 decision 2: MODEL PROJECTION + a concise calibration caveat). Same counts as eloAccuracyDisclosure.
+ */
+export function eloCalibrationCaveat({ graded, minN }) {
+  const n = Number.isInteger(graded) && graded >= 0 ? graded : 0;
+  return `Calibration not yet established: ${n} of ${minN} regular-season games graded. An Elo-derived estimate, never a risk tier.`;
+}
+
+/**
  * PUBLISHER RULE: does a rebuild of `date` carry the field? A slate that is ALREADY published keeps exactly what it was
  * published with (its `withheld` names `winProbability` iff it was published without the field), so flipping the switch
  * never makes a published slate "differ" and never rewrites one; only a slate not yet published follows the switch.

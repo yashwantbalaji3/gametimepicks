@@ -28,7 +28,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { canEnterModelSuggestions } from "../../sport-capability-registry.ts";
 import { loadEplForecasts, forecastRows as eplForecastRows } from "../../sports/epl/forecast-view.ts";
-import { eloWinProbabilityOf, eloWinProbabilityText } from "../../sports/nba/elo-win-probability.mjs";
+import { eloWinProbabilityOf, eloWinProbabilityText, eloCalibrationCaveat } from "../../sports/nba/elo-win-probability.mjs";
 import { loadEloWinProbabilityContext } from "../../sports/nba/elo-win-probability-context.mjs";
 import { loadNflSelections } from "./nfl-source.mjs";
 
@@ -79,7 +79,7 @@ export function nbaSelections({ repoRoot, date, eloCtx = null }) {
       forecast: { owner: "nba-official-composition@1", modelId: g.receipt?.modelVersion ?? null, stampedAt: g.frozenAt, ref: `${rel}#${g.providerEventId}` },
       // founder decision 2026-10-23: the Elo rating's game-winner probability, for display only (never `probability`)
       uncertainty: wp
-        ? { kind: "elo-win-probability", home: wp.home, away: wp.away, text: eloWinProbabilityText(wp), note: elo.disclosure }
+        ? { kind: "elo-win-probability", home: wp.home, away: wp.away, text: eloWinProbabilityText(wp), note: elo.disclosure, caveat: eloCalibrationCaveat(elo) }
         : { kind: "side-only", note: doc.withheld?.winProbability ?? "Win probability not published." },
       participantStatuses: [],
       settlement: { grader: "nba-settlement-contract", market: "moneyline", side },
