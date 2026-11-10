@@ -203,6 +203,24 @@ export function eplForecastGeneratedAt(slug: string): string | null {
 }
 
 /** Resolve one fixture's forecast of record: current when live, archived otherwise. */
+/**
+ * KICKOFF DISCLOSURE (founder Option A, 2026-11-09). A frozen dated row published on openfootball's provisional
+ * "Saturday 15:00" slot keeps its page, slug and values (frozen records are never rewritten). Its page discloses — and
+ * only then — when the live set (ESPN-confirmed kickoffs) says that time is not the confirmed one:
+ *   CORRECTED   the live set carries the same pairing under another slug, at its confirmed kickoff;
+ *   UNCONFIRMED the live set lists the pairing among its unverified kickoffs ("kickoff not confirmed").
+ * A current row, a row whose time is confirmed, and a settled/past match (absent from the live set) get null: their
+ * pages keep their existing text.
+ */
+export type EplKickoffDisclosure = { state: "CORRECTED"; current: EplForecastRow } | { state: "UNCONFIRMED" } | null;
+export function eplKickoffDisclosure(row: Pick<EplForecastRow, "slug" | "homeClub" | "awayClub">, set: EplForecastSet | null = loadEplForecasts()): EplKickoffDisclosure {
+  if (!row?.homeClub || !row?.awayClub || !set) return null;
+  const current = set.rows.find((r) => r.homeClub === row.homeClub && r.awayClub === row.awayClub && r.slug && (r as { kickoffSource?: string }).kickoffSource === "ESPN");
+  if (current) return current.slug !== row.slug ? { state: "CORRECTED", current } : null;
+  const unverified = ((set as { unverifiedKickoffs?: Array<{ matchup: string }> }).unverifiedKickoffs ?? []).some((u) => u.matchup === `${row.homeClub} v ${row.awayClub}`);
+  return unverified ? { state: "UNCONFIRMED" } : null;
+}
+
 export function findEplForecastAnywhere(slug: string): EplForecastRow | null {
   const current = findEplForecast(loadEplForecasts(), slug);
   if (current) return current;

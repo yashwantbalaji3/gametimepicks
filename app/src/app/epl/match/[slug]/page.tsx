@@ -28,7 +28,7 @@ import { notFound } from "next/navigation";
 
 import TeamLogo from "@/components/team-logo";
 import SectionHeader from "@/components/section-header";
-import { loadEplForecasts, findEplForecastAnywhere, eplForecastGeneratedAt, loadEplForecastArchive, loadEplPlayerProjections, playersForFixture, reportableRows } from "@/lib/sports/epl/forecast-view";
+import { loadEplForecasts, findEplForecastAnywhere, eplKickoffDisclosure, eplForecastGeneratedAt, loadEplForecastArchive, loadEplPlayerProjections, playersForFixture, reportableRows } from "@/lib/sports/epl/forecast-view";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { researchTeamsForGame } from "@/lib/research-pages/projection-store";
 import SimulationStorySection from "@/components/simulate/simulation-story-section";
@@ -108,6 +108,8 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
    * furniture of a forecast around it — that reads as coverage.
    */
   if (!row) notFound();
+  /* Option A: a provisional-slot page whose fixture the live set now carries at an ESPN-confirmed kickoff says so. */
+  const kickoffNote = eplKickoffDisclosure(row, set);
 
   const home = row.homeClub ?? row.matchup.split(" v ")[0];
   const away = row.awayClub ?? row.matchup.split(" v ")[1];
@@ -131,6 +133,13 @@ export default function EplMatchPage({ params }: { params: { slug: string } }) {
     <div data-sport="epl" className="mx-auto w-full max-w-[900px] px-4 py-8" style={{ color: "var(--vault-text)" }}>
       <Link href="/epl/" className="gtp-backlink" style={{ fontSize: 12, color: "var(--vault-text-mute)" }}>← Premier League fixtures</Link>
 
+      {kickoffNote ? (
+        <p role="note" data-epl-kickoff-corrected={kickoffNote.state} className="mt-4" style={{ margin: "16px 0 0", padding: "10px 12px", borderRadius: 10, border: "1px solid var(--vault-border-strong)", fontSize: 13.5, color: "var(--vault-text)" }}>
+          {kickoffNote.state === "CORRECTED"
+            ? <>Kickoff corrected: this page was published on a provisional time ({ET(row.kickoffUtc)} ET). The confirmed kickoff is {ET(kickoffNote.current.kickoffUtc)} ET. <Link href={`/epl/match/${kickoffNote.current.slug}/`}>See the current forecast</Link>.</>
+            : <>Kickoff not confirmed: this page was published on a provisional time ({ET(row.kickoffUtc)} ET) that has not been confirmed.</>}
+        </p>
+      ) : null}
       {/* ── Identity ─────────────────────────────────────────────────────────────────────────── */}
       <header className="mt-4">
         <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>

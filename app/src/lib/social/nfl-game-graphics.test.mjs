@@ -12,6 +12,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { spawnSync } from "node:child_process";
 import os from "node:os";
 import path from "node:path";
 
@@ -36,14 +37,34 @@ const AS_OF = "2026-10-30T08:30:00Z"; // before every Sunday/Monday kickoff of w
 const SUNDAY_LATE = "2026-11-01T19:00:00Z"; // the 18:00Z games have kicked off; 21:05Z / 21:25Z / night games have not
 const EVENTS = ["401873036", "401873024", "401873032"]; // CHI @ SEA (Mon), ARI @ DAL (Sun early), LAC @ LAR (13 LAC players)
 const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-nfl-game-graphics-"));
+/*
+ * WEEK-8 INPUTS, FROZEN (2026-11-09). The week rolled and its games left the live forecast union, so this file threw
+ * "no Sunday/Monday games … week 8" on every run (main red since Nov 2). The contract under test is the committed week-8
+ * export, so its two forecast inputs are frozen here exactly as main held them before the rollover (commit 79df3d4832,
+ * 2026-11-01T16:01Z — the last state with all of week 8). Every other input is the live public/ tree (symlinked), the
+ * record resolver reads the real repo, and no assertion changed.
+ */
+const REPO = path.resolve(APP, "..");
+const WEEK8_FORECASTS = path.join(APP, "src/lib/social/__fixtures__/nfl-week8-forecasts");
+const FROZEN_PUBLIC = (() => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-nfl-w8-public-"));
+  const mirror = (src, dst, keep) => { fs.mkdirSync(dst, { recursive: true }); for (const n of fs.readdirSync(src)) if (!keep.includes(n)) fs.symlinkSync(path.join(src, n), path.join(dst, n)); };
+  mirror(PUBLIC, root, ["data"]);
+  mirror(path.join(PUBLIC, "data"), path.join(root, "data"), ["nfl"]);
+  mirror(path.join(PUBLIC, "data", "nfl"), path.join(root, "data", "nfl"), ["forecasts"]);
+  mirror(path.join(PUBLIC, "data", "nfl", "forecasts"), path.join(root, "data", "nfl", "forecasts"), ["latest.json", "frozen-latest.json"]);
+  for (const n of ["latest.json", "frozen-latest.json"]) fs.copyFileSync(path.join(WEEK8_FORECASTS, n), path.join(root, "data", "nfl", "forecasts", n));
+  return root;
+})();
+const AT = { publicDir: FROZEN_PUBLIC, repoRoot: REPO };
 
-const prepared = prepareNflGameGraphics({ week: WEEK, asOf: AS_OF, purpose: PURPOSE.FOUNDER_REVIEW });
-const canon = loadCanonical({ seasonType: 2, week: WEEK });
+const prepared = prepareNflGameGraphics({ week: WEEK, asOf: AS_OF, purpose: PURPOSE.FOUNDER_REVIEW, ...AT });
+const canon = loadCanonical({ seasonType: 2, week: WEEK, ...AT });
 const game = (id) => prepared.games.find((g) => g.eventId === id);
 
 /* The official snapshot of each game, rebuilt here from the committed files WITHOUT the view or the renderer's loader. */
 const readJson = (p) => JSON.parse(fs.readFileSync(p, "utf8"));
-const union = unionFrozenForecasts(readJson(path.join(PUBLIC, "data/nfl/forecasts/latest.json")), readJson(path.join(PUBLIC, "data/nfl/forecasts/frozen-latest.json")), { resolve: nflPublicRecordResolver(path.resolve(APP, "..")) });
+const union = unionFrozenForecasts(readJson(path.join(FROZEN_PUBLIC, "data/nfl/forecasts/latest.json")), readJson(path.join(FROZEN_PUBLIC, "data/nfl/forecasts/frozen-latest.json")), { resolve: nflPublicRecordResolver(REPO) });
 const worlds = new Map(readWorldModelArtifacts(PUBLIC).map((a) => [String(a.identity.providerEventId), a]));
 const snapshotOf = (id) => {
   const f = union.forecasts.find((x) => String(x.providerEventId) === id);
@@ -277,7 +298,7 @@ test("captions and exports: no em or en dash, no promotional words; review banne
 /* ───────────────────────────── determinism ───────────────────────────── */
 
 test("determinism: same inputs give byte-identical exports, card HTML and captions", () => {
-  const again = prepareNflGameGraphics({ week: WEEK, asOf: AS_OF, purpose: PURPOSE.FOUNDER_REVIEW });
+  const again = prepareNflGameGraphics({ week: WEEK, asOf: AS_OF, purpose: PURPOSE.FOUNDER_REVIEW, ...AT });
   assert.deepEqual(again.games.map((g) => serializeNflGameGraphicsExport(g.doc)), prepared.games.map((g) => serializeNflGameGraphicsExport(g.doc)));
   assert.deepEqual(again.games.map((g) => g.cards.map((c) => c.html)), prepared.games.map((g) => g.cards.map((c) => c.html)));
   assert.deepEqual(again.games.map((g) => g.caption), prepared.games.map((g) => g.caption));
@@ -286,16 +307,16 @@ test("determinism: same inputs give byte-identical exports, card HTML and captio
 /* ───────────────────────────── refusals ───────────────────────────── */
 
 test("refusals: started games, social purpose, output inside the repo, tampered values or cards", async () => {
-  const late = prepareNflGameGraphics({ week: WEEK, asOf: SUNDAY_LATE, purpose: PURPOSE.FOUNDER_REVIEW });
+  const late = prepareNflGameGraphics({ week: WEEK, asOf: SUNDAY_LATE, purpose: PURPOSE.FOUNDER_REVIEW, ...AT });
   assert.equal(late.refused.length, 8, "the eight 18:00Z games have kicked off");
   assert.ok(late.refused.every((r) => r.reason === "GAME_STARTED" && r.kickoffUtc === "2026-11-01T18:00Z"));
   assert.equal(late.games.length, 5);
-  assert.throws(() => prepareNflGameGraphics({ week: WEEK, asOf: SUNDAY_LATE, purpose: PURPOSE.FOUNDER_REVIEW, eventId: "401873024" }), /has started/);
+  assert.throws(() => prepareNflGameGraphics({ week: WEEK, asOf: SUNDAY_LATE, purpose: PURPOSE.FOUNDER_REVIEW, eventId: "401873024", ...AT }), /has started/);
   const src = canon.games.find((x) => String(x.view.providerEventId) === "401873024");
   assert.throws(() => buildNflGameGraphicsExport({ view: src.view, board: src.board, positions: canon.positions, asOf: "2026-11-01T18:00:00Z" }), /has started/);
-  assert.throws(() => prepareNflGameGraphics({ week: WEEK, asOf: AS_OF, purpose: PURPOSE.SOCIAL }), /not authorized for social/);
-  assert.throws(() => prepareNflGameGraphics({ week: WEEK, asOf: "2026-10-30" }), /as-of/);
-  await assert.rejects(renderNflGameGraphics({ week: "8", "as-of": AS_OF, purpose: "founder-review", out: path.join(APP, ".graphics-export", "nfl"), "no-png": true }), /inside the repository/);
+  assert.throws(() => prepareNflGameGraphics({ week: WEEK, asOf: AS_OF, purpose: PURPOSE.SOCIAL, ...AT }), /not authorized for social/);
+  assert.throws(() => prepareNflGameGraphics({ week: WEEK, asOf: "2026-10-30", ...AT }), /as-of/);
+  await assert.rejects(renderNflGameGraphics({ week: "8", "as-of": AS_OF, purpose: "founder-review", out: path.join(APP, ".graphics-export", "nfl"), "no-png": true }, AT), /inside the repository/);
   // no official snapshot
   assert.throws(() => buildNflGameGraphicsExport({ view: { ...src.view, official: { snapshotId: null, refusal: "NO_PRE_LOCK_RECORD" } }, board: src.board, positions: canon.positions, asOf: AS_OF }), /no official snapshot/);
   // a view value that is not the board's
@@ -345,7 +366,7 @@ const NO_BROWSER = (() => { try { return fs.existsSync(chromium.executablePath()
 
 test("end to end: validated files and 1080×1350 PNGs outside the repo, manifest sha256s", { skip: NO_BROWSER }, async () => {
   const out = path.join(tmp, "render");
-  const { pngs, games } = await renderNflGameGraphics({ week: "8", "as-of": AS_OF, purpose: "founder-review", out, scales: "1", event: "401873036" });
+  const { pngs, games } = await renderNflGameGraphics({ week: "8", "as-of": AS_OF, purpose: "founder-review", out, scales: "1", event: "401873036" }, AT);
   assert.equal(games.length, 1);
   assert.equal(pngs.length, games[0].cards.length);
   const dims = (f) => { const b = fs.readFileSync(f); return [b.readUInt32BE(16), b.readUInt32BE(20)]; };
@@ -364,4 +385,14 @@ test("no non-test source module imports the NFL graphics edition, cards or rende
   const walk = (d, out = []) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p, out); else if (/\.(tsx?|mjs|jsx?)$/.test(p) && !/\.test\./.test(p)) out.push(p); } return out; };
   const importers = walk(path.join(APP, "src")).filter((f) => /nfl-game-graphics-export|nfl-game-cards|render-nfl-game-graphics/.test(fs.readFileSync(f, "utf8")) && !f.endsWith("nfl-game-graphics-export.mjs"));
   assert.deepEqual(importers.map((f) => path.relative(APP, f)), []);
+});
+
+test("CLI --public-dir renders a settled week from its frozen inputs (the live app/public no longer carries week 8)", () => {
+  const out = fs.mkdtempSync(path.join(os.tmpdir(), "gtp-nfl-w8-cli-"));
+  const run = (extra) => spawnSync("npx", ["tsx", "scripts/social/render-nfl-game-graphics.mjs", "--season-type", "2", "--week", "8", "--as-of", AS_OF, "--purpose", "founder-review", "--no-png", "--out", out, ...extra], { cwd: APP, encoding: "utf8" });
+  const frozen = run(["--public-dir", FROZEN_PUBLIC]);
+  assert.equal(frozen.status, 0, frozen.stderr || frozen.stdout);
+  const live = run([]);
+  assert.notEqual(live.status, 0, "without the frozen inputs there is no week 8 to render");
+  assert.match(`${live.stderr}${live.stdout}`, /no Sunday\/Monday games in season type 2 week 8/);
 });
