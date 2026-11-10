@@ -24,7 +24,9 @@ import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
 import { nbaExclusionText, type NbaTodayGame, type NbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { hubStatusDisplay, type HubGameRow } from "@/lib/sport-hub/contract";
-import { MatchupCard, forecastRowId } from "@/components/nba/experimental-lane";
+import { forecastRowId, laneCardId, et } from "@/components/nba/experimental-lane";
+import GameCard, { type GameCardModel } from "@/components/game/game-card";
+import GameStatusOnClock from "@/components/nba/projection-game-status";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
 import { HubSlipButton, type HubSlipLegs } from "@/components/products/hub-slip";
 import { NBA_GAME_PAGE_TEXT, nbaGamePageHrefIfExported, nbaGamePageLabel } from "@/components/nba/game-page-link.mjs";
@@ -118,44 +120,40 @@ export function NbaTodayGames({ slate, slip, gamePages, lineSummaries }: {
 }) {
   if (!slate.games.length) return null;
   const pending = slate.forecast === "PENDING";
+  /* SHARED GAME CARD (2026-11-09): each game is components/game/game-card.tsx in its compact density — the component Home,
+     Today and the other hubs use — with ONE link to the game: its page when exported (it opens on the Official Forecast),
+     else the forecast row on this page; a Game Simulation link only where no game page opens it, tagged hypothetical. */
   return (
-    <div className="nbx-grid">
-      {slate.games.map((g) => withLineSummary(lineSummaries?.get(g.id),
-        <MatchupCard key={g.id} favoured={g.favoured?.abbr ?? null} game={{ id: g.id, tipUtc: g.tipUtc, status: g.status, away: { ...g.away, logo: g.away.logoTeam }, home: { ...g.home, logo: g.home.logoTeam } }}>
-          {(() => {
-            const line = forecastLine(g, pending);
-            return g.finalNote || line ? (
-              <div className="nbx-read">
-                {g.finalNote ? <strong><GameStateTag state="final" /> Final · {g.finalNote}</strong> : null}
-                {line ? <p>{g.favoured && !g.finalNote ? <><GameStateTag state="official" />{" "}</> : null}{line}</p> : null}
-              </div>
-            ) : null;
-          })()}
-          {g.favoured || g.theaterHref || gamePages?.has(g.id) || slip?.has(g.id) ? (
-            <p className="nbx-acts">
-              {gamePages?.has(g.id) ? <Link href={nbaGamePageHrefIfExported(g.id, gamePages)!} prefetch={false} aria-label={nbaGamePageLabel(g.away.abbr, g.home.abbr)} data-nba-game-page={g.id}>{NBA_GAME_PAGE_TEXT}</Link> : null}
-              {g.favoured ? <Link href={g.theaterHref ? `${g.theaterHref}#official-predictions` : `#${forecastRowId(g.id)}`} prefetch={false}>{PUBLIC_TERMS.OFFICIAL_FORECAST} →</Link> : null}
-              {/* UX-10 (2026-11-09): "Game page →" and "Game Simulation →" opened the same /nba/simulation/<id>/ page — one
-                  link per destination: the Game Simulation link renders only where no game-page link already opens it. */}
-              {/* the hypothetical tag rides the simulation link itself, never alone under the card's buttons */}
-              {g.theaterHref && !gamePages?.has(g.id) ? <><Link href={g.theaterHref} prefetch={false} data-nba-theater-link={g.id}>{PUBLIC_TERMS.GAME_SIMULATION} →</Link><GameStateTag state="simulation" /></> : null}
-              {/* Vehicle N: only a Level A leg (hub-slip → levelASlipLegFor) — a game without one gets no button */}
-              <HubSlipButton leg={slip?.get(g.id)} />
-            </p>
-          ) : null}
-        </MatchupCard>,
-      ))}
-    </div>
+    <ul className="nbx-grid m-0 list-none p-0">
+      {slate.games.map((g) => {
+        const line = forecastLine(g, pending);
+        const page = nbaGamePageHrefIfExported(g.id, gamePages);
+        const summary = lineSummaries?.get(g.id);
+        const model: GameCardModel = {
+          id: g.id, anchorId: laneCardId(g.id), startLabel: et(g.tipUtc).replace(/^[A-Z][a-z]{2} \d+, /, ""), matchup: `${g.away.abbr} @ ${g.home.abbr}`, separator: "@",
+          statusNode: g.status === "final" ? "Final" : g.status === "postponed" ? "Postponed" : <GameStatusOnClock t={g.tipUtc} />,
+          sides: [g.away, g.home].map((t) => ({ name: t.abbr, logo: t.logoTeam ? { team: t.logoTeam, sport: "nba" } : null, favoured: g.favoured?.abbr === t.abbr })),
+          facts: [
+            ...(g.finalNote ? [{ state: "final" as const, text: `Final · ${g.finalNote}`, headline: true }] : []),
+            /* the MODEL PROJECTION tag already names the Official Forecast, so a favoured side reads "Atlanta Hawks favoured" */
+            ...(g.favoured && !g.finalNote ? [{ state: "official" as const, text: `${g.favoured.name ?? g.favoured.abbr} favoured` }]
+              : line ? [{ state: null, text: line }] : []),
+          ],
+          afterFacts: summary == null ? null : <div className="nbx-read" data-nba-line-summary="">{summary}</div>,
+          actions: page
+            ? [{ href: page, label: NBA_GAME_PAGE_TEXT.replace(/ →$/, ""), ariaLabel: nbaGamePageLabel(g.away.abbr, g.home.abbr), data: { "data-nba-game-page": g.id } }]
+            : [
+              ...(g.favoured ? [{ href: g.theaterHref ? `${g.theaterHref}#official-predictions` : `#${forecastRowId(g.id)}`, label: PUBLIC_TERMS.OFFICIAL_FORECAST }] : []),
+              ...(g.theaterHref ? [{ href: g.theaterHref, label: PUBLIC_TERMS.GAME_SIMULATION, data: { "data-nba-theater-link": g.id }, after: <GameStateTag state="simulation" /> }] : []),
+            ],
+        };
+        /* Vehicle N: only a Level A leg (hub-slip → levelASlipLegFor) — a game without one gets no button */
+        return <GameCard key={g.id} density="compact" model={model} extra={slip?.get(g.id) ? <HubSlipButton leg={slip.get(g.id)} /> : null} />;
+      })}
+    </ul>
   );
 }
 
-/** The card with the summary inserted after its forecast read — or the card itself, untouched, when there is none. */
-function withLineSummary(summary: React.ReactNode, card: React.ReactElement<{ children?: React.ReactNode }>) {
-  if (summary == null) return card;
-  const kids = card.props.children;
-  const [read, ...rest] = Array.isArray(kids) ? kids : [kids];
-  return React.cloneElement(card, undefined, read, <div className="nbx-read" data-nba-line-summary="">{summary}</div>, ...rest);
-}
 
 /**
  * The window's other games, one line each (WEIGHT: ~70 rows on an in-season /nba, HTML + flight — the shared .gtp-cr

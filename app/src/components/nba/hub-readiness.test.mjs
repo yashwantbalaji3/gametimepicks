@@ -67,8 +67,8 @@ test("before the morning publish: one pending line with the first tip-off; cards
   const first = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", hour: "numeric", minute: "2-digit" }).format(new Date(LANE.games.map((g) => g.tipUtc).sort()[0]));
   assert.ok(t.includes(`Today’s Official Forecast is not published yet. It publishes before the first tip-off (${first} ET)`), t.slice(0, 400));
   assert.equal((t.match(/not published yet/g) ?? []).length, 1, "said once for the slate");
-  assert.equal((html.match(/<article/g) ?? []).length, LANE.games.length, "every game still has its card");
-  assert.doesNotMatch(t, /Official Forecast: [^.]* favoured/, "no side before the forecast exists");
+  assert.equal((html.match(/<li id="nba-exp-/g) ?? []).length, LANE.games.length, "every game still has its card (the shared GameCard)");
+  assert.doesNotMatch(text(html.slice(html.indexOf('<li id="nba-exp-'))), / favoured/, "no side on any card before the forecast exists");
 });
 
 test("Game Simulations section: rendered only when today has a Game Simulation to open; the strip anchor follows it", () => {

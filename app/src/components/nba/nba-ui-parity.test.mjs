@@ -123,8 +123,10 @@ test("the homepage renders NBA as a Command Center lane from the hub's own view 
   // Founder P0 2026-10-29: + the gated model-vs-line summaries (undefined while the NBA line display is off —
   // prop-line-surfaces-switch-off.test.mjs); still one MatchupCard per game, the summary only inserted into it
   assert.match(hub, /<NbaTodayGames slate=\{slate\} slip=\{slip\} gamePages=\{gamePages\} lineSummaries=\{lineSummaries\} \/>/);
-  assert.match(read("src/components/nba/hub-overview.tsx"), /\{slate\.games\.map\(\(g\) => withLineSummary\(lineSummaries\?\.get\(g\.id\),\n\s+<MatchupCard key=\{g\.id\}/);
-  assert.match(read("src/components/nba/hub-overview.tsx"), /if \(summary == null\) return card;/, "no summary → the card itself, untouched");
+  // 2026-11-09: each game is the shared GameCard (compact), anchored at laneCardId; the summary rides only when present
+  assert.match(read("src/components/nba/hub-overview.tsx"), /id: g\.id, anchorId: laneCardId\(g\.id\)/);
+  assert.match(read("src/components/nba/hub-overview.tsx"), /return <GameCard key=\{g\.id\} density="compact" model=\{model\}/);
+  assert.match(read("src/components/nba/hub-overview.tsx"), /afterFacts: summary == null \? null :/, "no summary → no extra block");
   // weight: today's carded games are not listed a second time in the window's one-line lists
   assert.match(hub, /const rest = model\.rows\.filter\(\(r\) => !carded\.has\(String\(r\.id\)\)\);/);
   assert.match(hub, /<NbaGameList rows=\{upcoming\}/);
@@ -150,7 +152,7 @@ test("/nba overview: the four states say what is true, and 'publishes nothing' i
 test("pending cards: matchup, clock status (SSR 'Upcoming'), no link and no side before today's forecast exists", () => {
   const s = slate({ lane: null, theaterIds: [] });
   const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: s }));
-  assert.equal((h.match(/<article/g) ?? []).length, 2);
+  assert.equal((h.match(/<li id="nba-exp-/g) ?? []).length, 2);
   assert.equal((h.match(/<a /g) ?? []).length, 0, "no forecast link before it is published, no Game Simulation link without a built page");
   assert.match(h, /Upcoming/);
   // overnight W7 2026-10-28: the pending state is said ONCE, in the overview, with the first tip-off — not on every card
@@ -253,11 +255,11 @@ process.env.__NEXT_TRAILING_SLASH = "true";
 
 test("today's cards: each links to its Official Forecast and its Game Simulation — only when each exists", () => {
   const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate() }));
-  const cards = h.split("<article").slice(1);
+  const cards = h.split("<li id=").slice(1);
   assert.equal(cards.length, 2, "a card for every one of today's games");
   assert.match(cards[0], /href="\/nba\/simulation\/g1\/#official-predictions"[^>]*>Official Forecast →/, "built page → the full forecast section");
   assert.match(cards[0], /href="\/nba\/simulation\/g1\/"[^>]*>Game Simulation →/);
-  assert.match(text(cards[0]), /Official Forecast: Philadelphia 76ers favoured/);
+  assert.match(text(cards[0]), /MODEL PROJECTION Philadelphia 76ers favoured/, "the tag names the Official Forecast; the line names the side");
   assert.doesNotMatch(cards[1], /<a /, "an excluded game: no forecast link, no unbuilt simulation link");
   assert.match(text(cards[1]), /Unavailable: its forecast was not frozen before tip-off, so none is published\./, "the lane code in reader words");
   assert.doesNotMatch(cards[1], /NOT_PRE_TIP/);
@@ -346,7 +348,7 @@ test("one code per team (release owner 2026-10-25): on every committed slate the
     for (const g of lane.games) {
       const id = g.providerEventId, a = g.away.abbr, h = g.home.abbr;
       for (const x of [a, h]) aliases.add(x);
-      const card = cards.slice(cards.indexOf(`id="nba-exp-${id}"`), cards.indexOf("</article>", cards.indexOf(`id="nba-exp-${id}"`)));
+      const card = cards.slice(cards.indexOf(`id="nba-exp-${id}"`), cards.indexOf("</li>", cards.indexOf(`id="nba-exp-${id}"`)));
       assert.ok(card.length > 0, `${d} ${id}: a card`);
       assert.deepEqual([...card.matchAll(/<b(?: data-on="")?>([^<]+)<\/b>/g)].map((m) => m[1]), [a, h], `${d} ${id}: card header = lane codes`);
       assert.match(table, new RegExp(`<tr id="nba-fc-${id}"><th scope="row">${a} @ ${h}</th>`), `${d} ${id}: forecast row`);
@@ -387,23 +389,42 @@ test("UX slice 2026-11-09: a homepage NBA row opens its GAME PAGE when exported 
 
 test("UX-10 (2026-11-09): with its game page exported, a card links that page ONCE ('Game page →'), never a second 'Game Simulation →' to the same URL", () => {
   const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate(), gamePages: new Set(["g1"]) }));
-  const card = h.split("<article").slice(1)[0];
+  const card = h.split("<li id=").slice(1)[0];
   const plain = [...card.matchAll(/href="\/nba\/simulation\/g1\/"/g)].length;
   assert.equal(plain, 1, "one link to the game page");
   assert.match(card, /data-nba-game-page="g1"[^>]*>Game page →/);
   assert.doesNotMatch(card, />Game Simulation →</);
-  assert.match(card, /href="\/nba\/simulation\/g1\/#official-predictions"[^>]*>Official Forecast →/, "the forecast anchor stays");
+  // shared game card (2026-11-09): ONE link per card — the game page opens on the Official Forecast (its Default view)
+  assert.equal((card.match(/<a /g) ?? []).length, 1, "one link: the game page");
+  assert.doesNotMatch(card, /#official-predictions/);
 });
 
 test("founder acceptance 2026-11-09: NBA cards and lane rows say what each fact IS — MODEL PROJECTION (official), SIMULATION (hypothetical), FINAL (settled)", () => {
   const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate() }));
-  const card = h.split("<article").slice(1)[0];
-  assert.match(card, /data-game-state="official">MODEL PROJECTION<\/span> Official Forecast: Philadelphia 76ers favoured/);
+  const card = h.split("<li id=").slice(1)[0];
+  assert.match(card, /data-game-state="official">MODEL PROJECTION<\/span> Philadelphia 76ers favoured/);
   assert.match(card, />Game Simulation →<\/a><span class="gtp-state-tag is-simulation" data-game-state="simulation">SIMULATION · hypothetical</, "the simulation link is tagged hypothetical, beside the link");
-  const withPage = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate(), gamePages: new Set(["g1"]) })).split("<article").slice(1)[0];
+  const withPage = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate(), gamePages: new Set(["g1"]) })).split("<li id=").slice(1)[0];
   assert.doesNotMatch(withPage, /data-game-state="simulation"/, "no orphan tag when the game-page link replaces the simulation link");
   assert.doesNotMatch(card, /data-game-state="final"/, "no final before the game ends");
   const lane = nbaLane(slate(), NOW);
   assert.equal(lane.games[0].state, "official");
   const settled = mergeFinals ? null : null; void settled;
+});
+
+test("shared game card on /nba: every card is the compact GameCard, ONE link to the game, under 900 B of HTML (committed 2026-11-09 slate)", async () => {
+  const { nbaTodaySlate } = await import("../../lib/sport-hub/nba-hub.ts");
+  const { loadLaneForDate } = await import("./experimental-lane.tsx");
+  const lane = loadLaneForDate("2026-11-09");
+  const s = nbaTodaySlate("2026-11-09T17:00:00Z", lane, { laneEnabled: true, theaterIds: lane.games.map((g) => g.providerEventId) });
+  const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: s, gamePages: new Set(s.games.map((g) => g.id)) }));
+  const cards = h.split("<li id=").slice(1);
+  assert.equal(cards.length, s.games.length, "a card per game");
+  const avg = cards.reduce((a, c) => a + c.length + 7, 0) / cards.length;
+  assert.ok(avg < 900, `${Math.round(avg)} B of HTML per card (main's MatchupCard measured 1,082 B)`);
+  for (const c of cards) {
+    assert.match(c, /^"nba-exp-\d+" class="nbx-card"/, "the hub-lane anchor id other surfaces link to");
+    assert.equal((c.match(/<a /g) ?? []).length, 1, "one link per card");
+    assert.match(c, /data-game-state="official">MODEL PROJECTION<\/span> [^<]+ favoured/);
+  }
 });
