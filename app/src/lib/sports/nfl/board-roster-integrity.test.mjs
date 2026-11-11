@@ -12,7 +12,7 @@ import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 
-import { applyQbStarterRule, auditBoard, buildCoverage, currentSeasonUsageIndex, COVERAGE, isUnavailableState, receivingFamilyGaps } from "./board-roster-integrity.mjs";
+import { applyQbStarterRule, auditBoard, QB_STARTER_WITHHELD, QB_TIER, buildCoverage, currentSeasonUsageIndex, COVERAGE, isUnavailableState, receivingFamilyGaps } from "./board-roster-integrity.mjs";
 import { deriveNewArrivals } from "./new-arrivals.mjs";
 import { indexDepthCharts } from "./depth-chart.mjs";
 
@@ -175,18 +175,95 @@ test("§19 · only the depth chart's QB1 keeps a passing projection; the survivo
   assert.deepEqual(auditBoard({ board: { matchup: "PIT @ CLE", players, integrity: { qbStarter: [r] } }, rosterByTeam: new Map(), unavailable: new Map() }), []);
 });
 
-test("§19 · fail-closed: a stale chart, or a QB1 the board never projected, leaves the pool untouched", () => {
+/* ── founder decision 2026-11-11: starter identification apart from projection; one passer; evidence tiers ── */
+const W10 = "2026-11-11T07:02:21Z";
+const AS_OF = "2026-11-11T17:00:00Z";
+const tierB = (career = 400) => (playerId, name) => (career >= 25
+  ? { careerAttempts: career, market: { mean: 210, p10: 110, p25: 160, median: 205, p75: 255, p90: 320, pricingState: "NOT_PROBED" }, basis: `tier (b): ${career} verified NFL pass attempts` }
+  : { careerAttempts: career, limitation: `${name}: ${career} NFL pass attempts in committed data (the projection needs 25 verified attempts; no tested rookie fallback exists)` });
+const newRow = (team) => (s) => ({ playerId: s.playerId, name: s.name, team, participation: "AVAILABLE_ROLE_UNCERTAIN", markets: {} });
+
+test("fail-closed: a stale chart with several passers, or no chart and no passer, withholds — never two passers", () => {
   const stale = qbRows();
   const r1 = applyQbStarterRule({ players: stale, team: "CLE", index: chart("CLE", "2026-09-20T13:00:00Z", [["1", "Starter"]]), asOf: "2026-10-01T20:00:00Z" });
-  assert.equal(r1.state, "UNRESOLVED");
-  assert.equal(stale.filter((p) => p.markets.player_pass_yds).length, 3);
-  const absent = qbRows();
-  const r2 = applyQbStarterRule({ players: absent, team: "CLE", index: chart("CLE", "2026-09-30T13:00:00Z", [["9", "Someone Else"]]), asOf: "2026-10-01T20:00:00Z" });
-  assert.equal(r2.state, "UNRESOLVED");
-  assert.match(r2.reason, /not in the board's passing pool/);
-  assert.equal(absent.filter((p) => p.markets.player_pass_yds).length, 3);
-  const noIndex = applyQbStarterRule({ players: qbRows(), team: "CLE", index: null, asOf: "2026-10-01T20:00:00Z" });
-  assert.equal(noIndex.state, "UNRESOLVED");
+  assert.equal(r1.state, QB_STARTER_WITHHELD);
+  assert.equal(r1.tier, null, "no starter, no tier");
+  assert.match(r1.reason, /starting QB not confirmed — depth chart STALE/);
+  assert.equal(stale.filter((p) => p.markets.player_pass_yds).length, 0);
+  assert.ok(stale[1].markets.player_rush_yds, "only the pass-attempt pool is touched");
+  const single = [qbRows()[0]];
+  const r2 = applyQbStarterRule({ players: single, team: "CLE", index: null, asOf: "2026-10-01T20:00:00Z" });
+  assert.equal(r2.state, "APPLIED", "control: without a chart a single board passer stands");
+  assert.equal(single[0].markets.player_pass_yds.median, 203);
+});
+
+test("scenario · traded QB (BAL Brissett): starts; tier (b) is EXPERIMENTAL — named with the reason, no public number anywhere", () => {
+  const players = [
+    { playerId: "nfl-athlete-4429582", name: "Joe Fagnano", team: "BAL", markets: { player_pass_yds: { median: 127 }, player_rush_yds: { median: 3 } } },
+    { playerId: "nfl-athlete-1", name: "Derrick Henry", team: "BAL", markets: { player_rush_yds: { median: 80 } } },
+  ];
+  const r = applyQbStarterRule({ players, team: "BAL", index: chart("BAL", W10, [["9001", "Jacoby Brissett"], ["4429582", "Joe Fagnano"]]), asOf: AS_OF, tierBFor: tierB(2400), rowFor: newRow("BAL"), shareOf: (id) => (id === "nfl-athlete-4429582" ? 0.36 : undefined) });
+  assert.equal(r.state, QB_STARTER_WITHHELD);
+  assert.equal(r.tier, QB_TIER.B);
+  assert.equal(r.experimental, true);
+  assert.equal(r.starter.name, "Jacoby Brissett");
+  assert.match(r.reason, /Jacoby Brissett starts for BAL \(depth chart QB1\) — experimental projection in research \(limited individual history: 2400 verified NFL pass attempts/);
+  assert.ok(!players.some((p) => p.markets.player_pass_yds), "no passer on the public board");
+  assert.equal(players.length, 2, "no row is created for an experimental starter");
+  assert.doesNotMatch(JSON.stringify(r), /"median"|"p10"|"p90"|"mean"|starterShare/, "the published rule carries no experimental number");
+  assert.equal(players[0].markets.player_rush_yds.median, 3, "the backup keeps his other families");
+});
+
+test("scenario · backup now starter (NYG McCarthy): the share floor no longer decides — tier (b) is experimental; a starter's club share is public tier (a)", () => {
+  const players = [{ playerId: "nfl-athlete-4433970", name: "J.J. McCarthy", team: "NYG", markets: { player_pass_yds: { median: 140 } } }];
+  const r = applyQbStarterRule({ players, team: "NYG", index: chart("NYG", W10, [["4433970", "J.J. McCarthy"], ["2969939", "Jameis Winston"]]), asOf: AS_OF, shareOf: () => 0.59, tierBFor: tierB(700) });
+  assert.equal(r.tier, QB_TIER.B);
+  assert.equal(r.state, QB_STARTER_WITHHELD);
+  assert.equal(players[0].markets.player_pass_yds, undefined, "the relief-share line is not published, never rescaled");
+  const a = [{ playerId: "nfl-athlete-4433970", name: "J.J. McCarthy", team: "NYG", markets: { player_pass_yds: { median: 240 } } }];
+  const ra = applyQbStarterRule({ players: a, team: "NYG", index: chart("NYG", W10, [["4433970", "J.J. McCarthy"]]), asOf: AS_OF, shareOf: () => 0.93, tierBFor: tierB(700) });
+  assert.equal(ra.tier, QB_TIER.A);
+  assert.equal(ra.state, "APPLIED");
+  assert.equal(a[0].markets.player_pass_yds.median, 240);
+});
+
+test("scenario · rookie (MIA McCord, 0 attempts): starts, but is withheld with the exact limitation — nothing invented", () => {
+  const players = [{ playerId: "nfl-athlete-5", name: "De'Von Achane", team: "MIA", markets: { player_rush_yds: { median: 60 } } }];
+  const r = applyQbStarterRule({ players, team: "MIA", index: chart("MIA", W10, [["7001", "Kyle McCord"], ["4242512", "Malik Willis"]]), asOf: AS_OF, availabilityOf: (id) => (id === "nfl-athlete-4242512" ? { state: "INELIGIBLE", status: "Injured Reserve" } : { state: "ELIGIBLE" }), tierBFor: tierB(0), rowFor: newRow("MIA") });
+  assert.equal(r.state, QB_STARTER_WITHHELD);
+  assert.equal(r.tier, QB_TIER.D);
+  assert.equal(r.starter.name, "Kyle McCord");
+  assert.match(r.reason, /Kyle McCord starts for MIA \(depth chart QB1\) — experimental projection in research \(rookie\/contextual fallback: Kyle McCord: 0 NFL pass attempts in committed data/);
+  assert.equal(r.experimental, true);
+  assert.ok(!players.some((p) => p.markets.player_pass_yds));
+  assert.equal(players.length, 1, "no row is created for a withheld starter");
+});
+
+test("scenario · injured QB1 (SEA Darnold Out): the next healthy QB on the chart starts; UNKNOWN availability is never guessed past", () => {
+  const players = [{ playerId: "nfl-athlete-3924327", name: "Drew Lock", team: "SEA", markets: { player_pass_yds: { median: 181 } } }];
+  const avail = (id) => (id === "nfl-athlete-3912547" ? { state: "INELIGIBLE", status: "Out" } : { state: "ELIGIBLE" });
+  const r = applyQbStarterRule({ players, team: "SEA", index: chart("SEA", W10, [["3912547", "Sam Darnold"], ["3924327", "Drew Lock"]]), asOf: AS_OF, availabilityOf: avail, shareOf: () => 0.9 });
+  assert.equal(r.starter.name, "Drew Lock");
+  assert.deepEqual(r.skipped.map((x) => x.name), ["Sam Darnold"]);
+  assert.match(r.source, /past Sam Darnold \(unavailable\)/);
+  const u = applyQbStarterRule({ players: [{ ...players[0], markets: { player_pass_yds: { median: 181 } } }], team: "SEA", index: chart("SEA", W10, [["3912547", "Sam Darnold"], ["3924327", "Drew Lock"]]), asOf: AS_OF, availabilityOf: () => ({ state: "UNKNOWN" }) });
+  assert.equal(u.state, QB_STARTER_WITHHELD);
+  assert.match(u.reason, /availability UNKNOWN/);
+});
+
+test("scenario · several QBs with history (MIN): only the chart's starter carries passing; share never picks him", () => {
+  const players = [
+    { playerId: "nfl-athlete-3917315", name: "Kyler Murray", team: "MIN", markets: { player_pass_yds: { median: 175 } } },
+    { playerId: "nfl-athlete-2573079", name: "Carson Wentz", team: "MIN", markets: { player_pass_yds: { median: 152 } } },
+  ];
+  const r = applyQbStarterRule({ players, team: "MIN", index: chart("MIN", W10, [["8001", "Kirk Cousins"], ["3917315", "Kyler Murray"]]), asOf: AS_OF, shareOf: (id) => ({ "nfl-athlete-3917315": 0.44, "nfl-athlete-2573079": 0.41 })[id], tierBFor: tierB(6000), rowFor: newRow("MIN") });
+  assert.equal(r.starter.name, "Kirk Cousins");
+  assert.equal(r.tier, QB_TIER.B);
+  assert.deepEqual(players.filter((p) => p.markets.player_pass_yds).map((p) => p.name), [], "Cousins (tier b) is experimental: no public passer, never Murray or Wentz");
+  assert.deepEqual(r.removed.map((x) => x.name).sort(), ["Carson Wentz", "Kyler Murray"]);
+  assert.deepEqual(auditBoard({ board: { matchup: "MIN @ GB", players, integrity: { qbStarter: [r] } }, rosterByTeam: new Map(), unavailable: new Map() }), []);
+  const cov = buildCoverage({ teams: ["MIN"], players, excluded: [], arrivals: {}, qbRules: [r] });
+  assert.match(cov.MIN.players.find((x) => x.name === "Kyler Murray").notModeled[0].reason, /not MIN's starting quarterback/);
 });
 
 test("§19 · the audit flags several passers unless the rule reported why it could not run", () => {

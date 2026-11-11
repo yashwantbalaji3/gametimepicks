@@ -46,7 +46,15 @@ function buildInfoEnv() {
  * Same compile-time pattern; default OFF (never imported). Guarded by components/nfl/qb-props-line.test.mjs (source)
  * and qb-props-export.test.mjs (out/: no QB line in a flag-OFF build).
  */
+/*
+ * GTP_NFL_QB_FALLBACK_PUBLIC — EXPERIMENTAL projections for an NFL starting QB who is not established at his club
+ * (evidence tiers b–d: "EXPERIMENTAL MODEL PROJECTION — limited individual history" / "— rookie/contextual fallback";
+ * founder P0 2026-11-11). Same compile-time pattern; default OFF. OFF, no public file or page carries such a QB's
+ * numbers — the board names him with "experimental projection in research" (board-roster-integrity.mjs). The flag
+ * gates display only, never the simulation. Guarded by lib/sports/nfl/qb-fallback-flag.test.mjs.
+ */
 const theaterFlagEnv = () => ({
+  GTP_NFL_QB_FALLBACK_PUBLIC: process.env.GTP_NFL_QB_FALLBACK_PUBLIC === "1" ? "1" : "0",
   GTP_NFL_THEATER_PUBLIC: process.env.GTP_NFL_THEATER_PUBLIC === "1" ? "1" : "0",
   GTP_NFL_QB_PROPS_PUBLIC: process.env.GTP_NFL_QB_PROPS_PUBLIC === "1" ? "1" : "0",
   GTP_NBA_THEATER_PUBLIC: process.env.GTP_NBA_THEATER_PUBLIC === "1" ? "1" : "0",

@@ -208,3 +208,44 @@ test("every committed shadow receipt: valid, probabilities sum to 1, P(2+ TD) �
   }
   assert.deepEqual(bad, []);
 });
+
+/* Founder decision 2026-11-11 (§3): the board's starter is the simulation's passer — a TRADED starter added from outside
+   the role-share pool (playersFromRoleShares strictStarter), or no named passer for a withheld (tier d) starter — and
+   the passing identities still reconcile on every run: the starter's passing, team pass TDs, receivers' TDs and yards,
+   and the score come from the same simulated plays. */
+test("starter rule: a traded starter added to the pool, and a withheld team (OTHER passes), reconcile on every seeded game", async () => {
+  const { playersFromRoleShares } = await import("./receipt.mjs");
+  const block = {
+    passAttempts: { players: [{ playerId: "bk", name: "Backup", position: "QB", share: 0.36 }, { playerId: "ir", name: "Injured", position: "QB", share: 0.6 }, { playerId: "rb", name: "RB", position: "RB", share: 0.01 }] },
+    targets: { players: [{ playerId: "wr", name: "WR", position: "WR", share: 0.55 }, { playerId: "te", name: "TE", position: "TE", share: 0.25 }, { playerId: "rb", name: "RB", position: "RB", share: 0.15 }] },
+    rushAttempts: { players: [{ playerId: "rb", name: "RB", position: "RB", share: 0.7 }, { playerId: "bk", name: "Backup", position: "QB", share: 0.06 }] },
+    rates: { players: [] },
+  };
+  const injured = new Set(["ir"]);
+  const traded = prepareTeamPlayers(playersFromRoleShares(block, injured, { starterQb: "new-qb", starterName: "Traded In", strictStarter: true }));
+  const withheld = prepareTeamPlayers(playersFromRoleShares(block, injured, { withholdPassers: true }));
+  const p2 = [traded, withheld];
+  const sum = (out, side, k) => { let a = 0; for (let s = 0; s <= p2[side].n; s++) a += out.players[side][s * N_PSTAT + PSTAT[k]]; return a; };
+  const starterSlot = traded.slots.findIndex((x) => x.playerId === "new-qb");
+  assert.ok(starterSlot >= 0, "the traded starter holds a slot");
+  let starterShareOfAtt = 0, teamAtt = 0;
+  for (let i = 0; i < 300; i++) {
+    const out = { team: [new Float64Array(N_TSTAT), new Float64Array(N_TSTAT)], period: [new Float64Array(N_PERIODS), new Float64Array(N_PERIODS)], players: [new Float64Array((traded.n + 1) * N_PSTAT), new Float64Array((withheld.n + 1) * N_PSTAT)] };
+    const run = simulateGame({ compiled, tables, players: p2, rng: runRng("5ab1e5ee", i), out, events: [] });
+    for (const side of [0, 1]) {
+      const t = (k) => out.team[side][TEAM_STAT[k]];
+      assert.equal(sum(out, side, "passAtt"), t("passAtt"), `run ${i} side ${side}: Σ passer attempts = team`);
+      assert.equal(sum(out, side, "passYds"), t("passYds"), `run ${i} side ${side}: Σ passer yards = team`);
+      assert.equal(sum(out, side, "recYds"), t("passYds"), `run ${i} side ${side}: Σ receiving yards = team passing`);
+      assert.equal(sum(out, side, "passTd"), t("passTd"), `run ${i} side ${side}: Σ passer TDs = team`);
+      assert.equal(sum(out, side, "recTd"), t("passTd"), `run ${i} side ${side}: Σ receiving TDs = team passing TDs`);
+      assert.equal(run.score[side], t("pts"), `run ${i} side ${side}: score = team points`);
+    }
+    starterShareOfAtt += out.players[0][starterSlot * N_PSTAT + PSTAT.passAtt];
+    teamAtt += out.team[0][TEAM_STAT.passAtt];
+    const bk = withheld.slots.findIndex((x) => x.playerId === "bk");
+    assert.equal(out.players[1][bk * N_PSTAT + PSTAT.passAtt], 0, `run ${i}: a withheld team's backup never passes`);
+    assert.equal(out.players[0][traded.slots.findIndex((x) => x.playerId === "bk") * N_PSTAT + PSTAT.passAtt], 0, `run ${i}: the replaced backup never passes`);
+  }
+  assert.ok(starterShareOfAtt / teamAtt > 0.95, "the traded starter throws the team's passes");
+});
