@@ -42,7 +42,8 @@ import path from "node:path";
 
 import type { Snapshot } from "@/components/nba/experimental-lane";
 import { eligibilityRecord, eligibilityText, featurable, resolveEligibility } from "@/lib/availability/eligibility.mjs";
-import { directionAuthorization, DISPLAY_AUTHORIZATION } from "@/lib/odds/display-authorization.mjs";
+import { DISPLAY_AUTHORIZATION } from "@/lib/odds/display-authorization.mjs";
+import { gatedLines, hitsAtLine } from "@/lib/trends/lines";
 import { boxscoreAthlete, isFinalBoxscore, LINE_STATE, measureAthlete } from "@/lib/sports/nba/boxscore-line.mjs";
 import { boxscorePointsCheck } from "@/lib/sports/nba/experimental-grading-ledger.mjs";
 import { etDateOf, finalFor, nbaSeasonLabel } from "@/lib/sports/nba/finals-record.mjs";
@@ -93,7 +94,7 @@ export type TrendLineMap = ReadonlyMap<string, { line: number; capturedAt: strin
 /** eligibility@1 inputs: the build instant and the two NBA captures (null = missing → UNKNOWN). */
 /** PURE: games strictly above `line` in the last 5 / 10 / 20 games played (a whole-number line met exactly is not a hit). */
 export function hitRateAtLine(games: readonly TrendGame[], stat: TrendStat, line: number): TrendLine["hits"] {
-  return TRENDS_WINDOWS.map((size) => { const w = games.slice(0, size); return { size, played: w.length, hit: w.filter((g) => g[stat] > line).length }; });
+  return hitsAtLine(games, stat, line, TRENDS_WINDOWS);
 }
 
 /**
@@ -102,18 +103,8 @@ export function hitRateAtLine(games: readonly TrendGame[], stat: TrendStat, line
  * time are all that is kept. Several records for one player and stat: the newest capture (then the lower line).
  */
 export function gatedTrendLines(records: readonly { providerAthleteId?: string; family?: string; line?: unknown; capturedAt?: unknown }[] | null, { authorization = DISPLAY_AUTHORIZATION }: { authorization?: unknown } = {}): TrendLineMap | null {
-  if (!records) return null;
-  const stats = new Set<string>(TRENDS_STATS.map(([k]) => k));
-  const out = new Map<string, { line: number; capturedAt: string }>();
-  for (const r of records) {
-    const fam = String(r?.family ?? "");
-    if (!stats.has(fam) || !directionAuthorization("nba", fam, "site", authorization as never).ok) continue;
-    const line = Number(r.line), at = typeof r.capturedAt === "string" ? r.capturedAt : null;
-    if (!Number.isFinite(line) || !at || !Number.isFinite(Date.parse(at))) continue;
-    const key = `${String(r.providerAthleteId)}|${fam}`, prev = out.get(key);
-    if (!prev || at > prev.capturedAt || (at === prev.capturedAt && line < prev.line)) out.set(key, { line, capturedAt: at });
-  }
-  return out;
+  // the shared line-gate hook (lib/trends/lines.ts); NBA families are named by the stat itself
+  return gatedLines(records && records.map((r) => ({ athleteId: r?.providerAthleteId, stat: r?.family, family: r?.family, line: r?.line, capturedAt: r?.capturedAt })), { sport: "nba", stats: TRENDS_STATS.map(([k]) => k), authorization });
 }
 
 export type TrendEligibilityInputs = { asOf: string; injuries: { generatedAt: string; entries: object[] } | null; roster: { teams?: { providerTeamId?: string | number; espnAbbr?: string }[] } | null };

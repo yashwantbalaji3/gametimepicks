@@ -53,6 +53,9 @@ const theaterFlagEnv = () => ({
   /* GTP_NBA_TRENDS_PUBLIC — /trends (NBA player trends, trends slice 2026-11-09). Same compile-time pattern; default OFF:
      the page 404s, its data route emits no trends, and scripts/prune-internal-routes.mjs deletes out/trends/. */
   GTP_NBA_TRENDS_PUBLIC: process.env.GTP_NBA_TRENDS_PUBLIC === "1" ? "1" : "0",
+  /* GTP_NFL_TRENDS_PUBLIC — /nfl/trends (NFL QB trends on the shared Trends board, 2026-11-11). Same pattern; default OFF:
+     the page 404s, its data route emits no trends, and scripts/prune-internal-routes.mjs deletes out/nfl/trends/. */
+  GTP_NFL_TRENDS_PUBLIC: process.env.GTP_NFL_TRENDS_PUBLIC === "1" ? "1" : "0",
 });
 
 /** @type {import('next').NextConfig} */

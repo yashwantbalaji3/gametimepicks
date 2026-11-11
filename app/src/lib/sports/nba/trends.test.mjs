@@ -188,7 +188,7 @@ test("flag OFF: the page 404s outside the literal flag branch, the prune deletes
   assert.doesNotMatch(page, /^import [^\n]*(trends-view|lib\/sports\/nba\/trends)/m, "the view and loader are imported only inside the branch");
   assert.match(read("next.config.mjs"), /GTP_NBA_TRENDS_PUBLIC: process\.env\.GTP_NBA_TRENDS_PUBLIC === "1" \? "1" : "0"/);
   assert.match(read("scripts/prune-internal-routes.mjs"), /const TRENDS_ROUTES = process\.env\.GTP_NBA_TRENDS_PUBLIC === "1" \? \[\] : \["trends"\];/);
-  assert.match(read("scripts/prune-internal-routes.mjs"), /\.\.\.TRENDS_ROUTES\]/);
+  assert.match(read("scripts/prune-internal-routes.mjs"), /\.\.\.TRENDS_ROUTES[,\]]/);
   const prev = process.env.GTP_NBA_TRENDS_PUBLIC; delete process.env.GTP_NBA_TRENDS_PUBLIC;
   try {
     const { GET } = await import("../../../app/data/nba-trends.json/route.ts");
@@ -246,7 +246,7 @@ test("the gate: no line unless the site surface AND the family's direction are a
     const none = renderToStaticMarkup(React.createElement(View, { trends: T.buildTrends(lane, SOURCES, { ...opts(), lines: T.gatedTrendLines(recs, { authorization: off }) }) }));
     assert.doesNotMatch(none, /data-trn-hit|15\.5|at \d+\.\d/);
     const shown = renderToStaticMarkup(React.createElement(View, { trends: T.buildTrends(lane, SOURCES, { ...opts(), lines: ok }) }));
-    const block = /<div hidden="" data-trn-hit="e">[^]*?<\/div>/.exec(shown)?.[0];
+    const block = /<div hidden="" data-trn-hit="e" data-trn-record="line">[^]*?<\/div>/.exec(shown)?.[0];
     assert.ok(block, "the gated block is written into the page for the drawer");
     assert.match(text(block), /PTS at 15\.5 hit 2 of 3 \(last 5\) · hit 2 of 3 \(last 10\) · hit 2 of 3 \(last 20\) line captured Nov 9, 12:00 PM ET/);
     assert.match(block, /Observed record, not a probability/);
@@ -260,7 +260,7 @@ test("the drawer file never carries a line (provider terms: display yes, a downl
   const json = JSON.stringify(T.trendsDrawerPayload(t));
   assert.doesNotMatch(json, /"lines?"|15\.5|capturedAt/, "no line, no capture time in /data/nba-trends.json");
   assert.match(read("src/lib/sports/nba/trends.ts"), /gatedTrendLines\(nbaPublicLineRecords\(lane\.date\)\)/, "the build reads lines only through the gated reader");
-  for (const f of ["trends-drawer.tsx", "trends-filters.tsx"]) assert.doesNotMatch(read(`src/components/nba/trends/${f}`), /lib\/odds|public-line-records|line-publication/, `${f} (client) never imports a line source`);
+  for (const f of ["trends-panel.tsx", "trends-filters.tsx"]) assert.doesNotMatch(read(`src/components/trends/${f}`), /lib\/odds|public-line-records|line-publication/, `${f} (client) never imports a line source`);
 });
 
 test("EXPORT (flag-ON build): no price, odds or book in /trends or its drawer file", () => {
