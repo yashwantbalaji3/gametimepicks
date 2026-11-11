@@ -19,6 +19,11 @@ const os = await import("node:os");
 const arg = (k: string, d: string | null = null) => { const i = process.argv.indexOf(`--${k}`); return i > 0 ? process.argv[i + 1] : d; };
 const date = arg("date")!, stage = arg("stage")!, importRoot = arg("import-root")!;
 const minRows = Number(arg("top5-min-rows", "5"));
+// --variants winneronly (founder 2026-11-11): build only the listed per-game variants; never props or priced variants.
+const VARIANTS = (arg("variants", "winner,props,projonly,winneronly") ?? "").split(",").filter(Boolean);
+for (const v of VARIANTS) if (!["winner", "props", "projonly", "winneronly"].includes(v)) { console.error(`unknown variant ${v}`); process.exit(2); }
+// --no-deliver: render, check and stop before the import folder (for verification); --no-top5: omit the Top 5 carousel.
+const NO_DELIVER = process.argv.includes("--no-deliver"); const NO_TOP5 = process.argv.includes("--no-top5");
 const asOf = arg("as-of") ?? new Date().toISOString().replace(/\.\d{3}Z$/, "Z");
 if (!/^\d{4}-\d{2}-\d{2}$/.test(date ?? "") || !stage || !importRoot || !Number.isInteger(minRows)) { console.error("usage: --date YYYY-MM-DD --stage DIR --import-root DIR [--top5-min-rows N] [--as-of ISO]"); process.exit(2); }
 // A replayed --as-of is for tests only: never against Command Center's live import folder.
@@ -81,7 +86,8 @@ const done: any[] = []; const st: any = { rendered: 0, skipped: 0 };
 const renderEach = async (posts: any[]) => { const d: any[] = []; for (const p of posts) { const x: any = { rendered: 0, skipped: 0 }; d.push(...(await m.writePackages([p], { outRoot: out, scales: [1], png: true, stats: x }))); st.rendered += x.rendered; st.skipped += x.skipped; } return d; };
 for (const id of laneIds) {
   const w = of("NBA_GAME_WINNER", id), s = of("NBA_PLAYER_STATS", id);
-  const posts = [V(w, "winner"), V(s, "props"), V(s, "projonly"), V(w, "winneronly")];
+  const all: any = { winner: V(w, "winner"), props: V(s, "props"), projonly: V(s, "projonly"), winneronly: V(w, "winneronly") };
+  const posts = VARIANTS.map((v: string) => all[v]);
   const d = await renderEach(posts);
   d.forEach((x: any, i: number) => check(x.pkg, posts[i], path.basename(x.file, ".json")));
   done.push(...d);
@@ -89,9 +95,9 @@ for (const id of laneIds) {
   const omitted = ab.reduce((n: number, t: string) => n + (roster[t] ?? []).reduce((k: number, e: any) => k + (typeof e === "object" ? 3 : (roster.__cells?.[e]?.length ?? 0)), 0), 0);
   // Players printing at least one number per team; under 3 is flagged for the founder (report only, never blocks).
   const printed = Object.fromEntries(ab.map((t: string) => [t, (roster[t] ?? []).filter((e: any) => typeof e !== "object" && (roster.__cells?.[e]?.length ?? 0) < 3).length]));
-  result.games.push({ id, game: ab.join("@"), tipUtc: w.firstStartUtc, cellsOmitted: omitted, printedPlayers: printed, thin: ab.filter((t: string) => printed[t] < 3), digests: Object.fromEntries(["winner", "props", "projonly", "winneronly"].map((v, i) => [v, d[i].pkg.contentSha256])) });
+  result.games.push({ id, game: ab.join("@"), tipUtc: w.firstStartUtc, cellsOmitted: omitted, printedPlayers: printed, thin: ab.filter((t: string) => printed[t] < 3), digests: Object.fromEntries(VARIANTS.map((v: string, i: number) => [v, d[i].pkg.contentSha256])) });
 }
-const slate = [V(ton, "today"), ...car.posts.map((p: any) => V(p, "top5"))];
+const slate = [V(ton, "today"), ...(NO_TOP5 ? [] : car.posts.map((p: any) => V(p, "top5")))];
 const ds = await renderEach(slate);
 ds.forEach((x: any, i: number) => check(x.pkg, slate[i], path.basename(x.file, ".json")));
 done.push(...ds);
@@ -126,6 +132,7 @@ if (fs.existsSync(exFile)) {
 }
 result.render = st; result.qa = qa;
 if (qa.length) refuse("QA", qa);
+if (NO_DELIVER) { result.outcome = "STAGED_ONLY"; result.staged = done.map((x: any) => x.file); writeResult(); console.log(`STAGED_ONLY ${done.length} packages in ${out}`); process.exit(0); }
 
 // Delivery. Pre-check every name, then copy images, then write temp JSONs, then rename them all.
 const pk = path.join(importRoot, "packages");
@@ -156,7 +163,7 @@ for (const t of temps) fs.renameSync(t, path.join(pk, `${path.basename(t).slice(
 result.outcome = "DELIVERED"; result.packages = slugs.length; result.images = done.reduce((n: number, x: any) => n + x.pkg.images.length, 0);
 writeResult();
 const md = [`# NBA slate ${date} delivered ${new Date().toISOString()}`, "", `dataCommit ${result.dataCommit} · asOf ${asOf} · ${result.packages} packages · ${result.images} images · rendered ${st.rendered}, cached ${st.skipped}`, `Top 5 carousel boards: ${result.slate.top5Boards.join(", ") || "none"}${car.refused.length ? ` (skipped under ${minRows} rows: ${car.refused[0].boards.join(", ")})` : ""}`, "", "| Game | Tip (UTC) | Winner | Props | Projection-only | Winner-only | Cells omitted |", "|---|---|---|---|---|---|---|",
-  ...result.games.map((g: any) => `| ${g.game} | ${g.tipUtc} | ${g.digests.winner.slice(0, 12)} | ${g.digests.props.slice(0, 12)} | ${g.digests.projonly.slice(0, 12)} | ${g.digests.winneronly.slice(0, 12)} | ${g.cellsOmitted} |`),
+  ...result.games.map((g: any) => `| ${g.game} | ${g.tipUtc} | ${g.digests.winner?.slice(0, 12) ?? "-"} | ${g.digests.props?.slice(0, 12) ?? "-"} | ${g.digests.projonly?.slice(0, 12) ?? "-"} | ${g.digests.winneronly?.slice(0, 12) ?? "-"} | ${g.cellsOmitted} |`),
   "", result.exception ? `Founder publication exception ${result.exception.id} (${path.basename(result.exception.file)} sha ${result.exception.sha256.slice(0, 12)}): ${result.exception.excepted.length} stat packages EXCEPTION, flagged cells withheld${result.exception.notExcepted.length ? `; left REVIEW: ${result.exception.notExcepted.map((x: any) => `${x.variant} ${x.reason}`).join(", ")}` : ""}` : "No publication exception file: stat packages under anomaly REVIEW stay REVIEW (clean export refuses them).",
   ...result.games.filter((g: any) => g.thin.length).map((g: any) => `- ${g.game} stat card: ${g.thin.map((t: string) => `${t} ${g.printedPlayers[t]} printed`).join(", ")} (under 3 players printed after the guard). Flag for founder: consider winner-only.`),
   "", `Availability guard (R1 Out/Day-To-Day, R2 under 3 games, R3 implausible minutes): ${result.guard.length} players under review, ${result.guard.filter((g: any) => g.onCard).length} of them in card rows${result.guard.filter((g: any) => g.onCard).length ? ` (${result.guard.filter((g: any) => g.onCard).map((g: any) => `${g.name} ${g.rules.join("+")}`).join(", ")})` : ""}`,
