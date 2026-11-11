@@ -66,10 +66,26 @@ export type TrendsPanelSpec = {
   digits: number;
 };
 
+/**
+ * A settled game's record for one player (NFL QB, lib/sports/nfl/qb-results.ts): the frozen pregame MODEL PROJECTION, the
+ * FINAL · settled actual, and the grade row once it exists, under the "graded against" line — or the HOLD text.
+ */
+export type TrendsResultMarket = { market: string; label: string; projection: number | null; actual: number | null; grade: { state: "GRADED"; window: string } | null; status: string; verdict: string | null };
+export type TrendsResult = {
+  eventId: string; kickoffUtc: string; state: "GRADED" | "AWAITING_FINAL" | "HOLD" | "LEGACY" | "NOT_GRADED";
+  gradedAgainst: string | null; holdText: string | null;
+  qb: { playerId: string; name: string; team: string; opp: string; home: boolean; projectedAt: string; final: boolean; markets: TrendsResultMarket[] };
+};
+
+/** One settled game's record for every projected QB (the NFL game page). */
+export type TrendsGameResult = Omit<TrendsResult, "qb"> & { qbs: TrendsResult["qb"][] };
+
 /** The drawer file: per player, the reference and the games. Never a line, a price or odds. */
 export type TrendsPanelPlayer = {
   name: string; team: string; opp: string; home: boolean; availability: TrendsAvailability; availabilityNote: string;
   minutesUnderReview: boolean; position: string | null; expectedMinutes: number | null; rank: number | null;
   reference: Record<string, number> | null; games: TrendsGame[];
+  /** NFL QB: settled games with a frozen projection (newest first) */
+  results?: TrendsResult[];
 };
 export type TrendsPanelPayload = { schema: string; slateDate: string | null; reference: string; note: string; players: Record<string, TrendsPanelPlayer> };
