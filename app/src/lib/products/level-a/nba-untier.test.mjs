@@ -6,6 +6,7 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
+import { createHash } from "node:crypto";
 import path from "node:path";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -51,14 +52,32 @@ test("research section: every NBA side listed as MODEL PROJECTION with the game 
   assert.ok(!/data-level-a-card="[^"]*nba:/.test(html), "no card key names an NBA game");
 });
 
+/*
+ * KNOWN_POST_DECISION_NBA_TIERED: recorded after founder decision 2 by pre-#1306 code; public on /build until #1306
+ * deployed 2026-11-11T05:58:37Z; graded as committed. Production deployment 09b121d0a7 (live 2026-11-11T01:13:54Z)
+ * served these three cards (the recorder verified them on its pages); the next deployment (2f37511d5c, 02:44Z) was built
+ * after their first leg (MIA @ UTAH, 02:00Z) had started, so it no longer showed them. History is immutable: the lines are
+ * pinned by sha256 of the exact JSONL line, never edited. Any OTHER post-decision NBA tiered entry still fails.
+ */
+const KNOWN_POST_DECISION_NBA_TIERED = Object.freeze([
+  { recordedAt: "2026-11-11T01:15:39.214Z", policy: "nba-game-winner-tiers@1/parlay-lab", tier: "medium", lineSha256: "8ec9578deb473c85b70d5c7b606e86144dee24f45d3fdb6bf8100a5244612554" },
+  { recordedAt: "2026-11-11T01:15:39.214Z", policy: "nba-game-winner-tiers@1/parlay-lab", tier: "high", lineSha256: "b6cfda867f2e24e8ab64922e819e905629bac3a5686db826dfb527f7d1b1dae1" },
+  { recordedAt: "2026-11-11T01:15:39.214Z", policy: "nba-game-winner-tiers@1/bank-builder", tier: "medium", lineSha256: "b7c95f8fcd235b81e992956a4dcf6f8c108dffc5a80465eb454159d3a64c1248" },
+]);
+
 test("frozen history is byte-identical: recorded NBA game-winner cards stay in the record and re-grade exactly as committed", () => {
   const recordText = fs.readFileSync(LEVEL_A_RECORD_FILE, "utf8");
   const gradedText = fs.readFileSync(LEVEL_A_GRADES_FILE, "utf8");
   const record = recordText.split("\n").filter(Boolean).map((l) => JSON.parse(l));
   const gwPolicies = new Set(Object.values(NBA_GW_POLICIES).map(String));
-  const gw = record.filter((e) => gwPolicies.has(e.policy) || e.legs?.some((l) => l.sport === "nba") && e.tier !== "untiered");
-  assert.ok(gw.length > 0, "the record holds historical NBA tiered cards");
-  assert.ok(gw.every((e) => Date.parse(e.recordedAt) < Date.parse("2026-11-10T19:51:23Z")), "every one predates the founder decision");
+  const lines = recordText.split("\n").filter(Boolean);
+  const gwIdx = record.map((e, i) => [e, i]).filter(([e]) => gwPolicies.has(e.policy) || e.legs?.some((l) => l.sport === "nba") && e.tier !== "untiered");
+  assert.ok(gwIdx.length > 0, "the record holds historical NBA tiered cards");
+  const after = gwIdx.filter(([e]) => !(Date.parse(e.recordedAt) < Date.parse("2026-11-10T19:51:23Z")));
+  const known = (e, i) => KNOWN_POST_DECISION_NBA_TIERED.some((k) => k.recordedAt === e.recordedAt && k.policy === e.policy && k.tier === e.tier
+    && k.lineSha256 === createHash("sha256").update(lines[i]).digest("hex"));
+  assert.deepEqual(after.filter(([e, i]) => !known(e, i)).map(([e]) => `${e.recordedAt} ${e.policy} ${e.tier}`), [], "every other NBA tiered entry predates the founder decision");
+  assert.equal(after.length, KNOWN_POST_DECISION_NBA_TIERED.length, "each known exception is present, byte-identical");
   /* re-grading the whole committed record against the committed finals adds nothing that conflicts with what is graded */
   const withDay = record.map((e) => ({ ...e, legs: e.legs.map((l) => ({ ...l, productDay: e.productDay })) }));
   const { conflicts } = gradeRecord({ record: withDay, graded: gradedText.split("\n").filter(Boolean).map((l) => JSON.parse(l)), finals: committedFinals({ repoRoot: REPO, nowIso: NOW }), gradedAt: NOW });
