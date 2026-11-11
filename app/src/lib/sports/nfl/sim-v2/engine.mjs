@@ -187,8 +187,13 @@ export const N_PERIODS = 5; // Q1–Q4 + OT
  *   KNEEL     n kneel-downs (counted as plays, never as carries)
  *   TRY       two 1 two-point try / 0 kick · m 1 made  (o = the scoring side, also for a defensive TD's kick)
  *   FG        m 1 made
+ *
+ * `yardageSplit` (optional, CHALLENGER ONLY — MKT-02, sim-v2/yardage-split.mjs): { passGainWeight: α } multiplies each
+ * completion's sampled gain by α before the drive's net yards are split, so α > 1 moves yards from runs to passes. It
+ * draws no randomness and changes only the split; null (the incumbent) leaves every run bit-for-bit unchanged.
  */
-export function simulateGame({ compiled, tables, players = null, rng, postseason = false, out, events = null, plays = null }) {
+export function simulateGame({ compiled, tables, players = null, rng, postseason = false, out, events = null, plays = null, yardageSplit = null }) {
+  const passW = yardageSplit?.passGainWeight ?? 1;
   const T = [out.team[0], out.team[1]];
   const P = [out.period[0], out.period[1]];
   const PL = players ? [out.players[0], out.players[1]] : null;
@@ -380,6 +385,7 @@ export function simulateGame({ compiled, tables, players = null, rng, postseason
     // Distribute yards: Σ gaining plays − sack yards = the drive's net yards, in integers.
     if (!kneelOut) {
       const required = net + sackYds;
+      if (passW !== 1) for (let i = 0; i < nGain; i++) if (gainKind[i] === 1) gains[i] *= passW;
       let raw = 0;
       for (let i = 0; i < nGain; i++) raw += gains[i];
       const ints = new Int32Array(nGain);

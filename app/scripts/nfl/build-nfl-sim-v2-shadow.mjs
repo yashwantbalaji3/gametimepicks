@@ -3,6 +3,7 @@
  * NFL SIMULATION ENGINE V2 — SHADOW RECEIPTS (Session 13 · Phase D). PRIVATE. $0 (no provider call, no market input).
  *
  *   node app/scripts/nfl/build-nfl-sim-v2-shadow.mjs --now <ISO> [--event <providerEventId>]… [--runs 10000] [--dry-run]
+ *                                                     [--challenger mkt02-yardage-split]
  *
  * For each NOT-YET-STARTED event kicking off within 8 days, writes a SimulationReceiptV2 to
  * data/internal/research/nfl/sim-v2/shadow/<run date>/<eventId>-<inputHash>.json — write-once (`wx`), and only when the
@@ -23,17 +24,25 @@
  * re-derives them from role shares / injuries (which move after each receipt and are not build inputs). Receipts
  * written before the field existed are left as they are; their runs show "Player box score unavailable for this run".
  *
+ * CHALLENGER (`--challenger mkt02-yardage-split`, sim-v2/yardage-split.mjs): the same inputs, seed and calibration as
+ * the incumbent receipt (so run i is the incumbent's run i with only the drive yardage split moved — a paired
+ * comparison), with α re-fit walk-forward from team-games strictly before the event's week. Written to
+ * data/internal/research/nfl/sim-v2/challengers/mkt02-yardage-split/<run date>/; never a receipt of record, never read
+ * by a page, a product or the official forecast.
+ *
  * SHADOW: nothing public reads these receipts. The page label "EXPECTED STATISTICAL SUMMARIES · NOT ONE SIMULATED GAME"
  * stays until V2 passes its validation contract and the founder/model gate (docs/SIMULATION_ENGINE_V2.md).
  */
 import crypto from "node:crypto";
 import fs from "node:fs";
+import zlib from "node:zlib";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { compileParams, NFL_SIM_V2_ENGINE, NFL_SIM_V2_VERSION, prepareTeamPlayers } from "../../src/lib/sports/nfl/sim-v2/engine.mjs";
 import { calibrate, runBatch } from "../../src/lib/sports/nfl/sim-v2/simulate.mjs";
 import { buildNflSimulationReceipt, playersFromRoleShares } from "../../src/lib/sports/nfl/sim-v2/receipt.mjs";
+import { MKT02_CHALLENGER, fitYardageSplit, teamGameRows, weekKey } from "../../src/lib/sports/nfl/sim-v2/yardage-split.mjs";
 import { forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
 import { fnv1a64 } from "../../src/lib/forecast-ledger/identity.mjs";
 import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
@@ -44,7 +53,12 @@ const PARAMS = "data/internal/research/nfl/sim-v2/drive-params-2015-2025.json";
 const ROLE_SHARES = "data/internal/research/nfl/role-shares-v1/current.json";
 const INJURIES = "data/internal/research/injuries/nfl/latest.json";
 const ROSTERS = "app/public/data/nfl/rosters/latest.json";
-const OUT_DIR = "data/internal/research/nfl/sim-v2/shadow";
+const INCUMBENT_OUT_DIR = "data/internal/research/nfl/sim-v2/shadow";
+const CHALLENGERS = { [MKT02_CHALLENGER.challengerId.replace(/^nfl-sim-v2-/, "")]: { ...MKT02_CHALLENGER, outDir: "data/internal/research/nfl/sim-v2/challengers/mkt02-yardage-split" } };
+const TEAM_GAMES = "data/internal/research/nfl/sim-v2/team-games-v1.json.gz";
+const PLAYER_EVENTS_DIR = "data/internal/research/nfl/player-events-v1";
+/** NFL season of a kickoff: January / February games belong to the season that began the previous September. */
+const seasonOf = (iso) => { const d = new Date(iso); return d.getUTCMonth() <= 1 ? d.getUTCFullYear() - 1 : d.getUTCFullYear(); };
 
 const argv = process.argv.slice(2);
 const arg = (k, d = null) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
@@ -71,6 +85,16 @@ function main() {
   const runs = Number(arg("--runs", 10000));
   const dryRun = argv.includes("--dry-run");
   const wanted = new Set(args("--event"));
+  const challengerName = arg("--challenger");
+  const challenger = challengerName ? CHALLENGERS[challengerName] : null;
+  if (challengerName && !challenger) { console.error(`REFUSED: unknown challenger ${challengerName} (known: ${Object.keys(CHALLENGERS).join(", ")})`); process.exit(2); }
+  const OUT_DIR = challenger ? challenger.outDir : INCUMBENT_OUT_DIR;
+  // MKT-02 walk-forward inputs: every team-game on record (the fit itself keeps only weeks before the event's week)
+  const splitRows = challenger ? teamGameRows({
+    teamGames: JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(ROOT, TEAM_GAMES)))),
+    playerEventGames: fs.readdirSync(path.join(ROOT, PLAYER_EVENTS_DIR)).filter((f) => /^\d{4}\.json$/.test(f)).sort().flatMap((f) => read(`${PLAYER_EVENTS_DIR}/${f}`).games ?? []),
+  }) : null;
+  const fits = new Map();
 
   const receiptRoot = path.join(ROOT, "data/internal/nfl/forecast-receipts");
   const receipts = [];
@@ -136,17 +160,29 @@ function main() {
       engine: NFL_SIM_V2_VERSION, params: paramsRef.sha256, anchors: [anchors.home, anchors.away], runs,
       players: inputs.map((t) => t.players.map((p) => [p.playerId, p.passShare, p.targetShare, p.carryShare, p.catchRate, p.ypr, p.ypc])),
     }));
-    if (existingIds.has(`nfl-sim-v2:${eventId}:${inputHash}`)) { console.log(`${eventId} ${r.matchup}: UNCHANGED inputs — receipt exists`); continue; }
+    // the seed is always the incumbent's, so a challenger run i is the incumbent's run i with only its configuration changed
     const baseSeed = fnv1a64(`${NFL_SIM_V2_ENGINE}|${eventId}|${inputHash}`).slice(0, 8);
+    let fit = null;
+    let receiptHash = inputHash;
+    if (challenger) {
+      const key = weekKey(seasonOf(r.kickoffUtc), r.seasonType, r.week);
+      if (!fits.has(key)) fits.set(key, fitYardageSplit({ compiled, rows: splitRows, asOfKey: key }));
+      fit = fits.get(key);
+      if (!fit) { console.log(`SKIP ${eventId}: no team-game precedes week key ${key}`); continue; }
+      receiptHash = fnv1a64(JSON.stringify({ inputHash, challenger: fit.challengerId, version: fit.version, alpha: fit.alpha }));
+    }
+    if (existingIds.has(`nfl-sim-v2:${eventId}:${receiptHash}`)) { console.log(`${eventId} ${r.matchup}: UNCHANGED inputs — receipt exists`); continue; }
     const postseason = r.seasonType === 3;
     const calibration = calibrate({ compiled, anchors, baseSeed, postseason });
-    const batch = runBatch({ compiled, thetas: calibration.thetas, players: prep, baseSeed, runs, postseason });
+    const yardageSplit = fit ? { passGainWeight: fit.alpha } : null;
+    const batch = runBatch({ compiled, thetas: calibration.thetas, players: prep, baseSeed, runs, postseason, yardageSplit });
     const receipt = buildNflSimulationReceipt({
       event: { eventId, kickoffUtc: r.kickoffUtc, home: r.home, away: r.away },
-      compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt: now, postseason,
-      inputs: { forecastReceipt: `data/internal/nfl/forecast-receipts/${file}`, roleShares: `${ROLE_SHARES}@${roleShares.generatedAt}`, availability, params: paramsRef.sha256 },
+      compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash: receiptHash, generatedAt: now, postseason,
+      inputs: { forecastReceipt: `data/internal/nfl/forecast-receipts/${file}`, roleShares: `${ROLE_SHARES}@${roleShares.generatedAt}`, availability, params: paramsRef.sha256, ...(fit ? { incumbentInputHash: inputHash, teamGames: TEAM_GAMES } : {}) },
+      challenger: fit ? { ...fit, yardageSplit, incumbentReceiptId: `nfl-sim-v2:${eventId}:${inputHash}` } : null,
     });
-    const outRel = `${OUT_DIR}/${now.slice(0, 10)}/${eventId}-${inputHash}.json`;
+    const outRel = `${OUT_DIR}/${now.slice(0, 10)}/${eventId}-${receiptHash}.json`;
     const a = receipt.aggregate;
     console.log(`${eventId} ${r.matchup}: P(home) ${a.winProbability.home} · OT ${a.overtimeProbability} · total p50 ${a.total.p50} · margin p50 ${a.margin.p50} · failed runs ${receipt.validation.failedRuns}/${runs} · player boxes stored ${receipt.representativeRunBoxes?.pack?.r?.length ?? 0}, refused ${Object.keys(receipt.representativeRunBoxes?.refusals ?? {}).length} → ${outRel}`);
     if (dryRun) continue;

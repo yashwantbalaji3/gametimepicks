@@ -16,7 +16,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { compileParams, prepareTeamPlayers, runRng, simulateGame, tiltedTable, N_PERIODS, N_PSTAT, N_TSTAT, PSTAT, TEAM_STAT } from "./engine.mjs";
 import { calibrate, runBatch } from "./simulate.mjs";
-import { buildNflSimulationReceipt, validateSimulationReceipt, exactOver, COUNT_PMF_FAMILIES, DEF_ST_SCORER, EXACT_COUNT_FAMILIES } from "./receipt.mjs";
+import { buildNflSimulationReceipt, validateSimulationReceipt, exactOver, COUNT_PMF_FAMILIES, DEF_ST_SCORER, EXACT_COUNT_FAMILIES, SIMULATION_RECEIPT_SCHEMA } from "./receipt.mjs";
 import { readShadowReceipts } from "./public-receipt.mjs";
 
 const ROOT = path.resolve(process.cwd(), "..");
@@ -119,7 +119,7 @@ function receiptFor(seed, runs = 1500) {
 const R = receiptFor(SEED);
 
 test("receipt @2.2: count PMFs per player sum to 1 and agree with ATD / 2+ (P(2+) ≤ P(1+)); team-first-TD incl. none sums to 1", () => {
-  assert.equal(R.schemaVersion, "simulation-receipt@2.2");
+  assert.equal(R.schemaVersion, SIMULATION_RECEIPT_SCHEMA);
   assert.deepEqual(validateSimulationReceipt(R), []);
   const qb = R.playerStatDistributions.find((p) => p.playerId === "h-qb");
   assert.ok(qb.countPmf.passTd && qb.countPmf.int, "the QB carries pass TD and interception PMFs");
@@ -145,7 +145,7 @@ test("receipt @2.2: count PMFs per player sum to 1 and agree with ATD / 2+ (P(2+
 
 test("receipt @2.2: exact run counts cover every run, agree with the PMFs, and give exact half-yard line probabilities", () => {
   const n = R.runCount;
-  assert.deepEqual(R.provenance, { baseSeed: R.baseSeed, runCount: n, artifactHash: R.artifactHash, engine: R.simulationEngine, engineVersion: R.simulationEngineVersion, schema: "simulation-receipt@2.2" });
+  assert.deepEqual(R.provenance, { baseSeed: R.baseSeed, runCount: n, artifactHash: R.artifactHash, engine: R.simulationEngine, engineVersion: R.simulationEngineVersion, schema: SIMULATION_RECEIPT_SCHEMA });
   const awayPassers = R.playerStatDistributions.filter((p) => p.team === "AWY" && p.exactCounts?.passYds).map((p) => p.playerId).sort();
   assert.deepEqual(awayPassers, ["a-qb", "a-qb2", "a-wr1"], "every player who threw in some run carries passing counts; non-passers do not");
   for (const p of R.playerStatDistributions) {

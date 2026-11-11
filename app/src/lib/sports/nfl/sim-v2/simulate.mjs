@@ -10,7 +10,7 @@
 import { N_PERIODS, N_PSTAT, N_TSTAT, runRng, simulateGame, tiltedTable } from "./engine.mjs";
 import { checkRun } from "./coherence.mjs";
 
-export function runBatch({ compiled, thetas, players = null, baseSeed, runs, postseason = false, check = true, firstRun = 0 }) {
+export function runBatch({ compiled, thetas, players = null, baseSeed, runs, postseason = false, check = true, firstRun = 0, yardageSplit = null }) {
   const tables = [tiltedTable(compiled, thetas[0]), tiltedTable(compiled, thetas[1])];
   const nSlots = players ? [players[0].n, players[1].n] : null;
   const out = {
@@ -32,7 +32,7 @@ export function runBatch({ compiled, thetas, players = null, baseSeed, runs, pos
   };
   for (let i = 0; i < runs; i++) {
     const rng = runRng(baseSeed, firstRun + i);
-    const run = simulateGame({ compiled, tables, players, rng, postseason, out });
+    const run = simulateGame({ compiled, tables, players, rng, postseason, out, yardageSplit });
     res.scores[2 * i] = run.score[0];
     res.scores[2 * i + 1] = run.score[1];
     res.ot[i] = run.ot ? 1 : 0;

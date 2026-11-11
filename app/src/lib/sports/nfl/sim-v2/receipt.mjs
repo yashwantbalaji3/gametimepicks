@@ -24,9 +24,17 @@ import { RUN_BOX_RECORD_FIELD, buildRunBoxRecord } from "../../../simulation-the
  * rushTd and recTd. Any half-yard / half-count line probability is then an exact ratio of run counts (exactOver), with no
  * fitted distribution. `provenance` restates the seed, run count, artifactHash, engine and schema (outside the hashed body).
  */
-export const SIMULATION_RECEIPT_SCHEMA = "simulation-receipt@2.2";
-export const ACCEPTED_RECEIPT_SCHEMAS = Object.freeze(["simulation-receipt@2", "simulation-receipt@2.1", "simulation-receipt@2.2"]);
-export const EXACT_COUNT_FAMILIES = Object.freeze(["passYds", "cmp", "passAtt", "passTd", "int", "rushTd", "recTd"]);
+/**
+ * @2.3 (2026-11-11, NFL completion row C, additive): exact run counts also for the rushing and receiving families —
+ * rushAtt, rushYds (1-yard resolution, negative values kept), rec and recYds — for every player row that recorded the
+ * stat in some run, so each rush / receiving line is an exact ratio of run counts. Optional `challenger` names a
+ * registered challenger configuration (MKT-02 yardage split); incumbent receipts carry none.
+ */
+export const SIMULATION_RECEIPT_SCHEMA = "simulation-receipt@2.3";
+export const ACCEPTED_RECEIPT_SCHEMAS = Object.freeze(["simulation-receipt@2", "simulation-receipt@2.1", "simulation-receipt@2.2", "simulation-receipt@2.3"]);
+export const EXACT_COUNT_FAMILIES = Object.freeze(["passYds", "cmp", "passAtt", "passTd", "int", "rushAtt", "rushYds", "rushTd", "rec", "recYds", "recTd"]);
+/** The rushing / receiving families (row C). */
+export const RUSH_REC_FAMILIES = Object.freeze(["rushAtt", "rushYds", "rushTd", "rec", "recYds", "recTd"]);
 /** Families stored only for players who threw a pass in some run (the QB props); the TD families for every player. */
 const PASSER_ONLY = new Set(["passYds", "cmp", "passAtt", "int"]);
 /** Exact P(value > line) from a receipt's sparse run counts: Σ runs above the line / runCount. */
@@ -206,7 +214,7 @@ export function representativeIndices(batch, homeFavoured) {
 /**
  * Build the receipt. `generatedAt` is the only clock and is excluded from `artifactHash`.
  */
-export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt, inputs, postseason = false }) {
+export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt, inputs, postseason = false, challenger = null }) {
   const n = batch.runs;
   let hw = 0;
   let aw = 0;
@@ -278,7 +286,7 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
   const representativeRuns = representativeIndices(batch, hw >= aw).map(([kind, idx]) => {
     const events = [];
     const plays = prep ? [] : null;
-    const run = simulateGame({ compiled, tables, players: prep, rng: runRng(baseSeed, idx), postseason, out: scratch, events, plays });
+    const run = simulateGame({ compiled, tables, players: prep, rng: runRng(baseSeed, idx), postseason, out: scratch, events, plays, yardageSplit: challenger?.yardageSplit ?? null });
     if (prep && !runBoxes[idx]) {
       runBoxes[idx] = safeNflRunBoxScore({
         runIndex: idx,
@@ -315,6 +323,7 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
     simulationEngine: NFL_SIM_V2_ENGINE,
     simulationEngineVersion: NFL_SIM_V2_VERSION,
     promotionState: "SHADOW",
+    ...(challenger ? { challenger } : {}),
     modelVersion: anchors.modelVersion,
     inputSnapshotIds: inputs,
     availabilitySnapshotId: inputs.availability ?? null,
@@ -380,7 +389,7 @@ export function validateSimulationReceipt(r) {
     if (rep.label !== REPRESENTATIVE_LABEL) p.push(`representative ${rep.kind} not labelled ${REPRESENTATIVE_LABEL}`);
     if (!(Number.isInteger(rep.runIndex) && rep.runIndex >= 0 && rep.runIndex < r.runCount)) p.push(`representative ${rep.kind} names no real run`);
   }
-  if (r?.schemaVersion === "simulation-receipt@2.2") {
+  if (r?.schemaVersion === "simulation-receipt@2.2" || r?.schemaVersion === "simulation-receipt@2.3") {
     const pv = r.provenance;
     if (!pv || pv.baseSeed !== r.baseSeed || pv.runCount !== r.runCount || pv.artifactHash !== r.artifactHash) p.push("provenance missing or disagrees with the receipt");
   }
