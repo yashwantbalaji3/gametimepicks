@@ -50,6 +50,9 @@ const theaterFlagEnv = () => ({
   GTP_NFL_THEATER_PUBLIC: process.env.GTP_NFL_THEATER_PUBLIC === "1" ? "1" : "0",
   GTP_NFL_QB_PROPS_PUBLIC: process.env.GTP_NFL_QB_PROPS_PUBLIC === "1" ? "1" : "0",
   GTP_NBA_THEATER_PUBLIC: process.env.GTP_NBA_THEATER_PUBLIC === "1" ? "1" : "0",
+  /* GTP_NBA_TRENDS_PUBLIC — /trends (NBA player trends, trends slice 2026-11-09). Same compile-time pattern; default OFF:
+     the page 404s, its data route emits no trends, and scripts/prune-internal-routes.mjs deletes out/trends/. */
+  GTP_NBA_TRENDS_PUBLIC: process.env.GTP_NBA_TRENDS_PUBLIC === "1" ? "1" : "0",
 });
 
 /** @type {import('next').NextConfig} */
