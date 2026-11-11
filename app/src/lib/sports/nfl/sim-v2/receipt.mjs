@@ -204,9 +204,10 @@ export function representativeIndices(batch, homeFavoured) {
 }
 
 /**
- * Build the receipt. `generatedAt` is the only clock and is excluded from `artifactHash`.
+ * Build the receipt. `generatedAt` is the only clock and is excluded from `artifactHash`. `idSuffix` (the shadow build's
+ * schema-upgrade tag) is appended to the id as a FOURTH segment, so `id.split(":")[2]` stays the input hash.
  */
-export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt, inputs, postseason = false }) {
+export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt, inputs, postseason = false, idSuffix = null }) {
   const n = batch.runs;
   let hw = 0;
   let aw = 0;
@@ -306,7 +307,7 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
 
   const body = {
     schemaVersion: SIMULATION_RECEIPT_SCHEMA,
-    simulationReceiptId: `nfl-sim-v2:${event.eventId}:${inputHash}`,
+    simulationReceiptId: `nfl-sim-v2:${event.eventId}:${inputHash}${idSuffix ? `:${idSuffix}` : ""}`,
     sport: "NFL",
     eventId: event.eventId,
     eventStart: event.kickoffUtc,
