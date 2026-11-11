@@ -108,7 +108,11 @@ test("homepage NBA lane: rows (≤ NBA_LANE_ROWS), each linking to its /nba card
 test("the homepage renders NBA as a Command Center lane from the hub's own view (no second derivation, no Theater import)", () => {
   const home = read("src/app/page.tsx");
   assert.match(home, /nbaLane\(nbaTodaySlate\(/);
-  assert.doesNotMatch(home, /simulation-theater|GTP_NBA_THEATER_PUBLIC/, "/ links the hub cards; only /nba and the route touch the Theater gate");
+  /* UX slice 2026-11-09: the homepage rows deep-link the game page, so / reads the exported ids the route builds — with
+     the /nba hub's own recipe: the flag test INLINE, the loader imported only inside it (a flag-OFF build never bundles it). */
+  assert.match(home, /if \(process\.env\.GTP_NBA_THEATER_PUBLIC === "1"\) \{\n\s*const \{ publicPossessionEvents \} = await import\("@\/lib\/simulation-theater\/nba\/possession\/public-loader\.mjs"\);/);
+  assert.match(home, /gamePageIds: new Set\(nbaExportedGamePageIds\(serverToday, nbaTheaterIds\)\)/);
+  assert.doesNotMatch(home, /import [^\n]*simulation-theater\/nba\/possession\/(public-loader|possession-loader|stored-run)/, "no static import of a Theater loader");
   // founder mandate 2026-10-24: NBA is first-class — its lane sits right after NFL's
   assert.match(home, /const cardLanes = buildCommandCenter\(\{ dataRoot[^\n]*\}\);/);
   assert.match(home, /const commandLanes = \[\.\.\.cardLanes\.slice\(0, afterNfl\), nbaHomeLane, \.\.\.cardLanes\.slice\(afterNfl\)\];/);
@@ -119,8 +123,10 @@ test("the homepage renders NBA as a Command Center lane from the hub's own view 
   // Founder P0 2026-10-29: + the gated model-vs-line summaries (undefined while the NBA line display is off —
   // prop-line-surfaces-switch-off.test.mjs); still one MatchupCard per game, the summary only inserted into it
   assert.match(hub, /<NbaTodayGames slate=\{slate\} slip=\{slip\} gamePages=\{gamePages\} lineSummaries=\{lineSummaries\} \/>/);
-  assert.match(read("src/components/nba/hub-overview.tsx"), /\{slate\.games\.map\(\(g\) => withLineSummary\(lineSummaries\?\.get\(g\.id\),\n\s+<MatchupCard key=\{g\.id\}/);
-  assert.match(read("src/components/nba/hub-overview.tsx"), /if \(summary == null\) return card;/, "no summary → the card itself, untouched");
+  // 2026-11-09: each game is the shared GameCard (compact), anchored at laneCardId; the summary rides only when present
+  assert.match(read("src/components/nba/hub-overview.tsx"), /id: g\.id, anchorId: laneCardId\(g\.id\)/);
+  assert.match(read("src/components/nba/hub-overview.tsx"), /return <GameCard key=\{g\.id\} density="compact" model=\{model\}/);
+  assert.match(read("src/components/nba/hub-overview.tsx"), /afterFacts: summary == null \? null :/, "no summary → no extra block");
   // weight: today's carded games are not listed a second time in the window's one-line lists
   assert.match(hub, /const rest = model\.rows\.filter\(\(r\) => !carded\.has\(String\(r\.id\)\)\);/);
   assert.match(hub, /<NbaGameList rows=\{upcoming\}/);
@@ -146,7 +152,7 @@ test("/nba overview: the four states say what is true, and 'publishes nothing' i
 test("pending cards: matchup, clock status (SSR 'Upcoming'), no link and no side before today's forecast exists", () => {
   const s = slate({ lane: null, theaterIds: [] });
   const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: s }));
-  assert.equal((h.match(/<article/g) ?? []).length, 2);
+  assert.equal((h.match(/<li id="nba-exp-/g) ?? []).length, 2);
   assert.equal((h.match(/<a /g) ?? []).length, 0, "no forecast link before it is published, no Game Simulation link without a built page");
   assert.match(h, /Upcoming/);
   // overnight W7 2026-10-28: the pending state is said ONCE, in the overview, with the first tip-off — not on every card
@@ -249,11 +255,11 @@ process.env.__NEXT_TRAILING_SLASH = "true";
 
 test("today's cards: each links to its Official Forecast and its Game Simulation — only when each exists", () => {
   const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate() }));
-  const cards = h.split("<article").slice(1);
+  const cards = h.split("<li id=").slice(1);
   assert.equal(cards.length, 2, "a card for every one of today's games");
   assert.match(cards[0], /href="\/nba\/simulation\/g1\/#official-predictions"[^>]*>Official Forecast →/, "built page → the full forecast section");
   assert.match(cards[0], /href="\/nba\/simulation\/g1\/"[^>]*>Game Simulation →/);
-  assert.match(text(cards[0]), /Official Forecast: Philadelphia 76ers favoured/);
+  assert.match(text(cards[0]), /MODEL PROJECTION Philadelphia 76ers favoured/, "the tag names the Official Forecast; the line names the side");
   assert.doesNotMatch(cards[1], /<a /, "an excluded game: no forecast link, no unbuilt simulation link");
   assert.match(text(cards[1]), /Unavailable: its forecast was not frozen before tip-off, so none is published\./, "the lane code in reader words");
   assert.doesNotMatch(cards[1], /NOT_PRE_TIP/);
@@ -342,7 +348,7 @@ test("one code per team (release owner 2026-10-25): on every committed slate the
     for (const g of lane.games) {
       const id = g.providerEventId, a = g.away.abbr, h = g.home.abbr;
       for (const x of [a, h]) aliases.add(x);
-      const card = cards.slice(cards.indexOf(`id="nba-exp-${id}"`), cards.indexOf("</article>", cards.indexOf(`id="nba-exp-${id}"`)));
+      const card = cards.slice(cards.indexOf(`id="nba-exp-${id}"`), cards.indexOf("</li>", cards.indexOf(`id="nba-exp-${id}"`)));
       assert.ok(card.length > 0, `${d} ${id}: a card`);
       assert.deepEqual([...card.matchAll(/<b(?: data-on="")?>([^<]+)<\/b>/g)].map((m) => m[1]), [a, h], `${d} ${id}: card header = lane codes`);
       assert.match(table, new RegExp(`<tr id="nba-fc-${id}"><th scope="row">${a} @ ${h}</th>`), `${d} ${id}: forecast row`);
@@ -358,4 +364,80 @@ test("one code per team (release owner 2026-10-25): on every committed slate the
     }
   }
   assert.ok(["WSH", "NY", "GS", "NO", "SA", "UTAH"].some((x) => aliases.has(x)), "the committed slates exercise at least one aliased team");
+});
+
+test("UX slice 2026-11-09: a homepage NBA row opens its GAME PAGE when exported (else the hub card) and shows the official win chance with the disclosure once", () => {
+  const s = slate();
+  const ids = s.games.map((g) => String(g.id));
+  assert.ok(ids.length >= 2, "fixture has at least two games");
+  const lane = nbaLane(s, NOW, {
+    gamePageIds: new Set([ids[0]]),
+    winChanceOf: (id) => (id === ids[0] ? { text: "AAA 46% · HHH 54%", attr: `${id}:0.54` } : null),
+    winChanceDisclosure: "Model Performance: not yet established.",
+  });
+  const [first, second] = lane.games;
+  assert.equal(first.href, `/nba/simulation/${ids[0]}/`, "an exported game page is the row's link");
+  assert.match(second.href, /^\/nba\/#nba-exp-/, "a game without an exported page keeps the hub card");
+  if (first.note.endsWith("favoured")) assert.deepEqual(first.winChance, { text: "AAA 46% · HHH 54%", attr: `${ids[0]}:0.54` });
+  assert.equal(second.winChance, null, "no accessor view → no number");
+  assert.equal(lane.winChanceDisclosure, lane.games.some((g) => g.winChance) ? "Model Performance: not yet established." : null);
+  // and without the options the lane is exactly as before: hub anchors, no percentages
+  const plain = nbaLane(s, NOW);
+  assert.ok(plain.games.every((g) => /^\/nba\/#nba-exp-/.test(g.href) && !g.winChance));
+  assert.equal(plain.winChanceDisclosure ?? null, null);
+});
+
+test("UX-10 (2026-11-09): with its game page exported, a card links that page ONCE ('Game page →'), never a second 'Game Simulation →' to the same URL", () => {
+  const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate(), gamePages: new Set(["g1"]) }));
+  const card = h.split("<li id=").slice(1)[0];
+  const plain = [...card.matchAll(/href="\/nba\/simulation\/g1\/"/g)].length;
+  assert.equal(plain, 1, "one link to the game page");
+  assert.match(card, /data-nba-game-page="g1"[^>]*>Game page →/);
+  assert.doesNotMatch(card, />Game Simulation →</);
+  // shared game card (2026-11-09): ONE link per card — the game page opens on the Official Forecast (its Default view)
+  assert.equal((card.match(/<a /g) ?? []).length, 1, "one link: the game page");
+  assert.doesNotMatch(card, /#official-predictions/);
+});
+
+test("founder acceptance 2026-11-09: NBA cards and lane rows say what each fact IS — MODEL PROJECTION (official), SIMULATION (hypothetical), FINAL (settled)", () => {
+  const h = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate() }));
+  const card = h.split("<li id=").slice(1)[0];
+  assert.match(card, /data-game-state="official">MODEL PROJECTION<\/span> Philadelphia 76ers favoured/);
+  assert.match(card, />Game Simulation →<\/a><span class="gtp-state-tag is-simulation" data-game-state="simulation">SIMULATION · hypothetical</, "the simulation link is tagged hypothetical, beside the link");
+  const withPage = renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: slate(), gamePages: new Set(["g1"]) })).split("<li id=").slice(1)[0];
+  assert.doesNotMatch(withPage, /data-game-state="simulation"/, "no orphan tag when the game-page link replaces the simulation link");
+  assert.doesNotMatch(card, /data-game-state="final"/, "no final before the game ends");
+  const lane = nbaLane(slate(), NOW);
+  assert.equal(lane.games[0].state, "official");
+  const settled = mergeFinals ? null : null; void settled;
+});
+
+test("shared game card on /nba: every card is the compact GameCard, ONE link to the game, under 900 B pregame (committed 2026-11-09 slate)", async () => {
+  const { loadLaneForDate } = await import("./experimental-lane.tsx");
+  const lane = loadLaneForDate("2026-11-09");
+  const schedule = JSON.parse(read("public/data/nba/schedule/latest.json"));
+  const finals = JSON.parse(read("public/data/nba/results/finals-2026-27.json"));
+  const ids = lane.games.map((g) => g.providerEventId);
+  const render = (fin) => {
+    const s = nbaTodaySlateFrom({ nowIso: "2026-11-09T17:00:00Z", schedule, finals: fin, lane, theaterIds: ids });
+    return { s, cards: renderToStaticMarkup(React.createElement(NbaTodayGames, { slate: s, gamePages: new Set(s.games.map((g) => g.id)) })).split("<li id=").slice(1) };
+  };
+  // pinned to the pregame state (no finals) — the committed finals file grows nightly, so the bound must not depend on it
+  const pre = render(null);
+  assert.equal(pre.cards.length, pre.s.games.length, "a card per game");
+  const avg = (cs) => cs.reduce((a, c) => a + c.length + 7, 0) / cs.length;
+  assert.ok(avg(pre.cards) < 900, `${Math.round(avg(pre.cards))} B of HTML per pregame card (main's MatchupCard measured 1,082 B)`);
+  for (const c of pre.cards) {
+    assert.match(c, /^"nba-exp-\d+" class="nbx-card"/, "the hub-lane anchor id other surfaces link to");
+    assert.equal((c.match(/<a /g) ?? []).length, 1, "one link per card");
+    assert.match(c, /data-game-state="official">MODEL PROJECTION<\/span> [^<]+ favoured/);
+  }
+  // a final card carries one more fact — the settled result, tagged — beside the still-tagged frozen forecast
+  const post = render(finals);
+  const finalCards = post.cards.filter((c) => /data-game-state="final"/.test(c));
+  for (const c of finalCards) {
+    assert.match(c, /data-game-state="official">MODEL PROJECTION<\/span> [^<]+ favoured/, "the frozen forecast stays tagged beside the final");
+    assert.doesNotMatch(c, />Official Forecast: /, "no untagged forecast line");
+  }
+  if (finalCards.length) assert.ok(avg(finalCards) < 1082, `${Math.round(avg(finalCards))} B per final card — under main's pregame MatchupCard`);
 });

@@ -89,7 +89,7 @@ export function loadLaneForDate(date: string): Snapshot | null {
   return readDated(date);
 }
 
-const et = (iso: string) =>
+export const et = (iso: string) =>
   new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }).format(new Date(iso)) + " ET";
 const slateLabel = (d: string) => new Intl.DateTimeFormat("en-US", { timeZone: "UTC", month: "short", day: "numeric" }).format(new Date(`${d}T12:00:00Z`));
 const fmt = (v: number | null) => (v == null ? "—" : String(v));

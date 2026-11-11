@@ -151,7 +151,9 @@ test("ROLLOUT 10 · the Live nav entry exists, is truthful about scope, and reso
    */
   /* FOUNDER DECISION 2026-10-08: Live became a primary by REPLACING Parlays — still five, still one set on every
      surface. The guard changed with the decision: Live is on every surface, and the primaries stay exactly five. */
-  assert.match(entry[0], /surfaces: \["top", "rail", "mobile", "footer"\]/, "Live is a primary on every surface (founder decision 2026-10-08)");
+  /* FOUNDER MANDATE 2026-11-09 (via the Program Director): the five primaries became Today · Sports · Products · Results ·
+     Ask. Live left the bars for the homepage's Live band and the footer sitemap; it stays a public destination. */
+  assert.match(entry[0], /surfaces: \["footer"\]/, "Live is a footer destination (founder mandate 2026-11-09)");
   const primaries = [...nav.matchAll(/\{ href: "([^"]+)"[^}]*surfaces: \["top", "rail", "mobile", "footer"\]/g)].map((m) => m[1]);
   assert.equal(primaries.length, 5, `exactly five primaries, never a silent sixth: ${primaries.join(", ")}`);
 

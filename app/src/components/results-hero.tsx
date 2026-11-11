@@ -95,7 +95,7 @@ export default function ResultsHero({
       {/* PR `feature/results-ux-published-vs-generated` (2026-06-05) — two
          clearly separated lifetime records so users don't read the broad
          generated-pool number as the cards they saw. Published-cards record is
-         the curated cards shown on Suggested Parlays; the generated pool is the
+         the curated cards shown on Parlay Lab; the generated pool is the
          full model output tracked separately. Neutral copy; no edge claim. */}
       <div
         aria-label="Lifetime records"
@@ -112,7 +112,7 @@ export default function ResultsHero({
         className="font-mono leading-snug m-0"
         style={{ color: "var(--vault-text-faint)", fontSize: 11, maxWidth: 620 }}
       >
-        Published cards are the ones shown to users on Suggested Parlays before
+        Published cards are the ones shown to users on Parlay Lab before
         games. The second number is every card the model generated, tracked
         internally for transparency. Only settled outcomes count toward hit rate —
         pending games are not counted yet, and pushes are listed separately.

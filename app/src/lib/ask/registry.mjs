@@ -210,18 +210,18 @@ export const ASK_TOOLS = Object.freeze({
     version: 1,
     kind: "parlay",
     describe:
-      "The cards GameTimePicks OFFICIALLY PUBLISHED for a date — the Suggested Parlays ladder (Low Risk, Medium " +
+      "The cards GameTimePicks OFFICIALLY PUBLISHED for a date — the Parlay Lab ladder (Low Risk, Medium " +
       "Risk, High Risk, Longshot), the Bank Builder lanes and the Moonshot lanes — read verbatim from the published " +
       "artifacts. Use for 'what are today's suggested parlays', 'what is today's Bank Builder / Moonshot', 'why is " +
       "there no card today', 'show me the lowest-risk option', and a named past day's published cards. A tier or " +
       "lane with no card carries the product's own reason; NO CARD PLACED is a published answer, never pending and " +
-      "never a loss. Never build, re-price or reorder a card. It also carries each Suggested Parlays risk level's " +
+      "never a loss. Never build, re-price or reorder a card. It also carries each Parlay Lab risk level's " +
       "record over the PUBLISHED cards only (use riskTier for 'how have Low Risk cards performed'); a product's " +
       "overall record is getProductRecord's; candidate slips are getParlayCandidates' and are NOT official cards.",
     args: {
       product: { kind: "enum", options: ["SUGGESTED_PARLAYS", "BANK_BUILDER", "MOONSHOT"], describe: "One product, or omit for all three." },
       date: { kind: "isoDate", describe: "Product date (ET) as YYYY-MM-DD. Omit for today — the tool uses today's product date on its own. Only pass a date when the user named a specific day, and never write a placeholder here." },
-      riskTier: { kind: "enum", options: [...ASK_RISK_PROFILES], describe: "Suggested Parlays only: LOW, MEDIUM, HIGH or LONGSHOT, when the user asked for one risk level." },
+      riskTier: { kind: "enum", options: [...ASK_RISK_PROFILES], describe: "Parlay Lab only: LOW, MEDIUM, HIGH or LONGSHOT, when the user asked for one risk level." },
     },
   },
 
@@ -229,7 +229,7 @@ export const ASK_TOOLS = Object.freeze({
     version: 1,
     kind: "results",
     describe:
-      "The SETTLED record for a GameTime product (Bank Builder, Moonshot, Suggested Parlays = id parlay-lab: the " +
+      "The SETTLED record for a GameTime product (Bank Builder, Moonshot, Parlay Lab = id parlay-lab: the " +
       "cards we PUBLISHED, one per risk level a day — never every candidate slip graded), from the canonical " +
       "Results owner. Use for 'what is Bank Builder's record', 'how has Moonshot done'. Returns the CURRENT " +
       "record the owner designated, its era components, and — separately — legacy-era rows that are settled " +
@@ -371,7 +371,7 @@ export const ASK_TOOLS = Object.freeze({
     version: 1,
     kind: "coverage",
     describe:
-      "Why NFL is or is not in an official product (Bank Builder, Moonshot, Suggested Parlays), and what is " +
+      "Why NFL is or is not in an official product (Bank Builder, Moonshot, Parlay Lab), and what is " +
       "blocking each NFL player market (anytime touchdown, passing yards, rushing yards, receiving yards, " +
       "receptions): model probability, forward test, confirmed roles, pregame prices, settlement, approval. " +
       "Call this for ANY question about NFL product eligibility or what would need to happen for NFL to be " +

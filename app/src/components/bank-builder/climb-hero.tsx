@@ -216,7 +216,9 @@ export default function ClimbHero({
         <p className="mb-2 font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-faint)" }}>
           Where the ladder stands now
         </p>
-        <div className="grid grid-cols-3 gap-2">
+        {/* UX-01 (2026-11-09): three tiles side by side cut money at 390–430px ("$14,06…"). Below 640px each tile is
+            one full-width row (label left, value right); the value is never truncated. */}
+        <div className="grid grid-cols-1 gap-2 sm:grid-cols-3" data-bb-money-tiles="">
           {/* P0 U2: the second tile was "Peak paper bankroll $20,465.40" — a June figure leading the current
               hero. It now shows the current era's settled P/L; the peak moved, unchanged, to History below. */}
           {([
@@ -228,14 +230,14 @@ export default function ClimbHero({
           ] as Array<[string, string, string]>).map(([label, value, accent]) => (
             <div
               key={label}
-              className="relative flex flex-col gap-1 overflow-hidden rounded-[10px] px-3 py-2.5 min-w-0"
+              className="relative flex flex-row items-center justify-between gap-3 overflow-hidden rounded-[10px] px-3 py-2.5 min-w-0 sm:flex-col sm:items-start sm:justify-start sm:gap-1"
               style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)" }}
             >
               <span aria-hidden className="absolute left-0 top-0 bottom-0 w-[3px]" style={{ background: accent }} />
-              <span className="font-mono uppercase tracking-[0.12em] truncate" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
+              <span className="font-mono uppercase tracking-[0.12em] min-w-0" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
                 {label}
               </span>
-              <span className="font-display tabular truncate" style={{ color: "var(--vault-text)", fontSize: "clamp(16px, 4.6vw, 22px)", fontWeight: 700, lineHeight: 1 }}>
+              <span className="font-display tabular whitespace-nowrap shrink-0" data-bb-money="" style={{ color: "var(--vault-text)", fontSize: "clamp(16px, 4.6vw, 22px)", fontWeight: 700, lineHeight: 1 }}>
                 {value}
               </span>
             </div>

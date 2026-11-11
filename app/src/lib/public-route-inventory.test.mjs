@@ -74,6 +74,9 @@ const REMOVED = {
 /** The complete set of destinations any nav surface is allowed to link. */
 const APPROVED_DESTINATIONS = new Set([
   "/",
+  /* 2026-11-09 (founder mandate via the Program Director): the Products primary — names and links to the existing
+     paper products only, read from the canonical destination list; it publishes no data of its own. */
+  "/products",
   "/models",
   "/saved",
   "/today",

@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-10T17:02:36Z",
- "sourceGeneratedAt": "2026-11-10T17:02:36Z",
+ "generatedAt": "2026-11-10T21:15:46Z",
+ "sourceGeneratedAt": "2026-11-10T21:15:46Z",
  "forecastInputHash": "a078bebe0816cbea",
  "providerEventId": "401873056",
  "matchup": "HOU @ CLE",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-10T17:02:36Z",
-  "roleEvidenceAt": "2026-11-10T17:02:36Z",
+  "injuriesCapturedAt": "2026-11-10T21:15:46Z",
+  "roleEvidenceAt": "2026-11-10T21:15:46Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -21,8 +21,37 @@
   "player_pass_yds": {
    "label": "Passing yards",
    "state": "ESTIMATE",
-   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
-   "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
+   "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
+   "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
+   "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "HOU",
+     "playerId": "nfl-athlete-4242546",
+     "name": "Davis Mills",
+     "share": 0.351,
+     "reason": "withheld for Davis Mills (HOU): his modelled share of HOU's pass attempts is 0.35, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    },
+    {
+     "team": "CLE",
+     "playerId": "nfl-athlete-4432762",
+     "name": "Shedeur Sanders",
+     "share": 0.536,
+     "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.54, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    },
+    {
+     "team": "CLE",
+     "playerId": "nfl-athlete-4427238",
+     "name": "Dillon Gabriel",
+     "share": 0.481,
+     "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+    }
+   ],
+   "conservation": {
+    "version": "nfl-share-conservation-v1",
+    "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
+    "pools": []
+   }
   },
   "player_rush_yds": {
    "label": "Rushing yards",
@@ -38,7 +67,13 @@
   "player_receptions": {
    "label": "Receptions",
    "state": "PUBLISHED",
-   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+   "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1495 graded player-games).",
+   "model": "nfl-player-share-level-v1",
+   "conservation": {
+    "version": "nfl-share-conservation-v1",
+    "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
+    "pools": []
+   }
   },
   "player_pass_int": {
    "label": "player_pass_int",
@@ -48,7 +83,8 @@
   "anytime_td": {
    "label": "Anytime touchdown",
    "state": "PUBLISHED",
-   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
+   "basis": "Opportunity touchdown model: cleared every bar on a blind test of 2014–2021 (35,128 player-games never used to build it). Probabilities condition on playing — a player who does not play settles void. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1950 graded player-games).",
+   "model": "nfl-anytime-td-opportunity-v1"
   },
   "ordered_td": {
    "label": "First/last/2+ touchdown",
@@ -61,19 +97,28 @@
  "departedFiltered": 0,
  "practiceSquadFiltered": 0,
  "practiceSquadFilteredPlayers": [],
- "shareLevel": null,
+ "shareLevel": {
+  "markets": [
+   "anytime_td",
+   "player_pass_yds",
+   "player_receptions"
+  ],
+  "rows": 80,
+  "rosterDropped": 56,
+  "withoutEspnId": 0
+ },
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 59,
+  "absent": 58,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "HOU": {
    "counts": {
     "PROJECTED": 12,
-    "EXCLUDED_UNAVAILABLE": 1,
-    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "EXCLUDED_UNAVAILABLE": 2,
+    "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
@@ -84,6 +129,7 @@
      "name": "C.J. Stroud",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_pass_yds",
       "player_rush_yds"
      ],
@@ -94,6 +140,7 @@
      "name": "Woody Marks",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_reception_yds",
       "player_receptions",
       "player_rush_yds"
@@ -118,7 +165,7 @@
       "anytime_td",
       "player_rush_yds"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4258173",
@@ -129,7 +176,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4686422",
@@ -140,13 +187,14 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-3117256",
      "name": "Dalton Schultz",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_reception_yds",
       "player_receptions"
      ],
@@ -157,27 +205,18 @@
      "name": "Tank Dell",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_reception_yds",
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4877706",
-     "name": "Jayden Higgins",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "ACTIVE_PROJECTED"
-    },
-    {
      "playerId": "nfl-athlete-4429022",
      "name": "Kayshon Boutte",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_reception_yds",
       "player_receptions"
      ],
@@ -192,34 +231,60 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-3843945",
      "name": "Foster Moreau",
      "state": "PROJECTED",
      "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
+      "player_reception_yds"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4242546",
+     "name": "Davis Mills",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "withheld for Davis Mills (HOU): his modelled share of HOU's pass attempts is 0.35, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4877706",
+     "name": "Jayden Higgins",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "availability not confirmed: not on the active roster (practice squad or injury list)"
     },
     {
      "playerId": "nfl-athlete-4586312",
      "name": "Jaylin Noel",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4362478",
+     "name": "Emari Demercado",
+     "state": "EXCLUDED_NO_CURRENT_ROLE",
+     "reason": "not on HOU's current roster"
     }
    ]
   },
   "CLE": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 0,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 0,
+    "NOT_MODELED_BY_FAMILY": 1,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -244,16 +309,24 @@
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4432762",
      "name": "Shedeur Sanders",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.54, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4832800",
@@ -264,7 +337,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4870653",
@@ -275,7 +348,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-5083076",
@@ -286,7 +359,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-5081397",
@@ -298,26 +371,16 @@
       "player_receptions",
       "player_rush_yds"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4241463",
      "name": "Jerry Jeudy",
      "state": "PROJECTED",
      "families": [
+      "anytime_td",
       "player_reception_yds",
       "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4601080",
-     "name": "Raheim Sanders",
-     "state": "PROJECTED",
-     "families": [
-      "player_reception_yds",
-      "player_receptions",
-      "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
@@ -329,16 +392,26 @@
       "anytime_td",
       "player_rush_yds"
      ],
-     "participation": "ACTIVE_PROJECTED"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4362018",
-     "name": "Blake Whiteheart",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td"
-     ],
-     "participation": "ACTIVE_PROJECTED"
+     "playerId": "nfl-athlete-4601080",
+     "name": "Raheim Sanders",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "availability not confirmed: not on the active roster (practice squad or injury list)"
+    },
+    {
+     "playerId": "nfl-athlete-4427238",
+     "name": "Dillon Gabriel",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+      }
+     ]
     }
    ]
   }
@@ -347,19 +420,26 @@
   "qbStarter": [
    {
     "team": "HOU",
-    "state": "SINGLE_PASSER",
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-4432577"
+     "nfl-athlete-4432577",
+     "nfl-athlete-4242546"
     ],
-    "removed": []
+    "removed": [],
+    "snapshotAt": "2026-11-07T13:54:10Z"
    },
    {
     "team": "CLE",
-    "state": "SINGLE_PASSER",
+    "state": "UNRESOLVED",
+    "reason": "depth chart STALE",
     "passers": [
-     "nfl-athlete-3122840"
+     "nfl-athlete-3122840",
+     "nfl-athlete-4432762",
+     "nfl-athlete-4427238"
     ],
-    "removed": []
+    "removed": [],
+    "snapshotAt": "2026-11-07T13:54:10Z"
    }
   ],
   "passerShareFloor": [
@@ -367,127 +447,96 @@
     "team": "HOU",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4432577"
+     "nfl-athlete-4432577",
+     "nfl-athlete-4242546"
     ],
-    "withheld": [],
-    "unjoined": [
-     "nfl-athlete-4432577"
-    ]
+    "withheld": [
+     {
+      "team": "HOU",
+      "playerId": "nfl-athlete-4242546",
+      "name": "Davis Mills",
+      "share": 0.351,
+      "reason": "withheld for Davis Mills (HOU): his modelled share of HOU's pass attempts is 0.35, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
+    "unjoined": []
    },
    {
     "team": "CLE",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3122840"
+     "nfl-athlete-3122840",
+     "nfl-athlete-4432762",
+     "nfl-athlete-4427238"
     ],
-    "withheld": [],
-    "unjoined": [
-     "nfl-athlete-3122840"
-    ]
+    "withheld": [
+     {
+      "team": "CLE",
+      "playerId": "nfl-athlete-4432762",
+      "name": "Shedeur Sanders",
+      "share": 0.536,
+      "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.54, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     },
+     {
+      "team": "CLE",
+      "playerId": "nfl-athlete-4427238",
+      "name": "Dillon Gabriel",
+      "share": 0.481,
+      "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     }
+    ],
+    "unjoined": []
    }
   ],
-  "pools": [],
+  "pools": [
+   {
+    "team": "HOU",
+    "pool": "passAttempts",
+    "markets": [
+     "player_pass_yds"
+    ],
+    "sum": 0.983,
+    "originalSum": 0.983,
+    "residualOther": 0.017,
+    "joined": 1,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "HOU",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9651,
+    "originalSum": 0.9651,
+    "residualOther": 0.0349,
+    "joined": 7,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
+    "team": "CLE",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9365,
+    "originalSum": 0.9365,
+    "residualOther": 0.0635,
+    "joined": 6,
+    "missed": 0,
+    "state": "CONSERVED"
+   }
+  ],
   "violations": 0
  },
  "players": [
   {
-   "playerId": "nfl-athlete-5083076",
-   "name": "Harold Fannin Jr.",
-   "team": "CLE",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 42.762,
-     "p10": 6.49,
-     "p25": 18.36,
-     "median": 36.58,
-     "p75": 61.35,
-     "p90": 87.17,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 3.597,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 7,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.32385,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4832800",
-   "name": "Denzel Boston",
-   "team": "CLE",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 46.959,
-     "p10": 7.41,
-     "p25": 20.33,
-     "median": 41.17,
-     "p75": 66.66,
-     "p90": 93.42,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 3.663,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 7,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.299501,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3843945",
-   "name": "Foster Moreau",
-   "team": "HOU",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 11.658,
-     "p10": 0,
-     "p25": 0,
-     "median": 5.77,
-     "p75": 18.21,
-     "p90": 32.8,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.195,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.258655,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
    "playerId": "nfl-athlete-4685702",
    "name": "Quinshon Judkins",
    "team": "CLE",
-   "participation": "ACTIVE_PROJECTED",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_rush_yds": {
      "mean": 40.347,
@@ -508,7 +557,7 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.831,
+     "mean": 2.0698,
      "p10": 0,
      "p25": 1,
      "median": 2,
@@ -517,9 +566,24 @@
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
-     "probability": 0.249208,
-     "participation": "ACTIVE_PROJECTED",
+     "probability": 0.3873,
      "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T00:36Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
     }
    }
   },
@@ -527,7 +591,7 @@
    "playerId": "nfl-athlete-4258173",
    "name": "Nico Collins",
    "team": "HOU",
-   "participation": "ACTIVE_PROJECTED",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 37.751,
@@ -539,292 +603,33 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.001,
+     "mean": 4.3336,
      "p10": 1,
      "p25": 2,
-     "median": 3,
-     "p75": 4,
-     "p90": 6,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
-     "probability": 0.210912,
-     "participation": "ACTIVE_PROJECTED",
+     "probability": 0.3707,
      "pricingState": "NOT_PROBED"
     }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4432708",
-   "name": "Marvin Harrison Jr.",
-   "team": "HOU",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 16.532,
-     "p10": 0,
-     "p25": 0,
-     "median": 10.48,
-     "p75": 24.44,
-     "p90": 43.24,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.546,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.202587,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4035538",
-   "name": "David Montgomery",
-   "team": "HOU",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 24.799,
-     "p10": 4.27,
-     "p25": 10.49,
-     "median": 20.89,
-     "p75": 34.75,
-     "p90": 50.07,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.185874,
-     "participation": "QUESTIONABLE",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4686422",
-   "name": "Xavier Hutchinson",
-   "team": "HOU",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 25.708,
-     "p10": 0,
-     "p25": 6.69,
-     "median": 19.73,
-     "p75": 38.62,
-     "p90": 58.32,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 2.29,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.180651,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4877706",
-   "name": "Jayden Higgins",
-   "team": "HOU",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 21.414,
-     "p10": 0,
-     "p25": 3.33,
-     "median": 15.16,
-     "p75": 32.07,
-     "p90": 51.86,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.879,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.178997,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4429939",
-   "name": "Jawhar Jordan",
-   "team": "HOU",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 21.487,
-     "p10": 0.38,
-     "p25": 5.34,
-     "median": 16.28,
-     "p75": 30.71,
-     "p90": 49.87,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.178527,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4870653",
-   "name": "KC Concepcion",
-   "team": "CLE",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 43.296,
-     "p10": 7.21,
-     "p25": 19.01,
-     "median": 37.36,
-     "p75": 61.26,
-     "p90": 86.67,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 3.66,
-     "p10": 1,
-     "p25": 2,
-     "median": 3,
-     "p75": 5,
-     "p90": 7,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.172111,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-3122840",
-   "name": "Deshaun Watson",
-   "team": "CLE",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 129.52,
-     "p10": 16.36,
-     "p25": 55.93,
-     "median": 119.67,
-     "p75": 189.25,
-     "p90": 255.53,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_rush_yds": {
-     "mean": 18.952,
-     "p10": 0.54,
-     "p25": 4.79,
-     "median": 13.81,
-     "p75": 27.81,
-     "p90": 44.43,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.136777,
-     "participation": "QUESTIONABLE",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4362018",
-   "name": "Blake Whiteheart",
-   "team": "CLE",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "anytime_td": {
-     "probability": 0.131726,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4722893",
-   "name": "Jaleel McLaughlin",
-   "team": "CLE",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 7.664,
-     "p10": 0,
-     "p25": 0,
-     "median": 1.49,
-     "p75": 10.45,
-     "p90": 23.8,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.108882,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-5081397",
-   "name": "Dylan Sampson",
-   "team": "CLE",
-   "participation": "ACTIVE_PROJECTED",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 12.415,
-     "p10": 0,
-     "p25": 1.09,
-     "median": 7.37,
-     "p75": 18.41,
-     "p90": 32.44,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_reception_yds": {
-     "mean": 25.981,
-     "p10": 0,
-     "p25": 7.27,
-     "median": 20.41,
-     "p75": 37.59,
-     "p90": 60.13,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 2.496,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.057187,
-     "participation": "ACTIVE_PROJECTED",
-     "pricingState": "NOT_PROBED"
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T01:54Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
     }
    }
   },
@@ -853,143 +658,119 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.189,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 3,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4432762",
-   "name": "Shedeur Sanders",
-   "team": "CLE",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 9.272,
-     "p10": 0,
-     "p25": 0,
-     "median": 3.9,
-     "p75": 13.39,
-     "p90": 26.74,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4432577",
-   "name": "C.J. Stroud",
-   "team": "HOU",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 195.7,
-     "p10": 70.54,
-     "p25": 126.35,
-     "median": 191.02,
-     "p75": 260.21,
-     "p90": 322.66,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_rush_yds": {
-     "mean": 8.574,
-     "p10": 0,
-     "p25": 0,
-     "median": 2.76,
-     "p75": 12.48,
-     "p90": 25.34,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4601080",
-   "name": "Raheim Sanders",
-   "team": "CLE",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 7.445,
-     "p10": 0,
-     "p25": 0,
-     "median": 2.16,
-     "p75": 10.57,
-     "p90": 22.78,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_reception_yds": {
-     "mean": 15.175,
-     "p10": 0,
-     "p25": 0,
-     "median": 9.66,
-     "p75": 23.44,
-     "p90": 38.81,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.572,
-     "p10": 0,
-     "p25": 0,
-     "median": 1,
-     "p75": 2,
-     "p90": 4,
-     "pricingState": "NOT_PROBED"
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4241463",
-   "name": "Jerry Jeudy",
-   "team": "CLE",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 24.838,
-     "p10": 0,
-     "p25": 5.92,
-     "median": 19.1,
-     "p75": 37.09,
-     "p90": 56.86,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 2.212,
+     "mean": 1.7088,
      "p10": 0,
      "p25": 1,
-     "median": 2,
+     "median": 1,
      "p75": 3,
      "p90": 4,
      "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.3485,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T03:22Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
     }
    }
   },
   {
-   "playerId": "nfl-athlete-3117256",
-   "name": "Dalton Schultz",
+   "playerId": "nfl-athlete-4035538",
+   "name": "David Montgomery",
+   "team": "HOU",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 24.799,
+     "p10": 4.27,
+     "p25": 10.49,
+     "median": 20.89,
+     "p75": 34.75,
+     "p90": 50.07,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.3237,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "flags": [
+     "QUESTIONABLE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Questionable",
+      "statedAt": "2026-11-10T15:44Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4686422",
+   "name": "Xavier Hutchinson",
    "team": "HOU",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
-     "mean": 28.375,
+     "mean": 25.708,
      "p10": 0,
-     "p25": 8.72,
-     "median": 22.86,
-     "p75": 42.2,
-     "p90": 62.33,
+     "p25": 6.69,
+     "median": 19.73,
+     "p75": 38.62,
+     "p90": 58.32,
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.66,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 4,
-     "p90": 5,
+     "mean": 3.2432,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 6,
      "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2872,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T02:07Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
     }
    }
   },
@@ -1009,13 +790,169 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.973,
-     "p10": 0,
+     "mean": 3.1605,
+     "p10": 1,
      "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4,
+     "median": 3,
+     "p75": 4,
+     "p90": 6,
      "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2802,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [
+     "FEED_ACTIVE_ROSTER_DAY_TO_DAY"
+    ],
+    "flags": [
+     "SOURCES_DISAGREE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T02:14Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "day-to-day",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429939",
+   "name": "Jawhar Jordan",
+   "team": "HOU",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 21.487,
+     "p10": 0.38,
+     "p25": 5.34,
+     "median": 16.28,
+     "p75": 30.71,
+     "p90": 49.87,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2598,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [
+     "ROSTER_ACTIVE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": null,
+      "statedAt": null,
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-5083076",
+   "name": "Harold Fannin Jr.",
+   "team": "CLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 42.762,
+     "p10": 6.49,
+     "p25": 18.36,
+     "median": 36.58,
+     "p75": 61.35,
+     "p90": 87.17,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 4.0469,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2291,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T00:53Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4832800",
+   "name": "Denzel Boston",
+   "team": "CLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 46.959,
+     "p10": 7.41,
+     "p25": 20.33,
+     "median": 41.17,
+     "p75": 66.66,
+     "p90": 93.42,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 4.194,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2237,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T00:42Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
     }
    }
   },
@@ -1035,13 +972,506 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.754,
+     "mean": 2.4242,
      "p10": 0,
      "p25": 1,
-     "median": 1,
+     "median": 2,
      "p75": 3,
-     "p90": 4,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2206,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T02:08Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4432708",
+   "name": "Marvin Harrison Jr.",
+   "team": "HOU",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 16.532,
+     "p10": 0,
+     "p25": 0,
+     "median": 10.48,
+     "p75": 24.44,
+     "p90": 43.24,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.1938,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2189,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T02:38Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4870653",
+   "name": "KC Concepcion",
+   "team": "CLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 43.296,
+     "p10": 7.21,
+     "p25": 19.01,
+     "median": 37.36,
+     "p75": 61.26,
+     "p90": 86.67,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 4.2392,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2052,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T00:48Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-5081397",
+   "name": "Dylan Sampson",
+   "team": "CLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 12.415,
+     "p10": 0,
+     "p25": 1.09,
+     "median": 7.37,
+     "p75": 18.41,
+     "p90": 32.44,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_reception_yds": {
+     "mean": 25.981,
+     "p10": 0,
+     "p25": 7.27,
+     "median": 20.41,
+     "p75": 37.59,
+     "p90": 60.13,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.9137,
+     "p10": 0,
+     "p25": 1,
+     "median": 3,
+     "p75": 4,
+     "p90": 6,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.2046,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T03:11Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3117256",
+   "name": "Dalton Schultz",
+   "team": "HOU",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 28.375,
+     "p10": 0,
+     "p25": 8.72,
+     "median": 22.86,
+     "p75": 42.2,
+     "p90": 62.33,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 3.7808,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1994,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T03:11Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3122840",
+   "name": "Deshaun Watson",
+   "team": "CLE",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 18.952,
+     "p10": 0.54,
+     "p25": 4.79,
+     "median": 13.81,
+     "p75": 27.81,
+     "p90": 44.43,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_pass_yds": {
+     "mean": 230.5189,
+     "p10": 118.9964,
+     "p25": 160.5279,
+     "median": 217.287,
+     "p75": 286.1476,
+     "p90": 359.1592,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1521,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "flags": [
+     "QUESTIONABLE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Questionable",
+      "statedAt": "2026-11-10T15:44Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4241463",
+   "name": "Jerry Jeudy",
+   "team": "CLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 24.838,
+     "p10": 0,
+     "p25": 5.92,
+     "median": 19.1,
+     "p75": 37.09,
+     "p90": 56.86,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.3516,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.1058,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T03:31Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4722893",
+   "name": "Jaleel McLaughlin",
+   "team": "CLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 7.664,
+     "p10": 0,
+     "p25": 0,
+     "median": 1.49,
+     "p75": 10.45,
+     "p90": 23.8,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.0814,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [
+     "ROSTER_ACTIVE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": null,
+      "statedAt": null,
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4432762",
+   "name": "Shedeur Sanders",
+   "team": "CLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 9.272,
+     "p10": 0,
+     "p25": 0,
+     "median": 3.9,
+     "p75": 13.39,
+     "p90": 26.74,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.0777,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T00:30Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4432577",
+   "name": "C.J. Stroud",
+   "team": "HOU",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 8.574,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.76,
+     "p75": 12.48,
+     "p90": 25.34,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_pass_yds": {
+     "mean": 264.2723,
+     "p10": 139.8885,
+     "p25": 186.6282,
+     "median": 250.0218,
+     "p75": 326.4441,
+     "p90": 407.0835,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.0772,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T01:30Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4242546",
+   "name": "Davis Mills",
+   "team": "HOU",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.054,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [
+     "ROSTER_ACTIVE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": null,
+      "statedAt": null,
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3843945",
+   "name": "Foster Moreau",
+   "team": "HOU",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 11.658,
+     "p10": 0,
+     "p25": 0,
+     "median": 5.77,
+     "p75": 18.21,
+     "p90": 32.8,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-10-27T02:01Z",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-10T21:15:46Z"
+     }
     }
    }
   }

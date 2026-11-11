@@ -13,9 +13,11 @@ test("🔴 one destination per word: no two main-nav destinations share 'Picks'"
   /* UX System V2 (2026-10-13): Picks moved from the "now" group into "Picks & parlays", so the check now covers every
      main-nav surface (top bar, rail, phone bar) instead of one group — a wider net for the same rule. */
   const mainNav = NAV_DESTINATIONS.filter((d) => d.surfaces.some((s) => s === "top" || s === "rail" || s === "mobile"));
-  const picks = mainNav.filter((d) => /\bPicks\b/.test(d.label));
-  assert.deepEqual(picks.map((d) => d.href), ["/markets"], "only the picks destination is called Picks");
-  assert.equal(NAV_DESTINATIONS.find((d) => d.href === "/build")?.label, "Parlays", "/build is Parlays on every surface");
+  /* 2026-11-09: /markets (Picks) moved to the footer + /products with the other products, so no main-nav label says
+     Picks; the rule holds over the whole canonical list instead. */
+  assert.deepEqual(mainNav.filter((d) => /\bPicks\b/.test(d.label)).map((d) => d.href), [], "no main-nav destination is called Picks");
+  assert.deepEqual(NAV_DESTINATIONS.filter((d) => d.label === "Picks").map((d) => d.href), ["/markets"], "only the picks destination is named Picks");
+  assert.equal(NAV_DESTINATIONS.find((d) => d.href === "/build")?.label, "Parlay Lab", "/build is Parlay Lab on every surface (UX-06, 2026-11-09)");
 });
 
 test("🔴 no nav note makes a claim that a static list cannot keep true (which sports are live, whether a season is on)", () => {

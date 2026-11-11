@@ -4,7 +4,7 @@
  * Every forecast GameTimePicks published, counted ONCE (the Universal Forecast Ledger) and measured with the yardstick
  * its kind of claim calls for. There is deliberately no single "% accurate" headline: a yardage projection, a win
  * probability and a 1X2 vector answer different questions, and pooling them would be a number that means nothing.
- * Pending, void and withdrawn forecasts are counted and shown — never as losses. Products (Suggested Parlays, Bank
+ * Pending, void and withdrawn forecasts are counted and shown — never as losses. Products (Parlay Lab, Bank
  * Builder, Moonshot, Mr Dub) are product performance and live elsewhere; their legs are rows here, once.
  *
  * Everything renders from forecastRecordView() (one reader). Styling is one stylesheet keyed by short class names.

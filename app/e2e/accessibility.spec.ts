@@ -524,9 +524,9 @@ test.describe("desktop rail groups (UX System V2)", () => {
   test("a folded rail group opens by keyboard and reveals its links; the active group starts open", async ({ page }) => {
     await page.goto("/results/", { waitUntil: "domcontentloaded" });
     const rail = page.locator('nav[aria-label="Primary (rail)"]');
-    const products = rail.locator("details").filter({ has: page.locator('a[href^="/bank-builder"]') });
-    expect(await products.evaluate((d: HTMLDetailsElement) => d.open), "Picks & parlays starts open on every page").toBe(true);
-    await expect(products.locator('a[href^="/bank-builder"]')).toBeVisible();
+    // 2026-11-10: the founder-approved five-slot nav (Today · Sports · Products · Results · Ask) replaced the rail's
+    // "Picks & parlays" group — the products are one click away through the always-visible Products primary.
+    await expect(rail.locator('a[href^="/products"]')).toBeVisible();
     const group = rail.locator("details").filter({ has: page.locator('a[href^="/methodology"]') });
     expect(await group.evaluate((d: HTMLDetailsElement) => d.open), "a group without the current page starts closed").toBe(false);
     const summary = group.locator("summary");

@@ -241,7 +241,8 @@ test("NAV1 · /my is a secondary destination and the five primaries are unchange
   assert.equal(destinationsFor("top").length, 5);
   const my = NAV_DESTINATIONS.filter((d) => d.href === "/my");
   assert.equal(my.length, 1, "exactly one My GameTime entry");
-  assert.deepEqual([...my[0].surfaces].sort(), ["footer", "rail"]);
+  // 2026-11-09 five-slot nav: My GameTime is a footer destination (the rail carries the five primaries, Saved and the hubs)
+  assert.deepEqual([...my[0].surfaces].sort(), ["footer"]);
 });
 
 test("NAV2 · ⚠ the personal family is noindex AND absent from the sitemap — no contradiction", async () => {

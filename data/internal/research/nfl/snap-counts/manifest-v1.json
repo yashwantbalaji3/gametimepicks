@@ -10,7 +10,7 @@
   "project": "https://github.com/nflverse/nflverse-data",
   "upstream": "snap counts are sourced by nflverse from Pro-Football-Reference"
  },
- "capturedAt": "2026-11-03T18:33:39Z",
+ "capturedAt": "2026-11-10T18:45:59Z",
  "script": "app/scripts/nfl/capture-nfl-snap-counts.mjs",
  "consumers": "research only — no model, board, promotion or public page reads these files",
  "seasons": {
@@ -65,14 +65,14 @@
   "2026": {
    "file": "snap-counts-2026.json",
    "published": true,
-   "rowCount": 11292,
-   "offenseRows": 4453,
-   "teamGames": 242,
+   "rowCount": 12693,
+   "offenseRows": 5017,
+   "teamGames": 272,
    "weekRange": [
     1,
-    8
+    9
    ],
-   "contentSha256": "484444c8f04d411eb2c65628edaf6f8e55dd5ebf970b4a9b3206e03c64b07b7c"
+   "contentSha256": "fb60111da62a154139d82649fa28a61e7c75e1cbc08e3be5b0414b9e182a718f"
   }
  },
  "tablesOnDisk": [
@@ -84,10 +84,10 @@
  ],
  "bridge": {
   "file": "id-bridge-v1.json",
-  "pfrIdsInTables": 3812,
-  "inPlayersFile": 3798,
-  "withGsisId": 3798,
-  "withEspnId": 3789,
+  "pfrIdsInTables": 3822,
+  "inPlayersFile": 3808,
+  "withGsisId": 3808,
+  "withEspnId": 3798,
   "espnCollisions": 0
  },
  "joinAudit": {
@@ -438,22 +438,22 @@
    "season": 2026,
    "method": "id join pfr_player_id → nflverse players.csv (pfr_id → espn_id); names are audited, never used to join",
    "forward": {
-    "offenseRows": 4453,
-    "withEspnId": 4432,
-    "rate": 0.9953,
-    "skillOffenseRows": 2942,
-    "skillWithEspnId": 2934,
-    "skillRate": 0.9973,
+    "offenseRows": 5017,
+    "withEspnId": 4993,
+    "rate": 0.9952,
+    "skillOffenseRows": 3311,
+    "skillWithEspnId": 3301,
+    "skillRate": 0.997,
     "rowsWithoutPfrId": 0
    },
    "reverse": {
-    "playerGames": 2358,
-    "matched": 2351,
-    "unbridged": 7,
+    "playerGames": 2653,
+    "matched": 2645,
+    "unbridged": 8,
     "ambiguous": 0,
     "noSnapRow": 0,
-    "teamAgree": 2351,
-    "nameAgree": 2325,
+    "teamAgree": 2645,
+    "nameAgree": 2616,
     "examplesUnmatched": [
      {
       "playerId": "nfl-athlete-4241983",
@@ -495,6 +495,12 @@
       "playerId": "nfl-athlete-4241983",
       "name": "Cody White",
       "week": 7,
+      "why": "UNBRIDGED"
+     },
+     {
+      "playerId": "nfl-athlete-4691889",
+      "name": "Greg Desrosiers Jr.",
+      "week": 9,
       "why": "UNBRIDGED"
      }
     ],
@@ -550,7 +556,7 @@
     ],
     "rate": 0.997,
     "teamAgreeRate": 1,
-    "nameAgreeRate": 0.9889
+    "nameAgreeRate": 0.989
    }
   }
  }

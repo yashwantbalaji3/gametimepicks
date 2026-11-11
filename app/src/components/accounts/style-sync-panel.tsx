@@ -13,7 +13,7 @@ const asRisk = (r: string | null): RiskTolerance | null =>
 /**
  * YOUR STYLE, IN ONE PLACE (P267).
  *
- * The style control itself stays where it has always been — in the Parlay Center, beside the cards it
+ * The style control itself stays where it has always been — in the Parlay Lab, beside the cards it
  * filters. This panel does one job: reconcile the browser's copy with the account's, and never
  * silently pick a winner. See lib/accounts/style-sync.mjs for why.
  */
@@ -68,7 +68,7 @@ export default function StyleSyncPanel({ userId }: { userId: string }) {
       <div className="flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <span className="font-mono uppercase" style={label}>Your style</span>
         <Link href="/build#lab-entry" style={{ color: "var(--gtp-bank-heat)", fontSize: 12, fontWeight: 600 }}>
-          Change it in the Parlay Center
+          Change it in the Parlay Lab
         </Link>
       </div>
 

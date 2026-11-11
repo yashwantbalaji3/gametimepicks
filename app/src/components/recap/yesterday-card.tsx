@@ -47,11 +47,11 @@ export default function YesterdayCard({ recap }: { recap: Recap | null }) {
               as a contradiction. The cards are SUGGESTED PARLAYS only (parlays/lab-settled), so the stale case
               names the product: on 2026-10-05 "Latest settled cards · Sep 27" sat under a header settled
               through Oct 4 (Bank Builder / Moonshot / model rows) and read as a feed a week behind. It was
-              not: every Suggested Parlays tier has been withheld since Sep 28, so nothing newer exists. */}
-          {/* P0 U1: "last CARD settled" — the Suggested Parlays ledger's newest decided card, legitimately older than a
+              not: every Parlay Lab tier has been withheld since Sep 28, so nothing newer exists. */}
+          {/* P0 U1: "last CARD settled" — the Parlay Lab ledger's newest decided card, legitimately older than a
               ledger's "results settled through" when no card was offered since. It read "last settled", one word away
               from the paper ledger's settled-through date printed beside it on Home. */}
-          {recapIsYesterday(recap.date) ? `How ${ET_DAY(recap.date)} went` : `Suggested Parlays · ${SETTLED_LABELS.lastCard} ${ET_DAY(recap.date)} · none since`}
+          {recapIsYesterday(recap.date) ? `How ${ET_DAY(recap.date)} went` : `Parlay Lab · ${SETTLED_LABELS.lastCard} ${ET_DAY(recap.date)} · none since`}
         </h2>
 
         <span style={{ fontSize: 13.5, color: "var(--vault-text)" }}>{cardLine}</span>
