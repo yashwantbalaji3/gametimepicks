@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-11T21:31:07Z",
- "sourceGeneratedAt": "2026-11-11T21:31:07Z",
+ "generatedAt": "2026-11-11T21:50:32Z",
+ "sourceGeneratedAt": "2026-11-11T21:50:32Z",
  "forecastInputHash": "535a7e6abd3660fb",
  "providerEventId": "401873053",
  "matchup": "NE @ DET",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-11T21:31:07Z",
-  "roleEvidenceAt": "2026-11-11T21:31:07Z",
+  "injuriesCapturedAt": "2026-11-11T21:50:32Z",
+  "roleEvidenceAt": "2026-11-11T21:50:32Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -288,7 +288,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4430027",
@@ -397,19 +397,6 @@
     "state": "CONSERVED"
    },
    {
-    "team": "DET",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.9118,
-    "originalSum": 0.9118,
-    "residualOther": 0.0882,
-    "joined": 5,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
     "team": "NE",
     "pool": "targets",
     "markets": [
@@ -421,6 +408,19 @@
     "joined": 6,
     "missed": 0,
     "state": "CONSERVED"
+   },
+   {
+    "team": "DET",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.575,
+    "originalSum": 0.575,
+    "residualOther": 0.425,
+    "joined": 4,
+    "missed": 0,
+    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -472,11 +472,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T22:12Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -485,7 +485,7 @@
    "playerId": "nfl-athlete-4374302",
    "name": "Amon-Ra St. Brown",
    "team": "DET",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 77.968,
@@ -513,16 +513,19 @@
    "eligibility": {
     "state": "ELIGIBLE",
     "reasons": [],
+    "flags": [
+     "QUESTIONABLE"
+    ],
     "contractVersion": "eligibility@1",
     "sources": {
      "injuries": {
-      "status": "Active",
-      "statedAt": "2026-11-08T22:17Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "status": "Questionable",
+      "statedAt": "2026-11-11T21:22Z",
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -576,11 +579,11 @@
      "injuries": {
       "status": "Doubtful",
       "statedAt": "2026-11-11T21:30Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -622,11 +625,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T23:22Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -668,11 +671,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:43Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -717,11 +720,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-11T21:30Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -763,11 +766,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T16:05Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -809,11 +812,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:54Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -855,11 +858,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:38Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -895,11 +898,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-11T21:30Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -941,11 +944,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T00:55Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -987,11 +990,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:46Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1024,11 +1027,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:54Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1071,11 +1074,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:16Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1101,11 +1104,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1138,11 +1141,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T02:03Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1175,11 +1178,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T01:03Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1221,11 +1224,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T03:18Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1270,12 +1273,12 @@
     "sources": {
      "injuries": {
       "status": "Questionable",
-      "statedAt": "2026-11-11T21:19Z",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "statedAt": "2026-11-11T21:27Z",
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:31:07Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
