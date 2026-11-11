@@ -7,7 +7,12 @@ Receipt: `docs/receipts/ODDS_AUTHORIZATION_NBA_PROPS_PRIVATE_2026-11-11.md`. It 
    - Run `git clone <origin> ~/gtp-capture/gametimepicks`, then `touch ~/gtp-capture/gametimepicks/.gtp-capture-checkout`.
    - The runner resets this checkout to `origin/main` every tick, and refuses any checkout without the marker.
    - Its git remote needs push access, for the ledger commit.
-2. **Key:** `~/gtp-private/odds/nba/odds.key`, holding the Odds API key, with `chmod 600`. It is never stored in the plist.
+2. **Key:** the existing `~/Downloads/gametimepicks/.env`, through `--key-env-file`. There is no duplicate key file (founder 2026-11-11).
+   - It must be mode 600 (`chmod 600`).
+   - Only its `ODDS_API_KEY` line is read; no other variable reaches the runner or the capture.
+   - The key is never logged or written.
+   - `--key-file` (a file holding only the key, also mode 600) remains as an optional override.
+   - launchd runs node, which can read `~/Downloads` under TCC; bash cannot.
 3. **plist:** fill `__NODE__` (output of `command -v node`), `__REPO__` and `__HOME__` in `com.gametimepicks.nba-props-local-tick.plist.template`. Copy it to `~/Library/LaunchAgents/`, then run `launchctl bootstrap gui/$(id -u) <plist>`.
 4. **Dry check first,** with no paid call: `node <repo>/app/scripts/nba/run-nba-props-local-tick.mjs --repo <repo> --private ~/gtp-private`. It prints `NOTHING_TO_PRICE` or `PLANNED`.
 

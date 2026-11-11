@@ -2,7 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <!-- NBA prop prices, one local tick every 15 minutes (receipt ODDS_AUTHORIZATION_NBA_PROPS_PRIVATE_2026-11-11).
      TEMPLATE: replace __NODE__, __REPO__, __HOME__ before installing (see README.md beside this file). The API key is read
-     from __HOME__/gtp-private/odds/nba/odds.key (chmod 600), never from this file. -->
+     from the founder's existing dotenv file (ODDS_API_KEY line only, mode 600), never from this file. launchd runs node,
+     which can read ~/Downloads under TCC (bash cannot). -->
 <plist version="1.0">
 <dict>
   <key>Label</key><string>com.gametimepicks.nba-props-local-tick</string>
@@ -12,7 +13,7 @@
     <string>__REPO__/app/scripts/nba/run-nba-props-local-tick.mjs</string>
     <string>--repo</string><string>__REPO__</string>
     <string>--private</string><string>__HOME__/gtp-private</string>
-    <string>--key-file</string><string>__HOME__/gtp-private/odds/nba/odds.key</string>
+    <string>--key-env-file</string><string>__HOME__/Downloads/gametimepicks/.env</string>
     <string>--apply</string>
     <string>--commit-ledger</string>
   </array>

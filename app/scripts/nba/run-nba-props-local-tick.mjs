@@ -6,7 +6,12 @@
  * launchd job can run it (bash/git launchd jobs cannot read ~/Downloads; app/scripts/nba/launchd/README.md).
  *
  *   node app/scripts/nba/run-nba-props-local-tick.mjs --repo /abs/dedicated/checkout --private ~/gtp-private
- *        [--key-file /abs/private/odds.key] [--now ISO] [--apply] [--commit-ledger]
+ *        --key-env-file /abs/.env [--key-file /abs/private/odds.key] [--now ISO] [--apply] [--commit-ledger]
+ *
+ * THE KEY (founder 2026-11-11: no duplicate key file): --key-env-file names the existing dotenv file; only its
+ * ODDS_API_KEY line is parsed (key-env-file.mjs), it must be mode 600, and no other variable of it enters this process's
+ * environment or the capture's. --key-file (a file holding only the key, also mode 600) is an optional override. The key
+ * is never logged, never written to the state file or the ledger.
  *
  * Every tick, in order (nothing paid before step 6):
  *   1. KILL SWITCH: <private>/odds/nba/STOP exists → exit 0, no network call.
@@ -31,6 +36,7 @@ import { fileURLToPath } from "node:url";
 import { tickTargets, missedWindows, nbaPropsPreflight } from "../../src/lib/sports/odds/nba-props/preflight.mjs";
 import { parseNbaPropsReceipt } from "../../src/lib/sports/odds/nba-props/credits.mjs";
 import { resolvePrivateDataDir } from "../../src/lib/ops/private-data-dir.mjs";
+import { readOddsKeyFromEnvFile } from "../../src/lib/sports/odds/nba-props/key-env-file.mjs";
 import { ELIGIBLE_OPERATOR_KEYS } from "../../src/lib/sports/odds/eligible-operators.mjs";
 import { LEDGER_RELPATH } from "../../src/lib/sports/odds/p171-authorization.mjs";
 
@@ -95,9 +101,19 @@ if (!targets.length) { writeState(state); log({ state: "NOTHING_TO_PRICE", now: 
 if (!has("--apply")) { writeState(state); log({ state: "PLANNED", targets: targets.map((t) => t.providerEventId), note: "no --apply: no network call" }); process.exit(0); }
 
 // 5. preflight on the free plan check
-const keyFile = home(arg("--key-file"));
-const apiKey = (keyFile ? fs.readFileSync(keyFile, "utf8") : process.env.ODDS_API_KEY ?? "").trim();
-if (!apiKey) { writeState(state); log({ state: "REFUSED", reason: "no API key (--key-file or ODDS_API_KEY)" }); alert("NBA props tick: no API key configured"); process.exit(2); }
+const keyFile = home(arg("--key-file")), keyEnvFile = home(arg("--key-env-file"));
+let apiKey = "", keyRefusal = null;
+if (keyFile) {
+  try {
+    const st = fs.statSync(keyFile);
+    if ((st.mode & 0o077) !== 0) keyRefusal = `the --key-file is readable or writable by group or others (mode ${(st.mode & 0o777).toString(8)}); it must be 600`;
+    else apiKey = fs.readFileSync(keyFile, "utf8").trim();
+  } catch { keyRefusal = "the --key-file does not exist"; }
+} else if (keyEnvFile) {
+  const k = readOddsKeyFromEnvFile(keyEnvFile);
+  if (k.ok) apiKey = k.key; else keyRefusal = k.reason;
+} else apiKey = (process.env.ODDS_API_KEY ?? "").trim();
+if (!apiKey) { writeState(state); log({ state: "REFUSED", reason: keyRefusal ?? "no API key (--key-env-file, --key-file or ODDS_API_KEY)" }); alert("NBA props tick: the Odds API key could not be read"); process.exit(2); }
 let reply;
 try {
   const r = await fetch(`https://api.the-odds-api.com/v4/sports/?apiKey=${encodeURIComponent(apiKey)}`);
