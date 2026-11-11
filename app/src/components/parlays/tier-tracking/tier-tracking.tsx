@@ -8,15 +8,16 @@
 import TierWindowTabs from "./tier-window-tabs";
 import CardHistoryDrawer from "./card-history-drawer";
 import { hitText, RETURNS_NOTE } from "@/lib/parlays/tier-tracking.mjs";
+import { etStamp } from "@/lib/et-stamp.mjs";
 
 type Tally = { frozen: number; settled: number; won: number; lost: number; void: number; pending: number; decided: number; hit: { won: number; of: number; rate: number | null } };
 type Model = {
-  today: string; asOf: { recordedAt: string | null; gradedAt: string | null } | null; minDecidedForRate: number;
+  today: string; asOf: { recordedAt?: string | null; gradedAt?: string | null } | null; minDecidedForRate: number;
   windows: { key: string; label: string; total: Tally; tiers: (Tally & { tier: string; label: string; bySport: (Tally & { sport: string; label: string })[] })[] }[];
 };
 export type RecentCard = { id: string; productDay: string; tierLabel: string; label: string | null; sport: string; status: string; legs: string };
 
-const ET = (iso: string | null) => (iso ? new Date(Date.parse(iso)).toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + " ET" : "—");
+const ET = (iso: string | null | undefined) => (iso ? etStamp(iso) ?? "—" : "—");
 const STATUS_WORD: Record<string, string> = { WON: "Won", LOST: "Lost", VOID: "Void", PENDING: "Pending" };
 
 function Counts({ t }: { t: Tally }) {

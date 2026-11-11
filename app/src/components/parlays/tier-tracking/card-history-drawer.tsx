@@ -8,6 +8,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import TeamLogo from "@/components/team-logo";
 import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
+import { etStamp } from "@/lib/et-stamp.mjs";
 
 type Leg = { sport: string; eventId: string; eventLabel: string | null; startUtc: string | null; selection: string | null; forecast: { modelId: string | null; stampedAt: string | null }; eligibility: { state: string | null; contractVersion: string | null } | null; outcome: string; final: string | null };
 type Card = { id: string; productDay: string; tierLabel: string; label: string | null; status: string; shownAt: string | null; source: string | null; revisionOf: string | null; gradedAt: string | null; legs: Leg[] };
@@ -15,7 +16,8 @@ type Payload = { schema: string; cards: Record<string, Card> };
 
 const DATA = "/data/parlay-card-history.json";
 const idFromHash = () => (typeof window === "undefined" ? null : /^#card-([0-9a-f]{8,})$/.exec(window.location.hash)?.[1] ?? null);
-const ET = (iso: string | null) => (iso ? new Date(Date.parse(iso.replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"))).toLocaleString("en-US", { timeZone: "America/New_York", month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }) + " ET" : "—");
+// etStamp: formatToParts values with ASCII joins (Intl's own date-time joiner differs by engine — WebKit writes " at ")
+const ET = (iso: string | null) => (iso ? etStamp(iso.replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z")) ?? "—" : "—");
 const WORD: Record<string, string> = { WON: "Won", LOST: "Lost", VOID: "Void", PENDING: "Pending" };
 const ELIG: Record<string, string> = { ELIGIBLE: "cleared to play", INELIGIBLE: "not eligible to play", UNKNOWN: "availability not confirmed" };
 const crestSport = (s: string) => (s === "nba" || s === "nfl" ? s : null);
