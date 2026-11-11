@@ -717,7 +717,12 @@ const canonicalSlate = (date) => [...new Map(fs.readdirSync(path.join(PUBLIC(), 
  * The whole NBA game-day library for one date. `lineDoc` (validated gtp-graphics-export@2) adds the real-line versions.
  * Returns posts, refused and the per-event coverage.
  */
-export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null, anomalyInputs = null, moneyline = null }) {
+/**
+ * `withheldGames` (PD 2026-11-11): event ids whose NBA Today row shows teams and tip only ("Projection withheld · availability
+ * update") after a late availability change. Every other row, and every other post, is unchanged. The ids are recorded in the
+ * NBA Today package content (so in its contentSha256), and the clean export rebuilds from that record.
+ */
+export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null, anomalyInputs = null, moneyline = null, withheldGames = [] }) {
   assertAsOf(asOf);
   const rel = `data/nba/experimental-public/${date}.json`;
   const lane = laneOverride ?? readPublic(rel);
@@ -755,8 +760,16 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
   const chip = `NBA · ${chipDay(first)}`;
   const pkgDisc = ["Estimate from the team rating, not a validated probability", DISCLOSURE];
   const claimGames = [{ key: "games", display: String(games.length), evidenceRef: rel }];
-  const tonightCap = pregameCaption(`NBA tonight: ${games.length} games. Model projection: the predicted winner of each.`);
-  posts.push({ ...META, contentType: CONTENT_TYPE.NBA_TONIGHT, variant: null, cards: v2Cards([tonightCard({ games, chip, kicker: `NBA ${slateWord(first) === "today" ? "Today" : "Tonight"}` })], `nba-${date}-tonight`), caption: tonightCap, ccCaption: tonightCap, ccCaptionB: `NBA tonight, ${games.length} games. Model projection on the image.`, extraClaims: claimGames, disclosures: pkgDisc, title: `NBA tonight ${date}`, firstStartUtc: toIso(first), window: { opensAt: asOf, closesAt: toIso(first) }, recommended: nbaTodayRecommended({ date, firstMs: first, asOf }), recommendedNote: NBA_REC_NOTE, freshness: fresh(first), content: { games: games.map((g) => ({ eventId: g.eventId, away: g.away.abbr, home: g.home.abbr, tipUtc: g.raw.tipUtc, winner: g.winner?.abbr ?? null, awayEstimate: g.awayP, homeEstimate: g.homeP })) } });
+  const held = new Set(withheldGames.map(String));
+  const unknownHeld = [...held].filter((id) => !games.some((g) => g.eventId === id));
+  if (unknownHeld.length) throw new Error(`withheldGames not on this slate: ${unknownHeld.join(", ")}`);
+  const heldGames = games.filter((g) => held.has(g.eventId));
+  const heldText = heldGames.map((g) => `${g.away.city} at ${g.home.city}`).join(" and ");
+  const tonightCap = pregameCaption(heldGames.length
+    ? `NBA tonight: ${games.length} games. Model projection: the predicted winner of each game shown. ${heldText} ${heldGames.length > 1 ? "are" : "is"} withheld after a late availability change.`
+    : `NBA tonight: ${games.length} games. Model projection: the predicted winner of each.`);
+  const tonightGames = games.map((g) => (held.has(g.eventId) ? { ...g, withheld: true } : g));
+  posts.push({ ...META, contentType: CONTENT_TYPE.NBA_TONIGHT, variant: null, cards: v2Cards([tonightCard({ games: tonightGames, chip, kicker: `NBA ${slateWord(first) === "today" ? "Today" : "Tonight"}` })], `nba-${date}-tonight`), caption: tonightCap, ccCaption: tonightCap, ccCaptionB: `NBA tonight, ${games.length} games. Model projection on the image.`, extraClaims: claimGames, disclosures: pkgDisc, title: `NBA tonight ${date}`, firstStartUtc: toIso(first), window: { opensAt: asOf, closesAt: toIso(first) }, recommended: nbaTodayRecommended({ date, firstMs: first, asOf }), recommendedNote: NBA_REC_NOTE, freshness: fresh(first), content: { games: games.map((g) => (held.has(g.eventId) ? { eventId: g.eventId, away: g.away.abbr, home: g.home.abbr, tipUtc: g.raw.tipUtc, withheld: "AVAILABILITY_UPDATE" } : { eventId: g.eventId, away: g.away.abbr, home: g.home.abbr, tipUtc: g.raw.tipUtc, winner: g.winner?.abbr ?? null, awayEstimate: g.awayP, homeEstimate: g.homeP })), ...(heldGames.length ? { withheldGames: heldGames.map((g) => g.eventId) } : {}) } });
   for (const g of games) {
     const m = `${g.away.abbr} @ ${g.home.abbr}`;
     const captionGame = { awayName: g.away.name, homeName: g.home.name, winnerNickname: g.winner?.nickname ?? null };

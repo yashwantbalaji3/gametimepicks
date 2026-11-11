@@ -279,6 +279,26 @@ test("game day 10-30: one tonight card, ten games, two versions only with lines,
   }
   for (const p of n("NBA_PLAYER_STATS")) assert.ok(p.content.players <= p.cards.length * 12);
 });
+test("NBA Today withheldGames: the row keeps teams and tip only, every other row and post is unchanged, the caption says so", () => {
+  const asOf = "2026-10-30T19:00:00Z";
+  const base = prepareGameDay({ date: "2026-10-30", asOf }).posts;
+  const t0 = base.find((p) => p.contentType === "NBA_TONIGHT");
+  const id = t0.content.games[1].eventId;
+  const posts = prepareGameDay({ date: "2026-10-30", asOf, withheldGames: [id] }).posts;
+  const t1 = posts.find((p) => p.contentType === "NBA_TONIGHT");
+  const mine = (k) => k.startsWith(`${id}.`);
+  assert.deepEqual(Object.keys(t1.cards[0].cells).filter(mine).sort(), [`${id}.away`, `${id}.home`, `${id}.tip`, `${id}.withheld`]);
+  for (const k of Object.keys(t0.cards[0].cells).filter((k) => !mine(k))) assert.equal(t1.cards[0].cells[k], t0.cards[0].cells[k], k);
+  assert.deepEqual(t1.content.withheldGames, [id]);
+  assert.equal(t1.content.games[1].winner, undefined);
+  assert.deepEqual(t1.content.games.filter((g) => g.eventId !== id), t0.content.games.filter((g) => g.eventId !== id));
+  assert.match(t1.caption, /predicted winner of each game shown\. \S.* at .* is withheld after a late availability change\.$/);
+  assert.ok(!/[—–]|\d\s*%/.test(t1.caption));
+  for (const c of t1.cards) assert.deepEqual(verifyGameDayCard(c), []);
+  assert.equal(JSON.stringify(posts.filter((p) => p.contentType !== "NBA_TONIGHT")), JSON.stringify(base.filter((p) => p.contentType !== "NBA_TONIGHT")));
+  assert.equal(t0.content.withheldGames, undefined, "no withheld ids: the package is as before");
+  assert.throws(() => prepareGameDay({ date: "2026-10-30", asOf, withheldGames: ["1"] }), /not on this slate/);
+});
 test("game day real lines: market flag set, colours, compact price", () => {
   const asOf = "2026-10-30T19:00:00Z";
   const lane = JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data/nba/experimental-public/2026-10-30.json"), "utf8"));

@@ -127,9 +127,11 @@ for (const e of todo) {
       fs.rmSync(staged, { force: true }); // stale (another approval or a broken image): render again below
     } catch (err: any) { fs.rmSync(staged, { force: true }); }
   }
-  const asOf = pkg.freshness.asOf;
-  if (!rebuilt.has(asOf)) rebuilt.set(asOf, m.prepareGameDay({ date, asOf }));
-  const r = rebuilt.get(asOf);
+  // An NBA Today with rows withheld (PD 2026-11-11) is rebuilt with the same ids, read from the approved package's content.
+  const asOf = pkg.freshness.asOf; const withheldGames = (pkg.contentType === "NBA_TONIGHT" ? pkg.content?.withheldGames : null) ?? [];
+  const rk = `${asOf}|${withheldGames.join(",")}`;
+  if (!rebuilt.has(rk)) rebuilt.set(rk, m.prepareGameDay({ date, asOf, withheldGames }));
+  const r = rebuilt.get(rk);
   const [, id, gv, sv] = String(pkg.variant).match(SUFFIX)!;
   const base = id ? r.posts.find((p: any) => p.contentType === pkg.contentType && p.variant === id)
     : sv === "today" ? r.posts.find((p: any) => p.contentType === "NBA_TONIGHT")

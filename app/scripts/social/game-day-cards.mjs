@@ -39,7 +39,7 @@ const EXTRA = `
 .tnr{flex:1;min-height:0;display:grid;grid-template-columns:118px 74px 56px 1fr 56px 74px 96px;align-items:center;gap:8px;padding:0 14px;border-radius:14px;background:rgba(5,8,6,.74);border:1px solid rgba(255,255,255,.16)}
 .tnh{flex:none;display:grid;grid-template-columns:118px 74px 56px 1fr 56px 74px 96px;gap:8px;padding:0 14px;font:700 19px/1 var(--display);letter-spacing:3px;color:rgba(247,247,242,.75)}
 .tnr .t{font:700 25px/1 var(--display);white-space:nowrap}.tnr .tm{font:900 32px/1 var(--headline);text-align:center;white-space:nowrap}.tnr .p{font:800 27px/1 var(--display);text-align:center}
-.tnr .bar{display:flex;height:24px;border-radius:12px;overflow:hidden;gap:3px;background:#050706}.tnr .bar i{display:block;height:100%}
+.tnr .whd{grid-column:span 3;font:700 23px/1 var(--display);text-align:center;white-space:nowrap;overflow:hidden;color:rgba(247,247,242,.82)}.tnr .bar{display:flex;height:24px;border-radius:12px;overflow:hidden;gap:3px;background:#050706}.tnr .bar i{display:block;height:100%}
 .tnr .wn{font:900 28px/1 var(--headline);text-align:center;color:#050706;background:#39FF88;border-radius:8px;padding:7px 2px 5px}
 .pl{padding:7px 4px 6px;border-top:1px solid rgba(255,255,255,.12)}.pl .pn2{display:block;font:800 29px/1.05 var(--headline);text-transform:uppercase;white-space:nowrap;overflow:hidden;min-width:0}
 .pl .ns{display:grid;grid-template-columns:repeat(3,1fr);text-align:center;margin-top:3px}.pl .ns b{display:block;font:900 33px/1 var(--display);white-space:nowrap}.pl .ns em{display:block;font:700 18px/1.2 var(--display);font-style:normal;white-space:nowrap;letter-spacing:.3px}
@@ -159,9 +159,12 @@ export function nflTdCard({ away, home, chip, rows, disclosure = NFL_DISCLOSURE 
 }
 
 /** A: one card, every game of the slate. */
+export const WITHHELD_ROW_TEXT = "Projection withheld · availability update";
 export function tonightCard({ games, chip, kicker = "NBA Tonight", sub = "Model win probability", timeHead = "TIP ET", disclosure = DISCLOSURE, priced = false, note = null }) {
   const cells = {};
   const rows = games.map((g) => {
+    // A game withheld after a late availability change (PD 2026-11-11): teams and tip only, no percentages, no winner.
+    if (g.withheld) return `<div class="tnr">${cell(cells, `${g.eventId}.tip`, g.tipTime, "t")}${cell(cells, `${g.eventId}.away`, g.away.abbr, "tm")}<span class="whd" data-fit>${cell(cells, `${g.eventId}.withheld`, WITHHELD_ROW_TEXT)}</span>${cell(cells, `${g.eventId}.home`, g.home.abbr, "tm")}<span></span></div>`;
     const [ca, cb] = meterColours(g.away, g.home);
     return `<div class="tnr">${cell(cells, `${g.eventId}.tip`, g.tipTime, "t")}${cell(cells, `${g.eventId}.away`, g.away.abbr, "tm")}${cell(cells, `${g.eventId}.ap`, `${g.awayPct}%`, "p")}<div class="bar" data-bar="${g.eventId}"><i style="width:${(g.awayP * 100).toFixed(2)}%;background:${ca}"></i><i style="width:${(g.homeP * 100).toFixed(2)}%;background:${cb}"></i></div>${cell(cells, `${g.eventId}.hp`, `${g.homePct}%`, "p")}${cell(cells, `${g.eventId}.home`, g.home.abbr, "tm")}${cell(cells, `${g.eventId}.w`, g.winner?.abbr ?? "EVEN", "wn")}${priced ? cell(cells, `${g.eventId}.price`, g.market.priceText, "pr") : ""}</div>`;
   }).join("");
