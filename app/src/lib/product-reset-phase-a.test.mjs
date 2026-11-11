@@ -202,7 +202,8 @@ test("the raw builder never fronts the beginner: /build leads with Suggested Par
    * first screen a novice lands on.
    */
   const suggested = read("src/app/build/page.tsx");
-  assert.match(suggested, /Suggested Parlays/, "/build leads with the suggested-card mode");
+  assert.match(suggested, /title="Parlay Lab"/, "/build is Parlay Lab (UX-06, 2026-11-09) and leads with the suggested-card mode");
+  assert.match(read("src/components/parlays/parlay-center-tabs.tsx"), /mode: "suggested", href: "\/build", label: "Suggested cards"/, "suggested cards are the default mode");
   assert.match(suggested, /\/build\/custom/, "the builder mode is one visible action away");
   assert.match(read("src/app/build/custom/page.tsx"), /Build Your Own/, "the builder is its own mode, not the beginner's first screen");
   const nav = read("src/components/nav.tsx") + read("src/lib/navigation.ts");
@@ -211,7 +212,7 @@ test("the raw builder never fronts the beginner: /build leads with Suggested Par
      /build moved from Main into the "Picks & parlays" group with /markets and the paper products. The rule is
      unchanged — it sits beside the tools it belongs with (it shares /markets' group), never as its own pillar. */
   const groupOf = (href) => nav.match(new RegExp(`href: "${href.replace("/", "\\/")}", label: "[^"]+", group: "(\\w+)"`))?.[1];
-  assert.match(nav, /href: "\/build", label: "(Build|Parlay Center|Picks & Parlays|Parlays)", group: "(now|products)"/, "/build keeps its label and sits in Main or Picks & parlays");
+  assert.match(nav, /href: "\/build", label: "(Parlay Lab)", group: "(now|products)"/, "/build is Parlay Lab (UX-06, 2026-11-09) and sits in Main or Picks & parlays");
   assert.ok(groupOf("/build") && groupOf("/markets"), "both destinations are found in the registry");
   assert.equal(groupOf("/build"), groupOf("/markets"), "/build sits beside the picks destination it belongs with, never as its own pillar");
 });

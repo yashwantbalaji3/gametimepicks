@@ -60,7 +60,7 @@ export function decideStyleSync(profileRow, devicePrefs) {
   if (!hasAccount && !hasDevice) {
     return {
       state: "NEITHER", account, device, autoAdopt: false,
-      text: "You have not stated a style yet. Set one in the Parlay Center and it will be saved to your account too.",
+      text: "You have not stated a style yet. Set one in the Parlay Lab and it will be saved to your account too.",
     };
   }
   if (hasDevice && !hasAccount) {

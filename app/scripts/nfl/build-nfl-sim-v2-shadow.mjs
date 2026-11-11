@@ -14,7 +14,7 @@
  *                 (home = (total + margin) / 2, away = (total − margin) / 2) — the engine's ONLY team-strength input
  *   params        data/internal/research/nfl/sim-v2/drive-params-2015-2025.json (fit-drive-sim-v2.mjs), by sha256
  *   role shares   data/internal/research/nfl/role-shares-v1/current.json (generatedAt)
- *   availability  injuries capture (isBlockingStatus) + active roster (activeRosterIndex) — blocked players get no opportunity
+ *   availability  eligibility contract v1 (injuries + roster captures, participation-eligibility.mjs) + active roster — a non-ELIGIBLE player gets no opportunity
  * The sportsbook is never read.
  *
  * Each receipt also carries `representativeRunBoxes` (nfl-representative-run-boxes@1, sim-v2/receipt.mjs +
@@ -36,7 +36,7 @@ import { calibrate, runBatch } from "../../src/lib/sports/nfl/sim-v2/simulate.mj
 import { buildNflSimulationReceipt, playersFromRoleShares } from "../../src/lib/sports/nfl/sim-v2/receipt.mjs";
 import { forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
 import { fnv1a64 } from "../../src/lib/forecast-ledger/identity.mjs";
-import { isBlockingStatus } from "../../src/lib/sports/injuries/contract.mjs";
+import { shareExclusions, teamIdsFromRoster } from "../../src/lib/sports/nfl/participation-eligibility.mjs";
 import { activeRosterIndex } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -86,8 +86,10 @@ function main() {
   const roleShares = read(ROLE_SHARES);
   const injuries = read(INJURIES);
   const rosters = read(ROSTERS);
-  const blocked = new Set((injuries.entries ?? []).filter((e) => e?.athleteId && isBlockingStatus(e.status)).map((e) => `nfl-athlete-${e.athleteId}`));
   const { active } = activeRosterIndex(rosters);
+  /* ELIGIBILITY CONTRACT v1 (2026-11-09): only an ELIGIBLE player (injuries AND roster captures) holds a share —
+     the replay in sim-v2/player-run.mjs applies the same rule at the receipt's own instant. */
+  const eligibilityCtx = { asOf: now, injuries, roster: rosters, teamIdByAbbr: teamIdsFromRoster(rosters) };
   const availability = `injuries@${injuries.generatedAt ?? "?"}+rosters@${rosters.capturedAt ?? rosters.generatedAt ?? "?"}`;
 
   /* A receipt is re-written only when its INPUTS change (new anchors, availability, role shares, params): every
@@ -116,9 +118,9 @@ function main() {
     const excludedFor = (abbr) => {
       const block = teamBlock(abbr);
       const onRoster = active.get(abbr);
-      const ids = new Set();
+      const ids = shareExclusions(block, abbr, eligibilityCtx);
       for (const k of ["passAttempts", "targets", "rushAttempts"]) {
-        for (const p of block?.[k]?.players ?? []) if (blocked.has(p.playerId) || (onRoster && !onRoster.has(p.playerId))) ids.add(p.playerId);
+        for (const p of block?.[k]?.players ?? []) if (onRoster && !onRoster.has(p.playerId)) ids.add(p.playerId);
       }
       return ids;
     };

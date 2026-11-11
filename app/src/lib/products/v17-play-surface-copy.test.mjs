@@ -50,7 +50,9 @@ test("both Play pages mount today's eligible universe from the one availability 
     assert.ok(/<EligibleUniverse availability=\{loadProductAvailability\(\)\}/.test(src), rel);
   }
   const bb = read("src/app/bank-builder/page.tsx");
-  assert.ok(bb.indexOf("<EligibleUniverse") < bb.indexOf("<ClimbHero"), "universe sits above the hero on /bank-builder");
+  // UX-02 (2026-11-09): /bank-builder leads with the hero (its H1 and the bankroll); the universe follows it, before the cards below
+  assert.ok(bb.indexOf("<ClimbHero") < bb.indexOf("<EligibleUniverse"), "the hero (H1 + bankroll) leads /bank-builder");
+  assert.ok(bb.indexOf("<EligibleUniverse") < bb.indexOf("<BankBuilderProposalCard"), "universe sits above today's card on /bank-builder");
   const ms = read("src/app/moonshot/page.tsx");
   assert.ok(ms.indexOf("<EligibleUniverse") < ms.indexOf("<ProductLanesLadder"), "universe sits above today's card on /moonshot");
 });

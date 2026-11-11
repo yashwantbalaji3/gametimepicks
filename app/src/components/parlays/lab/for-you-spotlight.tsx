@@ -63,7 +63,7 @@ export default function ForYouSpotlight({
     >
       <div className="flex flex-col gap-1">
         <span className="font-mono uppercase tracking-[0.16em]" style={{ color: "var(--vault-gold-bright)", fontSize: 9.5 }}>
-          Parlay Center · matched to you{slateDate ? ` · ${slateDate}` : ""}
+          Parlay Lab · matched to you{slateDate ? ` · ${slateDate}` : ""}
         </span>
         <h2 id="for-you-heading" className="font-display tracking-tight m-0" style={{ color: "var(--vault-text)", fontSize: 22, fontWeight: 800 }}>
           Pick a risk level. See how it lands.

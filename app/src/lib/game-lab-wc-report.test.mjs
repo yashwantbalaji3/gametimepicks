@@ -75,7 +75,7 @@ test("product mapping is LINK-ONLY + artifact-proven; WC Specials only when in t
     }
     // P214 R-H: the label followed its destination through the P208 rename (Parlay Lab → Parlay
     // Center; /picks retired to /build). The contract is unchanged: the parlay surface is always mapped.
-    assert.ok(v.productMapping.some((p) => /Parlay Center/i.test(p.label)), "Parlay Center always");
+    assert.ok(v.productMapping.some((p) => /Parlay Lab/i.test(p.label)), "Parlay Lab always (UX-06 name, 2026-11-09)");
   }
   // WC Specials appears ONLY when the fixture is actually in the specials artifact (proven membership).
   assert.ok(inSpec.v.productMapping.some((p) => /Specials/i.test(p.label)), "WC Specials linked when inWcSpecials");

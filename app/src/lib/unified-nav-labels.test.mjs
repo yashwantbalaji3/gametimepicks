@@ -21,13 +21,17 @@ const mobileByHref = Object.fromEntries(MOBILE_NAV_ITEMS.map((i) => [i.href, i.l
 
 // The unified label for each route (the single public name it must carry on every surface it appears on).
 const UNIFIED = {
-  "/": "Home",
+  /* 2026-11-09 five-slot nav (Today · Sports · Products · Results · Ask): "/" is Today; /today is "Tonight's slate";
+     /build is "Parlay Lab" (UX-06, one name for the 4-tier product). */
+  "/": "Today",
   "/markets": "Picks",
   /* P243 · E: the charter's five primaries renamed two destinations everywhere at once. */
-  "/build": "Parlays",
+  "/build": "Parlay Lab",
+  "/products": "Products",
+  "/ask": "Ask",
   "/simulate": "Simulations",
   "/sports": "Sports",
-  "/today": "Today",
+  "/today": "Tonight's slate",
   "/results": "Results",
   "/bank-builder": "Bank Builder",
   "/mlb": "MLB",
@@ -75,7 +79,9 @@ test("Picks Lab is retired: no nav surface links /picks, and its old labels stay
   assert.equal(mobileByHref["/picks"], undefined, "mobile must not link the retired route");
   assert.ok(!/href="\/picks"/.test(FOOTER), "footer must not link the retired route");
   // No nav surface resurrects any of its labels.
-  for (const bad of ["Parlay Lab", "Build-a-Pick", "Picks Lab"]) {
+  /* "Parlay Lab" left this list on 2026-11-09: it is now /build's one name (UX-06). The guard that matters — no surface
+     links the retired /picks — is unchanged above, and /picks' own two labels stay dead. */
+  for (const bad of ["Build-a-Pick", "Picks Lab"]) {
     assert.ok(!new RegExp(`label: "${bad}"`).test(NAV) && !new RegExp(`label: "${bad}"`).test(RAIL), `no '${bad}' nav label`);
     assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.label === bad), `no '${bad}' mobile label`);
     assert.ok(!new RegExp(`>${bad}<`).test(FOOTER), `footer no longer links '${bad}'`);

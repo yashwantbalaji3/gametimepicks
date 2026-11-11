@@ -39,7 +39,7 @@ test("(1) the real /build model: no NBA leg anywhere, and an NBA note that says 
 
 test("(2) TEST FIXTURE model: NBA-only and NBA+NFL cards render with projection, provenance, same-game note and FIXTURE label", () => {
   const s = nbaSlate();
-  const out = nbaParlayLab({ results: s.results, snapshots: s.snapshots, otherInputs: nflInputs(), now: NOW, coverage: COVERAGE, nbaRegistry: PERMISSIVE_REGISTRY, canEnterSport: FIXTURE_SPORT_GATE, settlesNba: FIXTURE_NBA_SETTLES, isVerifiedOperator: FIXTURE_OPERATORS });
+  const out = nbaParlayLab({ results: s.results, snapshots: s.snapshots, statusFeed: s.statusFeed, otherInputs: nflInputs(), now: NOW, coverage: COVERAGE, nbaRegistry: PERMISSIVE_REGISTRY, canEnterSport: FIXTURE_SPORT_GATE, settlesNba: FIXTURE_NBA_SETTLES, isVerifiedOperator: FIXTURE_OPERATORS });
   const r = out.recommendation;
   const model = { slateDate: NOW.slice(0, 10), evaluatedAt: r.evaluatedAt, operatorSeam: r.operatorSeam, availabilityNote: "", sportNotes: r.sportNotes, tiers: r.tiers.map((t) => ({ ...t, history: null })) };
   const html = render(model);

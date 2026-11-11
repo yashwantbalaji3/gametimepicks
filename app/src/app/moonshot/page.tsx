@@ -11,6 +11,8 @@
  *
  * Server component; reads committed artifacts.
  */
+import LaneStatus from "@/components/challenge-lanes/lane-status";
+import { loadProductLaneStatus } from "@/lib/products/challenge-lanes/load-lane-status.mjs";
 import RecordComposition from "@/components/bank-builder/record-composition";
 import { currentProductRecord, RECORD_SCOPE_LABEL, recordWindowText, scopedRecordText } from "@/lib/results/current-record";
 import { productHistoryRecords } from "@/lib/results/product-history";
@@ -155,6 +157,8 @@ export default function MoonshotPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-6">
+      {/* Challenge lanes (site slice 2026-11-09): the canonical lane projections, read through the engine's public reader. */}
+      <LaneStatus product="moonshot" lanes={loadProductLaneStatus("moonshot") as Parameters<typeof LaneStatus>[0]["lanes"]} />
       {/* Slate liveness (real ET clock) — no-play framing when today has no live slate; points at the next
           scheduled focus. The ladder lanes below remain the most-recent published cards. */}
       <SlateLivenessBanner

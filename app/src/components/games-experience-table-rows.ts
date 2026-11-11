@@ -27,7 +27,8 @@ import { committedLaneDates, loadLaneForDate } from "@/components/nba/experiment
 import { nbaExclusionText } from "@/lib/sport-hub/nba-hub";
 import { nbaExportedGamePageIds } from "@/components/nba/settled-simulation-data";
 import { nbaGamePageHrefIfExported } from "@/components/nba/game-page-link.mjs";
-import { eloWinProbabilityOf, eloWinProbabilityText } from "@/lib/sports/nba/elo-win-probability.mjs";
+import { eloWinChanceRead } from "@/lib/sports/nba/elo-win-chance-read.mjs";
+import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import { getMlbBoardForDate } from "@/lib/data-mlb";
 import { forecastTableCell, mlbForecastStateForGame } from "@/lib/mlb/full-game/forecast-state.mjs";
 import { loadLeagueForecasts, loadLeagueGraded } from "@/lib/sports/soccer/forecast-view";
@@ -61,7 +62,8 @@ export function gamesTableDates(today: string): string[] {
   return [-1, 0, 1, 2, 3].map((n) => addDays(today, n));
 }
 
-export function buildGamesTableRows(today: string): GamesTableRow[] {
+/** `eloEnabled` overrides the Elo win-probability switch (tests: the switch-off path); absent → the build's switch. */
+export function buildGamesTableRows(today: string, { eloEnabled: eloOverride }: { eloEnabled?: boolean } = {}): GamesTableRow[] {
   const dataRoot = path.join(process.cwd(), "public", "data");
   type NflIdx = { events?: Array<{ providerEventId: string; home: { abbr: string }; away: { abbr: string }; winProbability?: { home: number; away: number } | null }> };
   const nflIdx = new Map((readPublic<NflIdx>("nfl/index.json")?.events ?? []).map((e) => [String(e.providerEventId), e]));
@@ -73,6 +75,7 @@ export function buildGamesTableRows(today: string): GamesTableRow[] {
   const epl = loadEplForecasts();
   const eplById = new Map((epl ? reportableRows(epl) : []).map((r) => [r.eventId, r]));
   const laneDates = new Set(committedLaneDates());
+  const eloEnabled = eloOverride ?? loadEloWinProbabilityContext().enabled;
   const nbaFinals = new Set((readPublic<{ finals?: Array<{ providerEventId?: string }> }>("nba/results/finals-2026-27.json")?.finals ?? []).map((f) => String(f.providerEventId ?? "")).filter(Boolean));
   /* Batch 1 fix #2 (2026-10-29): the NBA game pages this export serves at the build's ET date — the settled pages of past
      slates (the route's own list). Today's Game Simulation ids are read only by the /nba hub (research boundary), so a
@@ -85,7 +88,7 @@ export function buildGamesTableRows(today: string): GamesTableRow[] {
     const day = buildSimulateDay(date, { today });
     const lane = loadLaneForDate(date);
     for (const section of day.sections) {
-      for (const e of section.events) rows.push(rowFor(e, date, { nflIdx, nflPages, eplById, lane, laneDates, nbaFinals, nbaGamePages, nowMs, today }));
+      for (const e of section.events) rows.push(rowFor(e, date, { nflIdx, nflPages, eplById, lane, laneDates, nbaFinals, nbaGamePages, nowMs, today, eloEnabled }));
     }
   }
   rows.push(...(leagueGamesTableRows({
@@ -107,6 +110,8 @@ type Ctx = {
   nowMs: number;
   /** The build's ET day: each of today's NBA games has a card on /nba. */
   today?: string;
+  /** The Elo win-probability switch (loadEloWinProbabilityContext), read once per build — the same value Home reads. */
+  eloEnabled?: boolean;
 };
 
 function rowFor(e: SimDayEvent, date: string, ctx: Ctx): GamesTableRow {
@@ -147,7 +152,7 @@ function rowFor(e: SimDayEvent, date: string, ctx: Ctx): GamesTableRow {
     const gamePage = date !== ctx.today && pid ? nbaGamePageHrefIfExported(pid, ctx.nbaGamePages) : null;
     const page = date === ctx.today && pid ? `/nba/#nba-exp-${pid}` : gamePage ?? (ctx.laneDates.has(date) ? `/nba/projections/${date}/` : "/nba/");
     if (g) {
-      return { ...base, forecast: "Frozen", read: nbaTodayRead(g), note: null, eventHref: page };
+      return { ...base, forecast: "Frozen", read: nbaTodayRead(g, ctx.eloEnabled), note: null, eventHref: page };
     }
     const excluded = ctx.lane?.excluded.find((x) => x.providerEventId === pid);
     if (excluded || ctx.lane || started) return { ...base, forecast: "Unavailable", read: null, note: excluded ? `No Official Forecast: ${nbaExclusionText(excluded.reason)}` : "No Official Forecast was frozen for this game before tip-off.", eventHref: page };
@@ -174,14 +179,15 @@ function rowFor(e: SimDayEvent, date: string, ctx: Ctx): GamesTableRow {
 }
 
 /**
- * WEB-03 (2026-11-09): Today prints the NBA Elo win probability through THE ONE ACCESSOR /nba and the game pages use
- * (eloWinProbabilityOf → eloWinProbabilityText), so the three surfaces never disagree. With no published value (switch
- * off, provenance or consistency refusal) it keeps the favoured side and says no win chance was published.
+ * WEB-03 (2026-11-09) + CONS-DAYVIEW: Today prints the NBA Elo win probability through THE ONE READ every list surface
+ * uses (elo-win-chance-read.mjs → eloWinProbabilityOf, the PR 1219 accessor): the accessor's own sentence
+ * (eloWinProbabilityText, as /nba and the game pages print it) — or, with no published value (switch off, provenance or
+ * consistency refusal), the favoured side and the one withheld reason Home also gives.
  */
-export function nbaTodayRead(g: Parameters<typeof eloWinProbabilityOf>[0]): string | null {
-  const view = eloWinProbabilityOf(g);
-  if (view) return eloWinProbabilityText(view);
-  return g?.elo?.favoured ? `${g.elo.favoured} favoured · no win chance published` : null;
+export function nbaTodayRead(g: Parameters<typeof eloWinChanceRead>[0], enabled?: boolean): string | null {
+  const r = eloWinChanceRead(g, enabled === undefined ? {} : { enabled });
+  if (r.shown) return r.fullText;
+  return g?.elo?.favoured ? `${g.elo.favoured} favoured · ${r.reason}` : null;
 }
 
 function mlbHadForecast(date: string, gamePk: string | null): boolean {

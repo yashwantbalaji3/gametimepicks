@@ -14,7 +14,7 @@ export default function SuggestedReceipts({ date }: { date: string }) {
   return (
     <section aria-labelledby="suggested-receipts-h" className="mt-10 flex flex-col gap-3">
       <div>
-        <h2 id="suggested-receipts-h" className="m-0 font-display text-[22px]" style={{ color: "var(--vault-text)" }}>Suggested Parlays published this day</h2>
+        <h2 id="suggested-receipts-h" className="m-0 font-display text-[22px]" style={{ color: "var(--vault-text)" }}>Parlay Lab published this day</h2>
         <p className="m-0 mt-1 text-[12.5px] leading-snug" style={{ color: "var(--vault-text-mute)", maxWidth: 720 }}>
           The MLB cards as published (one per risk level), each graded from the lab&rsquo;s settled receipt — the same cards the
           published record counts. A card not yet settled is pending, never a loss. Paper-only.

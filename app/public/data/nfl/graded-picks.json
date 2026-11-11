@@ -3,18 +3,18 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-11-09T20:08:26Z",
+ "generatedAt": "2026-11-10T17:23:02Z",
  "sport": "nfl",
  "label": "NFL",
  "what": "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
  "caveat": "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
  "counts": {
-  "counted": 175,
+  "counted": 176,
   "hits": 105,
-  "misses": 70,
+  "misses": 71,
   "voided": 3,
   "shown": 60,
-  "total": 178
+  "total": 179
  },
  "hitRate": null,
  "recordBasis": "MIXED",
@@ -28,15 +28,30 @@
   },
   {
    "basis": "PUBLISHED",
-   "counted": 70,
+   "counted": 71,
    "hits": 44,
-   "misses": 26,
-   "hitRate": 0.6286
+   "misses": 27,
+   "hitRate": 0.6197
   }
  ],
  "sampleState": "EMERGING",
- "sampleNote": "175 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
+ "sampleNote": "176 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
  "picks": [
+  {
+   "eventId": "nfl-401873051",
+   "when": "2026-11-09",
+   "eventName": null,
+   "subject": "BUF @ MIN",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "HOME",
+   "actual": "AWAY",
+   "modelProbability": null,
+   "probabilityOfActual": 0.5106,
+   "marketProbabilityOfActual": null,
+   "hit": false
+  },
   {
    "eventId": "nfl-401873050",
    "when": "2026-11-08",
@@ -921,21 +936,6 @@
    "probabilityOfActual": 0.4695,
    "marketProbabilityOfActual": null,
    "hit": false
-  },
-  {
-   "eventId": "nfl-401872984",
-   "when": "2026-10-11",
-   "eventName": null,
-   "subject": "HOU @ TEN",
-   "market": "Winner",
-   "basis": "PUBLISHED",
-   "noPick": false,
-   "predicted": "AWAY",
-   "actual": "AWAY",
-   "modelProbability": null,
-   "probabilityOfActual": 0.7289,
-   "marketProbabilityOfActual": null,
-   "hit": true
   }
  ]
 }

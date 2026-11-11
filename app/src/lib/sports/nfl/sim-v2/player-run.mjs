@@ -35,7 +35,7 @@ import path from "node:path";
 import { NFL_SIM_V2_VERSION, N_PERIODS, N_PSTAT, N_TSTAT, PSTAT, TEAM_STAT, compileParams, prepareTeamPlayers, runRng, simulateGame, tiltedTable } from "./engine.mjs";
 import { playersFromRoleShares } from "./receipt.mjs";
 import { fnv1a64 } from "../../../forecast-ledger/identity.mjs";
-import { isBlockingStatus } from "../../injuries/contract.mjs";
+import { shareExclusions, teamIdsFromRoster } from "../participation-eligibility.mjs";
 import { activeRosterIndex } from "../board-roster-integrity.mjs";
 import { safeNflRunBoxScore } from "../../../simulation-theater/nfl-run-box-score.mjs";
 
@@ -61,8 +61,7 @@ export function nflAvailability(repoRoot) {
   if (!cache.has(k)) {
     const inj = readOnce(repoRoot, INJURIES_REL);
     const ros = readOnce(repoRoot, ROSTERS_REL);
-    const blocked = new Set((inj?.entries ?? []).filter((e) => e?.athleteId && isBlockingStatus(e.status)).map((e) => `nfl-athlete-${e.athleteId}`));
-    cache.set(k, inj && ros ? { blocked, active: activeRosterIndex(ros).active } : null);
+    cache.set(k, inj && ros ? { injuries: inj, roster: ros, teamIdByAbbr: teamIdsFromRoster(ros), active: activeRosterIndex(ros).active } : null);
   }
   return cache.get(k);
 }
@@ -71,16 +70,18 @@ export function nflAvailability(repoRoot) {
  * The engine's player inputs for one event, by the shadow build's recipe. Returns null when an input file is missing.
  * @returns {{ inputs: [{players}, {players}], excluded: [Set, Set] } | null}  index 0 = home, 1 = away
  */
-export function nflSimTeamInputs(repoRoot, eventId, homeAbbr, awayAbbr) {
+export function nflSimTeamInputs(repoRoot, eventId, homeAbbr, awayAbbr, asOf) {
   const role = readOnce(repoRoot, ROLE_SHARES_REL);
   const avail = nflAvailability(repoRoot);
-  if (!role || !avail) return null;
+  if (!role || !avail || !Number.isFinite(Date.parse(asOf ?? ""))) return null;
+  // eligibility contract v1, judged at the receipt's own instant — exactly what the shadow build applied
+  const ctx = { asOf, injuries: avail.injuries, roster: avail.roster, teamIdByAbbr: avail.teamIdByAbbr };
   const board = readOnce(repoRoot, `${PLAYER_BOARD_DIR_REL}/${eventId}.json`);
   const side = (abbr) => {
     const block = role.teams?.[abbr] ?? null;
     const onRoster = avail.active.get(abbr);
-    const excluded = new Set();
-    for (const k of ["passAttempts", "targets", "rushAttempts"]) for (const p of block?.[k]?.players ?? []) if (avail.blocked.has(p.playerId) || (onRoster && !onRoster.has(p.playerId))) excluded.add(p.playerId);
+    const excluded = shareExclusions(block, abbr, ctx);
+    for (const k of ["passAttempts", "targets", "rushAttempts"]) for (const p of block?.[k]?.players ?? []) if (onRoster && !onRoster.has(p.playerId)) excluded.add(p.playerId);
     const qbs = (board?.players ?? []).filter((p) => p.team === abbr && p.markets?.player_pass_yds);
     return { input: playersFromRoleShares(block, excluded, { starterQb: qbs.length === 1 ? qbs[0].playerId : null }), excluded };
   };
@@ -152,7 +153,7 @@ export function nflRepresentativeRunBoxes(repoRoot, receipt) {
   if (!want || !receipt?.baseSeed || !receipt?.calibration?.thetas) return fail("RECEIPT", "receipt lacks its id hash, seed or calibration");
   const compiled = compiledFor(repoRoot, receipt);
   if (!compiled) return fail("PARAMS_CHANGED", `committed ${receipt?.params?.file} does not match the receipt's params sha256`);
-  const ti = nflSimTeamInputs(repoRoot, receipt.eventId, receipt.home.abbr, receipt.away.abbr);
+  const ti = nflSimTeamInputs(repoRoot, receipt.eventId, receipt.home.abbr, receipt.away.abbr, receipt.generatedAt);
   if (!ti) return fail("INPUTS_MISSING", "role shares, injuries or rosters are not committed");
   const got = nflSimInputHash(receipt, ti.inputs);
   if (got !== want) return fail("INPUTS_CHANGED", `the committed player inputs hash to ${got}, the receipt was simulated with ${want} (availability or role shares changed since); the run cannot be re-derived`);

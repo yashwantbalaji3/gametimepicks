@@ -43,7 +43,7 @@ import { canEnterPredictionProducts } from "../../sport-capability-registry.ts";
 import { legIsMarketContext, marketContextFamilies } from "../card-leg-eligibility.mjs";
 import { isVerifiedOperator as seamPredicate } from "./operators.mjs";
 import { candidatesFromMlbLadder, candidatesFromSportLadder } from "./candidates.mjs";
-import { PARTICIPANT_STATUS_FLAG, LINELESS_MARKET } from "./recommend.mjs";
+import { PARTICIPANT_STATUS_FLAG, LINELESS_MARKET, STATUS_SPORTS, AVAILABILITY_NOT_VERIFIED_LABEL, availabilityUnverified } from "./recommend.mjs";
 
 export const CANDIDATE_SCHEMA = "gtp.parlay.candidate@1";
 export const ELIGIBILITY = Object.freeze({ ELIGIBLE: "ELIGIBLE", INELIGIBLE: "INELIGIBLE" });
@@ -66,6 +66,7 @@ export const CANDIDATE_REASONS = Object.freeze({
   MARKET_CONTEXT_FAMILY: "This kind of market was demoted to market context.",
   COVERAGE_UNAVAILABLE: "The market-coverage list could not be read, so no selection can be cleared.",
   PARTICIPANT_UNAVAILABLE: "The player or team is listed as out, questionable or otherwise not available.",
+  PARTICIPANT_STATUS_MISSING: "The player has no availability status on record, and a missing status is never read as available.",
   BOOK_INELIGIBLE: "The price is not from a verified sportsbook.",
 });
 
@@ -223,10 +224,15 @@ export function evaluateCandidate(c, { now, coverage, isVerifiedOperator = seamP
   else if (legIsMarketContext({ sport: c?.league, market: c?.market }, marketContextFamilies(coverage))) r.push("MARKET_CONTEXT_FAMILY");
 
   if (typeof c?.participantStatus === "string" && PARTICIPANT_STATUS_FLAG.test(c.participantStatus.trim())) r.push("PARTICIPANT_UNAVAILABLE");
+  // PL-02 (eligibility contract v1): a PLAYER leg in a sport the contract covers (NFL, NBA: injuries + roster sources)
+  // needs a stated status — missing status is not health (R2). UFC / MLB / soccer have no such source yet.
+  else if (c?.player && STATUS_SPORTS.has(String(c?.league ?? "").toLowerCase()) && !(typeof c?.participantStatus === "string" && c.participantStatus.trim())) r.push("PARTICIPANT_STATUS_MISSING");
   if (!isVerifiedOperator(c?.book)) r.push("BOOK_INELIGIBLE");
 
   const reasons = [...new Set(r)].sort().map((code) => ({ code, text: CANDIDATE_REASONS[code] }));
-  return { ...c, eligibility: { state: reasons.length ? ELIGIBILITY.INELIGIBLE : ELIGIBILITY.ELIGIBLE, reasons } };
+  // founder decision 2: a player market outside NFL / NBA stays buildable but carries the label (never featured: recommend.mjs)
+  const unverified = availabilityUnverified(c?.league, c?.market, c?.player);
+  return { ...c, eligibility: { state: reasons.length ? ELIGIBILITY.INELIGIBLE : ELIGIBILITY.ELIGIBLE, reasons }, ...(unverified ? { availability: { verified: false, label: AVAILABILITY_NOT_VERIFIED_LABEL } } : {}) };
 }
 
 /**

@@ -48,6 +48,7 @@ test("NBA_THEATER_PUBLIC_ENABLED is true ONLY with a recorded decision: the cite
 // imports = the gate only; loader + island behind the compile-time flag) and the build-time define.
 const PUBLIC_CANDIDATE = path.join("src", "app", "nba", "simulation", "[eventId]", "page.tsx");
 const HUB_ENTRY_POINT = path.join("src", "app", "nba", "page.tsx");
+const HOME_ENTRY_POINT = "src/app/page.tsx";
 
 test("no public route is wired: outside src/app/dev nothing imports the NBA theater, its box score or this manifest, or reads the flag — except the gated public candidate", () => {
   const offenders = [];
@@ -60,6 +61,7 @@ test("no public route is wired: outside src/app/dev nothing imports the NBA thea
       if (rel.startsWith(`src${path.sep}app${path.sep}dev${path.sep}`)) continue;
       if (rel === PUBLIC_CANDIDATE) continue;
       if (rel === HUB_ENTRY_POINT) continue; // its imports are pinned below (Theater links, release owner 2026-10-21)
+      if (rel === HOME_ENTRY_POINT) continue; // UX slice 2026-11-09: the homepage NBA rows link built game pages — pinned below
       const src = fs.readFileSync(p, "utf8");
       if (/simulation-theater\/nba\/|NbaTheaterSection|NbaBoxScore|GTP_NBA_THEATER_PUBLIC/.test(src)) offenders.push(rel);
     }
@@ -79,6 +81,12 @@ test("no public route is wired: outside src/app/dev nothing imports the NBA thea
   assert.deepEqual(hubDynamic, ["@/lib/simulation-theater/nba/possession/public-loader.mjs"]);
   assert.match(hub, /if \(process\.env\.GTP_NBA_THEATER_PUBLIC === "1"\) \{\s*const \{ publicPossessionEvents \} = await import\(/, "the loader import sits inside the literal flag branch");
   assert.doesNotMatch(hub, /NbaTheaterSection|NbaBoxScore|NbaPossession|nba\/loader\.mjs/);
+  // the homepage (UX slice 2026-11-09) follows the /nba hub's rule exactly: the gate statically, the loader only inside the flag
+  const home = fs.readFileSync(path.join(APP, HOME_ENTRY_POINT), "utf8");
+  assert.deepEqual([...home.matchAll(/^import (?!type )[^;]+ from "([^"]+)";$/gm)].map((m) => m[1]).filter((s) => /simulation-theater/.test(s)), ["@/lib/simulation-theater/nba/possession/public-route.mjs"]);
+  assert.deepEqual([...home.matchAll(/await import\("([^"]+)"\)/g)].map((m) => m[1]).filter((s) => /simulation-theater/.test(s)), ["@/lib/simulation-theater/nba/possession/public-loader.mjs"]);
+  assert.match(home, /if \(process\.env\.GTP_NBA_THEATER_PUBLIC === "1"\) \{\s*const \{ publicPossessionEvents \} = await import\(/, "the homepage's loader import sits inside the literal flag branch");
+  assert.doesNotMatch(home, /NbaTheaterSection|NbaBoxScore|NbaPossession|nba\/loader\.mjs/);
   const nextConfig = fs.readFileSync(path.join(APP, "next.config.mjs"), "utf8");
   assert.match(nextConfig, /GTP_NBA_THEATER_PUBLIC: process\.env\.GTP_NBA_THEATER_PUBLIC === "1" \? "1" : "0"/, "the build defines the NBA public flag as a compile-time \"1\" / \"0\" (default OFF)");
 });

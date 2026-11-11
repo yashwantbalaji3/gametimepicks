@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "nfl-weekly-boards",
   "dataClass": "PUBLIC",
-  "generatedAt": "2026-11-10T03:12:22Z",
+  "generatedAt": "2026-11-11T01:02:01Z",
   "period": {
     "seasonType": 2,
     "week": 10
@@ -26,8 +26,20 @@
       "topN": 5,
       "title": "Top 5 · Anytime touchdown",
       "state": "PUBLISHED",
-      "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing",
+      "basis": "Opportunity touchdown model: cleared every bar on a blind test of 2014–2021 (35,128 player-games never used to build it). Probabilities condition on playing — a player who does not play settles void. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1950 graded player-games).",
       "rows": [
+        {
+          "playerId": "nfl-athlete-4379399",
+          "name": "James Cook III",
+          "team": "BUF",
+          "opponent": "NYJ",
+          "providerEventId": "401873054",
+          "kickoffUtc": "2026-11-15T18:00Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 0.7461,
+          "probability": 0.7461,
+          "pricingState": "NOT_PROBED"
+        },
         {
           "playerId": "nfl-athlete-4429795",
           "name": "Jahmyr Gibbs",
@@ -35,9 +47,21 @@
           "opponent": "NE",
           "providerEventId": "401873053",
           "kickoffUtc": "2026-11-15T14:30Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 0.660158,
-          "probability": 0.660158,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 0.7429,
+          "probability": 0.7429,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-3117251",
+          "name": "Christian McCaffrey",
+          "team": "SF",
+          "opponent": "DAL",
+          "providerEventId": "401873063",
+          "kickoffUtc": "2026-11-15T21:25Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 0.7232,
+          "probability": 0.7232,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -47,49 +71,32 @@
           "opponent": "ATL",
           "providerEventId": "401873058",
           "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 0.526309,
-          "probability": 0.526309,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 0.7134,
+          "probability": 0.7134,
           "pricingState": "NOT_PROBED"
         },
         {
-          "playerId": "nfl-athlete-4361050",
-          "name": "Isaiah Likely",
-          "team": "NYG",
-          "opponent": "WSH",
-          "providerEventId": "401873052",
-          "kickoffUtc": "2026-11-13T01:15Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 0.496191,
-          "probability": 0.496191,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-3918298",
-          "name": "Josh Allen",
-          "team": "BUF",
-          "opponent": "NYJ",
-          "providerEventId": "401873054",
-          "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 0.488004,
-          "probability": 0.488004,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4379399",
-          "name": "James Cook III",
-          "team": "BUF",
-          "opponent": "NYJ",
-          "providerEventId": "401873054",
-          "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 0.483363,
-          "probability": 0.483363,
+          "playerId": "nfl-athlete-4361579",
+          "name": "Javonte Williams",
+          "team": "DAL",
+          "opponent": "SF",
+          "providerEventId": "401873063",
+          "kickoffUtc": "2026-11-15T21:25Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 0.6788,
+          "probability": 0.6788,
           "pricingState": "NOT_PROBED"
         }
       ],
       "excludedForAvailability": [
+        {
+          "playerId": "nfl-athlete-4433970",
+          "name": "J.J. McCarthy",
+          "team": "NYG",
+          "providerEventId": "401873052",
+          "reason": "QUESTIONABLE"
+        },
         {
           "playerId": "nfl-athlete-4569173",
           "name": "Rhamondre Stevenson",
@@ -98,9 +105,93 @@
           "reason": "QUESTIONABLE"
         },
         {
+          "playerId": "nfl-athlete-4047646",
+          "name": "A.J. Brown",
+          "team": "NE",
+          "providerEventId": "401873053",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4432710",
+          "name": "TreVeyon Henderson",
+          "team": "NE",
+          "providerEventId": "401873053",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4569618",
+          "name": "Garrett Wilson",
+          "team": "NYJ",
+          "providerEventId": "401873054",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-3134353",
+          "name": "Tim Patrick",
+          "team": "NYJ",
+          "providerEventId": "401873054",
+          "reason": "ELIGIBILITY_SOURCES_DISAGREE"
+        },
+        {
+          "playerId": "nfl-athlete-5081999",
+          "name": "CJ Donaldson",
+          "team": "NO",
+          "providerEventId": "401873055",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4035538",
+          "name": "David Montgomery",
+          "team": "HOU",
+          "providerEventId": "401873056",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4366031",
+          "name": "Tank Dell",
+          "team": "HOU",
+          "providerEventId": "401873056",
+          "reason": "ELIGIBILITY_SOURCES_DISAGREE"
+        },
+        {
+          "playerId": "nfl-athlete-3122840",
+          "name": "Deshaun Watson",
+          "team": "CLE",
+          "providerEventId": "401873056",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4871023",
+          "name": "Carnell Tate",
+          "team": "TEN",
+          "providerEventId": "401873057",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4428557",
+          "name": "Tyjae Spears",
+          "team": "TEN",
+          "providerEventId": "401873057",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4683062",
+          "name": "Xavier Worthy",
+          "team": "KC",
+          "providerEventId": "401873058",
+          "reason": "QUESTIONABLE"
+        },
+        {
           "playerId": "nfl-athlete-3139477",
           "name": "Patrick Mahomes",
           "team": "KC",
+          "providerEventId": "401873058",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4870612",
+          "name": "Zachariah Branch",
+          "team": "ATL",
           "providerEventId": "401873058",
           "reason": "QUESTIONABLE"
         },
@@ -112,10 +203,38 @@
           "reason": "QUESTIONABLE"
         },
         {
-          "playerId": "nfl-athlete-2998565",
-          "name": "Mo Alie-Cox",
-          "team": "IND",
+          "playerId": "nfl-athlete-4682745",
+          "name": "Jaylen Wright",
+          "team": "MIA",
           "providerEventId": "401873059",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4880236",
+          "name": "Will Kacmarek",
+          "team": "MIA",
+          "providerEventId": "401873059",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4429023",
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "providerEventId": "401873060",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-3917315",
+          "name": "Kyler Murray",
+          "team": "MIN",
+          "providerEventId": "401873060",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-3886598",
+          "name": "Jauan Jennings",
+          "team": "MIN",
+          "providerEventId": "401873060",
           "reason": "QUESTIONABLE"
         },
         {
@@ -123,6 +242,69 @@
           "name": "Puka Nacua",
           "team": "LAR",
           "providerEventId": "401873061",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4427728",
+          "name": "Bam Knight",
+          "team": "ARI",
+          "providerEventId": "401873061",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4032473",
+          "name": "Rashid Shaheed",
+          "team": "SEA",
+          "providerEventId": "401873062",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-3924327",
+          "name": "Drew Lock",
+          "team": "SEA",
+          "providerEventId": "401873062",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-16737",
+          "name": "Mike Evans",
+          "team": "SF",
+          "providerEventId": "401873063",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-3126486",
+          "name": "Deebo Samuel Sr.",
+          "team": "SF",
+          "providerEventId": "401873063",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4426354",
+          "name": "George Pickens",
+          "team": "DAL",
+          "providerEventId": "401873063",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4612826",
+          "name": "Ladd McConkey",
+          "team": "LAC",
+          "providerEventId": "401873065",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4038941",
+          "name": "Justin Herbert",
+          "team": "LAC",
+          "providerEventId": "401873065",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4685553",
+          "name": "Brenen Thompson",
+          "team": "LAC",
+          "providerEventId": "401873065",
           "reason": "QUESTIONABLE"
         }
       ]
@@ -134,22 +316,24 @@
       "topN": 10,
       "title": "Top 10 · Receptions",
       "state": "PUBLISHED",
-      "basis": "props-v1 evaluation: n=3575, all promotion bars pass",
+      "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1495 graded player-games).",
+      "conservation": {
+        "version": "nfl-share-conservation-v1",
+        "teamsReconciled": 2,
+        "teams": [
+          {
+            "team": "BUF",
+            "factor": 0.984,
+            "originalSum": 1.0163
+          },
+          {
+            "team": "LV",
+            "factor": 0.9233,
+            "originalSum": 1.0831
+          }
+        ]
+      },
       "rows": [
-        {
-          "playerId": "nfl-athlete-4374302",
-          "name": "Amon-Ra St. Brown",
-          "team": "DET",
-          "opponent": "NE",
-          "providerEventId": "401873053",
-          "kickoffUtc": "2026-11-15T14:30Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 7,
-          "p10": 3,
-          "median": 7,
-          "p90": 11,
-          "pricingState": "NOT_PROBED"
-        },
         {
           "playerId": "nfl-athlete-4241389",
           "name": "CeeDee Lamb",
@@ -158,10 +342,10 @@
           "providerEventId": "401873063",
           "kickoffUtc": "2026-11-15T21:25Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 6,
+          "value": 7,
           "p10": 3,
-          "median": 6,
-          "p90": 11,
+          "median": 7,
+          "p90": 14,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -171,11 +355,39 @@
           "opponent": "LV",
           "providerEventId": "401873062",
           "kickoffUtc": "2026-11-15T21:05Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 6,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 7,
           "p10": 3,
-          "median": 6,
-          "p90": 10,
+          "median": 7,
+          "p90": 14,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4374302",
+          "name": "Amon-Ra St. Brown",
+          "team": "DET",
+          "opponent": "NE",
+          "providerEventId": "401873053",
+          "kickoffUtc": "2026-11-15T14:30Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 7,
+          "p10": 3,
+          "median": 7,
+          "p90": 14,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4361307",
+          "name": "Trey McBride",
+          "team": "ARI",
+          "opponent": "LAR",
+          "providerEventId": "401873061",
+          "kickoffUtc": "2026-11-15T21:05Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 7,
+          "p10": 3,
+          "median": 7,
+          "p90": 13,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -185,11 +397,67 @@
           "opponent": "PIT",
           "providerEventId": "401873064",
           "kickoffUtc": "2026-11-16T01:20Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 5,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 7,
+          "p10": 3,
+          "median": 7,
+          "p90": 13,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4361370",
+          "name": "Chris Olave",
+          "team": "NO",
+          "opponent": "CAR",
+          "providerEventId": "401873055",
+          "kickoffUtc": "2026-11-15T18:00Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 6,
           "p10": 2,
-          "median": 5,
-          "p90": 9,
+          "median": 6,
+          "p90": 12,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4595348",
+          "name": "Malik Nabers",
+          "team": "NYG",
+          "opponent": "WSH",
+          "providerEventId": "401873052",
+          "kickoffUtc": "2026-11-13T01:15Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 6,
+          "p10": 2,
+          "median": 6,
+          "p90": 12,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4701936",
+          "name": "Matthew Golden",
+          "team": "GB",
+          "opponent": "MIN",
+          "providerEventId": "401873060",
+          "kickoffUtc": "2026-11-15T18:00Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 6,
+          "p10": 2,
+          "median": 6,
+          "p90": 11,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4432665",
+          "name": "Brock Bowers",
+          "team": "LV",
+          "opponent": "SEA",
+          "providerEventId": "401873062",
+          "kickoffUtc": "2026-11-15T21:05Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 5.5397,
+          "p10": 2,
+          "median": 6,
+          "p90": 11,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -203,95 +471,11 @@
           "value": 5,
           "p10": 2,
           "median": 5,
-          "p90": 9,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4595348",
-          "name": "Malik Nabers",
-          "team": "NYG",
-          "opponent": "WSH",
-          "providerEventId": "401873052",
-          "kickoffUtc": "2026-11-13T01:15Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 5,
-          "p10": 2,
-          "median": 5,
-          "p90": 9,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4432665",
-          "name": "Brock Bowers",
-          "team": "LV",
-          "opponent": "SEA",
-          "providerEventId": "401873062",
-          "kickoffUtc": "2026-11-15T21:05Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 5,
-          "p10": 2,
-          "median": 5,
-          "p90": 9,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4426502",
-          "name": "Drake London",
-          "team": "ATL",
-          "opponent": "KC",
-          "providerEventId": "401873058",
-          "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 5,
-          "p10": 2,
-          "median": 5,
-          "p90": 8,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4262921",
-          "name": "Justin Jefferson",
-          "team": "MIN",
-          "opponent": "GB",
-          "providerEventId": "401873060",
-          "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 5,
-          "p10": 2,
-          "median": 5,
-          "p90": 8,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4361370",
-          "name": "Chris Olave",
-          "team": "NO",
-          "opponent": "CAR",
-          "providerEventId": "401873055",
-          "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 5,
-          "p10": 2,
-          "median": 5,
-          "p90": 8,
+          "p90": 11,
           "pricingState": "NOT_PROBED"
         }
       ],
       "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-4040655",
-          "name": "Darnell Mooney",
-          "team": "NYG",
-          "providerEventId": "401873052",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4360635",
-          "name": "Chig Okonkwo",
-          "team": "WSH",
-          "providerEventId": "401873052",
-          "reason": "QUESTIONABLE"
-        },
         {
           "playerId": "nfl-athlete-4569173",
           "name": "Rhamondre Stevenson",
@@ -300,9 +484,58 @@
           "reason": "QUESTIONABLE"
         },
         {
+          "playerId": "nfl-athlete-4047646",
+          "name": "A.J. Brown",
+          "team": "NE",
+          "providerEventId": "401873053",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4569618",
+          "name": "Garrett Wilson",
+          "team": "NYJ",
+          "providerEventId": "401873054",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-3134353",
+          "name": "Tim Patrick",
+          "team": "NYJ",
+          "providerEventId": "401873054",
+          "reason": "ELIGIBILITY_SOURCES_DISAGREE"
+        },
+        {
+          "playerId": "nfl-athlete-4366031",
+          "name": "Tank Dell",
+          "team": "HOU",
+          "providerEventId": "401873056",
+          "reason": "ELIGIBILITY_SOURCES_DISAGREE"
+        },
+        {
+          "playerId": "nfl-athlete-4871023",
+          "name": "Carnell Tate",
+          "team": "TEN",
+          "providerEventId": "401873057",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4428557",
+          "name": "Tyjae Spears",
+          "team": "TEN",
+          "providerEventId": "401873057",
+          "reason": "QUESTIONABLE"
+        },
+        {
           "playerId": "nfl-athlete-4683062",
           "name": "Xavier Worthy",
           "team": "KC",
+          "providerEventId": "401873058",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4870612",
+          "name": "Zachariah Branch",
+          "team": "ATL",
           "providerEventId": "401873058",
           "reason": "QUESTIONABLE"
         },
@@ -314,6 +547,20 @@
           "reason": "QUESTIONABLE"
         },
         {
+          "playerId": "nfl-athlete-4429023",
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "providerEventId": "401873060",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-3886598",
+          "name": "Jauan Jennings",
+          "team": "MIN",
+          "providerEventId": "401873060",
+          "reason": "QUESTIONABLE"
+        },
+        {
           "playerId": "nfl-athlete-4426515",
           "name": "Puka Nacua",
           "team": "LAR",
@@ -321,8 +568,43 @@
           "reason": "QUESTIONABLE"
         },
         {
+          "playerId": "nfl-athlete-4032473",
+          "name": "Rashid Shaheed",
+          "team": "SEA",
+          "providerEventId": "401873062",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-16737",
+          "name": "Mike Evans",
+          "team": "SF",
+          "providerEventId": "401873063",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-3126486",
+          "name": "Deebo Samuel Sr.",
+          "team": "SF",
+          "providerEventId": "401873063",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4426354",
+          "name": "George Pickens",
+          "team": "DAL",
+          "providerEventId": "401873063",
+          "reason": "QUESTIONABLE"
+        },
+        {
           "playerId": "nfl-athlete-4612826",
           "name": "Ladd McConkey",
+          "team": "LAC",
+          "providerEventId": "401873065",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4685553",
+          "name": "Brenen Thompson",
           "team": "LAC",
           "providerEventId": "401873065",
           "reason": "QUESTIONABLE"
@@ -346,11 +628,11 @@
           "opponent": "ATL",
           "providerEventId": "401873058",
           "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 86.4,
-          "p10": 39,
-          "median": 86,
-          "p90": 149,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 87.52,
+          "p10": 40,
+          "median": 88,
+          "p90": 150,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -360,25 +642,11 @@
           "opponent": "NE",
           "providerEventId": "401873053",
           "kickoffUtc": "2026-11-15T14:30Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 86.24,
-          "p10": 41,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 85.95,
+          "p10": 42,
           "median": 86,
-          "p90": 145,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4569987",
-          "name": "Jaylen Warren",
-          "team": "PIT",
-          "opponent": "CIN",
-          "providerEventId": "401873064",
-          "kickoffUtc": "2026-11-16T01:20Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 73.84,
-          "p10": 29,
-          "median": 74,
-          "p90": 136,
+          "p90": 146,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -388,11 +656,25 @@
           "opponent": "NYJ",
           "providerEventId": "401873054",
           "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 73.38,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 73.63,
           "p10": 33,
-          "median": 73,
-          "p90": 132,
+          "median": 74,
+          "p90": 129,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4569987",
+          "name": "Jaylen Warren",
+          "team": "PIT",
+          "opponent": "CIN",
+          "providerEventId": "401873064",
+          "kickoffUtc": "2026-11-16T01:20Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 73.58,
+          "p10": 30,
+          "median": 74,
+          "p90": 135,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -402,11 +684,11 @@
           "opponent": "KC",
           "providerEventId": "401873058",
           "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 72.39,
-          "p10": 33,
-          "median": 72,
-          "p90": 131,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 72.89,
+          "p10": 30,
+          "median": 73,
+          "p90": 132,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -416,39 +698,11 @@
           "opponent": "JAX",
           "providerEventId": "401873057",
           "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 65.68,
-          "p10": 28,
-          "median": 66,
-          "p90": 117,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4361579",
-          "name": "Javonte Williams",
-          "team": "DAL",
-          "opponent": "SF",
-          "providerEventId": "401873063",
-          "kickoffUtc": "2026-11-15T21:25Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 58.96,
-          "p10": 26,
-          "median": 59,
-          "p90": 108,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4430737",
-          "name": "Kyren Williams",
-          "team": "LAR",
-          "opponent": "ARI",
-          "providerEventId": "401873061",
-          "kickoffUtc": "2026-11-15T21:05Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 58.8,
-          "p10": 24,
-          "median": 59,
-          "p90": 108,
+          "value": 65.36,
+          "p10": 28,
+          "median": 65,
+          "p90": 118,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -459,10 +713,10 @@
           "providerEventId": "401873065",
           "kickoffUtc": "2026-11-17T01:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 58.48,
-          "p10": 25,
-          "median": 58,
-          "p90": 106,
+          "value": 59.39,
+          "p10": 24,
+          "median": 59,
+          "p90": 107,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -472,11 +726,39 @@
           "opponent": "NO",
           "providerEventId": "401873055",
           "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 58.39,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 58.73,
+          "p10": 24,
+          "median": 59,
+          "p90": 110,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4430737",
+          "name": "Kyren Williams",
+          "team": "LAR",
+          "opponent": "ARI",
+          "providerEventId": "401873061",
+          "kickoffUtc": "2026-11-15T21:05Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 58.18,
+          "p10": 23,
+          "median": 58,
+          "p90": 109,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4361579",
+          "name": "Javonte Williams",
+          "team": "DAL",
+          "opponent": "SF",
+          "providerEventId": "401873063",
+          "kickoffUtc": "2026-11-15T21:25Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 58.14,
           "p10": 24,
           "median": 58,
-          "p90": 108,
+          "p90": 107,
           "pricingState": "NOT_PROBED"
         }
       ],
@@ -496,6 +778,41 @@
           "reason": "QUESTIONABLE"
         },
         {
+          "playerId": "nfl-athlete-4432710",
+          "name": "TreVeyon Henderson",
+          "team": "NE",
+          "providerEventId": "401873053",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-5081999",
+          "name": "CJ Donaldson",
+          "team": "NO",
+          "providerEventId": "401873055",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4035538",
+          "name": "David Montgomery",
+          "team": "HOU",
+          "providerEventId": "401873056",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-3122840",
+          "name": "Deshaun Watson",
+          "team": "CLE",
+          "providerEventId": "401873056",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4428557",
+          "name": "Tyjae Spears",
+          "team": "TEN",
+          "providerEventId": "401873057",
+          "reason": "QUESTIONABLE"
+        },
+        {
           "playerId": "nfl-athlete-3139477",
           "name": "Patrick Mahomes",
           "team": "KC",
@@ -507,6 +824,41 @@
           "name": "Malik Willis",
           "team": "MIA",
           "providerEventId": "401873059",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4682745",
+          "name": "Jaylen Wright",
+          "team": "MIA",
+          "providerEventId": "401873059",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4429023",
+          "name": "MarShawn Lloyd",
+          "team": "GB",
+          "providerEventId": "401873060",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-3917315",
+          "name": "Kyler Murray",
+          "team": "MIN",
+          "providerEventId": "401873060",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4427728",
+          "name": "Bam Knight",
+          "team": "ARI",
+          "providerEventId": "401873061",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-3126486",
+          "name": "Deebo Samuel Sr.",
+          "team": "SF",
+          "providerEventId": "401873063",
           "reason": "QUESTIONABLE"
         },
         {
@@ -528,6 +880,20 @@
       "basis": "props-v1 evaluation: n=3575, all promotion bars pass",
       "rows": [
         {
+          "playerId": "nfl-athlete-4430878",
+          "name": "Jaxon Smith-Njigba",
+          "team": "SEA",
+          "opponent": "LV",
+          "providerEventId": "401873062",
+          "kickoffUtc": "2026-11-15T21:05Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 78.37,
+          "p10": 28,
+          "median": 78,
+          "p90": 153,
+          "pricingState": "NOT_PROBED"
+        },
+        {
           "playerId": "nfl-athlete-4241389",
           "name": "CeeDee Lamb",
           "team": "DAL",
@@ -535,24 +901,10 @@
           "providerEventId": "401873063",
           "kickoffUtc": "2026-11-15T21:25Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 77.94,
-          "p10": 27,
-          "median": 78,
-          "p90": 147,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4430878",
-          "name": "Jaxon Smith-Njigba",
-          "team": "SEA",
-          "opponent": "LV",
-          "providerEventId": "401873062",
-          "kickoffUtc": "2026-11-15T21:05Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 77.57,
-          "p10": 27,
-          "median": 78,
-          "p90": 150,
+          "value": 76.37,
+          "p10": 28,
+          "median": 76,
+          "p90": 146,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -562,11 +914,11 @@
           "opponent": "NE",
           "providerEventId": "401873053",
           "kickoffUtc": "2026-11-15T14:30Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 72.33,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 73.32,
           "p10": 28,
-          "median": 72,
-          "p90": 137,
+          "median": 73,
+          "p90": 134,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -576,11 +928,11 @@
           "opponent": "KC",
           "providerEventId": "401873058",
           "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 60.03,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 59.06,
           "p10": 16,
-          "median": 60,
-          "p90": 127,
+          "median": 59,
+          "p90": 123,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -591,9 +943,9 @@
           "providerEventId": "401873065",
           "kickoffUtc": "2026-11-17T01:15Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 59.95,
-          "p10": 18,
-          "median": 60,
+          "value": 58.87,
+          "p10": 17,
+          "median": 59,
           "p90": 122,
           "pricingState": "NOT_PROBED"
         },
@@ -604,11 +956,11 @@
           "opponent": "PIT",
           "providerEventId": "401873064",
           "kickoffUtc": "2026-11-16T01:20Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 57.77,
-          "p10": 18,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 58.16,
+          "p10": 17,
           "median": 58,
-          "p90": 119,
+          "p90": 120,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -618,10 +970,10 @@
           "opponent": "SEA",
           "providerEventId": "401873062",
           "kickoffUtc": "2026-11-15T21:05Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 57.74,
-          "p10": 16,
-          "median": 58,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 56.33,
+          "p10": 17,
+          "median": 56,
           "p90": 119,
           "pricingState": "NOT_PROBED"
         },
@@ -632,11 +984,11 @@
           "opponent": "WSH",
           "providerEventId": "401873052",
           "kickoffUtc": "2026-11-13T01:15Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 55.98,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 54.87,
           "p10": 16,
-          "median": 56,
-          "p90": 114,
+          "median": 55,
+          "p90": 116,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -646,11 +998,11 @@
           "opponent": "CAR",
           "providerEventId": "401873055",
           "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 53.4,
-          "p10": 14,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 52.81,
+          "p10": 15,
           "median": 53,
-          "p90": 115,
+          "p90": 112,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -660,34 +1012,62 @@
           "opponent": "GB",
           "providerEventId": "401873060",
           "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 50.09,
-          "p10": 13,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 50.01,
+          "p10": 14,
           "median": 50,
-          "p90": 105,
+          "p90": 108,
           "pricingState": "NOT_PROBED"
         }
       ],
       "excludedForAvailability": [
         {
-          "playerId": "nfl-athlete-4040655",
-          "name": "Darnell Mooney",
-          "team": "NYG",
-          "providerEventId": "401873052",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4360635",
-          "name": "Chig Okonkwo",
-          "team": "WSH",
-          "providerEventId": "401873052",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-4569173",
           "name": "Rhamondre Stevenson",
           "team": "NE",
           "providerEventId": "401873053",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4047646",
+          "name": "A.J. Brown",
+          "team": "NE",
+          "providerEventId": "401873053",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4569618",
+          "name": "Garrett Wilson",
+          "team": "NYJ",
+          "providerEventId": "401873054",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-3134353",
+          "name": "Tim Patrick",
+          "team": "NYJ",
+          "providerEventId": "401873054",
+          "reason": "ELIGIBILITY_SOURCES_DISAGREE"
+        },
+        {
+          "playerId": "nfl-athlete-4366031",
+          "name": "Tank Dell",
+          "team": "HOU",
+          "providerEventId": "401873056",
+          "reason": "ELIGIBILITY_SOURCES_DISAGREE"
+        },
+        {
+          "playerId": "nfl-athlete-4871023",
+          "name": "Carnell Tate",
+          "team": "TEN",
+          "providerEventId": "401873057",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4428557",
+          "name": "Tyjae Spears",
+          "team": "TEN",
+          "providerEventId": "401873057",
           "reason": "QUESTIONABLE"
         },
         {
@@ -705,6 +1085,13 @@
           "reason": "QUESTIONABLE"
         },
         {
+          "playerId": "nfl-athlete-3886598",
+          "name": "Jauan Jennings",
+          "team": "MIN",
+          "providerEventId": "401873060",
+          "reason": "QUESTIONABLE"
+        },
+        {
           "playerId": "nfl-athlete-4426515",
           "name": "Puka Nacua",
           "team": "LAR",
@@ -712,8 +1099,43 @@
           "reason": "QUESTIONABLE"
         },
         {
+          "playerId": "nfl-athlete-4032473",
+          "name": "Rashid Shaheed",
+          "team": "SEA",
+          "providerEventId": "401873062",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-16737",
+          "name": "Mike Evans",
+          "team": "SF",
+          "providerEventId": "401873063",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-3126486",
+          "name": "Deebo Samuel Sr.",
+          "team": "SF",
+          "providerEventId": "401873063",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4426354",
+          "name": "George Pickens",
+          "team": "DAL",
+          "providerEventId": "401873063",
+          "reason": "QUESTIONABLE"
+        },
+        {
           "playerId": "nfl-athlete-4612826",
           "name": "Ladd McConkey",
+          "team": "LAC",
+          "providerEventId": "401873065",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4685553",
+          "name": "Brenen Thompson",
           "team": "LAC",
           "providerEventId": "401873065",
           "reason": "QUESTIONABLE"
@@ -727,63 +1149,21 @@
       "topN": 10,
       "title": "Top 10 · Passing yards",
       "state": "ESTIMATE",
-      "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
-      "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast.",
+      "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
+      "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
       "rows": [
         {
-          "playerId": "nfl-athlete-4431452",
-          "name": "Drake Maye",
-          "team": "NE",
-          "opponent": "DET",
-          "providerEventId": "401873053",
-          "kickoffUtc": "2026-11-15T14:30Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 243.83,
-          "p10": 123,
-          "median": 244,
-          "p90": 378,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-3918298",
-          "name": "Josh Allen",
-          "team": "BUF",
-          "opponent": "NYJ",
-          "providerEventId": "401873054",
-          "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 239.72,
-          "p10": 127,
-          "median": 240,
-          "p90": 367,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4360310",
-          "name": "Trevor Lawrence",
-          "team": "JAX",
-          "opponent": "TEN",
-          "providerEventId": "401873057",
-          "kickoffUtc": "2026-11-15T18:00Z",
+          "playerId": "nfl-athlete-3915511",
+          "name": "Joe Burrow",
+          "team": "CIN",
+          "opponent": "PIT",
+          "providerEventId": "401873064",
+          "kickoffUtc": "2026-11-16T01:20Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 235.27,
-          "p10": 111,
-          "median": 235,
-          "p90": 363,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4361741",
-          "name": "Brock Purdy",
-          "team": "SF",
-          "opponent": "DAL",
-          "providerEventId": "401873063",
-          "kickoffUtc": "2026-11-15T21:25Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 232.76,
-          "p10": 115,
-          "median": 233,
-          "p90": 357,
+          "value": 270.6722,
+          "p10": 158,
+          "median": 271,
+          "p90": 427,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -793,25 +1173,25 @@
           "opponent": "MIN",
           "providerEventId": "401873060",
           "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 229.54,
-          "p10": 121,
-          "median": 230,
-          "p90": 350,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 256.4455,
+          "p10": 146,
+          "median": 256,
+          "p90": 413,
           "pricingState": "NOT_PROBED"
         },
         {
-          "playerId": "nfl-athlete-15864",
-          "name": "Geno Smith",
-          "team": "NYJ",
-          "opponent": "BUF",
-          "providerEventId": "401873054",
+          "playerId": "nfl-athlete-4432577",
+          "name": "C.J. Stroud",
+          "team": "HOU",
+          "opponent": "CLE",
+          "providerEventId": "401873056",
           "kickoffUtc": "2026-11-15T18:00Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 229.35,
-          "p10": 122,
-          "median": 229,
-          "p90": 346,
+          "value": 250.0218,
+          "p10": 140,
+          "median": 250,
+          "p90": 407,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -821,11 +1201,11 @@
           "opponent": "NE",
           "providerEventId": "401873053",
           "kickoffUtc": "2026-11-15T14:30Z",
-          "participation": "ACTIVE_PROJECTED",
-          "value": 227.63,
-          "p10": 122,
-          "median": 228,
-          "p90": 348,
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 244.3296,
+          "p10": 137,
+          "median": 244,
+          "p90": 397,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -836,24 +1216,24 @@
           "providerEventId": "401873063",
           "kickoffUtc": "2026-11-15T21:25Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 215.14,
-          "p10": 112,
-          "median": 215,
-          "p90": 330,
+          "value": 242.4158,
+          "p10": 138,
+          "median": 242,
+          "p90": 389,
           "pricingState": "NOT_PROBED"
         },
         {
-          "playerId": "nfl-athlete-4685720",
-          "name": "Bryce Young",
-          "team": "CAR",
-          "opponent": "NO",
-          "providerEventId": "401873055",
-          "kickoffUtc": "2026-11-15T18:00Z",
+          "playerId": "nfl-athlete-4431452",
+          "name": "Drake Maye",
+          "team": "NE",
+          "opponent": "DET",
+          "providerEventId": "401873053",
+          "kickoffUtc": "2026-11-15T14:30Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 208.75,
-          "p10": 104,
-          "median": 209,
-          "p90": 316,
+          "value": 241.6587,
+          "p10": 131,
+          "median": 242,
+          "p90": 402,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -864,19 +1244,61 @@
           "providerEventId": "401873061",
           "kickoffUtc": "2026-11-15T21:05Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 201.74,
-          "p10": 104,
-          "median": 202,
-          "p90": 305,
+          "value": 238.0958,
+          "p10": 138,
+          "median": 238,
+          "p90": 378,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4361741",
+          "name": "Brock Purdy",
+          "team": "SF",
+          "opponent": "DAL",
+          "providerEventId": "401873063",
+          "kickoffUtc": "2026-11-15T21:25Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 237.7415,
+          "p10": 130,
+          "median": 238,
+          "p90": 394,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-3918298",
+          "name": "Josh Allen",
+          "team": "BUF",
+          "opponent": "NYJ",
+          "providerEventId": "401873054",
+          "kickoffUtc": "2026-11-15T18:00Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 237.2193,
+          "p10": 128,
+          "median": 237,
+          "p90": 396,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4360310",
+          "name": "Trevor Lawrence",
+          "team": "JAX",
+          "opponent": "TEN",
+          "providerEventId": "401873057",
+          "kickoffUtc": "2026-11-15T18:00Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 230.9532,
+          "p10": 122,
+          "median": 231,
+          "p90": 391,
           "pricingState": "NOT_PROBED"
         }
       ],
       "excludedForAvailability": [
         {
-          "playerId": "nfl-athlete-4433970",
-          "name": "J.J. McCarthy",
-          "team": "NYG",
-          "providerEventId": "401873052",
+          "playerId": "nfl-athlete-3122840",
+          "name": "Deshaun Watson",
+          "team": "CLE",
+          "providerEventId": "401873056",
           "reason": "QUESTIONABLE"
         },
         {
@@ -894,10 +1316,10 @@
           "reason": "QUESTIONABLE"
         },
         {
-          "playerId": "nfl-athlete-4038524",
-          "name": "Gardner Minshew II",
-          "team": "ARI",
-          "providerEventId": "401873061",
+          "playerId": "nfl-athlete-3917315",
+          "name": "Kyler Murray",
+          "team": "MIN",
+          "providerEventId": "401873060",
           "reason": "QUESTIONABLE"
         },
         {
@@ -957,68 +1379,26 @@
           "state": "ESTIMATE",
           "estimate": {
             "label": "Estimate · calibration standard not yet met",
-            "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
-            "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
+            "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
+            "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance."
           },
           "rows": [
             {
               "rank": 1,
-              "playerId": "nfl-athlete-4431452",
-              "name": "Drake Maye",
-              "team": "NE",
-              "opponent": "DET",
-              "providerEventId": "401873053",
-              "kickoffUtc": "2026-11-15T14:30Z",
+              "playerId": "nfl-athlete-3915511",
+              "name": "Joe Burrow",
+              "team": "CIN",
+              "opponent": "PIT",
+              "providerEventId": "401873064",
+              "kickoffUtc": "2026-11-16T01:20Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 243.83,
-              "p10": 123.01,
-              "p90": 378.15
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 270.6722,
+              "p10": 158.4816,
+              "p90": 426.5971
             },
             {
               "rank": 2,
-              "playerId": "nfl-athlete-3918298",
-              "name": "Josh Allen",
-              "team": "BUF",
-              "opponent": "NYJ",
-              "providerEventId": "401873054",
-              "kickoffUtc": "2026-11-15T18:00Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 239.72,
-              "p10": 126.75,
-              "p90": 366.9
-            },
-            {
-              "rank": 3,
-              "playerId": "nfl-athlete-4360310",
-              "name": "Trevor Lawrence",
-              "team": "JAX",
-              "opponent": "TEN",
-              "providerEventId": "401873057",
-              "kickoffUtc": "2026-11-15T18:00Z",
-              "etDate": "2026-11-15",
-              "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 235.27,
-              "p10": 110.86,
-              "p90": 362.85
-            },
-            {
-              "rank": 4,
-              "playerId": "nfl-athlete-4361741",
-              "name": "Brock Purdy",
-              "team": "SF",
-              "opponent": "DAL",
-              "providerEventId": "401873063",
-              "kickoffUtc": "2026-11-15T21:25Z",
-              "etDate": "2026-11-15",
-              "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 232.76,
-              "p10": 115.03,
-              "p90": 356.89
-            },
-            {
-              "rank": 5,
               "playerId": "nfl-athlete-4036378",
               "name": "Jordan Love",
               "team": "GB",
@@ -1026,10 +1406,52 @@
               "providerEventId": "401873060",
               "kickoffUtc": "2026-11-15T18:00Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 229.54,
-              "p10": 120.63,
-              "p90": 350.44
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 256.4455,
+              "p10": 145.9102,
+              "p90": 412.5926
+            },
+            {
+              "rank": 3,
+              "playerId": "nfl-athlete-4432577",
+              "name": "C.J. Stroud",
+              "team": "HOU",
+              "opponent": "CLE",
+              "providerEventId": "401873056",
+              "kickoffUtc": "2026-11-15T18:00Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 250.0218,
+              "p10": 139.8885,
+              "p90": 407.0835
+            },
+            {
+              "rank": 4,
+              "playerId": "nfl-athlete-3046779",
+              "name": "Jared Goff",
+              "team": "DET",
+              "opponent": "NE",
+              "providerEventId": "401873053",
+              "kickoffUtc": "2026-11-15T14:30Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 244.3296,
+              "p10": 136.98,
+              "p90": 397.2472
+            },
+            {
+              "rank": 5,
+              "playerId": "nfl-athlete-2577417",
+              "name": "Dak Prescott",
+              "team": "DAL",
+              "opponent": "SF",
+              "providerEventId": "401873063",
+              "kickoffUtc": "2026-11-15T21:25Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 242.4158,
+              "p10": 138.3113,
+              "p90": 389.2473
             }
           ],
           "availabilityExcluded": 6
@@ -1058,10 +1480,10 @@
               "providerEventId": "401873058",
               "kickoffUtc": "2026-11-15T18:00Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 86.4,
-              "p10": 38.68,
-              "p90": 149.41
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 87.52,
+              "p10": 39.93,
+              "p90": 149.74
             },
             {
               "rank": 2,
@@ -1072,27 +1494,13 @@
               "providerEventId": "401873053",
               "kickoffUtc": "2026-11-15T14:30Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 86.24,
-              "p10": 40.55,
-              "p90": 145.21
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 85.95,
+              "p10": 41.83,
+              "p90": 146.47
             },
             {
               "rank": 3,
-              "playerId": "nfl-athlete-4569987",
-              "name": "Jaylen Warren",
-              "team": "PIT",
-              "opponent": "CIN",
-              "providerEventId": "401873064",
-              "kickoffUtc": "2026-11-16T01:20Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 73.84,
-              "p10": 29.45,
-              "p90": 136.2
-            },
-            {
-              "rank": 4,
               "playerId": "nfl-athlete-4379399",
               "name": "James Cook III",
               "team": "BUF",
@@ -1100,10 +1508,24 @@
               "providerEventId": "401873054",
               "kickoffUtc": "2026-11-15T18:00Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 73.38,
-              "p10": 33.33,
-              "p90": 131.73
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 73.63,
+              "p10": 33.35,
+              "p90": 129.16
+            },
+            {
+              "rank": 4,
+              "playerId": "nfl-athlete-4569987",
+              "name": "Jaylen Warren",
+              "team": "PIT",
+              "opponent": "CIN",
+              "providerEventId": "401873064",
+              "kickoffUtc": "2026-11-16T01:20Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 73.58,
+              "p10": 30.47,
+              "p90": 135.34
             },
             {
               "rank": 5,
@@ -1114,13 +1536,13 @@
               "providerEventId": "401873058",
               "kickoffUtc": "2026-11-15T18:00Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 72.39,
-              "p10": 32.74,
-              "p90": 130.83
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 72.89,
+              "p10": 30.27,
+              "p90": 131.81
             }
           ],
-          "availabilityExcluded": 5
+          "availabilityExcluded": 15
         },
         {
           "id": "top5_reception_yds",
@@ -1135,6 +1557,21 @@
           "rows": [
             {
               "rank": 1,
+              "playerId": "nfl-athlete-4430878",
+              "name": "Jaxon Smith-Njigba",
+              "team": "SEA",
+              "opponent": "LV",
+              "providerEventId": "401873062",
+              "kickoffUtc": "2026-11-15T21:05Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 78.37,
+              "p10": 27.97,
+              "p90": 152.72,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 2,
               "playerId": "nfl-athlete-4241389",
               "name": "CeeDee Lamb",
               "team": "DAL",
@@ -1143,24 +1580,9 @@
               "kickoffUtc": "2026-11-15T21:25Z",
               "etDate": "2026-11-15",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 77.94,
-              "p10": 27.38,
-              "p90": 147.45,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 2,
-              "playerId": "nfl-athlete-4430878",
-              "name": "Jaxon Smith-Njigba",
-              "team": "SEA",
-              "opponent": "LV",
-              "providerEventId": "401873062",
-              "kickoffUtc": "2026-11-15T21:05Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 77.57,
-              "p10": 26.54,
-              "p90": 149.79,
+              "value": 76.37,
+              "p10": 27.85,
+              "p90": 145.52,
               "pricingState": "NOT_PROBED"
             },
             {
@@ -1172,10 +1594,10 @@
               "providerEventId": "401873053",
               "kickoffUtc": "2026-11-15T14:30Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 72.33,
-              "p10": 27.96,
-              "p90": 137.06,
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 73.32,
+              "p10": 27.55,
+              "p90": 134.14,
               "pricingState": "NOT_PROBED"
             },
             {
@@ -1187,10 +1609,10 @@
               "providerEventId": "401873058",
               "kickoffUtc": "2026-11-15T18:00Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 60.03,
-              "p10": 16.18,
-              "p90": 126.74,
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 59.06,
+              "p10": 16.49,
+              "p90": 122.96,
               "pricingState": "NOT_PROBED"
             },
             {
@@ -1203,13 +1625,13 @@
               "kickoffUtc": "2026-11-17T01:15Z",
               "etDate": "2026-11-16",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 59.95,
-              "p10": 18.07,
-              "p90": 122.39,
+              "value": 58.87,
+              "p10": 17.13,
+              "p90": 122.13,
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 7
+          "availabilityExcluded": 17
         },
         {
           "id": "top5_receptions",
@@ -1220,25 +1642,10 @@
           "source": "OFFICIAL_PLAYER_BOARD",
           "topN": 5,
           "state": "PUBLISHED",
-          "basis": "props-v1 evaluation: n=3575, all promotion bars pass",
+          "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1495 graded player-games).",
           "rows": [
             {
               "rank": 1,
-              "playerId": "nfl-athlete-4374302",
-              "name": "Amon-Ra St. Brown",
-              "team": "DET",
-              "opponent": "NE",
-              "providerEventId": "401873053",
-              "kickoffUtc": "2026-11-15T14:30Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 7,
-              "p10": 3,
-              "p90": 11,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 2,
               "playerId": "nfl-athlete-4241389",
               "name": "CeeDee Lamb",
               "team": "DAL",
@@ -1247,13 +1654,13 @@
               "kickoffUtc": "2026-11-15T21:25Z",
               "etDate": "2026-11-15",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 6,
+              "value": 7,
               "p10": 3,
-              "p90": 11,
+              "p90": 14,
               "pricingState": "NOT_PROBED"
             },
             {
-              "rank": 3,
+              "rank": 2,
               "playerId": "nfl-athlete-4430878",
               "name": "Jaxon Smith-Njigba",
               "team": "SEA",
@@ -1261,14 +1668,44 @@
               "providerEventId": "401873062",
               "kickoffUtc": "2026-11-15T21:05Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 6,
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 7,
               "p10": 3,
-              "p90": 10,
+              "p90": 14,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 3,
+              "playerId": "nfl-athlete-4374302",
+              "name": "Amon-Ra St. Brown",
+              "team": "DET",
+              "opponent": "NE",
+              "providerEventId": "401873053",
+              "kickoffUtc": "2026-11-15T14:30Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 7,
+              "p10": 3,
+              "p90": 14,
               "pricingState": "NOT_PROBED"
             },
             {
               "rank": 4,
+              "playerId": "nfl-athlete-4361307",
+              "name": "Trey McBride",
+              "team": "ARI",
+              "opponent": "LAR",
+              "providerEventId": "401873061",
+              "kickoffUtc": "2026-11-15T21:05Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 7,
+              "p10": 3,
+              "p90": 13,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 5,
               "playerId": "nfl-athlete-4362628",
               "name": "Ja'Marr Chase",
               "team": "CIN",
@@ -1276,29 +1713,14 @@
               "providerEventId": "401873064",
               "kickoffUtc": "2026-11-16T01:20Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 5,
-              "p10": 2,
-              "p90": 9,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 5,
-              "playerId": "nfl-athlete-4429615",
-              "name": "Zay Flowers",
-              "team": "BAL",
-              "opponent": "LAC",
-              "providerEventId": "401873065",
-              "kickoffUtc": "2026-11-17T01:15Z",
-              "etDate": "2026-11-16",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 5,
-              "p10": 2,
-              "p90": 9,
+              "value": 7,
+              "p10": 3,
+              "p90": 13,
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 7
+          "availabilityExcluded": 19
         },
         {
           "id": "top5_anytime_td",
@@ -1309,62 +1731,10 @@
           "source": "OFFICIAL_PLAYER_BOARD",
           "topN": 5,
           "state": "PUBLISHED",
-          "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing",
+          "basis": "Opportunity touchdown model: cleared every bar on a blind test of 2014–2021 (35,128 player-games never used to build it). Probabilities condition on playing — a player who does not play settles void. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1950 graded player-games).",
           "rows": [
             {
               "rank": 1,
-              "playerId": "nfl-athlete-4429795",
-              "name": "Jahmyr Gibbs",
-              "team": "DET",
-              "opponent": "NE",
-              "providerEventId": "401873053",
-              "kickoffUtc": "2026-11-15T14:30Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 0.660158,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 2,
-              "playerId": "nfl-athlete-4567048",
-              "name": "Kenneth Walker III",
-              "team": "KC",
-              "opponent": "ATL",
-              "providerEventId": "401873058",
-              "kickoffUtc": "2026-11-15T18:00Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 0.526309,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 3,
-              "playerId": "nfl-athlete-4361050",
-              "name": "Isaiah Likely",
-              "team": "NYG",
-              "opponent": "WSH",
-              "providerEventId": "401873052",
-              "kickoffUtc": "2026-11-13T01:15Z",
-              "etDate": "2026-11-12",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 0.496191,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 4,
-              "playerId": "nfl-athlete-3918298",
-              "name": "Josh Allen",
-              "team": "BUF",
-              "opponent": "NYJ",
-              "providerEventId": "401873054",
-              "kickoffUtc": "2026-11-15T18:00Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 0.488004,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 5,
               "playerId": "nfl-athlete-4379399",
               "name": "James Cook III",
               "team": "BUF",
@@ -1372,12 +1742,64 @@
               "providerEventId": "401873054",
               "kickoffUtc": "2026-11-15T18:00Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 0.483363,
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 0.7461,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 2,
+              "playerId": "nfl-athlete-4429795",
+              "name": "Jahmyr Gibbs",
+              "team": "DET",
+              "opponent": "NE",
+              "providerEventId": "401873053",
+              "kickoffUtc": "2026-11-15T14:30Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 0.7429,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 3,
+              "playerId": "nfl-athlete-3117251",
+              "name": "Christian McCaffrey",
+              "team": "SF",
+              "opponent": "DAL",
+              "providerEventId": "401873063",
+              "kickoffUtc": "2026-11-15T21:25Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 0.7232,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 4,
+              "playerId": "nfl-athlete-4567048",
+              "name": "Kenneth Walker III",
+              "team": "KC",
+              "opponent": "ATL",
+              "providerEventId": "401873058",
+              "kickoffUtc": "2026-11-15T18:00Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 0.7134,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 5,
+              "playerId": "nfl-athlete-4361579",
+              "name": "Javonte Williams",
+              "team": "DAL",
+              "opponent": "SF",
+              "providerEventId": "401873063",
+              "kickoffUtc": "2026-11-15T21:25Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 0.6788,
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 5
+          "availabilityExcluded": 31
         }
       ]
     },
@@ -1404,8 +1826,8 @@
             "state": "ESTIMATE",
             "estimate": {
               "label": "Estimate · calibration standard not yet met",
-              "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
-              "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
+              "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
+              "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance."
             },
             "rows": [
               {
@@ -1417,13 +1839,27 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 87.92,
-                "p10": 5.07,
-                "p90": 214.61
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 110.2742,
+                "p10": 59.6197,
+                "p90": 183.9173
+              },
+              {
+                "rank": 2,
+                "playerId": "nfl-athlete-4432722",
+                "name": "Athan Kaliakmanis",
+                "team": "WSH",
+                "opponent": "NYG",
+                "providerEventId": "401873052",
+                "kickoffUtc": "2026-11-13T01:15Z",
+                "etDate": "2026-11-12",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 91.6021,
+                "p10": 46.9004,
+                "p90": 158.586
               }
             ],
-            "availabilityExcluded": 1
+            "availabilityExcluded": 0
           },
           {
             "id": "top5_rush_yds",
@@ -1449,10 +1885,10 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 24.18,
-                "p10": 4.83,
-                "p90": 58.03
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 23.47,
+                "p10": 4.37,
+                "p90": 57.62
               },
               {
                 "rank": 2,
@@ -1463,10 +1899,10 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 17.74,
-                "p10": 1.88,
-                "p90": 49.5
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 17.82,
+                "p10": 1.89,
+                "p90": 50.08
               },
               {
                 "rank": 3,
@@ -1477,10 +1913,10 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 15.28,
-                "p10": 1.71,
-                "p90": 43.43
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 15.67,
+                "p10": 1.81,
+                "p90": 42.78
               },
               {
                 "rank": 4,
@@ -1491,10 +1927,10 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 13.24,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 12.68,
                 "p10": 0,
-                "p90": 50.17
+                "p90": 50.05
               },
               {
                 "rank": 5,
@@ -1506,9 +1942,9 @@
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 11.04,
-                "p10": 0.06,
-                "p90": 37.27
+                "value": 10.63,
+                "p10": 0.04,
+                "p90": 36.68
               }
             ],
             "availabilityExcluded": 1
@@ -1533,10 +1969,10 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 55.98,
-                "p10": 16.15,
-                "p90": 114.42,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 54.87,
+                "p10": 16.42,
+                "p90": 115.64,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -1548,10 +1984,10 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 38.9,
-                "p10": 8.91,
-                "p90": 88.22,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 39.64,
+                "p10": 9.13,
+                "p90": 87.11,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -1563,14 +1999,29 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 26.91,
-                "p10": 2.84,
-                "p90": 68.61,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 27.07,
+                "p10": 2.99,
+                "p90": 67.68,
                 "pricingState": "NOT_PROBED"
               },
               {
                 "rank": 4,
+                "playerId": "nfl-athlete-4360635",
+                "name": "Chig Okonkwo",
+                "team": "WSH",
+                "opponent": "NYG",
+                "providerEventId": "401873052",
+                "kickoffUtc": "2026-11-13T01:15Z",
+                "etDate": "2026-11-12",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 25.06,
+                "p10": 1.37,
+                "p90": 67.91,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 5,
                 "playerId": "nfl-athlete-5081432",
                 "name": "Antonio Williams",
                 "team": "WSH",
@@ -1579,28 +2030,13 @@
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 22.05,
+                "value": 21.97,
                 "p10": 0,
-                "p90": 63.22,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-4682648",
-                "name": "Malachi Fields",
-                "team": "NYG",
-                "opponent": "WSH",
-                "providerEventId": "401873052",
-                "kickoffUtc": "2026-11-13T01:15Z",
-                "etDate": "2026-11-12",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 21.81,
-                "p10": 0,
-                "p90": 65.13,
+                "p90": 62.81,
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 2
+            "availabilityExcluded": 0
           },
           {
             "id": "top5_receptions",
@@ -1611,7 +2047,7 @@
             "source": "OFFICIAL_PLAYER_BOARD",
             "topN": 5,
             "state": "PUBLISHED",
-            "basis": "props-v1 evaluation: n=3575, all promotion bars pass",
+            "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1495 graded player-games).",
             "rows": [
               {
                 "rank": 1,
@@ -1622,10 +2058,10 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 5,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 6,
                 "p10": 2,
-                "p90": 9,
+                "p90": 12,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -1637,10 +2073,10 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 4,
-                "p10": 1,
-                "p90": 8,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 5,
+                "p10": 2,
+                "p90": 10,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -1652,14 +2088,29 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 3,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 4,
                 "p10": 1,
-                "p90": 6,
+                "p90": 8,
                 "pricingState": "NOT_PROBED"
               },
               {
                 "rank": 4,
+                "playerId": "nfl-athlete-4360635",
+                "name": "Chig Okonkwo",
+                "team": "WSH",
+                "opponent": "NYG",
+                "providerEventId": "401873052",
+                "kickoffUtc": "2026-11-13T01:15Z",
+                "etDate": "2026-11-12",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 4,
+                "p10": 1,
+                "p90": 8,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 5,
                 "playerId": "nfl-athlete-5081432",
                 "name": "Antonio Williams",
                 "team": "WSH",
@@ -1668,28 +2119,13 @@
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 2,
-                "p10": 0,
-                "p90": 5,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-4682648",
-                "name": "Malachi Fields",
-                "team": "NYG",
-                "opponent": "WSH",
-                "providerEventId": "401873052",
-                "kickoffUtc": "2026-11-13T01:15Z",
-                "etDate": "2026-11-12",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 2,
-                "p10": 0,
-                "p90": 5,
+                "value": 3,
+                "p10": 1,
+                "p90": 7,
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 2
+            "availabilityExcluded": 0
           },
           {
             "id": "top5_anytime_td",
@@ -1700,7 +2136,7 @@
             "source": "OFFICIAL_PLAYER_BOARD",
             "topN": 5,
             "state": "PUBLISHED",
-            "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing",
+            "basis": "Opportunity touchdown model: cleared every bar on a blind test of 2014–2021 (35,128 player-games never used to build it). Probabilities condition on playing — a player who does not play settles void. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1950 graded player-games).",
             "rows": [
               {
                 "rank": 1,
@@ -1711,25 +2147,38 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 0.496191,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.3838,
                 "pricingState": "NOT_PROBED"
               },
               {
                 "rank": 2,
-                "playerId": "nfl-athlete-3930066",
-                "name": "Van Jefferson",
+                "playerId": "nfl-athlete-4575131",
+                "name": "Jacory Croskey-Merritt",
                 "team": "WSH",
                 "opponent": "NYG",
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 0.477056,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.3327,
                 "pricingState": "NOT_PROBED"
               },
               {
                 "rank": 3,
+                "playerId": "nfl-athlete-4040761",
+                "name": "Devin Singletary",
+                "team": "NYG",
+                "opponent": "WSH",
+                "providerEventId": "401873052",
+                "kickoffUtc": "2026-11-13T01:15Z",
+                "etDate": "2026-11-12",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.326,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 4,
                 "playerId": "nfl-athlete-2976212",
                 "name": "Stefon Diggs",
                 "team": "WSH",
@@ -1737,12 +2186,12 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 0.346459,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.325,
                 "pricingState": "NOT_PROBED"
               },
               {
-                "rank": 4,
+                "rank": 5,
                 "playerId": "nfl-athlete-4697815",
                 "name": "Rachaad White",
                 "team": "WSH",
@@ -1750,25 +2199,12 @@
                 "providerEventId": "401873052",
                 "kickoffUtc": "2026-11-13T01:15Z",
                 "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 0.274052,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-4689114",
-                "name": "Jaxson Dart",
-                "team": "NYG",
-                "opponent": "WSH",
-                "providerEventId": "401873052",
-                "kickoffUtc": "2026-11-13T01:15Z",
-                "etDate": "2026-11-12",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 0.221864,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.3184,
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 0
+            "availabilityExcluded": 1
           }
         ]
       },
@@ -1805,68 +2241,26 @@
             "state": "ESTIMATE",
             "estimate": {
               "label": "Estimate · calibration standard not yet met",
-              "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
-              "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
+              "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
+              "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance."
             },
             "rows": [
               {
                 "rank": 1,
-                "playerId": "nfl-athlete-4431452",
-                "name": "Drake Maye",
-                "team": "NE",
-                "opponent": "DET",
-                "providerEventId": "401873053",
-                "kickoffUtc": "2026-11-15T14:30Z",
+                "playerId": "nfl-athlete-3915511",
+                "name": "Joe Burrow",
+                "team": "CIN",
+                "opponent": "PIT",
+                "providerEventId": "401873064",
+                "kickoffUtc": "2026-11-16T01:20Z",
                 "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 243.83,
-                "p10": 123.01,
-                "p90": 378.15
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 270.6722,
+                "p10": 158.4816,
+                "p90": 426.5971
               },
               {
                 "rank": 2,
-                "playerId": "nfl-athlete-3918298",
-                "name": "Josh Allen",
-                "team": "BUF",
-                "opponent": "NYJ",
-                "providerEventId": "401873054",
-                "kickoffUtc": "2026-11-15T18:00Z",
-                "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 239.72,
-                "p10": 126.75,
-                "p90": 366.9
-              },
-              {
-                "rank": 3,
-                "playerId": "nfl-athlete-4360310",
-                "name": "Trevor Lawrence",
-                "team": "JAX",
-                "opponent": "TEN",
-                "providerEventId": "401873057",
-                "kickoffUtc": "2026-11-15T18:00Z",
-                "etDate": "2026-11-15",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 235.27,
-                "p10": 110.86,
-                "p90": 362.85
-              },
-              {
-                "rank": 4,
-                "playerId": "nfl-athlete-4361741",
-                "name": "Brock Purdy",
-                "team": "SF",
-                "opponent": "DAL",
-                "providerEventId": "401873063",
-                "kickoffUtc": "2026-11-15T21:25Z",
-                "etDate": "2026-11-15",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 232.76,
-                "p10": 115.03,
-                "p90": 356.89
-              },
-              {
-                "rank": 5,
                 "playerId": "nfl-athlete-4036378",
                 "name": "Jordan Love",
                 "team": "GB",
@@ -1874,13 +2268,55 @@
                 "providerEventId": "401873060",
                 "kickoffUtc": "2026-11-15T18:00Z",
                 "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 229.54,
-                "p10": 120.63,
-                "p90": 350.44
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 256.4455,
+                "p10": 145.9102,
+                "p90": 412.5926
+              },
+              {
+                "rank": 3,
+                "playerId": "nfl-athlete-4432577",
+                "name": "C.J. Stroud",
+                "team": "HOU",
+                "opponent": "CLE",
+                "providerEventId": "401873056",
+                "kickoffUtc": "2026-11-15T18:00Z",
+                "etDate": "2026-11-15",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 250.0218,
+                "p10": 139.8885,
+                "p90": 407.0835
+              },
+              {
+                "rank": 4,
+                "playerId": "nfl-athlete-3046779",
+                "name": "Jared Goff",
+                "team": "DET",
+                "opponent": "NE",
+                "providerEventId": "401873053",
+                "kickoffUtc": "2026-11-15T14:30Z",
+                "etDate": "2026-11-15",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 244.3296,
+                "p10": 136.98,
+                "p90": 397.2472
+              },
+              {
+                "rank": 5,
+                "playerId": "nfl-athlete-2577417",
+                "name": "Dak Prescott",
+                "team": "DAL",
+                "opponent": "SF",
+                "providerEventId": "401873063",
+                "kickoffUtc": "2026-11-15T21:25Z",
+                "etDate": "2026-11-15",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 242.4158,
+                "p10": 138.3113,
+                "p90": 389.2473
               }
             ],
-            "availabilityExcluded": 4
+            "availabilityExcluded": 5
           },
           {
             "id": "top5_rush_yds",
@@ -1906,10 +2342,10 @@
                 "providerEventId": "401873058",
                 "kickoffUtc": "2026-11-15T18:00Z",
                 "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 86.4,
-                "p10": 38.68,
-                "p90": 149.41
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 87.52,
+                "p10": 39.93,
+                "p90": 149.74
               },
               {
                 "rank": 2,
@@ -1920,27 +2356,13 @@
                 "providerEventId": "401873053",
                 "kickoffUtc": "2026-11-15T14:30Z",
                 "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 86.24,
-                "p10": 40.55,
-                "p90": 145.21
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 85.95,
+                "p10": 41.83,
+                "p90": 146.47
               },
               {
                 "rank": 3,
-                "playerId": "nfl-athlete-4569987",
-                "name": "Jaylen Warren",
-                "team": "PIT",
-                "opponent": "CIN",
-                "providerEventId": "401873064",
-                "kickoffUtc": "2026-11-16T01:20Z",
-                "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 73.84,
-                "p10": 29.45,
-                "p90": 136.2
-              },
-              {
-                "rank": 4,
                 "playerId": "nfl-athlete-4379399",
                 "name": "James Cook III",
                 "team": "BUF",
@@ -1948,10 +2370,24 @@
                 "providerEventId": "401873054",
                 "kickoffUtc": "2026-11-15T18:00Z",
                 "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 73.38,
-                "p10": 33.33,
-                "p90": 131.73
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 73.63,
+                "p10": 33.35,
+                "p90": 129.16
+              },
+              {
+                "rank": 4,
+                "playerId": "nfl-athlete-4569987",
+                "name": "Jaylen Warren",
+                "team": "PIT",
+                "opponent": "CIN",
+                "providerEventId": "401873064",
+                "kickoffUtc": "2026-11-16T01:20Z",
+                "etDate": "2026-11-15",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 73.58,
+                "p10": 30.47,
+                "p90": 135.34
               },
               {
                 "rank": 5,
@@ -1962,13 +2398,13 @@
                 "providerEventId": "401873058",
                 "kickoffUtc": "2026-11-15T18:00Z",
                 "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 72.39,
-                "p10": 32.74,
-                "p90": 130.83
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 72.89,
+                "p10": 30.27,
+                "p90": 131.81
               }
             ],
-            "availabilityExcluded": 3
+            "availabilityExcluded": 13
           },
           {
             "id": "top5_reception_yds",
@@ -1983,6 +2419,21 @@
             "rows": [
               {
                 "rank": 1,
+                "playerId": "nfl-athlete-4430878",
+                "name": "Jaxon Smith-Njigba",
+                "team": "SEA",
+                "opponent": "LV",
+                "providerEventId": "401873062",
+                "kickoffUtc": "2026-11-15T21:05Z",
+                "etDate": "2026-11-15",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 78.37,
+                "p10": 27.97,
+                "p90": 152.72,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 2,
                 "playerId": "nfl-athlete-4241389",
                 "name": "CeeDee Lamb",
                 "team": "DAL",
@@ -1991,24 +2442,9 @@
                 "kickoffUtc": "2026-11-15T21:25Z",
                 "etDate": "2026-11-15",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 77.94,
-                "p10": 27.38,
-                "p90": 147.45,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 2,
-                "playerId": "nfl-athlete-4430878",
-                "name": "Jaxon Smith-Njigba",
-                "team": "SEA",
-                "opponent": "LV",
-                "providerEventId": "401873062",
-                "kickoffUtc": "2026-11-15T21:05Z",
-                "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 77.57,
-                "p10": 26.54,
-                "p90": 149.79,
+                "value": 76.37,
+                "p10": 27.85,
+                "p90": 145.52,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -2020,10 +2456,10 @@
                 "providerEventId": "401873053",
                 "kickoffUtc": "2026-11-15T14:30Z",
                 "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 72.33,
-                "p10": 27.96,
-                "p90": 137.06,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 73.32,
+                "p10": 27.55,
+                "p90": 134.14,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -2035,10 +2471,10 @@
                 "providerEventId": "401873058",
                 "kickoffUtc": "2026-11-15T18:00Z",
                 "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 60.03,
-                "p10": 16.18,
-                "p90": 126.74,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 59.06,
+                "p10": 16.49,
+                "p90": 122.96,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -2050,14 +2486,14 @@
                 "providerEventId": "401873064",
                 "kickoffUtc": "2026-11-16T01:20Z",
                 "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 57.77,
-                "p10": 17.53,
-                "p90": 118.69,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 58.16,
+                "p10": 17.12,
+                "p90": 120.15,
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 4
+            "availabilityExcluded": 15
           },
           {
             "id": "top5_receptions",
@@ -2068,25 +2504,10 @@
             "source": "OFFICIAL_PLAYER_BOARD",
             "topN": 5,
             "state": "PUBLISHED",
-            "basis": "props-v1 evaluation: n=3575, all promotion bars pass",
+            "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1495 graded player-games).",
             "rows": [
               {
                 "rank": 1,
-                "playerId": "nfl-athlete-4374302",
-                "name": "Amon-Ra St. Brown",
-                "team": "DET",
-                "opponent": "NE",
-                "providerEventId": "401873053",
-                "kickoffUtc": "2026-11-15T14:30Z",
-                "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 7,
-                "p10": 3,
-                "p90": 11,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 2,
                 "playerId": "nfl-athlete-4241389",
                 "name": "CeeDee Lamb",
                 "team": "DAL",
@@ -2095,13 +2516,13 @@
                 "kickoffUtc": "2026-11-15T21:25Z",
                 "etDate": "2026-11-15",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 6,
+                "value": 7,
                 "p10": 3,
-                "p90": 11,
+                "p90": 14,
                 "pricingState": "NOT_PROBED"
               },
               {
-                "rank": 3,
+                "rank": 2,
                 "playerId": "nfl-athlete-4430878",
                 "name": "Jaxon Smith-Njigba",
                 "team": "SEA",
@@ -2109,14 +2530,44 @@
                 "providerEventId": "401873062",
                 "kickoffUtc": "2026-11-15T21:05Z",
                 "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 6,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 7,
                 "p10": 3,
-                "p90": 10,
+                "p90": 14,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 3,
+                "playerId": "nfl-athlete-4374302",
+                "name": "Amon-Ra St. Brown",
+                "team": "DET",
+                "opponent": "NE",
+                "providerEventId": "401873053",
+                "kickoffUtc": "2026-11-15T14:30Z",
+                "etDate": "2026-11-15",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 7,
+                "p10": 3,
+                "p90": 14,
                 "pricingState": "NOT_PROBED"
               },
               {
                 "rank": 4,
+                "playerId": "nfl-athlete-4361307",
+                "name": "Trey McBride",
+                "team": "ARI",
+                "opponent": "LAR",
+                "providerEventId": "401873061",
+                "kickoffUtc": "2026-11-15T21:05Z",
+                "etDate": "2026-11-15",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 7,
+                "p10": 3,
+                "p90": 13,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 5,
                 "playerId": "nfl-athlete-4362628",
                 "name": "Ja'Marr Chase",
                 "team": "CIN",
@@ -2124,29 +2575,14 @@
                 "providerEventId": "401873064",
                 "kickoffUtc": "2026-11-16T01:20Z",
                 "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 5,
-                "p10": 2,
-                "p90": 9,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-4432665",
-                "name": "Brock Bowers",
-                "team": "LV",
-                "opponent": "SEA",
-                "providerEventId": "401873062",
-                "kickoffUtc": "2026-11-15T21:05Z",
-                "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 5,
-                "p10": 2,
-                "p90": 9,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 7,
+                "p10": 3,
+                "p90": 13,
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 4
+            "availabilityExcluded": 17
           },
           {
             "id": "top5_anytime_td",
@@ -2157,49 +2593,10 @@
             "source": "OFFICIAL_PLAYER_BOARD",
             "topN": 5,
             "state": "PUBLISHED",
-            "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing",
+            "basis": "Opportunity touchdown model: cleared every bar on a blind test of 2014–2021 (35,128 player-games never used to build it). Probabilities condition on playing — a player who does not play settles void. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1950 graded player-games).",
             "rows": [
               {
                 "rank": 1,
-                "playerId": "nfl-athlete-4429795",
-                "name": "Jahmyr Gibbs",
-                "team": "DET",
-                "opponent": "NE",
-                "providerEventId": "401873053",
-                "kickoffUtc": "2026-11-15T14:30Z",
-                "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 0.660158,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 2,
-                "playerId": "nfl-athlete-4567048",
-                "name": "Kenneth Walker III",
-                "team": "KC",
-                "opponent": "ATL",
-                "providerEventId": "401873058",
-                "kickoffUtc": "2026-11-15T18:00Z",
-                "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 0.526309,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 3,
-                "playerId": "nfl-athlete-3918298",
-                "name": "Josh Allen",
-                "team": "BUF",
-                "opponent": "NYJ",
-                "providerEventId": "401873054",
-                "kickoffUtc": "2026-11-15T18:00Z",
-                "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 0.488004,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 4,
                 "playerId": "nfl-athlete-4379399",
                 "name": "James Cook III",
                 "team": "BUF",
@@ -2207,25 +2604,64 @@
                 "providerEventId": "401873054",
                 "kickoffUtc": "2026-11-15T18:00Z",
                 "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 0.483363,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.7461,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 2,
+                "playerId": "nfl-athlete-4429795",
+                "name": "Jahmyr Gibbs",
+                "team": "DET",
+                "opponent": "NE",
+                "providerEventId": "401873053",
+                "kickoffUtc": "2026-11-15T14:30Z",
+                "etDate": "2026-11-15",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.7429,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 3,
+                "playerId": "nfl-athlete-3117251",
+                "name": "Christian McCaffrey",
+                "team": "SF",
+                "opponent": "DAL",
+                "providerEventId": "401873063",
+                "kickoffUtc": "2026-11-15T21:25Z",
+                "etDate": "2026-11-15",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.7232,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 4,
+                "playerId": "nfl-athlete-4567048",
+                "name": "Kenneth Walker III",
+                "team": "KC",
+                "opponent": "ATL",
+                "providerEventId": "401873058",
+                "kickoffUtc": "2026-11-15T18:00Z",
+                "etDate": "2026-11-15",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.7134,
                 "pricingState": "NOT_PROBED"
               },
               {
                 "rank": 5,
-                "playerId": "nfl-athlete-4569682",
-                "name": "Audric Estime",
-                "team": "NO",
-                "opponent": "CAR",
-                "providerEventId": "401873055",
-                "kickoffUtc": "2026-11-15T18:00Z",
+                "playerId": "nfl-athlete-4361579",
+                "name": "Javonte Williams",
+                "team": "DAL",
+                "opponent": "SF",
+                "providerEventId": "401873063",
+                "kickoffUtc": "2026-11-15T21:25Z",
                 "etDate": "2026-11-15",
-                "participation": "ACTIVE_PROJECTED",
-                "value": 0.482187,
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.6788,
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 5
+            "availabilityExcluded": 27
           }
         ]
       },
@@ -2251,8 +2687,8 @@
             "state": "ESTIMATE",
             "estimate": {
               "label": "Estimate · calibration standard not yet met",
-              "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
-              "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
+              "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
+              "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance."
             },
             "rows": [
               {
@@ -2265,9 +2701,9 @@
                 "kickoffUtc": "2026-11-17T01:15Z",
                 "etDate": "2026-11-16",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 48.6,
-                "p10": 0,
-                "p90": 148.53
+                "value": 127.4175,
+                "p10": 62.1494,
+                "p90": 227.8534
               }
             ],
             "availabilityExcluded": 1
@@ -2297,9 +2733,9 @@
                 "kickoffUtc": "2026-11-17T01:15Z",
                 "etDate": "2026-11-16",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 58.48,
-                "p10": 24.52,
-                "p90": 106.04
+                "value": 59.39,
+                "p10": 24.47,
+                "p90": 106.59
               },
               {
                 "rank": 2,
@@ -2311,9 +2747,9 @@
                 "kickoffUtc": "2026-11-17T01:15Z",
                 "etDate": "2026-11-16",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 30.25,
-                "p10": 7.97,
-                "p90": 65.58
+                "value": 30.17,
+                "p10": 8.28,
+                "p90": 64.89
               },
               {
                 "rank": 3,
@@ -2325,9 +2761,9 @@
                 "kickoffUtc": "2026-11-17T01:15Z",
                 "etDate": "2026-11-16",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 16.14,
-                "p10": 1.26,
-                "p90": 47.57
+                "value": 16.13,
+                "p10": 1.14,
+                "p90": 47.55
               },
               {
                 "rank": 4,
@@ -2339,9 +2775,9 @@
                 "kickoffUtc": "2026-11-17T01:15Z",
                 "etDate": "2026-11-16",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 12.05,
-                "p10": 0.2,
-                "p90": 40.15
+                "value": 12.37,
+                "p10": 0.27,
+                "p90": 40.14
               },
               {
                 "rank": 5,
@@ -2353,9 +2789,9 @@
                 "kickoffUtc": "2026-11-17T01:15Z",
                 "etDate": "2026-11-16",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 11.55,
+                "value": 11.01,
                 "p10": 0,
-                "p90": 47.17
+                "p90": 48.26
               }
             ],
             "availabilityExcluded": 1
@@ -2381,9 +2817,9 @@
                 "kickoffUtc": "2026-11-17T01:15Z",
                 "etDate": "2026-11-16",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 59.95,
-                "p10": 18.07,
-                "p90": 122.39,
+                "value": 58.87,
+                "p10": 17.13,
+                "p90": 122.13,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -2396,9 +2832,9 @@
                 "kickoffUtc": "2026-11-17T01:15Z",
                 "etDate": "2026-11-16",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 22.71,
-                "p10": 1.13,
-                "p90": 59.38,
+                "value": 22.31,
+                "p10": 1.51,
+                "p90": 59.21,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -2411,24 +2847,24 @@
                 "kickoffUtc": "2026-11-17T01:15Z",
                 "etDate": "2026-11-16",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 22.06,
+                "value": 21.75,
                 "p10": 0,
-                "p90": 62.93,
+                "p90": 61.84,
                 "pricingState": "NOT_PROBED"
               },
               {
                 "rank": 4,
-                "playerId": "nfl-athlete-4038441",
-                "name": "Justice Hill",
+                "playerId": "nfl-athlete-4360939",
+                "name": "Rashod Bateman",
                 "team": "BAL",
                 "opponent": "LAC",
                 "providerEventId": "401873065",
                 "kickoffUtc": "2026-11-17T01:15Z",
                 "etDate": "2026-11-16",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 17.95,
+                "value": 18.78,
                 "p10": 0,
-                "p90": 51.02,
+                "p90": 59.03,
                 "pricingState": "NOT_PROBED"
               },
               {
@@ -2441,13 +2877,13 @@
                 "kickoffUtc": "2026-11-17T01:15Z",
                 "etDate": "2026-11-16",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 17.76,
+                "value": 18.11,
                 "p10": 0,
-                "p90": 61.04,
+                "p90": 62.09,
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 1
+            "availabilityExcluded": 2
           },
           {
             "id": "top5_receptions",
@@ -2458,7 +2894,7 @@
             "source": "OFFICIAL_PLAYER_BOARD",
             "topN": 5,
             "state": "PUBLISHED",
-            "basis": "props-v1 evaluation: n=3575, all promotion bars pass",
+            "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1495 graded player-games).",
             "rows": [
               {
                 "rank": 1,
@@ -2472,11 +2908,26 @@
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
                 "value": 5,
                 "p10": 2,
-                "p90": 9,
+                "p90": 11,
                 "pricingState": "NOT_PROBED"
               },
               {
                 "rank": 2,
+                "playerId": "nfl-athlete-4686612",
+                "name": "Tre' Harris",
+                "team": "LAC",
+                "opponent": "BAL",
+                "providerEventId": "401873065",
+                "kickoffUtc": "2026-11-17T01:15Z",
+                "etDate": "2026-11-16",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 3,
+                "p10": 1,
+                "p90": 7,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 3,
                 "playerId": "nfl-athlete-3116365",
                 "name": "Mark Andrews",
                 "team": "BAL",
@@ -2487,11 +2938,11 @@
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
                 "value": 3,
                 "p10": 1,
-                "p90": 6,
+                "p90": 7,
                 "pricingState": "NOT_PROBED"
               },
               {
-                "rank": 3,
+                "rank": 4,
                 "playerId": "nfl-athlete-4038441",
                 "name": "Justice Hill",
                 "team": "BAL",
@@ -2502,28 +2953,13 @@
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
                 "value": 2,
                 "p10": 0,
-                "p90": 5,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 4,
-                "playerId": "nfl-athlete-4686612",
-                "name": "Tre' Harris",
-                "team": "LAC",
-                "opponent": "BAL",
-                "providerEventId": "401873065",
-                "kickoffUtc": "2026-11-17T01:15Z",
-                "etDate": "2026-11-16",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 2,
-                "p10": 0,
-                "p90": 5,
+                "p90": 6,
                 "pricingState": "NOT_PROBED"
               },
               {
                 "rank": 5,
-                "playerId": "nfl-athlete-4241263",
-                "name": "Charlie Kolar",
+                "playerId": "nfl-athlete-4595342",
+                "name": "Oronde Gadsden",
                 "team": "LAC",
                 "opponent": "BAL",
                 "providerEventId": "401873065",
@@ -2532,11 +2968,11 @@
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
                 "value": 2,
                 "p10": 0,
-                "p90": 4,
+                "p90": 5,
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 1
+            "availabilityExcluded": 2
           },
           {
             "id": "top5_anytime_td",
@@ -2547,9 +2983,75 @@
             "source": "OFFICIAL_PLAYER_BOARD",
             "topN": 5,
             "state": "PUBLISHED",
-            "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing",
-            "rows": [],
-            "availabilityExcluded": 0
+            "basis": "Opportunity touchdown model: cleared every bar on a blind test of 2014–2021 (35,128 player-games never used to build it). Probabilities condition on playing — a player who does not play settles void. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1950 graded player-games).",
+            "rows": [
+              {
+                "rank": 1,
+                "playerId": "nfl-athlete-3043078",
+                "name": "Derrick Henry",
+                "team": "BAL",
+                "opponent": "LAC",
+                "providerEventId": "401873065",
+                "kickoffUtc": "2026-11-17T01:15Z",
+                "etDate": "2026-11-16",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.5754,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 2,
+                "playerId": "nfl-athlete-4429615",
+                "name": "Zay Flowers",
+                "team": "BAL",
+                "opponent": "LAC",
+                "providerEventId": "401873065",
+                "kickoffUtc": "2026-11-17T01:15Z",
+                "etDate": "2026-11-16",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.3376,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 3,
+                "playerId": "nfl-athlete-4685382",
+                "name": "Omarion Hampton",
+                "team": "LAC",
+                "opponent": "BAL",
+                "providerEventId": "401873065",
+                "kickoffUtc": "2026-11-17T01:15Z",
+                "etDate": "2026-11-16",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.2639,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 4,
+                "playerId": "nfl-athlete-4038441",
+                "name": "Justice Hill",
+                "team": "BAL",
+                "opponent": "LAC",
+                "providerEventId": "401873065",
+                "kickoffUtc": "2026-11-17T01:15Z",
+                "etDate": "2026-11-16",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.2534,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 5,
+                "playerId": "nfl-athlete-4430968",
+                "name": "Kimani Vidal",
+                "team": "LAC",
+                "opponent": "BAL",
+                "providerEventId": "401873065",
+                "kickoffUtc": "2026-11-17T01:15Z",
+                "etDate": "2026-11-16",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 0.1954,
+                "pricingState": "NOT_PROBED"
+              }
+            ],
+            "availabilityExcluded": 3
           }
         ]
       }
@@ -2589,68 +3091,26 @@
           "state": "ESTIMATE",
           "estimate": {
             "label": "Estimate · calibration standard not yet met",
-            "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
-            "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
+            "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
+            "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance."
           },
           "rows": [
             {
               "rank": 1,
-              "playerId": "nfl-athlete-4431452",
-              "name": "Drake Maye",
-              "team": "NE",
-              "opponent": "DET",
-              "providerEventId": "401873053",
-              "kickoffUtc": "2026-11-15T14:30Z",
+              "playerId": "nfl-athlete-3915511",
+              "name": "Joe Burrow",
+              "team": "CIN",
+              "opponent": "PIT",
+              "providerEventId": "401873064",
+              "kickoffUtc": "2026-11-16T01:20Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 243.83,
-              "p10": 123.01,
-              "p90": 378.15
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 270.6722,
+              "p10": 158.4816,
+              "p90": 426.5971
             },
             {
               "rank": 2,
-              "playerId": "nfl-athlete-3918298",
-              "name": "Josh Allen",
-              "team": "BUF",
-              "opponent": "NYJ",
-              "providerEventId": "401873054",
-              "kickoffUtc": "2026-11-15T18:00Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 239.72,
-              "p10": 126.75,
-              "p90": 366.9
-            },
-            {
-              "rank": 3,
-              "playerId": "nfl-athlete-4360310",
-              "name": "Trevor Lawrence",
-              "team": "JAX",
-              "opponent": "TEN",
-              "providerEventId": "401873057",
-              "kickoffUtc": "2026-11-15T18:00Z",
-              "etDate": "2026-11-15",
-              "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 235.27,
-              "p10": 110.86,
-              "p90": 362.85
-            },
-            {
-              "rank": 4,
-              "playerId": "nfl-athlete-4361741",
-              "name": "Brock Purdy",
-              "team": "SF",
-              "opponent": "DAL",
-              "providerEventId": "401873063",
-              "kickoffUtc": "2026-11-15T21:25Z",
-              "etDate": "2026-11-15",
-              "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 232.76,
-              "p10": 115.03,
-              "p90": 356.89
-            },
-            {
-              "rank": 5,
               "playerId": "nfl-athlete-4036378",
               "name": "Jordan Love",
               "team": "GB",
@@ -2658,10 +3118,52 @@
               "providerEventId": "401873060",
               "kickoffUtc": "2026-11-15T18:00Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 229.54,
-              "p10": 120.63,
-              "p90": 350.44
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 256.4455,
+              "p10": 145.9102,
+              "p90": 412.5926
+            },
+            {
+              "rank": 3,
+              "playerId": "nfl-athlete-4432577",
+              "name": "C.J. Stroud",
+              "team": "HOU",
+              "opponent": "CLE",
+              "providerEventId": "401873056",
+              "kickoffUtc": "2026-11-15T18:00Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 250.0218,
+              "p10": 139.8885,
+              "p90": 407.0835
+            },
+            {
+              "rank": 4,
+              "playerId": "nfl-athlete-3046779",
+              "name": "Jared Goff",
+              "team": "DET",
+              "opponent": "NE",
+              "providerEventId": "401873053",
+              "kickoffUtc": "2026-11-15T14:30Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 244.3296,
+              "p10": 136.98,
+              "p90": 397.2472
+            },
+            {
+              "rank": 5,
+              "playerId": "nfl-athlete-2577417",
+              "name": "Dak Prescott",
+              "team": "DAL",
+              "opponent": "SF",
+              "providerEventId": "401873063",
+              "kickoffUtc": "2026-11-15T21:25Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 242.4158,
+              "p10": 138.3113,
+              "p90": 389.2473
             }
           ],
           "availabilityExcluded": 6
@@ -2690,10 +3192,10 @@
               "providerEventId": "401873058",
               "kickoffUtc": "2026-11-15T18:00Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 86.4,
-              "p10": 38.68,
-              "p90": 149.41
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 87.52,
+              "p10": 39.93,
+              "p90": 149.74
             },
             {
               "rank": 2,
@@ -2704,27 +3206,13 @@
               "providerEventId": "401873053",
               "kickoffUtc": "2026-11-15T14:30Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 86.24,
-              "p10": 40.55,
-              "p90": 145.21
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 85.95,
+              "p10": 41.83,
+              "p90": 146.47
             },
             {
               "rank": 3,
-              "playerId": "nfl-athlete-4569987",
-              "name": "Jaylen Warren",
-              "team": "PIT",
-              "opponent": "CIN",
-              "providerEventId": "401873064",
-              "kickoffUtc": "2026-11-16T01:20Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 73.84,
-              "p10": 29.45,
-              "p90": 136.2
-            },
-            {
-              "rank": 4,
               "playerId": "nfl-athlete-4379399",
               "name": "James Cook III",
               "team": "BUF",
@@ -2732,10 +3220,24 @@
               "providerEventId": "401873054",
               "kickoffUtc": "2026-11-15T18:00Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 73.38,
-              "p10": 33.33,
-              "p90": 131.73
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 73.63,
+              "p10": 33.35,
+              "p90": 129.16
+            },
+            {
+              "rank": 4,
+              "playerId": "nfl-athlete-4569987",
+              "name": "Jaylen Warren",
+              "team": "PIT",
+              "opponent": "CIN",
+              "providerEventId": "401873064",
+              "kickoffUtc": "2026-11-16T01:20Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 73.58,
+              "p10": 30.47,
+              "p90": 135.34
             },
             {
               "rank": 5,
@@ -2746,13 +3248,13 @@
               "providerEventId": "401873058",
               "kickoffUtc": "2026-11-15T18:00Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 72.39,
-              "p10": 32.74,
-              "p90": 130.83
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 72.89,
+              "p10": 30.27,
+              "p90": 131.81
             }
           ],
-          "availabilityExcluded": 5
+          "availabilityExcluded": 15
         },
         {
           "id": "top5_reception_yds",
@@ -2767,6 +3269,21 @@
           "rows": [
             {
               "rank": 1,
+              "playerId": "nfl-athlete-4430878",
+              "name": "Jaxon Smith-Njigba",
+              "team": "SEA",
+              "opponent": "LV",
+              "providerEventId": "401873062",
+              "kickoffUtc": "2026-11-15T21:05Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 78.37,
+              "p10": 27.97,
+              "p90": 152.72,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 2,
               "playerId": "nfl-athlete-4241389",
               "name": "CeeDee Lamb",
               "team": "DAL",
@@ -2775,24 +3292,9 @@
               "kickoffUtc": "2026-11-15T21:25Z",
               "etDate": "2026-11-15",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 77.94,
-              "p10": 27.38,
-              "p90": 147.45,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 2,
-              "playerId": "nfl-athlete-4430878",
-              "name": "Jaxon Smith-Njigba",
-              "team": "SEA",
-              "opponent": "LV",
-              "providerEventId": "401873062",
-              "kickoffUtc": "2026-11-15T21:05Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 77.57,
-              "p10": 26.54,
-              "p90": 149.79,
+              "value": 76.37,
+              "p10": 27.85,
+              "p90": 145.52,
               "pricingState": "NOT_PROBED"
             },
             {
@@ -2804,10 +3306,10 @@
               "providerEventId": "401873053",
               "kickoffUtc": "2026-11-15T14:30Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 72.33,
-              "p10": 27.96,
-              "p90": 137.06,
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 73.32,
+              "p10": 27.55,
+              "p90": 134.14,
               "pricingState": "NOT_PROBED"
             },
             {
@@ -2819,10 +3321,10 @@
               "providerEventId": "401873058",
               "kickoffUtc": "2026-11-15T18:00Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 60.03,
-              "p10": 16.18,
-              "p90": 126.74,
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 59.06,
+              "p10": 16.49,
+              "p90": 122.96,
               "pricingState": "NOT_PROBED"
             },
             {
@@ -2835,13 +3337,13 @@
               "kickoffUtc": "2026-11-17T01:15Z",
               "etDate": "2026-11-16",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 59.95,
-              "p10": 18.07,
-              "p90": 122.39,
+              "value": 58.87,
+              "p10": 17.13,
+              "p90": 122.13,
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 7
+          "availabilityExcluded": 17
         },
         {
           "id": "top5_receptions",
@@ -2852,25 +3354,10 @@
           "source": "OFFICIAL_PLAYER_BOARD",
           "topN": 5,
           "state": "PUBLISHED",
-          "basis": "props-v1 evaluation: n=3575, all promotion bars pass",
+          "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1495 graded player-games).",
           "rows": [
             {
               "rank": 1,
-              "playerId": "nfl-athlete-4374302",
-              "name": "Amon-Ra St. Brown",
-              "team": "DET",
-              "opponent": "NE",
-              "providerEventId": "401873053",
-              "kickoffUtc": "2026-11-15T14:30Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 7,
-              "p10": 3,
-              "p90": 11,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 2,
               "playerId": "nfl-athlete-4241389",
               "name": "CeeDee Lamb",
               "team": "DAL",
@@ -2879,13 +3366,13 @@
               "kickoffUtc": "2026-11-15T21:25Z",
               "etDate": "2026-11-15",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 6,
+              "value": 7,
               "p10": 3,
-              "p90": 11,
+              "p90": 14,
               "pricingState": "NOT_PROBED"
             },
             {
-              "rank": 3,
+              "rank": 2,
               "playerId": "nfl-athlete-4430878",
               "name": "Jaxon Smith-Njigba",
               "team": "SEA",
@@ -2893,14 +3380,44 @@
               "providerEventId": "401873062",
               "kickoffUtc": "2026-11-15T21:05Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 6,
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 7,
               "p10": 3,
-              "p90": 10,
+              "p90": 14,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 3,
+              "playerId": "nfl-athlete-4374302",
+              "name": "Amon-Ra St. Brown",
+              "team": "DET",
+              "opponent": "NE",
+              "providerEventId": "401873053",
+              "kickoffUtc": "2026-11-15T14:30Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 7,
+              "p10": 3,
+              "p90": 14,
               "pricingState": "NOT_PROBED"
             },
             {
               "rank": 4,
+              "playerId": "nfl-athlete-4361307",
+              "name": "Trey McBride",
+              "team": "ARI",
+              "opponent": "LAR",
+              "providerEventId": "401873061",
+              "kickoffUtc": "2026-11-15T21:05Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 7,
+              "p10": 3,
+              "p90": 13,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 5,
               "playerId": "nfl-athlete-4362628",
               "name": "Ja'Marr Chase",
               "team": "CIN",
@@ -2908,29 +3425,14 @@
               "providerEventId": "401873064",
               "kickoffUtc": "2026-11-16T01:20Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 5,
-              "p10": 2,
-              "p90": 9,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 5,
-              "playerId": "nfl-athlete-4429615",
-              "name": "Zay Flowers",
-              "team": "BAL",
-              "opponent": "LAC",
-              "providerEventId": "401873065",
-              "kickoffUtc": "2026-11-17T01:15Z",
-              "etDate": "2026-11-16",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 5,
-              "p10": 2,
-              "p90": 9,
+              "value": 7,
+              "p10": 3,
+              "p90": 13,
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 7
+          "availabilityExcluded": 19
         },
         {
           "id": "top5_anytime_td",
@@ -2941,62 +3443,10 @@
           "source": "OFFICIAL_PLAYER_BOARD",
           "topN": 5,
           "state": "PUBLISHED",
-          "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing",
+          "basis": "Opportunity touchdown model: cleared every bar on a blind test of 2014–2021 (35,128 player-games never used to build it). Probabilities condition on playing — a player who does not play settles void. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1950 graded player-games).",
           "rows": [
             {
               "rank": 1,
-              "playerId": "nfl-athlete-4429795",
-              "name": "Jahmyr Gibbs",
-              "team": "DET",
-              "opponent": "NE",
-              "providerEventId": "401873053",
-              "kickoffUtc": "2026-11-15T14:30Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 0.660158,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 2,
-              "playerId": "nfl-athlete-4567048",
-              "name": "Kenneth Walker III",
-              "team": "KC",
-              "opponent": "ATL",
-              "providerEventId": "401873058",
-              "kickoffUtc": "2026-11-15T18:00Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 0.526309,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 3,
-              "playerId": "nfl-athlete-4361050",
-              "name": "Isaiah Likely",
-              "team": "NYG",
-              "opponent": "WSH",
-              "providerEventId": "401873052",
-              "kickoffUtc": "2026-11-13T01:15Z",
-              "etDate": "2026-11-12",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 0.496191,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 4,
-              "playerId": "nfl-athlete-3918298",
-              "name": "Josh Allen",
-              "team": "BUF",
-              "opponent": "NYJ",
-              "providerEventId": "401873054",
-              "kickoffUtc": "2026-11-15T18:00Z",
-              "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 0.488004,
-              "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 5,
               "playerId": "nfl-athlete-4379399",
               "name": "James Cook III",
               "team": "BUF",
@@ -3004,12 +3454,64 @@
               "providerEventId": "401873054",
               "kickoffUtc": "2026-11-15T18:00Z",
               "etDate": "2026-11-15",
-              "participation": "ACTIVE_PROJECTED",
-              "value": 0.483363,
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 0.7461,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 2,
+              "playerId": "nfl-athlete-4429795",
+              "name": "Jahmyr Gibbs",
+              "team": "DET",
+              "opponent": "NE",
+              "providerEventId": "401873053",
+              "kickoffUtc": "2026-11-15T14:30Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 0.7429,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 3,
+              "playerId": "nfl-athlete-3117251",
+              "name": "Christian McCaffrey",
+              "team": "SF",
+              "opponent": "DAL",
+              "providerEventId": "401873063",
+              "kickoffUtc": "2026-11-15T21:25Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 0.7232,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 4,
+              "playerId": "nfl-athlete-4567048",
+              "name": "Kenneth Walker III",
+              "team": "KC",
+              "opponent": "ATL",
+              "providerEventId": "401873058",
+              "kickoffUtc": "2026-11-15T18:00Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 0.7134,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 5,
+              "playerId": "nfl-athlete-4361579",
+              "name": "Javonte Williams",
+              "team": "DAL",
+              "opponent": "SF",
+              "providerEventId": "401873063",
+              "kickoffUtc": "2026-11-15T21:25Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 0.6788,
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 5
+          "availabilityExcluded": 31
         }
       ]
     }

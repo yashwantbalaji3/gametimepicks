@@ -59,11 +59,10 @@ test("a status outside the contract vocabulary is never carried — it is not gu
   assert.equal(carried.length, 0);
 });
 
-test("a designation older than the window is NOT carried — the opposite error is also an error", () => {
-  const old = { ...FIELDS, statedAt: "2026-08-20T00:00Z" }; // ~21 days before NOW
-  const { carried, skipped } = carryForwardDesignations({ previousEntries: [old], currentEntries: [], nowIso: NOW });
-  assert.equal(carried.length, 0);
-  assert.equal(skipped.tooOld, 1);
+test("R1 (eligibility contract v1): an old long-term designation IS carried — there is no time-based expiry", () => {
+  const old = { ...FIELDS, statedAt: "2026-08-20T00:00Z" }; // ~21 days before NOW: lapsed under the retired 336 h window
+  const { carried } = carryForwardDesignations({ previousEntries: [old], currentEntries: [], nowIso: NOW });
+  assert.equal(carried.length, 1);
 });
 
 test("an undated designation is NOT carried — there is no evidence of how recent it is", () => {
@@ -90,14 +89,12 @@ test("the capture moment is required", () => {
   assert.throws(() => carryForwardDesignations({ previousEntries: [FIELDS], currentEntries: [] }), /nowIso required/);
 });
 
-test("the window is P251's window — the two cannot drift apart", () => {
-  // The guard 'A STALE FEED CANNOT UN-DESIGNATE A PLAYER' demands OUT for designations within 336h
-  // of kickoff. If this window were shorter, a carried designation could lapse while the guard
-  // still requires it; if role evidence's changed, the carry would no longer match what it honours.
+test("no window, here or in role evidence — a long-term designation survives a degraded read there too (R1)", () => {
+  // The carry has no expiry (ABSENT_DESIGNATION_CARRY_H retired to null). Role evidence's stale-feed guard keeps its
+  // two-week window for game-week designations only; a long-term one must hold however old it is, or the two disagree.
+  assert.equal(ABSENT_DESIGNATION_CARRY_H, null);
   const roleSrc = fs.readFileSync(path.resolve(HERE, "../../../../scripts/nfl/build-nfl-role-evidence.mjs"), "utf8");
-  const m = /const DESIGNATION_CARRY_H = (\d+);/.exec(roleSrc);
-  assert.ok(m, "role evidence still declares DESIGNATION_CARRY_H");
-  assert.equal(ABSENT_DESIGNATION_CARRY_H, Number(m[1]));
+  assert.match(roleSrc, /designationRecent = isLongTermStatus\(status\) \|\|/, "role evidence exempts long-term designations from its window");
 });
 
 /* MUTATION PROBE — a carry that ignored the feed would resurrect designations the feed has updated. */

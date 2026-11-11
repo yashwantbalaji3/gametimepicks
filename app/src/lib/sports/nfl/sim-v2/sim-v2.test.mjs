@@ -182,11 +182,30 @@ test("availability + one starter: blocked players get no opportunity; a backup Q
   assert.equal(b.failedRuns, 0);
 });
 
-test("the shadow producer refuses a started game and never rewrites a receipt (control: an unstarted game runs)", () => {
+test("the shadow producer refuses a started game and never rewrites a receipt (control: an unstarted game runs)", (t) => {
   const script = path.join(process.cwd(), "scripts/nfl/build-nfl-sim-v2-shadow.mjs");
-  const run = (now) => execFileSync("node", [script, "--now", now, "--event", "401872979", "--runs", "200", "--dry-run"], { encoding: "utf8" });
-  assert.match(run("2026-10-05T12:00:00Z"), /401872979 ATL @ NO/, "control: before kickoff the game simulates");
-  assert.doesNotMatch(run("2026-10-06T00:15:00Z"), /401872979 ATL @ NO/, "at kickoff it is never simulated");
+  const run = (now, ev) => execFileSync("node", [script, "--now", now, "--event", ev, "--runs", "200", "--dry-run"], { encoding: "utf8" });
+  assert.doesNotMatch(run("2026-10-06T00:15:00Z", "401872979"), /401872979 ATL @ NO/, "at kickoff it is never simulated");
+  /* CONTROL. Eligibility contract v1 (R4): a source stamped AFTER the build instant cannot vouch for anyone, so a replay
+     of a past instant against today's captures simulates nobody. The control therefore runs just after the committed
+     captures, on the latest committed forecast receipt — when that game is still ahead of them. */
+  const repo = path.resolve(process.cwd(), "..");
+  const readJ = (rel) => JSON.parse(fs.readFileSync(path.join(repo, rel), "utf8"));
+  const stamps = [readJ("data/internal/research/injuries/nfl/latest.json").generatedAt, readJ("app/public/data/nfl/rosters/latest.json").generatedAt].map(Date.parse);
+  const now = new Date(Math.max(...stamps) + 60_000).toISOString().replace(/\.\d{3}Z$/, "Z");
+  const recRoot = path.join(repo, "data/internal/nfl/forecast-receipts");
+  let next = null;
+  for (const d of fs.readdirSync(recRoot)) {
+    const dir = path.join(recRoot, d);
+    if (!fs.statSync(dir).isDirectory()) continue;
+    for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".json"))) {
+      let r; try { r = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")); } catch { continue; }
+      const k = Date.parse(String(r.kickoffUtc ?? "").replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"));
+      if (r.seasonType !== 1 && Number.isFinite(k) && k > Date.parse(now) && k - Date.parse(now) < 8 * 86400000 && (!next || k < next.k)) next = { k, id: String(r.eventId ?? r.providerEventId) };
+    }
+  }
+  if (!next) { t.diagnostic("control not run: no committed forecast receipt kicks off after the committed captures"); return; }
+  assert.match(run(now, next.id), new RegExp(`${next.id} `), "control: an unstarted game with current captures simulates");
   assert.equal(quarterOf(2700), 1);
   assert.equal(quarterOf(1800), 2);
   assert.equal(quarterOf(0), 4);

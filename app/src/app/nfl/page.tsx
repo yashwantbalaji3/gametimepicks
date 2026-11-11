@@ -58,6 +58,7 @@ import { availableWeekKeys, weekKeyOf } from "@/lib/sports/nfl/week-keys";
 import ForecastStyles from "@/components/nfl/forecast/styles";
 import ModelStatus from "@/components/nfl/forecast/model-status";
 import LiveNow from "@/components/live/live-now";
+import LiveShortcut from "@/components/live/live-shortcut";
 import FamilyTabs from "@/components/nfl/forecast/family-tabs";
 import EtTime from "@/components/ui/et-time";
 import { topBoardTabs } from "@/lib/sports/nfl/forecast-view.mjs";
@@ -489,6 +490,7 @@ export default function NflHubPage() {
       <SportSwitcher current="nfl" />
       <HubTitle model={__hubModel} />
       {/* Founder UX decision 2026-10-08: a game in play leads the hub (client-read; nothing when none is live). */}
+      <LiveShortcut sports={["nfl"]} where="nfl" />
       <LiveNow sports={["nfl"]} />
       <SportHubNav
         sport="nfl"

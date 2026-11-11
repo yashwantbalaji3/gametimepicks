@@ -73,6 +73,8 @@ export const REASONS = Object.freeze({
   MARKET_CONTEXT_FAMILY: "A leg uses a kind of market whose model was demoted to market context.",
   COVERAGE_UNAVAILABLE: "The market-coverage list could not be read, so no leg can be cleared.",
   PARTICIPANT_STATUS: "A leg's player or team is listed as injured, inactive or not playing.",
+  PARTICIPANT_STATUS_MISSING: "A leg's player has no availability status on record, and a missing status is never read as available.",
+  AVAILABILITY_NOT_VERIFIED: "A leg's player market is in a sport whose player availability is not verified yet, so it is never part of a suggested card.",
   OPERATOR_NOT_VERIFIED: "A leg's price is not from a verified sportsbook, or no sportsbook is recorded for it. Price not verified.",
   PRICE_MISSING: "A leg has no recorded price.",
   PRICE_OUT_OF_RANGE: "A leg's price is outside the −650 to +400 range suggested cards use.",
@@ -113,7 +115,18 @@ export const nbaLegSettles = (nbaPropSettlementGate = null) => {
 };
 
 const HOUR = 3_600_000;
-export const PARTICIPANT_STATUS_FLAG = /^(out|injured|injury|inactive|dnp|did not play|scratch|scratched|doubtful|questionable|suspended|il|ir|day-to-day|not playing)\b/i;
+/** Sports whose player legs the eligibility contract v1 covers (an injuries feed AND a roster capture exist). */
+export const STATUS_SPORTS = new Set(["nfl", "nba"]);
+/** A player market (a prop on one player's own output) — not a team / fighter / match result. */
+export const PLAYER_MARKET = /^(player|pitcher|batter|anytime|first_td|last_td|goalscorer|first_goalscorer|anytime_goalscorer)[_a-z]*/i;
+/**
+ * Founder decision 2 (2026-11-09): outside NFL and NBA the injury contract is NOT sufficient. A player market in any other
+ * sport is labelled "availability not verified" and never featured (no recommended card) until that sport has its own
+ * availability verification.
+ */
+export const AVAILABILITY_NOT_VERIFIED_LABEL = "availability not verified";
+export const availabilityUnverified = (sport, market, participant) => Boolean(participant) && !STATUS_SPORTS.has(String(sport ?? "").toLowerCase()) && PLAYER_MARKET.test(String(market ?? ""));
+export const PARTICIPANT_STATUS_FLAG = /^(out|injured|injury|inactive|dnp|did not play|scratch|scratched|doubtful|questionable|suspended|il|ir|day-to-day|not playing|unknown|ineligible|injured reserve|suspension)\b/i;
 /** Markets settled without a line (moneyline / result / winner). Everything else must carry a numeric line. */
 export const LINELESS_MARKET = /moneyline|h2h|match_result|result|winner|fight|to_win|method|double_chance|btts|both_teams/i;
 
@@ -156,6 +169,10 @@ export function legReasons(leg, ctx) {
   else if (legIsMarketContext({ sport, market: leg?.market }, ctx.families)) r.push("MARKET_CONTEXT_FAMILY");
 
   if (typeof leg?.participantStatus === "string" && PARTICIPANT_STATUS_FLAG.test(leg.participantStatus.trim())) r.push("PARTICIPANT_STATUS");
+  // PL-02 (eligibility contract v1): a PLAYER leg in a sport the contract covers needs a stated status (R2)
+  else if (leg?.participant && STATUS_SPORTS.has(sport) && !(typeof leg?.participantStatus === "string" && leg.participantStatus.trim())) r.push("PARTICIPANT_STATUS_MISSING");
+  // founder decision 2: a player market in a sport without verified availability is never featured
+  if (availabilityUnverified(sport, leg?.market, leg?.participant)) r.push("AVAILABILITY_NOT_VERIFIED");
 
   if (!ctx.isVerifiedOperator(leg?.book)) r.push("OPERATOR_NOT_VERIFIED");
   if (!Number.isFinite(leg?.price) || leg.price === 0) r.push("PRICE_MISSING");
