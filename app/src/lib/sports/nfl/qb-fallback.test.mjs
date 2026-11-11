@@ -62,3 +62,18 @@ test("the game page, Theater and simulation report gate the experimental display
   const sim = fs.readFileSync(path.join(APP, "src/app/nfl/simulation/[eventId]/page.tsx"), "utf8");
   assert.match(sim, /process\.env\.GTP_NFL_QB_FALLBACK_PUBLIC === "1" \? r : maskExperimentalReceipt\(r\)/);
 });
+
+test("public wording (founder 2026-11-11 ~18:00Z): the panel renders MODEL PROJECTION and no engineering tier label or basis", () => {
+  const panel = fs.readFileSync(path.join(APP, "src/components/nfl/qb-fallback-panel.tsx"), "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+  assert.match(panel, />MODEL PROJECTION</);
+  assert.doesNotMatch(panel, /\{e\.label\}|\{e\.basis\}|EXPERIMENTAL MODEL PROJECTION|limited individual history|contextual fallback|tier \(/);
+});
+
+test("one canonical record (PD 2026-11-11): no official surface reads a simulation receipt — the board is the QB reference", () => {
+  /* the official surfaces: the forecast view every NFL page reads, the official snapshot, and the Theater's OFFICIAL
+     default view; none may import the sim-v2 receipt readers, so no sim median can appear as an official number */
+  for (const f of ["src/lib/sports/nfl/forecast-view.mjs", "src/lib/sports/nfl/forecast-view-load.mjs", "src/lib/consistency/official-snapshot.mjs", "src/lib/simulation-theater/official-default.mjs", "src/components/simulation-theater/NflOfficialDefault.tsx", "src/components/nfl/qb-fallback-panel.tsx"]) {
+    const src = fs.readFileSync(path.join(APP, f), "utf8");
+    assert.doesNotMatch(src, /sim-v2\/(public-receipt|receipt)|readShadowReceipts|simulationOfRecord|playerStatDistributions/, `${f} reads a simulation receipt`);
+  }
+});
