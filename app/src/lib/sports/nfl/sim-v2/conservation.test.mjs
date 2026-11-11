@@ -249,3 +249,26 @@ test("starter rule: a traded starter added to the pool, and a withheld team (OTH
   }
   assert.ok(starterShareOfAtt / teamAtt > 0.95, "the traded starter throws the team's passes");
 });
+
+/* PD decision B (2026-11-11): the QB-efficiency input conditions the simulated starter on the board's projection. It is a
+   weight on completion gains in the drive's yard split: no draw, no drive result, so the official-anchored score cannot
+   move; passing/rushing reconciliation still holds on every run. */
+test("QB-efficiency weight: weight 1 is byte-identical; any weight leaves every run's score and drives unchanged; conservation holds", async () => {
+  const { runBatch: rb, calibratePassWeights } = await import("./simulate.mjs");
+  const base = rb({ compiled, thetas: [0.05, -0.05], players: prep, baseSeed: SEED, runs: 300 });
+  const one = rb({ compiled, thetas: [0.05, -0.05], players: prep, baseSeed: SEED, runs: 300, passWeight: [1, 1] });
+  assert.deepEqual([...one.team], [...base.team]);
+  assert.deepEqual([...one.players[0]], [...base.players[0]]);
+  const w = rb({ compiled, thetas: [0.05, -0.05], players: prep, baseSeed: SEED, runs: 300, passWeight: [2.5, 0.5] });
+  assert.equal(w.failedRuns, 0, "the coherence contract holds on every weighted run");
+  assert.deepEqual([...w.scores], [...base.scores], "every run's score is unchanged");
+  for (let i = 0; i < 300; i++) for (const k of ["drives", "plays", "passAtt", "cmp", "passTd", "rushAtt", "pts"]) for (const s of [0, 1]) {
+    assert.equal(w.team[(i * 2 + s) * N_TSTAT + TEAM_STAT[k]], base.team[(i * 2 + s) * N_TSTAT + TEAM_STAT[k]], `run ${i} side ${s} ${k} unchanged`);
+  }
+  const tot = (b, s, k) => { let a = 0; for (let i = 0; i < 300; i++) a += b.team[(i * 2 + s) * N_TSTAT + TEAM_STAT[k]]; return a; };
+  assert.ok(tot(w, 0, "passYds") > tot(base, 0, "passYds") && tot(w, 0, "rushYds") < tot(base, 0, "rushYds"), "weight > 1 moves yards from rushing to passing");
+  assert.ok(tot(w, 1, "passYds") < tot(base, 1, "passYds"), "weight < 1 moves them back");
+  const q = calibratePassWeights({ compiled, thetas: [0.05, -0.05], players: prep, baseSeed: SEED, targets: [260, null], starterSlots: [0, -1], runs: 600 });
+  assert.ok(Math.abs(q.achieved[0] - 260) <= 1 || q.bounded[0], `the starter's mean reaches its target (${q.achieved[0]})`);
+  assert.equal(q.weights[1], 1, "no target ⇒ weight 1");
+});

@@ -37,7 +37,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { compileParams, NFL_SIM_V2_ENGINE, NFL_SIM_V2_VERSION, prepareTeamPlayers } from "../../src/lib/sports/nfl/sim-v2/engine.mjs";
-import { calibrate, runBatch } from "../../src/lib/sports/nfl/sim-v2/simulate.mjs";
+import { calibrate, calibratePassWeights, runBatch } from "../../src/lib/sports/nfl/sim-v2/simulate.mjs";
 import { buildNflSimulationReceipt, playersFromRoleShares, SIMULATION_RECEIPT_SCHEMA } from "../../src/lib/sports/nfl/sim-v2/receipt.mjs";
 import { forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
 import { fnv1a64 } from "../../src/lib/forecast-ledger/identity.mjs";
@@ -50,7 +50,11 @@ const PARAMS = "data/internal/research/nfl/sim-v2/drive-params-2015-2025.json";
 const ROLE_SHARES = "data/internal/research/nfl/role-shares-v1/current.json";
 const INJURIES = "data/internal/research/injuries/nfl/latest.json";
 const ROSTERS = "app/public/data/nfl/rosters/latest.json";
-const OUT_DIR = "data/internal/research/nfl/sim-v2/shadow";
+/* PD decision B (2026-11-11): QB-conditioned receipts (the starter's mean passing yards matched to the board's projection,
+   sim-v2/simulate.mjs calibratePassWeights) are a DEMO lane until the founder approves: opt-in by
+   GTP_NFL_SIM_QB_CONDITION=1, written to their own directory, never mixed into the shadow receipts of record. */
+const QB_CONDITION = process.env.GTP_NFL_SIM_QB_CONDITION === "1";
+const OUT_DIR = QB_CONDITION ? "data/internal/research/nfl/sim-v2/shadow-qb-conditioned" : "data/internal/research/nfl/sim-v2/shadow";
 
 const argv = process.argv.slice(2);
 const arg = (k, d = null) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
@@ -174,7 +178,24 @@ function main() {
     const baseSeed = fnv1a64(`${NFL_SIM_V2_ENGINE}|${eventId}|${inputHash}`).slice(0, 8);
     const postseason = r.seasonType === 3;
     const calibration = calibrate({ compiled, anchors, baseSeed, postseason });
-    const batch = runBatch({ compiled, thetas: calibration.thetas, players: prep, baseSeed, runs, postseason });
+    if (QB_CONDITION) {
+      /* the board's projection mean for each team's simulated starter: an established row on the public board, or the
+         experimental projection in data/internal/nfl/qb-fallback (the same numbers the flag-ON pages show) */
+      const fallback = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, `data/internal/nfl/qb-fallback/${eventId}.json`), "utf8")); } catch { return null; } })();
+      const targetFor = (d) => {
+        if (d.state !== "STARTER") return null;
+        const row = (board?.players ?? []).find((p) => p.playerId === d.starterQb && p.markets?.player_pass_yds);
+        if (row) return { mean: row.markets.player_pass_yds.mean, source: "player board (tier a)" };
+        const e = (fallback?.starters ?? []).find((x) => x.starter?.playerId === d.starterQb);
+        return e ? { mean: e.projection.mean, source: `experimental ${e.tier}` } : null;
+      };
+      const t = starters.map(targetFor);
+      const starterSlots = starters.map((d, i) => (d.state === "STARTER" ? prep[i].slots.findIndex((x) => x.playerId === d.starterQb) : -1));
+      const q = calibratePassWeights({ compiled, thetas: calibration.thetas, players: prep, baseSeed, targets: t.map((x) => x?.mean ?? null), starterSlots, postseason });
+      calibration.passWeights = q.weights.map((w) => Number(w.toFixed(4)));
+      calibration.qbConditioning = { targets: t, achieved: q.achieved.map((v) => (v == null ? null : Number(v.toFixed(2)))), bounded: q.bounded };
+    }
+    const batch = runBatch({ compiled, thetas: calibration.thetas, players: prep, baseSeed, runs, postseason, passWeight: calibration.passWeights ?? null });
     const receipt = buildNflSimulationReceipt({
       event: { eventId, kickoffUtc: r.kickoffUtc, home: r.home, away: r.away },
       compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt: now, postseason, idSuffix: plan.idSuffix,

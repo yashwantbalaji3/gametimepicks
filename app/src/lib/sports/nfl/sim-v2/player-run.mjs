@@ -122,12 +122,12 @@ const named = (arr, names) => Object.fromEntries(Object.entries(names).map(([k, 
  * Simulate one run with the play log and return the record nflRunBoxScore folds (with the engine's accumulators for the
  * cross-check). Pure apart from the engine.
  */
-export function simulateRunRecord({ compiled, thetas, prep, baseSeed, runIndex, teams, postseason = false }) {
+export function simulateRunRecord({ compiled, thetas, prep, baseSeed, runIndex, teams, postseason = false, passWeight = null }) {
   const tables = [tiltedTable(compiled, thetas[0]), tiltedTable(compiled, thetas[1])];
   const out = scratchFor(prep);
   const drives = [];
   const plays = [];
-  const r = simulateGame({ compiled, tables, players: prep, rng: runRng(baseSeed, runIndex), postseason, out, events: drives, plays });
+  const r = simulateGame({ compiled, tables, players: prep, rng: runRng(baseSeed, runIndex), postseason, out, events: drives, plays, passWeight });
   return {
     runIndex,
     teams,
@@ -163,7 +163,7 @@ export function nflRepresentativeRunBoxes(repoRoot, receipt) {
   const boxes = {};
   for (const rep of receipt.representativeRuns ?? []) {
     if (boxes[rep.runIndex]) continue; // one run can carry two kinds
-    const rec = simulateRunRecord({ compiled, thetas: receipt.calibration.thetas, prep, baseSeed: receipt.baseSeed, runIndex: rep.runIndex, teams, postseason });
+    const rec = simulateRunRecord({ compiled, thetas: receipt.calibration.thetas, prep, baseSeed: receipt.baseSeed, runIndex: rep.runIndex, teams, postseason, passWeight: receipt.calibration.passWeights ?? null });
     if (JSON.stringify(rec.drives) !== JSON.stringify(rep.drives)) {
       boxes[rep.runIndex] = { ok: false, box: null, error: { code: "FINGERPRINT_MISMATCH", reason: `re-simulated run #${rep.runIndex} does not reproduce the stored drives` } };
       continue;

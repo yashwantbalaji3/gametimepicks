@@ -7,10 +7,10 @@
  *            totals heads' implied team means). Common random numbers across iterations; secant steps. The anchors are
  *            the only team-strength input — the engine adds the coherent game path, not a second rating.
  */
-import { N_PERIODS, N_PSTAT, N_TSTAT, runRng, simulateGame, tiltedTable } from "./engine.mjs";
+import { N_PERIODS, N_PSTAT, N_TSTAT, PSTAT, runRng, simulateGame, tiltedTable } from "./engine.mjs";
 import { checkRun } from "./coherence.mjs";
 
-export function runBatch({ compiled, thetas, players = null, baseSeed, runs, postseason = false, check = true, firstRun = 0 }) {
+export function runBatch({ compiled, thetas, players = null, baseSeed, runs, postseason = false, check = true, firstRun = 0, passWeight = null }) {
   const tables = [tiltedTable(compiled, thetas[0]), tiltedTable(compiled, thetas[1])];
   const nSlots = players ? [players[0].n, players[1].n] : null;
   const out = {
@@ -32,7 +32,7 @@ export function runBatch({ compiled, thetas, players = null, baseSeed, runs, pos
   };
   for (let i = 0; i < runs; i++) {
     const rng = runRng(baseSeed, firstRun + i);
-    const run = simulateGame({ compiled, tables, players, rng, postseason, out });
+    const run = simulateGame({ compiled, tables, players, rng, postseason, out, passWeight });
     res.scores[2 * i] = run.score[0];
     res.scores[2 * i + 1] = run.score[1];
     res.ot[i] = run.ot ? 1 : 0;
@@ -90,4 +90,39 @@ export function calibrate({ compiled, anchors, baseSeed, runs = 1500, iterations
     m = [meanPts(b, 0), meanPts(b, 1)];
   }
   return { thetas: th, achieved: m, iterations: it };
+}
+
+/**
+ * QB CONDITIONING (PD decision B, 2026-11-11): per offense, the completion-gain weight w at which the starter's MEAN
+ * simulated passing yards equal `targets[side]` (the board's projection mean for that starter; null ⇒ w = 1). The weight
+ * draws no randomness, so the runs below share every draw with the anchored batch and the score cannot move; secant
+ * steps on common random numbers, w bounded to [0.25, 4] (a target outside that reach is reported, not forced).
+ * @returns {{ weights: [number, number], achieved: [number|null, number|null], targets: [number|null, number|null], bounded: [boolean, boolean] }}
+ */
+export function calibratePassWeights({ compiled, thetas, players, baseSeed, targets, starterSlots, runs = 1500, iterations = 10, tolerance = 1, postseason = false }) {
+  const meanPass = (b, side) => {
+    const slot = starterSlots[side];
+    if (slot == null || slot < 0) return null;
+    const stride = (b.nSlots[side] + 1) * N_PSTAT;
+    let s = 0;
+    for (let i = 0; i < b.runs; i++) s += b.players[side][i * stride + slot * N_PSTAT + PSTAT.passYds];
+    return s / b.runs;
+  };
+  let w = [1, 1];
+  let b = runBatch({ compiled, thetas, players, baseSeed, runs, check: false, postseason, passWeight: w });
+  let m = [meanPass(b, 0), meanPass(b, 1)];
+  let prevW = null, prevM = null;
+  for (let it = 0; it < iterations; it++) {
+    const done = [0, 1].every((s) => targets[s] == null || m[s] == null || Math.abs(targets[s] - m[s]) <= tolerance);
+    if (done) break;
+    const next = [0, 1].map((s) => {
+      if (targets[s] == null || m[s] == null) return 1;
+      const slope = prevW && Math.abs(w[s] - prevW[s]) > 1e-6 && Math.abs(m[s] - prevM[s]) > 1e-6 ? (m[s] - prevM[s]) / (w[s] - prevW[s]) : m[s] / w[s];
+      return Math.max(0.25, Math.min(4, w[s] + (targets[s] - m[s]) / (slope > 1e-6 ? slope : m[s] / w[s] || 1)));
+    });
+    prevW = w; prevM = m; w = next;
+    b = runBatch({ compiled, thetas, players, baseSeed, runs, check: false, postseason, passWeight: w });
+    m = [meanPass(b, 0), meanPass(b, 1)];
+  }
+  return { weights: w, achieved: m, targets, bounded: w.map((x) => x <= 0.25 || x >= 4) };
 }

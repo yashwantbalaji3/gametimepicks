@@ -188,7 +188,7 @@ export const N_PERIODS = 5; // Q1–Q4 + OT
  *   TRY       two 1 two-point try / 0 kick · m 1 made  (o = the scoring side, also for a defensive TD's kick)
  *   FG        m 1 made
  */
-export function simulateGame({ compiled, tables, players = null, rng, postseason = false, out, events = null, plays = null }) {
+export function simulateGame({ compiled, tables, players = null, rng, postseason = false, out, events = null, plays = null, passWeight = null }) {
   const T = [out.team[0], out.team[1]];
   const P = [out.period[0], out.period[1]];
   const PL = players ? [out.players[0], out.players[1]] : null;
@@ -340,7 +340,11 @@ export function simulateGame({ compiled, tables, players = null, rng, postseason
           T[pos][TEAM_STAT.cmp] += 1;
           if (PL) { PL[pos][passer * N_PSTAT + PSTAT.cmp] += 1; PL[pos][receiver * N_PSTAT + PSTAT.rec] += 1; }
           const ypr = pl ? pl.ypr[receiver] : playMix.yardsPerCompletion;
-          gains[nGain] = gammaDraw(rng, 1.6, ypr / 1.6); gainSlot[nGain] = receiver; gainKind[nGain] = 1;
+          /* QB-efficiency input (PD decision B, 2026-11-11): a per-offense weight on completion gains in the drive's yard
+             split. It draws no randomness and moves no drive result, so the score (anchored to the official forecast)
+             and every other draw are unchanged; only the split of the drive's fixed net yards between passing and
+             rushing moves. null / 1 ⇒ byte-identical to the unweighted engine. */
+          gains[nGain] = gammaDraw(rng, 1.6, ypr / 1.6) * (passWeight ? passWeight[pos] : 1); gainSlot[nGain] = receiver; gainKind[nGain] = 1;
           if (last && res === R.TD) {
             T[pos][TEAM_STAT.passTd] += 1;
             if (PL) { PL[pos][passer * N_PSTAT + PSTAT.passTd] += 1; PL[pos][receiver * N_PSTAT + PSTAT.recTd] += 1; }

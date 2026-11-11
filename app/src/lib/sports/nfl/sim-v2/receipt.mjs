@@ -296,7 +296,7 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
   const representativeRuns = representativeIndices(batch, hw >= aw).map(([kind, idx]) => {
     const events = [];
     const plays = prep ? [] : null;
-    const run = simulateGame({ compiled, tables, players: prep, rng: runRng(baseSeed, idx), postseason, out: scratch, events, plays });
+    const run = simulateGame({ compiled, tables, players: prep, rng: runRng(baseSeed, idx), postseason, out: scratch, events, plays, passWeight: calibration.passWeights ?? null });
     if (prep && !runBoxes[idx]) {
       runBoxes[idx] = safeNflRunBoxScore({
         runIndex: idx,
@@ -343,7 +343,7 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
     runCount: n,
     runSchemaVersion: RUN_SCHEMA_VERSION,
     params: paramsRef,
-    calibration: { anchors: { home: anchors.home, away: anchors.away, source: anchors.source }, thetas: calibration.thetas.map(r4), calibratedMean: calibration.achieved.map(r2) },
+    calibration: { anchors: { home: anchors.home, away: anchors.away, source: anchors.source }, thetas: calibration.thetas.map(r4), calibratedMean: calibration.achieved.map(r2), ...(calibration.passWeights ? { passWeights: calibration.passWeights, qbConditioning: calibration.qbConditioning ?? null } : {}) },
     aggregate: {
       winProbability: { home: r4(hw / n), away: r4(aw / n), tie: r4(ties / n) },
       overtimeProbability: r4(ots / n),
