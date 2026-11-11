@@ -202,8 +202,8 @@ export function assertDistinctQbGames(rows) {
   return seen.size;
 }
 
-/** mulberry32-driven game-clustered bootstrap of the mean paired difference. */
-function clusteredCi(byGame) {
+/** mulberry32-driven game-clustered bootstrap of the mean paired difference (reused by rush-rec-grade.mjs). */
+export function clusteredCi(byGame) {
   const clusters = [...byGame.values()];
   if (clusters.length < 2) return null;
   const next = rng(BOOTSTRAP.seed);
