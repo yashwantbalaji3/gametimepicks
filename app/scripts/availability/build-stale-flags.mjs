@@ -3,10 +3,11 @@
  * INJURY MONITOR · appends staleness events to app/public/data/<sport>/stale-flags/<date>.json (lib/availability/
  * stale-flags.mjs). Run after each injuries capture. Never edits a frozen forecast; never rewrites an existing event.
  *   node app/scripts/availability/build-stale-flags.mjs --sport nba|nfl --date YYYY-MM-DD [--root <repo>] [--capture <file>]
- *        [--versions <file>] [--now <ISO>] [--no-alert] [--check]
+ *        [--versions <file> | --versions-dir <dir>] [--now <ISO>] [--no-alert] [--check]
  * RECOVERY: clears (appended, never edits) for flags whose player is available again before the start, or whose game has a
  * newer approved forecast version (--versions: { [eventId]: { forecastSha256, approvedAt } }, from the versioning store
- * once it exists — docs/FORECAST_VERSIONING_DESIGN.md).
+ * or --versions-dir: a directory of gtp.forecast-versions@1 chains, read as each game's current version at the capture
+ * instant — lib/availability/forecast-versions.mjs, docs/FORECAST_VERSIONING_DESIGN.md).
  * HEALTH: a missing / malformed / stale capture (inside the pre-start protection window) or a malformed flags file is sent
  * through the EXISTING ops alert path (scripts/ops_alert.sh, PHASE=injury-monitor; it always exits 0 and never carries
  * secrets). A malformed input also exits 3, so the calling job fails visibly.
@@ -20,6 +21,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { spawnSync } from "node:child_process";
+import { currentVersionsMap, FORECAST_VERSIONS_SCHEMA } from "../../src/lib/availability/forecast-versions.mjs";
 import { appendStaleFlags, detectClearEvents, detectStaleEvents, monitorHealth, nbaCandidates, nflCandidates, STALE_FLAGS_REL } from "../../src/lib/availability/stale-flags.mjs";
 
 const args = process.argv.slice(2);
@@ -61,7 +63,9 @@ try { before = fs.existsSync(outPath) ? read(outPath) : null; } catch { before =
 const health = monitorHealth({ sport, date, capture, flagsFile: before, starts: [...new Set(candidates.map((c) => c.startUtc))], nowIso });
 alert(health);
 if (health.some((f) => f.code === "CAPTURE_MALFORMED" || f.code === "FLAGS_MALFORMED" || f.code === "CAPTURE_MISSING")) process.exit(3);
-const versions = arg("--versions") ? read(path.resolve(arg("--versions"))) : {};
+const versionsDir = arg("--versions-dir") ? path.resolve(arg("--versions-dir")) : null;
+const chains = versionsDir && fs.existsSync(versionsDir) ? fs.readdirSync(versionsDir).filter((f) => /^\d+\.json$/.test(f)).sort().map((f) => read(path.join(versionsDir, f))).filter((c) => c.schema === FORECAST_VERSIONS_SCHEMA && c.sport === sport) : [];
+const versions = arg("--versions") ? read(path.resolve(arg("--versions"))) : currentVersionsMap(chains, capture.sourceAsOf);
 /* one version per capture: new flags and the clears of earlier flags (a flag cannot be raised and cleared by one capture) */
 const next = appendStaleFlags(before, [...detectStaleEvents(candidates, capture), ...detectClearEvents(before, capture, candidates, versions)], { sport, date, capturedAt: capture.sourceAsOf ?? null });
 if (args.includes("--check")) { if (next !== before && next.events.length !== (before?.events.length ?? 0)) { console.error(`${STALE_FLAGS_REL(sport, date)} lacks ${next.events.length - (before?.events.length ?? 0)} event(s)`); process.exit(1); } process.exit(0); }
