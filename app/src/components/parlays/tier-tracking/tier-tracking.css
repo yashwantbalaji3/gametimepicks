@@ -30,3 +30,9 @@
 .ptt-leg p{margin:2px 0;font-size:13px;color:var(--vault-text)}
 .ptt-leg-h{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .ptt-crests{display:inline-flex;gap:2px}
+.ptt-drawer-layer{position:fixed;inset:0;z-index:60;background:color-mix(in srgb,var(--vault-bg) 60%,transparent);display:flex;justify-content:flex-end;align-items:flex-end}
+.ptt-drawer{width:100%;max-height:85vh;overflow:auto;padding:14px 16px 20px;background:var(--vault-panel);border-top:1px solid var(--vault-border-strong);border-radius:14px 14px 0 0}
+@media (min-width:768px){.ptt-drawer-layer{align-items:stretch}.ptt-drawer{width:460px;max-height:none;height:100%;border-radius:0;border-top:0;border-left:1px solid var(--vault-border-strong)}}
+.ptt-drawer-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+.ptt-drawer-head h2{margin:0;font:700 17px var(--font-headline,inherit);color:var(--vault-text)}
+.ptt-close{min-width:44px;min-height:44px;border-radius:10px;border:1px solid var(--vault-border);background:transparent;color:var(--vault-text);font-size:16px;cursor:pointer}

@@ -55,30 +55,30 @@ export default function CardHistoryDrawer() {
   if (!id) return null;
   const c = data?.cards[id] ?? null;
   return (
-    <div className="trn-drawer-layer" onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
-      <aside ref={panelRef} className="trn-drawer" role="dialog" aria-modal="true" aria-labelledby="ptt-drawer-h" data-ptt-drawer={id}>
-        <header className="trn-drawer-head">
+    <div className="ptt-drawer-layer" onClick={(e) => { if (e.target === e.currentTarget) close(); }}>
+      <aside ref={panelRef} className="ptt-drawer" role="dialog" aria-modal="true" aria-labelledby="ptt-drawer-h" data-ptt-drawer={id}>
+        <header className="ptt-drawer-head">
           <div>
             <h2 id="ptt-drawer-h">{c ? `${c.tierLabel} card · ${c.productDay}` : "Card history"}</h2>
-            {c ? <p className="trn-sub">{c.label ?? ""} · <span className={`ptt-status is-${c.status.toLowerCase()}`}>{WORD[c.status] ?? c.status}</span></p> : null}
+            {c ? <p className="ptt-sub">{c.label ?? ""} · <span className={`ptt-status is-${c.status.toLowerCase()}`}>{WORD[c.status] ?? c.status}</span></p> : null}
           </div>
-          <button ref={closeRef} type="button" className="trn-close" onClick={close} aria-label="Close card history">✕</button>
+          <button ref={closeRef} type="button" className="ptt-close" onClick={close} aria-label="Close card history">✕</button>
         </header>
-        {!c ? <p className="trn-fine">{failed ? "The card history could not be loaded. Close and try again." : "Loading…"}</p> : (
+        {!c ? <p className="ptt-note">{failed ? "The card history could not be loaded. Close and try again." : "Loading…"}</p> : (
           <>
-            <p className="trn-fine">Frozen and shown {ET(c.shownAt)}{c.source ? ` by ${c.source}` : ""}{c.revisionOf ? ` · a later revision of card ${c.revisionOf}` : ""}{c.gradedAt ? ` · graded ${ET(c.gradedAt)}` : " · not graded yet"}.</p>
+            <p className="ptt-note">Frozen and shown {ET(c.shownAt)}{c.source ? ` by ${c.source}` : ""}{c.revisionOf ? ` · a later revision of card ${c.revisionOf}` : ""}{c.gradedAt ? ` · graded ${ET(c.gradedAt)}` : " · not graded yet"}.</p>
             <ol className="ptt-legs">
               {c.legs.map((l) => (
                 <li key={`${l.sport}-${l.eventId}`} className="ptt-leg" data-ptt-leg={l.eventId}>
-                  <p className="ptt-leg-h"><Crests leg={l} /><b>{l.eventLabel ?? l.eventId}</b> <span className="trn-sub">{l.sport.toUpperCase()} · {ET(l.startUtc)}</span></p>
+                  <p className="ptt-leg-h"><Crests leg={l} /><b>{l.eventLabel ?? l.eventId}</b> <span className="ptt-sub">{l.sport.toUpperCase()} · {ET(l.startUtc)}</span></p>
                   <p>Pick: {l.selection ?? "—"}</p>
-                  <p className="trn-sub">Frozen forecast: {l.forecast.modelId ?? "model not recorded"}{l.forecast.stampedAt ? `, stamped ${ET(l.forecast.stampedAt)}` : ""}</p>
-                  <p className="trn-sub">Eligibility at freeze: {l.eligibility?.state ? `${ELIG[l.eligibility.state] ?? l.eligibility.state} (${l.eligibility.contractVersion ?? "eligibility@1"})` : "not recorded (frozen before eligibility@1 was recorded on legs)"}</p>
-                  <p>Outcome: <span className={`ptt-status is-${l.outcome.toLowerCase()}`}>{WORD[l.outcome] ?? l.outcome}</span>{l.final ? <span className="trn-sub"> · {l.final}</span> : null}</p>
+                  <p className="ptt-sub">Frozen forecast: {l.forecast.modelId ?? "model not recorded"}{l.forecast.stampedAt ? `, stamped ${ET(l.forecast.stampedAt)}` : ""}</p>
+                  <p className="ptt-sub">Eligibility at freeze: {l.eligibility?.state ? `${ELIG[l.eligibility.state] ?? l.eligibility.state} (${l.eligibility.contractVersion ?? "eligibility@1"})` : "not recorded (frozen before eligibility@1 was recorded on legs)"}</p>
+                  <p>Outcome: <span className={`ptt-status is-${l.outcome.toLowerCase()}`}>{WORD[l.outcome] ?? l.outcome}</span>{l.final ? <span className="ptt-sub"> · {l.final}</span> : null}</p>
                 </li>
               ))}
             </ol>
-            <p className="trn-fine">Paper suggestion: no price, stake or payout was ever attached to this card, so returns are not tracked.</p>
+            <p className="ptt-note">Paper suggestion: no price, stake or payout was ever attached to this card, so returns are not tracked.</p>
           </>
         )}
       </aside>
