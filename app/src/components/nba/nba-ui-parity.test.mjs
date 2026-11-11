@@ -282,8 +282,9 @@ test("Forecast vs. Actual: a played game shows a side only from the forecasts it
     { id: "b", startLabel: "Thu, Oct 22 · 9:30 PM ET", matchup: "DEN @ OKC", status: "final", started: true, reportNote: "DEN 84 – OKC 96" },
   ];
   const h = text(renderToStaticMarkup(React.createElement(NbaGameList, { rows, heading: "Forecast vs. Actual", forecasts: new Map([["a", "Philadelphia 76ers"]]) })));
-  assert.match(h, /CLE 106 – PHI 114 · Official Forecast: Philadelphia 76ers favoured/);
-  assert.match(h, /DEN 84 – OKC 96 · no Official Forecast published/, "no snapshot, no side");
+  // the shared card's row (2026-11-10): the final under its FINAL · settled tag, the frozen side under MODEL PROJECTION
+  assert.match(h, /FINAL · settled CLE 106 – PHI 114\s+MODEL PROJECTION Philadelphia 76ers favoured/);
+  assert.match(h, /FINAL · settled DEN 84 – OKC 96\s+no Official Forecast published/, "no snapshot, no side");
   const page = read("src/app/nba/page.tsx");
   assert.match(page, /for \(const d of boardDates\.filter\(\(x\) => x < today\)\.slice\(-4\)\) \{\n\s+for \(const g of loadLaneForDate\(d\)\?\.games \?\? \[\]\)/, "past sides come only from committed dated snapshots");
 });

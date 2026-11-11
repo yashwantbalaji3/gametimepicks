@@ -21,9 +21,8 @@
 import GameStateTag from "@/components/game/game-state-tag";
 import React from "react";
 import Link from "next/link";
-import TeamLogo from "@/components/team-logo";
 import { nbaExclusionText, type NbaTodayGame, type NbaTodaySlate } from "@/lib/sport-hub/nba-hub";
-import { hubStatusDisplay, type HubGameRow } from "@/lib/sport-hub/contract";
+import { hubStatusDisplay, isSettledFinal, type HubGameRow } from "@/lib/sport-hub/contract";
 import { forecastRowId, laneCardId, et } from "@/components/nba/experimental-lane";
 import GameCard, { type GameCardModel } from "@/components/game/game-card";
 import GameStatusOnClock from "@/components/nba/projection-game-status";
@@ -157,36 +156,38 @@ export function NbaTodayGames({ slate, slip, gamePages, lineSummaries }: {
 
 
 /**
- * The window's other games, one line each (WEIGHT: ~70 rows on an in-season /nba, HTML + flight — the shared .gtp-cr
- * row classes and the CompactRow crests). Upcoming rows say when the forecast publishes (the adapter's note); played rows print the
- * official final and, beside it, the side that was frozen for that game — only from `forecasts` (that date's committed
- * snapshot), never inferred.
+ * The window's other games, one line each, on THE SHARED GAME CARD's row density (GameCard density="row", .gtp-cr —
+ * WEIGHT: ~70 rows on an in-season /nba, HTML + flight). Upcoming rows say when the forecast publishes (the adapter's
+ * note, muted); a played row prints the official final under its FINAL · settled tag (a final under review keeps its
+ * note and no tag) and, beside it, the side that was frozen for that game under its MODEL PROJECTION tag — only from
+ * `forecasts` (that date's committed snapshot), never inferred.
  */
+export function nbaGameRowModel(r: HubGameRow, forecasts?: ReadonlyMap<string, string>): GameCardModel {
+  const side = forecasts?.get(String(r.id));
+  const settled = isSettledFinal(r);
+  const facts: GameCardModel["facts"] = [];
+  if (r.started && r.reportNote) facts.push({ state: settled ? "final" : null, text: r.reportNote });
+  if (forecasts && side) facts.push({ state: "official", text: `${side} favoured` });
+  else if (forecasts && r.started) facts.push({ state: null, text: `no ${PUBLIC_TERMS.OFFICIAL_FORECAST} published` });
+  return {
+    id: String(r.id), startLabel: r.startLabel, matchup: r.matchup,
+    // a settled final's tag says it; every other row keeps its status word
+    statusLabel: settled ? null : hubStatusDisplay(r.status),
+    sides: (r.participants ?? []).length === 2 ? r.participants!.map((p) => ({ name: p.name, logo: p.logoTeam && p.logoSport ? { team: p.logoTeam, sport: p.logoSport } : null })) : null,
+    facts, actions: [], noRead: r.started ? null : (r.reportNote ?? null), noAction: null,
+  };
+}
+
 export function NbaGameList({ rows, heading, collapsed = false, forecasts, gamePages }: { rows: HubGameRow[]; heading: string; collapsed?: boolean; forecasts?: ReadonlyMap<string, string>; gamePages?: ReadonlySet<string> }) {
   if (!rows.length) return null;
   const list = (
     <ul className="m-0 p-0 list-none">
       {rows.map((r) => {
-        const side = forecasts?.get(String(r.id));
         const page = nbaGamePageHrefIfExported(r.id, gamePages);
         return (
-          <li key={r.id} className="gtp-cr">
-            <span className="gtp-cr-t">{r.startLabel}</span>
-            {/* each side's crest, as the shared CompactRow draws it (PR 1226 markup, decorative, loading=lazy) */}
-            <span className="gtp-cr-m">
-              {(r.participants ?? []).slice(0, 1).map((p) => p.logoTeam && p.logoSport ? <TeamLogo key={p.name} team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel="" /> : null)}
-              {r.matchup}
-              {(r.participants ?? []).slice(1, 2).map((p) => p.logoTeam && p.logoSport ? <TeamLogo key={p.name} team={p.logoTeam} sport={p.logoSport} size="sm" ariaLabel="" /> : null)}
-            </span>
-            <span className="gtp-cr-s">{hubStatusDisplay(r.status)}</span>
-            <span className="gtp-cr-a">
-              {r.reportNote}
-              {forecasts ? (side ? ` · ${PUBLIC_TERMS.OFFICIAL_FORECAST}: ${side} favoured` : r.started ? ` · no ${PUBLIC_TERMS.OFFICIAL_FORECAST} published` : "") : ""}
-            </span>
-            {page ? (
-              <Link href={page} prefetch={false} className="gtp-hit-44 underline" aria-label={nbaGamePageLabel(r.participants?.[0]?.name, r.participants?.[1]?.name)}>{NBA_GAME_PAGE_TEXT}</Link>
-            ) : null}
-          </li>
+          <GameCard key={r.id} density="row" model={nbaGameRowModel(r, forecasts)} extra={page ? (
+            <Link href={page} prefetch={false} className="gtp-hit-44 underline" aria-label={nbaGamePageLabel(r.participants?.[0]?.name, r.participants?.[1]?.name)}>{NBA_GAME_PAGE_TEXT}</Link>
+          ) : null} />
         );
       })}
     </ul>
