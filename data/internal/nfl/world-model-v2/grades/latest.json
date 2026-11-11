@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-world-model-v2-grades",
  "dataClass": "PRIVATE_RESEARCH",
- "officialStatsGeneratedAt": "2026-11-10T21:15:46Z",
+ "officialStatsGeneratedAt": "2026-11-11T01:02:01Z",
  "games": [
   {
    "providerEventId": "401872980",
@@ -800,12 +800,12 @@
    "providerEventId": "401873052",
    "matchup": "WSH @ NYG",
    "kickoffUtc": "2026-11-13T01:15Z",
-   "gradedRun": "401873052-20261110T2059Z.json",
-   "simulationId": "48012c7cfb720850",
+   "gradedRun": "401873052-20261111T0102Z.json",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "final": false,
-   "rows": 52
+   "rows": 47
   },
   {
    "providerEventId": "401873053",
@@ -899,12 +899,12 @@
    "providerEventId": "401873061",
    "matchup": "LAR @ ARI",
    "kickoffUtc": "2026-11-15T21:05Z",
-   "gradedRun": "401873061-20261110T2059Z.json",
-   "simulationId": "8cfd51d2b4f13766",
+   "gradedRun": "401873061-20261111T0102Z.json",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "final": false,
-   "rows": 39
+   "rows": 38
   },
   {
    "providerEventId": "401873062",
@@ -954,7 +954,7 @@
  "summary": {
   "passingYards": {
    "graded": 143,
-   "pending": 19,
+   "pending": 18,
    "noLine": 1,
    "mae": 58.9804,
    "bias": 6.5108,
@@ -968,7 +968,7 @@
   },
   "rushingYards": {
    "graded": 451,
-   "pending": 111,
+   "pending": 110,
    "noLine": 77,
    "mae": 19.3408,
    "bias": -1.6517,
@@ -982,7 +982,7 @@
   },
   "receivingYards": {
    "graded": 1052,
-   "pending": 249,
+   "pending": 247,
    "noLine": 121,
    "mae": 18.6395,
    "bias": -1.7355,
@@ -996,7 +996,7 @@
   },
   "receptions": {
    "graded": 1052,
-   "pending": 249,
+   "pending": 247,
    "noLine": 121,
    "mae": 1.3973,
    "bias": -0.1454,
@@ -100536,22 +100536,105 @@
    "team": "WSH",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 10.2,
-    "mean": 15.58,
+    "mean": 15.66,
     "p10": 0,
     "p25": 2.1,
     "p75": 23,
-    "p90": 39.1,
+    "p90": 39,
     "atLeast": {
-     "25": 0.2243,
-     "40": 0.0954,
-     "50": 0.0514,
-     "60": 0.0271,
-     "75": 0.0111,
+     "25": 0.2227,
+     "40": 0.0947,
+     "50": 0.0534,
+     "60": 0.0287,
+     "75": 0.0112,
+     "100": 0.002
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873052",
+   "playerId": "nfl-athlete-3068267",
+   "name": "Austin Ekeler",
+   "team": "WSH",
+   "family": "receivingYards",
+   "availability": "ACTIVE",
+   "simulationId": "7b05c643dfa3b44c",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 3.1,
+    "mean": 12.01,
+    "p10": 0,
+    "p25": 0,
+    "p75": 18.2,
+    "p90": 36,
+    "atLeast": {
+     "25": 0.177,
+     "40": 0.0835,
+     "50": 0.0493,
+     "60": 0.0295,
+     "75": 0.0137,
+     "100": 0.0032
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873052",
+   "playerId": "nfl-athlete-3068267",
+   "name": "Austin Ekeler",
+   "team": "WSH",
+   "family": "receptions",
+   "availability": "ACTIVE",
+   "simulationId": "7b05c643dfa3b44c",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 1,
+    "mean": 1.16,
+    "p10": 0,
+    "p25": 0,
+    "p75": 2,
+    "p90": 3,
+    "atLeast": {
+     "3": 0.1523,
+     "4": 0.0773,
+     "5": 0.0394,
+     "6": 0.021,
+     "7": 0.012
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873052",
+   "playerId": "nfl-athlete-4426948",
+   "name": "Luke McCaffrey",
+   "team": "WSH",
+   "family": "receivingYards",
+   "availability": "ACTIVE",
+   "simulationId": "7b05c643dfa3b44c",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 0,
+    "mean": 6.52,
+    "p10": 0,
+    "p25": 0,
+    "p75": 6.8,
+    "p90": 22.9,
+    "atLeast": {
+     "25": 0.0899,
+     "40": 0.0397,
+     "50": 0.0239,
+     "60": 0.0128,
+     "75": 0.0056,
      "100": 0.0023
     }
    },
@@ -100559,109 +100642,26 @@
   },
   {
    "providerEventId": "401873052",
-   "playerId": "nfl-athlete-3068267",
-   "name": "Austin Ekeler",
-   "team": "WSH",
-   "family": "receivingYards",
-   "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 0,
-    "mean": 10.16,
-    "p10": 0,
-    "p25": 0,
-    "p75": 15,
-    "p90": 32.4,
-    "atLeast": {
-     "25": 0.1434,
-     "40": 0.0635,
-     "50": 0.0356,
-     "60": 0.0221,
-     "75": 0.0094,
-     "100": 0.0036
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873052",
-   "playerId": "nfl-athlete-3068267",
-   "name": "Austin Ekeler",
-   "team": "WSH",
-   "family": "receptions",
-   "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 0,
-    "mean": 1,
-    "p10": 0,
-    "p25": 0,
-    "p75": 2,
-    "p90": 3,
-    "atLeast": {
-     "3": 0.1264,
-     "4": 0.0639,
-     "5": 0.0284,
-     "6": 0.0146,
-     "7": 0.0079
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873052",
-   "playerId": "nfl-athlete-4426948",
-   "name": "Luke McCaffrey",
-   "team": "WSH",
-   "family": "receivingYards",
-   "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 0,
-    "mean": 5.85,
-    "p10": 0,
-    "p25": 0,
-    "p75": 4.9,
-    "p90": 21,
-    "atLeast": {
-     "25": 0.0807,
-     "40": 0.0342,
-     "50": 0.0193,
-     "60": 0.0121,
-     "75": 0.0057,
-     "100": 0.0013
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873052",
    "playerId": "nfl-athlete-4426948",
    "name": "Luke McCaffrey",
    "team": "WSH",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
-    "mean": 0.53,
+    "mean": 0.59,
     "p10": 0,
     "p25": 0,
     "p75": 1,
     "p90": 2,
     "atLeast": {
-     "3": 0.0535,
-     "4": 0.0243,
-     "5": 0.0123,
-     "6": 0.0064,
+     "3": 0.0586,
+     "4": 0.0265,
+     "5": 0.0126,
+     "6": 0.0053,
      "7": 0.0027
     }
    },
@@ -100674,23 +100674,23 @@
    "team": "WSH",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 11.3,
-    "mean": 20.02,
+    "median": 11.7,
+    "mean": 20.29,
     "p10": 0,
-    "p25": 1.3,
-    "p75": 29.8,
+    "p25": 1.1,
+    "p75": 30,
     "p90": 53.4,
     "atLeast": {
-     "25": 0.2986,
-     "40": 0.1688,
-     "50": 0.1124,
-     "60": 0.0743,
-     "75": 0.0411,
-     "100": 0.014
+     "25": 0.3025,
+     "40": 0.1695,
+     "50": 0.1145,
+     "60": 0.0803,
+     "75": 0.0445,
+     "100": 0.0147
     }
    },
    "state": "PENDING"
@@ -100702,78 +100702,22 @@
    "team": "WSH",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0.6,
-    "mean": 8.3,
+    "mean": 8.35,
     "p10": 0,
     "p25": 0,
-    "p75": 11,
-    "p90": 26.4,
+    "p75": 10.9,
+    "p90": 26.5,
     "atLeast": {
-     "25": 0.1114,
-     "40": 0.045,
-     "50": 0.0255,
-     "60": 0.0163,
-     "75": 0.0077,
-     "100": 0.0019
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873052",
-   "playerId": "nfl-athlete-4575131",
-   "name": "Jacory Croskey-Merritt",
-   "team": "WSH",
-   "family": "rushingYards",
-   "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 23.6,
-    "mean": 28.84,
-    "p10": 3.4,
-    "p25": 10.7,
-    "p75": 41.1,
-    "p90": 61,
-    "atLeast": {
-     "25": 0.4746,
-     "40": 0.2616,
-     "50": 0.1681,
-     "60": 0.1061,
-     "75": 0.0492,
-     "100": 0.0123
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873052",
-   "playerId": "nfl-athlete-4575131",
-   "name": "Jacory Croskey-Merritt",
-   "team": "WSH",
-   "family": "receivingYards",
-   "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 0,
-    "mean": 6.91,
-    "p10": 0,
-    "p25": 0,
-    "p75": 7.9,
-    "p90": 24.1,
-    "atLeast": {
-     "25": 0.0945,
-     "40": 0.0422,
-     "50": 0.0236,
-     "60": 0.0141,
-     "75": 0.0069,
+     "25": 0.1111,
+     "40": 0.0485,
+     "50": 0.0284,
+     "60": 0.018,
+     "75": 0.0083,
      "100": 0.0017
     }
    },
@@ -100784,79 +100728,80 @@
    "playerId": "nfl-athlete-4575131",
    "name": "Jacory Croskey-Merritt",
    "team": "WSH",
-   "family": "receptions",
+   "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 23.8,
+    "mean": 29.16,
+    "p10": 3.7,
+    "p25": 11.2,
+    "p75": 41.3,
+    "p90": 61.9,
+    "atLeast": {
+     "25": 0.479,
+     "40": 0.2644,
+     "50": 0.1701,
+     "60": 0.1089,
+     "75": 0.0514,
+     "100": 0.0129
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873052",
+   "playerId": "nfl-athlete-4575131",
+   "name": "Jacory Croskey-Merritt",
+   "team": "WSH",
+   "family": "receivingYards",
+   "availability": "ACTIVE",
+   "simulationId": "7b05c643dfa3b44c",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
-    "mean": 0.66,
+    "mean": 8.33,
+    "p10": 0,
+    "p25": 0,
+    "p75": 11,
+    "p90": 28,
+    "atLeast": {
+     "25": 0.1174,
+     "40": 0.0531,
+     "50": 0.0286,
+     "60": 0.0166,
+     "75": 0.0089,
+     "100": 0.002
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873052",
+   "playerId": "nfl-athlete-4575131",
+   "name": "Jacory Croskey-Merritt",
+   "team": "WSH",
+   "family": "receptions",
+   "availability": "ACTIVE",
+   "simulationId": "7b05c643dfa3b44c",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 0,
+    "mean": 0.78,
     "p10": 0,
     "p25": 0,
     "p75": 1,
     "p90": 2,
     "atLeast": {
-     "3": 0.0761,
-     "4": 0.0352,
-     "5": 0.0157,
-     "6": 0.0078,
-     "7": 0.0041
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873052",
-   "playerId": "nfl-athlete-4567156",
-   "name": "Treylon Burks",
-   "team": "WSH",
-   "family": "receivingYards",
-   "availability": "QUESTIONABLE",
-   "simulationId": "48012c7cfb720850",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 22.7,
-    "mean": 31.7,
-    "p10": 0,
-    "p25": 5.3,
-    "p75": 47.7,
-    "p90": 77.4,
-    "atLeast": {
-     "25": 0.4706,
-     "40": 0.315,
-     "50": 0.2326,
-     "60": 0.1708,
-     "75": 0.1079,
-     "100": 0.0441
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873052",
-   "playerId": "nfl-athlete-4567156",
-   "name": "Treylon Burks",
-   "team": "WSH",
-   "family": "receptions",
-   "availability": "QUESTIONABLE",
-   "simulationId": "48012c7cfb720850",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 2,
-    "mean": 2.33,
-    "p10": 0,
-    "p25": 1,
-    "p75": 3,
-    "p90": 5,
-    "atLeast": {
-     "3": 0.3846,
-     "4": 0.2335,
-     "5": 0.141,
-     "6": 0.0799,
-     "7": 0.0437
+     "3": 0.0921,
+     "4": 0.0431,
+     "5": 0.0195,
+     "6": 0.0087,
+     "7": 0.0038
     }
    },
    "state": "PENDING"
@@ -100868,23 +100813,23 @@
    "team": "WSH",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 31.7,
-    "mean": 38.68,
-    "p10": 2.6,
-    "p25": 13.8,
-    "p75": 55.8,
-    "p90": 83.3,
+    "median": 36.9,
+    "mean": 44.05,
+    "p10": 4.8,
+    "p25": 16.9,
+    "p75": 63.6,
+    "p90": 91.7,
     "atLeast": {
-     "25": 0.5871,
-     "40": 0.3999,
-     "50": 0.3002,
-     "60": 0.2171,
-     "75": 0.1332,
-     "100": 0.0547
+     "25": 0.6463,
+     "40": 0.4657,
+     "50": 0.3586,
+     "60": 0.2777,
+     "75": 0.1731,
+     "100": 0.0751
     }
    },
    "state": "PENDING"
@@ -100896,22 +100841,22 @@
    "team": "WSH",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 3,
-    "mean": 3.65,
+    "median": 4,
+    "mean": 4.15,
     "p10": 1,
     "p25": 2,
-    "p75": 5,
-    "p90": 7,
+    "p75": 6,
+    "p90": 8,
     "atLeast": {
-     "3": 0.6151,
-     "4": 0.4516,
-     "5": 0.3152,
-     "6": 0.2106,
-     "7": 0.1393
+     "3": 0.6806,
+     "4": 0.5271,
+     "5": 0.3903,
+     "6": 0.2731,
+     "7": 0.1897
     }
    },
    "state": "PENDING"
@@ -100923,23 +100868,23 @@
    "team": "WSH",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 17.3,
-    "mean": 23.67,
-    "p10": 0.8,
-    "p25": 6.1,
-    "p75": 35.1,
-    "p90": 54.7,
+    "median": 17.6,
+    "mean": 23.6,
+    "p10": 0.7,
+    "p25": 6.2,
+    "p75": 34.4,
+    "p90": 55.5,
     "atLeast": {
-     "25": 0.3746,
-     "40": 0.2005,
-     "50": 0.125,
-     "60": 0.0776,
-     "75": 0.0369,
-     "100": 0.0092
+     "25": 0.3753,
+     "40": 0.1962,
+     "50": 0.1271,
+     "60": 0.0783,
+     "75": 0.0347,
+     "100": 0.0098
     }
    },
    "state": "PENDING"
@@ -100951,23 +100896,23 @@
    "team": "WSH",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 10.9,
-    "mean": 18.03,
+    "median": 13.2,
+    "mean": 20.17,
     "p10": 0,
-    "p25": 0,
-    "p75": 27.2,
-    "p90": 47.4,
+    "p25": 1.2,
+    "p75": 30.6,
+    "p90": 50.7,
     "atLeast": {
-     "25": 0.2718,
-     "40": 0.1394,
-     "50": 0.0917,
-     "60": 0.0572,
-     "75": 0.0269,
-     "100": 0.008
+     "25": 0.3133,
+     "40": 0.1663,
+     "50": 0.1039,
+     "60": 0.0642,
+     "75": 0.0328,
+     "100": 0.0101
     }
    },
    "state": "PENDING"
@@ -100979,22 +100924,22 @@
    "team": "WSH",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 1,
-    "mean": 1.91,
+    "median": 2,
+    "mean": 2.12,
     "p10": 0,
-    "p25": 0,
+    "p25": 1,
     "p75": 3,
     "p90": 5,
     "atLeast": {
-     "3": 0.2946,
-     "4": 0.1766,
-     "5": 0.1063,
-     "6": 0.06,
-     "7": 0.0356
+     "3": 0.3349,
+     "4": 0.2044,
+     "5": 0.127,
+     "6": 0.0724,
+     "7": 0.0414
     }
    },
    "state": "PENDING"
@@ -101005,24 +100950,24 @@
    "name": "Chig Okonkwo",
    "team": "WSH",
    "family": "receivingYards",
-   "availability": "QUESTIONABLE",
-   "simulationId": "48012c7cfb720850",
+   "availability": "ACTIVE",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 28.4,
-    "mean": 35.66,
-    "p10": 1.1,
-    "p25": 11.6,
-    "p75": 51.7,
-    "p90": 78,
+    "median": 32.5,
+    "mean": 40.27,
+    "p10": 2.9,
+    "p25": 14,
+    "p75": 58.1,
+    "p90": 86.3,
     "atLeast": {
-     "25": 0.5491,
-     "40": 0.3598,
-     "50": 0.2647,
-     "60": 0.188,
-     "75": 0.1109,
-     "100": 0.0464
+     "25": 0.5981,
+     "40": 0.4124,
+     "50": 0.3179,
+     "60": 0.2352,
+     "75": 0.1444,
+     "100": 0.0644
     }
    },
    "state": "PENDING"
@@ -101033,78 +100978,78 @@
    "name": "Chig Okonkwo",
    "team": "WSH",
    "family": "receptions",
-   "availability": "QUESTIONABLE",
-   "simulationId": "48012c7cfb720850",
+   "availability": "ACTIVE",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 3,
-    "mean": 3.37,
+    "mean": 3.8,
+    "p10": 1,
+    "p25": 2,
+    "p75": 5,
+    "p90": 7,
+    "atLeast": {
+     "3": 0.6242,
+     "4": 0.4795,
+     "5": 0.3401,
+     "6": 0.232,
+     "7": 0.1532
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873052",
+   "playerId": "nfl-athlete-5081432",
+   "name": "Antonio Williams",
+   "team": "WSH",
+   "family": "receivingYards",
+   "availability": "ACTIVE",
+   "simulationId": "7b05c643dfa3b44c",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 28.5,
+    "mean": 36.48,
+    "p10": 0.6,
+    "p25": 11.7,
+    "p75": 52.9,
+    "p90": 80.9,
+    "atLeast": {
+     "25": 0.5491,
+     "40": 0.3637,
+     "50": 0.2717,
+     "60": 0.1972,
+     "75": 0.1213,
+     "100": 0.0528
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873052",
+   "playerId": "nfl-athlete-5081432",
+   "name": "Antonio Williams",
+   "team": "WSH",
+   "family": "receptions",
+   "availability": "ACTIVE",
+   "simulationId": "7b05c643dfa3b44c",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 3,
+    "mean": 3.34,
     "p10": 1,
     "p25": 1,
     "p75": 5,
     "p90": 7,
     "atLeast": {
-     "3": 0.5624,
-     "4": 0.4057,
-     "5": 0.2767,
-     "6": 0.1805,
-     "7": 0.1152
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873052",
-   "playerId": "nfl-athlete-5081432",
-   "name": "Antonio Williams",
-   "team": "WSH",
-   "family": "receivingYards",
-   "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 24,
-    "mean": 31.66,
-    "p10": 0,
-    "p25": 8.2,
-    "p75": 46.8,
-    "p90": 73.1,
-    "atLeast": {
-     "25": 0.4854,
-     "40": 0.311,
-     "50": 0.2278,
-     "60": 0.164,
-     "75": 0.092,
-     "100": 0.0372
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873052",
-   "playerId": "nfl-athlete-5081432",
-   "name": "Antonio Williams",
-   "team": "WSH",
-   "family": "receptions",
-   "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 2,
-    "mean": 2.93,
-    "p10": 0,
-    "p25": 1,
-    "p75": 4,
-    "p90": 6,
-    "atLeast": {
-     "3": 0.4901,
-     "4": 0.3396,
-     "5": 0.2153,
-     "6": 0.1349,
-     "7": 0.0849
+     "3": 0.561,
+     "4": 0.3933,
+     "5": 0.2676,
+     "6": 0.1815,
+     "7": 0.1117
     }
    },
    "state": "PENDING"
@@ -101116,23 +101061,23 @@
    "team": "WSH",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0.3,
-    "mean": 6.66,
+    "mean": 6.46,
     "p10": 0,
     "p25": 0,
-    "p75": 8.5,
-    "p90": 21.8,
+    "p75": 8.3,
+    "p90": 21.4,
     "atLeast": {
-     "25": 0.0785,
-     "40": 0.0285,
-     "50": 0.0156,
-     "60": 0.0071,
+     "25": 0.0781,
+     "40": 0.0251,
+     "50": 0.0118,
+     "60": 0.0065,
      "75": 0.0029,
-     "100": 0.0004
+     "100": 0.0002
     }
    },
    "state": "PENDING"
@@ -101144,23 +101089,23 @@
    "team": "WSH",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 3.5,
-    "mean": 9.94,
+    "median": 3.2,
+    "mean": 9.97,
     "p10": 0,
     "p25": 0,
-    "p75": 14.1,
-    "p90": 29.1,
+    "p75": 14.4,
+    "p90": 30,
     "atLeast": {
-     "25": 0.1265,
-     "40": 0.0533,
-     "50": 0.0299,
-     "60": 0.0158,
-     "75": 0.0059,
-     "100": 0.0013
+     "25": 0.1302,
+     "40": 0.0535,
+     "50": 0.0283,
+     "60": 0.0157,
+     "75": 0.006,
+     "100": 0.0011
     }
    },
    "state": "PENDING"
@@ -101172,23 +101117,23 @@
    "team": "WSH",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 10,
-    "mean": 18.16,
+    "median": 12.4,
+    "mean": 20.4,
     "p10": 0,
     "p25": 0,
-    "p75": 27.8,
-    "p90": 48.9,
+    "p75": 31.1,
+    "p90": 54,
     "atLeast": {
-     "25": 0.2766,
-     "40": 0.1535,
-     "50": 0.0956,
-     "60": 0.0607,
-     "75": 0.0309,
-     "100": 0.0108
+     "25": 0.3145,
+     "40": 0.1782,
+     "50": 0.1185,
+     "60": 0.0765,
+     "75": 0.0392,
+     "100": 0.013
     }
    },
    "state": "PENDING"
@@ -101200,22 +101145,22 @@
    "team": "WSH",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 1,
-    "mean": 1.61,
+    "mean": 1.82,
     "p10": 0,
     "p25": 0,
-    "p75": 2,
+    "p75": 3,
     "p90": 4,
     "atLeast": {
-     "3": 0.2342,
-     "4": 0.1327,
-     "5": 0.0728,
-     "6": 0.0377,
-     "7": 0.0189
+     "3": 0.2822,
+     "4": 0.1648,
+     "5": 0.0927,
+     "6": 0.0517,
+     "7": 0.0281
     }
    },
    "state": "PENDING"
@@ -101227,23 +101172,23 @@
    "team": "WSH",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
-    "mean": 5.66,
+    "mean": 6.84,
     "p10": 0,
     "p25": 0,
-    "p75": 4.8,
-    "p90": 20.7,
+    "p75": 7.6,
+    "p90": 23.8,
     "atLeast": {
-     "25": 0.0767,
-     "40": 0.0318,
-     "50": 0.0171,
-     "60": 0.0105,
-     "75": 0.0046,
-     "100": 0.0013
+     "25": 0.0943,
+     "40": 0.0424,
+     "50": 0.0234,
+     "60": 0.0141,
+     "75": 0.0061,
+     "100": 0.0019
     }
    },
    "state": "PENDING"
@@ -101255,22 +101200,22 @@
    "team": "WSH",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
-    "mean": 0.51,
+    "mean": 0.63,
     "p10": 0,
     "p25": 0,
     "p75": 1,
     "p90": 2,
     "atLeast": {
-     "3": 0.0493,
-     "4": 0.0205,
-     "5": 0.0097,
-     "6": 0.0045,
-     "7": 0.0024
+     "3": 0.0692,
+     "4": 0.0316,
+     "5": 0.0161,
+     "6": 0.0069,
+     "7": 0.0031
     }
    },
    "state": "PENDING"
@@ -101282,23 +101227,23 @@
    "team": "NYG",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
-    "mean": 6.49,
+    "mean": 6.47,
     "p10": 0,
     "p25": 0,
-    "p75": 6.4,
-    "p90": 23,
+    "p75": 6.8,
+    "p90": 23.2,
     "atLeast": {
-     "25": 0.0906,
-     "40": 0.0376,
-     "50": 0.0221,
-     "60": 0.0128,
-     "75": 0.0059,
-     "100": 0.002
+     "25": 0.0905,
+     "40": 0.0393,
+     "50": 0.0215,
+     "60": 0.012,
+     "75": 0.0053,
+     "100": 0.0011
     }
    },
    "state": "PENDING"
@@ -101310,9 +101255,9 @@
    "team": "NYG",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
     "mean": 0.6,
@@ -101321,11 +101266,11 @@
     "p75": 1,
     "p90": 2,
     "atLeast": {
-     "3": 0.0661,
-     "4": 0.0294,
-     "5": 0.0136,
-     "6": 0.006,
-     "7": 0.0031
+     "3": 0.0637,
+     "4": 0.0287,
+     "5": 0.0131,
+     "6": 0.0054,
+     "7": 0.0023
     }
    },
    "state": "PENDING"
@@ -101337,23 +101282,23 @@
    "team": "NYG",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 21.9,
-    "mean": 26.77,
-    "p10": 3.3,
-    "p25": 10.3,
-    "p75": 38.4,
-    "p90": 56.3,
+    "median": 40.2,
+    "mean": 44.54,
+    "p10": 13.4,
+    "p25": 24.7,
+    "p75": 60.3,
+    "p90": 80.8,
     "atLeast": {
-     "25": 0.447,
-     "40": 0.2348,
-     "50": 0.137,
-     "60": 0.0837,
-     "75": 0.0343,
-     "100": 0.0065
+     "25": 0.7456,
+     "40": 0.5041,
+     "50": 0.3629,
+     "60": 0.2528,
+     "75": 0.1322,
+     "100": 0.0359
     }
    },
    "state": "PENDING"
@@ -101365,23 +101310,23 @@
    "team": "NYG",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 8.5,
-    "mean": 16.15,
+    "median": 9.4,
+    "mean": 17.04,
     "p10": 0,
     "p25": 0,
-    "p75": 24.5,
-    "p90": 44.2,
+    "p75": 26,
+    "p90": 46.3,
     "atLeast": {
-     "25": 0.2456,
-     "40": 0.1229,
-     "50": 0.0753,
-     "60": 0.0464,
-     "75": 0.0231,
-     "100": 0.0072
+     "25": 0.2595,
+     "40": 0.1329,
+     "50": 0.0831,
+     "60": 0.052,
+     "75": 0.0261,
+     "100": 0.0061
     }
    },
    "state": "PENDING"
@@ -101393,22 +101338,22 @@
    "team": "NYG",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 1,
-    "mean": 1.68,
+    "mean": 1.77,
     "p10": 0,
     "p25": 0,
     "p75": 3,
     "p90": 4,
     "atLeast": {
-     "3": 0.2539,
-     "4": 0.1463,
-     "5": 0.0866,
-     "6": 0.0475,
-     "7": 0.0258
+     "3": 0.2743,
+     "4": 0.1606,
+     "5": 0.0951,
+     "6": 0.053,
+     "7": 0.0282
     }
    },
    "state": "PENDING"
@@ -101420,23 +101365,23 @@
    "team": "NYG",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 60.9,
-    "mean": 69.07,
-    "p10": 15.2,
-    "p25": 33.6,
-    "p75": 96.6,
-    "p90": 132.9,
+    "median": 64.9,
+    "mean": 72.84,
+    "p10": 18,
+    "p25": 37.1,
+    "p75": 100.1,
+    "p90": 138.5,
     "atLeast": {
-     "25": 0.8277,
-     "40": 0.6925,
-     "50": 0.597,
-     "60": 0.5084,
-     "75": 0.3878,
-     "100": 0.2329
+     "25": 0.8497,
+     "40": 0.7254,
+     "50": 0.633,
+     "60": 0.5425,
+     "75": 0.4205,
+     "100": 0.2506
     }
    },
    "state": "PENDING"
@@ -101448,22 +101393,22 @@
    "team": "NYG",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 5,
-    "mean": 5.81,
+    "median": 6,
+    "mean": 6.13,
     "p10": 2,
-    "p25": 3,
+    "p25": 4,
     "p75": 8,
-    "p90": 10,
+    "p90": 11,
     "atLeast": {
-     "3": 0.8403,
-     "4": 0.725,
-     "5": 0.6047,
-     "6": 0.4827,
-     "7": 0.3683
+     "3": 0.8686,
+     "4": 0.7576,
+     "5": 0.6472,
+     "6": 0.5269,
+     "7": 0.4104
     }
    },
    "state": "PENDING"
@@ -101475,23 +101420,23 @@
    "team": "NYG",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 9.8,
-    "mean": 15.75,
-    "p10": 0,
-    "p25": 1.7,
-    "p75": 23.2,
-    "p90": 40.7,
+    "median": 20.4,
+    "mean": 25.61,
+    "p10": 1.7,
+    "p25": 8.3,
+    "p75": 36.8,
+    "p90": 56,
     "atLeast": {
-     "25": 0.2275,
-     "40": 0.1038,
-     "50": 0.059,
-     "60": 0.0335,
-     "75": 0.0129,
-     "100": 0.0029
+     "25": 0.4215,
+     "40": 0.2175,
+     "50": 0.1361,
+     "60": 0.082,
+     "75": 0.0374,
+     "100": 0.009
     }
    },
    "state": "PENDING"
@@ -101503,23 +101448,23 @@
    "team": "NYG",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
-    "mean": 8.58,
+    "mean": 8.86,
     "p10": 0,
     "p25": 0,
-    "p75": 11,
-    "p90": 29.3,
+    "p75": 11.7,
+    "p90": 29.6,
     "atLeast": {
-     "25": 0.1229,
-     "40": 0.057,
-     "50": 0.0326,
-     "60": 0.0184,
-     "75": 0.01,
-     "100": 0.0035
+     "25": 0.1295,
+     "40": 0.0604,
+     "50": 0.0352,
+     "60": 0.0206,
+     "75": 0.0093,
+     "100": 0.0021
     }
    },
    "state": "PENDING"
@@ -101531,22 +101476,22 @@
    "team": "NYG",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
-    "mean": 0.81,
+    "mean": 0.84,
     "p10": 0,
     "p25": 0,
     "p75": 1,
-    "p90": 2,
+    "p90": 3,
     "atLeast": {
-     "3": 0.0971,
-     "4": 0.0486,
-     "5": 0.0238,
-     "6": 0.0129,
-     "7": 0.0065
+     "3": 0.1046,
+     "4": 0.0514,
+     "5": 0.0271,
+     "6": 0.0126,
+     "7": 0.0058
     }
    },
    "state": "PENDING"
@@ -101558,23 +101503,23 @@
    "team": "NYG",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
-    "mean": 10.99,
+    "mean": 11.65,
     "p10": 0,
     "p25": 0,
-    "p75": 15.9,
-    "p90": 35.1,
+    "p75": 16.9,
+    "p90": 36.3,
     "atLeast": {
-     "25": 0.1599,
-     "40": 0.0779,
-     "50": 0.0488,
-     "60": 0.0302,
-     "75": 0.0151,
-     "100": 0.0042
+     "25": 0.1725,
+     "40": 0.0861,
+     "50": 0.0535,
+     "60": 0.0345,
+     "75": 0.0171,
+     "100": 0.0052
     }
    },
    "state": "PENDING"
@@ -101586,105 +101531,22 @@
    "team": "NYG",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
-    "mean": 0.95,
+    "mean": 1,
     "p10": 0,
     "p25": 0,
     "p75": 1,
     "p90": 3,
     "atLeast": {
-     "3": 0.1149,
-     "4": 0.0564,
-     "5": 0.0283,
-     "6": 0.0143,
-     "7": 0.0069
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873052",
-   "playerId": "nfl-athlete-4696981",
-   "name": "Cam Skattebo",
-   "team": "NYG",
-   "family": "rushingYards",
-   "availability": "QUESTIONABLE",
-   "simulationId": "48012c7cfb720850",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 42.8,
-    "mean": 48.3,
-    "p10": 11.6,
-    "p25": 24.4,
-    "p75": 66.4,
-    "p90": 91.9,
-    "atLeast": {
-     "25": 0.7417,
-     "40": 0.5391,
-     "50": 0.4102,
-     "60": 0.3095,
-     "75": 0.1874,
-     "100": 0.0729
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873052",
-   "playerId": "nfl-athlete-4696981",
-   "name": "Cam Skattebo",
-   "team": "NYG",
-   "family": "receivingYards",
-   "availability": "QUESTIONABLE",
-   "simulationId": "48012c7cfb720850",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 4,
-    "mean": 12.68,
-    "p10": 0,
-    "p25": 0,
-    "p75": 18.7,
-    "p90": 37.5,
-    "atLeast": {
-     "25": 0.1835,
-     "40": 0.0884,
-     "50": 0.0539,
-     "60": 0.0334,
-     "75": 0.0151,
-     "100": 0.0046
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873052",
-   "playerId": "nfl-athlete-4696981",
-   "name": "Cam Skattebo",
-   "team": "NYG",
-   "family": "receptions",
-   "availability": "QUESTIONABLE",
-   "simulationId": "48012c7cfb720850",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 1,
-    "mean": 1.29,
-    "p10": 0,
-    "p25": 0,
-    "p75": 2,
-    "p90": 3,
-    "atLeast": {
-     "3": 0.1781,
-     "4": 0.0997,
-     "5": 0.0541,
-     "6": 0.0294,
-     "7": 0.0152
+     "3": 0.1279,
+     "4": 0.0614,
+     "5": 0.0301,
+     "6": 0.0149,
+     "7": 0.0072
     }
    },
    "state": "PENDING"
@@ -101696,23 +101558,23 @@
    "team": "NYG",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 3.7,
-    "mean": 9.68,
+    "median": 10.3,
+    "mean": 16.14,
     "p10": 0,
-    "p25": 0,
-    "p75": 14,
-    "p90": 28.4,
+    "p25": 2,
+    "p75": 23.6,
+    "p90": 41,
     "atLeast": {
-     "25": 0.1241,
-     "40": 0.0461,
-     "50": 0.0243,
-     "60": 0.0115,
-     "75": 0.0044,
-     "100": 0.001
+     "25": 0.2335,
+     "40": 0.1059,
+     "50": 0.0627,
+     "60": 0.0336,
+     "75": 0.0136,
+     "100": 0.003
     }
    },
    "state": "PENDING"
@@ -101723,24 +101585,24 @@
    "name": "Darnell Mooney",
    "team": "NYG",
    "family": "receivingYards",
-   "availability": "QUESTIONABLE",
-   "simulationId": "48012c7cfb720850",
+   "availability": "ACTIVE",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 11.8,
-    "mean": 20.26,
+    "median": 13.7,
+    "mean": 21.81,
     "p10": 0,
     "p25": 0,
-    "p75": 30.7,
-    "p90": 54.6,
+    "p75": 33.3,
+    "p90": 56.6,
     "atLeast": {
-     "25": 0.3102,
-     "40": 0.1748,
-     "50": 0.118,
-     "60": 0.0807,
-     "75": 0.0436,
-     "100": 0.0146
+     "25": 0.3338,
+     "40": 0.1904,
+     "50": 0.1281,
+     "60": 0.0884,
+     "75": 0.0496,
+     "100": 0.0175
     }
    },
    "state": "PENDING"
@@ -101751,23 +101613,23 @@
    "name": "Darnell Mooney",
    "team": "NYG",
    "family": "receptions",
-   "availability": "QUESTIONABLE",
-   "simulationId": "48012c7cfb720850",
+   "availability": "ACTIVE",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 1,
-    "mean": 1.71,
+    "mean": 1.84,
     "p10": 0,
     "p25": 0,
     "p75": 3,
     "p90": 4,
     "atLeast": {
-     "3": 0.2556,
-     "4": 0.1458,
-     "5": 0.0802,
-     "6": 0.0407,
-     "7": 0.0201
+     "3": 0.281,
+     "4": 0.1603,
+     "5": 0.0917,
+     "6": 0.0496,
+     "7": 0.0267
     }
    },
    "state": "PENDING"
@@ -101779,23 +101641,23 @@
    "team": "NYG",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 42.5,
-    "mean": 49.7,
-    "p10": 8.1,
-    "p25": 21.6,
-    "p75": 69.6,
-    "p90": 100.6,
+    "median": 45.2,
+    "mean": 52.2,
+    "p10": 9.6,
+    "p25": 23.6,
+    "p75": 73.4,
+    "p90": 103.4,
     "atLeast": {
-     "25": 0.7089,
-     "40": 0.5275,
-     "50": 0.4192,
-     "60": 0.3274,
-     "75": 0.2159,
-     "100": 0.1022
+     "25": 0.7353,
+     "40": 0.5565,
+     "50": 0.4458,
+     "60": 0.3509,
+     "75": 0.2386,
+     "100": 0.1122
     }
    },
    "state": "PENDING"
@@ -101807,22 +101669,22 @@
    "team": "NYG",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 4,
-    "mean": 4.8,
+    "median": 5,
+    "mean": 5.03,
     "p10": 1,
     "p25": 3,
     "p75": 7,
     "p90": 9,
     "atLeast": {
-     "3": 0.7578,
-     "4": 0.6094,
-     "5": 0.4759,
-     "6": 0.3555,
-     "7": 0.2562
+     "3": 0.7806,
+     "4": 0.6502,
+     "5": 0.5095,
+     "6": 0.385,
+     "7": 0.2792
     }
    },
    "state": "PENDING"
@@ -101834,23 +101696,23 @@
    "team": "NYG",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 24.1,
-    "mean": 32.95,
+    "median": 26,
+    "mean": 34.76,
     "p10": 0,
-    "p25": 6.7,
-    "p75": 49.6,
-    "p90": 78.4,
+    "p25": 8.3,
+    "p75": 50.9,
+    "p90": 81.5,
     "atLeast": {
-     "25": 0.4892,
-     "40": 0.3254,
-     "50": 0.2475,
-     "60": 0.1832,
-     "75": 0.1113,
-     "100": 0.0492
+     "25": 0.5147,
+     "40": 0.3439,
+     "50": 0.2566,
+     "60": 0.1925,
+     "75": 0.1231,
+     "100": 0.0531
     }
    },
    "state": "PENDING"
@@ -101862,22 +101724,22 @@
    "team": "NYG",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 2,
-    "mean": 2.61,
+    "mean": 2.75,
     "p10": 0,
     "p25": 1,
     "p75": 4,
     "p90": 6,
     "atLeast": {
-     "3": 0.4337,
-     "4": 0.2823,
-     "5": 0.176,
-     "6": 0.1072,
-     "7": 0.0618
+     "3": 0.4593,
+     "4": 0.3016,
+     "5": 0.194,
+     "6": 0.1203,
+     "7": 0.0701
     }
    },
    "state": "PENDING"
@@ -101888,24 +101750,24 @@
    "name": "Charlie Jones",
    "team": "NYG",
    "family": "receivingYards",
-   "availability": "QUESTIONABLE",
-   "simulationId": "48012c7cfb720850",
+   "availability": "ACTIVE",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
-    "mean": 9.16,
+    "mean": 9.55,
     "p10": 0,
     "p25": 0,
-    "p75": 11.4,
-    "p90": 31.8,
+    "p75": 12.7,
+    "p90": 32.7,
     "atLeast": {
-     "25": 0.1348,
-     "40": 0.0699,
-     "50": 0.045,
-     "60": 0.027,
-     "75": 0.0126,
-     "100": 0.0044
+     "25": 0.1398,
+     "40": 0.071,
+     "50": 0.0455,
+     "60": 0.0277,
+     "75": 0.0137,
+     "100": 0.0039
     }
    },
    "state": "PENDING"
@@ -101916,23 +101778,23 @@
    "name": "Charlie Jones",
    "team": "NYG",
    "family": "receptions",
-   "availability": "QUESTIONABLE",
-   "simulationId": "48012c7cfb720850",
+   "availability": "ACTIVE",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
-    "mean": 0.71,
+    "mean": 0.77,
     "p10": 0,
     "p25": 0,
     "p75": 1,
     "p90": 2,
     "atLeast": {
-     "3": 0.0832,
-     "4": 0.0376,
-     "5": 0.0183,
-     "6": 0.0089,
-     "7": 0.0042
+     "3": 0.0871,
+     "4": 0.0457,
+     "5": 0.0203,
+     "6": 0.0102,
+     "7": 0.0047
     }
    },
    "state": "PENDING"
@@ -101944,23 +101806,23 @@
    "team": "NYG",
    "family": "rushingYards",
    "availability": "QUESTIONABLE",
-   "simulationId": "48012c7cfb720850",
+   "simulationId": "7b05c643dfa3b44c",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 3.1,
-    "mean": 10.2,
+    "median": 9.2,
+    "mean": 16.24,
     "p10": 0,
-    "p25": 0,
-    "p75": 14.7,
-    "p90": 30.2,
+    "p25": 1.1,
+    "p75": 23.9,
+    "p90": 42.9,
     "atLeast": {
-     "25": 0.1361,
-     "40": 0.0578,
-     "50": 0.0327,
-     "60": 0.0162,
-     "75": 0.007,
-     "100": 0.0018
+     "25": 0.2384,
+     "40": 0.1155,
+     "50": 0.0705,
+     "60": 0.0431,
+     "75": 0.0181,
+     "100": 0.005
     }
    },
    "state": "PENDING"
@@ -111964,23 +111826,23 @@
    "team": "LAR",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 19.1,
-    "mean": 27.13,
+    "median": 19.3,
+    "mean": 27.38,
     "p10": 0,
-    "p25": 4.3,
-    "p75": 40.1,
-    "p90": 66.1,
+    "p25": 4.4,
+    "p75": 41.1,
+    "p90": 66.7,
     "atLeast": {
-     "25": 0.4149,
-     "40": 0.2509,
-     "50": 0.1749,
-     "60": 0.1259,
-     "75": 0.0723,
-     "100": 0.0287
+     "25": 0.4245,
+     "40": 0.2586,
+     "50": 0.1839,
+     "60": 0.1295,
+     "75": 0.0737,
+     "100": 0.0261
     }
    },
    "state": "PENDING"
@@ -111992,22 +111854,22 @@
    "team": "LAR",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 2,
-    "mean": 2.5,
+    "mean": 2.52,
     "p10": 0,
     "p25": 1,
     "p75": 4,
     "p90": 6,
     "atLeast": {
-     "3": 0.4098,
-     "4": 0.2667,
-     "5": 0.1687,
-     "6": 0.1012,
-     "7": 0.06
+     "3": 0.4114,
+     "4": 0.2731,
+     "5": 0.1777,
+     "6": 0.1066,
+     "7": 0.0608
     }
    },
    "state": "PENDING"
@@ -112019,23 +111881,23 @@
    "team": "LAR",
    "family": "passingYards",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 219.3,
-    "mean": 223.38,
-    "p10": 125.1,
-    "p25": 169.1,
-    "p75": 274,
-    "p90": 326.1,
+    "median": 221.4,
+    "mean": 224.6,
+    "p10": 126.5,
+    "p25": 167.7,
+    "p75": 275.8,
+    "p90": 326.2,
     "atLeast": {
-     "175": 0.7243,
-     "200": 0.6009,
-     "225": 0.4733,
-     "250": 0.3499,
-     "275": 0.245,
-     "300": 0.162
+     "175": 0.7212,
+     "200": 0.6061,
+     "225": 0.4809,
+     "250": 0.3614,
+     "275": 0.2535,
+     "300": 0.1675
     }
    },
    "state": "PENDING"
@@ -112047,23 +111909,23 @@
    "team": "LAR",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 8.7,
-    "mean": 18.08,
+    "median": 8.6,
+    "mean": 17.88,
     "p10": 0,
     "p25": 0,
     "p75": 27.2,
-    "p90": 51.6,
+    "p90": 50.1,
     "atLeast": {
-     "25": 0.2691,
-     "40": 0.1546,
-     "50": 0.1066,
-     "60": 0.0719,
-     "75": 0.0381,
-     "100": 0.0127
+     "25": 0.2724,
+     "40": 0.1521,
+     "50": 0.1004,
+     "60": 0.0672,
+     "75": 0.0367,
+     "100": 0.0113
     }
    },
    "state": "PENDING"
@@ -112075,21 +111937,21 @@
    "team": "LAR",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 1,
-    "mean": 1.52,
+    "mean": 1.5,
     "p10": 0,
     "p25": 0,
     "p75": 2,
     "p90": 4,
     "atLeast": {
-     "3": 0.225,
-     "4": 0.1217,
-     "5": 0.0706,
-     "6": 0.0348,
+     "3": 0.2149,
+     "4": 0.1194,
+     "5": 0.0653,
+     "6": 0.0342,
      "7": 0.0178
     }
    },
@@ -112102,23 +111964,23 @@
    "team": "LAR",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 3.2,
-    "mean": 9.82,
+    "median": 3.3,
+    "mean": 9.87,
     "p10": 0,
     "p25": 0,
-    "p75": 13.9,
-    "p90": 29.6,
+    "p75": 14.2,
+    "p90": 29.3,
     "atLeast": {
-     "25": 0.1336,
-     "40": 0.052,
-     "50": 0.028,
-     "60": 0.0125,
-     "75": 0.0051,
-     "100": 0.0011
+     "25": 0.1299,
+     "40": 0.0524,
+     "50": 0.0265,
+     "60": 0.0159,
+     "75": 0.007,
+     "100": 0.0013
     }
    },
    "state": "PENDING"
@@ -112130,23 +111992,23 @@
    "team": "LAR",
    "family": "rushingYards",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 56.1,
-    "mean": 61.08,
-    "p10": 19.7,
-    "p25": 34.2,
-    "p75": 82.5,
-    "p90": 108.6,
+    "median": 56.3,
+    "mean": 60.91,
+    "p10": 19.4,
+    "p25": 34.4,
+    "p75": 82,
+    "p90": 108.7,
     "atLeast": {
-     "25": 0.8482,
-     "40": 0.68,
-     "50": 0.5651,
-     "60": 0.4572,
-     "75": 0.3123,
-     "100": 0.1416
+     "25": 0.8506,
+     "40": 0.6852,
+     "50": 0.5713,
+     "60": 0.4574,
+     "75": 0.3117,
+     "100": 0.1381
     }
    },
    "state": "PENDING"
@@ -112158,23 +112020,23 @@
    "team": "LAR",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 19,
-    "mean": 25.68,
+    "median": 18.7,
+    "mean": 25.47,
     "p10": 0,
-    "p25": 5.5,
-    "p75": 37.7,
-    "p90": 60.9,
+    "p25": 5.9,
+    "p75": 37.6,
+    "p90": 59.6,
     "atLeast": {
-     "25": 0.4037,
-     "40": 0.2302,
-     "50": 0.157,
-     "60": 0.1027,
-     "75": 0.0555,
-     "100": 0.0183
+     "25": 0.4028,
+     "40": 0.2277,
+     "50": 0.1489,
+     "60": 0.0984,
+     "75": 0.0517,
+     "100": 0.0173
     }
    },
    "state": "PENDING"
@@ -112186,22 +112048,22 @@
    "team": "LAR",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 2,
-    "mean": 2.88,
+    "mean": 2.87,
     "p10": 0,
     "p25": 1,
     "p75": 4,
     "p90": 6,
     "atLeast": {
-     "3": 0.4707,
+     "3": 0.4741,
      "4": 0.3235,
-     "5": 0.2151,
-     "6": 0.1412,
-     "7": 0.0889
+     "5": 0.2076,
+     "6": 0.1356,
+     "7": 0.0882
     }
    },
    "state": "PENDING"
@@ -112213,215 +112075,22 @@
    "team": "LAR",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 3.8,
-    "mean": 12.49,
+    "median": 3.5,
+    "mean": 12.34,
     "p10": 0,
     "p25": 0,
-    "p75": 18.5,
-    "p90": 37.4,
+    "p75": 18.6,
+    "p90": 36.6,
     "atLeast": {
-     "25": 0.1819,
-     "40": 0.0872,
-     "50": 0.0532,
-     "60": 0.0333,
-     "75": 0.0154,
-     "100": 0.0043
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4426553",
-   "name": "Davis Allen",
-   "team": "LAR",
-   "family": "receptions",
-   "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 1,
-    "mean": 1.27,
-    "p10": 0,
-    "p25": 0,
-    "p75": 2,
-    "p90": 3,
-    "atLeast": {
-     "3": 0.1748,
-     "4": 0.0975,
-     "5": 0.0523,
-     "6": 0.0297,
-     "7": 0.0154
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4426515",
-   "name": "Puka Nacua",
-   "team": "LAR",
-   "family": "receivingYards",
-   "availability": "DOUBTFUL",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 94.5,
-    "mean": 101.56,
-    "p10": 38.1,
-    "p25": 62.2,
-    "p75": 132.8,
-    "p90": 173.3,
-    "atLeast": {
-     "25": 0.9524,
-     "40": 0.891,
-     "50": 0.8326,
-     "60": 0.7648,
-     "75": 0.653,
-     "100": 0.4611
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4426515",
-   "name": "Puka Nacua",
-   "team": "LAR",
-   "family": "receptions",
-   "availability": "DOUBTFUL",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 9,
-    "mean": 9.44,
-    "p10": 4,
-    "p25": 6,
-    "p75": 12,
-    "p90": 15,
-    "atLeast": {
-     "3": 0.9723,
-     "4": 0.9352,
-     "5": 0.8834,
-     "6": 0.8167,
-     "7": 0.7329
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4242557",
-   "name": "Colby Parkinson",
-   "team": "LAR",
-   "family": "receivingYards",
-   "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 19.4,
-    "mean": 26.69,
-    "p10": 0,
-    "p25": 6.1,
-    "p75": 39.9,
-    "p90": 62.9,
-    "atLeast": {
-     "25": 0.4181,
-     "40": 0.2496,
-     "50": 0.1703,
-     "60": 0.1142,
-     "75": 0.0585,
-     "100": 0.0208
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4242557",
-   "name": "Colby Parkinson",
-   "team": "LAR",
-   "family": "receptions",
-   "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 2,
-    "mean": 2.83,
-    "p10": 0,
-    "p25": 1,
-    "p75": 4,
-    "p90": 6,
-    "atLeast": {
-     "3": 0.4602,
-     "4": 0.3171,
-     "5": 0.2091,
-     "6": 0.1317,
-     "7": 0.0854
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4429096",
-   "name": "Blake Corum",
-   "team": "LAR",
-   "family": "rushingYards",
-   "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 38.2,
-    "mean": 44.81,
-    "p10": 8.1,
-    "p25": 19.7,
-    "p75": 62.4,
-    "p90": 90.5,
-    "atLeast": {
-     "25": 0.6791,
-     "40": 0.4766,
-     "50": 0.3669,
-     "60": 0.2682,
-     "75": 0.17,
-     "100": 0.0687
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4429096",
-   "name": "Blake Corum",
-   "team": "LAR",
-   "family": "receivingYards",
-   "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 0.7,
-    "mean": 10.99,
-    "p10": 0,
-    "p25": 0,
-    "p75": 15.7,
-    "p90": 34.8,
-    "atLeast": {
-     "25": 0.1592,
-     "40": 0.0762,
-     "50": 0.0466,
-     "60": 0.0282,
-     "75": 0.0129,
+     "25": 0.1839,
+     "40": 0.0844,
+     "50": 0.0503,
+     "60": 0.0309,
+     "75": 0.0144,
      "100": 0.0044
     }
    },
@@ -112429,27 +112098,220 @@
   },
   {
    "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4429096",
-   "name": "Blake Corum",
+   "playerId": "nfl-athlete-4426553",
+   "name": "Davis Allen",
    "team": "LAR",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 1,
-    "mean": 1.03,
+    "mean": 1.26,
     "p10": 0,
     "p25": 0,
     "p75": 2,
     "p90": 3,
     "atLeast": {
-     "3": 0.1312,
-     "4": 0.069,
-     "5": 0.0351,
-     "6": 0.0175,
-     "7": 0.0094
+     "3": 0.1776,
+     "4": 0.097,
+     "5": 0.0523,
+     "6": 0.0277,
+     "7": 0.014
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4426515",
+   "name": "Puka Nacua",
+   "team": "LAR",
+   "family": "receivingYards",
+   "availability": "DOUBTFUL",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 94.2,
+    "mean": 101.49,
+    "p10": 37.8,
+    "p25": 62,
+    "p75": 133.7,
+    "p90": 176,
+    "atLeast": {
+     "25": 0.9576,
+     "40": 0.89,
+     "50": 0.8339,
+     "60": 0.7637,
+     "75": 0.6491,
+     "100": 0.4583
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4426515",
+   "name": "Puka Nacua",
+   "team": "LAR",
+   "family": "receptions",
+   "availability": "DOUBTFUL",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 9,
+    "mean": 9.45,
+    "p10": 4,
+    "p25": 6,
+    "p75": 12,
+    "p90": 15,
+    "atLeast": {
+     "3": 0.9725,
+     "4": 0.94,
+     "5": 0.8856,
+     "6": 0.817,
+     "7": 0.7326
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4242557",
+   "name": "Colby Parkinson",
+   "team": "LAR",
+   "family": "receivingYards",
+   "availability": "ACTIVE",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 19.4,
+    "mean": 26.62,
+    "p10": 0,
+    "p25": 5.8,
+    "p75": 39.3,
+    "p90": 63.3,
+    "atLeast": {
+     "25": 0.4166,
+     "40": 0.2444,
+     "50": 0.1658,
+     "60": 0.1138,
+     "75": 0.0618,
+     "100": 0.02
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4242557",
+   "name": "Colby Parkinson",
+   "team": "LAR",
+   "family": "receptions",
+   "availability": "ACTIVE",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 2,
+    "mean": 2.8,
+    "p10": 0,
+    "p25": 1,
+    "p75": 4,
+    "p90": 6,
+    "atLeast": {
+     "3": 0.466,
+     "4": 0.3124,
+     "5": 0.2036,
+     "6": 0.1313,
+     "7": 0.082
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4429096",
+   "name": "Blake Corum",
+   "team": "LAR",
+   "family": "rushingYards",
+   "availability": "ACTIVE",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 38.5,
+    "mean": 45.16,
+    "p10": 8.3,
+    "p25": 19.9,
+    "p75": 62.9,
+    "p90": 90.7,
+    "atLeast": {
+     "25": 0.678,
+     "40": 0.4831,
+     "50": 0.3709,
+     "60": 0.2748,
+     "75": 0.1727,
+     "100": 0.0717
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4429096",
+   "name": "Blake Corum",
+   "team": "LAR",
+   "family": "receivingYards",
+   "availability": "ACTIVE",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 0,
+    "mean": 10.6,
+    "p10": 0,
+    "p25": 0,
+    "p75": 15.6,
+    "p90": 33.2,
+    "atLeast": {
+     "25": 0.1539,
+     "40": 0.0709,
+     "50": 0.0401,
+     "60": 0.0258,
+     "75": 0.0131,
+     "100": 0.0036
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4429096",
+   "name": "Blake Corum",
+   "team": "LAR",
+   "family": "receptions",
+   "availability": "ACTIVE",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 0,
+    "mean": 1,
+    "p10": 0,
+    "p25": 0,
+    "p75": 1,
+    "p90": 3,
+    "atLeast": {
+     "3": 0.1265,
+     "4": 0.0635,
+     "5": 0.0315,
+     "6": 0.0148,
+     "7": 0.0084
     }
    },
    "state": "PENDING"
@@ -112461,23 +112323,23 @@
    "team": "LAR",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 6.8,
-    "mean": 15.77,
+    "median": 6.9,
+    "mean": 15.89,
     "p10": 0,
     "p25": 0,
-    "p75": 24,
-    "p90": 45.3,
+    "p75": 23.9,
+    "p90": 46.4,
     "atLeast": {
-     "25": 0.2401,
-     "40": 0.1261,
-     "50": 0.0813,
-     "60": 0.0517,
-     "75": 0.0264,
-     "100": 0.0087
+     "25": 0.2368,
+     "40": 0.1332,
+     "50": 0.0831,
+     "60": 0.0515,
+     "75": 0.0256,
+     "100": 0.0083
     }
    },
    "state": "PENDING"
@@ -112489,22 +112351,22 @@
    "team": "LAR",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 1,
-    "mean": 1.37,
+    "mean": 1.36,
     "p10": 0,
     "p25": 0,
     "p75": 2,
     "p90": 4,
     "atLeast": {
-     "3": 0.1936,
-     "4": 0.1037,
-     "5": 0.054,
-     "6": 0.0276,
-     "7": 0.0122
+     "3": 0.1926,
+     "4": 0.1033,
+     "5": 0.0534,
+     "6": 0.0259,
+     "7": 0.0121
     }
    },
    "state": "PENDING"
@@ -112516,23 +112378,23 @@
    "team": "ARI",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 61.7,
-    "mean": 68,
-    "p10": 19.3,
-    "p25": 37.3,
-    "p75": 92.7,
-    "p90": 125.7,
+    "median": 60.7,
+    "mean": 67.11,
+    "p10": 19.2,
+    "p25": 36,
+    "p75": 91.3,
+    "p90": 122.7,
     "atLeast": {
-     "25": 0.8586,
-     "40": 0.7254,
-     "50": 0.6148,
-     "60": 0.5156,
-     "75": 0.3747,
-     "100": 0.2053
+     "25": 0.853,
+     "40": 0.7109,
+     "50": 0.6126,
+     "60": 0.5066,
+     "75": 0.3734,
+     "100": 0.1983
     }
    },
    "state": "PENDING"
@@ -112544,22 +112406,22 @@
    "team": "ARI",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 7,
-    "mean": 7.35,
+    "mean": 7.27,
     "p10": 3,
-    "p25": 5,
+    "p25": 4,
     "p75": 10,
-    "p90": 13,
+    "p90": 12,
     "atLeast": {
-     "3": 0.9142,
-     "4": 0.8433,
-     "5": 0.7504,
-     "6": 0.6469,
-     "7": 0.5409
+     "3": 0.912,
+     "4": 0.8344,
+     "5": 0.7448,
+     "6": 0.6404,
+     "7": 0.533
     }
    },
    "state": "PENDING"
@@ -112571,23 +112433,23 @@
    "team": "ARI",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 10.8,
-    "mean": 18.71,
+    "median": 10.5,
+    "mean": 18.61,
     "p10": 0,
     "p25": 0,
-    "p75": 28.1,
-    "p90": 50.6,
+    "p75": 28,
+    "p90": 50.7,
     "atLeast": {
-     "25": 0.2861,
-     "40": 0.1573,
-     "50": 0.1035,
-     "60": 0.0649,
-     "75": 0.0346,
-     "100": 0.0105
+     "25": 0.2819,
+     "40": 0.1538,
+     "50": 0.1036,
+     "60": 0.0687,
+     "75": 0.0349,
+     "100": 0.0117
     }
    },
    "state": "PENDING"
@@ -112599,9 +112461,9 @@
    "team": "ARI",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 1,
     "mean": 1.83,
@@ -112610,11 +112472,11 @@
     "p75": 3,
     "p90": 5,
     "atLeast": {
-     "3": 0.2774,
-     "4": 0.1681,
-     "5": 0.1033,
-     "6": 0.0602,
-     "7": 0.0325
+     "3": 0.2751,
+     "4": 0.1688,
+     "5": 0.1004,
+     "6": 0.0638,
+     "7": 0.0366
     }
    },
    "state": "PENDING"
@@ -112626,23 +112488,23 @@
    "team": "ARI",
    "family": "rushingYards",
    "availability": "QUESTIONABLE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 27.8,
-    "mean": 33.98,
-    "p10": 4.1,
-    "p25": 12.5,
-    "p75": 48.9,
-    "p90": 72.2,
+    "median": 29.7,
+    "mean": 35.82,
+    "p10": 4.7,
+    "p25": 14.2,
+    "p75": 50.6,
+    "p90": 74.7,
     "atLeast": {
-     "25": 0.5401,
-     "40": 0.3409,
-     "50": 0.2393,
-     "60": 0.1651,
-     "75": 0.0878,
-     "100": 0.0289
+     "25": 0.5734,
+     "40": 0.3615,
+     "50": 0.2568,
+     "60": 0.1769,
+     "75": 0.0986,
+     "100": 0.0346
     }
    },
    "state": "PENDING"
@@ -112654,23 +112516,23 @@
    "team": "ARI",
    "family": "receivingYards",
    "availability": "QUESTIONABLE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 2.7,
-    "mean": 11.66,
+    "median": 2.5,
+    "mean": 12.01,
     "p10": 0,
     "p25": 0,
-    "p75": 17.4,
-    "p90": 35.3,
+    "p75": 17.9,
+    "p90": 36.5,
     "atLeast": {
-     "25": 0.1666,
-     "40": 0.0783,
-     "50": 0.0462,
-     "60": 0.0293,
-     "75": 0.0132,
-     "100": 0.0049
+     "25": 0.1798,
+     "40": 0.0844,
+     "50": 0.0509,
+     "60": 0.031,
+     "75": 0.0144,
+     "100": 0.0037
     }
    },
    "state": "PENDING"
@@ -112682,22 +112544,22 @@
    "team": "ARI",
    "family": "receptions",
    "availability": "QUESTIONABLE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 1,
-    "mean": 1.16,
+    "mean": 1.18,
     "p10": 0,
     "p25": 0,
     "p75": 2,
     "p90": 3,
     "atLeast": {
-     "3": 0.1512,
-     "4": 0.0811,
-     "5": 0.0437,
-     "6": 0.0236,
-     "7": 0.0131
+     "3": 0.1615,
+     "4": 0.086,
+     "5": 0.0455,
+     "6": 0.0251,
+     "7": 0.0127
     }
    },
    "state": "PENDING"
@@ -112709,23 +112571,23 @@
    "team": "ARI",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
-    "median": 7.7,
-    "mean": 16.33,
+    "median": 6.7,
+    "mean": 15.94,
     "p10": 0,
     "p25": 0,
-    "p75": 24.8,
+    "p75": 23.5,
     "p90": 46.4,
     "atLeast": {
-     "25": 0.2481,
-     "40": 0.1304,
-     "50": 0.084,
-     "60": 0.0545,
-     "75": 0.0277,
-     "100": 0.0086
+     "25": 0.2359,
+     "40": 0.1288,
+     "50": 0.0864,
+     "60": 0.0568,
+     "75": 0.0293,
+     "100": 0.0087
     }
    },
    "state": "PENDING"
@@ -112737,243 +112599,215 @@
    "team": "ARI",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 1,
-    "mean": 1.38,
-    "p10": 0,
-    "p25": 0,
-    "p75": 2,
-    "p90": 3,
-    "atLeast": {
-     "3": 0.1927,
-     "4": 0.0998,
-     "5": 0.0526,
-     "6": 0.0267,
-     "7": 0.0132
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4373626",
-   "name": "Tyler Allgeier",
-   "team": "ARI",
-   "family": "rushingYards",
-   "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 62.8,
-    "mean": 67.77,
-    "p10": 26.1,
-    "p25": 41.6,
-    "p75": 88.6,
-    "p90": 115.9,
-    "atLeast": {
-     "25": 0.908,
-     "40": 0.7678,
-     "50": 0.6513,
-     "60": 0.5361,
-     "75": 0.3698,
-     "100": 0.1718
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4373626",
-   "name": "Tyler Allgeier",
-   "team": "ARI",
-   "family": "receivingYards",
-   "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 12.1,
-    "mean": 19.21,
-    "p10": 0,
-    "p25": 0.5,
-    "p75": 28.9,
-    "p90": 49.6,
-    "atLeast": {
-     "25": 0.2941,
-     "40": 0.1548,
-     "50": 0.0986,
-     "60": 0.0612,
-     "75": 0.0283,
-     "100": 0.0096
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4373626",
-   "name": "Tyler Allgeier",
-   "team": "ARI",
-   "family": "receptions",
-   "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 2,
-    "mean": 2.2,
-    "p10": 0,
-    "p25": 1,
-    "p75": 3,
-    "p90": 5,
-    "atLeast": {
-     "3": 0.3449,
-     "4": 0.2191,
-     "5": 0.1399,
-     "6": 0.0852,
-     "7": 0.0527
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4869132",
-   "name": "Reggie Virgil",
-   "team": "ARI",
-   "family": "receivingYards",
-   "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 5.9,
-    "mean": 15.15,
-    "p10": 0,
-    "p25": 0,
-    "p75": 22.6,
-    "p90": 44,
-    "atLeast": {
-     "25": 0.2278,
-     "40": 0.12,
-     "50": 0.0775,
-     "60": 0.0492,
-     "75": 0.0269,
-     "100": 0.009
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4869132",
-   "name": "Reggie Virgil",
-   "team": "ARI",
-   "family": "receptions",
-   "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 1,
-    "mean": 1.29,
-    "p10": 0,
-    "p25": 0,
-    "p75": 2,
-    "p90": 3,
-    "atLeast": {
-     "3": 0.1757,
-     "4": 0.0921,
-     "5": 0.0475,
-     "6": 0.0256,
-     "7": 0.0136
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4038524",
-   "name": "Gardner Minshew II",
-   "team": "ARI",
-   "family": "passingYards",
-   "availability": "DOUBTFUL",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 244.9,
-    "mean": 249.36,
-    "p10": 154.9,
-    "p25": 196.3,
-    "p75": 297.5,
-    "p90": 349.6,
-    "atLeast": {
-     "175": 0.8368,
-     "200": 0.7318,
-     "225": 0.6091,
-     "250": 0.4755,
-     "275": 0.3459,
-     "300": 0.2409
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4039050",
-   "name": "Devin Duvernay",
-   "team": "ARI",
-   "family": "receivingYards",
-   "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 7.1,
-    "mean": 15.51,
-    "p10": 0,
-    "p25": 0,
-    "p75": 23.8,
-    "p90": 43.2,
-    "atLeast": {
-     "25": 0.2352,
-     "40": 0.1164,
-     "50": 0.073,
-     "60": 0.0478,
-     "75": 0.0243,
-     "100": 0.0077
-    }
-   },
-   "state": "PENDING"
-  },
-  {
-   "providerEventId": "401873061",
-   "playerId": "nfl-athlete-4039050",
-   "name": "Devin Duvernay",
-   "team": "ARI",
-   "family": "receptions",
-   "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
-   "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
-   "forecast": {
-    "median": 1,
-    "mean": 1.53,
+    "mean": 1.34,
     "p10": 0,
     "p25": 0,
     "p75": 2,
     "p90": 4,
     "atLeast": {
-     "3": 0.2259,
-     "4": 0.1262,
-     "5": 0.0724,
-     "6": 0.0409,
-     "7": 0.0216
+     "3": 0.186,
+     "4": 0.1003,
+     "5": 0.0516,
+     "6": 0.0243,
+     "7": 0.0107
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4373626",
+   "name": "Tyler Allgeier",
+   "team": "ARI",
+   "family": "rushingYards",
+   "availability": "ACTIVE",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 66.7,
+    "mean": 71.13,
+    "p10": 28.1,
+    "p25": 44.6,
+    "p75": 92.6,
+    "p90": 119.7,
+    "atLeast": {
+     "25": 0.9215,
+     "40": 0.7996,
+     "50": 0.6915,
+     "60": 0.5769,
+     "75": 0.409,
+     "100": 0.1981
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4373626",
+   "name": "Tyler Allgeier",
+   "team": "ARI",
+   "family": "receivingYards",
+   "availability": "ACTIVE",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 12.4,
+    "mean": 19.61,
+    "p10": 0,
+    "p25": 0.9,
+    "p75": 29.3,
+    "p90": 50.7,
+    "atLeast": {
+     "25": 0.2991,
+     "40": 0.1593,
+     "50": 0.1026,
+     "60": 0.0647,
+     "75": 0.0324,
+     "100": 0.0104
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4373626",
+   "name": "Tyler Allgeier",
+   "team": "ARI",
+   "family": "receptions",
+   "availability": "ACTIVE",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 2,
+    "mean": 2.21,
+    "p10": 0,
+    "p25": 1,
+    "p75": 3,
+    "p90": 5,
+    "atLeast": {
+     "3": 0.3424,
+     "4": 0.2188,
+     "5": 0.1426,
+     "6": 0.093,
+     "7": 0.0551
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4869132",
+   "name": "Reggie Virgil",
+   "team": "ARI",
+   "family": "receivingYards",
+   "availability": "ACTIVE",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 5.3,
+    "mean": 14.59,
+    "p10": 0,
+    "p25": 0,
+    "p75": 21.7,
+    "p90": 43.4,
+    "atLeast": {
+     "25": 0.2176,
+     "40": 0.1162,
+     "50": 0.076,
+     "60": 0.0487,
+     "75": 0.0234,
+     "100": 0.0065
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4869132",
+   "name": "Reggie Virgil",
+   "team": "ARI",
+   "family": "receptions",
+   "availability": "ACTIVE",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 1,
+    "mean": 1.26,
+    "p10": 0,
+    "p25": 0,
+    "p75": 2,
+    "p90": 3,
+    "atLeast": {
+     "3": 0.1742,
+     "4": 0.0912,
+     "5": 0.0471,
+     "6": 0.0214,
+     "7": 0.0108
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4039050",
+   "name": "Devin Duvernay",
+   "team": "ARI",
+   "family": "receivingYards",
+   "availability": "ACTIVE",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 7.1,
+    "mean": 15.73,
+    "p10": 0,
+    "p25": 0,
+    "p75": 23.8,
+    "p90": 44.7,
+    "atLeast": {
+     "25": 0.2374,
+     "40": 0.1251,
+     "50": 0.0788,
+     "60": 0.0503,
+     "75": 0.0232,
+     "100": 0.0083
+    }
+   },
+   "state": "PENDING"
+  },
+  {
+   "providerEventId": "401873061",
+   "playerId": "nfl-athlete-4039050",
+   "name": "Devin Duvernay",
+   "team": "ARI",
+   "family": "receptions",
+   "availability": "ACTIVE",
+   "simulationId": "7e28e53b677e4303",
+   "modelVersion": "2.2.0",
+   "generatedAt": "2026-11-11T01:02:01Z",
+   "forecast": {
+    "median": 1,
+    "mean": 1.52,
+    "p10": 0,
+    "p25": 0,
+    "p75": 2,
+    "p90": 4,
+    "atLeast": {
+     "3": 0.2273,
+     "4": 0.1309,
+     "5": 0.0721,
+     "6": 0.0389,
+     "7": 0.0222
     }
    },
    "state": "PENDING"
@@ -112985,23 +112819,23 @@
    "team": "ARI",
    "family": "receivingYards",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
-    "mean": 8.74,
+    "mean": 8.99,
     "p10": 0,
     "p25": 0,
-    "p75": 11.5,
-    "p90": 29.5,
+    "p75": 11.9,
+    "p90": 30.2,
     "atLeast": {
-     "25": 0.124,
-     "40": 0.0586,
-     "50": 0.0362,
-     "60": 0.0198,
-     "75": 0.0092,
-     "100": 0.0029
+     "25": 0.1333,
+     "40": 0.0589,
+     "50": 0.0337,
+     "60": 0.0211,
+     "75": 0.0116,
+     "100": 0.0033
     }
    },
    "state": "PENDING"
@@ -113013,22 +112847,22 @@
    "team": "ARI",
    "family": "receptions",
    "availability": "ACTIVE",
-   "simulationId": "8cfd51d2b4f13766",
+   "simulationId": "7e28e53b677e4303",
    "modelVersion": "2.2.0",
-   "generatedAt": "2026-11-10T20:59:40Z",
+   "generatedAt": "2026-11-11T01:02:01Z",
    "forecast": {
     "median": 0,
-    "mean": 0.81,
+    "mean": 0.83,
     "p10": 0,
     "p25": 0,
     "p75": 1,
     "p90": 2,
     "atLeast": {
-     "3": 0.0965,
-     "4": 0.0497,
-     "5": 0.0269,
-     "6": 0.0133,
-     "7": 0.0053
+     "3": 0.099,
+     "4": 0.0488,
+     "5": 0.0254,
+     "6": 0.0143,
+     "7": 0.0071
     }
    },
    "state": "PENDING"
@@ -117865,6 +117699,6 @@
    "state": "PENDING"
   }
  ],
- "gradedAt": "2026-11-10T21:15:46Z",
- "contentSha256": "fa0b10418f119292a64a79b1878d65a33184bf6883851f86dd827a8885772c68"
+ "gradedAt": "2026-11-11T01:02:01Z",
+ "contentSha256": "912757fab929fc2f745414fc2764f17a07cc33b6f139a7441e3c43062acc8370"
 }
