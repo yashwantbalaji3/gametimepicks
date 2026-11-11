@@ -66,7 +66,9 @@ const NBA_LINES_PLACEHOLDER_ROUTE = "nba/lines/nba-lines-none";
 /* /trends (NBA player trends, trends slice 2026-11-09) ships only when the build sets GTP_NBA_TRENDS_PUBLIC=1; otherwise
    its page is a 404 and this sweep removes it with its chunks. */
 const TRENDS_ROUTES = process.env.GTP_NBA_TRENDS_PUBLIC === "1" ? [] : ["trends"];
-const INTERNAL_ROUTES = ["ops", "preview", "launch", ...DEV_ROUTES, ...NBA_THEATER_ROUTES, NBA_LINES_PLACEHOLDER_ROUTE, ...GATED_LEGAL_ROUTES, ...TRENDS_ROUTES];
+/* /nfl/trends (NFL QB trends, shared Trends board 2026-11-11): the same, under GTP_NFL_TRENDS_PUBLIC. */
+const NFL_TRENDS_ROUTES = process.env.GTP_NFL_TRENDS_PUBLIC === "1" ? [] : ["nfl/trends"];
+const INTERNAL_ROUTES = ["ops", "preview", "launch", ...DEV_ROUTES, ...NBA_THEATER_ROUTES, NBA_LINES_PLACEHOLDER_ROUTE, ...GATED_LEGAL_ROUTES, ...TRENDS_ROUTES, ...NFL_TRENDS_ROUTES];
 
 /**
  * Data files the public site serves even though no page links them. Kept deliberately, not by accident.
