@@ -272,3 +272,17 @@ test("QB-efficiency weight: weight 1 is byte-identical; any weight leaves every 
   assert.ok(Math.abs(q.achieved[0] - 260) <= 1 || q.bounded[0], `the starter's mean reaches its target (${q.achieved[0]})`);
   assert.equal(q.weights[1], 1, "no target ⇒ weight 1");
 });
+
+/* Founder D3 (development only): the joint challenger anchors team yardage, not points — the score follows from the same
+   drives, and every run still reconciles. */
+test("joint challenger: calibrateToYards reaches the yardage target; the weighted joint batch is coherent on every run", async () => {
+  const { calibrateToYards, runBatch: rb } = await import("./simulate.mjs");
+  const base = rb({ compiled, thetas: [0, 0], baseSeed: SEED, runs: 600, check: false });
+  const yds = (b, s) => { let a = 0; for (let i = 0; i < b.runs; i++) a += b.team[(i * 2 + s) * N_TSTAT + TEAM_STAT.passYds] + b.team[(i * 2 + s) * N_TSTAT + TEAM_STAT.rushYds]; return a / b.runs; };
+  const targets = [yds(base, 0) + 40, yds(base, 1) - 30];
+  const j = calibrateToYards({ compiled, targets, baseSeed: SEED, runs: 600 });
+  assert.ok(Math.abs(j.achieved[0] - targets[0]) <= 2 && Math.abs(j.achieved[1] - targets[1]) <= 2, `yards ${j.achieved} vs ${targets}`);
+  assert.ok(j.thetas[0] > 0 && j.thetas[1] < 0, "more yardage needs a stronger offence tilt");
+  const b = rb({ compiled, thetas: j.thetas, players: prep, baseSeed: SEED, runs: 300, passWeight: [1.4, 0.8] });
+  assert.equal(b.failedRuns, 0, "QB, receivers, rushers, TDs and score reconcile on every joint run");
+});

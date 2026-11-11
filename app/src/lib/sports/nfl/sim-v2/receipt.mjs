@@ -344,7 +344,7 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
     runCount: n,
     runSchemaVersion: RUN_SCHEMA_VERSION,
     params: paramsRef,
-    calibration: { anchors: { home: anchors.home, away: anchors.away, source: anchors.source }, thetas: calibration.thetas.map(r4), calibratedMean: calibration.achieved.map(r2), ...(calibration.passWeights ? { passWeights: calibration.passWeights, qbConditioning: calibration.qbConditioning ?? null } : {}) },
+    calibration: { anchors: { home: anchors.home, away: anchors.away, source: anchors.source }, thetas: calibration.thetas.map(r4), calibratedMean: calibration.achieved.map(r2), ...(calibration.passWeights ? { passWeights: calibration.passWeights, qbConditioning: calibration.qbConditioning ?? null } : {}), ...(calibration.jointChallenger ? { jointChallenger: calibration.jointChallenger } : {}) },
     aggregate: {
       winProbability: { home: r4(hw / n), away: r4(aw / n), tie: r4(ties / n) },
       overtimeProbability: r4(ots / n),

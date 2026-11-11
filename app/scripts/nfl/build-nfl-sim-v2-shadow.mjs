@@ -36,8 +36,8 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { compileParams, NFL_SIM_V2_ENGINE, NFL_SIM_V2_VERSION, prepareTeamPlayers } from "../../src/lib/sports/nfl/sim-v2/engine.mjs";
-import { calibrate, calibratePassWeights, runBatch } from "../../src/lib/sports/nfl/sim-v2/simulate.mjs";
+import { compileParams, N_TSTAT, NFL_SIM_V2_ENGINE, NFL_SIM_V2_VERSION, prepareTeamPlayers, TEAM_STAT } from "../../src/lib/sports/nfl/sim-v2/engine.mjs";
+import { calibrate, calibratePassWeights, calibrateToYards, runBatch } from "../../src/lib/sports/nfl/sim-v2/simulate.mjs";
 import { buildNflSimulationReceipt, playersFromRoleShares, SIMULATION_RECEIPT_SCHEMA } from "../../src/lib/sports/nfl/sim-v2/receipt.mjs";
 import { forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
 import { fnv1a64 } from "../../src/lib/forecast-ledger/identity.mjs";
@@ -53,14 +53,18 @@ const ROSTERS = "app/public/data/nfl/rosters/latest.json";
 /* PD decision B (2026-11-11): QB-conditioned receipts (the starter's mean passing yards matched to the board's projection,
    sim-v2/simulate.mjs calibratePassWeights) are a DEMO lane until the founder approves: opt-in by
    GTP_NFL_SIM_QB_CONDITION=1, written to their own directory, never mixed into the shadow receipts of record. */
-const QB_CONDITION = process.env.GTP_NFL_SIM_QB_CONDITION === "1";
+/* Founder D3 (2026-11-11, DEVELOPMENT ONLY): the JOINT CHALLENGER — team yardage anchored to the board's player
+   projections (calibrateToYards), the starter conditioned on the board, points and win% following from the same drives;
+   the official forecast is a CHECK recorded in the receipt. Implies QB conditioning; its own directory. */
+const JOINT = process.env.GTP_NFL_SIM_JOINT === "1";
+const QB_CONDITION = JOINT || process.env.GTP_NFL_SIM_QB_CONDITION === "1";
 /* Founder directive 2026-11-11 (~18:00Z) item 5: a team whose starter is NOT confirmed gets one SCENARIO receipt per
    alternative starter ("if X starts", data/internal/nfl/qb-fallback unconfirmedScenarios), simulated in the same engine
    with that QB as the starter. Opt-in (GTP_NFL_SIM_QB_SCENARIOS=1), its own directory, write-once, never a receipt of
    record and never presented as confirmed. */
 const QB_SCENARIOS = process.env.GTP_NFL_SIM_QB_SCENARIOS === "1";
 const SCENARIO_DIR = "data/internal/research/nfl/sim-v2/scenarios";
-const OUT_DIR = QB_CONDITION ? "data/internal/research/nfl/sim-v2/shadow-qb-conditioned" : "data/internal/research/nfl/sim-v2/shadow";
+const OUT_DIR = JOINT ? "data/internal/research/nfl/sim-v2/joint-challenger" : QB_CONDITION ? "data/internal/research/nfl/sim-v2/shadow-qb-conditioned" : "data/internal/research/nfl/sim-v2/shadow";
 
 const argv = process.argv.slice(2);
 const arg = (k, d = null) => { const i = argv.indexOf(k); return i >= 0 ? argv[i + 1] : d; };
@@ -222,12 +226,38 @@ function main() {
         return e ? { mean: e.projection.mean, source: `experimental ${e.tier}` } : null;
       };
       const t = starters.map(targetFor);
+      if (JOINT) {
+        /* the board's implied team yardage: the starter's passing mean (or, with no projected starter, the official-anchored
+           sim's own team passing) + the board's rushers' means scaled up by the carry share they cover */
+        const off = runBatch({ compiled, thetas: calibration.thetas, players: prep, baseSeed, runs: 1500, check: false, postseason });
+        const simPass = (side) => { let a = 0; for (let k = 0; k < off.runs; k++) a += off.team[(k * 2 + side) * N_TSTAT + TEAM_STAT.passYds]; return a / off.runs; };
+        const simRush = (side) => { let a = 0; for (let k = 0; k < off.runs; k++) a += off.team[(k * 2 + side) * N_TSTAT + TEAM_STAT.rushYds]; return a / off.runs; };
+        const yardTargets = [r.home.abbr, r.away.abbr].map((abbr, side) => {
+          const pass = t[side]?.mean ?? simPass(side);
+          const rushers = (board?.players ?? []).filter((p) => p.team === abbr && p.markets?.player_rush_yds);
+          const share = new Map(inputs[side].players.map((p) => [p.playerId, p.carryShare]));
+          const covered = rushers.reduce((a, p) => a + (share.get(p.playerId) ?? 0), 0);
+          const rush = rushers.length && covered >= 0.5 ? rushers.reduce((a, p) => a + p.markets.player_rush_yds.mean, 0) / covered : simRush(side);
+          return { pass, rush, total: pass + rush, rushSource: rushers.length && covered >= 0.5 ? `board rushers (carry share covered ${covered.toFixed(2)})` : "official-anchored sim (board rushers cover < 0.5 of carries)" };
+        });
+        const officialThetas = calibration.thetas;
+        const officialMeans = calibration.achieved;
+        const j = calibrateToYards({ compiled, targets: yardTargets.map((y) => y.total), baseSeed, postseason, start: officialThetas });
+        calibration.thetas = j.thetas;
+        calibration.achieved = j.achieved;
+        calibration.jointChallenger = { anchoredTo: "board player projections (team yards)", yardTargets, achievedYards: j.achieved.map((v) => Number(v.toFixed(1))), officialCheck: { anchors: { home: anchors.home, away: anchors.away }, thetas: officialThetas, meanPoints: officialMeans } };
+      }
       const starterSlots = starters.map((d, i) => (d.state === "STARTER" ? prep[i].slots.findIndex((x) => x.playerId === d.starterQb) : -1));
       const q = calibratePassWeights({ compiled, thetas: calibration.thetas, players: prep, baseSeed, targets: t.map((x) => x?.mean ?? null), starterSlots, postseason });
       calibration.passWeights = q.weights.map((w) => Number(w.toFixed(4)));
       calibration.qbConditioning = { targets: t, achieved: q.achieved.map((v) => (v == null ? null : Number(v.toFixed(2)))), bounded: q.bounded };
     }
     const batch = runBatch({ compiled, thetas: calibration.thetas, players: prep, baseSeed, runs, postseason, passWeight: calibration.passWeights ?? null });
+    if (JOINT) {
+      /* the joint game's own mean points (the official forecast is the check in calibration.jointChallenger.officialCheck) */
+      const pts = (side) => { let a = 0; for (let k = 0; k < batch.runs; k++) a += batch.scores[2 * k + side]; return a / batch.runs; };
+      calibration.achieved = [pts(0), pts(1)];
+    }
     const receipt = buildNflSimulationReceipt({
       event: { eventId, kickoffUtc: r.kickoffUtc, home: r.home, away: r.away },
       compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt: now, postseason, idSuffix: plan.idSuffix,

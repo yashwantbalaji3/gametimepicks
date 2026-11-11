@@ -7,7 +7,7 @@
  *            totals heads' implied team means). Common random numbers across iterations; secant steps. The anchors are
  *            the only team-strength input — the engine adds the coherent game path, not a second rating.
  */
-import { N_PERIODS, N_PSTAT, N_TSTAT, PSTAT, runRng, simulateGame, tiltedTable } from "./engine.mjs";
+import { N_PERIODS, N_PSTAT, N_TSTAT, PSTAT, TEAM_STAT, runRng, simulateGame, tiltedTable } from "./engine.mjs";
 import { checkRun } from "./coherence.mjs";
 
 export function runBatch({ compiled, thetas, players = null, baseSeed, runs, postseason = false, check = true, firstRun = 0, passWeight = null }) {
@@ -125,4 +125,31 @@ export function calibratePassWeights({ compiled, thetas, players, baseSeed, targ
     m = [meanPass(b, 0), meanPass(b, 1)];
   }
   return { weights: w, achieved: m, targets, bounded: w.map((x) => x <= 0.25 || x >= 4) };
+}
+
+/**
+ * JOINT CHALLENGER (founder D3, development only, 2026-11-11): one tilt θ per offense so the simulated MEAN team yards
+ * (passing + rushing) equal `targets` — the board's player projections' implied team yardage — instead of the official
+ * score. Points, margin and win% then FOLLOW from the same drives; the official forecast becomes a check. Same secant
+ * scheme and common random numbers as `calibrate`. Never used by the scheduled shadow receipts.
+ * @returns {{ thetas: [number, number], achieved: [number, number], iterations: number }}
+ */
+export function calibrateToYards({ compiled, targets, baseSeed, runs = 1500, iterations = 10, tolerance = 2, postseason = false, start = [0, 0] }) {
+  const meanYds = (b, side) => { let s = 0; for (let i = 0; i < b.runs; i++) { const o = (i * 2 + side) * N_TSTAT; s += b.team[o + TEAM_STAT.passYds] + b.team[o + TEAM_STAT.rushYds]; } return s / b.runs; };
+  let th = [...start];
+  let b = runBatch({ compiled, thetas: th, baseSeed, runs, check: false, postseason });
+  let m = [meanYds(b, 0), meanYds(b, 1)];
+  let prevTh = null, prevM = null, it = 0;
+  for (; it < iterations; it++) {
+    if (Math.abs(targets[0] - m[0]) <= tolerance && Math.abs(targets[1] - m[1]) <= tolerance) break;
+    const next = [0, 1].map((s) => {
+      const slope = prevTh && Math.abs(th[s] - prevTh[s]) > 1e-6 ? (m[s] - prevM[s]) / (th[s] - prevTh[s]) : 60;
+      const step = (targets[s] - m[s]) / (slope > 5 ? slope : 60);
+      return Math.max(-3, Math.min(3, th[s] + Math.max(-0.8, Math.min(0.8, step))));
+    });
+    prevTh = th; prevM = m; th = next;
+    b = runBatch({ compiled, thetas: th, baseSeed, runs, check: false, postseason });
+    m = [meanYds(b, 0), meanYds(b, 1)];
+  }
+  return { thetas: th, achieved: m, iterations: it };
 }
