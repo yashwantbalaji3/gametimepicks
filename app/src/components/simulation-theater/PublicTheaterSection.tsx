@@ -42,9 +42,18 @@ import { storedRunBoxes } from "@/lib/simulation-theater/nfl-stored-run-box.mjs"
 import { nflOfficialOfRecord } from "@/lib/sports/nfl/official-of-record.mjs";
 import { r5TheaterBanner } from "@/lib/simulation-theater/r5-banner.mjs";
 import type { RunBoxes } from "./BoxScoreTable";
+import { maskWithheldPassers, withheldStarterTeams } from "@/lib/simulation-theater/run-box-availability.mjs";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
 /* roster positions for the Default view's row order and position tags (presentation only; positionsFromRoster) */
+/* A receipt written before the starter rule: the teams whose starter the board's own recorded decision withholds (only an
+   explicit WITHHELD / UNRESOLVED decision counts — a board without the decision, or none at all, masks nothing). */
+const boardWithheldStarterTeams = (eventId: string): string[] => {
+  try {
+    const board = JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "app/public/data/nfl/player-board", `${eventId}.json`), "utf8"));
+    return ((board?.integrity?.qbStarter ?? []) as { team: string; state: string }[]).filter((q) => q.state === "WITHHELD_STARTER_NOT_CONFIRMED" || q.state === "UNRESOLVED").map((q) => q.team).sort();
+  } catch { return []; }
+};
 const readRosterPositions = () => { try { return positionsFromRoster(JSON.parse(fs.readFileSync(path.join(REPO_ROOT, "app/public/data/nfl/rosters/latest.json"), "utf8"))); } catch { return null; } };
 
 type Rec = Parameters<typeof publicTheaterLoad>[0];
@@ -104,7 +113,11 @@ export default function PublicTheaterSection({ rec }: { rec: Rec }) {
   // the stored runs' player lines, read from the receipt itself (sha + reconciliation to the stored drives; fail closed)
   const stored = (load.ok && rec?.receipt ? storedRunBoxes(rec.receipt) : null) as RunBoxes | null;
   const availability = ((rec?.receipt as { playerAvailability?: RunBoxes["availability"] } | undefined)?.playerAvailability ?? null);
-  const runBoxes = stored ? { ...stored, availability } : null;
+  // the starting QB (sim-v2/starter-qb.mjs): a team whose starter is withheld shows no named passer — from the receipt's
+  // recorded decision, or, for a receipt written before the rule, from the board's current one
+  const starters = (rec?.receipt as { inputSnapshotIds?: { starters?: Record<string, { state: string }> } } | undefined)?.inputSnapshotIds?.starters;
+  const withheldTeams = withheldStarterTeams(starters) ?? (eventId ? boardWithheldStarterTeams(eventId) : []);
+  const runBoxes = stored ? (maskWithheldPassers({ ...stored, availability }, withheldTeams) as RunBoxes) : null;
   // R5: the official forecast of record's team inputs (CANON-01 selector; nothing rebuilt)
   const record = eventId ? nflOfficialOfRecord(path.join(REPO_ROOT, "app", "public"), eventId) : null;
   const r5 = r5TheaterBanner((record?.forecast as { teamInputs?: { state?: string } } | undefined) ?? null);

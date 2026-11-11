@@ -34,3 +34,37 @@ export function availabilityLabel(availability, playerId) {
   if (!a.featurable) return AVAILABILITY_LABEL.NOT_FEATURABLE;
   return null;
 }
+
+/**
+ * STARTING QB (PD 2026-11-11, sim-v2/starter-qb.mjs): a team whose starter the board WITHHELD has no named passer in the
+ * Theater. Receipts written with the rule record each team's decision (`inputSnapshotIds.starters`) and route that
+ * team's passing to OTHER; a receipt written before the rule may still carry a backup as the passer, so the page also
+ * passes the teams its current board withholds. Every line of such a team's passer(s) and OTHER passing row is shown
+ * as "Starting QB not confirmed" — the numbers stay (they are the run's), the name never does.
+ */
+export const STARTER_NOT_CONFIRMED = "Starting QB not confirmed";
+
+/** Teams a receipt's recorded decision withholds, or null when the receipt predates the rule. */
+export function withheldStarterTeams(starters) {
+  if (!starters || typeof starters !== "object") return null;
+  return Object.entries(starters).filter(([, d]) => d?.state !== "STARTER").map(([abbr]) => abbr).sort();
+}
+
+/** The stored run boxes with every withheld team's passer name(s) masked (pure; boxes not touched for other teams). */
+export function maskWithheldPassers(runBoxes, teams) {
+  if (!runBoxes?.boxes || !teams?.length) return runBoxes;
+  const withheld = new Set(teams);
+  const boxes = {};
+  for (const [k, box] of Object.entries(runBoxes.boxes)) {
+    const next = { ...box };
+    for (const side of ["away", "home"]) {
+      const s = box?.[side];
+      if (!s || !withheld.has(s.abbr)) continue;
+      const ids = new Set((s.passing ?? []).map((r) => r.id));
+      const mask = (rows) => (rows ?? []).map((r) => (ids.has(r.id) ? { ...r, name: STARTER_NOT_CONFIRMED, position: null } : r));
+      next[side] = { ...s, passing: mask(s.passing), rushing: mask(s.rushing), receiving: mask(s.receiving), tdScorers: mask(s.tdScorers), turnovers: mask(s.turnovers) };
+    }
+    boxes[k] = next;
+  }
+  return { ...runBoxes, boxes };
+}

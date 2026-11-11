@@ -131,3 +131,20 @@ test("R5: a QB-blind official forecast puts the scenario banner and its reason o
   assert.match(src, /nflOfficialOfRecord\(path\.join\(REPO_ROOT, "app", "public"\), eventId\)/, "the official forecast of record, never rebuilt");
   assert.match(src, /data-stp-r5=\{r5\.code\}/);
 });
+
+/* ── the starting QB (PD 2026-11-11, consistent with sim-v2/starter-qb.mjs) ─────────────────────────────────────── */
+test("Theater: a withheld team's passer is never named — the recorded decision, or the board's for an older receipt", async () => {
+  const { STARTER_NOT_CONFIRMED, maskWithheldPassers, withheldStarterTeams } = await import("../../../simulation-theater/run-box-availability.mjs");
+  assert.deepEqual(withheldStarterTeams({ BAL: { state: "WITHHELD" }, LAC: { state: "STARTER" } }), ["BAL"]);
+  assert.equal(withheldStarterTeams(undefined), null, "an older receipt defers to the board");
+  const side = (abbr, passer) => ({ abbr, passing: [{ id: passer, name: "Joe Backup", position: "QB", passYds: 180 }], rushing: [{ id: passer, name: "Joe Backup", position: "QB", rushYds: 9 }, { id: "rb", name: "RB One", position: "RB", rushYds: 70 }], receiving: [], tdScorers: [{ id: passer, name: "Joe Backup", tds: 1 }], turnovers: [], team: {} });
+  const runBoxes = { boxes: { 7: { away: side("LAC", "qb-lac"), home: side("BAL", "qb-bal") } }, refusals: {}, error: null };
+  const out = maskWithheldPassers(runBoxes, ["BAL"]);
+  const home = out.boxes[7].home;
+  assert.ok([...home.passing, ...home.tdScorers, home.rushing[0]].every((r) => r.name === STARTER_NOT_CONFIRMED && r.position === null));
+  assert.equal(home.passing[0].passYds, 180, "the run's numbers stay");
+  assert.equal(home.rushing[1].name, "RB One", "only the passer is masked");
+  assert.equal(out.boxes[7].away.passing[0].name, "Joe Backup", "a confirmed team is untouched");
+  assert.equal(runBoxes.boxes[7].home.passing[0].name, "Joe Backup", "pure: the stored boxes are not mutated");
+  assert.equal(maskWithheldPassers(runBoxes, []), runBoxes);
+});
