@@ -44,6 +44,7 @@ import { calibrate, runBatch } from "../../src/lib/sports/nfl/sim-v2/simulate.mj
 import { buildNflSimulationReceipt, playersFromRoleShares, SIMULATION_RECEIPT_SCHEMA } from "../../src/lib/sports/nfl/sim-v2/receipt.mjs";
 import { forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
 import { fnv1a64 } from "../../src/lib/forecast-ledger/identity.mjs";
+import { simStarterDecision, starterOptions } from "../../src/lib/sports/nfl/sim-v2/starter-qb.mjs";
 import { shareExclusions, teamIdsFromRoster } from "../../src/lib/sports/nfl/participation-eligibility.mjs";
 import { eligibilitySnapshot, playerAvailability, teamEligibilityRecords } from "../../src/lib/sports/nfl/sim-v2/personnel-eligibility.mjs";
 import { activeRosterIndex } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
@@ -158,15 +159,13 @@ function main() {
       }
       return ids;
     };
-    // The starting QB: the passer the event's availability-gated board publishes (one-passer rule), when it exists.
+    // The starting QB: the board's own decision (depth-chart QB1, or WITHHELD) — never the largest raw role share.
     const boardPath = path.join(ROOT, `app/public/data/nfl/player-board/${eventId}.json`);
     const board = fs.existsSync(boardPath) ? JSON.parse(fs.readFileSync(boardPath, "utf8")) : null;
-    const starterFor = (abbr) => {
-      const qbs = (board?.players ?? []).filter((p) => p.team === abbr && p.markets?.player_pass_yds);
-      return qbs.length === 1 ? qbs[0].playerId : null;
-    };
+    const starters = [r.home.abbr, r.away.abbr].map((abbr) => simStarterDecision(board, abbr));
+    for (const [i, d] of starters.entries()) if (d.state !== "STARTER") console.log(`${eventId} ${[r.home.abbr, r.away.abbr][i]}: passing to OTHER — ${d.reason}`);
     const excluded = [r.home.abbr, r.away.abbr].map(excludedFor);
-    const inputs = [r.home.abbr, r.away.abbr].map((abbr, i) => playersFromRoleShares(teamBlock(abbr), excluded[i], { starterQb: starterFor(abbr) }));
+    const inputs = [r.home.abbr, r.away.abbr].map((abbr, i) => playersFromRoleShares(teamBlock(abbr), excluded[i], starterOptions(starters[i])));
     // the eligibility@1 records behind the personnel: a stamp-free snapshot id, and each SIMULATED player's state
     const records = [r.home.abbr, r.away.abbr].map((abbr) => teamEligibilityRecords(teamBlock(abbr), abbr, eligibilityCtx));
     const eligibility = eligibilitySnapshot({ [r.home.abbr]: records[0], [r.away.abbr]: records[1] });
@@ -188,7 +187,7 @@ function main() {
     const receipt = buildNflSimulationReceipt({
       event: { eventId, kickoffUtc: r.kickoffUtc, home: r.home, away: r.away },
       compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt: now, postseason, idSuffix: plan.idSuffix,
-      inputs: { forecastReceipt: `data/internal/nfl/forecast-receipts/${file}`, roleShares: `${ROLE_SHARES}@${roleShares.generatedAt}`, availability, params: paramsRef.sha256, eligibilitySnapshotId: eligibility.snapshotId },
+      inputs: { forecastReceipt: `data/internal/nfl/forecast-receipts/${file}`, roleShares: `${ROLE_SHARES}@${roleShares.generatedAt}`, availability, params: paramsRef.sha256, eligibilitySnapshotId: eligibility.snapshotId, starters: { [r.home.abbr]: starters[0], [r.away.abbr]: starters[1] } },
       eligibility, playerAvailability: availabilityByPlayer,
     });
     const outRel = `${OUT_DIR}/${now.slice(0, 10)}/${plan.fileStem}.json`;

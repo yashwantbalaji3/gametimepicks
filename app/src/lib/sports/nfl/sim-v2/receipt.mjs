@@ -71,7 +71,7 @@ function histogram(values) {
  * blocks: they receive NO opportunity; their share is redistributed pro rata to the available NAMED players of the
  * same family (OTHER keeps only its own residual). A non-starting QB keeps no passing or carries (one starter).
  */
-export function playersFromRoleShares(teamBlock, excluded = new Set(), { starterQb = null } = {}) {
+export function playersFromRoleShares(teamBlock, excluded = new Set(), { starterQb = null, strictStarter = false, withholdPassers = false } = {}) {
   if (!teamBlock) return { players: [] };
   const fam = (k) => (teamBlock[k]?.players ?? []);
   const rates = new Map((teamBlock.rates?.players ?? []).map((r) => [r.playerId, r]));
@@ -94,7 +94,14 @@ export function playersFromRoleShares(teamBlock, excluded = new Set(), { starter
      gated board names (the published one-passer rule), else the largest passing share; every other QB's passing and
      carries move to the starter. */
   const qbs = [...pass.keys()].filter((id) => (ids.get(id)?.position ?? "QB") === "QB");
-  const starter = starterQb && pass.has(starterQb) ? starterQb : qbs.sort((a, b) => pass.get(b) - pass.get(a) || (a < b ? -1 : 1))[0] ?? null;
+  /* Week 10 (sim-v2/starter-qb.mjs): with the board's decision, the starter is its QB1 or nobody — never the largest
+     raw share. WITHHELD (or a strict starter missing from the pool): no named player passes, and no quarterback
+     carries a share; both go to the engine's OTHER slot, unrescaled. */
+  if (withholdPassers || (strictStarter && !(starterQb && pass.has(starterQb)))) {
+    pass.clear();
+    for (const id of [...car.keys()]) if ((ids.get(id)?.position ?? null) === "QB") car.delete(id);
+  }
+  const starter = pass.size === 0 ? null : starterQb && pass.has(starterQb) ? starterQb : qbs.sort((a, b) => pass.get(b) - pass.get(a) || (a < b ? -1 : 1))[0] ?? null;
   if (starter) {
     for (const id of qbs) {
       if (id === starter) continue;
