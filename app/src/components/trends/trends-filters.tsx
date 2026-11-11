@@ -26,6 +26,8 @@ export default function TrendsFilters({ teams, positions, spec }: { teams: strin
     const body = table?.querySelector("tbody");
     if (!table || !body) return;
     if (stat) table.setAttribute("data-trn-only", stat); else table.removeAttribute("data-trn-only");
+    // the chosen stat's column only — for any sport's stats (the stylesheet's rule covers NBA's three before hydration)
+    for (const c of table.querySelectorAll<HTMLElement>("[data-trn-col]")) c.hidden = Boolean(stat) && c.dataset.trnCol !== stat;
     const need = stat && hits ? Number(hits) : 0;
     const rows = [...body.querySelectorAll<HTMLTableRowElement>("tr[data-trn-player]")];
     let n = 0;
