@@ -100,6 +100,8 @@ export function levelARecord(suggestions, grades) {
           sport: l.sport, eventId: l.eventId, eventLabel: l.eventLabel ?? null, startUtc: l.startUtc ?? null,
           selection: l.selection?.label ?? null, probability: typeof l.probability === "number" ? l.probability : null,
           modelId: l.forecast?.modelId ?? null, stampedAt: l.forecast?.stampedAt ?? null,
+          /* eligibility@1 as recorded at freeze (NFL legs since #1306); null for legs recorded before it existed */
+          eligibility: l.eligibility ? { state: l.eligibility.state ?? null, contractVersion: l.eligibility.contractVersion ?? null } : null,
           /* The grader's words describe the official final only once the leg is decided; a pending leg's reason is a
              status code ("only FULL_TIME grades"), never shown as a final. */
           result: lg ? (RESULT[lg.result] ?? "PENDING") : "PENDING",

@@ -44,6 +44,9 @@ function buildInfoEnv() {
 const theaterFlagEnv = () => ({
   GTP_NFL_THEATER_PUBLIC: process.env.GTP_NFL_THEATER_PUBLIC === "1" ? "1" : "0",
   GTP_NBA_THEATER_PUBLIC: process.env.GTP_NBA_THEATER_PUBLIC === "1" ? "1" : "0",
+  /* GTP_PARLAY_TRACKING_PUBLIC — /build tier performance + /data/parlay-card-history.json (2026-11-11). Default OFF: the
+     section is never created and the data route emits {"disabled":true}. */
+  GTP_PARLAY_TRACKING_PUBLIC: process.env.GTP_PARLAY_TRACKING_PUBLIC === "1" ? "1" : "0",
 });
 
 /** @type {import('next').NextConfig} */
