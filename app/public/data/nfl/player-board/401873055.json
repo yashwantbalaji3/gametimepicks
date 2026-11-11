@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-11T17:07:16Z",
- "sourceGeneratedAt": "2026-11-11T17:07:16Z",
+ "generatedAt": "2026-11-11T21:05:56Z",
+ "sourceGeneratedAt": "2026-11-11T21:05:56Z",
  "forecastInputHash": "ba347974de433e28",
  "providerEventId": "401873055",
  "matchup": "CAR @ NO",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-11T17:07:16Z",
-  "roleEvidenceAt": "2026-11-11T17:07:16Z",
+  "injuriesCapturedAt": "2026-11-11T21:05:56Z",
+  "roleEvidenceAt": "2026-11-11T21:05:56Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -289,7 +289,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "not NO's starting quarterback (Tyler Shough, depth chart QB1) — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -427,7 +427,16 @@
   "qbStarter": [
    {
     "team": "CAR",
-    "state": "SINGLE_PASSER",
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "skipped": [],
+    "state": "APPLIED",
+    "tier": "A_CLUB_HISTORY",
+    "starter": {
+     "playerId": "nfl-athlete-4685720",
+     "name": "Bryce Young"
+    },
+    "source": "depth chart QB1",
+    "basis": "club share 0.98 ≥ 0.75",
     "passers": [
      "nfl-athlete-4685720"
     ],
@@ -435,41 +444,26 @@
    },
    {
     "team": "NO",
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "skipped": [],
     "state": "APPLIED",
+    "tier": "A_CLUB_HISTORY",
     "starter": {
      "playerId": "nfl-athlete-4360689",
      "name": "Tyler Shough"
     },
-    "snapshotAt": "2026-11-11T07:02:21Z",
+    "source": "depth chart QB1",
+    "basis": "club share 1.00 ≥ 0.75",
+    "passers": [
+     "nfl-athlete-4360689"
+    ],
     "removed": [
      {
       "playerId": "nfl-athlete-4426339",
-      "name": "Spencer Rattler"
+      "name": "Spencer Rattler",
+      "reason": "not NO's starting quarterback (Tyler Shough, depth chart QB1) — the team's passing projection belongs to the starter"
      }
-    ],
-    "passers": [
-     "nfl-athlete-4360689"
     ]
-   }
-  ],
-  "passerShareFloor": [
-   {
-    "team": "CAR",
-    "floor": 0.75,
-    "passers": [
-     "nfl-athlete-4685720"
-    ],
-    "withheld": [],
-    "unjoined": []
-   },
-   {
-    "team": "NO",
-    "floor": 0.75,
-    "passers": [
-     "nfl-athlete-4360689"
-    ],
-    "withheld": [],
-    "unjoined": []
    }
   ],
   "pools": [
@@ -575,11 +569,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T00:12Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -612,11 +606,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:09Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -658,11 +652,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T00:16Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -713,11 +707,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:23Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -759,11 +753,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T00:59Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -805,11 +799,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:50Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -851,11 +845,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T00:21Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -897,11 +891,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T03:51Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -943,11 +937,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:00Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -989,11 +983,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:12Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1035,11 +1029,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:13Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1066,6 +1060,7 @@
      "median": 222.8358,
      "p75": 287.9799,
      "p90": 356.322,
+     "tier": "A_CLUB_HISTORY",
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1081,11 +1076,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:03Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1118,11 +1113,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T20:56Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1164,11 +1159,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T02:51Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1210,11 +1205,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T00:46Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1247,11 +1242,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T04:36Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1293,11 +1288,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T22:44Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1333,11 +1328,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-10T15:44Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1370,11 +1365,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T02:45Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1407,11 +1402,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T02:50Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1446,11 +1441,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1468,6 +1463,7 @@
      "median": 229.6536,
      "p75": 298.6983,
      "p90": 371.395,
+     "tier": "A_CLUB_HISTORY",
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1483,11 +1479,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T00:07Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }

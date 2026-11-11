@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-11T17:07:16Z",
- "sourceGeneratedAt": "2026-11-11T17:07:16Z",
+ "generatedAt": "2026-11-11T21:05:56Z",
+ "sourceGeneratedAt": "2026-11-11T21:05:56Z",
  "forecastInputHash": "50e2b57b69cc0106",
  "providerEventId": "401873052",
  "matchup": "WSH @ NYG",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-11T17:07:16Z",
-  "roleEvidenceAt": "2026-11-11T17:07:16Z",
+  "injuriesCapturedAt": "2026-11-11T21:05:56Z",
+  "roleEvidenceAt": "2026-11-11T21:05:56Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -29,8 +29,7 @@
      "team": "NYG",
      "playerId": "nfl-athlete-4433970",
      "name": "J.J. McCarthy",
-     "share": 0.592,
-     "reason": "withheld for J.J. McCarthy (NYG): his modelled share of NYG's pass attempts is 0.59, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     "reason": "J.J. McCarthy starts for NYG (depth chart QB1) — experimental projection in research (limited individual history: 311 verified NFL pass attempts, little of it as NYG's starter)"
     }
    ],
    "conservation": {
@@ -177,7 +176,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "not WSH's starting quarterback (Jayden Daniels, depth chart QB1) — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -204,7 +203,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "not WSH's starting quarterback (Jayden Daniels, depth chart QB1) — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -344,7 +343,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
+       "reason": "not NYG's starting quarterback (J.J. McCarthy, depth chart QB1) — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -361,7 +360,12 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for J.J. McCarthy (NYG): his modelled share of NYG's pass attempts is 0.59, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "J.J. McCarthy starts for NYG (depth chart QB1) — experimental projection in research (limited individual history: 311 verified NFL pass attempts, little of it as NYG's starter)"
+      },
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "J.J. McCarthy starts for NYG (depth chart QB1) — experimental projection in research (limited individual history: 311 verified NFL pass attempts, little of it as NYG's starter)"
       }
      ]
     },
@@ -488,71 +492,59 @@
   "qbStarter": [
    {
     "team": "WSH",
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "skipped": [],
     "state": "APPLIED",
+    "tier": "A_CLUB_HISTORY",
     "starter": {
      "playerId": "nfl-athlete-4426348",
      "name": "Jayden Daniels"
     },
-    "snapshotAt": "2026-11-11T07:02:21Z",
+    "source": "depth chart QB1",
+    "basis": "club share 0.93 ≥ 0.75",
+    "passers": [
+     "nfl-athlete-4426348"
+    ],
     "removed": [
      {
       "playerId": "nfl-athlete-4432722",
-      "name": "Athan Kaliakmanis"
+      "name": "Athan Kaliakmanis",
+      "reason": "not WSH's starting quarterback (Jayden Daniels, depth chart QB1) — the team's passing projection belongs to the starter"
      },
      {
       "playerId": "nfl-athlete-2576980",
-      "name": "Marcus Mariota"
+      "name": "Marcus Mariota",
+      "reason": "not WSH's starting quarterback (Jayden Daniels, depth chart QB1) — the team's passing projection belongs to the starter"
      }
-    ],
-    "passers": [
-     "nfl-athlete-4426348"
     ]
    },
    {
     "team": "NYG",
-    "state": "APPLIED",
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "skipped": [],
+    "state": "WITHHELD_STARTER_NOT_CONFIRMED",
+    "tier": "B_ALL_CLUB_HISTORY",
     "starter": {
      "playerId": "nfl-athlete-4433970",
      "name": "J.J. McCarthy"
     },
-    "snapshotAt": "2026-11-11T07:02:21Z",
+    "source": "depth chart QB1",
+    "reason": "J.J. McCarthy starts for NYG (depth chart QB1) — experimental projection in research (limited individual history: 311 verified NFL pass attempts, little of it as NYG's starter)",
+    "experimental": true,
+    "careerAttempts": 311,
+    "passers": [],
     "removed": [
      {
-      "playerId": "nfl-athlete-2969939",
-      "name": "Jameis Winston"
-     }
-    ],
-    "passers": [
-     "nfl-athlete-4433970"
-    ]
-   }
-  ],
-  "passerShareFloor": [
-   {
-    "team": "WSH",
-    "floor": 0.75,
-    "passers": [
-     "nfl-athlete-4426348"
-    ],
-    "withheld": [],
-    "unjoined": []
-   },
-   {
-    "team": "NYG",
-    "floor": 0.75,
-    "passers": [
-     "nfl-athlete-4433970"
-    ],
-    "withheld": [
-     {
-      "team": "NYG",
       "playerId": "nfl-athlete-4433970",
       "name": "J.J. McCarthy",
-      "share": 0.592,
-      "reason": "withheld for J.J. McCarthy (NYG): his modelled share of NYG's pass attempts is 0.59, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+      "reason": "J.J. McCarthy starts for NYG (depth chart QB1) — experimental projection in research (limited individual history: 311 verified NFL pass attempts, little of it as NYG's starter)"
+     },
+     {
+      "playerId": "nfl-athlete-2969939",
+      "name": "Jameis Winston",
+      "reason": "not NYG's starting quarterback (J.J. McCarthy, depth chart QB1) — the team's passing projection belongs to the starter"
      }
-    ],
-    "unjoined": []
+    ]
    }
   ],
   "pools": [
@@ -636,11 +628,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:32Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -675,11 +667,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -730,11 +722,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T23:09Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -776,11 +768,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T23:20Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -831,11 +823,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T23:17Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -877,11 +869,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T21:54Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -916,11 +908,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -965,11 +957,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-11T14:59Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1011,11 +1003,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T02:02Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1057,11 +1049,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T04:32Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1103,11 +1095,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T23:56Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1149,11 +1141,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T04:13Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1180,6 +1172,7 @@
      "median": 201.3938,
      "p75": 266.5771,
      "p90": 335.8882,
+     "tier": "A_CLUB_HISTORY",
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1195,11 +1188,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T23:12Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1241,11 +1234,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:39Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1287,11 +1280,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T23:27Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1324,11 +1317,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T21:36Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1363,11 +1356,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1409,11 +1402,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T00:23Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1449,11 +1442,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-10T21:39Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1479,11 +1472,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1518,11 +1511,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
@@ -1551,11 +1544,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T02:56Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:05:56Z"
      }
     }
    }
