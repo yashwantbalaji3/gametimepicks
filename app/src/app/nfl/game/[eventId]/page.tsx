@@ -813,7 +813,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       {view ? <Methodology view={view} status={WORLD_MODEL_STATUS} started={started} calibration={s.winProbability.calibration} /> : null}
       {/* Simulation V2 (the drive-level research engine) stays reachable, as research, not as a second forecast. */}
       <SimulationV2Link eventId={f.providerEventId} />
-      <QbResultsSlot eventId={f.providerEventId} />
+      {/* flag OFF: the element is never created (an async slot cannot render in a synchronous static render) */}
+      {process.env.GTP_NFL_TRENDS_PUBLIC === "1" ? <QbResultsSlot eventId={f.providerEventId} /> : null}
 
       <section aria-labelledby="how-read" style={{ marginTop: 26 }}>
         <SectionHeader eyebrow="Reading key" title="What these numbers mean" />

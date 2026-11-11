@@ -111,7 +111,7 @@ export function qbGameResult({ receipt, game, final, gradedAgainst, ledger }: { 
         const graded = row?.families?.[m.market]?.model ? { state: "GRADED" as const, window: WINDOW_WORDS[row.window ?? rowWindow(row)] ?? "row" } : null;
         return {
           market: m.market, label: m.label, projection: Number.isFinite(p) ? p : null, actual: Number.isFinite(a) ? a : null, grade: graded,
-          status: `${STATUS_WORDS[QB_MARKET_STATUS[m.market]] ?? QB_MARKET_STATUS[m.market]} · ${n}/${MIN_PAIRED_N}`,
+          status: `${STATUS_WORDS[(QB_MARKET_STATUS as Record<string, string>)[m.market]] ?? (QB_MARKET_STATUS as Record<string, string>)[m.market]} · ${n}/${MIN_PAIRED_N}`,
           verdict: n >= MIN_PAIRED_N ? verdict : null,
         };
       }),
