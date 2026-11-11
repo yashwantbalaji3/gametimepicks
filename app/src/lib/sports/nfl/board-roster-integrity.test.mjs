@@ -12,7 +12,7 @@ import os from "node:os";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
 
-import { applyQbStarterRule, auditBoard, buildCoverage, currentSeasonUsageIndex, COVERAGE, isUnavailableState, receivingFamilyGaps } from "./board-roster-integrity.mjs";
+import { applyQbStarterRule, auditBoard, QB_STARTER_WITHHELD, buildCoverage, currentSeasonUsageIndex, COVERAGE, isUnavailableState, receivingFamilyGaps } from "./board-roster-integrity.mjs";
 import { deriveNewArrivals } from "./new-arrivals.mjs";
 import { indexDepthCharts } from "./depth-chart.mjs";
 
@@ -175,18 +175,67 @@ test("§19 · only the depth chart's QB1 keeps a passing projection; the survivo
   assert.deepEqual(auditBoard({ board: { matchup: "PIT @ CLE", players, integrity: { qbStarter: [r] } }, rosterByTeam: new Map(), unavailable: new Map() }), []);
 });
 
-test("§19 · fail-closed: a stale chart, or a QB1 the board never projected, leaves the pool untouched", () => {
+test("§19 · fail-closed (Week 10): a stale chart, or a QB1 the board never projected, withholds every passer — never two", () => {
   const stale = qbRows();
   const r1 = applyQbStarterRule({ players: stale, team: "CLE", index: chart("CLE", "2026-09-20T13:00:00Z", [["1", "Starter"]]), asOf: "2026-10-01T20:00:00Z" });
-  assert.equal(r1.state, "UNRESOLVED");
-  assert.equal(stale.filter((p) => p.markets.player_pass_yds).length, 3);
+  assert.equal(r1.state, QB_STARTER_WITHHELD);
+  assert.match(r1.reason, /^withheld for CLE: starting QB not confirmed — depth chart STALE/);
+  assert.equal(stale.filter((p) => p.markets.player_pass_yds).length, 0);
+  assert.ok(stale[1].markets.player_rush_yds, "only the pass-attempt pool is touched");
   const absent = qbRows();
   const r2 = applyQbStarterRule({ players: absent, team: "CLE", index: chart("CLE", "2026-09-30T13:00:00Z", [["9", "Someone Else"]]), asOf: "2026-10-01T20:00:00Z" });
-  assert.equal(r2.state, "UNRESOLVED");
-  assert.match(r2.reason, /not in the board's passing pool/);
-  assert.equal(absent.filter((p) => p.markets.player_pass_yds).length, 3);
+  assert.equal(r2.state, QB_STARTER_WITHHELD);
+  assert.match(r2.reason, /QB1 Someone Else has no passing projection/);
+  assert.equal(absent.filter((p) => p.markets.player_pass_yds).length, 0);
+  assert.deepEqual(r2.starter, { playerId: "nfl-athlete-9", name: "Someone Else" });
   const noIndex = applyQbStarterRule({ players: qbRows(), team: "CLE", index: null, asOf: "2026-10-01T20:00:00Z" });
-  assert.equal(noIndex.state, "UNRESOLVED");
+  assert.equal(noIndex.state, QB_STARTER_WITHHELD);
+  assert.match(noIndex.reason, /NO_SNAPSHOT/);
+});
+
+test("Week 10 · BAL: the only pool passer is not QB1 → withheld, never projected as the starter", () => {
+  const players = [
+    { playerId: "nfl-athlete-4429582", name: "Joe Fagnano", team: "BAL", markets: { player_pass_yds: { median: 127 }, player_rush_yds: { median: 3 } } },
+    { playerId: "nfl-athlete-1", name: "Derrick Henry", team: "BAL", markets: { player_rush_yds: { median: 80 } } },
+  ];
+  const idx = chart("BAL", "2026-11-11T07:02:21Z", [["9001", "Jacoby Brissett"], ["4429582", "Joe Fagnano"]]);
+  const r = applyQbStarterRule({ players, team: "BAL", index: idx, asOf: "2026-11-11T17:00:00Z" });
+  assert.equal(r.state, QB_STARTER_WITHHELD);
+  assert.match(r.reason, /QB1 Jacoby Brissett has no passing projection \(no passing history at BAL\)/);
+  assert.equal(players[0].markets.player_pass_yds, undefined);
+  assert.equal(players[0].markets.player_rush_yds.median, 3);
+  const cov = buildCoverage({ teams: ["BAL"], players, excluded: [], arrivals: {}, qbRules: [r] });
+  const brissett = cov.BAL.players.find((x) => x.playerId === "nfl-athlete-9001");
+  assert.equal(brissett.state, COVERAGE.NOT_MODELED_BY_FAMILY, "the unprojectable starter is accounted for");
+  assert.match(cov.BAL.players.find((x) => x.playerId === "nfl-athlete-4429582").notModeled[0].reason, /starting QB not confirmed/);
+  /* control: when the single passer IS QB1 he stands, unrescaled */
+  const ok = [{ playerId: "nfl-athlete-9001", name: "Jacoby Brissett", team: "BAL", markets: { player_pass_yds: { median: 201 } } }];
+  const r2 = applyQbStarterRule({ players: ok, team: "BAL", index: idx, asOf: "2026-11-11T17:00:00Z" });
+  assert.equal(r2.state, "SINGLE_PASSER");
+  assert.equal(ok[0].markets.player_pass_yds.median, 201);
+});
+
+test("Week 10 · MIN: two pool passers, QB1 Cousins not among them → both withheld (never two passers)", () => {
+  const players = [
+    { playerId: "nfl-athlete-3917315", name: "Kyler Murray", team: "MIN", markets: { player_pass_yds: { median: 175 } } },
+    { playerId: "nfl-athlete-2573079", name: "Carson Wentz", team: "MIN", markets: { player_pass_yds: { median: 152 } } },
+  ];
+  const r = applyQbStarterRule({ players, team: "MIN", index: chart("MIN", "2026-11-11T07:02:21Z", [["8001", "Kirk Cousins"], ["3917315", "Kyler Murray"]]), asOf: "2026-11-11T17:00:00Z" });
+  assert.equal(r.state, QB_STARTER_WITHHELD);
+  assert.equal(players.filter((p) => p.markets.player_pass_yds).length, 0);
+  assert.deepEqual(r.removed.map((x) => x.name), ["Kyler Murray", "Carson Wentz"]);
+  assert.deepEqual(auditBoard({ board: { matchup: "MIN @ GB", players, integrity: { qbStarter: [r] } }, rosterByTeam: new Map(), unavailable: new Map() }), []);
+});
+
+test("Week 10 · MIA/ARI: no pool passer and a QB1 with no history → withheld with the reason, nothing invented", () => {
+  const players = [{ playerId: "nfl-athlete-5", name: "De'Von Achane", team: "MIA", markets: { player_rush_yds: { median: 60 } } }];
+  const r = applyQbStarterRule({ players, team: "MIA", index: chart("MIA", "2026-11-11T07:02:21Z", [["7001", "Kyle McCord"], ["4242512", "Malik Willis"]]), asOf: "2026-11-11T17:00:00Z" });
+  assert.equal(r.state, QB_STARTER_WITHHELD);
+  assert.deepEqual(r.removed, []);
+  assert.equal(r.starter.name, "Kyle McCord");
+  assert.ok(!players.some((p) => p.markets.player_pass_yds));
+  /* control: no chart and no passer stays the old SINGLE_PASSER no-op */
+  assert.equal(applyQbStarterRule({ players, team: "MIA", index: null, asOf: "2026-11-11T17:00:00Z" }).state, "SINGLE_PASSER");
 });
 
 test("§19 · the audit flags several passers unless the rule reported why it could not run", () => {

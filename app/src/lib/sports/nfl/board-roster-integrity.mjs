@@ -108,19 +108,42 @@ export function receivingFamilyGaps({ forecast, gameId, season, toBoardTeam, pub
 /**
  * Apply the one-passer rule to ONE team's rows (mutates `players`' markets). Returns what it did.
  * `players` are board rows ({ playerId, team, markets }); `index` is from `indexDepthCharts`.
+ *
+ * Week 10 (PD 2026-11-11, founder P0): the board printed Joe Fagnano as Baltimore's passer (QB1 Brissett),
+ * Kyler Murray AND Carson Wentz for Minnesota (QB1 Cousins), and nothing for Miami / Arizona, because the rule
+ * only consulted the chart when the pool held two or more passers and, when QB1 was not in the pool, left every
+ * passer standing. Now, with a current chart, the chart's QB1 is the only quarterback who may carry the team's
+ * passing projection, whatever the pool size; a QB1 the model cannot project (no passing history at the club)
+ * WITHHOLDS the family for that team with the reason, and no other quarterback stands in. Without a current chart
+ * a single passer stands as before, and two or more are withheld ("starting QB not confirmed") — never two
+ * passers for one team. Nothing is rescaled or invented.
  */
+export const QB_STARTER_WITHHELD = "WITHHELD_STARTER_NOT_CONFIRMED";
+
 export function applyQbStarterRule({ players, team, index, asOf, maxAgeMs = QB_CHART_MAX_AGE_MS }) {
   const passers = (players ?? []).filter((p) => p.team === team && p.markets?.player_pass_yds);
-  if (passers.length <= 1) return { team, state: "SINGLE_PASSER", passers: passers.map((p) => p.playerId), removed: [] };
   /* The depth-chart capture spells clubs the ESPN way (WSH, LAR) — the board's own spelling. */
   const chart = index ? depthChartAsOf(index, team, asOf, maxAgeMs) : { state: DEPTH_STATE.NO_SNAPSHOT };
+  const withholdAll = (reason, extra = {}) => {
+    const removed = passers.map((p) => {
+      delete p.markets.player_pass_yds;
+      return { playerId: p.playerId, name: p.name, reason };
+    });
+    return { team, state: QB_STARTER_WITHHELD, reason, passers: [], removed, snapshotAt: chart.snapshotAt ?? null, ...extra };
+  };
   if (chart.state !== DEPTH_STATE.RESOLVED) {
-    return { team, state: "UNRESOLVED", reason: `depth chart ${chart.state}`, passers: passers.map((p) => p.playerId), removed: [], snapshotAt: chart.snapshotAt ?? null };
+    if (passers.length <= 1) return { team, state: "SINGLE_PASSER", passers: passers.map((p) => p.playerId), removed: [] };
+    return withholdAll(`withheld for ${team}: starting QB not confirmed — depth chart ${chart.state}, and ${passers.length} quarterbacks hold passing shares`);
   }
   const starterId = `nfl-athlete-${chart.starter.playerId}`;
+  const starterName = chart.starter.name ?? starterId;
   if (!passers.some((p) => p.playerId === starterId)) {
-    return { team, state: "UNRESOLVED", reason: `depth-chart QB1 ${chart.starter.name ?? starterId} is not in the board's passing pool`, passers: passers.map((p) => p.playerId), removed: [], snapshotAt: chart.snapshotAt };
+    return withholdAll(
+      `withheld for ${team}: starting QB not confirmed in the model — the depth chart's QB1 ${starterName} has no passing projection (no passing history at ${team}), and no other quarterback's projection stands in for his start`,
+      { starter: { playerId: starterId, name: chart.starter.name ?? null } },
+    );
   }
+  if (passers.length === 1) return { team, state: "SINGLE_PASSER", starter: { playerId: starterId, name: chart.starter.name ?? null }, snapshotAt: chart.snapshotAt, passers: [starterId], removed: [] };
   const removed = [];
   for (const p of passers) {
     if (p.playerId === starterId) continue;
@@ -191,13 +214,21 @@ export function buildCoverage({ teams, players, excluded, arrivals, qbRules, noR
       if (rows.some((r) => r.playerId === a.playerId)) continue;
       rows.push({ playerId: a.playerId, name: a.name, state: COVERAGE.WITHHELD_ROLE_UNCERTAIN, reason: `no game for ${team} yet this season — role at ${team} not yet observed` });
     }
-    for (const r of qbRules.find((q) => q.team === team)?.removed ?? []) {
-      const notModeled = [{ family: "player_pass_yds", state: COVERAGE.NOT_MODELED_BY_FAMILY, reason: "not the depth chart's QB1 — the team's passing projection belongs to the starter" }];
+    const rule = qbRules.find((q) => q.team === team);
+    for (const r of rule?.removed ?? []) {
+      const notModeled = [{ family: "player_pass_yds", state: COVERAGE.NOT_MODELED_BY_FAMILY, reason: r.reason ?? "not the depth chart's QB1 — the team's passing projection belongs to the starter" }];
       const row = rows.find((x) => x.playerId === r.playerId);
       /* A backup whose ONLY family was passing has no row left once the rule runs — he is still
          accounted for, never dropped in silence (caught by MATERIAL_OMISSION on Drew Lock, SEA). */
       if (row) row.notModeled = notModeled;
       else rows.push({ playerId: r.playerId, name: r.name, state: COVERAGE.NOT_MODELED_BY_FAMILY, reason: notModeled[0].reason, notModeled });
+    }
+    /* Week 10 — the chart's QB1 whose passing the model cannot project is accounted for, never dropped in silence. */
+    if (rule?.state === QB_STARTER_WITHHELD && rule.starter) {
+      const notModeled = [{ family: "player_pass_yds", state: COVERAGE.NOT_MODELED_BY_FAMILY, reason: rule.reason }];
+      const row = rows.find((x) => x.playerId === rule.starter.playerId);
+      if (row) row.notModeled = [...(row.notModeled ?? []), ...notModeled];
+      else rows.push({ playerId: rule.starter.playerId, name: rule.starter.name, state: COVERAGE.NOT_MODELED_BY_FAMILY, reason: rule.reason, notModeled });
     }
     /* Week 5 (applyPasserShareFloor) — a passer whose relief-sized share was withheld is accounted for; one
        whose ONLY family was passing has no row left, and is listed here rather than dropped in silence. */
