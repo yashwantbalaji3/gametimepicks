@@ -71,7 +71,7 @@ function histogram(values) {
  * blocks: they receive NO opportunity; their share is redistributed pro rata to the available NAMED players of the
  * same family (OTHER keeps only its own residual). A non-starting QB keeps no passing or carries (one starter).
  */
-export function playersFromRoleShares(teamBlock, excluded = new Set(), { starterQb = null, strictStarter = false, withholdPassers = false } = {}) {
+export function playersFromRoleShares(teamBlock, excluded = new Set(), { starterQb = null, starterName = null, strictStarter = false, withholdPassers = false } = {}) {
   if (!teamBlock) return { players: [] };
   const fam = (k) => (teamBlock[k]?.players ?? []);
   const rates = new Map((teamBlock.rates?.players ?? []).map((r) => [r.playerId, r]));
@@ -97,9 +97,19 @@ export function playersFromRoleShares(teamBlock, excluded = new Set(), { starter
   /* Week 10 (sim-v2/starter-qb.mjs): with the board's decision, the starter is its QB1 or nobody — never the largest
      raw share. WITHHELD (or a strict starter missing from the pool): no named player passes, and no quarterback
      carries a share; both go to the engine's OTHER slot, unrescaled. */
-  if (withholdPassers || (strictStarter && !(starterQb && pass.has(starterQb)))) {
+  if (withholdPassers || (strictStarter && !starterQb)) {
     pass.clear();
     for (const id of [...car.keys()]) if ((ids.get(id)?.position ?? null) === "QB") car.delete(id);
+  } else if (strictStarter) {
+    /* Founder decision 2026-11-11: the board's starter carries the team's full passing, whether or not his history with
+       this club put him in the pool (a traded or promoted starter is added). Non-quarterbacks keep their own raw
+       trick-play shares — never rescaled up into a vacated QB share — and every other QB's passing goes to him. */
+    if (!ids.has(starterQb)) ids.set(starterQb, { playerId: starterQb, name: starterName ?? null, position: "QB" });
+    const raw = new Map(fam("passAttempts").filter((p) => !excluded.has(p.playerId) && (ids.get(p.playerId)?.position ?? "QB") !== "QB").map((p) => [p.playerId, p.share]));
+    pass.clear();
+    for (const [id, v] of raw) pass.set(id, v);
+    pass.set(starterQb, Math.max(0, 1 - [...raw.values()].reduce((a, b) => a + b, 0)));
+    for (const id of qbs) if (id !== starterQb && car.has(id)) { car.set(starterQb, (car.get(starterQb) ?? 0) + car.get(id)); car.delete(id); }
   }
   const starter = pass.size === 0 ? null : starterQb && pass.has(starterQb) ? starterQb : qbs.sort((a, b) => pass.get(b) - pass.get(a) || (a < b ? -1 : 1))[0] ?? null;
   if (starter) {

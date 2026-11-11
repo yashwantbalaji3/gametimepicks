@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-qb-starter-tier-b-backtest",
+  "dataClass": "PRIVATE_RESEARCH",
+  "rule": "see scripts/research/nfl/backtest-qb-starter-tier-b.mjs header (fixed before any result was seen)",
+  "inputs": {
+    "tables": [
+      "data/internal/research/nfl/replay/player-games-v1.json.gz",
+      "data/internal/research/nfl/replay/player-games-2026-v1.json.gz"
+    ],
+    "through2026Week": 9,
+    "preregistration": "data/internal/research/nfl/reports/player-props-share-level-preregistration.json",
+    "secondLook": "data/internal/research/nfl/reports/player-props-share-level-second-look.json",
+    "floor": 0.75,
+    "priorTrials": 25,
+    "dispersionScale": 1.25
+  },
+  "starterShare": {
+    "value": 0.9746,
+    "games": 2553,
+    "seasons": [
+      2013,
+      2017
+    ],
+    "definition": "mean share of team pass attempts thrown by the game's leading passer (position QB), REG"
+  },
+  "population": {
+    "from": 2018,
+    "n": 479,
+    "limitedHistoryExcluded": 102
+  },
+  "meanPinball": {
+    "tierB": 21.233,
+    "leagueStarter": 21.876,
+    "clubShare": 56.985
+  },
+  "bars": {
+    "minimumN": {
+      "need": 300,
+      "got": 479,
+      "pass": true
+    },
+    "beatsLeagueStarter": {
+      "ci95": {
+        "mean": -0.643,
+        "lo": -1.121,
+        "hi": -0.169,
+        "clusters": 143
+      },
+      "pass": true
+    },
+    "beatsClubShare": {
+      "ci95": {
+        "mean": -35.752,
+        "lo": -40.606,
+        "hi": -30.576,
+        "clusters": 143
+      },
+      "pass": true
+    },
+    "coverage80": {
+      "band": [
+        0.72,
+        0.88
+      ],
+      "got": 0.858,
+      "pass": true
+    },
+    "level": {
+      "band": [
+        0.92,
+        1.08
+      ],
+      "got": 0.9309,
+      "pass": true
+    }
+  },
+  "verdict": "TIER_B_PASSED",
+  "failedBars": []
+}

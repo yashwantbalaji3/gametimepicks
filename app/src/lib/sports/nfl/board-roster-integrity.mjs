@@ -106,51 +106,87 @@ export function receivingFamilyGaps({ forecast, gameId, season, toBoardTeam, pub
 }
 
 /**
- * Apply the one-passer rule to ONE team's rows (mutates `players`' markets). Returns what it did.
- * `players` are board rows ({ playerId, team, markets }); `index` is from `indexDepthCharts`.
+ * THE STARTING QUARTERBACK AND HIS PROJECTION (founder decision 2026-11-11, replacing the rigid 0.75 floor as a
+ * withholding rule). Mutates `players`' pass markets for ONE team and returns what it did. Two separate questions:
  *
- * Week 10 (PD 2026-11-11, founder P0): the board printed Joe Fagnano as Baltimore's passer (QB1 Brissett),
- * Kyler Murray AND Carson Wentz for Minnesota (QB1 Cousins), and nothing for Miami / Arizona, because the rule
- * only consulted the chart when the pool held two or more passers and, when QB1 was not in the pool, left every
- * passer standing. Now, with a current chart, the chart's QB1 is the only quarterback who may carry the team's
- * passing projection, whatever the pool size; a QB1 the model cannot project (no passing history at the club)
- * WITHHOLDS the family for that team with the reason, and no other quarterback stands in. Without a current chart
- * a single passer stands as before, and two or more are withheld ("starting QB not confirmed") — never two
- * passers for one team. Nothing is rescaled or invented.
+ * 1. WHO STARTS — never decided by historical passing share. With a current depth chart: the highest-ranked QB who is
+ *    available (`availabilityOf` → INELIGIBLE skips to the next on the chart: an Out QB1 hands the start to the next
+ *    healthy QB; UNKNOWN stops — an unverifiable QB1 is "starting QB not confirmed", never guessed past). Without a
+ *    current chart: a single board passer stands; two or more, or none, are not confirmed.
+ * 2. WHAT IS PROJECTED for him — an evidence tier, recorded on the rule and the row:
+ *    (a) A_CLUB_HISTORY      his board row, with a starter's share of THIS club's attempts (share ≥ the floor, or a
+ *                            share the forecast does not carry) — the existing model, unchanged
+ *    (b) B_ALL_CLUB_HISTORY  traded / backup now starting, with ≥ the rate prior's trials of verified NFL attempts:
+ *                            qb-starter-projection.mjs tierBProjection (only when its backtest PASSED; `tierBFor`)
+ *    (d) D_WITHHELD          otherwise — the exact data limitation is the reason. No tested rookie fallback exists
+ *                            (tier c), so none is used.
+ * Exactly one quarterback per team keeps a passing projection; every other QB's passing is removed with its reason.
+ * Nothing is rescaled into a projection the evidence does not support.
+ *
+ * @param {{ players: object[], team: string, index: object|null, asOf: string, maxAgeMs?: number,
+ *   availabilityOf?: (playerId: string) => ({ state: string, status?: string|null } | null),
+ *   shareOf?: (playerId: string) => number|undefined,
+ *   tierBFor?: (playerId: string, name: string|null) => ({ market: object, careerAttempts: number, basis: string } | { careerAttempts: number, limitation: string } | null),
+ *   rowFor?: (starter: { playerId: string, name: string|null }) => object }} a
  */
 export const QB_STARTER_WITHHELD = "WITHHELD_STARTER_NOT_CONFIRMED";
+export const QB_TIER = Object.freeze({ A: "A_CLUB_HISTORY", B: "B_ALL_CLUB_HISTORY", D: "D_WITHHELD" });
 
-export function applyQbStarterRule({ players, team, index, asOf, maxAgeMs = QB_CHART_MAX_AGE_MS }) {
+export function identifyStarter({ players, team, index, asOf, maxAgeMs = QB_CHART_MAX_AGE_MS, availabilityOf = () => ({ state: "ELIGIBLE" }) }) {
   const passers = (players ?? []).filter((p) => p.team === team && p.markets?.player_pass_yds);
   /* The depth-chart capture spells clubs the ESPN way (WSH, LAR) — the board's own spelling. */
   const chart = index ? depthChartAsOf(index, team, asOf, maxAgeMs) : { state: DEPTH_STATE.NO_SNAPSHOT };
-  const withholdAll = (reason, extra = {}) => {
-    const removed = passers.map((p) => {
-      delete p.markets.player_pass_yds;
-      return { playerId: p.playerId, name: p.name, reason };
-    });
-    return { team, state: QB_STARTER_WITHHELD, reason, passers: [], removed, snapshotAt: chart.snapshotAt ?? null, ...extra };
-  };
   if (chart.state !== DEPTH_STATE.RESOLVED) {
-    if (passers.length <= 1) return { team, state: "SINGLE_PASSER", passers: passers.map((p) => p.playerId), removed: [] };
-    return withholdAll(`withheld for ${team}: starting QB not confirmed — depth chart ${chart.state}, and ${passers.length} quarterbacks hold passing shares`);
+    if (passers.length === 1) return { confirmed: true, starter: { playerId: passers[0].playerId, name: passers[0].name ?? null }, source: `the board's only passer (depth chart ${chart.state})`, skipped: [], snapshotAt: chart.snapshotAt ?? null };
+    return { confirmed: false, reason: `starting QB not confirmed — depth chart ${chart.state}, and ${passers.length} quarterbacks hold passing shares`, skipped: [], snapshotAt: chart.snapshotAt ?? null };
   }
-  const starterId = `nfl-athlete-${chart.starter.playerId}`;
-  const starterName = chart.starter.name ?? starterId;
-  if (!passers.some((p) => p.playerId === starterId)) {
-    return withholdAll(
-      `withheld for ${team}: starting QB not confirmed in the model — the depth chart's QB1 ${starterName} has no passing projection (no passing history at ${team}), and no other quarterback's projection stands in for his start`,
-      { starter: { playerId: starterId, name: chart.starter.name ?? null } },
-    );
+  const skipped = [];
+  for (const q of chart.order ?? [chart.starter]) {
+    const id = `nfl-athlete-${q.playerId}`;
+    const a = availabilityOf(id);
+    if (a?.state === "INELIGIBLE") { skipped.push({ playerId: id, name: q.name ?? null, reason: `unavailable (${a.status ?? "ineligible"})` }); continue; }
+    if (a?.state !== "ELIGIBLE") return { confirmed: false, reason: `starting QB not confirmed — the depth chart's next QB ${q.name ?? id} has availability ${a?.state ?? "UNKNOWN"}`, skipped, snapshotAt: chart.snapshotAt };
+    return { confirmed: true, starter: { playerId: id, name: q.name ?? null }, source: skipped.length ? `depth chart, past ${skipped.map((x) => x.name).join(", ")} (unavailable)` : "depth chart QB1", skipped, snapshotAt: chart.snapshotAt };
   }
-  if (passers.length === 1) return { team, state: "SINGLE_PASSER", starter: { playerId: starterId, name: chart.starter.name ?? null }, snapshotAt: chart.snapshotAt, passers: [starterId], removed: [] };
-  const removed = [];
-  for (const p of passers) {
-    if (p.playerId === starterId) continue;
+  return { confirmed: false, reason: "starting QB not confirmed — every quarterback on the depth chart is unavailable", skipped, snapshotAt: chart.snapshotAt };
+}
+
+export function applyQbStarterRule({ players, team, index, asOf, maxAgeMs = QB_CHART_MAX_AGE_MS, availabilityOf, shareOf = () => undefined, tierBFor = () => null, rowFor = null, floor = PASSER_STARTER_SHARE_FLOOR }) {
+  const id = identifyStarter({ players, team, index, asOf, maxAgeMs, availabilityOf });
+  const passers = (players ?? []).filter((p) => p.team === team && p.markets?.player_pass_yds);
+  const removeOthers = (keepId, reason) => passers.filter((p) => p.playerId !== keepId).map((p) => {
     delete p.markets.player_pass_yds;
-    removed.push({ playerId: p.playerId, name: p.name });
+    return { playerId: p.playerId, name: p.name, reason };
+  });
+  const base = { team, snapshotAt: id.snapshotAt ?? null, skipped: id.skipped };
+  if (!id.confirmed) {
+    const reason = `withheld for ${team}: ${id.reason}`;
+    return { ...base, state: QB_STARTER_WITHHELD, tier: QB_TIER.D, reason, passers: [], removed: removeOthers(null, reason) };
   }
-  return { team, state: "APPLIED", starter: { playerId: starterId, name: chart.starter.name ?? null }, snapshotAt: chart.snapshotAt, removed, passers: [starterId] };
+  const starter = id.starter;
+  const notStarter = `not ${team}'s starting quarterback (${starter.name ?? starter.playerId}, ${id.source}) — the team's passing projection belongs to the starter`;
+  const row = passers.find((p) => p.playerId === starter.playerId);
+  const share = shareOf(starter.playerId);
+  /* (a) the existing model, when his history with THIS club is a starter's */
+  if (row && !(Number.isFinite(share) && share < floor)) {
+    row.markets.player_pass_yds.tier = QB_TIER.A;
+    return { ...base, state: "APPLIED", tier: QB_TIER.A, starter, source: id.source, basis: Number.isFinite(share) ? `club share ${share.toFixed(2)} ≥ ${floor}` : "club share not carried by the forecast", passers: [starter.playerId], removed: removeOthers(starter.playerId, notStarter) };
+  }
+  /* (b) verified all-club history in the current team's context — only a tested method */
+  const b = tierBFor(starter.playerId, starter.name);
+  if (b?.market) {
+    const target = row ?? (rowFor ? rowFor(starter) : null);
+    if (target) {
+      if (!row) players.push(target);
+      target.markets.player_pass_yds = { ...b.market, tier: QB_TIER.B };
+      return { ...base, state: "APPLIED", tier: QB_TIER.B, starter, source: id.source, basis: b.basis, careerAttempts: b.careerAttempts, passers: [starter.playerId], removed: removeOthers(starter.playerId, notStarter) };
+    }
+  }
+  /* (d) withheld with the exact limitation */
+  const limitation = b?.limitation ?? (Number.isFinite(share) ? `club share ${share.toFixed(2)} is a relief appearance's, and no tested all-club projection is available` : "no verified passing history the tested methods can use");
+  const reason = `withheld for ${team}: ${starter.name ?? starter.playerId} starts (${id.source}) but is not projected — ${limitation}`;
+  if (row) delete row.markets.player_pass_yds;
+  return { ...base, state: QB_STARTER_WITHHELD, tier: QB_TIER.D, starter, source: id.source, reason, passers: [], removed: [...(row ? [{ playerId: row.playerId, name: row.name, reason }] : []), ...removeOthers(starter.playerId, notStarter)] };
 }
 
 /**
@@ -167,6 +203,10 @@ export function applyQbStarterRule({ players, team, index, asOf, maxAgeMs = QB_C
  * and nothing here may rescale it into one (that is a model change, NFL-003). The projection is WITHHELD
  * with its reason — never renormalised, never zeroed. Rows without a joinable share are left untouched
  * and say so; no other family is affected.
+ *
+ * Founder decision 2026-11-11: the board no longer WITHHOLDS on this floor. applyQbStarterRule uses it only to choose the
+ * evidence tier (a starter below it is projected by tested tier (b), or withheld with the data limitation); this
+ * function stays for the Week 5 tests that pin the original measurement.
  */
 export const PASSER_STARTER_SHARE_FLOOR = 0.75;
 

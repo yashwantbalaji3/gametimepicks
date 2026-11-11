@@ -11,8 +11,9 @@
  *             the team's passing goes to the engine's anonymous OTHER slot, so the game is still simulated and no
  *             quarterback's line is invented
  *
- * The share floor (applyPasserShareFloor) is a rule about PUBLISHING a passer's yards, not about who starts, so a
- * chart-confirmed starter whose board line it withheld (NYG McCarthy) is still the simulation's starter.
+ * Founder decision 2026-11-11: the board's starter (depth chart + availability) is projected by evidence tier; a tier
+ * (a)/(b) starter is the simulation's passer even when his history with this club put him outside the role-share pool
+ * (he is added with the team's passing); a tier (d) starter's passing is not simulated under his name (OTHER).
  */
 export const SIM_STARTER = Object.freeze({ STARTER: "STARTER", WITHHELD: "WITHHELD" });
 
@@ -21,10 +22,10 @@ export function simStarterDecision(board, abbr) {
   const rule = (board?.integrity?.qbStarter ?? []).find((q) => q.team === abbr);
   if (!board) return { state: SIM_STARTER.WITHHELD, starterQb: null, reason: `no player board for ${abbr}: starting QB not confirmed` };
   if (!rule) return { state: SIM_STARTER.WITHHELD, starterQb: null, reason: `the board records no starting-QB decision for ${abbr}: starting QB not confirmed` };
-  if (rule.state === "APPLIED" && rule.starter?.playerId) return { state: SIM_STARTER.STARTER, starterQb: rule.starter.playerId, reason: null };
+  if (rule.state === "APPLIED" && rule.starter?.playerId) return { state: SIM_STARTER.STARTER, starterQb: rule.starter.playerId, starterName: rule.starter.name ?? null, tier: rule.tier ?? null, reason: null };
   if (rule.state === "SINGLE_PASSER" && (rule.passers ?? []).length === 1) return { state: SIM_STARTER.STARTER, starterQb: rule.passers[0], reason: null };
   return { state: SIM_STARTER.WITHHELD, starterQb: null, reason: rule.reason ?? `starting QB not confirmed for ${abbr} (board rule ${rule.state})` };
 }
 
 /** The playersFromRoleShares options for a decision. */
-export const starterOptions = (d) => (d.state === SIM_STARTER.STARTER ? { starterQb: d.starterQb, strictStarter: true } : { withholdPassers: true });
+export const starterOptions = (d) => (d.state === SIM_STARTER.STARTER ? { starterQb: d.starterQb, starterName: d.starterName ?? null, strictStarter: true } : { withholdPassers: true });

@@ -24,7 +24,7 @@ const injured = new Set(["nfl-athlete-2"]);
 const board = (rules) => ({ integrity: { qbStarter: rules } });
 
 test("decision: APPLIED / single passer → that starter; anything else → WITHHELD with the board's reason", () => {
-  assert.deepEqual(simStarterDecision(board([{ team: "BAL", state: "APPLIED", starter: { playerId: "nfl-athlete-1" }, passers: ["nfl-athlete-1"] }]), "BAL"), { state: SIM_STARTER.STARTER, starterQb: "nfl-athlete-1", reason: null });
+  assert.deepEqual(simStarterDecision(board([{ team: "BAL", state: "APPLIED", tier: "B_ALL_CLUB_HISTORY", starter: { playerId: "nfl-athlete-1", name: "Backup" }, passers: ["nfl-athlete-1"] }]), "BAL"), { state: SIM_STARTER.STARTER, starterQb: "nfl-athlete-1", starterName: "Backup", tier: "B_ALL_CLUB_HISTORY", reason: null });
   assert.equal(simStarterDecision(board([{ team: "BAL", state: "SINGLE_PASSER", passers: ["nfl-athlete-1"] }]), "BAL").starterQb, "nfl-athlete-1");
   const w = simStarterDecision(board([{ team: "BAL", state: "WITHHELD_STARTER_NOT_CONFIRMED", reason: "withheld for BAL: starting QB not confirmed", passers: [] }]), "BAL");
   assert.equal(w.state, SIM_STARTER.WITHHELD);
@@ -46,12 +46,19 @@ test("WITHHELD: no named player passes — not the backup, not a punter rescaled
   assert.equal(legacy.players.find((p) => p.playerId === "nfl-athlete-1").passShare > 0.9, true);
 });
 
-test("STARTER: the chart QB1 takes all passing; a strict starter missing from the pool is WITHHELD, never the largest share", () => {
+test("STARTER: the board's starter carries the team's passing; one outside the pool (traded) is added — never a punter rescaled up", () => {
   const ok = playersFromRoleShares(block, injured, starterOptions({ state: SIM_STARTER.STARTER, starterQb: "nfl-athlete-1" }));
   const qb1 = ok.players.find((p) => p.playerId === "nfl-athlete-1").passShare;
-  assert.ok(qb1 > 0.9 && ok.players.every((p) => p.playerId === "nfl-athlete-1" || p.passShare < 0.05), "QB1 holds the team's passing (non-QB trick-play shares stay as they were)");
-  const missing = playersFromRoleShares(block, injured, starterOptions({ state: SIM_STARTER.STARTER, starterQb: "nfl-athlete-404" }));
-  assert.ok(missing.players.every((p) => p.passShare === 0));
+  assert.ok(Math.abs(qb1 - 0.98) < 1e-9, "1 − the non-QBs' own raw trick-play shares");
+  assert.equal(ok.players.find((p) => p.playerId === "nfl-athlete-9").passShare, 0.01, "the punter keeps his raw share, unrescaled");
+  const traded = playersFromRoleShares(block, injured, starterOptions({ state: SIM_STARTER.STARTER, starterQb: "nfl-athlete-404", starterName: "Traded In" }));
+  const t = traded.players.find((p) => p.playerId === "nfl-athlete-404");
+  assert.ok(t && t.name === "Traded In" && Math.abs(t.passShare - 0.98) < 1e-9);
+  assert.equal(traded.players.find((p) => p.playerId === "nfl-athlete-1").passShare, 0, "the backup passes nothing");
+  assert.equal(traded.players.find((p) => p.playerId === "nfl-athlete-1").carryShare, 0, "his carries go to the starter");
+  assert.ok(Math.abs(t.carryShare - 0.08) < 1e-9);
+  const prep = prepareTeamPlayers(traded);
+  assert.equal(prep.slots[prep.scrambler].playerId, "nfl-athlete-404", "the starter is the scrambler");
 });
 
 test("determinism: same board + shares → identical inputs", () => {
