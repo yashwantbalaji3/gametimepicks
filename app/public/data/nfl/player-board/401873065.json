@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-11T17:07:16Z",
- "sourceGeneratedAt": "2026-11-11T17:07:16Z",
+ "generatedAt": "2026-11-11T21:50:32Z",
+ "sourceGeneratedAt": "2026-11-11T21:50:32Z",
  "forecastInputHash": "951469728b3c90b0",
  "providerEventId": "401873065",
  "matchup": "LAC @ BAL",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-11T17:07:16Z",
-  "roleEvidenceAt": "2026-11-11T17:07:16Z",
+  "injuriesCapturedAt": "2026-11-11T21:50:32Z",
+  "roleEvidenceAt": "2026-11-11T21:50:32Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,6 +24,14 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "BAL",
+     "playerId": "nfl-athlete-2578570",
+     "name": "Jacoby Brissett",
+     "reason": "Jacoby Brissett starts for BAL (depth chart QB1) — experimental projection in research (limited individual history: 2551 verified NFL pass attempts, little of it as BAL's starter)"
+    }
+   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -141,7 +149,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 66,
+  "absent": 65,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -340,10 +348,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not BAL's starting quarterback (Jacoby Brissett, depth chart QB1) — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4429615",
@@ -455,7 +469,14 @@
      "playerId": "nfl-athlete-2578570",
      "name": "Jacoby Brissett",
      "state": "WITHHELD_ROLE_UNCERTAIN",
-     "reason": "no game for BAL yet this season — role at BAL not yet observed"
+     "reason": "no game for BAL yet this season — role at BAL not yet observed",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "Jacoby Brissett starts for BAL (depth chart QB1) — experimental projection in research (limited individual history: 2551 verified NFL pass attempts, little of it as BAL's starter)"
+      }
+     ]
     }
    ]
   }
@@ -464,7 +485,16 @@
   "qbStarter": [
    {
     "team": "LAC",
-    "state": "SINGLE_PASSER",
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "skipped": [],
+    "state": "APPLIED",
+    "tier": "A_CLUB_HISTORY",
+    "starter": {
+     "playerId": "nfl-athlete-4038941",
+     "name": "Justin Herbert"
+    },
+    "source": "depth chart QB1",
+    "basis": "club share 0.95 ≥ 0.75",
     "passers": [
      "nfl-athlete-4038941"
     ],
@@ -472,31 +502,26 @@
    },
    {
     "team": "BAL",
-    "state": "SINGLE_PASSER",
-    "passers": [
-     "nfl-athlete-4429582"
-    ],
-    "removed": []
-   }
-  ],
-  "passerShareFloor": [
-   {
-    "team": "LAC",
-    "floor": 0.75,
-    "passers": [
-     "nfl-athlete-4038941"
-    ],
-    "withheld": [],
-    "unjoined": []
-   },
-   {
-    "team": "BAL",
-    "floor": 0.75,
-    "passers": [
-     "nfl-athlete-4429582"
-    ],
-    "withheld": [],
-    "unjoined": []
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "skipped": [],
+    "state": "WITHHELD_STARTER_NOT_CONFIRMED",
+    "tier": "B_ALL_CLUB_HISTORY",
+    "starter": {
+     "playerId": "nfl-athlete-2578570",
+     "name": "Jacoby Brissett"
+    },
+    "source": "depth chart QB1",
+    "reason": "Jacoby Brissett starts for BAL (depth chart QB1) — experimental projection in research (limited individual history: 2551 verified NFL pass attempts, little of it as BAL's starter)",
+    "experimental": true,
+    "careerAttempts": 2551,
+    "passers": [],
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4429582",
+      "name": "Joe Fagnano",
+      "reason": "not BAL's starting quarterback (Jacoby Brissett, depth chart QB1) — the team's passing projection belongs to the starter"
+     }
+    ]
    }
   ],
   "pools": [
@@ -523,19 +548,6 @@
     "originalSum": 0.972,
     "residualOther": 0.028,
     "joined": 9,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "BAL",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.8836,
-    "originalSum": 0.8836,
-    "residualOther": 0.1164,
-    "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -571,11 +583,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-07T17:39Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -617,11 +629,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-06T05:03Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -663,11 +675,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:22Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -718,11 +730,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-06T05:39Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -773,11 +785,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T00:29Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -828,11 +840,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:46Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -874,11 +886,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-06T05:28Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -920,11 +932,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:47Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -969,11 +981,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-10T00:00Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1015,11 +1027,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T02:42Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1061,11 +1073,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-06T17:38Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1107,11 +1119,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T00:14Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1153,11 +1165,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T00:08Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1177,15 +1189,6 @@
      "p90": 28.31,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 138.0834,
-     "p10": 62.1494,
-     "p25": 89.0723,
-     "median": 127.4175,
-     "p75": 175.5369,
-     "p90": 227.8534,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.1113,
      "pricingState": "NOT_PROBED"
@@ -1199,11 +1202,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-06T05:23Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1245,11 +1248,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T02:03Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1291,11 +1294,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-07T04:49Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1328,11 +1331,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T20:55Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1365,11 +1368,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T21:23Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1396,6 +1399,7 @@
      "median": 195.166,
      "p75": 259.6844,
      "p90": 328.4891,
+     "tier": "A_CLUB_HISTORY",
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1414,11 +1418,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-10T16:00Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1460,11 +1464,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-06T18:55Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1509,11 +1513,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-10T15:44Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1555,11 +1559,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-07T04:55Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }

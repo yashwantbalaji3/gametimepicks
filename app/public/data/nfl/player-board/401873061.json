@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-11T17:07:16Z",
- "sourceGeneratedAt": "2026-11-11T17:07:16Z",
+ "generatedAt": "2026-11-11T21:50:32Z",
+ "sourceGeneratedAt": "2026-11-11T21:50:32Z",
  "forecastInputHash": "b60e77b710b81cf0",
  "providerEventId": "401873061",
  "matchup": "LAR @ ARI",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-11T17:07:16Z",
-  "roleEvidenceAt": "2026-11-11T17:07:16Z",
+  "injuriesCapturedAt": "2026-11-11T21:50:32Z",
+  "roleEvidenceAt": "2026-11-11T21:50:32Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,6 +24,14 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "ARI",
+     "playerId": "nfl-athlete-4430841",
+     "name": "Carson Beck",
+     "reason": "Carson Beck starts for ARI (depth chart QB1) — experimental projection in research (rookie/contextual fallback: Carson Beck: 0 NFL pass attempts in committed data (the projection needs 25 verified attempts; no tested rookie fallback exists))"
+    }
+   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -115,14 +123,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 44,
+  "absent": 39,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "LAR": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -150,17 +158,6 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4426515",
-     "name": "Puka Nacua",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-2573401",
@@ -237,6 +234,12 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4426515",
+     "name": "Puka Nacua",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-16800",
      "name": "Davante Adams",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -252,11 +255,11 @@
   },
   "ARI": {
    "counts": {
-    "PROJECTED": 6,
-    "EXCLUDED_UNAVAILABLE": 6,
+    "PROJECTED": 5,
+    "EXCLUDED_UNAVAILABLE": 7,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 1,
-    "NOT_MODELED_BY_FAMILY": 0,
+    "NOT_MODELED_BY_FAMILY": 1,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -282,16 +285,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4427728",
-     "name": "Bam Knight",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4869132",
@@ -350,6 +343,12 @@
      "reason": "designation: Injured Reserve"
     },
     {
+     "playerId": "nfl-athlete-4427728",
+     "name": "Bam Knight",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4429275",
      "name": "Trey Benson",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -372,6 +371,19 @@
      "name": "Josh Johnson",
      "state": "WITHHELD_ROLE_UNCERTAIN",
      "reason": "no game for ARI yet this season — role at ARI not yet observed"
+    },
+    {
+     "playerId": "nfl-athlete-4430841",
+     "name": "Carson Beck",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "Carson Beck starts for ARI (depth chart QB1) — experimental projection in research (rookie/contextual fallback: Carson Beck: 0 NFL pass attempts in committed data (the projection needs 25 verified attempts; no tested rookie fallback exists))",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "Carson Beck starts for ARI (depth chart QB1) — experimental projection in research (rookie/contextual fallback: Carson Beck: 0 NFL pass attempts in committed data (the projection needs 25 verified attempts; no tested rookie fallback exists))"
+      }
+     ]
     }
    ]
   }
@@ -380,7 +392,16 @@
   "qbStarter": [
    {
     "team": "LAR",
-    "state": "SINGLE_PASSER",
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "skipped": [],
+    "state": "APPLIED",
+    "tier": "A_CLUB_HISTORY",
+    "starter": {
+     "playerId": "nfl-athlete-12483",
+     "name": "Matthew Stafford"
+    },
+    "source": "depth chart QB1",
+    "basis": "club share 0.99 ≥ 0.75",
     "passers": [
      "nfl-athlete-12483"
     ],
@@ -388,27 +409,20 @@
    },
    {
     "team": "ARI",
-    "state": "SINGLE_PASSER",
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "skipped": [],
+    "state": "WITHHELD_STARTER_NOT_CONFIRMED",
+    "tier": "D_CONTEXTUAL_FALLBACK",
+    "starter": {
+     "playerId": "nfl-athlete-4430841",
+     "name": "Carson Beck"
+    },
+    "source": "depth chart QB1",
+    "reason": "Carson Beck starts for ARI (depth chart QB1) — experimental projection in research (rookie/contextual fallback: Carson Beck: 0 NFL pass attempts in committed data (the projection needs 25 verified attempts; no tested rookie fallback exists))",
+    "experimental": true,
+    "careerAttempts": 0,
     "passers": [],
     "removed": []
-   }
-  ],
-  "passerShareFloor": [
-   {
-    "team": "LAR",
-    "floor": 0.75,
-    "passers": [
-     "nfl-athlete-12483"
-    ],
-    "withheld": [],
-    "unjoined": []
-   },
-   {
-    "team": "ARI",
-    "floor": 0.75,
-    "passers": [],
-    "withheld": [],
-    "unjoined": []
    }
   ],
   "pools": [
@@ -501,60 +515,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T22:29Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
-     }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4426515",
-   "name": "Puka Nacua",
-   "team": "LAR",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 72.091,
-     "p10": 23.31,
-     "p25": 41.47,
-     "median": 66.62,
-     "p75": 96.64,
-     "p90": 126.41,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 9.8241,
-     "p10": 4,
-     "p25": 6,
-     "median": 9,
-     "p75": 13,
-     "p90": 17,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.5256,
-     "pricingState": "NOT_PROBED"
-    }
-   },
-   "eligibility": {
-    "state": "ELIGIBLE",
-    "reasons": [],
-    "flags": [
-     "QUESTIONABLE"
-    ],
-    "contractVersion": "eligibility@1",
-    "sources": {
-     "injuries": {
-      "status": "Doubtful",
-      "statedAt": "2026-11-11T14:34Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
-     },
-     "roster": {
-      "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -587,11 +552,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T22:52Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -633,11 +598,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:47Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -688,11 +653,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:30Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -734,11 +699,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T04:29Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -780,51 +745,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T00:58Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
-     }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4427728",
-   "name": "Bam Knight",
-   "team": "ARI",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 15.586,
-     "p10": 0,
-     "p25": 1.83,
-     "median": 9.8,
-     "p75": 23.16,
-     "p90": 39.32,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.153,
-     "pricingState": "NOT_PROBED"
-    }
-   },
-   "eligibility": {
-    "state": "ELIGIBLE",
-    "reasons": [],
-    "flags": [
-     "QUESTIONABLE"
-    ],
-    "contractVersion": "eligibility@1",
-    "sources": {
-     "injuries": {
-      "status": "Questionable",
-      "statedAt": "2026-11-10T15:44Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
-     },
-     "roster": {
-      "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -868,11 +793,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -914,11 +839,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T00:50Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -960,11 +885,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T00:54Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -997,11 +922,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T01:07Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1045,11 +970,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1091,11 +1016,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T01:13Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1122,17 +1047,19 @@
    },
    "eligibility": {
     "state": "ELIGIBLE",
-    "reasons": [],
+    "reasons": [
+     "ROSTER_ACTIVE"
+    ],
     "contractVersion": "eligibility@1",
     "sources": {
      "injuries": {
-      "status": "Active",
-      "statedAt": "2026-11-07T20:35Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "status": null,
+      "statedAt": null,
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1150,6 +1077,7 @@
      "median": 238.0958,
      "p75": 306.5185,
      "p90": 378.1439,
+     "tier": "A_CLUB_HISTORY",
      "pricingState": "NOT_PROBED"
     }
    },
@@ -1161,11 +1089,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T22:47Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }

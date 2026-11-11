@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-11T17:07:16Z",
- "sourceGeneratedAt": "2026-11-11T17:07:16Z",
+ "generatedAt": "2026-11-11T21:50:32Z",
+ "sourceGeneratedAt": "2026-11-11T21:50:32Z",
  "forecastInputHash": "58522cba73b3b811",
  "providerEventId": "401873062",
  "matchup": "SEA @ LV",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-11T17:07:16Z",
-  "roleEvidenceAt": "2026-11-11T17:07:16Z",
+  "injuriesCapturedAt": "2026-11-11T21:50:32Z",
+  "roleEvidenceAt": "2026-11-11T21:50:32Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,6 +24,14 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "LV",
+     "playerId": "nfl-athlete-4837248",
+     "name": "Fernando Mendoza",
+     "reason": "Fernando Mendoza starts for LV (depth chart QB1) — experimental projection in research (rookie/contextual fallback: Fernando Mendoza: 8 NFL pass attempts in committed data (the projection needs 25 verified attempts; no tested rookie fallback exists))"
+    }
+   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -116,7 +124,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 60,
+  "absent": 58,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -256,8 +264,8 @@
   },
   "LV": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -364,23 +372,26 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4260394",
-     "name": "Aidan O'Connell",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_pass_yds"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
      "playerId": "nfl-athlete-4837248",
      "name": "Fernando Mendoza",
      "state": "PROJECTED",
      "families": [
       "anytime_td"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "Fernando Mendoza starts for LV (depth chart QB1) — experimental projection in research (rookie/contextual fallback: Fernando Mendoza: 8 NFL pass attempts in committed data (the projection needs 25 verified attempts; no tested rookie fallback exists))"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4260394",
+     "name": "Aidan O'Connell",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4698191",
@@ -401,7 +412,22 @@
   "qbStarter": [
    {
     "team": "SEA",
-    "state": "SINGLE_PASSER",
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "skipped": [
+     {
+      "playerId": "nfl-athlete-3912547",
+      "name": "Sam Darnold",
+      "reason": "unavailable (Out)"
+     }
+    ],
+    "state": "APPLIED",
+    "tier": "A_CLUB_HISTORY",
+    "starter": {
+     "playerId": "nfl-athlete-3924327",
+     "name": "Drew Lock"
+    },
+    "source": "depth chart, past Sam Darnold (unavailable)",
+    "basis": "club share 0.79 ≥ 0.75",
     "passers": [
      "nfl-athlete-3924327"
     ],
@@ -409,31 +435,20 @@
    },
    {
     "team": "LV",
-    "state": "SINGLE_PASSER",
-    "passers": [
-     "nfl-athlete-4260394"
-    ],
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "skipped": [],
+    "state": "WITHHELD_STARTER_NOT_CONFIRMED",
+    "tier": "D_CONTEXTUAL_FALLBACK",
+    "starter": {
+     "playerId": "nfl-athlete-4837248",
+     "name": "Fernando Mendoza"
+    },
+    "source": "depth chart QB1",
+    "reason": "Fernando Mendoza starts for LV (depth chart QB1) — experimental projection in research (rookie/contextual fallback: Fernando Mendoza: 8 NFL pass attempts in committed data (the projection needs 25 verified attempts; no tested rookie fallback exists))",
+    "experimental": true,
+    "careerAttempts": 8,
+    "passers": [],
     "removed": []
-   }
-  ],
-  "passerShareFloor": [
-   {
-    "team": "SEA",
-    "floor": 0.75,
-    "passers": [
-     "nfl-athlete-3924327"
-    ],
-    "withheld": [],
-    "unjoined": []
-   },
-   {
-    "team": "LV",
-    "floor": 0.75,
-    "passers": [
-     "nfl-athlete-4260394"
-    ],
-    "withheld": [],
-    "unjoined": []
    }
   ],
   "pools": [
@@ -460,19 +475,6 @@
     "originalSum": 0.9449,
     "residualOther": 0.0551,
     "joined": 7,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "LV",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.8275,
-    "originalSum": 0.8275,
-    "residualOther": 0.1725,
-    "joined": 1,
     "missed": 0,
     "state": "CONSERVED"
    }
@@ -517,11 +519,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:39Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -567,11 +569,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:17Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -626,11 +628,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:04Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -672,11 +674,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T02:28Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -727,11 +729,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:39Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -777,11 +779,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:53Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -832,11 +834,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:51Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -878,11 +880,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:42Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -928,11 +930,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:18Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -965,11 +967,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:57Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1015,11 +1017,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:21Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1061,11 +1063,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T01:25Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1110,11 +1112,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-10T15:44Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1160,11 +1162,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-06T00:36Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1197,11 +1199,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T04:24Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1243,11 +1245,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T03:33Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1293,11 +1295,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T21:19Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1343,48 +1345,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T04:01Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
-     }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4260394",
-   "name": "Aidan O'Connell",
-   "team": "LV",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 190.3271,
-     "p10": 95.5899,
-     "p25": 130.5252,
-     "median": 178.6671,
-     "p75": 237.4768,
-     "p90": 300.156,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0608,
-     "pricingState": "NOT_PROBED"
-    }
-   },
-   "eligibility": {
-    "state": "ELIGIBLE",
-    "reasons": [],
-    "contractVersion": "eligibility@1",
-    "sources": {
-     "injuries": {
-      "status": "Active",
-      "statedAt": "2026-11-09T21:19Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
-     },
-     "roster": {
-      "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1402,6 +1367,7 @@
      "median": 180.5363,
      "p75": 241.3981,
      "p90": 306.4811,
+     "tier": "A_CLUB_HISTORY",
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1420,11 +1386,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-09T18:00Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1448,11 +1414,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T19:57Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }

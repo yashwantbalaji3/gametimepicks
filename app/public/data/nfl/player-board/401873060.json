@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-11T17:07:16Z",
- "sourceGeneratedAt": "2026-11-11T17:07:16Z",
+ "generatedAt": "2026-11-11T21:50:32Z",
+ "sourceGeneratedAt": "2026-11-11T21:50:32Z",
  "forecastInputHash": "5dcc83d4cea0e968",
  "providerEventId": "401873060",
  "matchup": "MIN @ GB",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-11T17:07:16Z",
-  "roleEvidenceAt": "2026-11-11T17:07:16Z",
+  "injuriesCapturedAt": "2026-11-11T21:50:32Z",
+  "roleEvidenceAt": "2026-11-11T21:50:32Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -27,10 +27,9 @@
    "withheldPassers": [
     {
      "team": "MIN",
-     "playerId": "nfl-athlete-4573398",
-     "name": "Max Brosmer",
-     "share": 0.342,
-     "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.34, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+     "playerId": "nfl-athlete-14880",
+     "name": "Kirk Cousins",
+     "reason": "Kirk Cousins starts for MIN (depth chart QB1) — experimental projection in research (limited individual history: 6311 verified NFL pass attempts, little of it as MIN's starter)"
     }
    ],
    "conservation": {
@@ -118,7 +117,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 52,
+  "absent": 50,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -138,10 +137,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not MIN's starting quarterback (Kirk Cousins, depth chart QB1) — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-2573079",
@@ -149,10 +154,16 @@
      "state": "PROJECTED",
      "families": [
       "anytime_td",
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not MIN's starting quarterback (Kirk Cousins, depth chart QB1) — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-3042519",
@@ -196,7 +207,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4429205",
@@ -255,18 +266,25 @@
      "playerId": "nfl-athlete-14880",
      "name": "Kirk Cousins",
      "state": "WITHHELD_ROLE_UNCERTAIN",
-     "reason": "no game for MIN yet this season — role at MIN not yet observed"
+     "reason": "no game for MIN yet this season — role at MIN not yet observed",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "Kirk Cousins starts for MIN (depth chart QB1) — experimental projection in research (limited individual history: 6311 verified NFL pass attempts, little of it as MIN's starter)"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4573398",
      "name": "Max Brosmer",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.34, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not MIN's starting quarterback (Kirk Cousins, depth chart QB1) — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.34, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not MIN's starting quarterback (Kirk Cousins, depth chart QB1) — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -416,53 +434,53 @@
   "qbStarter": [
    {
     "team": "MIN",
-    "state": "UNRESOLVED",
-    "reason": "depth-chart QB1 Kirk Cousins is not in the board's passing pool",
-    "passers": [
-     "nfl-athlete-3917315",
-     "nfl-athlete-2573079",
-     "nfl-athlete-4573398"
-    ],
-    "removed": [],
-    "snapshotAt": "2026-11-11T07:02:21Z"
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "skipped": [],
+    "state": "WITHHELD_STARTER_NOT_CONFIRMED",
+    "tier": "B_ALL_CLUB_HISTORY",
+    "starter": {
+     "playerId": "nfl-athlete-14880",
+     "name": "Kirk Cousins"
+    },
+    "source": "depth chart QB1",
+    "reason": "Kirk Cousins starts for MIN (depth chart QB1) — experimental projection in research (limited individual history: 6311 verified NFL pass attempts, little of it as MIN's starter)",
+    "experimental": true,
+    "careerAttempts": 6311,
+    "passers": [],
+    "removed": [
+     {
+      "playerId": "nfl-athlete-3917315",
+      "name": "Kyler Murray",
+      "reason": "not MIN's starting quarterback (Kirk Cousins, depth chart QB1) — the team's passing projection belongs to the starter"
+     },
+     {
+      "playerId": "nfl-athlete-2573079",
+      "name": "Carson Wentz",
+      "reason": "not MIN's starting quarterback (Kirk Cousins, depth chart QB1) — the team's passing projection belongs to the starter"
+     },
+     {
+      "playerId": "nfl-athlete-4573398",
+      "name": "Max Brosmer",
+      "reason": "not MIN's starting quarterback (Kirk Cousins, depth chart QB1) — the team's passing projection belongs to the starter"
+     }
+    ]
    },
    {
     "team": "GB",
-    "state": "SINGLE_PASSER",
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "skipped": [],
+    "state": "APPLIED",
+    "tier": "A_CLUB_HISTORY",
+    "starter": {
+     "playerId": "nfl-athlete-4036378",
+     "name": "Jordan Love"
+    },
+    "source": "depth chart QB1",
+    "basis": "club share 1.00 ≥ 0.75",
     "passers": [
      "nfl-athlete-4036378"
     ],
     "removed": []
-   }
-  ],
-  "passerShareFloor": [
-   {
-    "team": "MIN",
-    "floor": 0.75,
-    "passers": [
-     "nfl-athlete-3917315",
-     "nfl-athlete-2573079",
-     "nfl-athlete-4573398"
-    ],
-    "withheld": [
-     {
-      "team": "MIN",
-      "playerId": "nfl-athlete-4573398",
-      "name": "Max Brosmer",
-      "share": 0.342,
-      "reason": "withheld for Max Brosmer (MIN): his modelled share of MIN's pass attempts is 0.34, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
-    "unjoined": []
-   },
-   {
-    "team": "GB",
-    "floor": 0.75,
-    "passers": [
-     "nfl-athlete-4036378"
-    ],
-    "withheld": [],
-    "unjoined": []
    }
   ],
   "pools": [
@@ -494,29 +512,16 @@
    },
    {
     "team": "MIN",
-    "pool": "passAttempts",
-    "markets": [
-     "player_pass_yds"
-    ],
-    "sum": 0.8703,
-    "originalSum": 0.8703,
-    "residualOther": 0.1297,
-    "joined": 1,
-    "missed": 0,
-    "state": "CONSERVED"
-   },
-   {
-    "team": "MIN",
     "pool": "targets",
     "markets": [
      "player_receptions"
     ],
-    "sum": 0.8311,
-    "originalSum": 0.8311,
-    "residualOther": 0.1689,
-    "joined": 5,
+    "sum": 0.6325,
+    "originalSum": 0.6325,
+    "residualOther": 0.3675,
+    "joined": 4,
     "missed": 0,
-    "state": "CONSERVED"
+    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -559,11 +564,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:54Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -605,11 +610,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:46Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -650,12 +655,12 @@
     "sources": {
      "injuries": {
       "status": "Active",
-      "statedAt": "2026-11-10T04:53Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "statedAt": "2026-11-11T17:13Z",
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -700,11 +705,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-10T15:44Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -746,11 +751,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:48Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -801,11 +806,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T05:28Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -838,11 +843,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T05:17Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -851,7 +856,7 @@
    "playerId": "nfl-athlete-4036133",
    "name": "T.J. Hockenson",
    "team": "MIN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 39.244,
@@ -879,16 +884,19 @@
    "eligibility": {
     "state": "ELIGIBLE",
     "reasons": [],
+    "flags": [
+     "QUESTIONABLE"
+    ],
     "contractVersion": "eligibility@1",
     "sources": {
      "injuries": {
-      "status": "Active",
-      "statedAt": "2026-11-10T05:14Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "status": "Questionable",
+      "statedAt": "2026-11-11T21:31Z",
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -921,11 +929,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T16:24Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -967,11 +975,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:57Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1022,11 +1030,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T00:49Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1068,11 +1076,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T06:10Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1107,11 +1115,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1131,15 +1139,6 @@
      "p90": 45.98,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 186.9689,
-     "p10": 91.1695,
-     "p25": 126.1243,
-     "median": 174.7245,
-     "p75": 234.5319,
-     "p90": 298.6253,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0866,
      "pricingState": "NOT_PROBED"
@@ -1155,12 +1154,12 @@
     "sources": {
      "injuries": {
       "status": "Doubtful",
-      "statedAt": "2026-11-11T01:11Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "statedAt": "2026-11-11T20:01Z",
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1205,11 +1204,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-10T15:44Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1227,6 +1226,7 @@
      "median": 256.4455,
      "p75": 332.5718,
      "p90": 412.5926,
+     "tier": "A_CLUB_HISTORY",
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1242,11 +1242,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:41Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1279,11 +1279,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T03:49Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1292,7 +1292,7 @@
    "playerId": "nfl-athlete-2573079",
    "name": "Carson Wentz",
    "team": "MIN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_rush_yds": {
      "mean": 7.073,
@@ -1303,15 +1303,6 @@
      "p90": 21.3,
      "pricingState": "NOT_PROBED"
     },
-    "player_pass_yds": {
-     "mean": 164.0088,
-     "p10": 74.9265,
-     "p25": 106.6803,
-     "median": 151.704,
-     "p75": 208.0012,
-     "p90": 269.0479,
-     "pricingState": "NOT_PROBED"
-    },
     "anytime_td": {
      "probability": 0.0565,
      "pricingState": "NOT_PROBED"
@@ -1320,16 +1311,19 @@
    "eligibility": {
     "state": "ELIGIBLE",
     "reasons": [],
+    "flags": [
+     "QUESTIONABLE"
+    ],
     "contractVersion": "eligibility@1",
     "sources": {
      "injuries": {
-      "status": "Active",
-      "statedAt": "2026-11-10T05:12Z",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "status": "Questionable",
+      "statedAt": "2026-11-11T20:57Z",
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }
@@ -1360,11 +1354,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T17:07:16Z"
+      "fetchedAt": "2026-11-11T21:50:32Z"
      }
     }
    }

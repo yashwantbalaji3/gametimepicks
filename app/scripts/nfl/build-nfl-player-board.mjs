@@ -38,7 +38,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deriveNewArrivals, shadowProjectedArrivals } from "../../src/lib/sports/nfl/new-arrivals.mjs";
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
-import { activeRosterIndex, applyPasserShareFloor, applyQbStarterRule, auditBoard, buildCoverage, currentSeasonUsageIndex, QB_CHART_MAX_AGE_MS, receivingFamilyGaps } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
+import { activeRosterIndex, applyQbStarterRule, auditBoard, QB_STARTER_WITHHELD, buildCoverage, currentSeasonUsageIndex, QB_CHART_MAX_AGE_MS, receivingFamilyGaps } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
 import { nflverseTeam } from "../../src/lib/sports/nfl/snap-share.mjs";
 import { indexDepthCharts } from "../../src/lib/sports/nfl/depth-chart.mjs";
 import { CONSERVATION_METHOD, CONSERVATION_VERSION, normalizeOverAllocatedPools, overAllocationReason, SHARE_MARKETS } from "../../src/lib/sports/nfl/opportunity-conservation.mjs";
@@ -47,6 +47,8 @@ import { splitMatchup } from "../../src/lib/sports/nfl/matchup.mjs";
 import { pickNewestCapture } from "../../src/lib/sports/nfl/qb-starter-shadow.mjs";
 import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets, shareLevelEstimateMarkets, shareLevelRowsForEvent, shareLevelBasis, seasonOfKickoff } from "../../src/lib/sports/nfl/share-level-board.mjs";
 import { postKickoffInputs, refusalLine } from "../../src/lib/sports/nfl/input-stamps.mjs";
+import { createQbState, tierBProjection } from "../../src/lib/sports/nfl/qb-starter-projection.mjs";
+import zlib from "node:zlib";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -124,6 +126,45 @@ const depthIndex = (() => {
   const picked = pickNewestCapture(caps);
   return picked ? indexDepthCharts(picked.doc) : null;
 })();
+
+/* Founder decision 2026-11-11 — STARTING-QB EVIDENCE TIER (b) (board-roster-integrity.mjs applyQbStarterRule): a
+   starter whose history with his club is not a starter's is projected from his verified all-club passing in the team's
+   context (qb-starter-projection.mjs), ONLY while its committed walk-forward backtest reads TIER_B_PASSED. The fold is
+   P300's over the committed player-games tables, through the day before the game; every constant is a committed file's. */
+const TIER_B = (() => {
+  const report = read(path.join(ROOT, "data/internal/research/nfl/reports/qb-starter-tier-b-backtest.json"));
+  const F = read(path.join(ROOT, "data/internal/research/nfl/reports/player-props-share-level-preregistration.json"))?.frozen;
+  const scale = read(path.join(ROOT, "data/internal/research/nfl/reports/player-props-share-level-second-look.json"))?.devDispersionScales?.[`player_pass_yds|${F?.candidates?.[0]}`];
+  const rows = [];
+  const totals = new Map();
+  const espnToGsis = new Map(Object.entries(read(path.join(ROOT, "data/internal/research/nfl/replay/gsis-espn-ids-v1.json"))?.map ?? {}).map(([g, e]) => [String(e), g]));
+  for (const f of ["player-games-v1.json.gz", "player-games-2026-v1.json.gz"]) {
+    let t = null;
+    try { t = JSON.parse(zlib.gunzipSync(fs.readFileSync(path.join(ROOT, "data/internal/research/nfl/replay", f)))); } catch { /* absent ⇒ tier (b) unavailable */ }
+    if (!t) return null;
+    const C = Object.fromEntries(t.columns.map((c, i) => [c, i]));
+    for (const [k, v] of Object.entries(t.teamTotals)) totals.set(k, v);
+    for (const r of t.rows) {
+      if (r[C.participation] === "UNKNOWN") continue;
+      rows.push({ date: r[C.date], gameKey: `${r[C.gameId]}|${r[C.team]}`, id: String(r[C.playerId]), name: r[C.name], team: r[C.team], season: r[C.season], passAtt: r[C.passAtt], passCmp: r[C.passCmp], passYds: r[C.passYds] });
+    }
+  }
+  rows.sort((a, b) => (a.date !== b.date ? (a.date < b.date ? -1 : 1) : a.gameKey !== b.gameKey ? (a.gameKey < b.gameKey ? -1 : 1) : a.id < b.id ? -1 : a.id > b.id ? 1 : 0));
+  const states = new Map();
+  const stateBefore = (day) => {
+    if (!states.has(day)) {
+      const st = createQbState(F);
+      for (const r of rows) { if (r.date >= day) break; st.fold(r, totals.get(r.gameKey)?.[0] ?? 0); }
+      states.set(day, st);
+    }
+    return states.get(day);
+  };
+  const normName = (n) => String(n ?? "").toLowerCase().replace(/[^a-z]/g, "");
+  return { passed: report?.verdict === "TIER_B_PASSED", report, F, scale, espnToGsis, rows, stateBefore, normName };
+})();
+/* PD 2026-11-11: the only accuracy statement tier (b) may carry — it is not "validated". */
+const TIER_B_WORDING = "Beats the league-average-starter baseline in a walk-forward backtest (paired pinball diff −0.64, 95% CI −1.12 to −0.17, n=479, cluster bootstrap over 143 season-weeks; level 0.931 near the lower bar).";
+const ET_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
 
 const newArrivalsByEvent = (() => {
   try {
@@ -450,21 +491,53 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     players.length = 0; players.push(...kept);
   }
 
-  /* SESSION 4 — one passer per pass-attempt pool, from the depth chart (board-roster-integrity.mjs). */
+  /* SESSION 4 → founder decision 2026-11-11: the starting QB (depth chart + availability; never share) and ONE passing
+     projection per team by evidence tier (board-roster-integrity.mjs applyQbStarterRule). */
   const { away: mAway, home: mHome } = splitMatchup(doc.matchup);
   const matchupTeams = [mAway, mHome].filter(Boolean);
-  const qbStarter = matchupTeams.map((team) => applyQbStarterRule({ players, team, index: depthIndex, asOf: NOW, maxAgeMs: QB_CHART_MAX_AGE_MS }));
-  /* SESSION 5 — a share-sourced family whose team pool claims more opportunity than exists is WITHHELD
-     for that team (opportunity-conservation.mjs). Runs after every removal above, so Σ is over the rows
-     a reader would see; never renormalises. v1-allocated families are not passed: they conserve. */
   const poolMarkets = [...(shareLevel?.markets ?? [])].filter((m) => SHARE_MARKETS.includes(m) && publishedMarkets.has(m));
-  const shareIndex = shareIndexFor(forecastFor(doc.kickoffUtc, doc.week), shareLevel?.gameId);
-  /* NFL World Model V2 (Week 5) — a published passer must carry a starter's share; a relief-sized share
-     cannot project a start (board-roster-integrity.mjs applyPasserShareFloor). Withheld with its reason. */
-  const passerFloor = matchupTeams.map((team) => applyPasserShareFloor({
-    players, team, nflverseTeam, shareOf: (id, t, market) => shareIndex.get(`${id}|${t}|${market}`),
+  const weekForecast = forecastFor(doc.kickoffUtc, doc.week);
+  const shareIndex = shareIndexFor(weekForecast, shareLevel?.gameId);
+  const gameDay = ET_DAY.format(new Date(Date.parse(doc.kickoffUtc)));
+  const gsisOf = (espnPlayerId, name, team) => {
+    const espn = String(espnPlayerId).replace(/^nfl-athlete-/, "");
+    const fromMap = TIER_B?.espnToGsis.get(espn);
+    if (fromMap) return fromMap;
+    const fc = weekForecast?.columns ? Object.fromEntries(weekForecast.columns.map((c, i) => [c, i])) : null;
+    const fromForecast = fc ? (weekForecast.rows ?? []).find((r) => String(r[fc.espnId]) === espn)?.[fc.playerId] : null;
+    if (fromForecast) return String(fromForecast);
+    /* last resort: the same name on the same club in the committed season table (a 2026 arrival the crosswalk predates) */
+    const nm = TIER_B?.normName(name);
+    const hit = nm ? TIER_B.rows.find((r) => r.season === seasonOfKickoff(doc.kickoffUtc) && r.team === nflverseTeam(team) && TIER_B.normName(r.name) === nm) : null;
+    return hit?.id ?? null;
+  };
+  const tierBFor = (team) => (playerId, name) => {
+    if (!TIER_B?.F || !Number.isFinite(TIER_B.scale)) return { careerAttempts: 0, limitation: "the tier (b) inputs are not readable" };
+    const gsis = gsisOf(playerId, name, team);
+    const st = gsis ? TIER_B.stateBefore(gameDay).players.get(gsis) : null;
+    const career = st?.careerAtt ?? 0;
+    const need = TIER_B.F.rate.priorTrials;
+    if (career < need) return { careerAttempts: career, limitation: `${name ?? playerId}: ${career} NFL pass attempts in committed data (the projection needs ${need} verified attempts; no tested rookie fallback exists)` };
+    if (!TIER_B.passed) return { careerAttempts: career, limitation: "the all-club projection has not passed its backtest" };
+    const season = seasonOfKickoff(doc.kickoffUtc);
+    const pr = tierBProjection({ st, team: nflverseTeam(team), season, state: TIER_B.stateBefore(gameDay), F: TIER_B.F, scale: TIER_B.scale, starterShare: TIER_B.report.starterShare.value });
+    const r4 = (v) => Number(v.toFixed(4));
+    return {
+      careerAttempts: career,
+      market: { mean: r4(pr.mean), p10: r4(pr.q[0.1]), p25: r4(pr.q[0.25]), median: r4(pr.q[0.5]), p75: r4(pr.q[0.75]), p90: r4(pr.q[0.9]), pricingState: "NOT_PROBED" },
+      basis: `tier (b): ${career} verified NFL pass attempts across clubs, in ${team}'s pass-attempt context. ${TIER_B_WORDING}`,
+      starterShare: { value: TIER_B.report.starterShare.value, source: `${TIER_B.report.artifact} (committed research report, field starterShare)`, definition: TIER_B.report.starterShare.definition, seasons: TIER_B.report.starterShare.seasons },
+    };
+  };
+  const qbStarter = matchupTeams.map((team) => applyQbStarterRule({
+    players, team, index: depthIndex, asOf: NOW, maxAgeMs: QB_CHART_MAX_AGE_MS,
+    availabilityOf: (playerId) => { const e = eligibilityOf(playerId, team); return { state: e.state, status: e.sources?.injuries?.status ?? null }; },
+    shareOf: (playerId) => shareIndex.get(`${String(playerId).replace(/^nfl-athlete-/, "")}|${nflverseTeam(team)}|player_pass_yds`),
+    tierBFor: tierBFor(team),
+    rowFor: (starter) => ({ playerId: starter.playerId, name: starter.name, team, participation: designationByPlayer.get(`${team}:${starter.playerId}`) ?? "AVAILABLE_ROLE_UNCERTAIN", markets: {}, eligibility: eligibilityOf(starter.playerId, team) }),
   }));
-  const withheldPassers = passerFloor.flatMap((r) => r.withheld);
+  /* the reason of every team whose starter's passing is not projected rides on the family */
+  const withheldPassers = qbStarter.filter((r) => r.state === QB_STARTER_WITHHELD).map((r) => ({ team: r.team, playerId: r.starter?.playerId ?? null, name: r.starter?.name ?? null, reason: r.reason }));
   if (withheldPassers.length && families.player_pass_yds) families.player_pass_yds.withheldPassers = withheldPassers;
   /* SESSION 11 — over-allocated pools are RECONCILED (proportional, per team, over cleared players only),
      versioned and forward-only (opportunity-conservation.mjs normalizeOverAllocatedPools). A pool that
@@ -528,7 +601,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
   const familyGaps = shareLevel && !shareLevel.markets.has("player_receptions")
     ? receivingFamilyGaps({ forecast: forecastFor(doc.kickoffUtc, doc.week), gameId: shareLevel.gameId, season: seasonOfKickoff(doc.kickoffUtc), toBoardTeam: (t) => (t === "WAS" ? "WSH" : t === "LA" ? "LAR" : t), published: publishedMarkets })
     : [];
-  const coverage = buildCoverage({ teams: matchupTeams, players, excluded, arrivals: newArrivals, qbRules: qbStarter, noRole, familyGaps, poolWithheld: pools.withheld, passerWithheld: withheldPassers });
+  const coverage = buildCoverage({ teams: matchupTeams, players, excluded, arrivals: newArrivals, qbRules: qbStarter, noRole, familyGaps, poolWithheld: pools.withheld, passerWithheld: [] });
 
   const artifact = {
     schemaVersion: 1,
@@ -572,7 +645,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     /* SESSION 4 — the pregame roster/usage receipt: every material player's state, and the integrity
        facts the audit below checks (one passer per pool, nobody unavailable, nobody off-roster). */
     coverage,
-    integrity: { qbStarter, passerShareFloor: passerFloor, pools: pools.pools, violations: null },
+    integrity: { qbStarter, pools: pools.pools, violations: null },
     players: players.sort((a, b) => (b.markets.anytime_td?.probability ?? 0) - (a.markets.anytime_td?.probability ?? 0) || (b.markets.player_rush_yds?.mean ?? 0) - (a.markets.player_rush_yds?.mean ?? 0)),
     disclaimer: "Model projections. Educational.",
   };

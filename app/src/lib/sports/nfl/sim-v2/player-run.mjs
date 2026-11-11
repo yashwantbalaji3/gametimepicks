@@ -33,6 +33,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { NFL_SIM_V2_VERSION, N_PERIODS, N_PSTAT, N_TSTAT, PSTAT, TEAM_STAT, compileParams, prepareTeamPlayers, runRng, simulateGame, tiltedTable } from "./engine.mjs";
+import { simStarterDecision, starterOptions } from "./starter-qb.mjs";
 import { playersFromRoleShares } from "./receipt.mjs";
 import { fnv1a64 } from "../../../forecast-ledger/identity.mjs";
 import { shareExclusions, teamIdsFromRoster } from "../participation-eligibility.mjs";
@@ -82,8 +83,7 @@ export function nflSimTeamInputs(repoRoot, eventId, homeAbbr, awayAbbr, asOf) {
     const onRoster = avail.active.get(abbr);
     const excluded = shareExclusions(block, abbr, ctx);
     for (const k of ["passAttempts", "targets", "rushAttempts"]) for (const p of block?.[k]?.players ?? []) if (onRoster && !onRoster.has(p.playerId)) excluded.add(p.playerId);
-    const qbs = (board?.players ?? []).filter((p) => p.team === abbr && p.markets?.player_pass_yds);
-    return { input: playersFromRoleShares(block, excluded, { starterQb: qbs.length === 1 ? qbs[0].playerId : null }), excluded };
+    return { input: playersFromRoleShares(block, excluded, starterOptions(simStarterDecision(board, abbr))), excluded };
   };
   const h = side(homeAbbr);
   const a = side(awayAbbr);
