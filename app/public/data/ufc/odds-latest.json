@@ -403,14 +403,14 @@
    "nextCheck": "the next scheduled ufc-odds-refresh slot"
   },
   {
-   "boutId": "401922646",
-   "red": "Adrian Yañez",
+   "boutId": "401933936",
+   "red": "Alatengheili",
    "blue": "Juan Diaz",
-   "matchup": "Adrian Yañez vs Juan Diaz",
+   "matchup": "Alatengheili vs Juan Diaz",
    "weightClass": "Bantamweight",
    "startUtc": "2026-11-14T22:00Z",
-   "state": "JOIN_FAILED",
-   "reason": "2 provider event(s) naming a fighter from this card matched no bout — this bout may be one of them",
+   "state": "ADDED_AFTER_CAPTURE",
+   "reason": "added to the card after the last price capture (2026-11-10T18:33:34Z) — not yet checked against any market",
    "nextCheck": "the next scheduled ufc-odds-refresh slot"
   }
  ],
@@ -418,7 +418,8 @@
   "cardBouts": 13,
   "priced": 11,
   "marketNotOpen": 0,
-  "joinFailed": 2,
+  "joinFailed": 1,
+  "addedAfterCapture": 1,
   "unmatchedProviderEvents": 2
  },
  "aliasJoins": [
@@ -443,7 +444,8 @@
  "oddsReady": false,
  "partiallyPriced": true,
  "blockers": [
-  "2 bout(s) could not be joined to a provider event that exists — a defect, not a closed market"
+  "1 bout(s) could not be joined to a provider event that exists — a defect, not a closed market",
+  "1 bout(s) were added to the card after the last price capture and have not been priced"
  ],
  "creditCost": 1,
  "derivedFrom": null,
@@ -453,5 +455,12 @@
   "ceiling": 500,
   "cumulative": 46
  },
- "note": "Fight-winner prices only, median across posted US books. Paper-only; no wagers are placed."
+ "note": "Fight-winner prices only, median across posted US books. Paper-only; no wagers are placed.",
+ "coverageRecomputed": {
+  "at": "2026-11-11T20:05:58Z",
+  "againstCardGeneratedAt": "2026-11-11T20:05:51Z",
+  "providerCalls": 0,
+  "creditsSpent": 0,
+  "pricesFrom": "2026-11-10T18:33:34Z"
+ }
 }
