@@ -77,3 +77,16 @@ test("one canonical record (PD 2026-11-11): no official surface reads a simulati
     assert.doesNotMatch(src, /sim-v2\/(public-receipt|receipt)|readShadowReceipts|simulationOfRecord|playerStatDistributions/, `${f} reads a simulation receipt`);
   }
 });
+
+test("full QB markets: passing (pre-registered five, unchanged) + rushing from the same runs' exact counts", async () => {
+  const { qbFullMarketViews, qbMarketViews, QB_MARKETS } = await import("./qb-props-markets.mjs");
+  const { EXACT_COUNT_FAMILIES } = await import("./sim-v2/receipt.mjs");
+  assert.ok(EXACT_COUNT_FAMILIES.includes("rushAtt") && EXACT_COUNT_FAMILIES.includes("rushYds"));
+  assert.equal(QB_MARKETS.length, 5, "the graded set is unchanged");
+  const row = { exactCounts: { passYds: { 150: 2, 250: 2 }, cmp: { 20: 4 }, passAtt: { 32: 4 }, passTd: { 0: 1, 1: 2, 2: 1 }, int: { 0: 3, 1: 1 }, rushAtt: { 2: 1, 4: 3 }, rushYds: { 5: 2, 15: 2 }, rushTd: { 0: 3, 1: 1 } } };
+  const v = qbFullMarketViews(row);
+  assert.deepEqual(v.map((x) => x.market), [...qbMarketViews(row).map((x) => x.market), "rushAtt", "rushYds", "rushTd"]);
+  const td = v.find((x) => x.market === "rushTd");
+  assert.equal(td.chances[0].p, 0.25);
+  assert.equal(v.find((x) => x.market === "rushYds").status, "IMPLEMENTED_EXPERIMENTAL");
+});

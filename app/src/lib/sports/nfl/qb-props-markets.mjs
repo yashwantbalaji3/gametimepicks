@@ -53,6 +53,38 @@ export const QB_MARKETS = Object.freeze([
   { market: "passInt", stat: "int", label: "Interceptions", atLeast: [1, 2] },
 ]);
 
+/**
+ * FULL QB MARKETS (founder directive 2026-11-11 ~18:00Z): the starter's rushing from the SAME runs, beside the five
+ * pre-registered passing markets (QB_MARKETS, unchanged — the graded set). Ranges always; a "k or more" chance only
+ * where k is not a tuned number (a rushing TD: 1+). Experimental until a forward test; never graded with QB_MARKETS.
+ */
+export const QB_RUSH_MARKETS = Object.freeze([
+  { market: "rushAtt", stat: "rushAtt", label: "Rush attempts", atLeast: [] },
+  { market: "rushYds", stat: "rushYds", label: "Rushing yards", atLeast: [] },
+  { market: "rushTd", stat: "rushTd", label: "Rushing TDs", atLeast: [1] },
+]);
+
+/** All of one QB's markets — passing (pre-registered) and rushing (experimental) — from one receipt row, same runs. */
+export function qbFullMarketViews(row) {
+  return [...qbMarketViews(row), ...QB_RUSH_MARKETS.map((m) => marketView(row, m, "IMPLEMENTED_EXPERIMENTAL"))];
+}
+
+function marketView(row, m, status) {
+  const exact = row.exactCounts?.[m.stat];
+  const pmf = row.countPmf?.[m.stat];
+  const q = row.stats?.[m.stat] ?? null;
+  let distribution = q ? { p10: q.p10, p50: q.p50, p90: q.p90, source: "receipt quantiles" } : null;
+  let chances = null;
+  if (exact) {
+    const d = fromCounts(exact);
+    distribution = { p10: d.p10, p50: d.p50, p90: d.p90, source: "exact run counts" };
+    chances = m.atLeast.map((k) => ({ atLeast: k, p: d.atLeast(k) }));
+  } else if (pmf && m.atLeast.every((k) => k < pmf.length)) {
+    chances = m.atLeast.map((k) => ({ atLeast: k, p: pmf.slice(k).reduce((a, b) => a + b, 0) }));
+  }
+  return { market: m.market, label: m.label, status, distribution, chances };
+}
+
 function fromCounts(counts) {
   const vs = Object.entries(counts).map(([v, c]) => [Number(v), c]).sort((a, b) => a[0] - b[0]);
   const n = vs.reduce((a, [, c]) => a + c, 0);
@@ -65,21 +97,7 @@ function fromCounts(counts) {
  * the count PMF (@2.1); without either a market shows its run quantiles and no chance (never approximated).
  */
 export function qbMarketViews(row) {
-  return QB_MARKETS.map((m) => {
-    const exact = row.exactCounts?.[m.stat];
-    const pmf = row.countPmf?.[m.stat];
-    const q = row.stats?.[m.stat] ?? null;
-    let distribution = q ? { p10: q.p10, p50: q.p50, p90: q.p90, source: "receipt quantiles" } : null;
-    let chances = null;
-    if (exact) {
-      const d = fromCounts(exact);
-      distribution = { p10: d.p10, p50: d.p50, p90: d.p90, source: "exact run counts" };
-      chances = m.atLeast.map((k) => ({ atLeast: k, p: d.atLeast(k) }));
-    } else if (pmf && m.atLeast.every((k) => k < pmf.length)) {
-      chances = m.atLeast.map((k) => ({ atLeast: k, p: pmf.slice(k).reduce((a, b) => a + b, 0) }));
-    }
-    return { market: m.market, label: m.label, status: QB_MARKET_STATUS[m.market], distribution, chances };
-  });
+  return QB_MARKETS.map((m) => marketView(row, m, QB_MARKET_STATUS[m.market]));
 }
 
 const ms = (iso) => { const t = Date.parse(String(iso ?? "").replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z")); return Number.isFinite(t) ? t : null; };

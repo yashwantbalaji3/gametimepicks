@@ -26,9 +26,10 @@ import { RUN_BOX_RECORD_FIELD, buildRunBoxRecord } from "../../../simulation-the
  */
 export const SIMULATION_RECEIPT_SCHEMA = "simulation-receipt@2.2";
 export const ACCEPTED_RECEIPT_SCHEMAS = Object.freeze(["simulation-receipt@2", "simulation-receipt@2.1", "simulation-receipt@2.2"]);
-export const EXACT_COUNT_FAMILIES = Object.freeze(["passYds", "cmp", "passAtt", "passTd", "int", "rushTd", "recTd"]);
-/** Families stored only for players who threw a pass in some run (the QB props); the TD families for every player. */
-const PASSER_ONLY = new Set(["passYds", "cmp", "passAtt", "int"]);
+export const EXACT_COUNT_FAMILIES = Object.freeze(["passYds", "cmp", "passAtt", "passTd", "int", "rushTd", "recTd", "rushAtt", "rushYds"]);
+/** Families stored only for players who threw a pass in some run (the QB props, and — founder 2026-11-11 — the QB's own
+    rushing attempts and yards for full QB markets); the TD families for every player. */
+const PASSER_ONLY = new Set(["passYds", "cmp", "passAtt", "int", "rushAtt", "rushYds"]);
 /** Exact P(value > line) from a receipt's sparse run counts: Σ runs above the line / runCount. */
 export function exactOver(counts, line, runCount) {
   let above = 0;
