@@ -40,7 +40,7 @@ import { deriveNewArrivals, shadowProjectedArrivals } from "../../src/lib/sports
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
 import { activeRosterIndex, applyQbStarterRule, auditBoard, QB_STARTER_WITHHELD, buildCoverage, currentSeasonUsageIndex, QB_CHART_MAX_AGE_MS, receivingFamilyGaps } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
 import { nflverseTeam } from "../../src/lib/sports/nfl/snap-share.mjs";
-import { indexDepthCharts } from "../../src/lib/sports/nfl/depth-chart.mjs";
+import { depthChartAsOf, indexDepthCharts } from "../../src/lib/sports/nfl/depth-chart.mjs";
 import { CONSERVATION_METHOD, CONSERVATION_VERSION, normalizeOverAllocatedPools, overAllocationReason, SHARE_MARKETS } from "../../src/lib/sports/nfl/opportunity-conservation.mjs";
 import { PUBLIC_BOARD_CLEARED } from "../../src/lib/sports/nfl/board-ranking.mjs";
 import { splitMatchup } from "../../src/lib/sports/nfl/matchup.mjs";
@@ -544,27 +544,43 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
      is written ONLY to data/internal/nfl/qb-fallback/<eventId>.json — never to this public board. A build with
      GTP_NFL_QB_FALLBACK_PUBLIC=1 reads it for display; OFF, nothing does. */
   const experimental = [];
+  const scenarios = [];
+  /* one experimental projection for a named QB on `team`: tier (b) when the tested all-club method can project him,
+     else tier (d)'s contextual fallback — never an invented history */
+  const projectQb = (team, qb) => {
+    const opponent = matchupTeams.find((t) => t !== team) ?? null;
+    const b = tierBFor(team)(qb.playerId, qb.name);
+    if (b?.market) return { tier: "B_ALL_CLUB_HISTORY", careerAttempts: b.careerAttempts, market: b.market, basis: b.basis, extra: b.starterShare ? { starterShare: b.starterShare } : {}, opponent };
+    if (!TIER_B?.tierDPrior || !TIER_B?.F) return null;
+    const gsis = gsisOf(qb.playerId, qb.name, team);
+    const state = TIER_B.stateBefore(gameDay);
+    const st = (gsis ? state.players.get(gsis) : null) ?? { games: 0, rates: { comp: [], ypcmp: [] } };
+    const pr = tierDProjection({ st, team: nflverseTeam(team), opponent: opponent ? nflverseTeam(opponent) : null, season: seasonOfKickoff(doc.kickoffUtc), state, F: TIER_B.F, prior: TIER_B.tierDPrior });
+    const r4 = (v) => Number(v.toFixed(4));
+    return {
+      tier: "D_CONTEXTUAL_FALLBACK", careerAttempts: st.careerAtt ?? 0, opponent, extra: {},
+      market: { mean: r4(pr.mean), p10: r4(pr.q[0.1]), p25: r4(pr.q[0.25]), median: r4(pr.q[0.5]), p75: r4(pr.q[0.75]), p90: r4(pr.q[0.9]) },
+      basis: `tier (d): ${st.careerAtt ?? 0} verified NFL pass attempts, shrunk toward the low-history prior (REG ${TIER_B.tierDPrior.seasons.join("–")}, n=${TIER_B.tierDPrior.games}), in ${team}'s pass-attempt context and ${opponent ?? "the opponent"}'s pass defence; a wider range by construction`,
+    };
+  };
   for (const r of qbStarter.filter((q) => q.experimental && q.starter)) {
-    const opponent = matchupTeams.find((t) => t !== r.team) ?? null;
-    let market = null, basis = null, extra = {};
-    if (r.tier === "B_ALL_CLUB_HISTORY") {
-      const b = tierBFor(r.team)(r.starter.playerId, r.starter.name);
-      market = b?.market ?? null; basis = b?.basis ?? null; extra = b?.starterShare ? { starterShare: b.starterShare } : {};
-    } else if (TIER_B?.tierDPrior && TIER_B?.F) {
-      const gsis = gsisOf(r.starter.playerId, r.starter.name, r.team);
-      const state = TIER_B.stateBefore(gameDay);
-      const st = (gsis ? state.players.get(gsis) : null) ?? { games: 0, rates: { comp: [], ypcmp: [] } };
-      const pr = tierDProjection({ st, team: nflverseTeam(r.team), opponent: opponent ? nflverseTeam(opponent) : null, season: seasonOfKickoff(doc.kickoffUtc), state, F: TIER_B.F, prior: TIER_B.tierDPrior });
-      const r4 = (v) => Number(v.toFixed(4));
-      market = { mean: r4(pr.mean), p10: r4(pr.q[0.1]), p25: r4(pr.q[0.25]), median: r4(pr.q[0.5]), p75: r4(pr.q[0.75]), p90: r4(pr.q[0.9]) };
-      basis = `tier (d): ${r.careerAttempts ?? 0} verified NFL pass attempts, shrunk toward the low-history prior (REG ${TIER_B.tierDPrior.seasons.join("–")}, n=${TIER_B.tierDPrior.games}), in ${r.team}'s pass-attempt context and ${opponent ?? "the opponent"}'s pass defence; a wider range by construction`;
-    }
-    if (market) experimental.push(qbFallbackEntry({ eventId: String(doc.providerEventId), team: r.team, opponent, starter: r.starter, tier: r.tier, source: r.source, careerAttempts: r.careerAttempts ?? 0, market, basis, ...extra }));
+    const p = projectQb(r.team, r.starter);
+    if (p) experimental.push(qbFallbackEntry({ eventId: String(doc.providerEventId), team: r.team, opponent: p.opponent, starter: r.starter, tier: p.tier, source: r.source, careerAttempts: p.careerAttempts, market: p.market, basis: p.basis, ...p.extra }));
+  }
+  /* founder directive 2026-11-11 (~18:00Z) item 5: a team whose starter is NOT confirmed gets ALTERNATIVE-STARTER
+     SCENARIOS — the next eligible QBs on the chart (or the board's passers without a chart), each "if he starts", none
+     presented as confirmed */
+  for (const r of qbStarter.filter((q) => q.state === QB_STARTER_WITHHELD && !q.starter)) {
+    const chart = depthIndex ? depthChartAsOf(depthIndex, r.team, NOW, QB_CHART_MAX_AGE_MS) : null;
+    const fromChart = (chart?.order ?? []).map((q) => ({ playerId: `nfl-athlete-${q.playerId}`, name: q.name ?? null })).filter((q) => eligibilityOf(q.playerId, r.team).state !== "INELIGIBLE");
+    const candidates = (fromChart.length ? fromChart : (r.removed ?? []).map((x) => ({ playerId: x.playerId, name: x.name }))).slice(0, 2);
+    const options = candidates.map((qb) => { const p = projectQb(r.team, qb); return p ? { ...qbFallbackEntry({ eventId: String(doc.providerEventId), team: r.team, opponent: p.opponent, starter: qb, tier: p.tier, source: "scenario — starter not confirmed", careerAttempts: p.careerAttempts, market: p.market, basis: p.basis, ...p.extra }), scenario: `if ${qb.name ?? qb.playerId} starts` } : null; }).filter(Boolean);
+    if (options.length) scenarios.push({ team: r.team, confirmed: false, reason: r.reason, options });
   }
   if (!DRY_EXPERIMENTAL) {
     const expDir = path.join(ROOT, "data/internal/nfl/qb-fallback");
     fs.mkdirSync(expDir, { recursive: true });
-    fs.writeFileSync(path.join(expDir, `${doc.providerEventId}.json`), JSON.stringify({ schema: QB_FALLBACK_SCHEMA, dataClass: "PRIVATE_RESEARCH", eventId: String(doc.providerEventId), matchup: doc.matchup, kickoffUtc: doc.kickoffUtc, generatedAt: NOW, display: "only in a build with GTP_NFL_QB_FALLBACK_PUBLIC=1", starters: experimental }, null, 2) + "\n");
+    fs.writeFileSync(path.join(expDir, `${doc.providerEventId}.json`), JSON.stringify({ schema: QB_FALLBACK_SCHEMA, dataClass: "PRIVATE_RESEARCH", eventId: String(doc.providerEventId), matchup: doc.matchup, kickoffUtc: doc.kickoffUtc, generatedAt: NOW, display: "only in a build with GTP_NFL_QB_FALLBACK_PUBLIC=1", starters: experimental, unconfirmedScenarios: scenarios }, null, 2) + "\n");
   }
   const withheldPassers = qbStarter.filter((r) => r.state === QB_STARTER_WITHHELD).map((r) => ({ team: r.team, playerId: r.starter?.playerId ?? null, name: r.starter?.name ?? null, reason: r.reason }));
   if (withheldPassers.length && families.player_pass_yds) families.player_pass_yds.withheldPassers = withheldPassers;
