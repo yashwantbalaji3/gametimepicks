@@ -112,7 +112,7 @@ export default function TrendsBoard({ model, spec }: { model: TrendsModel; spec:
               </thead>
               <tbody>
                 {rows.map((r, i) => (
-                  <tr key={r.playerId} data-trn-player={r.playerId} data-trn-availability={r.availability} data-trn-i={i} data-team={r.team} data-pos={r.position ?? ""} data-home={r.home ? "1" : "0"}
+                  <tr key={r.playerId} id={`p-${r.playerId}`} data-trn-player={r.playerId} data-trn-availability={r.availability} data-trn-i={i} data-team={r.team} data-pos={r.position ?? ""} data-home={r.home ? "1" : "0"}
                     {...Object.fromEntries(spec.stats.map(([k]) => [`data-${k.toLowerCase()}`, r.reference?.[k] ?? ""]))}
                     {...(spec.filters.hitFilter ? h5Attrs(r, spec.stats) : {})}>
                     <th scope="row">

@@ -95,7 +95,7 @@ test("the adapter: MODEL PROJECTION threshold counts, the order, R5 and eligibil
 
 test("the 5/5 · 4/5 · 3/5 filter: each row carries its last-5 count per stat; the counts select the right QBs", () => {
   const h = renderToStaticMarkup(React.createElement(View, { trends: build() }));
-  const rows = [...h.matchAll(/<tr data-trn-player="(\d+)"([^>]*)>/g)].map((m) => ({ id: m[1], attrs: m[2] }));
+  const rows = [...h.matchAll(/<tr id="p-\d+" data-trn-player="(\d+)"([^>]*)>/g)].map((m) => ({ id: m[1], attrs: m[2] }));
   const h5 = (r, k) => /data-h5-passyds="(\d*)"/.exec(r.attrs)?.[1] ?? (k, "");
   assert.deepEqual(Object.fromEntries(rows.map((r) => [r.id, h5(r)])), { 1: "4", 2: "1", 3: "", 4: "" }, "Alpha 4 of 5 above 220; Bravo 1 of 1 above 240; no games → no count");
   const atLeast = (n) => rows.filter((r) => h5(r) !== "" && Number(h5(r)) >= n).map((r) => r.id);

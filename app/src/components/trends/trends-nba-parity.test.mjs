@@ -3,7 +3,8 @@
  * NBA page renders EXACTLY what it rendered before — every state of the frozen snapshot (taken on claude/trends-slice
  * d0dda3a07f, before the refactor): the HTML, the drawer file and the model, byte for byte — with ONE deliberate
  * delta (founder 2026-11-11, records never mixed): the hidden sportsbook-line block now carries data-trn-record="line" and
- * its SPORTSBOOK LINE badge. That delta is applied to the frozen HTML explicitly below; nothing else may differ.
+ * its SPORTSBOOK LINE badge; and (vehicle 2026-11-11, rendered-navigation guard) each row carries id="p-<playerId>", the
+ * target of its own "#p-<playerId>" link. Both deltas are applied to the frozen HTML explicitly below; nothing else may differ.
  * Run: npx tsx --test src/components/trends/trends-nba-parity.test.mjs
  */
 import test from "node:test";
@@ -25,7 +26,9 @@ test("NBA adapter + shared board = the pre-split NBA Trends, every state, byte f
   assert.equal((SNAP.html.tonight.match(/data-trn-hit=/g) ?? []).length, 2, "the frozen states include line blocks, so the delta is exercised");
   assert.deepEqual(Object.keys(cases), Object.keys(SNAP.html));
   for (const [k, t] of Object.entries(cases)) {
-    const expected = SNAP.html[k].replace(/<div hidden="" data-trn-hit="([^"]+)">/g, (_, id) => `<div hidden="" data-trn-hit="${id}" data-trn-record="line"><span class="trn-badge is-line">SPORTSBOOK LINE</span>`);
+    const expected = SNAP.html[k]
+      .replace(/<div hidden="" data-trn-hit="([^"]+)">/g, (_, id) => `<div hidden="" data-trn-hit="${id}" data-trn-record="line"><span class="trn-badge is-line">SPORTSBOOK LINE</span>`)
+      .replace(/<tr data-trn-player="([^"]+)"/g, (_, id) => `<tr id="p-${id}" data-trn-player="${id}"`);
     assert.equal(renderToStaticMarkup(React.createElement(View, { trends: t })), expected, `${k}: page HTML`);
     assert.deepEqual(T.trendsDrawerPayload(t), SNAP.payload[k], `${k}: drawer file`);
     assert.deepEqual(JSON.parse(JSON.stringify(t)), SNAP.model[k], `${k}: model`);
