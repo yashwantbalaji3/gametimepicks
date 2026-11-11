@@ -38,7 +38,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { deriveNewArrivals, shadowProjectedArrivals } from "../../src/lib/sports/nfl/new-arrivals.mjs";
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
-import { activeRosterIndex, applyPasserShareFloor, applyQbStarterRule, auditBoard, buildCoverage, currentSeasonUsageIndex, QB_CHART_MAX_AGE_MS, receivingFamilyGaps } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
+import { activeRosterIndex, applyPasserShareFloor, applyQbStarterRule, auditBoard, QB_STARTER_WITHHELD, buildCoverage, currentSeasonUsageIndex, QB_CHART_MAX_AGE_MS, receivingFamilyGaps } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
 import { nflverseTeam } from "../../src/lib/sports/nfl/snap-share.mjs";
 import { indexDepthCharts } from "../../src/lib/sports/nfl/depth-chart.mjs";
 import { CONSERVATION_METHOD, CONSERVATION_VERSION, normalizeOverAllocatedPools, overAllocationReason, SHARE_MARKETS } from "../../src/lib/sports/nfl/opportunity-conservation.mjs";
@@ -464,7 +464,9 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
   const passerFloor = matchupTeams.map((team) => applyPasserShareFloor({
     players, team, nflverseTeam, shareOf: (id, t, market) => shareIndex.get(`${id}|${t}|${market}`),
   }));
-  const withheldPassers = passerFloor.flatMap((r) => r.withheld);
+  /* Week 10 — a team whose starting QB is not confirmed carries its reason on the family, beside the share floor's. */
+  const starterWithheld = qbStarter.filter((r) => r.state === QB_STARTER_WITHHELD).map((r) => ({ team: r.team, playerId: r.starter?.playerId ?? null, name: r.starter?.name ?? null, reason: r.reason }));
+  const withheldPassers = [...starterWithheld, ...passerFloor.flatMap((r) => r.withheld)];
   if (withheldPassers.length && families.player_pass_yds) families.player_pass_yds.withheldPassers = withheldPassers;
   /* SESSION 11 — over-allocated pools are RECONCILED (proportional, per team, over cleared players only),
      versioned and forward-only (opportunity-conservation.mjs normalizeOverAllocatedPools). A pool that
@@ -528,7 +530,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
   const familyGaps = shareLevel && !shareLevel.markets.has("player_receptions")
     ? receivingFamilyGaps({ forecast: forecastFor(doc.kickoffUtc, doc.week), gameId: shareLevel.gameId, season: seasonOfKickoff(doc.kickoffUtc), toBoardTeam: (t) => (t === "WAS" ? "WSH" : t === "LA" ? "LAR" : t), published: publishedMarkets })
     : [];
-  const coverage = buildCoverage({ teams: matchupTeams, players, excluded, arrivals: newArrivals, qbRules: qbStarter, noRole, familyGaps, poolWithheld: pools.withheld, passerWithheld: withheldPassers });
+  const coverage = buildCoverage({ teams: matchupTeams, players, excluded, arrivals: newArrivals, qbRules: qbStarter, noRole, familyGaps, poolWithheld: pools.withheld, passerWithheld: passerFloor.flatMap((r) => r.withheld) });
 
   const artifact = {
     schemaVersion: 1,
