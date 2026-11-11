@@ -65,6 +65,16 @@ const EXEMPTIONS = [
     reads: ["data/internal/research/nfl/player-events-v1", "data/internal/research/injuries/nfl/latest.json"],
     why: "NFL QB trends (gated OFF, /nfl/trends internal): game logs from the player-events box scores and eligibility@1's NFL injury report; /data/nfl-trends.json imports the adapter only inside the flag branch",
   },
+  {
+    module: "src/lib/sports/nfl/qb-results.ts", kind: "gated", flag: "GTP_NFL_TRENDS_PUBLIC",
+    reads: ["data/internal/research/nfl/player-events-v1", "data/internal/research/nfl/qb-props/ledger.json", "data/internal/nfl/official-stats"],
+    why: "settled QB record (frozen projection · final · grade row) on the NFL game page and the Trends panel, gated OFF; both callers import it only inside the GTP_NFL_TRENDS_PUBLIC branch",
+  },
+  {
+    module: "src/lib/sports/nfl/served-grade-io.mjs", kind: "gated", flag: "GTP_NFL_TRENDS_PUBLIC",
+    reads: ["data/internal/nfl/grade-freeze", "data/internal/nfl/served-grade"],
+    why: "#1314's graded-against hook, read by the gated QB results only; its header: these become BUILD_INPUTS before a public page renders it",
+  },
   /*
    * LAGS BY DESIGN — a public read that must NOT rebuild on its own commits. The Level A suggestions record is written
    * per Production deployment; if its commits built, every record commit would deploy and re-trigger the recorder. Its

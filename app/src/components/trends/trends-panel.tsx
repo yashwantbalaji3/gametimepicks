@@ -12,6 +12,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import type { TrendsPanelPayload, TrendsPanelSpec } from "@/lib/trends/contract";
 import PlayerAvatar from "@/components/player-avatar";
 import { useDialogFocus } from "@/components/a11y/use-dialog-focus";
+import TrendsResultCard from "./trends-results";
 import TeamLogo from "@/components/team-logo";
 
 const STATE_LABEL = { eligible: "✓ Cleared to play", "not-verified": "? Not verified", ineligible: "✕ Not eligible" } as const;
@@ -105,6 +106,12 @@ export default function TrendsPanel({ spec }: { spec: TrendsPanelSpec }) {
               </div>
             ) : <p className="trn-fine">No regular-season game played yet this season.</p>}
             <p className="trn-fine">{p.reference ? "▲ marks a game above the MODEL PROJECTION. " : ""}{data!.note}</p>
+            {p.results?.length ? (
+              <>
+                <h3 className="trn-section-h">Settled games</h3>
+                {p.results.map((r) => <TrendsResultCard key={r.eventId} r={r} />)}
+              </>
+            ) : null}
           </>
         )}
       </aside>
