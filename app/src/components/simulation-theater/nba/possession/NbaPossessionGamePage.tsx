@@ -18,6 +18,7 @@ import NbaPossessionSection from "./NbaPossessionSection";
 import type { PbLoad, PbUnavailable } from "./possession-types";
 import NbaOfficialPredictions, { OFFICIAL_PREDICTIONS_ID } from "@/components/nba/official-predictions";
 import { loadCurrentLane, loadLaneForDate } from "@/components/nba/experimental-lane";
+import { loadPostFreezeOut } from "@/components/nba/post-freeze-availability-data";
 import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { etDateOf } from "@/lib/sports/nba/finals-record.mjs";
 
@@ -62,7 +63,7 @@ export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOS
         <a href={`#${OFFICIAL_PREDICTIONS_ID}`} aria-current="true" data-nba-view="default">Official projected game <span>Default</span></a>
         <a href={`#${SIMULATED_SCENARIOS_ID}`} data-nba-view="scenarios">Simulated scenarios <span>Hypothetical</span></a>
       </nav>
-      {payload ? <NbaOfficialPredictions official={payload.official} teams={payload.teams} lane={laneGame} finalNote={finalNote} resultsHref={NBA_RESULTS_HREF} /> : null}
+      {payload ? <NbaOfficialPredictions official={payload.official} teams={payload.teams} lane={laneGame} finalNote={finalNote} resultsHref={NBA_RESULTS_HREF} postFreezeOut={loadPostFreezeOut(slateDate, eventId)} /> : null}
       <section id={SIMULATED_SCENARIOS_ID} tabIndex={-1} className="nbp-scenarios" aria-labelledby={`${SIMULATED_SCENARIOS_ID}-h`} data-nba-simulated-scenarios="">
         <p className="nbx-kind">{SIMULATED_SCENARIOS_KIND}</p>
         <h2 id={`${SIMULATED_SCENARIOS_ID}-h`}>{SIMULATED_SCENARIOS_TITLE}</h2>

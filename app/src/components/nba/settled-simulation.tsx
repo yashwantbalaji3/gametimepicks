@@ -21,6 +21,8 @@ import { ELO_WIN_PROBABILITY_LABEL, eloWinProbabilityOf } from "@/lib/sports/nba
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import { NBA_FORECAST_DISCLOSURE, PUBLIC_TERMS } from "@/lib/public-registry";
 import NbaPropLines from "@/components/nba/nba-prop-lines";
+import { loadPostFreezeOut, type PostFreezeOut } from "@/components/nba/post-freeze-availability-data";
+import { postFreezeNote } from "@/lib/sports/nba/post-freeze-availability.mjs";
 
 /** The page's own marker: the flag-ON export scan tells a settled page from a Game Simulation page by it. */
 export const SETTLED_SIMULATION_ATTR = "data-nba-settled-simulation";
@@ -45,6 +47,7 @@ export default function SettledSimulation({ view }: { view: SettledView }) {
   const eloShown = eloWinProbabilityOf(g, { enabled: elo.enabled }) != null;
   const final = record?.final ?? null;
   const attrs = { [SETTLED_SIMULATION_ATTR]: view.id };
+  const ruledOut = loadPostFreezeOut(date, view.id);
   return (
     <article className="flex flex-col gap-4" {...attrs}>
       <nav aria-label="This game" className="nbx-gamenav">
@@ -76,8 +79,8 @@ export default function SettledSimulation({ view }: { view: SettledView }) {
           <dt>Frozen</dt><dd>{et(g.frozenAt)}</dd>
           <dt>Withheld</dt><dd>{eloShown ? "Team scores" : "Win chance, team scores"}, player ranges, prices</dd>
         </dl>
-        <PlayerTable team={g.away.name ?? away} rows={g.players.away} none={g.players.unavailable?.away ?? []} />
-        <PlayerTable team={g.home.name ?? home} rows={g.players.home} none={g.players.unavailable?.home ?? []} />
+        <PlayerTable team={g.away.name ?? away} rows={g.players.away} none={g.players.unavailable?.away ?? []} ruledOut={ruledOut} />
+        <PlayerTable team={g.home.name ?? home} rows={g.players.home} none={g.players.unavailable?.home ?? []} ruledOut={ruledOut} />
         <p className="nbx-fine">
           Medians from the frozen player simulation; MIN is expected minutes. PRA, P+R and P+A are medians of the per-draw sums over the same
           simulated draws, so they are not the sum of the medians beside them. &ldquo;—&rdquo; means the figure was not published. A status after a
@@ -114,7 +117,10 @@ export default function SettledSimulation({ view }: { view: SettledView }) {
   );
 }
 
-function PlayerTable({ team, rows, none }: { team: string; rows: readonly Row[]; none: ReadonlyArray<{ providerAthleteId: string; name: string | null; reason: string; status?: string | null }> }) {
+function PlayerTable({ team, rows: recorded, none, ruledOut }: { team: string; rows: readonly Row[]; none: ReadonlyArray<{ providerAthleteId: string; name: string | null; reason: string; status?: string | null }>; ruledOut: PostFreezeOut }) {
+  // ruled out after the freeze: kept as recorded, below every active row (the game page's rule)
+  const out = (r: Row) => (ruledOut.has(String(r.providerAthleteId)) ? 1 : 0);
+  const rows = [...recorded].sort((a, b) => out(a) - out(b));
   const shown = new Set(rows.map((r) => String(r.providerAthleteId)));
   const missing = none.filter((u) => !shown.has(String(u.providerAthleteId)));
   return (
@@ -124,8 +130,8 @@ function PlayerTable({ team, rows, none }: { team: string; rows: readonly Row[];
         <thead><tr><th scope="col">Player</th><th scope="col">MIN</th>{STATS.map(([, l]) => <th key={l} scope="col">{l}</th>)}{COMBO_STATS.map(([, l]) => <th key={l} scope="col">{l}</th>)}</tr></thead>
         <tbody>
           {rows.map((r) => (
-            <tr key={r.providerAthleteId}>
-              <th scope="row">{r.name ?? r.providerAthleteId}{r.injuryStatus ? <span data-injury-status=""> · {r.injuryStatus}</span> : null}</th>
+            <tr key={r.providerAthleteId} {...(ruledOut.has(String(r.providerAthleteId)) ? { className: "nbx-postfreeze-out", "data-nba-post-freeze-out": String(r.providerAthleteId) } : {})}>
+              <th scope="row">{r.name ?? r.providerAthleteId}{r.injuryStatus ? <span data-injury-status=""> · {r.injuryStatus}</span> : null}{ruledOut.has(String(r.providerAthleteId)) ? <span className="nbx-postfreeze-note">{postFreezeNote(ruledOut.get(String(r.providerAthleteId))!.statedAt)}</span> : null}</th>
               <td>{fmt(r.expectedMinutes)}</td>
               {STATS.map(([k]) => <td key={k}>{fmt(r.medians[k])}</td>)}
               {COMBO_STATS.map(([k]) => <td key={k}>{fmt(r.comboMedians?.[k])}</td>)}
