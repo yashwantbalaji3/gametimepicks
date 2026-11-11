@@ -69,11 +69,17 @@ export function qbFullMarketViews(row) {
   return [...qbMarketViews(row), ...QB_RUSH_MARKETS.map((m) => marketView(row, m, "IMPLEMENTED_EXPERIMENTAL"))];
 }
 
+/**
+ * @param {any} row @param {{ market: string, stat: string, label: string, atLeast: number[] }} m @param {string} status
+ * @returns {{ market: string, label: string, status: string, distribution: { p10: number, p50: number, p90: number, source: string } | null, chances: Array<{ atLeast: number, p: number }> | null }}
+ */
 function marketView(row, m, status) {
   const exact = row.exactCounts?.[m.stat];
   const pmf = row.countPmf?.[m.stat];
   const q = row.stats?.[m.stat] ?? null;
+  /** @type {{ p10: number, p50: number, p90: number, source: string } | null} */
   let distribution = q ? { p10: q.p10, p50: q.p50, p90: q.p90, source: "receipt quantiles" } : null;
+  /** @type {Array<{ atLeast: number, p: number }> | null} */
   let chances = null;
   if (exact) {
     const d = fromCounts(exact);
