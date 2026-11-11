@@ -7,7 +7,10 @@
  * actually published BEFORE each kickoff and nothing else:
  *
  *   team      the latest immutable forecast receipt generated before kickoff (the forecast of record —
- *             the same rule the experimental settler and the pregame audit use)
+ *             the same rule the experimental settler and the pregame audit use) — for games kicking off before
+ *             NFL_SERVED_GRADE_FROM. From then on (founder 2026-11-09, lib/sports/nfl/served-grade.mjs) the receipt of
+ *             the revision verified as SERVED before kickoff (data/internal/nfl/served-grade/<eventId>.json); a game
+ *             whose decision is HOLD, or not made yet, is not graded and is listed under `held` instead of `games`
  *   players   the game's player board, refused unless it was generated before kickoff
  *   results   the official ESPN box score, captured once the game is FINAL and kept as a dated receipt
  *             (data/internal/nfl/official-stats/<eventId>.json) so a grade can always be re-derived
@@ -30,6 +33,8 @@ import { fileURLToPath } from "node:url";
 
 import { officialFromEspnSummary, periodsFromEspnSummary, gradeGame, summariseWeek, RECONCILIATION_RULES } from "../../src/lib/sports/nfl/week-reconciliation.mjs";
 import { readNflSideCutover } from "../../src/lib/results/nfl-model-favored-io.mjs";
+import { gradingReceiptFor } from "../../src/lib/sports/nfl/served-grade.mjs";
+import { readDecision } from "../../src/lib/sports/nfl/served-grade-io.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -45,12 +50,14 @@ const sideCutoverAt = readNflSideCutover(ROOT);
 // ── the forecasts of record: latest receipt generated strictly before kickoff, per event ──────────
 const receiptsRoot = path.join(ROOT, "data/internal/nfl/forecast-receipts");
 const receipts = new Map();
+const receiptsByEvent = new Map(); // every pre-kickoff receipt per event (the served rule may name an earlier one)
 for (const day of fs.existsSync(receiptsRoot) ? fs.readdirSync(receiptsRoot).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)) : []) {
   for (const file of fs.readdirSync(path.join(receiptsRoot, day)).filter((x) => x.endsWith(".json"))) {
     const r = read(path.join(receiptsRoot, day, file));
     if (!r?.providerEventId || !r.kickoffUtc || !r.generatedAt || !r.forecastSummary || r.seasonType == null || r.week == null) continue;
     if (!(Date.parse(r.generatedAt) < Date.parse(r.kickoffUtc))) continue;
     const id = String(r.providerEventId);
+    (receiptsByEvent.get(id) ?? receiptsByEvent.set(id, []).get(id)).push(r);
     if (!receipts.has(id) || r.generatedAt > receipts.get(id).generatedAt) receipts.set(id, r);
   }
 }
@@ -104,8 +111,15 @@ async function officialFor(eventId, kickoffUtc) {
 }
 
 const games = [];
-for (const f of forecasts) {
-  const id = String(f.providerEventId);
+const held = [];
+for (const legacy of forecasts) {
+  const id = String(legacy.providerEventId);
+  const sel = gradingReceiptFor({ kickoffUtc: legacy.kickoffUtc, legacyReceipt: legacy, receipts: receiptsByEvent.get(id) ?? [], decision: readDecision(ROOT, id) });
+  if (sel.hold) {
+    held.push({ providerEventId: id, matchup: legacy.matchup, kickoffUtc: legacy.kickoffUtc, state: "HOLD", reason: sel.hold.reason, detail: sel.hold.detail });
+    continue;
+  }
+  const f = sel.receipt;
   const board = read(path.join(APP, "public/data/nfl/player-board", `${id}.json`));
   /* A board regenerated at or after kickoff is not what readers saw before the game — it is not graded. */
   const boardOfRecord = board && board.generatedAt && Date.parse(board.generatedAt) < Date.parse(f.kickoffUtc) ? board : null;
@@ -122,6 +136,8 @@ const body = {
   howGraded: RECONCILIATION_RULES,
   summary: summariseWeek(games),
   games,
+  // the served rule's HOLDs: not graded (no row in `games`, nothing in the summary); absent while there are none
+  ...(held.length ? { held } : {}),
   disclaimer: "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
 };
 const outDir = path.join(APP, "public/data/nfl/reconciliation");
