@@ -1,7 +1,7 @@
 # NFL SIMULATION ENGINE V2 — FORWARD SHADOW RECEIPTS (Session 13). $0: no provider call, no market input.
 #
 # Writes a SimulationReceiptV2 (data/internal/research/nfl/sim-v2/shadow/<date>/<eventId>-<inputHash>.json) for every NFL
-# game kicking off within 8 days whose inputs changed since its last receipt (anchors from the forecast of record,
+# game kicking off within 8 days whose inputs changed (or whose receipt predates the current receipt schema) since its last receipt (anchors from the forecast of record,
 # availability from the injuries contract + active roster, role shares, fitted params). Write-once; a started game is
 # never simulated. These receipts are the FORWARD SHADOW LEDGER the promotion gate needs (docs/SIMULATION_ENGINE_V2.md §7):
 # frozen before kickoff, graded later, never public.
@@ -48,7 +48,7 @@ jobs:
       - name: Install app dependencies (tsx)
         working-directory: app
         run: npm ci
-      - name: QB props slate job (counts + dashboard only; grading of real outcomes LOCKED until the prereg is approved)
+      - name: QB props slate job (counts + dashboard; grading runs in the grade step below)
         working-directory: app
         run: |
           set -euo pipefail

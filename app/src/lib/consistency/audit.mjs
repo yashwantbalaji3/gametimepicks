@@ -96,7 +96,7 @@ export function nflEventsWithAllSources(repoRoot) {
   if (fs.existsSync(rroot)) for (const d of fs.readdirSync(rroot)) { const dd = path.join(rroot, d); if (fs.statSync(dd).isDirectory()) for (const f of fs.readdirSync(dd)) { const m = f.match(/^(\d+)(?:-rev-\d{4}Z)?\.json$/); if (m) rc.add(m[1]); } }
   const sroot = path.join(repoRoot, "data/internal/research/nfl/sim-v2/shadow");
   const sim = new Set();
-  if (fs.existsSync(sroot)) for (const d of fs.readdirSync(sroot)) { const dd = path.join(sroot, d); if (fs.statSync(dd).isDirectory()) for (const f of fs.readdirSync(dd)) { const m = f.match(/^(\d+)-[0-9a-f]+\.json$/); if (m) sim.add(m[1]); } }
+  if (fs.existsSync(sroot)) for (const d of fs.readdirSync(sroot)) { const dd = path.join(sroot, d); if (fs.statSync(dd).isDirectory()) for (const f of fs.readdirSync(dd)) { const m = f.match(/^(\d+)-[0-9a-f]+(?:-s[0-9.]+)?\.json$/); if (m) sim.add(m[1]); } }
   return [...board].filter((id) => wm.has(id) && rc.has(id) && sim.has(id)).sort();
 }
 
