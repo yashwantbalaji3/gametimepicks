@@ -14,7 +14,10 @@
  *                 (home = (total + margin) / 2, away = (total − margin) / 2) — the engine's ONLY team-strength input
  *   params        data/internal/research/nfl/sim-v2/drive-params-2015-2025.json (fit-drive-sim-v2.mjs), by sha256
  *   role shares   data/internal/research/nfl/role-shares-v1/current.json (generatedAt)
- *   availability  eligibility contract v1 (injuries + roster captures, participation-eligibility.mjs) + active roster — a non-ELIGIBLE player gets no opportunity
+ *   availability  eligibility contract v1 (injuries + roster captures, participation-eligibility.mjs) + active roster — a non-ELIGIBLE player gets no opportunity;
+ *                 the receipt records the stamp-free eligibility snapshot id (inputs.eligibilitySnapshotId,
+ *                 sim-v2/personnel-eligibility.mjs) and each simulated player's state (playerAvailability), so the
+ *                 Theater never features a questionable or unverified player
  * The sportsbook is never read.
  *
  * Each receipt also carries `representativeRunBoxes` (nfl-representative-run-boxes@1, sim-v2/receipt.mjs +
@@ -37,6 +40,7 @@ import { buildNflSimulationReceipt, playersFromRoleShares } from "../../src/lib/
 import { forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
 import { fnv1a64 } from "../../src/lib/forecast-ledger/identity.mjs";
 import { shareExclusions, teamIdsFromRoster } from "../../src/lib/sports/nfl/participation-eligibility.mjs";
+import { eligibilitySnapshot, playerAvailability, teamEligibilityRecords } from "../../src/lib/sports/nfl/sim-v2/personnel-eligibility.mjs";
 import { activeRosterIndex } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -131,7 +135,12 @@ function main() {
       const qbs = (board?.players ?? []).filter((p) => p.team === abbr && p.markets?.player_pass_yds);
       return qbs.length === 1 ? qbs[0].playerId : null;
     };
-    const inputs = [r.home.abbr, r.away.abbr].map((abbr) => playersFromRoleShares(teamBlock(abbr), excludedFor(abbr), { starterQb: starterFor(abbr) }));
+    const excluded = [r.home.abbr, r.away.abbr].map(excludedFor);
+    const inputs = [r.home.abbr, r.away.abbr].map((abbr, i) => playersFromRoleShares(teamBlock(abbr), excluded[i], { starterQb: starterFor(abbr) }));
+    // the eligibility@1 records behind the personnel: a stamp-free snapshot id, and each SIMULATED player's state
+    const records = [r.home.abbr, r.away.abbr].map((abbr) => teamEligibilityRecords(teamBlock(abbr), abbr, eligibilityCtx));
+    const eligibility = eligibilitySnapshot({ [r.home.abbr]: records[0], [r.away.abbr]: records[1] });
+    const availabilityByPlayer = { ...playerAvailability(records[0], excluded[0]), ...playerAvailability(records[1], excluded[1]) };
     if (!inputs[0].players.length || !inputs[1].players.length) { console.log(`SKIP ${eventId}: no role shares for a team`); continue; }
     const prep = inputs.map(prepareTeamPlayers);
     const inputHash = fnv1a64(JSON.stringify({
@@ -146,7 +155,8 @@ function main() {
     const receipt = buildNflSimulationReceipt({
       event: { eventId, kickoffUtc: r.kickoffUtc, home: r.home, away: r.away },
       compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt: now, postseason,
-      inputs: { forecastReceipt: `data/internal/nfl/forecast-receipts/${file}`, roleShares: `${ROLE_SHARES}@${roleShares.generatedAt}`, availability, params: paramsRef.sha256 },
+      inputs: { forecastReceipt: `data/internal/nfl/forecast-receipts/${file}`, roleShares: `${ROLE_SHARES}@${roleShares.generatedAt}`, availability, params: paramsRef.sha256, eligibilitySnapshotId: eligibility.snapshotId },
+      eligibility, playerAvailability: availabilityByPlayer,
     });
     const outRel = `${OUT_DIR}/${now.slice(0, 10)}/${eventId}-${inputHash}.json`;
     const a = receipt.aggregate;

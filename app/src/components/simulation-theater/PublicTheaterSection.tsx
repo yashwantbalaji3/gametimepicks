@@ -16,7 +16,10 @@
  *   - the server-rendered projected box score of that same run (BoxScoreStatic; lib/simulation-theater/box-score.mjs),
  *     which fails closed to an "unavailable" line if any of its reconciliations does not hold;
  *   - a truthful "Simulation replay unavailable" state for a receipt that does not adapt or has no valid run (no pack
- *     is serialized then).
+ *     is serialized then);
+ *   - eligibility@1 (row E, 2026-11-11): the receipt's `playerAvailability` rides with the stored run boxes, so an
+ *     unverified or questionable player is labelled and never featured; and R5 — when the official forecast of record
+ *     (nflOfficialOfRecord, never rebuilt) is blind to a starting-QB absence, a scenario banner says so and why.
  */
 import "./public-theater.css";
 import fs from "node:fs";
@@ -36,6 +39,8 @@ import { SCENARIOS_KIND, nflOfficialDefault, positionsFromRoster } from "@/lib/s
 import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
 import NflOfficialDefault from "./NflOfficialDefault";
 import { storedRunBoxes } from "@/lib/simulation-theater/nfl-stored-run-box.mjs";
+import { nflOfficialOfRecord } from "@/lib/sports/nfl/official-of-record.mjs";
+import { r5TheaterBanner } from "@/lib/simulation-theater/r5-banner.mjs";
 import type { RunBoxes } from "./BoxScoreTable";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
@@ -97,7 +102,12 @@ export default function PublicTheaterSection({ rec }: { rec: Rec }) {
   const load = publicTheaterLoad(rec, eventId ? nflTheaterOfficial(REPO_ROOT, eventId) : null) as TheaterLoad;
   const sample = load.ok && load.manifest ? (defaultSample(load.manifest) as TheaterSample | null) : null;
   // the stored runs' player lines, read from the receipt itself (sha + reconciliation to the stored drives; fail closed)
-  const runBoxes = (load.ok && rec?.receipt ? storedRunBoxes(rec.receipt) : null) as RunBoxes | null;
+  const stored = (load.ok && rec?.receipt ? storedRunBoxes(rec.receipt) : null) as RunBoxes | null;
+  const availability = ((rec?.receipt as { playerAvailability?: RunBoxes["availability"] } | undefined)?.playerAvailability ?? null);
+  const runBoxes = stored ? { ...stored, availability } : null;
+  // R5: the official forecast of record's team inputs (CANON-01 selector; nothing rebuilt)
+  const record = eventId ? nflOfficialOfRecord(path.join(REPO_ROOT, "app", "public"), eventId) : null;
+  const r5 = r5TheaterBanner((record?.forecast as { teamInputs?: { state?: string } } | undefined) ?? null);
   // P0-A (founder 2026-10-30): the Theater opens on the DEFAULT VIEW — the official projected game, from the game page's
   // own forecast view (no simulation input) — and the replay follows as a labelled simulated scenario
   const official = eventId ? nflOfficialDefault(loadForecastView(path.join(REPO_ROOT, "app", "public"), eventId), { positions: readRosterPositions() }) : null;
@@ -106,6 +116,7 @@ export default function PublicTheaterSection({ rec }: { rec: Rec }) {
       <NflOfficialDefault model={official} gameHref={eventId ? `/nfl/game/${eventId}/` : "/nfl/"} />
       <div className="stp-scenarios" data-stp-scenarios="">
       <p className="stp-scenario-kind">{SCENARIOS_KIND}</p>
+      {r5 ? <p className="stp-r5" role="note" data-stp-r5={r5.code}><b>{r5.title}</b> · {r5.reason}</p> : null}
       <div className="stp-head">
         <h2 id="stp-h">Simulation replay</h2>
         <span className="stp-beta">Public beta</span>
