@@ -99,7 +99,8 @@ export function detectStaleEvents(candidates, capture) {
     const stated = t(e.statedAt);
     if (!(stated > t(c.frozenAt) && stated < t(c.startUtc))) continue;
     events.push({
-      key: `${c.sport}:${c.eventId}:${c.playerId}:${String(e.status).toLowerCase()}`,
+      key: `${c.sport}:${c.eventId}:${c.playerId}:${String(e.status).toLowerCase()}:${e.statedAt}`,
+      type: "flag",
       sport: c.sport, eventId: c.eventId, playerId: c.playerId, name: c.name ?? e.athleteName ?? null, side: c.side,
       statusBefore: c.assumedStatus, statusAfter: e.status, statedAt: e.statedAt, detectedAt,
       flags: { player: true, game: c.material }, materialReasons: c.materialReasons, topN: c.topN,
@@ -110,9 +111,9 @@ export function detectStaleEvents(candidates, capture) {
 }
 
 /**
- * APPEND-ONLY: the next version of the public stale-flags file. Existing events are never edited or removed; events not
- * yet present (by key) are appended as one new version stamped with the capture instant. No new event ⇒ the SAME object
- * (a quiet capture writes nothing).
+ * APPEND-ONLY: the next version of the public stale-flags file. Existing events are never edited or removed; events (flags
+ * or clears) not yet present (by key) are appended as one new version stamped with the capture instant. No new event ⇒
+ * the SAME object (a quiet capture writes nothing).
  */
 export function appendStaleFlags(file, events, { sport, date, capturedAt }) {
   const base = file && file.schema === STALE_FLAGS_SCHEMA ? file : { schema: STALE_FLAGS_SCHEMA, sport, date, versions: [], events: [] };
@@ -121,6 +122,44 @@ export function appendStaleFlags(file, events, { sport, date, capturedAt }) {
   if (!fresh.length) return base;
   const version = base.versions.length + 1;
   return { ...base, versions: [...base.versions, { version, capturedAt, added: fresh.map((e) => e.key) }], events: [...base.events, ...fresh.map((e) => ({ ...e, version }))] };
+}
+
+/** The flags still in force: every `type: "flag"` event (legacy events without a type are flags) not cleared later. */
+export function activeFlags(file) {
+  const cleared = new Set((file?.events ?? []).filter((e) => e.type === "clear").map((e) => e.clears));
+  return (file?.events ?? []).filter((e) => (e.type ?? "flag") === "flag" && !cleared.has(e.key));
+}
+
+/**
+ * RECOVERY (founder 2026-11-11 ~20:05Z): a flag never hides a game or player permanently. It is CLEARED — by an appended
+ * `type: "clear"` event, never an edit — when either
+ *   NEWER_VERSION    a newer APPROVED forecast version exists for the game: `currentVersions[eventId]` names a version
+ *                    whose sha differs from the one the flag judged and whose approval is later than the flag's detection
+ *                    (docs/FORECAST_VERSIONING_DESIGN.md: the flag described a version that is no longer current), or
+ *   STATUS_REVERTED  the capture shows the player available again (status outside UNAVAILABLE_STATUSES), stated after the
+ *                    flag's statedAt and before the start.
+ * A player ruled out again later raises a NEW flag (its key carries the new statedAt).
+ * @param file the stale-flags file  @param capture the latest injuries capture  @param candidates for startUtc
+ * @param currentVersions { [eventId]: { forecastSha256, approvedAt } } (absent until versioning exists)
+ */
+export function detectClearEvents(file, capture, candidates, currentVersions = {}) {
+  const start = new Map(candidates.map((c) => [`${c.eventId}:${c.playerId}`, c.startUtc]));
+  const entries = new Map((capture?.entries ?? []).filter((e) => e?.athleteId != null).map((e) => [String(e.athleteId), e]));
+  const at = capture?.sourceAsOf ?? null;
+  const out = [];
+  for (const f of activeFlags(file)) {
+    const v = currentVersions[f.eventId];
+    if (v && v.forecastSha256 && v.forecastSha256 !== f.forecastSha256 && t(v.approvedAt) > t(f.detectedAt)) {
+      out.push({ key: `clear:${f.key}`, type: "clear", clears: f.key, sport: f.sport, eventId: f.eventId, playerId: f.playerId, name: f.name, reason: "NEWER_VERSION", detail: `a newer approved forecast version (sha ${v.forecastSha256.slice(0, 12)}, approved ${v.approvedAt}) supersedes the version this flag judged`, at });
+      continue;
+    }
+    const e = entries.get(f.playerId);
+    const s = start.get(`${f.eventId}:${f.playerId}`);
+    if (e && !unavailable(e.status) && t(e.statedAt) > t(f.statedAt) && (!s || t(e.statedAt) < t(s))) {
+      out.push({ key: `clear:${f.key}`, type: "clear", clears: f.key, sport: f.sport, eventId: f.eventId, playerId: f.playerId, name: f.name, reason: "STATUS_REVERTED", detail: `${e.status || "available"} (stated ${e.statedAt}) before the start`, at });
+    }
+  }
+  return out.sort((a, b) => a.key.localeCompare(b.key));
 }
 
 /**
@@ -133,7 +172,7 @@ export function appendStaleFlags(file, events, { sport, date, capturedAt }) {
 export function postAllowed(file, post) {
   if (file == null) return { allowed: true, reasons: [] };
   if (file.schema !== STALE_FLAGS_SCHEMA || file.sport !== post.sport) return { allowed: false, reasons: ["stale-flags file unreadable or for another sport — refusing (fail closed)"] };
-  const evs = file.events.filter((e) => e.eventId === String(post.eventId));
+  const evs = activeFlags(file).filter((e) => e.eventId === String(post.eventId));
   const reasons = [];
   if (post.gameLevel) for (const e of evs.filter((x) => x.flags.game)) reasons.push(`game flagged: ${e.name} ${e.statusAfter} (stated ${e.statedAt}, detected ${e.detectedAt})`);
   const ids = new Set((post.playerIds ?? []).map(stripId));
@@ -155,4 +194,30 @@ export function evaluatePostAtSend({ candidates, capture, post, nowIso, maxAgeMi
   if (!Number.isFinite(age) || age < 0 || age > maxAgeMin) return { allowed: false, reasons: [`injuries capture ${capture?.sourceAsOf ?? "missing"} is ${Number.isFinite(age) ? `${Math.round(age)} min` : "of unknown"} old at send (limit ${maxAgeMin}) — refusing`] };
   const events = detectStaleEvents(candidates, capture);
   return postAllowed({ schema: STALE_FLAGS_SCHEMA, sport: post.sport, events }, post);
+}
+
+/**
+ * MONITOR HEALTH (founder 2026-11-11 ~20:05Z: failure alerts through the EXISTING ops alert path, scripts/ops_alert.sh).
+ * Returns the failures an operator must hear about; [] = healthy. Pure: `nowIso` and the inputs only.
+ *   CAPTURE_MISSING     no capture, or one without a sourceAsOf
+ *   CAPTURE_MALFORMED   a capture without an entries array
+ *   CAPTURE_STALE       inside the protection window (the first start within PROTECT_BEFORE_START_MIN), the capture is
+ *                       older than maxAgeMin — the monitor has stalled while a post could still go out
+ *   FLAGS_MALFORMED     the stale-flags file exists but is not gtp.stale-flags@1 for this sport and date
+ * @param a { sport, date, capture, flagsFile, starts: string[] (UTC), nowIso, maxAgeMin? }
+ */
+export const PROTECT_BEFORE_START_MIN = 240;
+export function monitorHealth({ sport, date, capture, flagsFile, starts = [], nowIso, maxAgeMin = SEND_MAX_CAPTURE_AGE_MIN }) {
+  const out = [];
+  const now = t(nowIso);
+  if (!capture || !capture.sourceAsOf) out.push({ code: "CAPTURE_MISSING", detail: `no ${sport} injuries capture with a sourceAsOf` });
+  else if (!Array.isArray(capture.entries)) out.push({ code: "CAPTURE_MALFORMED", detail: `${sport} injuries capture ${capture.sourceAsOf} has no entries array` });
+  const upcoming = starts.map(t).filter((x) => Number.isFinite(x) && x > now).sort((a, b) => a - b);
+  const inWindow = upcoming.length > 0 && (upcoming[0] - now) / 60000 <= PROTECT_BEFORE_START_MIN;
+  if (capture?.sourceAsOf && inWindow) {
+    const age = (now - t(capture.sourceAsOf)) / 60000;
+    if (age > maxAgeMin) out.push({ code: "CAPTURE_STALE", detail: `${sport} injuries capture is ${Math.round(age)} min old with the first start in ${Math.round((upcoming[0] - now) / 60000)} min (limit ${maxAgeMin})` });
+  }
+  if (flagsFile != null && (flagsFile.schema !== STALE_FLAGS_SCHEMA || flagsFile.sport !== sport || flagsFile.date !== date || !Array.isArray(flagsFile.events))) out.push({ code: "FLAGS_MALFORMED", detail: `stale-flags file for ${sport} ${date} is not ${STALE_FLAGS_SCHEMA}` });
+  return out;
 }
