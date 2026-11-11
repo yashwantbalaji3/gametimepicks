@@ -40,7 +40,7 @@ export function nbaGameWinnersBlock({ answer, repoRoot, day, enabled = nbaGameWi
 /** `sources` replaces the files read for the day (levelASources) — tests pin a past build's committed inputs with it. */
 export function buildLevelAModel({ repoRoot = path.resolve(process.cwd(), ".."), now = new Date().toISOString(), productDay = null, sources = null, nbaGameWinners: gw = {}, mixed: mx = {} } = {}) {
   const day = productDay ?? productDayOf(now);
-  const src = sources ?? levelASources({ repoRoot, date: day });
+  const src = sources ?? levelASources({ repoRoot, date: day, now });
   const answer = levelASuggestions({ selections: src.selections, now, productDay: day });
   /** @type {Record<string, number>} */
   const refusedByReason = {};

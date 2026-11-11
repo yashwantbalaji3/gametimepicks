@@ -70,8 +70,10 @@ test("ENGINE: two sports per card, distinct events, the exact D2 band of the joi
   for (const t of m.parlayLab) if (t.card) assert.equal(t.card.policy, LEVEL_A_MIXED_POLICIES.parlayLab);
   assert.ok(m.bankBuilder.card.legs.length === 2 && ["low", "medium"].includes(m.bankBuilder.card.tier));
   if (m.moonshot.card) assert.ok(m.moonshot.card.tier === "longshot" && m.moonshot.card.legs.length <= 5);
+  /* founder decision 2026-11-10 (Parlay Lab V3 decision 2): NBA Elo never tiers; NBA legs passed in are ignored */
+  for (const c of cards) assert.ok(c.legs.every((l) => l.sport !== "nba"), "no NBA leg in any tiered card");
   const one = levelAMixed({ crossSportLegs: [], nbaLegs: NBA_LEGS, enabled: true });
-  for (const t of one.parlayLab) assert.match(t.reason, /^a mixed card needs legs from two sports; today only NBA has a leg/);
+  for (const t of one.parlayLab) assert.match(t.reason, /^a mixed card needs legs from two sports; today no sport has a leg/);
 });
 
 test("NBA LEGS: only what the NBA rule admitted (exact p, published); an untiered NBA side never enters", () => {
@@ -119,20 +121,20 @@ test("RECORD, GRADE, COPY: recorded under level-a-mixed@1; each leg graded by it
     for (const l of g.legs) assert.equal(l.result, l.sport === "nba" ? "pending" : "win", `${l.sport}: routed to its own rule`);
     assert.equal(g.result, r.legs.some((l) => l.sport === "nba") ? "pending" : "win");
   }
-  const withNba = [...m.parlayLab.map((t) => t.card), m.bankBuilder.card, m.moonshot.card].find((c) => c?.legs.some((l) => l.sport === "nba"));
-  const copy = cardCopyText(withNba);
-  for (const l of withNba.legs.filter((x) => x.sport === "nba")) assert.ok(copy.includes(`Elo-derived game-winner estimate: ${l.shownPct}`));
-  assert.ok(copy.includes(DISCLOSURE));
+  const any = [...m.parlayLab.map((t) => t.card), m.bankBuilder.card, m.moonshot.card].find(Boolean);
+  assert.ok(rows.every((r) => r.legs.every((l) => l.sport !== "nba")), "no NBA leg is recorded in a tiered card");
+  const copy = cardCopyText(any);
   assert.match(copy, /assumes the games are independent/i);
   assert.doesNotMatch(copy, /https?:\/\/|\$\d|[+-]\d{3}\b/);
 });
 
-test("REAL DATA (committed lane + receipts): with both NBA switches and mixed on, NBA legs carry the receipts' exact p", () => {
+test("REAL DATA (committed lane + receipts): with both NBA switches and mixed on, no NBA leg enters a mixed card", () => {
   const m = buildLevelAModel({ repoRoot: REPO, now: NOW, productDay: DAY, mixed: { enabled: true }, nbaGameWinners: { enabled: true } });
   assert.ok(m.mixed?.public === true);
   const receipts = new Map((JSON.parse(fs.readFileSync(path.join(REPO, "data/internal/research/nba/experimental-v0.1/forecasts", `${DAY}.json`), "utf8")).games ?? []).map((g) => [String(g.providerEventId), g.forecast?.elo?.pHome]));
   for (const c of [...m.parlayLab.map((t) => t.card), m.bankBuilder.card, m.moonshot.card].filter(Boolean)) {
     assert.ok(new Set(c.legs.map((l) => l.sport)).size >= 2);
+    assert.ok(c.legs.every((l) => l.sport !== "nba"), "founder decision 2026-11-10: NBA never tiers");
     for (const l of c.legs.filter((x) => x.sport === "nba")) {
       const pHome = receipts.get(String(l.eventId));
       assert.ok(Object.is(l.probability, l.selection.code === "home" ? pHome : 1 - pHome), `${l.eventId}: the receipt's exact number`);
@@ -140,16 +142,16 @@ test("REAL DATA (committed lane + receipts): with both NBA switches and mixed on
   }
 });
 
-test("ONE DISCLOSURE PER PAGE: with mixed cards AND the NBA game winners block on the same page, the display's disclosure prints once", () => {
+test("ONE DISCLOSURE PER PAGE: with mixed cards AND the NBA game winners block on the same page, the display's disclosure prints at most once", () => {
   const answer = levelASuggestions({ selections: [sel("mlb", 0.62), sel("epl", 0.55), sel("ligue-1", 0.48)], now: NOW, productDay: DAY });
   const mixed = levelAMixed({ crossSportLegs: answer.legs, nbaLegs: NBA_LEGS, disclosure: DISCLOSURE, enabled: true });
-  assert.ok(mixed.disclosure, "a mixed card shows an NBA leg");
+  assert.equal(mixed.disclosure, null, "no mixed card holds an NBA leg (founder decision 2026-11-10), so the cards carry no NBA disclosure");
   const nbaBlock = { public: true, tiers: [], bankBuilder: { card: null, reason: "x" }, moonshot: { card: null, reason: "x" }, disclosure: DISCLOSURE };
   for (const withBlock of [true, false]) {
     const model = { asOf: NOW, ...answer, parlayLab: mixed.parlayLab, bankBuilder: mixed.bankBuilder, moonshot: mixed.moonshot, mixed: { public: true, policy: mixed.policy, sports: mixed.sports, disclosure: mixed.disclosure }, ...(withBlock ? { nbaGameWinners: nbaBlock } : {}), refusedByReason: {}, nbaProjections: [] };
     for (const mode of ["parlay-lab", "bank-builder", "moonshot"]) {
       const text = renderToString(React.createElement(LevelASuggestions, { model, mode })).replace(/<!-- -->/g, "");
-      assert.equal(text.split(DISCLOSURE).length - 1, 1, `${mode}, NBA block ${withBlock ? "shown" : "absent"}: once`);
+      assert.ok(text.split(DISCLOSURE).length - 1 <= 1, `${mode}, NBA block ${withBlock ? "shown" : "absent"}: at most once`);
     }
   }
 });

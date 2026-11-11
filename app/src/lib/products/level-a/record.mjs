@@ -39,7 +39,7 @@ export function recordEntries(answer, { recordedAt, shownAt = null, servedFrom =
   const rows = [];
   const add = (policy, tier, legs, extra = {}) => {
     if (!legs?.length) return;
-    const legsOut = legs.map((l) => ({ sport: l.sport, eventId: l.eventId, eventLabel: l.eventLabel, startUtc: l.startUtc, market: l.market, selection: l.selection, probability: l.probability, forecast: l.forecast, settlement: l.settlement }));
+    const legsOut = legs.map((l) => ({ sport: l.sport, eventId: l.eventId, eventLabel: l.eventLabel, startUtc: l.startUtc, market: l.market, selection: l.selection, probability: l.probability, forecast: l.forecast, settlement: l.settlement, ...(l.eligibility ? { eligibility: l.eligibility } : {}) }));
     const id = sha([answer.productDay, policy, tier, ...legs.map(legKey)].join("|"));
     rows.push({ schema: LEVEL_A_RECORD_SCHEMA, id, productDay: answer.productDay, policy, tier, recordedAt, ...(shownAt ? { shownAt } : {}), ...(servedFrom ? { servedFrom } : {}), ...(source ? { source } : {}), firstStartUtc: legs.map((l) => l.startUtc).sort()[0], legs: legsOut, priced: false, price: null, payout: null, dataClass: "PAPER_SUGGESTION", ...extra });
   };

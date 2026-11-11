@@ -235,6 +235,12 @@ BUILD_INPUTS=(
     ':(top)data/internal/nfl/official-stats/'
     ':(top)data/internal/nfl/official-periods/'
     ':(top)data/internal/research/ufc/model-vs-market/graded.jsonl'
+    # Parlay Lab V3 slice 2 (founder decision 2026-11-10): Level A NFL legs gate on the expected starting QBs
+    # (level-a/nfl-source.mjs: depth-chart QB1 + eligibility@1 on the NFL injuries capture). Most NFL injury writes ride
+    # an "nfl event window" commit that already touches app/; measured 11-03..11-10, these add 9 builds/week (7 injuries
+    # facts captures, 2 depth-chart snapshots).
+    ':(top)data/internal/research/nfl/depth-charts/'
+    ':(top)data/internal/research/injuries/nfl/latest.json'
     ':(top)data/internal/parlays/optimizer-reconstruction/receipts/'
     ':(top)data/internal/model-eval/latest-readout.json'
     ':(top)data/internal/research/epl/forward/receipt.json'
