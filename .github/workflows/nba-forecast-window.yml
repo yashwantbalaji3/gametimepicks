@@ -120,6 +120,10 @@ jobs:
               node scripts/nba/build-nba-experimental-forecasts.mjs --date "$NEXTDAY" --now "$NOW" --write --family v0 || V0_FAILED=1
               node scripts/nba/build-nba-experimental-forecasts.mjs --date "$NEXTDAY" --now "$NOW" --write --family v0.1 \
                 || echo "::warning::v0.1 refused for next slate $NEXTDAY (roster gate) — the lane holds until it freezes"
+              # MINUTES SHADOW (founder 2026-11-11): nba-minutes-current-season@1 minutes through the official engine, frozen
+              # pre-tip beside the official v0.1 forecast just built. Private, write-once per game, never published; warns only.
+              node scripts/nba/build-nba-minutes-shadow.mjs --date "$NEXTDAY" --now "$NOW" --write \
+                || echo "::warning::minutes shadow refused for next slate $NEXTDAY — official forecasts unaffected"
               node scripts/nba/build-nba-experimental-forecasts.mjs --date "$NEXTDAY" --now "$NOW" --write --family v0.3 \
                 || echo "::warning::v0.3 refused for next slate $NEXTDAY — v0 and v0.1 unaffected"
               # Elo SHADOW (founder 2026-11-11; prereg v2): the in-season + HA challengers frozen pre-tip beside the official
@@ -154,6 +158,9 @@ jobs:
                 || echo "::warning::v0.1 top-board freeze refused for $D — forecasts unaffected"
               node scripts/nba/freeze-nba-top-boards.mjs --family v1 --date "$D" --now "$NOW" --write \
                 || echo "::warning::v1 top-board freeze refused for $D — forecasts unaffected"
+              # MINUTES SHADOW for any game of this slate whose official forecast froze since the last run (write-once per game).
+              node scripts/nba/build-nba-minutes-shadow.mjs --date "$D" --now "$NOW" --write \
+                || echo "::warning::minutes shadow refused for $D — official forecasts unaffected"
             done
             if [ "$V0_FAILED" = "1" ]; then echo "::error::v0 forecast build refused"; exit 1; fi
             # One `git add` per family directory that exists: a single missing pathspec (experimental-v1/ before v1's first
@@ -167,6 +174,8 @@ jobs:
             for BD in top-boards/v0.1 top-boards/v1; do
               if [ -d "../data/internal/research/nba/$BD" ]; then find "../data/internal/research/nba/$BD" -maxdepth 1 -name '20*.json' -exec git add {} +; fi
             done
+            # Minutes shadow day files (private, write-once per game; the build refuses to change a frozen entry).
+            if [ -d "../data/internal/research/nba/minutes-shadow/forecasts" ]; then git add "../data/internal/research/nba/minutes-shadow/forecasts/"; fi
             if git diff --cached --quiet; then echo "no forecast or board added — nothing to commit"; exit 0; fi
             # Never commit a run that changed or removed an already-committed forecast.
             node scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD || exit 1

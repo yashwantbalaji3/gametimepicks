@@ -506,6 +506,9 @@ jobs:
             echo "state=FAILED" >> "$GITHUB_OUTPUT"
             echo "NBA experimental forecasts v0.1" >> "$REFUSALS"
           fi
+          # MINUTES SHADOW (founder 2026-11-11): frozen pre-tip beside the official v0.1 build just made. Warns only.
+          node scripts/nba/build-nba-minutes-shadow.mjs --date "$TODAY" --now "$NOW" --write \
+            || echo "::warning::minutes shadow refused for $TODAY — v0.1 unaffected"
           # v0.3 forward-shadow challenger (founder 2026-10-22): aligned to the v0.1 build just made (same --now, same inputs).
           npx tsx scripts/nba/build-nba-experimental-forecasts.mjs --date "$TODAY" --now "$NOW" --write --family v0.3 \
             || echo "::warning::v0.3 refused for $TODAY — v0.1 unaffected"
@@ -532,6 +535,7 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if [ -d data/internal/research/nba/minutes-shadow/forecasts ]; then git add data/internal/research/nba/minutes-shadow/forecasts/; fi
           if [ -d data/internal/research/nba/experimental-v0.3/forecasts ]; then git add data/internal/research/nba/experimental-v0.3/forecasts/; fi
           if [ -d data/internal/research/nba/elo-shadow/forecasts ]; then git add data/internal/research/nba/elo-shadow/forecasts/; fi
           git add data/internal/research/nba/experimental-v0.1/
