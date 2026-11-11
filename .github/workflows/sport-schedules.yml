@@ -506,15 +506,9 @@ jobs:
             echo "state=FAILED" >> "$GITHUB_OUTPUT"
             echo "NBA experimental forecasts v0.1" >> "$REFUSALS"
           fi
-          # MINUTES SHADOW (founder 2026-11-11): frozen pre-tip beside the official v0.1 build just made. Warns only.
-          node scripts/nba/build-nba-minutes-shadow.mjs --date "$TODAY" --now "$NOW" --write \
-            || echo "::warning::minutes shadow refused for $TODAY — v0.1 unaffected"
           # v0.3 forward-shadow challenger (founder 2026-10-22): aligned to the v0.1 build just made (same --now, same inputs).
           npx tsx scripts/nba/build-nba-experimental-forecasts.mjs --date "$TODAY" --now "$NOW" --write --family v0.3 \
             || echo "::warning::v0.3 refused for $TODAY — v0.1 unaffected"
-          # Elo SHADOW (founder 2026-11-11; prereg v2): frozen pre-tip beside the official v0.1 build just made. Warns only.
-          node scripts/nba/build-nba-elo-shadow.mjs --date "$TODAY" --now "$NOW" --write \
-            || echo "::warning::Elo shadow refused for $TODAY — v0.1 unaffected"
 
       - name: Commit NBA experimental v0 research if its content changed
         if: github.event.inputs.dry_run != 'true' && steps.nbaexp.outputs.state == 'BUILT'
@@ -535,13 +529,45 @@ jobs:
           set -euo pipefail
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if [ -d data/internal/research/nba/minutes-shadow/forecasts ]; then git add data/internal/research/nba/minutes-shadow/forecasts/; fi
           if [ -d data/internal/research/nba/experimental-v0.3/forecasts ]; then git add data/internal/research/nba/experimental-v0.3/forecasts/; fi
-          if [ -d data/internal/research/nba/elo-shadow/forecasts ]; then git add data/internal/research/nba/elo-shadow/forecasts/; fi
           git add data/internal/research/nba/experimental-v0.1/
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           node app/scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD
           git commit -m "auto: nba experimental forecasts v0.1 (roster-gated research) [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+
+      # NBA SHADOWS (founder 2026-11-11): the Elo challengers (prereg v2) and the minutes challenger's projections, frozen
+      # pre-tip beside the official v0.1 build of the same instant. Their OWN step and their OWN commit (private files, not
+      # Vercel build inputs), so v0.1's step and commit stay exactly v0.1's. Each refusal warns only; nothing official moves.
+      - name: NBA shadows (Elo challengers + minutes) beside v0.1
+        id: nbashadow
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' && steps.nbaexpv01.outputs.state == 'BUILT' }}
+        working-directory: app
+        env:
+          NOW: ${{ steps.nbaexp.outputs.now }}
+          TODAY: ${{ steps.nbaexp.outputs.today }}
+        run: |
+          set -uo pipefail
+          # Elo SHADOW (founder 2026-11-11; prereg v2): frozen pre-tip beside the official v0.1 build just made. Warns only.
+          node scripts/nba/build-nba-elo-shadow.mjs --date "$TODAY" --now "$NOW" --write \
+            || echo "::warning::Elo shadow refused for $TODAY — v0.1 unaffected"
+          # MINUTES SHADOW (founder 2026-11-11): frozen pre-tip beside the official v0.1 build just made. Warns only.
+          node scripts/nba/build-nba-minutes-shadow.mjs --date "$TODAY" --now "$NOW" --write \
+            || echo "::warning::minutes shadow refused for $TODAY — v0.1 unaffected"
+          echo "state=BUILT" >> "$GITHUB_OUTPUT"
+
+      - name: Commit NBA shadows if changed
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' && steps.nbashadow.outputs.state == 'BUILT' }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Each directory only if it exists (one missing pathspec makes `git add` stage nothing).
+          if [ -d data/internal/research/nba/elo-shadow/forecasts ]; then git add data/internal/research/nba/elo-shadow/forecasts/; fi
+          if [ -d data/internal/research/nba/minutes-shadow/forecasts ]; then git add data/internal/research/nba/minutes-shadow/forecasts/; fi
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "auto: nba shadows (Elo challengers + minutes, private research) [skip ci]"
           git pull --rebase --autostash origin main
           git push origin HEAD:main
 
