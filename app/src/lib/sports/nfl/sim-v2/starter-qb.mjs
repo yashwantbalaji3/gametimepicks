@@ -22,7 +22,7 @@ export function simStarterDecision(board, abbr) {
   const rule = (board?.integrity?.qbStarter ?? []).find((q) => q.team === abbr);
   if (!board) return { state: SIM_STARTER.WITHHELD, starterQb: null, reason: `no player board for ${abbr}: starting QB not confirmed` };
   if (!rule) return { state: SIM_STARTER.WITHHELD, starterQb: null, reason: `the board records no starting-QB decision for ${abbr}: starting QB not confirmed` };
-  if (rule.state === "APPLIED" && rule.starter?.playerId) return { state: SIM_STARTER.STARTER, starterQb: rule.starter.playerId, starterName: rule.starter.name ?? null, tier: rule.tier ?? null, reason: null };
+  if (rule.state === "APPLIED" && rule.starter?.playerId) return { state: SIM_STARTER.STARTER, starterQb: rule.starter.playerId, starterName: rule.starter.name ?? null, tier: rule.tier ?? null, basis: rule.basis ?? null, ...(rule.starterShare ? { starterShare: rule.starterShare } : {}), reason: null };
   if (rule.state === "SINGLE_PASSER" && (rule.passers ?? []).length === 1) return { state: SIM_STARTER.STARTER, starterQb: rule.passers[0], reason: null };
   return { state: SIM_STARTER.WITHHELD, starterQb: null, reason: rule.reason ?? `starting QB not confirmed for ${abbr} (board rule ${rule.state})` };
 }

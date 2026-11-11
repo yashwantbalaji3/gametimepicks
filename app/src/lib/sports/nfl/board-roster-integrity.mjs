@@ -178,8 +178,8 @@ export function applyQbStarterRule({ players, team, index, asOf, maxAgeMs = QB_C
     const target = row ?? (rowFor ? rowFor(starter) : null);
     if (target) {
       if (!row) players.push(target);
-      target.markets.player_pass_yds = { ...b.market, tier: QB_TIER.B };
-      return { ...base, state: "APPLIED", tier: QB_TIER.B, starter, source: id.source, basis: b.basis, careerAttempts: b.careerAttempts, passers: [starter.playerId], removed: removeOthers(starter.playerId, notStarter) };
+      target.markets.player_pass_yds = { ...b.market, tier: QB_TIER.B, basis: b.basis, ...(b.starterShare ? { starterShare: b.starterShare } : {}) };
+      return { ...base, state: "APPLIED", tier: QB_TIER.B, starter, source: id.source, basis: b.basis, ...(b.starterShare ? { starterShare: b.starterShare } : {}), careerAttempts: b.careerAttempts, passers: [starter.playerId], removed: removeOthers(starter.playerId, notStarter) };
     }
   }
   /* (d) withheld with the exact limitation */

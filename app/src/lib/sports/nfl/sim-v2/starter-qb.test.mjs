@@ -24,7 +24,7 @@ const injured = new Set(["nfl-athlete-2"]);
 const board = (rules) => ({ integrity: { qbStarter: rules } });
 
 test("decision: APPLIED / single passer → that starter; anything else → WITHHELD with the board's reason", () => {
-  assert.deepEqual(simStarterDecision(board([{ team: "BAL", state: "APPLIED", tier: "B_ALL_CLUB_HISTORY", starter: { playerId: "nfl-athlete-1", name: "Backup" }, passers: ["nfl-athlete-1"] }]), "BAL"), { state: SIM_STARTER.STARTER, starterQb: "nfl-athlete-1", starterName: "Backup", tier: "B_ALL_CLUB_HISTORY", reason: null });
+  assert.deepEqual(simStarterDecision(board([{ team: "BAL", state: "APPLIED", tier: "B_ALL_CLUB_HISTORY", starter: { playerId: "nfl-athlete-1", name: "Backup" }, passers: ["nfl-athlete-1"] }]), "BAL"), { state: SIM_STARTER.STARTER, starterQb: "nfl-athlete-1", starterName: "Backup", tier: "B_ALL_CLUB_HISTORY", basis: null, reason: null });
   assert.equal(simStarterDecision(board([{ team: "BAL", state: "SINGLE_PASSER", passers: ["nfl-athlete-1"] }]), "BAL").starterQb, "nfl-athlete-1");
   const w = simStarterDecision(board([{ team: "BAL", state: "WITHHELD_STARTER_NOT_CONFIRMED", reason: "withheld for BAL: starting QB not confirmed", passers: [] }]), "BAL");
   assert.equal(w.state, SIM_STARTER.WITHHELD);

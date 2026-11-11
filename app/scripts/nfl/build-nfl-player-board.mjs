@@ -162,6 +162,8 @@ const TIER_B = (() => {
   const normName = (n) => String(n ?? "").toLowerCase().replace(/[^a-z]/g, "");
   return { passed: report?.verdict === "TIER_B_PASSED", report, F, scale, espnToGsis, rows, stateBefore, normName };
 })();
+/* PD 2026-11-11: the only accuracy statement tier (b) may carry — it is not "validated". */
+const TIER_B_WORDING = "Beats the league-average-starter baseline in a walk-forward backtest (paired pinball diff −0.64, 95% CI −1.12 to −0.17, n=479, cluster bootstrap over 143 season-weeks; level 0.931 near the lower bar).";
 const ET_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
 
 const newArrivalsByEvent = (() => {
@@ -523,7 +525,8 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     return {
       careerAttempts: career,
       market: { mean: r4(pr.mean), p10: r4(pr.q[0.1]), p25: r4(pr.q[0.25]), median: r4(pr.q[0.5]), p75: r4(pr.q[0.75]), p90: r4(pr.q[0.9]), pricingState: "NOT_PROBED" },
-      basis: `tier (b): ${career} verified NFL pass attempts across clubs, in ${team}'s pass-attempt context (walk-forward backtest ${TIER_B.report.verdict}, n=${TIER_B.report.population.n})`,
+      basis: `tier (b): ${career} verified NFL pass attempts across clubs, in ${team}'s pass-attempt context. ${TIER_B_WORDING}`,
+      starterShare: { value: TIER_B.report.starterShare.value, source: `${TIER_B.report.artifact} (committed research report, field starterShare)`, definition: TIER_B.report.starterShare.definition, seasons: TIER_B.report.starterShare.seasons },
     };
   };
   const qbStarter = matchupTeams.map((team) => applyQbStarterRule({
