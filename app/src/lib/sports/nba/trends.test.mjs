@@ -19,6 +19,7 @@ const { resolveEligibility } = await import("../../availability/eligibility.mjs"
 const { gradedBoxscore } = await import("./projection-board-actuals.ts");
 const APP = process.cwd();
 const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
+const text = (h) => h.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 const LANE = JSON.parse(read("public/data/nba/experimental-public/latest.json"));
 
 /* ── fixture: one slate, two past games, four players ─────────────────────────────────────────────────────────── */
@@ -213,9 +214,10 @@ test("REAL DATA: every game a row shows equals the graders' box score for that e
 
 test("no price field anywhere: rows, drawer payload and the rendered page carry no line, price, odds or book", () => {
   const t = T.loadNbaTrends(LANE, LANE.date);
-  const json = JSON.stringify(T.trendsDrawerPayload(t)) + JSON.stringify(t);
-  const keys = new Set([...json.matchAll(/"([A-Za-z_]+)":/g)].map((m) => m[1]));
-  for (const k of keys) assert.doesNotMatch(k, /price|odds|line|book|american|decimal|vig|implied|market/i, `key ${k}`);
+  // the drawer file: no line-ish key at all; the rows: only the gated `lines` (page HTML only, see below), never a price
+  const keysOf = (o) => new Set([...JSON.stringify(o).matchAll(/"([A-Za-z_]+)":/g)].map((m) => m[1]));
+  for (const k of keysOf(T.trendsDrawerPayload(t))) assert.doesNotMatch(k, /price|odds|line|book|american|decimal|vig|implied|market/i, `drawer key ${k}`);
+  for (const k of keysOf(t)) assert.doesNotMatch(k === "lines" ? "" : k, /price|odds|line|book|american|decimal|vig|implied|market/i, `row key ${k}`);
   return import("../../../components/nba/trends/trends-view.tsx").then(({ default: View }) => {
     const h = renderToStaticMarkup(React.createElement(View, { trends: t }));
     assert.match(h, /MODEL PROJECTION/);
@@ -261,4 +263,72 @@ test("tonight's matchup reads from the player's side: home 'vs', away '@'", () =
     assert.match(h, /HHH vs AAA/);
     assert.match(h, /AAA @ HHH/);
   });
+});
+
+/* ── slice 2: lines only through the display gate; hit counts; no line in the drawer file; no price anywhere ───── */
+const { DISPLAY_AUTHORIZATION } = await import("../../odds/display-authorization.mjs");
+const REC = (athlete, family, line, capturedAt = "2026-11-09T17:00:00Z", extra = {}) => ({ schema: "x", provider: "the-odds-api", eventId: "tonight", providerAthleteId: athlete, family, providerMarketKey: `player_${family}`, line, book: "somebook", overAmerican: -115, underAmerican: -105, capturedAt, ...extra });
+
+test("hit rate at a line: games strictly above the line in the last 5 / 10 / 20 played (fixture)", () => {
+  const games = [30, 12, 25, 25, 8, 40, 19, 25].map((pts, i) => ({ eventId: `g${i}`, pts, reb: 0, ast: 0 }));
+  assert.deepEqual(T.hitRateAtLine(games, "pts", 24.5), [{ size: 5, played: 5, hit: 3 }, { size: 10, played: 8, hit: 5 }, { size: 20, played: 8, hit: 5 }]);
+  assert.deepEqual(T.hitRateAtLine(games, "pts", 25)[0], { size: 5, played: 5, hit: 1 }, "a whole-number line met exactly is not a hit");
+  // through buildTrends: Eddie's PTS history newest first 99 (g4), 10 (g2), 20 (g1) at 15.5 → 2 of 3
+  const lines = T.gatedTrendLines([REC("e", "pts", 15.5)]);
+  const e = T.buildTrends(lane, SOURCES, { ...opts(), lines }).rows.find((r) => r.playerId === "e");
+  assert.deepEqual(e.lines, [{ stat: "pts", line: 15.5, capturedAt: "2026-11-09T17:00:00Z", hits: [{ size: 5, played: 3, hit: 2 }, { size: 10, played: 3, hit: 2 }, { size: 20, played: 3, hit: 2 }] }]);
+});
+
+test("the gate: no line unless the site surface AND the family's direction are authorized; only line + capture time survive", () => {
+  const recs = [REC("e", "pts", 15.5), REC("e", "threePm", 1.5), REC("o", "ast", 2.5, "2026-11-09T16:00:00Z"), REC("o", "ast", 3.5, "2026-11-09T18:00:00Z"), REC("o", "reb", "n/a")];
+  const ok = T.gatedTrendLines(recs);
+  assert.deepEqual([...ok.entries()], [["e|pts", { line: 15.5, capturedAt: "2026-11-09T17:00:00Z" }], ["o|ast", { line: 3.5, capturedAt: "2026-11-09T18:00:00Z" }]], "threePm is unqualified; a malformed line is dropped; the newest capture wins");
+  for (const v of ok.values()) assert.deepEqual(Object.keys(v).sort(), ["capturedAt", "line"], "no price, book or odds field survives");
+  // site display switched off → nothing; a family unqualified → nothing; no records (no key / no file) → null
+  const off = { ...DISPLAY_AUTHORIZATION, nba: { ...DISPLAY_AUTHORIZATION.nba, siteDisplay: false } };
+  assert.equal(T.gatedTrendLines(recs, { authorization: off }).size, 0);
+  const unq = { ...DISPLAY_AUTHORIZATION, nba: { ...DISPLAY_AUTHORIZATION.nba, directionQualified: {} } };
+  assert.equal(T.gatedTrendLines(recs, { authorization: unq }).size, 0);
+  assert.equal(T.gatedTrendLines(null), null);
+  // nothing authorized → no line rendered anywhere on the page
+  return import("../../../components/nba/trends/trends-view.tsx").then(({ default: View }) => {
+    const none = renderToStaticMarkup(React.createElement(View, { trends: T.buildTrends(lane, SOURCES, { ...opts(), lines: T.gatedTrendLines(recs, { authorization: off }) }) }));
+    assert.doesNotMatch(none, /data-trn-hit|15\.5|at \d+\.\d/);
+    const shown = renderToStaticMarkup(React.createElement(View, { trends: T.buildTrends(lane, SOURCES, { ...opts(), lines: ok }) }));
+    const block = /<div hidden="" data-trn-hit="e">[^]*?<\/div>/.exec(shown)?.[0];
+    assert.ok(block, "the gated block is written into the page for the drawer");
+    assert.match(text(block), /PTS at 15\.5 hit 2 of 3 \(last 5\) · hit 2 of 3 \(last 10\) · hit 2 of 3 \(last 20\) line captured Nov 9, 12:00 PM ET/);
+    assert.match(block, /Observed record, not a probability/);
+    assert.doesNotMatch(shown, /somebook|-115|-105|overAmerican|underAmerican|odds/i, "never a book, price or odds");
+  });
+});
+
+test("the drawer file never carries a line (provider terms: display yes, a downloadable feed no)", () => {
+  const t = T.buildTrends(lane, SOURCES, { ...opts(), lines: T.gatedTrendLines([REC("e", "pts", 15.5)]) });
+  assert.equal(t.rows.find((r) => r.playerId === "e").lines.length, 1);
+  const json = JSON.stringify(T.trendsDrawerPayload(t));
+  assert.doesNotMatch(json, /"lines?"|15\.5|capturedAt/, "no line, no capture time in /data/nba-trends.json");
+  assert.match(read("src/lib/sports/nba/trends.ts"), /gatedTrendLines\(nbaPublicLineRecords\(lane\.date\)\)/, "the build reads lines only through the gated reader");
+  for (const f of ["trends-drawer.tsx", "trends-filters.tsx"]) assert.doesNotMatch(read(`src/components/nba/trends/${f}`), /lib\/odds|public-line-records|line-publication/, `${f} (client) never imports a line source`);
+});
+
+test("EXPORT (flag-ON build): no price, odds or book in /trends or its drawer file", () => {
+  const html = path.join(APP, "out", "trends", "index.html"), data = path.join(APP, "out", "data", "nba-trends.json");
+  if (!fs.existsSync(html)) return; // a flag-OFF export: the prune test above covers it
+  for (const f of [html, path.join(APP, "out", "trends", "index.txt"), data].filter((x) => fs.existsSync(x))) {
+    const all = fs.readFileSync(f, "utf8");
+    // pages: the trends section only — the site footer credits "The Odds API" (a link) on every page, which is
+    // attribution, not a price; the section ends before it
+    let body = all;
+    if (!f.endsWith(".json")) {
+      const from = all.indexOf("trn-root");
+      assert.ok(from > 0, `${path.basename(f)}: the trends section is in the file`);
+      body = all.slice(from).split(/the-odds-api|The Odds API/)[0];
+      assert.ok(body.includes("trn-table"), `${path.basename(f)}: the section reaches the table`);
+    }
+    const visible = f.endsWith(".html") ? body.replace(/<script[^]*?<\/script>/g, "").replace(/<[^>]+>/g, " ") : body;
+    assert.doesNotMatch(visible, /(?<![\w.:-])[+-]\d{3}(?!\d)/, `${path.basename(f)}: an American price`);
+    assert.doesNotMatch(body, /overAmerican|underAmerican|overPrice|underPrice|"book"|sportsbook odds|\bodds\b/i, `${path.basename(f)}: a price or odds field`);
+  }
+  if (fs.existsSync(data)) assert.doesNotMatch(fs.readFileSync(data, "utf8"), /"lines?"|capturedAt/, "the drawer file carries no line");
 });

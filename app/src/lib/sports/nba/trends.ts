@@ -26,6 +26,13 @@
  * MINUTES_REVIEW_ABOVE stays on the page with the note "minutes projection under review" and is left out of the
  * minutes-ordered numbered list.
  *
+ * LINES (slice 2, 2026-11-10) — "hit N of 5/10/20 at <line>": ONLY through the NBA line display gate. The build-time
+ * reader (public-line-records.mjs nbaPublicLineRecords) returns records only when the site surface is authorized
+ * (display-authorization.mjs) and the display key + the date's encrypted publication exist; `gatedTrendLines` then keeps
+ * a family only when directionAuthorization(nba, family, site) is ok, and keeps the LINE and its CAPTURE TIME only —
+ * never a price, book or odds. Lines are rendered into the page HTML only: the drawer file (/data/nba-trends.json) never
+ * carries a line (provider terms: display yes, a downloadable feed no). A count is an observed record, not a probability.
+ *
  * ORDER: eligible players (minutes not under review) are numbered by tonight's EXPECTED MINUTES (the projections board's own order), never by how
  * often they beat the median. Sorting by "games above" would put the players the v0.1 model under-projects on top — a
  * list that reads as "overs", which a history count must never become.
@@ -35,10 +42,12 @@ import path from "node:path";
 
 import type { Snapshot } from "@/components/nba/experimental-lane";
 import { eligibilityRecord, eligibilityText, featurable, resolveEligibility } from "@/lib/availability/eligibility.mjs";
+import { directionAuthorization, DISPLAY_AUTHORIZATION } from "@/lib/odds/display-authorization.mjs";
 import { boxscoreAthlete, isFinalBoxscore, LINE_STATE, measureAthlete } from "@/lib/sports/nba/boxscore-line.mjs";
 import { boxscorePointsCheck } from "@/lib/sports/nba/experimental-grading-ledger.mjs";
 import { etDateOf, finalFor, nbaSeasonLabel } from "@/lib/sports/nba/finals-record.mjs";
 import { BOX_DIRS, gradedBoxscore } from "@/lib/sports/nba/projection-board-actuals";
+import { nbaPublicLineRecords } from "@/lib/sports/nba/public-line-records.mjs";
 
 export const TRENDS_STATS = Object.freeze([["pts", "PTS"], ["reb", "REB"], ["ast", "AST"]] as const);
 export type TrendStat = (typeof TRENDS_STATS)[number][0];
@@ -71,8 +80,42 @@ export type TrendRow = {
   minutesUnderReview: boolean;
   /** the eligibility@1 record this row's availability came from */
   eligibility: ReturnType<typeof eligibilityRecord>;
+  /** the lane's position ("G", "F", "C", …), null when the lane has none */
+  position: string | null;
+  /** gated lines (page HTML only — never in the drawer file); empty when no family is authorized or no line exists */
+  lines: TrendLine[];
 };
+export const TRENDS_LINE_NOTE = "observed record, not a probability";
+/** One authorized captured line and the history against it. No price, book or odds field exists. */
+export type TrendLine = { stat: TrendStat; line: number; capturedAt: string; hits: { size: number; played: number; hit: number }[] };
+/** Gated lines by `${athleteId}|${stat}` (gatedTrendLines). */
+export type TrendLineMap = ReadonlyMap<string, { line: number; capturedAt: string }>;
 /** eligibility@1 inputs: the build instant and the two NBA captures (null = missing → UNKNOWN). */
+/** PURE: games strictly above `line` in the last 5 / 10 / 20 games played (a whole-number line met exactly is not a hit). */
+export function hitRateAtLine(games: readonly TrendGame[], stat: TrendStat, line: number): TrendLine["hits"] {
+  return TRENDS_WINDOWS.map((size) => { const w = games.slice(0, size); return { size, played: w.length, hit: w.filter((g) => g[stat] > line).length }; });
+}
+
+/**
+ * PURE: the line records a build may show on /trends — only families whose public display AND direction are authorized
+ * (directionAuthorization nba/site), only PTS/REB/AST, only a finite line with a capture time; the line and its capture
+ * time are all that is kept. Several records for one player and stat: the newest capture (then the lower line).
+ */
+export function gatedTrendLines(records: readonly { providerAthleteId?: string; family?: string; line?: unknown; capturedAt?: unknown }[] | null, { authorization = DISPLAY_AUTHORIZATION }: { authorization?: unknown } = {}): TrendLineMap | null {
+  if (!records) return null;
+  const stats = new Set<string>(TRENDS_STATS.map(([k]) => k));
+  const out = new Map<string, { line: number; capturedAt: string }>();
+  for (const r of records) {
+    const fam = String(r?.family ?? "");
+    if (!stats.has(fam) || !directionAuthorization("nba", fam, "site", authorization as never).ok) continue;
+    const line = Number(r.line), at = typeof r.capturedAt === "string" ? r.capturedAt : null;
+    if (!Number.isFinite(line) || !at || !Number.isFinite(Date.parse(at))) continue;
+    const key = `${String(r.providerAthleteId)}|${fam}`, prev = out.get(key);
+    if (!prev || at > prev.capturedAt || (at === prev.capturedAt && line < prev.line)) out.set(key, { line, capturedAt: at });
+  }
+  return out;
+}
+
 export type TrendEligibilityInputs = { asOf: string; injuries: { generatedAt: string; entries: object[] } | null; roster: { teams?: { providerTeamId?: string | number; espnAbbr?: string }[] } | null };
 export type NbaTrends = { slateDate: string | null; slateIsToday: boolean; gamesRead: number; rows: TrendRow[] };
 
@@ -122,7 +165,7 @@ const windowsOf = (games: TrendGame[], ref: Record<TrendStat, number> | null): T
  * PURE: the trends rows for a lane, a set of source games and the eligibility@1 inputs. `slateIsToday` false → nobody
  * is ranked (the lane's projection is not tonight's).
  */
-export function buildTrends(lane: Snapshot | null, sources: readonly TrendSourceGame[], { slateIsToday, eligibility }: { slateIsToday: boolean; eligibility: TrendEligibilityInputs }): NbaTrends {
+export function buildTrends(lane: Snapshot | null, sources: readonly TrendSourceGame[], { slateIsToday, eligibility, lines = null }: { slateIsToday: boolean; eligibility: TrendEligibilityInputs; lines?: TrendLineMap | null }): NbaTrends {
   if (!lane?.date || !lane.games.length) return { slateDate: lane?.date ?? null, slateIsToday, gamesRead: 0, rows: [] };
   const slate = lane.date;
   const counted = sources.filter((g) => gameCounts(g, slate)).sort((a, b) => String(b.doc.dateUtc).localeCompare(String(a.doc.dateUtc)));
@@ -139,6 +182,10 @@ export function buildTrends(lane: Snapshot | null, sources: readonly TrendSource
     const note = availability === "not-verified" && rec.state === "ELIGIBLE" ? `${eligibilityText(rec)} · flagged ${rec.flags.join(", ").toLowerCase().replace(/_/g, " ")}, so not ranked` : eligibilityText(rec);
     return { availability, note, record: eligibilityRecord(rec) };
   };
+  const linesOf = (id: string, games: TrendGame[]): TrendLine[] => (lines ? TRENDS_STATS.flatMap(([k]) => {
+    const l = lines.get(`${id}|${k}`);
+    return l ? [{ stat: k, line: l.line, capturedAt: l.capturedAt, hits: hitRateAtLine(games, k, l.line) }] : [];
+  }) : []);
   const rows: TrendRow[] = [];
   for (const g of lane.games) {
     for (const side of ["away", "home"] as const) {
@@ -151,7 +198,7 @@ export function buildTrends(lane: Snapshot | null, sources: readonly TrendSource
         const games = historyOf(id);
         const em = Number((p as { expectedMinutes?: number }).expectedMinutes);
         const minutesUnderReview = Number.isFinite(em) && em > MINUTES_REVIEW_ABOVE;
-        rows.push({ playerId: id, name: p.name ?? id, team, opp, home: side === "home", availability: e.availability, availabilityNote: e.note, reference: hasRef ? reference : null, windows: windowsOf(games, hasRef ? reference : null), games, rank: null, expectedMinutes: Number.isFinite(em) ? em : null, minutesUnderReview, eligibility: e.record });
+        rows.push({ playerId: id, name: p.name ?? id, team, opp, home: side === "home", availability: e.availability, availabilityNote: e.note, reference: hasRef ? reference : null, windows: windowsOf(games, hasRef ? reference : null), games, rank: null, expectedMinutes: Number.isFinite(em) ? em : null, minutesUnderReview, eligibility: e.record, position: (p as { position?: string | null }).position ?? null, lines: linesOf(id, games) });
       }
       for (const u of g.players.unavailable?.[side] ?? []) {
         const id = String(u.providerAthleteId);
@@ -160,7 +207,7 @@ export function buildTrends(lane: Snapshot | null, sources: readonly TrendSource
         rows.push({
           playerId: id, name: u.name ?? id, team, opp, home: side === "home",
           availability: e.availability, availabilityNote: `${e.note} · no official projection tonight`,
-          reference: null, windows: windowsOf(games, null), games, rank: null, expectedMinutes: null, minutesUnderReview: false, eligibility: e.record,
+          reference: null, windows: windowsOf(games, null), games, rank: null, expectedMinutes: null, minutesUnderReview: false, eligibility: e.record, position: u.position ?? null, lines: linesOf(id, games),
         });
       }
     }
@@ -206,14 +253,15 @@ export function loadTrendEligibilityInputs(asOf: string): TrendEligibilityInputs
 /** The page's model: the current lane (tonight's slate, else the newest committed one, marked not current). */
 export function loadNbaTrends(lane: Snapshot | null, todayEt: string, asOf: string = new Date().toISOString()): NbaTrends {
   if (!lane?.date) return { slateDate: null, slateIsToday: false, gamesRead: 0, rows: [] };
-  return buildTrends(lane, loadTrendSources(lane.date), { slateIsToday: lane.date === todayEt, eligibility: loadTrendEligibilityInputs(asOf) });
+  return buildTrends(lane, loadTrendSources(lane.date), { slateIsToday: lane.date === todayEt, eligibility: loadTrendEligibilityInputs(asOf), lines: gatedTrendLines(nbaPublicLineRecords(lane.date)) });
 }
 
-/** The drawer file: per player, the reference and the games — the same rows the table counts. No price field exists. */
-export type TrendsDrawerPayload = { schema: "gtp.nba-trends-drawer@1"; slateDate: string | null; reference: string; note: string; players: Record<string, { name: string; team: string; opp: string; home: boolean; availability: TrendAvailability; availabilityNote: string; minutesUnderReview: boolean; reference: Record<TrendStat, number> | null; games: TrendGame[] }> };
+/** The drawer file: per player, the reference and the games — the same rows the table counts. No price field exists, and
+ *  no line: lines live only in the page HTML (see LINES above). */
+export type TrendsDrawerPayload = { schema: "gtp.nba-trends-drawer@1"; slateDate: string | null; reference: string; note: string; players: Record<string, { name: string; team: string; opp: string; home: boolean; availability: TrendAvailability; availabilityNote: string; minutesUnderReview: boolean; position: string | null; expectedMinutes: number | null; rank: number | null; reference: Record<TrendStat, number> | null; games: TrendGame[] }> };
 export function trendsDrawerPayload(t: NbaTrends): TrendsDrawerPayload {
   return {
     schema: "gtp.nba-trends-drawer@1", slateDate: t.slateDate, reference: TRENDS_REFERENCE_LABEL, note: TRENDS_HISTORY_NOTE,
-    players: Object.fromEntries(t.rows.map((r) => [r.playerId, { name: r.name, team: r.team, opp: r.opp, home: r.home, availability: r.availability, availabilityNote: r.availabilityNote, minutesUnderReview: r.minutesUnderReview, reference: r.reference, games: r.games }])),
+    players: Object.fromEntries(t.rows.map((r) => [r.playerId, { name: r.name, team: r.team, opp: r.opp, home: r.home, availability: r.availability, availabilityNote: r.availabilityNote, minutesUnderReview: r.minutesUnderReview, position: r.position, expectedMinutes: r.expectedMinutes, rank: r.rank, reference: r.reference, games: r.games }])),
   };
 }
