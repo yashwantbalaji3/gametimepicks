@@ -44,7 +44,7 @@ export function runBatch({ compiled, thetas, players = null, baseSeed, runs, pos
     if (run.firstTd) {
       res.firstTd[3 * i] = run.firstTd.side;
       res.firstTd[3 * i + 1] = run.firstTd.slot;
-      res.firstTd[3 * i + 2] = run.firstTd.type === "PASS" ? 0 : 1;
+      res.firstTd[3 * i + 2] = run.firstTd.type === "PASS" ? 0 : run.firstTd.type === "RUSH" ? 1 : 2; // 2 = DEF (MKT-01)
     }
     if (check) {
       const f = checkRun({ team: out.team, period: out.period, players: out.players, slots: nSlots, run });

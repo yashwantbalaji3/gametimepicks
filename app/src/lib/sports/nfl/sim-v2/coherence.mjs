@@ -11,7 +11,8 @@
  *              (one touchdown, credited to passer and receiver — never two team scores)
  *   RUSHING    Σ player carries = team carries; Σ rushing yards; Σ rushing TDs
  *   PLAYER     receptions ≤ targets; receiving TDs ≤ receptions; no negative counts
- *   FIRST TD   present iff any offensive TD happened; the named scorer has a TD of that type in this run
+ *   FIRST TD   present iff any TD happened (offensive or defensive — MKT-01); the named scorer has a TD of that type in
+ *              this run; a DEF first TD names the scoring defence, which scored a defensive TD
  */
 import { N_PSTAT, PSTAT, TEAM_STAT } from "./engine.mjs";
 
@@ -64,8 +65,9 @@ export function checkRun({ team, period, players = null, slots = null, run }) {
   if (!run.ot && (period[0][4] !== 0 || period[1][4] !== 0)) fail.push("OT_POINTS_WITHOUT_OT");
   if (!run.ot && run.score[0] === run.score[1]) fail.push("TIE_WITHOUT_OT");
   if (run.tie !== (run.score[0] === run.score[1])) fail.push("TIE_FLAG");
-  const offTd = team[0][TEAM_STAT.passTd] + team[0][TEAM_STAT.rushTd] + team[1][TEAM_STAT.passTd] + team[1][TEAM_STAT.rushTd];
-  if ((offTd > 0) !== (run.firstTd != null)) fail.push("FIRST_TD_PRESENCE");
+  const anyTd = [0, 1].reduce((a, s) => a + team[s][TEAM_STAT.passTd] + team[s][TEAM_STAT.rushTd] + team[s][TEAM_STAT.defTd], 0);
+  if ((anyTd > 0) !== (run.firstTd != null)) fail.push("FIRST_TD_PRESENCE");
+  if (run.firstTd?.type === "DEF" && (run.firstTd.slot !== -1 || !(team[run.firstTd.side][TEAM_STAT.defTd] >= 1))) fail.push("FIRST_TD_DEF_WITHOUT_DEF_TD");
   if (run.firstTd && players && slots && run.firstTd.slot >= 0) {
     const PL = players[run.firstTd.side];
     const s = run.firstTd.type === "PASS" ? PSTAT.recTd : PSTAT.rushTd;
