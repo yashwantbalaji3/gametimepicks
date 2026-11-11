@@ -1,0 +1,125 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-v1-availability-wowy-fit",
+ "dataClass": "PRIVATE_RESEARCH",
+ "candidate": "nba-sim-v1-availability-wowy (M2b)",
+ "armed": false,
+ "fitSeason": "2023-24 (corpus season 2024), regular season, ≥ 30 days in",
+ "method": "empirical with/without (same team, current + previous corpus season, strictly before the game): team Elo-adjusted residuals and teammates' per-240 lines, mean(out) − mean(in), shrunk n_out/(n_out+K); K by grid over K_GRID (fixed before any number was seen)",
+ "availabilityProxy": "TIP-TIME PROXY — injury-type DNP in the box score (as M1/M2)",
+ "n": 1010,
+ "gamesWithAbsence": 387,
+ "noShiftSSE": 208299.1871,
+ "K_GRID": [
+  1,
+  2,
+  3,
+  5,
+  8,
+  13,
+  21,
+  34,
+  55,
+  89
+ ],
+ "gameGrid": [
+  {
+   "k": 1,
+   "sse": 223377.3757
+  },
+  {
+   "k": 2,
+   "sse": 216663.0455
+  },
+  {
+   "k": 3,
+   "sse": 213807.5986
+  },
+  {
+   "k": 5,
+   "sse": 211336.8255
+  },
+  {
+   "k": 8,
+   "sse": 209954.8337
+  },
+  {
+   "k": 13,
+   "sse": 209142.443
+  },
+  {
+   "k": 21,
+   "sse": 208718.1188
+  },
+  {
+   "k": 34,
+   "sse": 208503.368
+  },
+  {
+   "k": 55,
+   "sse": 208399.1269
+  },
+  {
+   "k": 89,
+   "sse": 208349.1013
+  }
+ ],
+ "playerGrid": [
+  {
+   "k": 1,
+   "n": 4328,
+   "sseMinutes": 387777.5116
+  },
+  {
+   "k": 2,
+   "n": 4328,
+   "sseMinutes": 381326.9613
+  },
+  {
+   "k": 3,
+   "n": 4328,
+   "sseMinutes": 384020.3086
+  },
+  {
+   "k": 5,
+   "n": 4328,
+   "sseMinutes": 393549.4347
+  },
+  {
+   "k": 8,
+   "n": 4328,
+   "sseMinutes": 406450.1787
+  },
+  {
+   "k": 13,
+   "n": 4328,
+   "sseMinutes": 421447.3711
+  },
+  {
+   "k": 21,
+   "n": 4328,
+   "sseMinutes": 435533.6434
+  },
+  {
+   "k": 34,
+   "n": 4328,
+   "sseMinutes": 447431.2525
+  },
+  {
+   "k": 55,
+   "n": 4328,
+   "sseMinutes": 456520.675
+  },
+  {
+   "k": 89,
+   "n": 4328,
+   "sseMinutes": 463017.5907
+  }
+ ],
+ "K_GAME": 89,
+ "K_PLAYER": 2,
+ "gameLevelBeatsNoShift": false,
+ "playerMinutesSSE_noShift": 475348.9279,
+ "reading": "K_GAME at the grid's edge with gameLevelBeatsNoShift false means every shrinkage on the grid made the margin worse than no shift: the team-level with/without effect is not supported on the fit season",
+ "approval": "PENDING — research only; any arming needs founder approval (methodology-constants rule)"
+}

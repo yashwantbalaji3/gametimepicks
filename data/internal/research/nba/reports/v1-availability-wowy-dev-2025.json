@@ -1,0 +1,179 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-v1-availability-wowy-dev",
+ "dataClass": "PRIVATE_RESEARCH",
+ "label": "EXPLORATORY — development season 2024-25; not evidence for arming",
+ "candidate": "nba-sim-v1-availability-wowy (M2b)",
+ "armed": false,
+ "K_GAME": 89,
+ "K_PLAYER": 2,
+ "kSource": "data/internal/research/nba/reports/v1-availability-wowy-fit-2024.json",
+ "availabilityProxy": "TIP-TIME PROXY (injury-type DNP in the box score)",
+ "playerLevel": {
+  "population": "available teammates who played, on sides with ≥ 1 pool absence; lines per 240 team player-minutes",
+  "v1Baseline": "water-filled expected minutes (raw^MINUTES_POWER) × own per-minute rates — an approximation of the engine's draw mean",
+  "stats": {
+   "minutes": {
+    "n": 5995,
+    "games": 510,
+    "maeV1": 7.2366,
+    "maeWowy": 7.2173,
+    "absErr_wowy_minus_v1": {
+     "mean": -0.0193,
+     "ci95": [
+      -0.1542,
+      0.1237
+     ]
+    }
+   },
+   "fga": {
+    "n": 5995,
+    "games": 510,
+    "maeV1": 3.3528,
+    "maeWowy": 3.4263,
+    "absErr_wowy_minus_v1": {
+     "mean": 0.0735,
+     "ci95": [
+      0.0233,
+      0.1233
+     ]
+    }
+   },
+   "fta": {
+    "n": 5995,
+    "games": 510,
+    "maeV1": 1.6013,
+    "maeWowy": 1.671,
+    "absErr_wowy_minus_v1": {
+     "mean": 0.0697,
+     "ci95": [
+      0.0494,
+      0.0895
+     ]
+    }
+   },
+   "pts": {
+    "n": 5995,
+    "games": 510,
+    "maeV1": 5.072,
+    "maeWowy": 5.2487,
+    "absErr_wowy_minus_v1": {
+     "mean": 0.1768,
+     "ci95": [
+      0.1069,
+      0.2456
+     ]
+    }
+   },
+   "reb": {
+    "n": 5995,
+    "games": 510,
+    "maeV1": 2.1586,
+    "maeWowy": 2.2352,
+    "absErr_wowy_minus_v1": {
+     "mean": 0.0766,
+     "ci95": [
+      0.0482,
+      0.1053
+     ]
+    }
+   },
+   "ast": {
+    "n": 5995,
+    "games": 510,
+    "maeV1": 1.3949,
+    "maeWowy": 1.4541,
+    "absErr_wowy_minus_v1": {
+     "mean": 0.0592,
+     "ci95": [
+      0.039,
+      0.0786
+     ]
+    }
+   }
+  }
+ },
+ "gameLevel": {
+  "simulations": 2000,
+  "seedPolicy": "explicit m1-<eventId>, identical for both v1 arms (paired)",
+  "n": 1005,
+  "gamesShifted": 462,
+  "shiftSummary": {
+   "meanAbs": 0.4546,
+   "p90Abs": 1.0145
+  },
+  "decomposition": {
+   "meanOffenceShift": 0.0022,
+   "meanDefenceShift": -0.0434,
+   "note": "home minus away; margin shift = offence − defence"
+  },
+  "winner": {
+   "candidate": {
+    "n": 1005,
+    "logLoss": 0.6111,
+    "brier": 0.212,
+    "ece": 0.0218
+   },
+   "v1Shift0": {
+    "n": 1005,
+    "logLoss": 0.6112,
+    "brier": 0.212,
+    "ece": 0.0268
+   },
+   "elo": {
+    "n": 1005,
+    "logLoss": 0.6175,
+    "brier": 0.2147,
+    "ece": 0.0541
+   }
+  },
+  "pairedDiffs": {
+   "logLoss_candidate_minus_v1": {
+    "mean": -0.0001,
+    "ci95": [
+     -0.0016,
+     0.0013
+    ]
+   },
+   "logLoss_candidate_minus_elo": {
+    "mean": -0.0064,
+    "ci95": [
+     -0.012,
+     -0.0011
+    ]
+   },
+   "brier_candidate_minus_v1": {
+    "mean": 0,
+    "ci95": [
+     -0.0007,
+     0.0006
+    ]
+   },
+   "marginAbsErr_candidate_minus_v1": {
+    "mean": -0.0002,
+    "ci95": [
+     -0.0278,
+     0.0261
+    ]
+   }
+  },
+  "shiftedGamesOnly": {
+   "n": 462,
+   "logLoss_candidate_minus_v1": {
+    "mean": -0.0002,
+    "ci95": [
+     -0.0032,
+     0.0028
+    ]
+   },
+   "marginAbsErr_candidate_minus_v1": {
+    "mean": -0.0005,
+    "ci95": [
+     -0.056,
+     0.0552
+    ]
+   }
+  }
+ },
+ "note": "Lower is better for every loss. A direction is claimed only where the 95% interval excludes 0. Development data only; 2025-26 never loaded."
+}

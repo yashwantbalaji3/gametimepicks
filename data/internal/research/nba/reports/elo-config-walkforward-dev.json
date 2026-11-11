@@ -1,0 +1,998 @@
+{
+ "schema": "gtp.nba.elo-config-walkforward@1",
+ "dataClass": "PRIVATE_RESEARCH",
+ "status": "EXPLORATORY — development seasons of corpus-v1; changes nothing official",
+ "corpus": {
+  "file": "corpus-v1.json",
+  "warmupSeason": 2024,
+  "evaluatedSeasons": [
+   2025,
+   2026
+  ],
+  "note": "both evaluated seasons were already seen by the model card's baseline evaluation; 2026-27 untouched (prereg v2)"
+ },
+ "updateRule": {
+  "K": 20,
+  "HA": 70,
+  "MEAN": 1500,
+  "SCALE": 400,
+  "source": "app/src/lib/sports/nba/team-rating.mjs NBA_ELO_PARAMS"
+ },
+ "cutoff": "finals on ET dates strictly before the game's ET date (prereg v2 §3)",
+ "bootstrap": "game-level percentile, B 2000, seed 20261020 (bootstrap.mjs)",
+ "configs": {
+  "frozen-0.25": {
+   "regression": 0.25,
+   "inseason": false
+  },
+  "frozen-1/3": {
+   "regression": 0.3333333333333333,
+   "inseason": false
+  },
+  "inseason-0.25": {
+   "regression": 0.25,
+   "inseason": true
+  },
+  "inseason-1/3": {
+   "regression": 0.3333333333333333,
+   "inseason": true
+  }
+ },
+ "populations": {
+  "regular": {
+   "byConfig": {
+    "frozen-0.25": {
+     "overall": {
+      "n": 2460,
+      "logLoss": 0.672,
+      "brier": 0.2384,
+      "ece": {
+       "n": 2460,
+       "value": 0.0568,
+       "lo": 0.048,
+       "hi": 0.0803,
+       "B": 2000,
+       "seed": 20261020,
+       "alpha": 0.05
+      },
+      "homeBias": 0.0387
+     },
+     "bySeason": {
+      "2025": {
+       "n": 1230,
+       "logLoss": 0.6599,
+       "brier": 0.2338,
+       "ece": {
+        "n": 1230,
+        "value": 0.0546,
+        "lo": 0.0393,
+        "hi": 0.0849,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0451
+      },
+      "2026": {
+       "n": 1230,
+       "logLoss": 0.6841,
+       "brier": 0.243,
+       "ece": {
+        "n": 1230,
+        "value": 0.0788,
+        "lo": 0.059,
+        "hi": 0.1083,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0324
+      }
+     }
+    },
+    "frozen-1/3": {
+     "overall": {
+      "n": 2460,
+      "logLoss": 0.6681,
+      "brier": 0.2371,
+      "ece": {
+       "n": 2460,
+       "value": 0.0431,
+       "lo": 0.0371,
+       "hi": 0.068,
+       "B": 2000,
+       "seed": 20261020,
+       "alpha": 0.05
+      },
+      "homeBias": 0.0408
+     },
+     "bySeason": {
+      "2025": {
+       "n": 1230,
+       "logLoss": 0.6583,
+       "brier": 0.2332,
+       "ece": {
+        "n": 1230,
+        "value": 0.0469,
+        "lo": 0.0321,
+        "hi": 0.0774,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0469
+      },
+      "2026": {
+       "n": 1230,
+       "logLoss": 0.6779,
+       "brier": 0.2409,
+       "ece": {
+        "n": 1230,
+        "value": 0.0621,
+        "lo": 0.0444,
+        "hi": 0.0931,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0347
+      }
+     }
+    },
+    "inseason-0.25": {
+     "overall": {
+      "n": 2460,
+      "logLoss": 0.6139,
+      "brier": 0.2127,
+      "ece": {
+       "n": 2460,
+       "value": 0.0379,
+       "lo": 0.0259,
+       "hi": 0.0581,
+       "B": 2000,
+       "seed": 20261020,
+       "alpha": 0.05
+      },
+      "homeBias": 0.0379
+     },
+     "bySeason": {
+      "2025": {
+       "n": 1230,
+       "logLoss": 0.6172,
+       "brier": 0.2146,
+       "ece": {
+        "n": 1230,
+        "value": 0.0444,
+        "lo": 0.0316,
+        "hi": 0.0749,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0423
+      },
+      "2026": {
+       "n": 1230,
+       "logLoss": 0.6106,
+       "brier": 0.2108,
+       "ece": {
+        "n": 1230,
+        "value": 0.0334,
+        "lo": 0.0248,
+        "hi": 0.0652,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0334
+      }
+     }
+    },
+    "inseason-1/3": {
+     "overall": {
+      "n": 2460,
+      "logLoss": 0.6131,
+      "brier": 0.2124,
+      "ece": {
+       "n": 2460,
+       "value": 0.0387,
+       "lo": 0.0262,
+       "hi": 0.0576,
+       "B": 2000,
+       "seed": 20261020,
+       "alpha": 0.05
+      },
+      "homeBias": 0.0387
+     },
+     "bySeason": {
+      "2025": {
+       "n": 1230,
+       "logLoss": 0.6169,
+       "brier": 0.2145,
+       "ece": {
+        "n": 1230,
+        "value": 0.0441,
+        "lo": 0.0308,
+        "hi": 0.0743,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0431
+      },
+      "2026": {
+       "n": 1230,
+       "logLoss": 0.6093,
+       "brier": 0.2103,
+       "ece": {
+        "n": 1230,
+        "value": 0.0366,
+        "lo": 0.0248,
+        "hi": 0.0664,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0344
+      }
+     }
+    }
+   },
+   "pairedVsOfficialAsRun": {
+    "frozen-1/3 − frozen-0.25": {
+     "logLoss": {
+      "n": 2460,
+      "clusters": 2460,
+      "mean": -0.0038,
+      "lo": -0.0055,
+      "hi": -0.0022,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 2460,
+      "clusters": 2460,
+      "mean": -0.0013,
+      "lo": -0.002,
+      "hi": -0.0007,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    },
+    "inseason-0.25 − frozen-0.25": {
+     "logLoss": {
+      "n": 2460,
+      "clusters": 2460,
+      "mean": -0.0581,
+      "lo": -0.0693,
+      "hi": -0.0461,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 2460,
+      "clusters": 2460,
+      "mean": -0.0257,
+      "lo": -0.0306,
+      "hi": -0.0204,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    },
+    "inseason-1/3 − frozen-0.25": {
+     "logLoss": {
+      "n": 2460,
+      "clusters": 2460,
+      "mean": -0.0589,
+      "lo": -0.0702,
+      "hi": -0.0467,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 2460,
+      "clusters": 2460,
+      "mean": -0.026,
+      "lo": -0.0309,
+      "hi": -0.0206,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    }
+   },
+   "regressionWithinMode": {
+    "inseason-1/3 − inseason-0.25": {
+     "logLoss": {
+      "n": 2460,
+      "clusters": 2460,
+      "mean": -0.0008,
+      "lo": -0.0016,
+      "hi": 0,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 2460,
+      "clusters": 2460,
+      "mean": -0.0003,
+      "lo": -0.0006,
+      "hi": 0,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    },
+    "frozen-1/3 − frozen-0.25": {
+     "logLoss": {
+      "n": 2460,
+      "clusters": 2460,
+      "mean": -0.0038,
+      "lo": -0.0055,
+      "hi": -0.0022,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 2460,
+      "clusters": 2460,
+      "mean": -0.0013,
+      "lo": -0.002,
+      "hi": -0.0007,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    }
+   }
+  },
+  "regular-first-30-days": {
+   "byConfig": {
+    "frozen-0.25": {
+     "overall": {
+      "n": 447,
+      "logLoss": 0.6328,
+      "brier": 0.2216,
+      "ece": {
+       "n": 447,
+       "value": 0.0564,
+       "lo": 0.0392,
+       "hi": 0.107,
+       "B": 2000,
+       "seed": 20261020,
+       "alpha": 0.05
+      },
+      "homeBias": 0.0004
+     },
+     "bySeason": {
+      "2025": {
+       "n": 225,
+       "logLoss": 0.6242,
+       "brier": 0.2185,
+       "ece": {
+        "n": 225,
+        "value": 0.0691,
+        "lo": 0.0455,
+        "hi": 0.1373,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": -0.0121
+      },
+      "2026": {
+       "n": 222,
+       "logLoss": 0.6415,
+       "brier": 0.2247,
+       "ece": {
+        "n": 222,
+        "value": 0.0691,
+        "lo": 0.0501,
+        "hi": 0.1472,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0132
+      }
+     }
+    },
+    "frozen-1/3": {
+     "overall": {
+      "n": 447,
+      "logLoss": 0.6314,
+      "brier": 0.221,
+      "ece": {
+       "n": 447,
+       "value": 0.0373,
+       "lo": 0.0292,
+       "hi": 0.0931,
+       "B": 2000,
+       "seed": 20261020,
+       "alpha": 0.05
+      },
+      "homeBias": 0.0023
+     },
+     "bySeason": {
+      "2025": {
+       "n": 225,
+       "logLoss": 0.6236,
+       "brier": 0.2179,
+       "ece": {
+        "n": 225,
+        "value": 0.0651,
+        "lo": 0.0433,
+        "hi": 0.1317,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": -0.0108
+      },
+      "2026": {
+       "n": 222,
+       "logLoss": 0.6394,
+       "brier": 0.224,
+       "ece": {
+        "n": 222,
+        "value": 0.045,
+        "lo": 0.0395,
+        "hi": 0.1295,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0155
+      }
+     }
+    },
+    "inseason-0.25": {
+     "overall": {
+      "n": 447,
+      "logLoss": 0.6117,
+      "brier": 0.2123,
+      "ece": {
+       "n": 447,
+       "value": 0.037,
+       "lo": 0.0308,
+       "hi": 0.091,
+       "B": 2000,
+       "seed": 20261020,
+       "alpha": 0.05
+      },
+      "homeBias": 0.0021
+     },
+     "bySeason": {
+      "2025": {
+       "n": 225,
+       "logLoss": 0.6156,
+       "brier": 0.2143,
+       "ece": {
+        "n": 225,
+        "value": 0.0443,
+        "lo": 0.0396,
+        "hi": 0.1253,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": -0.0093
+      },
+      "2026": {
+       "n": 222,
+       "logLoss": 0.6078,
+       "brier": 0.2102,
+       "ece": {
+        "n": 222,
+        "value": 0.0441,
+        "lo": 0.0391,
+        "hi": 0.1204,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0137
+      }
+     }
+    },
+    "inseason-1/3": {
+     "overall": {
+      "n": 447,
+      "logLoss": 0.6107,
+      "brier": 0.2117,
+      "ece": {
+       "n": 447,
+       "value": 0.0401,
+       "lo": 0.027,
+       "hi": 0.0891,
+       "B": 2000,
+       "seed": 20261020,
+       "alpha": 0.05
+      },
+      "homeBias": 0.0038
+     },
+     "bySeason": {
+      "2025": {
+       "n": 225,
+       "logLoss": 0.6152,
+       "brier": 0.2139,
+       "ece": {
+        "n": 225,
+        "value": 0.0422,
+        "lo": 0.0399,
+        "hi": 0.1224,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": -0.008
+      },
+      "2026": {
+       "n": 222,
+       "logLoss": 0.6062,
+       "brier": 0.2094,
+       "ece": {
+        "n": 222,
+        "value": 0.0585,
+        "lo": 0.0422,
+        "hi": 0.1284,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0158
+      }
+     }
+    }
+   },
+   "pairedVsOfficialAsRun": {
+    "frozen-1/3 − frozen-0.25": {
+     "logLoss": {
+      "n": 447,
+      "clusters": 447,
+      "mean": -0.0014,
+      "lo": -0.0051,
+      "hi": 0.0022,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 447,
+      "clusters": 447,
+      "mean": -0.0006,
+      "lo": -0.0021,
+      "hi": 0.0007,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    },
+    "inseason-0.25 − frozen-0.25": {
+     "logLoss": {
+      "n": 447,
+      "clusters": 447,
+      "mean": -0.0211,
+      "lo": -0.0311,
+      "hi": -0.0114,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 447,
+      "clusters": 447,
+      "mean": -0.0094,
+      "lo": -0.0138,
+      "hi": -0.005,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    },
+    "inseason-1/3 − frozen-0.25": {
+     "logLoss": {
+      "n": 447,
+      "clusters": 447,
+      "mean": -0.0221,
+      "lo": -0.0332,
+      "hi": -0.0115,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 447,
+      "clusters": 447,
+      "mean": -0.0099,
+      "lo": -0.0147,
+      "hi": -0.0053,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    }
+   },
+   "regressionWithinMode": {
+    "inseason-1/3 − inseason-0.25": {
+     "logLoss": {
+      "n": 447,
+      "clusters": 447,
+      "mean": -0.001,
+      "lo": -0.0042,
+      "hi": 0.0019,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 447,
+      "clusters": 447,
+      "mean": -0.0006,
+      "lo": -0.0018,
+      "hi": 0.0006,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    },
+    "frozen-1/3 − frozen-0.25": {
+     "logLoss": {
+      "n": 447,
+      "clusters": 447,
+      "mean": -0.0014,
+      "lo": -0.0051,
+      "hi": 0.0022,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 447,
+      "clusters": 447,
+      "mean": -0.0006,
+      "lo": -0.0021,
+      "hi": 0.0007,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    }
+   }
+  },
+  "all-non-preseason": {
+   "byConfig": {
+    "frozen-0.25": {
+     "overall": {
+      "n": 2643,
+      "logLoss": 0.6728,
+      "brier": 0.2386,
+      "ece": {
+       "n": 2643,
+       "value": 0.0564,
+       "lo": 0.0473,
+       "hi": 0.08,
+       "B": 2000,
+       "seed": 20261020,
+       "alpha": 0.05
+      },
+      "homeBias": 0.038
+     },
+     "bySeason": {
+      "2025": {
+       "n": 1321,
+       "logLoss": 0.6595,
+       "brier": 0.2335,
+       "ece": {
+        "n": 1321,
+        "value": 0.0524,
+        "lo": 0.0368,
+        "hi": 0.0796,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0443
+      },
+      "2026": {
+       "n": 1322,
+       "logLoss": 0.6861,
+       "brier": 0.2438,
+       "ece": {
+        "n": 1322,
+        "value": 0.0819,
+        "lo": 0.0623,
+        "hi": 0.1103,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0317
+      }
+     }
+    },
+    "frozen-1/3": {
+     "overall": {
+      "n": 2643,
+      "logLoss": 0.6688,
+      "brier": 0.2373,
+      "ece": {
+       "n": 2643,
+       "value": 0.0433,
+       "lo": 0.0366,
+       "hi": 0.0673,
+       "B": 2000,
+       "seed": 20261020,
+       "alpha": 0.05
+      },
+      "homeBias": 0.0401
+     },
+     "bySeason": {
+      "2025": {
+       "n": 1321,
+       "logLoss": 0.6581,
+       "brier": 0.233,
+       "ece": {
+        "n": 1321,
+        "value": 0.0461,
+        "lo": 0.0302,
+        "hi": 0.0741,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0461
+      },
+      "2026": {
+       "n": 1322,
+       "logLoss": 0.6795,
+       "brier": 0.2415,
+       "ece": {
+        "n": 1322,
+        "value": 0.0656,
+        "lo": 0.0479,
+        "hi": 0.0945,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.034
+      }
+     }
+    },
+    "inseason-0.25": {
+     "overall": {
+      "n": 2643,
+      "logLoss": 0.6168,
+      "brier": 0.2141,
+      "ece": {
+       "n": 2643,
+       "value": 0.0381,
+       "lo": 0.0249,
+       "hi": 0.0569,
+       "B": 2000,
+       "seed": 20261020,
+       "alpha": 0.05
+      },
+      "homeBias": 0.0381
+     },
+     "bySeason": {
+      "2025": {
+       "n": 1321,
+       "logLoss": 0.6197,
+       "brier": 0.2159,
+       "ece": {
+        "n": 1321,
+        "value": 0.0482,
+        "lo": 0.0334,
+        "hi": 0.0758,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0426
+      },
+      "2026": {
+       "n": 1322,
+       "logLoss": 0.6139,
+       "brier": 0.2123,
+       "ece": {
+        "n": 1322,
+        "value": 0.0336,
+        "lo": 0.0249,
+        "hi": 0.0613,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0336
+      }
+     }
+    },
+    "inseason-1/3": {
+     "overall": {
+      "n": 2643,
+      "logLoss": 0.6161,
+      "brier": 0.2138,
+      "ece": {
+       "n": 2643,
+       "value": 0.0389,
+       "lo": 0.0248,
+       "hi": 0.057,
+       "B": 2000,
+       "seed": 20261020,
+       "alpha": 0.05
+      },
+      "homeBias": 0.0389
+     },
+     "bySeason": {
+      "2025": {
+       "n": 1321,
+       "logLoss": 0.6195,
+       "brier": 0.2157,
+       "ece": {
+        "n": 1321,
+        "value": 0.0479,
+        "lo": 0.0327,
+        "hi": 0.0766,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0433
+      },
+      "2026": {
+       "n": 1322,
+       "logLoss": 0.6127,
+       "brier": 0.2118,
+       "ece": {
+        "n": 1322,
+        "value": 0.0345,
+        "lo": 0.0252,
+        "hi": 0.0623,
+        "B": 2000,
+        "seed": 20261020,
+        "alpha": 0.05
+       },
+       "homeBias": 0.0345
+      }
+     }
+    }
+   },
+   "pairedVsOfficialAsRun": {
+    "frozen-1/3 − frozen-0.25": {
+     "logLoss": {
+      "n": 2643,
+      "clusters": 2643,
+      "mean": -0.004,
+      "lo": -0.0055,
+      "hi": -0.0023,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 2643,
+      "clusters": 2643,
+      "mean": -0.0013,
+      "lo": -0.0019,
+      "hi": -0.0007,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    },
+    "inseason-0.25 − frozen-0.25": {
+     "logLoss": {
+      "n": 2643,
+      "clusters": 2643,
+      "mean": -0.056,
+      "lo": -0.0667,
+      "hi": -0.0452,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 2643,
+      "clusters": 2643,
+      "mean": -0.0246,
+      "lo": -0.0292,
+      "hi": -0.0198,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    },
+    "inseason-1/3 − frozen-0.25": {
+     "logLoss": {
+      "n": 2643,
+      "clusters": 2643,
+      "mean": -0.0567,
+      "lo": -0.0678,
+      "hi": -0.0456,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 2643,
+      "clusters": 2643,
+      "mean": -0.0248,
+      "lo": -0.0296,
+      "hi": -0.0199,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    }
+   },
+   "regressionWithinMode": {
+    "inseason-1/3 − inseason-0.25": {
+     "logLoss": {
+      "n": 2643,
+      "clusters": 2643,
+      "mean": -0.0007,
+      "lo": -0.0015,
+      "hi": 0,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 2643,
+      "clusters": 2643,
+      "mean": -0.0003,
+      "lo": -0.0006,
+      "hi": 0,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    },
+    "frozen-1/3 − frozen-0.25": {
+     "logLoss": {
+      "n": 2643,
+      "clusters": 2643,
+      "mean": -0.004,
+      "lo": -0.0055,
+      "hi": -0.0023,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     },
+     "brier": {
+      "n": 2643,
+      "clusters": 2643,
+      "mean": -0.0013,
+      "lo": -0.0019,
+      "hi": -0.0007,
+      "B": 2000,
+      "seed": 20261020,
+      "alpha": 0.05
+     }
+    }
+   }
+  }
+ },
+ "crossCheck": {
+  "modelCardBaseline": {
+   "reproduced": {
+    "n": 2643,
+    "logLoss": 0.6161
+   },
+   "modelCard": {
+    "n": 2643,
+    "logLoss": 0.6161
+   },
+   "rule": "UTC-date slates, 1/3 regression, in-season, mean irrelevant (all teams start equal)"
+  }
+ }
+}
