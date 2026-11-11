@@ -60,11 +60,9 @@ test("LEGACY BRANCH · the projected scorecard composes ONLY page-loaded artifac
   assert.match(page, /expected statistical summaries · not one simulated game/, "it carries the P249 architecture label");
   assert.match(page, /Likely TD scorers/, "TD scorers render per team");
   assert.match(page, /Receiving leaders/, "receiving lines render per team");
-  // founder language decision 2026-11-11: still stated (never a silent gap), in plain words instead of the failed-bar codes
-  assert.match(page, /— not published yet/, "unearned families are stated inside the scorecard frame");
-  // Read from the artifact (founder language decision 2026-11-11: through withheldReasonText, which picks the plain sentence
-  // from the artifact's own reason — the codes are no longer printed, and the reason is still never typed).
-  assert.match(page, /\{withheldReasonText\(x\.reason\)\}/, "the failed bar is read from the artifact, never typed");
+  assert.match(page, /withheld, with the exact bar each failed/, "unearned families are stated inside the scorecard frame");
+  // Read from the artifact, rendered through plainCodes (lib/uiux/plain-codes.mjs) so a code like RESEARCH_ONLY reads in words.
+  assert.match(page, /plainCodes\(x\.reason\) \?\? "did not clear its evaluation bar"/, "the failed bar is read from the artifact, never typed");
   // The scorecard can never source a number outside the two artifacts the page already loads.
   const section = page.slice(page.indexOf("P250-GD"), page.indexOf("{view?.simulation ? <SimulationPanel"));
   assert.ok(!/readPublic|fs\.readFileSync/.test(section), "no new data reads inside the scorecard");

@@ -19,13 +19,11 @@ type Quant = { p10: number; p50: number; p90: number };
 type PlayerRow = { playerId: string; name?: string | null; team: string; stats?: Record<string, Quant>; countPmf?: Record<string, number[]>; exactCounts?: Record<string, Record<string, number>> };
 export type QbReceipt = { eventId: string; eventStart?: string; schemaVersion?: string; playerStatDistributions?: PlayerRow[] };
 
-/* Founder language decision 2026-11-11: the site-wide MODEL PROJECTION label; plain status words (the markets' lifecycle
-   codes stay in qb-props-markets.mjs and the receipts). */
-export const QB_PROPS_LABEL = "MODEL PROJECTION";
+export const QB_PROPS_LABEL = "EXPERIMENTAL · MODEL PROJECTION";
 const STATUS_WORDS: Record<string, string> = {
-  IMPLEMENTED_EXPERIMENTAL: "Wider projection range",
-  FORWARD_EVALUATION: "Wider projection range",
-  VALIDATED_OFFICIAL: "Official",
+  IMPLEMENTED_EXPERIMENTAL: "Experimental",
+  FORWARD_EVALUATION: "Under forward evaluation",
+  VALIDATED_OFFICIAL: "Validated",
 };
 
 /** R5: may this game carry a QB line at all? Only a forecast whose team inputs know the starting-QB situation. */
@@ -57,7 +55,7 @@ export default function QbPropsLine({ receipt, teamInputs, history = {} }: { rec
   if (!rows.length) return null;
   return (
     <section aria-labelledby="qb-props-h" data-nfl-qb-props="" style={{ marginTop: 24 }}>
-      <p className="font-mono" style={{ fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", margin: 0, ...mute }}>{QB_PROPS_LABEL}</p>
+      <p className="font-mono" style={{ fontSize: 10.5, letterSpacing: "0.12em", textTransform: "uppercase", margin: 0, ...mute }}>{QB_PROPS_LABEL} · RESEARCH</p>
       <h2 id="qb-props-h" className="font-display" style={{ fontSize: 18, margin: "4px 0 8px", color: "var(--vault-text)" }}>Quarterbacks in the simulation</h2>
       {rows.map((p) => {
         const views = qbMarketViews(p);

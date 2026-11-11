@@ -163,7 +163,7 @@ test("CB6 discovery CTAs appear only where their destination exists", () => {
   for (const id of fs.readdirSync(path.join(OUT, "nfl/game"))) {
     const html = htmlOf(`/nfl/game/${id}/`);
     const has = html.includes(`href="/matchups/nfl/${id}/"`);
-    assert.equal(has, ids.has(id), `/nfl/game/${id}/ Compare matchup CTA ⇔ page exists`);
+    assert.equal(has, ids.has(id), `/nfl/game/${id}/ Research matchup CTA ⇔ page exists`);
     if (has) nflCta += 1;
   }
   let mlbCta = 0;

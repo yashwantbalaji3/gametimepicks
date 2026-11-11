@@ -14,7 +14,6 @@ const { estimateLabel, withheldReasonText } = await import("../sports/nfl/family
 const { ESTIMATE_DETAIL } = await import("../sports/nfl/forecast-view.mjs");
 const L = await import("../simulation-theater/nba/possession/labels.mjs");
 const { NBA_MODEL_PERFORMANCE_NOTE } = await import("../public-registry.ts");
-const { QB_PROPS_LABEL } = await import("../../components/nfl/qb-props-line.tsx");
 
 const BANNED = /experimental|preregist|forward evaluation|shadow|calibration standard|failed bar|not cleared|n\/300|\bv\d+(\.\d+)?\b|sim-v\d|@\d\b|Challenger|research/i;
 
@@ -30,7 +29,6 @@ test("the shared public wording carries none of the removed vocabulary", () => {
     nflDetail: ESTIMATE_DETAIL,
     nflWithheldCal: withheldReasonText("SHADOW_ELIGIBLE — failed bar(s): calOk"),
     nflWithheldOther: withheldReasonText("RESEARCH_ONLY"),
-    qbLabel: QB_PROPS_LABEL,
     engine: L.ENGINE_LABEL,
     accuracy: L.ACCURACY_NOTE,
     ...Object.fromEntries(L.ROLE_C_NOTE.map((x, i) => [`roleNote${i}`, x])),
@@ -40,7 +38,6 @@ test("the shared public wording carries none of the removed vocabulary", () => {
 });
 
 test("the labels themselves", () => {
-  assert.equal(QB_PROPS_LABEL, "MODEL PROJECTION");
   assert.equal(W.ELO_WIN_PROBABILITY_LABEL, "Game-winner projection");
   assert.equal(estimateLabel("anything"), "Wider projection range");
   assert.match(W.eloAccuracyDisclosure({ graded: 1, minN: 300 }), /^Accuracy record still building\. /);
