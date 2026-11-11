@@ -17,3 +17,13 @@ test("λ recomputes byte-for-byte from committed data (methodology-constants rul
   assert.match(committed.approval, /^PENDING/);
   assert.match(committed.availabilityProxy, /TIP-TIME PROXY/);
 });
+
+test("M2 · the usage-redistribution and replacement coefficients recompute byte-for-byte from committed data; unarmed, pending", () => {
+  const out = execFileSync("node", [path.join(process.cwd(), "scripts/nba/research-v1-availability-margin.mjs"), "--fit-m2"], { encoding: "utf8", maxBuffer: 1 << 26 });
+  const json = JSON.parse(out.slice(out.indexOf("{")));
+  const committed = JSON.parse(fs.readFileSync(path.resolve(process.cwd(), "../data/internal/research/nba/reports/v1-availability-usage-fit-2024.json"), "utf8"));
+  assert.deepEqual(json, committed);
+  assert.equal(committed.armed, false);
+  assert.match(committed.approval, /^PENDING/);
+  assert.ok(Number.isFinite(committed.a_replacement) && Number.isFinite(committed.b_usageRedistribution));
+});

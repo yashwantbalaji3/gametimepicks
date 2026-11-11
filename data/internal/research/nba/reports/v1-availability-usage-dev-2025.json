@@ -1,0 +1,94 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-v1-availability-margin-dev",
+ "dataClass": "PRIVATE_RESEARCH",
+ "label": "EXPLORATORY — development season 2024-25; not evidence for arming",
+ "candidate": "nba-sim-v1-availability-usage (M2)",
+ "armed": false,
+ "a_replacement": 0.9559,
+ "b_usageRedistribution": 0.8046,
+ "coefSource": "data/internal/research/nba/reports/v1-availability-usage-fit-2024.json",
+ "availabilityProxy": "TIP-TIME PROXY (injury-type DNP in the box score) — the forward sample uses hashed pregame snapshots instead",
+ "simulations": 2000,
+ "seedPolicy": "explicit m1-<eventId>, identical for both v1 arms (paired)",
+ "n": 1005,
+ "gamesWithAbsence": 510,
+ "winner": {
+  "candidate": {
+   "n": 1005,
+   "logLoss": 0.6107,
+   "brier": 0.2118,
+   "ece": 0.0324
+  },
+  "v1Lambda0": {
+   "n": 1005,
+   "logLoss": 0.6112,
+   "brier": 0.212,
+   "ece": 0.0268
+  },
+  "elo": {
+   "n": 1005,
+   "logLoss": 0.6175,
+   "brier": 0.2147,
+   "ece": 0.0541
+  }
+ },
+ "margin": {
+  "candidate": {
+   "marginMAE": 11.3321,
+   "marginBias": 0.5613,
+   "marginCov80": 0.8129,
+   "totalMAE": 15.3211
+  },
+  "v1Lambda0": {
+   "marginMAE": 11.3129,
+   "marginBias": 0.5668,
+   "marginCov80": 0.8149,
+   "totalMAE": 15.3206
+  }
+ },
+ "pairedDiffs": {
+  "logLoss_candidate_minus_v1Lambda0": {
+   "mean": -0.0005,
+   "ci95": [
+    -0.0032,
+    0.0022
+   ],
+   "B": 2000,
+   "seed": 20261020
+  },
+  "logLoss_candidate_minus_elo": {
+   "mean": -0.0068,
+   "ci95": [
+    -0.013,
+    -0.0007
+   ],
+   "B": 2000,
+   "seed": 20261020
+  },
+  "brier_candidate_minus_v1Lambda0": {
+   "mean": -0.0002,
+   "ci95": [
+    -0.0014,
+    0.0009
+   ],
+   "B": 2000,
+   "seed": 20261020
+  },
+  "marginAbsErr_candidate_minus_v1Lambda0": {
+   "mean": 0.0193,
+   "ci95": [
+    -0.0267,
+    0.0652
+   ],
+   "B": 2000,
+   "seed": 20261020
+  }
+ },
+ "absenceGamesOnly": {
+  "n": 510,
+  "logLossDiff_vs_v1Lambda0": -0.001,
+  "marginAbsErrDiff_vs_v1Lambda0": 0.038
+ },
+ "note": "Lower is better for every loss. A direction is claimed only where the 95% interval excludes 0. Development data only."
+}

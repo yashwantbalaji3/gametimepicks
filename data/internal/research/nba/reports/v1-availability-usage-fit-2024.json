@@ -1,0 +1,19 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-v1-availability-usage-fit",
+ "dataClass": "PRIVATE_RESEARCH",
+ "candidate": "nba-sim-v1-availability-usage (M2)",
+ "armed": false,
+ "fitSeason": "2023-24 (corpus season 2024), regular season, ≥ 30 days in",
+ "measure": "ΔO = a·(O_avail − O_ref) + b·(U_ref − U_avail)·(O_avail/U_avail), per 240 team minutes. O = v1 pool offence; U = scoring possessions (FGA + 0.44·FTA per minute, minutes-weighted). d1 = replacement minutes at the replacements' own rates (v1 water-fill = the rotation depth chart); d2 = possessions the replacements do not take, absorbed by teammates at the remaining pool's points per possession (usage redistribution)",
+ "method": "OLS, no intercept, per team-game: actual regulation team points − v1 expected team points with the reference pools (nobody out) on (d1, d2)",
+ "availabilityProxy": "TIP-TIME PROXY — injury-type DNP in the box score (as M1)",
+ "teamGames": 2020,
+ "teamGamesWithAbsence": 446,
+ "a_replacement": 0.9559,
+ "a_SE": 0.7094,
+ "b_usageRedistribution": 0.8046,
+ "b_SE": 0.7307,
+ "reading": "a = 1, b = 0 is v1's own-rate replacement (M1 at λ = 1); b > 0 means teammates recover part of the vacated scoring possessions",
+ "approval": "PENDING — research only; any arming needs founder approval (methodology-constants rule)"
+}

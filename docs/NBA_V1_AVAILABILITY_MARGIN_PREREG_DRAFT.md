@@ -107,3 +107,30 @@ On the development evidence the term is **null**: λ is within one SE of 0, and 
   small (George: −3.6 per 240). The audit's gap list points at usage redistribution and replacement-level value as the
   missing pieces.
 - If the founder prefers to run the look anyway, the plan above stands as written.
+
+## 8. M2 addendum — usage redistribution and replacement value (2026-11-11, EXPLORATORY)
+M2 changes the **measure**, not the coefficient. Per 240 team minutes:
+
+  ΔO = a·(O_avail − O_ref) + b·(U_ref − U_avail)·(O_avail / U_avail)
+
+- **Replacement value (first term).** The rotation's replacements play the vacated minutes at their own rates (v1's
+  water-fill over the depth chart).
+- **Usage redistribution (second term).** The scoring possessions the replacements do not take are absorbed by
+  teammates at the remaining pool's points per possession. U = FGA + 0.44·FTA per minute.
+- **The margin shift** is ΔO_home − ΔO_away.
+
+**Fit:** OLS with no intercept, per team-game, 2023-24, on the actual regulation team points minus v1's expected team
+points with the reference pools. n = 2020 team-games, 446 of them with an absence.
+- **a = 0.956 (SE 0.709)** and **b = 0.805 (SE 0.731)**: plausible directions, imprecise.
+- Report: `data/internal/research/nba/reports/v1-availability-usage-fit-2024.json`, with a recompute test.
+
+**Development, 2024-25, exploratory** (n = 1005, 510 with an absence, paired seeds, game bootstrap):
+
+| Candidate − reference | Mean | 95% CI |
+|---|---|---|
+| log loss − v1 (λ = 0) | −0.0005 | [−0.0032, +0.0022] |
+| Brier − v1 (λ = 0) | −0.0002 | [−0.0014, +0.0009] |
+| margin abs error − v1 (λ = 0) | +0.019 | [−0.027, +0.065] |
+| log loss − walk-forward Elo | −0.0068 | [−0.0130, −0.0007] |
+
+**No detectable effect**, as with M1. The gain over Elo is v1's own. The 2025-26 holdout stays unspent.

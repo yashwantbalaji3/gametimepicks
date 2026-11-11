@@ -30,16 +30,17 @@ import { fileURLToPath } from "node:url";
 
 import { buildTeamRatings, ratingFor, winProbability } from "../../src/lib/sports/nba/team-rating.mjs";
 import { indexBoxscores, leagueMeans, buildSideProfile, historicalRosterProxy } from "../../src/lib/sports/nba/sim-v1-profile.mjs";
-import { expectedSidePoints, simulateGameV1, V1_PARAMS } from "../../src/lib/sports/nba/game-sim-v1.mjs";
+import { expectedSidePoints, gameExpectations, simulateGameV1, V1_PARAMS } from "../../src/lib/sports/nba/game-sim-v1.mjs";
 import { bootstrapStatistic } from "../../src/lib/sports/nba/bootstrap.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const NBA = path.resolve(APP, "..", "data", "internal", "research", "nba");
 const argv = process.argv.slice(2);
 const opt = (n, d) => { const i = argv.indexOf(n); return i === -1 ? d : argv[i + 1]; };
-const MODE = argv.includes("--fit") ? "fit" : argv.includes("--dev") ? "dev" : null;
-if (!MODE) { console.error("--fit or --dev required"); process.exit(2); }
-const SEASON = MODE === "fit" ? 2024 : 2025;
+const MODE = argv.includes("--fit-m2") ? "fit-m2" : argv.includes("--dev-m2") ? "dev-m2" : argv.includes("--fit") ? "fit" : argv.includes("--dev") ? "dev" : null;
+if (!MODE) { console.error("--fit | --dev | --fit-m2 | --dev-m2 required"); process.exit(2); }
+const SEASON = MODE.startsWith("fit") ? 2024 : 2025;
+const REPORT_FIT_M2 = path.join(NBA, "reports", "v1-availability-usage-fit-2024.json");
 const SIMS = Number(opt("--sims", 2000));
 const GAMES = Number(opt("--games", 1e9));
 const OUT = path.resolve(opt("--out", path.join(NBA, "reports")));
@@ -71,6 +72,13 @@ export function injuryDnpIds(doc, teamId) {
   return new Set((doc.players ?? []).filter((p) => String(p.providerTeamId) === String(teamId) && p.didNotPlay === true && !/COACH/i.test(String(p.dnpReason ?? ""))).map((p) => String(p.providerAthleteId)));
 }
 
+/** Scoring possessions per 240 team minutes (shot attempts + 0.44·FTA per minute, minutes-weighted) — the usage measure. */
+export function scoringPossessions(profile) {
+  let e = 0, u = 0;
+  for (const p of profile?.players ?? []) { const m = p.minutesMean * p.playRate; e += m; u += m * ((p.rates.threePa ?? 0) + (p.rates.twoPa ?? 0) + 0.44 * (p.rates.fta ?? 0)); }
+  return e > 0 ? (240 * u) / e : null;
+}
+
 /** One game's inputs: ref and avail profiles per side and the availability difference x = ΔO_h − ΔO_a. */
 function gameInputs(g) {
   const id = String(g.providerEventId);
@@ -87,13 +95,18 @@ function gameInputs(g) {
     const ref = buildSideProfile(index, { teamId: tid, rosterRows: proxy.map((pid) => ({ providerAthleteId: pid, availability: "unknown" })), asOf: now, league });
     const avail = buildSideProfile(index, { teamId: tid, rosterRows: proxy.map((pid) => ({ providerAthleteId: pid, availability: out.has(pid) ? "out" : "unknown" })), asOf: now, league });
     const oRef = expectedSidePoints(ref).offence, oAvail = expectedSidePoints(avail).offence;
-    return { ref, avail, outInPool: proxy.filter((pid) => out.has(pid)).length, delta: Number.isFinite(oRef) && Number.isFinite(oAvail) ? oAvail - oRef : null };
+    const uRef = scoringPossessions(ref), uAvail = scoringPossessions(avail);
+    /* M2 features (per 240 team minutes): d1 = replacement at own rates (M1's measure); d2 = scoring possessions the
+       replacements do not take, valued at the remaining pool's points per scoring possession */
+    const d1 = Number.isFinite(oRef) && Number.isFinite(oAvail) ? oAvail - oRef : null;
+    const d2 = d1 != null && uAvail > 0 ? (uRef - uAvail) * (oAvail / uAvail) : null;
+    return { ref, avail, outInPool: proxy.filter((pid) => out.has(pid)).length, delta: d1, d1, d2 };
   };
   const H = side(homeId), A = side(awayId);
-  if (H.delta == null || A.delta == null) return null;
+  if (H.delta == null || A.delta == null || H.d2 == null || A.d2 == null) return null;
   const ls = lines.get(id);
   const regH = ls.home.slice(0, 4).reduce((s, x) => s + x, 0), regA = ls.away.slice(0, 4).reduce((s, x) => s + x, 0);
-  return { id, now, g, doc, homeId, awayId, rh, ra, league, H, A, x: H.delta - A.delta, home: g.neutralSite === true ? 0 : 1, regMargin: regH - regA, ftHome: g.ftHome, ftAway: g.ftAway };
+  return { id, now, g, doc, homeId, awayId, rh, ra, league, H, A, x: H.delta - A.delta, home: g.neutralSite === true ? 0 : 1, regMargin: regH - regA, regH, regA, ftHome: g.ftHome, ftAway: g.ftAway };
 }
 
 const r4 = (v) => (v == null ? null : Number(v.toFixed(4)));
@@ -123,8 +136,42 @@ if (MODE === "fit") {
   process.exit(0);
 }
 
+if (MODE === "fit-m2") {
+  /* per team-game: y = actual regulation team points − v1's expected team points with the REFERENCE pools (nobody out);
+     y = a·d1 + b·d2 (OLS, no intercept). Only team-games with an absence carry nonzero features. */
+  const X = [], Y = [];
+  for (const r of recs) {
+    const e = gameExpectations({ home: { rating: { rating: r.rh }, profile: r.H.ref }, away: { rating: { rating: r.ra }, profile: r.A.ref }, neutralSite: r.home === 0, league: r.league });
+    X.push([r.H.d1, r.H.d2]); Y.push(r.regH - e.home);
+    X.push([r.A.d1, r.A.d2]); Y.push(r.regA - e.away);
+  }
+  const S = [[0, 0], [0, 0]], b = [0, 0];
+  X.forEach((x, i) => { for (let j = 0; j < 2; j++) { b[j] += x[j] * Y[i]; for (let k = 0; k < 2; k++) S[j][k] += x[j] * x[k]; } });
+  const det = S[0][0] * S[1][1] - S[0][1] * S[1][0];
+  const inv = [[S[1][1] / det, -S[0][1] / det], [-S[1][0] / det, S[0][0] / det]];
+  const coef = [inv[0][0] * b[0] + inv[0][1] * b[1], inv[1][0] * b[0] + inv[1][1] * b[1]];
+  const res = Y.map((y, i) => y - coef[0] * X[i][0] - coef[1] * X[i][1]);
+  const s2 = res.reduce((s, x) => s + x * x, 0) / (Y.length - 2);
+  const report = {
+    schemaVersion: 1, artifact: "nba-v1-availability-usage-fit", dataClass: "PRIVATE_RESEARCH", candidate: "nba-sim-v1-availability-usage (M2)", armed: false,
+    fitSeason: "2023-24 (corpus season 2024), regular season, ≥ 30 days in",
+    measure: "ΔO = a·(O_avail − O_ref) + b·(U_ref − U_avail)·(O_avail/U_avail), per 240 team minutes. O = v1 pool offence; U = scoring possessions (FGA + 0.44·FTA per minute, minutes-weighted). d1 = replacement minutes at the replacements' own rates (v1 water-fill = the rotation depth chart); d2 = possessions the replacements do not take, absorbed by teammates at the remaining pool's points per possession (usage redistribution)",
+    method: "OLS, no intercept, per team-game: actual regulation team points − v1 expected team points with the reference pools (nobody out) on (d1, d2)",
+    availabilityProxy: "TIP-TIME PROXY — injury-type DNP in the box score (as M1)",
+    teamGames: Y.length, teamGamesWithAbsence: X.filter((x) => x[0] !== 0 || x[1] !== 0).length,
+    a_replacement: r4(coef[0]), a_SE: r4(Math.sqrt(s2 * inv[0][0])), b_usageRedistribution: r4(coef[1]), b_SE: r4(Math.sqrt(s2 * inv[1][1])),
+    reading: "a = 1, b = 0 is v1's own-rate replacement (M1 at λ = 1); b > 0 means teammates recover part of the vacated scoring possessions",
+    approval: "PENDING — research only; any arming needs founder approval (methodology-constants rule)",
+  };
+  console.log(JSON.stringify(report, null, 1));
+  if (argv.includes("--write")) { fs.mkdirSync(OUT, { recursive: true }); fs.writeFileSync(path.join(OUT, "v1-availability-usage-fit-2024.json"), JSON.stringify(report, null, 1) + "\n"); }
+  process.exit(0);
+}
+
 /* ── dev (exploratory) ── */
-const lambda = readJson(REPORT_FIT).lambda;
+const M2 = MODE === "dev-m2" ? readJson(REPORT_FIT_M2) : null;
+const lambda = M2 ? null : readJson(REPORT_FIT).lambda;
+const shiftOf = (r) => (M2 ? (M2.a_replacement * r.H.d1 + M2.b_usageRedistribution * r.H.d2) - (M2.a_replacement * r.A.d1 + M2.b_usageRedistribution * r.A.d2) : lambda * r.x);
 const arms = { candidate: [], v1lambda0: [], elo: [] };
 const items = [];
 let k = 0;
@@ -134,11 +181,11 @@ for (const r of recs) {
   const eloP = winProbability(r.rh, r.ra, { neutralSite: r.g.neutralSite === true });
   const common = { providerEventId: r.id, inputAsOf: r.now, neutralSite: r.g.neutralSite === true, home: H, away: A, league: r.league, eloWinProbability: eloP, simulations: SIMS, seed: `m1-${r.id}` };
   let base, cand;
-  try { base = simulateGameV1(common); cand = simulateGameV1({ ...common, marginShift: lambda * r.x }); } catch { continue; }
+  try { base = simulateGameV1(common); cand = simulateGameV1({ ...common, marginShift: shiftOf(r) }); } catch { continue; }
   const y = r.ftHome > r.ftAway ? 1 : 0, am = r.ftHome - r.ftAway, at = r.ftHome + r.ftAway;
   const row = (o) => ({ p: o.sim.pHome, mMean: o.sim.margin.mean, m10: o.sim.margin.p10, m90: o.sim.margin.p90, tMean: o.sim.total.mean });
   const b = row(base), c = row(cand);
-  items.push({ y, am, at, x: r.x, eloP, b, c });
+  items.push({ y, am, at, x: M2 ? shiftOf(r) : r.x, eloP, b, c });
   if (++k % 100 === 0) console.log(`  ${k}/${recs.length} · ${((Date.now() - t0) / 1000).toFixed(0)} s`);
 }
 const clampP = (p) => Math.min(1 - 1e-12, Math.max(1e-12, p));
@@ -153,7 +200,8 @@ const paired = (f) => { const bs = bootstrapStatistic(items, (xs) => mean(xs.map
 const sub = (cond) => items.filter(cond);
 const report = {
   schemaVersion: 1, artifact: "nba-v1-availability-margin-dev", dataClass: "PRIVATE_RESEARCH", label: "EXPLORATORY — development season 2024-25; not evidence for arming",
-  candidate: "nba-sim-v1-availability-margin", armed: false, lambda, lambdaSource: path.relative(path.resolve(APP, ".."), REPORT_FIT),
+  candidate: M2 ? "nba-sim-v1-availability-usage (M2)" : "nba-sim-v1-availability-margin", armed: false,
+  ...(M2 ? { a_replacement: M2.a_replacement, b_usageRedistribution: M2.b_usageRedistribution, coefSource: path.relative(path.resolve(APP, ".."), REPORT_FIT_M2) } : { lambda, lambdaSource: path.relative(path.resolve(APP, ".."), REPORT_FIT) }),
   availabilityProxy: "TIP-TIME PROXY (injury-type DNP in the box score) — the forward sample uses hashed pregame snapshots instead",
   simulations: SIMS, seedPolicy: "explicit m1-<eventId>, identical for both v1 arms (paired)",
   n: items.length, gamesWithAbsence: items.filter((it) => it.x !== 0).length,
@@ -169,4 +217,4 @@ const report = {
   note: "Lower is better for every loss. A direction is claimed only where the 95% interval excludes 0. Development data only.",
 };
 console.log(JSON.stringify(report, null, 1));
-if (argv.includes("--write")) { fs.mkdirSync(OUT, { recursive: true }); fs.writeFileSync(path.join(OUT, "v1-availability-margin-dev-2025.json"), JSON.stringify(report, null, 1) + "\n"); }
+if (argv.includes("--write")) { fs.mkdirSync(OUT, { recursive: true }); fs.writeFileSync(path.join(OUT, M2 ? "v1-availability-usage-dev-2025.json" : "v1-availability-margin-dev-2025.json"), JSON.stringify(report, null, 1) + "\n"); }
