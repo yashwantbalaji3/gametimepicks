@@ -60,6 +60,11 @@ const EXEMPTIONS = [
     reads: ["data/internal/research", "data/internal/research/injuries/nba/latest.json", "data/internal/research/nba/rosters/latest.json"],
     why: "NBA Trends (gated OFF, /trends internal): eligibility@1 reads the PRIVATE_RESEARCH NBA injury + roster captures; /data/nba-trends.json imports the loader only inside the flag branch",
   },
+  {
+    module: "src/lib/sports/nfl/trends.ts", kind: "gated", flag: "GTP_NFL_TRENDS_PUBLIC",
+    reads: ["data/internal/research/nfl/player-events-v1", "data/internal/research/injuries/nfl/latest.json"],
+    why: "NFL QB trends (gated OFF, /nfl/trends internal): game logs from the player-events box scores and eligibility@1's NFL injury report; /data/nfl-trends.json imports the adapter only inside the flag branch",
+  },
   /*
    * LAGS BY DESIGN — a public read that must NOT rebuild on its own commits. The Level A suggestions record is written
    * per Production deployment; if its commits built, every record commit would deploy and re-trigger the recorder. Its

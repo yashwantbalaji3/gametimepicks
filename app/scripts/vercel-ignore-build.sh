@@ -222,6 +222,10 @@ BUILD_INPUTS=(
     ':(top)data/internal/mlb/prediction-snapshots/'
     ':(top)data/internal/forecast-ledger/'
     ':(top)data/internal/research/nfl/sim-v2/shadow/'
+    # NFL QB props research section, flag OFF by default, 2026-11-10: the QB history table beside the simulation on
+    # /nfl/simulation/[eventId]. The per-slate job commits it only together with new shadow receipts, which are
+    # already a BUILD_INPUT, so this entry adds no Production build of its own.
+    ':(top)data/internal/research/nfl/qb-props/history.json'
     ':(top)data/internal/nfl/experimental-settlement/'
     ':(top)data/internal/nfl/winner-corrections/'
     ':(top)data/internal/nfl/side-decision-cutover.json'

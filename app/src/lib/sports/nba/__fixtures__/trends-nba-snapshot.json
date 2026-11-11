@@ -1,0 +1,2243 @@
+{
+ "note": "NBA Trends output frozen BEFORE the shared-Trends refactor (claude/trends-slice d0dda3a07f): the shared component must reproduce it exactly.",
+ "html": {
+  "tonight": "<div class=\"trn-root flex flex-col gap-5\"><header class=\"flex flex-col gap-3\"><span class=\"font-mono uppercase tracking-[0.18em]\" style=\"color:var(--vault-text-faint);font-size:11px\">NBA · player trends</span><h1 class=\"font-semibold tracking-tight\" style=\"color:var(--vault-gold-bright);font-size:30px;line-height:1.05\">Player trends</h1><p class=\"text-[14px] leading-relaxed\" style=\"color:var(--vault-text-mute);max-width:640px\">Each player&#x27;s last 5, 10 and 20 games played against tonight&#x27;s <b>MODEL PROJECTION</b> median (the official forecast). Counts of past games above tonight&#x27;s MODEL PROJECTION median. History, not a probability. Tap a player for game logs.</p></header><p class=\"trn-meta\"><span class=\"gtp-kind-chip-lite\">MODEL PROJECTION</span> slate 2026-11-09 · 3 regular-season games read · <a href=\"/nba/projections/\">Top Boards →</a></p><form class=\"trn-filters\" aria-label=\"Filter and sort players\"><label class=\"trn-filter\"><span>Team</span><select><option value=\"\" selected=\"\">All teams</option><option value=\"AAA\">AAA</option><option value=\"HHH\">HHH</option></select></label><label class=\"trn-filter\"><span>Position</span><select><option value=\"\" selected=\"\">All</option></select></label><label class=\"trn-filter\"><span>Stat</span><select><option value=\"\" selected=\"\">PTS · REB · AST</option><option value=\"pts\">PTS</option><option value=\"reb\">REB</option><option value=\"ast\">AST</option></select></label><label class=\"trn-filter\"><span>Venue</span><select><option value=\"\" selected=\"\">Home and away</option><option value=\"1\">Home</option><option value=\"0\">Away</option></select></label><label class=\"trn-filter\"><span>Sort</span><select><option value=\"min\" selected=\"\">Expected minutes</option><option value=\"pts\">PTS projection</option><option value=\"reb\">REB projection</option><option value=\"ast\">AST projection</option></select></label><output class=\"trn-sub\" aria-live=\"polite\"></output></form><div class=\"trn-scroll\" role=\"region\" aria-label=\"Player trends table\" tabindex=\"0\"><table class=\"trn-table\" id=\"trends-table\"><caption class=\"sr-only\">Player trends: tonight&#x27;s MODEL PROJECTION median and how many of the last 5, 10 and 20 games played were above it</caption><thead><tr><th scope=\"col\">Player</th><th scope=\"col\" data-trn-col=\"pts\">PTS<span class=\"trn-th-sub\">median · games above</span></th><th scope=\"col\" data-trn-col=\"reb\">REB<span class=\"trn-th-sub\">median · games above</span></th><th scope=\"col\" data-trn-col=\"ast\">AST<span class=\"trn-th-sub\">median · games above</span></th></tr></thead><tbody><tr data-trn-player=\"o\" data-trn-availability=\"eligible\" data-trn-i=\"0\" data-team=\"AAA\" data-pos=\"\" data-home=\"0\" data-pts=\"12\" data-reb=\"4\" data-ast=\"2\"><th scope=\"row\"><a href=\"#p-o\" class=\"trn-name\" data-trn-open=\"o\"><span class=\"trn-rank\">1</span>Other Oscar</a><span class=\"trn-sub\">AAA @ HHH</span><span class=\"trn-avail is-eligible\" title=\"cleared to play: on the active roster\">✓ Eligible</span><div hidden=\"\" data-trn-hit=\"o\"><ul class=\"trn-hits\"><li><b>AST at 2.5</b> hit 1 of 2 (last 5) · hit 1 of 2 (last 10) · hit 1 of 2 (last 20)<span class=\"trn-sub\">line captured Nov 9, 12:00 PM ET</span></li></ul><p class=\"trn-fine\">Observed record, not a probability: games above the line, not a chance to go over it.</p></div></th><td data-trn-stat=\"pts\" data-trn-col=\"pts\"><b class=\"trn-ref\">12.0</b><span class=\"trn-counts\"><span title=\"1 of the last 2 games played were above 12.0\">L5 1/2</span><span title=\"1 of the last 2 games played were above 12.0\">L10 1/2</span><span title=\"1 of the last 2 games played were above 12.0\">L20 1/2</span></span></td><td data-trn-stat=\"reb\" data-trn-col=\"reb\"><b class=\"trn-ref\">4.0</b><span class=\"trn-counts\"><span title=\"1 of the last 2 games played were above 4.0\">L5 1/2</span><span title=\"1 of the last 2 games played were above 4.0\">L10 1/2</span><span title=\"1 of the last 2 games played were above 4.0\">L20 1/2</span></span></td><td data-trn-stat=\"ast\" data-trn-col=\"ast\"><b class=\"trn-ref\">2.0</b><span class=\"trn-counts\"><span title=\"1 of the last 2 games played were above 2.0\">L5 1/2</span><span title=\"1 of the last 2 games played were above 2.0\">L10 1/2</span><span title=\"1 of the last 2 games played were above 2.0\">L20 1/2</span></span></td></tr><tr data-trn-player=\"e\" data-trn-availability=\"eligible\" data-trn-i=\"1\" data-team=\"HHH\" data-pos=\"\" data-home=\"1\" data-pts=\"15\" data-reb=\"5\" data-ast=\"3\"><th scope=\"row\"><a href=\"#p-e\" class=\"trn-name\" data-trn-open=\"e\"><span class=\"trn-rank\">2</span>Eligible Eddie</a><span class=\"trn-sub\">HHH vs AAA</span><span class=\"trn-avail is-eligible\" title=\"cleared to play: on the active roster\">✓ Eligible</span><div hidden=\"\" data-trn-hit=\"e\"><ul class=\"trn-hits\"><li><b>PTS at 15.5</b> hit 2 of 3 (last 5) · hit 2 of 3 (last 10) · hit 2 of 3 (last 20)<span class=\"trn-sub\">line captured Nov 9, 12:00 PM ET</span></li></ul><p class=\"trn-fine\">Observed record, not a probability: games above the line, not a chance to go over it.</p></div></th><td data-trn-stat=\"pts\" data-trn-col=\"pts\"><b class=\"trn-ref\">15.0</b><span class=\"trn-counts\"><span title=\"2 of the last 3 games played were above 15.0\">L5 2/3</span><span title=\"2 of the last 3 games played were above 15.0\">L10 2/3</span><span title=\"2 of the last 3 games played were above 15.0\">L20 2/3</span></span></td><td data-trn-stat=\"reb\" data-trn-col=\"reb\"><b class=\"trn-ref\">5.0</b><span class=\"trn-counts\"><span title=\"2 of the last 3 games played were above 5.0\">L5 2/3</span><span title=\"2 of the last 3 games played were above 5.0\">L10 2/3</span><span title=\"2 of the last 3 games played were above 5.0\">L20 2/3</span></span></td><td data-trn-stat=\"ast\" data-trn-col=\"ast\"><b class=\"trn-ref\">3.0</b><span class=\"trn-counts\"><span title=\"2 of the last 3 games played were above 3.0\">L5 2/3</span><span title=\"2 of the last 3 games played were above 3.0\">L10 2/3</span><span title=\"2 of the last 3 games played were above 3.0\">L20 2/3</span></span></td></tr><tr data-trn-player=\"d\" data-trn-availability=\"not-verified\" data-trn-i=\"2\" data-team=\"HHH\" data-pos=\"\" data-home=\"1\" data-pts=\"7\" data-reb=\"2\" data-ast=\"1\"><th scope=\"row\"><a href=\"#p-d\" class=\"trn-name\" data-trn-open=\"d\">Doubtful Dan</a><span class=\"trn-sub\">HHH vs AAA</span><span class=\"trn-avail is-not-verified\" title=\"cleared to play · flagged questionable, so not ranked\">? Not verified</span></th><td data-trn-stat=\"pts\" data-trn-col=\"pts\"><b class=\"trn-ref\">7.0</b><span class=\"trn-counts\"><span title=\"1 of the last 1 games played were above 7.0\">L5 1/1</span><span title=\"1 of the last 1 games played were above 7.0\">L10 1/1</span><span title=\"1 of the last 1 games played were above 7.0\">L20 1/1</span></span></td><td data-trn-stat=\"reb\" data-trn-col=\"reb\"><b class=\"trn-ref\">2.0</b><span class=\"trn-counts\"><span title=\"0 of the last 1 games played were above 2.0\">L5 0/1</span><span title=\"0 of the last 1 games played were above 2.0\">L10 0/1</span><span title=\"0 of the last 1 games played were above 2.0\">L20 0/1</span></span></td><td data-trn-stat=\"ast\" data-trn-col=\"ast\"><b class=\"trn-ref\">1.0</b><span class=\"trn-counts\"><span title=\"0 of the last 1 games played were above 1.0\">L5 0/1</span><span title=\"0 of the last 1 games played were above 1.0\">L10 0/1</span><span title=\"0 of the last 1 games played were above 1.0\">L20 0/1</span></span></td></tr><tr data-trn-player=\"x\" data-trn-availability=\"ineligible\" data-trn-i=\"3\" data-team=\"AAA\" data-pos=\"\" data-home=\"0\" data-pts=\"\" data-reb=\"\" data-ast=\"\"><th scope=\"row\"><a href=\"#p-x\" class=\"trn-name\" data-trn-open=\"x\">Out Xavier</a><span class=\"trn-sub\">AAA @ HHH</span><span class=\"trn-avail is-ineligible\" title=\"not eligible to play: ruled out on the injury report · no official projection tonight\">✕ Ineligible</span></th><td class=\"trn-na\" data-trn-col=\"pts\">—</td><td class=\"trn-na\" data-trn-col=\"reb\">—</td><td class=\"trn-na\" data-trn-col=\"ast\">—</td></tr></tbody></table></div><p class=\"trn-fine\"># orders players cleared to play (eligibility@1) by tonight&#x27;s expected minutes, never by these counts; a minutes projection under review is not numbered. A game counts only when its official final is recorded and the box score agrees with it; a game a player did not play is not counted, never read as 0. Not betting advice.</p></div>",
+  "notTonight": "<div class=\"trn-root flex flex-col gap-5\"><header class=\"flex flex-col gap-3\"><span class=\"font-mono uppercase tracking-[0.18em]\" style=\"color:var(--vault-text-faint);font-size:11px\">NBA · player trends</span><h1 class=\"font-semibold tracking-tight\" style=\"color:var(--vault-gold-bright);font-size:30px;line-height:1.05\">Player trends</h1><p class=\"text-[14px] leading-relaxed\" style=\"color:var(--vault-text-mute);max-width:640px\">Each player&#x27;s last 5, 10 and 20 games played against tonight&#x27;s <b>MODEL PROJECTION</b> median (the official forecast). Counts of past games above tonight&#x27;s MODEL PROJECTION median. History, not a probability. Tap a player for game logs.</p></header><p class=\"trn-meta\"><span class=\"gtp-kind-chip-lite\">MODEL PROJECTION</span> slate 2026-11-09 · not tonight&#x27;s slate, so no player is ranked · 3 regular-season games read · <a href=\"/nba/projections/\">Top Boards →</a></p><form class=\"trn-filters\" aria-label=\"Filter and sort players\"><label class=\"trn-filter\"><span>Team</span><select><option value=\"\" selected=\"\">All teams</option><option value=\"AAA\">AAA</option><option value=\"HHH\">HHH</option></select></label><label class=\"trn-filter\"><span>Position</span><select><option value=\"\" selected=\"\">All</option></select></label><label class=\"trn-filter\"><span>Stat</span><select><option value=\"\" selected=\"\">PTS · REB · AST</option><option value=\"pts\">PTS</option><option value=\"reb\">REB</option><option value=\"ast\">AST</option></select></label><label class=\"trn-filter\"><span>Venue</span><select><option value=\"\" selected=\"\">Home and away</option><option value=\"1\">Home</option><option value=\"0\">Away</option></select></label><label class=\"trn-filter\"><span>Sort</span><select><option value=\"min\" selected=\"\">Expected minutes</option><option value=\"pts\">PTS projection</option><option value=\"reb\">REB projection</option><option value=\"ast\">AST projection</option></select></label><output class=\"trn-sub\" aria-live=\"polite\"></output></form><div class=\"trn-scroll\" role=\"region\" aria-label=\"Player trends table\" tabindex=\"0\"><table class=\"trn-table\" id=\"trends-table\"><caption class=\"sr-only\">Player trends: tonight&#x27;s MODEL PROJECTION median and how many of the last 5, 10 and 20 games played were above it</caption><thead><tr><th scope=\"col\">Player</th><th scope=\"col\" data-trn-col=\"pts\">PTS<span class=\"trn-th-sub\">median · games above</span></th><th scope=\"col\" data-trn-col=\"reb\">REB<span class=\"trn-th-sub\">median · games above</span></th><th scope=\"col\" data-trn-col=\"ast\">AST<span class=\"trn-th-sub\">median · games above</span></th></tr></thead><tbody><tr data-trn-player=\"e\" data-trn-availability=\"eligible\" data-trn-i=\"0\" data-team=\"HHH\" data-pos=\"\" data-home=\"1\" data-pts=\"15\" data-reb=\"5\" data-ast=\"3\"><th scope=\"row\"><a href=\"#p-e\" class=\"trn-name\" data-trn-open=\"e\">Eligible Eddie</a><span class=\"trn-sub\">HHH vs AAA</span><span class=\"trn-avail is-eligible\" title=\"cleared to play: on the active roster\">✓ Eligible</span></th><td data-trn-stat=\"pts\" data-trn-col=\"pts\"><b class=\"trn-ref\">15.0</b><span class=\"trn-counts\"><span title=\"2 of the last 3 games played were above 15.0\">L5 2/3</span><span title=\"2 of the last 3 games played were above 15.0\">L10 2/3</span><span title=\"2 of the last 3 games played were above 15.0\">L20 2/3</span></span></td><td data-trn-stat=\"reb\" data-trn-col=\"reb\"><b class=\"trn-ref\">5.0</b><span class=\"trn-counts\"><span title=\"2 of the last 3 games played were above 5.0\">L5 2/3</span><span title=\"2 of the last 3 games played were above 5.0\">L10 2/3</span><span title=\"2 of the last 3 games played were above 5.0\">L20 2/3</span></span></td><td data-trn-stat=\"ast\" data-trn-col=\"ast\"><b class=\"trn-ref\">3.0</b><span class=\"trn-counts\"><span title=\"2 of the last 3 games played were above 3.0\">L5 2/3</span><span title=\"2 of the last 3 games played were above 3.0\">L10 2/3</span><span title=\"2 of the last 3 games played were above 3.0\">L20 2/3</span></span></td></tr><tr data-trn-player=\"o\" data-trn-availability=\"eligible\" data-trn-i=\"1\" data-team=\"AAA\" data-pos=\"\" data-home=\"0\" data-pts=\"12\" data-reb=\"4\" data-ast=\"2\"><th scope=\"row\"><a href=\"#p-o\" class=\"trn-name\" data-trn-open=\"o\">Other Oscar</a><span class=\"trn-sub\">AAA @ HHH</span><span class=\"trn-avail is-eligible\" title=\"cleared to play: on the active roster\">✓ Eligible</span></th><td data-trn-stat=\"pts\" data-trn-col=\"pts\"><b class=\"trn-ref\">12.0</b><span class=\"trn-counts\"><span title=\"1 of the last 2 games played were above 12.0\">L5 1/2</span><span title=\"1 of the last 2 games played were above 12.0\">L10 1/2</span><span title=\"1 of the last 2 games played were above 12.0\">L20 1/2</span></span></td><td data-trn-stat=\"reb\" data-trn-col=\"reb\"><b class=\"trn-ref\">4.0</b><span class=\"trn-counts\"><span title=\"1 of the last 2 games played were above 4.0\">L5 1/2</span><span title=\"1 of the last 2 games played were above 4.0\">L10 1/2</span><span title=\"1 of the last 2 games played were above 4.0\">L20 1/2</span></span></td><td data-trn-stat=\"ast\" data-trn-col=\"ast\"><b class=\"trn-ref\">2.0</b><span class=\"trn-counts\"><span title=\"1 of the last 2 games played were above 2.0\">L5 1/2</span><span title=\"1 of the last 2 games played were above 2.0\">L10 1/2</span><span title=\"1 of the last 2 games played were above 2.0\">L20 1/2</span></span></td></tr><tr data-trn-player=\"d\" data-trn-availability=\"not-verified\" data-trn-i=\"2\" data-team=\"HHH\" data-pos=\"\" data-home=\"1\" data-pts=\"7\" data-reb=\"2\" data-ast=\"1\"><th scope=\"row\"><a href=\"#p-d\" class=\"trn-name\" data-trn-open=\"d\">Doubtful Dan</a><span class=\"trn-sub\">HHH vs AAA</span><span class=\"trn-avail is-not-verified\" title=\"cleared to play · flagged questionable, so not ranked\">? Not verified</span></th><td data-trn-stat=\"pts\" data-trn-col=\"pts\"><b class=\"trn-ref\">7.0</b><span class=\"trn-counts\"><span title=\"1 of the last 1 games played were above 7.0\">L5 1/1</span><span title=\"1 of the last 1 games played were above 7.0\">L10 1/1</span><span title=\"1 of the last 1 games played were above 7.0\">L20 1/1</span></span></td><td data-trn-stat=\"reb\" data-trn-col=\"reb\"><b class=\"trn-ref\">2.0</b><span class=\"trn-counts\"><span title=\"0 of the last 1 games played were above 2.0\">L5 0/1</span><span title=\"0 of the last 1 games played were above 2.0\">L10 0/1</span><span title=\"0 of the last 1 games played were above 2.0\">L20 0/1</span></span></td><td data-trn-stat=\"ast\" data-trn-col=\"ast\"><b class=\"trn-ref\">1.0</b><span class=\"trn-counts\"><span title=\"0 of the last 1 games played were above 1.0\">L5 0/1</span><span title=\"0 of the last 1 games played were above 1.0\">L10 0/1</span><span title=\"0 of the last 1 games played were above 1.0\">L20 0/1</span></span></td></tr><tr data-trn-player=\"x\" data-trn-availability=\"ineligible\" data-trn-i=\"3\" data-team=\"AAA\" data-pos=\"\" data-home=\"0\" data-pts=\"\" data-reb=\"\" data-ast=\"\"><th scope=\"row\"><a href=\"#p-x\" class=\"trn-name\" data-trn-open=\"x\">Out Xavier</a><span class=\"trn-sub\">AAA @ HHH</span><span class=\"trn-avail is-ineligible\" title=\"not eligible to play: ruled out on the injury report · no official projection tonight\">✕ Ineligible</span></th><td class=\"trn-na\" data-trn-col=\"pts\">—</td><td class=\"trn-na\" data-trn-col=\"reb\">—</td><td class=\"trn-na\" data-trn-col=\"ast\">—</td></tr></tbody></table></div><p class=\"trn-fine\"># orders players cleared to play (eligibility@1) by tonight&#x27;s expected minutes, never by these counts; a minutes projection under review is not numbered. A game counts only when its official final is recorded and the box score agrees with it; a game a player did not play is not counted, never read as 0. Not betting advice.</p></div>",
+  "minutesReview": "<div class=\"trn-root flex flex-col gap-5\"><header class=\"flex flex-col gap-3\"><span class=\"font-mono uppercase tracking-[0.18em]\" style=\"color:var(--vault-text-faint);font-size:11px\">NBA · player trends</span><h1 class=\"font-semibold tracking-tight\" style=\"color:var(--vault-gold-bright);font-size:30px;line-height:1.05\">Player trends</h1><p class=\"text-[14px] leading-relaxed\" style=\"color:var(--vault-text-mute);max-width:640px\">Each player&#x27;s last 5, 10 and 20 games played against tonight&#x27;s <b>MODEL PROJECTION</b> median (the official forecast). Counts of past games above tonight&#x27;s MODEL PROJECTION median. History, not a probability. Tap a player for game logs.</p></header><p class=\"trn-meta\"><span class=\"gtp-kind-chip-lite\">MODEL PROJECTION</span> slate 2026-11-09 · 3 regular-season games read · <a href=\"/nba/projections/\">Top Boards →</a></p><form class=\"trn-filters\" aria-label=\"Filter and sort players\"><label class=\"trn-filter\"><span>Team</span><select><option value=\"\" selected=\"\">All teams</option><option value=\"AAA\">AAA</option><option value=\"HHH\">HHH</option></select></label><label class=\"trn-filter\"><span>Position</span><select><option value=\"\" selected=\"\">All</option></select></label><label class=\"trn-filter\"><span>Stat</span><select><option value=\"\" selected=\"\">PTS · REB · AST</option><option value=\"pts\">PTS</option><option value=\"reb\">REB</option><option value=\"ast\">AST</option></select></label><label class=\"trn-filter\"><span>Venue</span><select><option value=\"\" selected=\"\">Home and away</option><option value=\"1\">Home</option><option value=\"0\">Away</option></select></label><label class=\"trn-filter\"><span>Sort</span><select><option value=\"min\" selected=\"\">Expected minutes</option><option value=\"pts\">PTS projection</option><option value=\"reb\">REB projection</option><option value=\"ast\">AST projection</option></select></label><output class=\"trn-sub\" aria-live=\"polite\"></output></form><div class=\"trn-scroll\" role=\"region\" aria-label=\"Player trends table\" tabindex=\"0\"><table class=\"trn-table\" id=\"trends-table\"><caption class=\"sr-only\">Player trends: tonight&#x27;s MODEL PROJECTION median and how many of the last 5, 10 and 20 games played were above it</caption><thead><tr><th scope=\"col\">Player</th><th scope=\"col\" data-trn-col=\"pts\">PTS<span class=\"trn-th-sub\">median · games above</span></th><th scope=\"col\" data-trn-col=\"reb\">REB<span class=\"trn-th-sub\">median · games above</span></th><th scope=\"col\" data-trn-col=\"ast\">AST<span class=\"trn-th-sub\">median · games above</span></th></tr></thead><tbody><tr data-trn-player=\"m\" data-trn-availability=\"eligible\" data-trn-i=\"0\" data-team=\"HHH\" data-pos=\"\" data-home=\"1\" data-pts=\"9\" data-reb=\"3\" data-ast=\"2\"><th scope=\"row\"><a href=\"#p-m\" class=\"trn-name\" data-trn-open=\"m\"><span class=\"trn-rank\">1</span>Max Minutes</a><span class=\"trn-sub\">HHH vs AAA</span><span class=\"trn-avail is-eligible\" title=\"cleared to play: on the active roster\">✓ Eligible</span></th><td data-trn-stat=\"pts\" data-trn-col=\"pts\"><b class=\"trn-ref\">9.0</b><span class=\"trn-counts\"><span title=\"0 of the last 0 games played were above 9.0\">L5 0/0</span><span title=\"0 of the last 0 games played were above 9.0\">L10 0/0</span><span title=\"0 of the last 0 games played were above 9.0\">L20 0/0</span></span></td><td data-trn-stat=\"reb\" data-trn-col=\"reb\"><b class=\"trn-ref\">3.0</b><span class=\"trn-counts\"><span title=\"0 of the last 0 games played were above 3.0\">L5 0/0</span><span title=\"0 of the last 0 games played were above 3.0\">L10 0/0</span><span title=\"0 of the last 0 games played were above 3.0\">L20 0/0</span></span></td><td data-trn-stat=\"ast\" data-trn-col=\"ast\"><b class=\"trn-ref\">2.0</b><span class=\"trn-counts\"><span title=\"0 of the last 0 games played were above 2.0\">L5 0/0</span><span title=\"0 of the last 0 games played were above 2.0\">L10 0/0</span><span title=\"0 of the last 0 games played were above 2.0\">L20 0/0</span></span></td></tr><tr data-trn-player=\"o\" data-trn-availability=\"eligible\" data-trn-i=\"1\" data-team=\"AAA\" data-pos=\"\" data-home=\"0\" data-pts=\"12\" data-reb=\"4\" data-ast=\"2\"><th scope=\"row\"><a href=\"#p-o\" class=\"trn-name\" data-trn-open=\"o\"><span class=\"trn-rank\">2</span>Other Oscar</a><span class=\"trn-sub\">AAA @ HHH</span><span class=\"trn-avail is-eligible\" title=\"cleared to play: on the active roster\">✓ Eligible</span></th><td data-trn-stat=\"pts\" data-trn-col=\"pts\"><b class=\"trn-ref\">12.0</b><span class=\"trn-counts\"><span title=\"1 of the last 2 games played were above 12.0\">L5 1/2</span><span title=\"1 of the last 2 games played were above 12.0\">L10 1/2</span><span title=\"1 of the last 2 games played were above 12.0\">L20 1/2</span></span></td><td data-trn-stat=\"reb\" data-trn-col=\"reb\"><b class=\"trn-ref\">4.0</b><span class=\"trn-counts\"><span title=\"1 of the last 2 games played were above 4.0\">L5 1/2</span><span title=\"1 of the last 2 games played were above 4.0\">L10 1/2</span><span title=\"1 of the last 2 games played were above 4.0\">L20 1/2</span></span></td><td data-trn-stat=\"ast\" data-trn-col=\"ast\"><b class=\"trn-ref\">2.0</b><span class=\"trn-counts\"><span title=\"1 of the last 2 games played were above 2.0\">L5 1/2</span><span title=\"1 of the last 2 games played were above 2.0\">L10 1/2</span><span title=\"1 of the last 2 games played were above 2.0\">L20 1/2</span></span></td></tr><tr data-trn-player=\"e\" data-trn-availability=\"eligible\" data-trn-i=\"2\" data-team=\"HHH\" data-pos=\"\" data-home=\"1\" data-pts=\"15\" data-reb=\"5\" data-ast=\"3\"><th scope=\"row\"><a href=\"#p-e\" class=\"trn-name\" data-trn-open=\"e\">Eligible Eddie</a><span class=\"trn-sub\">HHH vs AAA</span><span class=\"trn-avail is-eligible\" title=\"cleared to play: on the active roster\">✓ Eligible</span><span class=\"trn-review\" data-trn-minutes-review=\"\">minutes projection under review</span></th><td data-trn-stat=\"pts\" data-trn-col=\"pts\"><b class=\"trn-ref\">15.0</b><span class=\"trn-counts\"><span title=\"2 of the last 3 games played were above 15.0\">L5 2/3</span><span title=\"2 of the last 3 games played were above 15.0\">L10 2/3</span><span title=\"2 of the last 3 games played were above 15.0\">L20 2/3</span></span></td><td data-trn-stat=\"reb\" data-trn-col=\"reb\"><b class=\"trn-ref\">5.0</b><span class=\"trn-counts\"><span title=\"2 of the last 3 games played were above 5.0\">L5 2/3</span><span title=\"2 of the last 3 games played were above 5.0\">L10 2/3</span><span title=\"2 of the last 3 games played were above 5.0\">L20 2/3</span></span></td><td data-trn-stat=\"ast\" data-trn-col=\"ast\"><b class=\"trn-ref\">3.0</b><span class=\"trn-counts\"><span title=\"2 of the last 3 games played were above 3.0\">L5 2/3</span><span title=\"2 of the last 3 games played were above 3.0\">L10 2/3</span><span title=\"2 of the last 3 games played were above 3.0\">L20 2/3</span></span></td></tr><tr data-trn-player=\"d\" data-trn-availability=\"not-verified\" data-trn-i=\"3\" data-team=\"HHH\" data-pos=\"\" data-home=\"1\" data-pts=\"7\" data-reb=\"2\" data-ast=\"1\"><th scope=\"row\"><a href=\"#p-d\" class=\"trn-name\" data-trn-open=\"d\">Doubtful Dan</a><span class=\"trn-sub\">HHH vs AAA</span><span class=\"trn-avail is-not-verified\" title=\"cleared to play · flagged questionable, so not ranked\">? Not verified</span></th><td data-trn-stat=\"pts\" data-trn-col=\"pts\"><b class=\"trn-ref\">7.0</b><span class=\"trn-counts\"><span title=\"1 of the last 1 games played were above 7.0\">L5 1/1</span><span title=\"1 of the last 1 games played were above 7.0\">L10 1/1</span><span title=\"1 of the last 1 games played were above 7.0\">L20 1/1</span></span></td><td data-trn-stat=\"reb\" data-trn-col=\"reb\"><b class=\"trn-ref\">2.0</b><span class=\"trn-counts\"><span title=\"0 of the last 1 games played were above 2.0\">L5 0/1</span><span title=\"0 of the last 1 games played were above 2.0\">L10 0/1</span><span title=\"0 of the last 1 games played were above 2.0\">L20 0/1</span></span></td><td data-trn-stat=\"ast\" data-trn-col=\"ast\"><b class=\"trn-ref\">1.0</b><span class=\"trn-counts\"><span title=\"0 of the last 1 games played were above 1.0\">L5 0/1</span><span title=\"0 of the last 1 games played were above 1.0\">L10 0/1</span><span title=\"0 of the last 1 games played were above 1.0\">L20 0/1</span></span></td></tr><tr data-trn-player=\"x\" data-trn-availability=\"ineligible\" data-trn-i=\"4\" data-team=\"AAA\" data-pos=\"\" data-home=\"0\" data-pts=\"\" data-reb=\"\" data-ast=\"\"><th scope=\"row\"><a href=\"#p-x\" class=\"trn-name\" data-trn-open=\"x\">Out Xavier</a><span class=\"trn-sub\">AAA @ HHH</span><span class=\"trn-avail is-ineligible\" title=\"not eligible to play: ruled out on the injury report · no official projection tonight\">✕ Ineligible</span></th><td class=\"trn-na\" data-trn-col=\"pts\">—</td><td class=\"trn-na\" data-trn-col=\"reb\">—</td><td class=\"trn-na\" data-trn-col=\"ast\">—</td></tr></tbody></table></div><p class=\"trn-fine\"># orders players cleared to play (eligibility@1) by tonight&#x27;s expected minutes, never by these counts; a minutes projection under review is not numbered. A game counts only when its official final is recorded and the box score agrees with it; a game a player did not play is not counted, never read as 0. Not betting advice.</p></div>",
+  "stale": "<div class=\"trn-root flex flex-col gap-5\"><header class=\"flex flex-col gap-3\"><span class=\"font-mono uppercase tracking-[0.18em]\" style=\"color:var(--vault-text-faint);font-size:11px\">NBA · player trends</span><h1 class=\"font-semibold tracking-tight\" style=\"color:var(--vault-gold-bright);font-size:30px;line-height:1.05\">Player trends</h1><p class=\"text-[14px] leading-relaxed\" style=\"color:var(--vault-text-mute);max-width:640px\">Each player&#x27;s last 5, 10 and 20 games played against tonight&#x27;s <b>MODEL PROJECTION</b> median (the official forecast). Counts of past games above tonight&#x27;s MODEL PROJECTION median. History, not a probability. Tap a player for game logs.</p></header><p class=\"trn-meta\"><span class=\"gtp-kind-chip-lite\">MODEL PROJECTION</span> slate 2026-11-09 · 3 regular-season games read · <a href=\"/nba/projections/\">Top Boards →</a></p><form class=\"trn-filters\" aria-label=\"Filter and sort players\"><label class=\"trn-filter\"><span>Team</span><select><option value=\"\" selected=\"\">All teams</option><option value=\"AAA\">AAA</option><option value=\"HHH\">HHH</option></select></label><label class=\"trn-filter\"><span>Position</span><select><option value=\"\" selected=\"\">All</option></select></label><label class=\"trn-filter\"><span>Stat</span><select><option value=\"\" selected=\"\">PTS · REB · AST</option><option value=\"pts\">PTS</option><option value=\"reb\">REB</option><option value=\"ast\">AST</option></select></label><label class=\"trn-filter\"><span>Venue</span><select><option value=\"\" selected=\"\">Home and away</option><option value=\"1\">Home</option><option value=\"0\">Away</option></select></label><label class=\"trn-filter\"><span>Sort</span><select><option value=\"min\" selected=\"\">Expected minutes</option><option value=\"pts\">PTS projection</option><option value=\"reb\">REB projection</option><option value=\"ast\">AST projection</option></select></label><output class=\"trn-sub\" aria-live=\"polite\"></output></form><div class=\"trn-scroll\" role=\"region\" aria-label=\"Player trends table\" tabindex=\"0\"><table class=\"trn-table\" id=\"trends-table\"><caption class=\"sr-only\">Player trends: tonight&#x27;s MODEL PROJECTION median and how many of the last 5, 10 and 20 games played were above it</caption><thead><tr><th scope=\"col\">Player</th><th scope=\"col\" data-trn-col=\"pts\">PTS<span class=\"trn-th-sub\">median · games above</span></th><th scope=\"col\" data-trn-col=\"reb\">REB<span class=\"trn-th-sub\">median · games above</span></th><th scope=\"col\" data-trn-col=\"ast\">AST<span class=\"trn-th-sub\">median · games above</span></th></tr></thead><tbody><tr data-trn-player=\"d\" data-trn-availability=\"not-verified\" data-trn-i=\"0\" data-team=\"HHH\" data-pos=\"\" data-home=\"1\" data-pts=\"7\" data-reb=\"2\" data-ast=\"1\"><th scope=\"row\"><a href=\"#p-d\" class=\"trn-name\" data-trn-open=\"d\">Doubtful Dan</a><span class=\"trn-sub\">HHH vs AAA</span><span class=\"trn-avail is-not-verified\" title=\"availability not confirmed: the injury report is out of date; the roster is out of date\">? Not verified</span></th><td data-trn-stat=\"pts\" data-trn-col=\"pts\"><b class=\"trn-ref\">7.0</b><span class=\"trn-counts\"><span title=\"1 of the last 1 games played were above 7.0\">L5 1/1</span><span title=\"1 of the last 1 games played were above 7.0\">L10 1/1</span><span title=\"1 of the last 1 games played were above 7.0\">L20 1/1</span></span></td><td data-trn-stat=\"reb\" data-trn-col=\"reb\"><b class=\"trn-ref\">2.0</b><span class=\"trn-counts\"><span title=\"0 of the last 1 games played were above 2.0\">L5 0/1</span><span title=\"0 of the last 1 games played were above 2.0\">L10 0/1</span><span title=\"0 of the last 1 games played were above 2.0\">L20 0/1</span></span></td><td data-trn-stat=\"ast\" data-trn-col=\"ast\"><b class=\"trn-ref\">1.0</b><span class=\"trn-counts\"><span title=\"0 of the last 1 games played were above 1.0\">L5 0/1</span><span title=\"0 of the last 1 games played were above 1.0\">L10 0/1</span><span title=\"0 of the last 1 games played were above 1.0\">L20 0/1</span></span></td></tr><tr data-trn-player=\"e\" data-trn-availability=\"not-verified\" data-trn-i=\"1\" data-team=\"HHH\" data-pos=\"\" data-home=\"1\" data-pts=\"15\" data-reb=\"5\" data-ast=\"3\"><th scope=\"row\"><a href=\"#p-e\" class=\"trn-name\" data-trn-open=\"e\">Eligible Eddie</a><span class=\"trn-sub\">HHH vs AAA</span><span class=\"trn-avail is-not-verified\" title=\"availability not confirmed: the injury report is out of date; the roster is out of date\">? Not verified</span></th><td data-trn-stat=\"pts\" data-trn-col=\"pts\"><b class=\"trn-ref\">15.0</b><span class=\"trn-counts\"><span title=\"2 of the last 3 games played were above 15.0\">L5 2/3</span><span title=\"2 of the last 3 games played were above 15.0\">L10 2/3</span><span title=\"2 of the last 3 games played were above 15.0\">L20 2/3</span></span></td><td data-trn-stat=\"reb\" data-trn-col=\"reb\"><b class=\"trn-ref\">5.0</b><span class=\"trn-counts\"><span title=\"2 of the last 3 games played were above 5.0\">L5 2/3</span><span title=\"2 of the last 3 games played were above 5.0\">L10 2/3</span><span title=\"2 of the last 3 games played were above 5.0\">L20 2/3</span></span></td><td data-trn-stat=\"ast\" data-trn-col=\"ast\"><b class=\"trn-ref\">3.0</b><span class=\"trn-counts\"><span title=\"2 of the last 3 games played were above 3.0\">L5 2/3</span><span title=\"2 of the last 3 games played were above 3.0\">L10 2/3</span><span title=\"2 of the last 3 games played were above 3.0\">L20 2/3</span></span></td></tr><tr data-trn-player=\"o\" data-trn-availability=\"not-verified\" data-trn-i=\"2\" data-team=\"AAA\" data-pos=\"\" data-home=\"0\" data-pts=\"12\" data-reb=\"4\" data-ast=\"2\"><th scope=\"row\"><a href=\"#p-o\" class=\"trn-name\" data-trn-open=\"o\">Other Oscar</a><span class=\"trn-sub\">AAA @ HHH</span><span class=\"trn-avail is-not-verified\" title=\"availability not confirmed: the injury report is out of date; the roster is out of date\">? Not verified</span></th><td data-trn-stat=\"pts\" data-trn-col=\"pts\"><b class=\"trn-ref\">12.0</b><span class=\"trn-counts\"><span title=\"1 of the last 2 games played were above 12.0\">L5 1/2</span><span title=\"1 of the last 2 games played were above 12.0\">L10 1/2</span><span title=\"1 of the last 2 games played were above 12.0\">L20 1/2</span></span></td><td data-trn-stat=\"reb\" data-trn-col=\"reb\"><b class=\"trn-ref\">4.0</b><span class=\"trn-counts\"><span title=\"1 of the last 2 games played were above 4.0\">L5 1/2</span><span title=\"1 of the last 2 games played were above 4.0\">L10 1/2</span><span title=\"1 of the last 2 games played were above 4.0\">L20 1/2</span></span></td><td data-trn-stat=\"ast\" data-trn-col=\"ast\"><b class=\"trn-ref\">2.0</b><span class=\"trn-counts\"><span title=\"1 of the last 2 games played were above 2.0\">L5 1/2</span><span title=\"1 of the last 2 games played were above 2.0\">L10 1/2</span><span title=\"1 of the last 2 games played were above 2.0\">L20 1/2</span></span></td></tr><tr data-trn-player=\"x\" data-trn-availability=\"ineligible\" data-trn-i=\"3\" data-team=\"AAA\" data-pos=\"\" data-home=\"0\" data-pts=\"\" data-reb=\"\" data-ast=\"\"><th scope=\"row\"><a href=\"#p-x\" class=\"trn-name\" data-trn-open=\"x\">Out Xavier</a><span class=\"trn-sub\">AAA @ HHH</span><span class=\"trn-avail is-ineligible\" title=\"not eligible to play: ruled out on the injury report · no official projection tonight\">✕ Ineligible</span></th><td class=\"trn-na\" data-trn-col=\"pts\">—</td><td class=\"trn-na\" data-trn-col=\"reb\">—</td><td class=\"trn-na\" data-trn-col=\"ast\">—</td></tr></tbody></table></div><p class=\"trn-fine\"># orders players cleared to play (eligibility@1) by tonight&#x27;s expected minutes, never by these counts; a minutes projection under review is not numbered. A game counts only when its official final is recorded and the box score agrees with it; a game a player did not play is not counted, never read as 0. Not betting advice.</p></div>",
+  "empty": "<div class=\"trn-root flex flex-col gap-5\"><header class=\"flex flex-col gap-3\"><span class=\"font-mono uppercase tracking-[0.18em]\" style=\"color:var(--vault-text-faint);font-size:11px\">NBA · player trends</span><h1 class=\"font-semibold tracking-tight\" style=\"color:var(--vault-gold-bright);font-size:30px;line-height:1.05\">Player trends</h1><p class=\"text-[14px] leading-relaxed\" style=\"color:var(--vault-text-mute);max-width:640px\">Each player&#x27;s last 5, 10 and 20 games played against tonight&#x27;s <b>MODEL PROJECTION</b> median (the official forecast). Counts of past games above tonight&#x27;s MODEL PROJECTION median. History, not a probability. Tap a player for game logs.</p></header><p class=\"trn-empty\" data-trn-empty=\"\">No official NBA projection is published yet. Trends return with the next slate.</p></div>"
+ },
+ "payload": {
+  "tonight": {
+   "schema": "gtp.nba-trends-drawer@1",
+   "slateDate": "2026-11-09",
+   "reference": "MODEL PROJECTION",
+   "note": "Counts of past games above tonight's MODEL PROJECTION median. History, not a probability.",
+   "players": {
+    "o": {
+     "name": "Other Oscar",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": 36,
+     "rank": 1,
+     "reference": {
+      "pts": 12,
+      "reb": 4,
+      "ast": 2
+     },
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 22,
+       "pts": 30,
+       "reb": 1,
+       "ast": 1
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 25,
+       "pts": 12,
+       "reb": 6,
+       "ast": 3
+      }
+     ]
+    },
+    "e": {
+     "name": "Eligible Eddie",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": 30,
+     "rank": 2,
+     "reference": {
+      "pts": 15,
+      "reb": 5,
+      "ast": 3
+     },
+     "games": [
+      {
+       "eventId": "g4",
+       "dateEt": "2026-11-08",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 99,
+       "reb": 9,
+       "ast": 9
+      },
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 32,
+       "pts": 10,
+       "reb": 9,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 20,
+       "reb": 5,
+       "ast": 4
+      }
+     ]
+    },
+    "d": {
+     "name": "Doubtful Dan",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "not-verified",
+     "availabilityNote": "cleared to play · flagged questionable, so not ranked",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": 34,
+     "rank": null,
+     "reference": {
+      "pts": 7,
+      "reb": 2,
+      "ast": 1
+     },
+     "games": [
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 20,
+       "pts": 8,
+       "reb": 2,
+       "ast": 1
+      }
+     ]
+    },
+    "x": {
+     "name": "Out Xavier",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "ineligible",
+     "availabilityNote": "not eligible to play: ruled out on the injury report · no official projection tonight",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": null,
+     "rank": null,
+     "reference": null,
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 12,
+       "pts": 4,
+       "reb": 2,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 15,
+       "pts": 3,
+       "reb": 1,
+       "ast": 0
+      }
+     ]
+    }
+   }
+  },
+  "notTonight": {
+   "schema": "gtp.nba-trends-drawer@1",
+   "slateDate": "2026-11-09",
+   "reference": "MODEL PROJECTION",
+   "note": "Counts of past games above tonight's MODEL PROJECTION median. History, not a probability.",
+   "players": {
+    "e": {
+     "name": "Eligible Eddie",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": 30,
+     "rank": null,
+     "reference": {
+      "pts": 15,
+      "reb": 5,
+      "ast": 3
+     },
+     "games": [
+      {
+       "eventId": "g4",
+       "dateEt": "2026-11-08",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 99,
+       "reb": 9,
+       "ast": 9
+      },
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 32,
+       "pts": 10,
+       "reb": 9,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 20,
+       "reb": 5,
+       "ast": 4
+      }
+     ]
+    },
+    "o": {
+     "name": "Other Oscar",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": 36,
+     "rank": null,
+     "reference": {
+      "pts": 12,
+      "reb": 4,
+      "ast": 2
+     },
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 22,
+       "pts": 30,
+       "reb": 1,
+       "ast": 1
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 25,
+       "pts": 12,
+       "reb": 6,
+       "ast": 3
+      }
+     ]
+    },
+    "d": {
+     "name": "Doubtful Dan",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "not-verified",
+     "availabilityNote": "cleared to play · flagged questionable, so not ranked",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": 34,
+     "rank": null,
+     "reference": {
+      "pts": 7,
+      "reb": 2,
+      "ast": 1
+     },
+     "games": [
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 20,
+       "pts": 8,
+       "reb": 2,
+       "ast": 1
+      }
+     ]
+    },
+    "x": {
+     "name": "Out Xavier",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "ineligible",
+     "availabilityNote": "not eligible to play: ruled out on the injury report · no official projection tonight",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": null,
+     "rank": null,
+     "reference": null,
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 12,
+       "pts": 4,
+       "reb": 2,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 15,
+       "pts": 3,
+       "reb": 1,
+       "ast": 0
+      }
+     ]
+    }
+   }
+  },
+  "minutesReview": {
+   "schema": "gtp.nba-trends-drawer@1",
+   "slateDate": "2026-11-09",
+   "reference": "MODEL PROJECTION",
+   "note": "Counts of past games above tonight's MODEL PROJECTION median. History, not a probability.",
+   "players": {
+    "m": {
+     "name": "Max Minutes",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": 42,
+     "rank": 1,
+     "reference": {
+      "pts": 9,
+      "reb": 3,
+      "ast": 2
+     },
+     "games": []
+    },
+    "o": {
+     "name": "Other Oscar",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": 36,
+     "rank": 2,
+     "reference": {
+      "pts": 12,
+      "reb": 4,
+      "ast": 2
+     },
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 22,
+       "pts": 30,
+       "reb": 1,
+       "ast": 1
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 25,
+       "pts": 12,
+       "reb": 6,
+       "ast": 3
+      }
+     ]
+    },
+    "e": {
+     "name": "Eligible Eddie",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "minutesUnderReview": true,
+     "position": null,
+     "expectedMinutes": 46.8,
+     "rank": null,
+     "reference": {
+      "pts": 15,
+      "reb": 5,
+      "ast": 3
+     },
+     "games": [
+      {
+       "eventId": "g4",
+       "dateEt": "2026-11-08",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 99,
+       "reb": 9,
+       "ast": 9
+      },
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 32,
+       "pts": 10,
+       "reb": 9,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 20,
+       "reb": 5,
+       "ast": 4
+      }
+     ]
+    },
+    "d": {
+     "name": "Doubtful Dan",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "not-verified",
+     "availabilityNote": "cleared to play · flagged questionable, so not ranked",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": 34,
+     "rank": null,
+     "reference": {
+      "pts": 7,
+      "reb": 2,
+      "ast": 1
+     },
+     "games": [
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 20,
+       "pts": 8,
+       "reb": 2,
+       "ast": 1
+      }
+     ]
+    },
+    "x": {
+     "name": "Out Xavier",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "ineligible",
+     "availabilityNote": "not eligible to play: ruled out on the injury report · no official projection tonight",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": null,
+     "rank": null,
+     "reference": null,
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 12,
+       "pts": 4,
+       "reb": 2,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 15,
+       "pts": 3,
+       "reb": 1,
+       "ast": 0
+      }
+     ]
+    }
+   }
+  },
+  "stale": {
+   "schema": "gtp.nba-trends-drawer@1",
+   "slateDate": "2026-11-09",
+   "reference": "MODEL PROJECTION",
+   "note": "Counts of past games above tonight's MODEL PROJECTION median. History, not a probability.",
+   "players": {
+    "d": {
+     "name": "Doubtful Dan",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "not-verified",
+     "availabilityNote": "availability not confirmed: the injury report is out of date; the roster is out of date",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": 34,
+     "rank": null,
+     "reference": {
+      "pts": 7,
+      "reb": 2,
+      "ast": 1
+     },
+     "games": [
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 20,
+       "pts": 8,
+       "reb": 2,
+       "ast": 1
+      }
+     ]
+    },
+    "e": {
+     "name": "Eligible Eddie",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "not-verified",
+     "availabilityNote": "availability not confirmed: the injury report is out of date; the roster is out of date",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": 30,
+     "rank": null,
+     "reference": {
+      "pts": 15,
+      "reb": 5,
+      "ast": 3
+     },
+     "games": [
+      {
+       "eventId": "g4",
+       "dateEt": "2026-11-08",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 99,
+       "reb": 9,
+       "ast": 9
+      },
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 32,
+       "pts": 10,
+       "reb": 9,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 20,
+       "reb": 5,
+       "ast": 4
+      }
+     ]
+    },
+    "o": {
+     "name": "Other Oscar",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "not-verified",
+     "availabilityNote": "availability not confirmed: the injury report is out of date; the roster is out of date",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": 36,
+     "rank": null,
+     "reference": {
+      "pts": 12,
+      "reb": 4,
+      "ast": 2
+     },
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 22,
+       "pts": 30,
+       "reb": 1,
+       "ast": 1
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 25,
+       "pts": 12,
+       "reb": 6,
+       "ast": 3
+      }
+     ]
+    },
+    "x": {
+     "name": "Out Xavier",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "ineligible",
+     "availabilityNote": "not eligible to play: ruled out on the injury report · no official projection tonight",
+     "minutesUnderReview": false,
+     "position": null,
+     "expectedMinutes": null,
+     "rank": null,
+     "reference": null,
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 12,
+       "pts": 4,
+       "reb": 2,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 15,
+       "pts": 3,
+       "reb": 1,
+       "ast": 0
+      }
+     ]
+    }
+   }
+  },
+  "empty": {
+   "schema": "gtp.nba-trends-drawer@1",
+   "slateDate": null,
+   "reference": "MODEL PROJECTION",
+   "note": "Counts of past games above tonight's MODEL PROJECTION median. History, not a probability.",
+   "players": {}
+  }
+ },
+ "model": {
+  "tonight": {
+   "slateDate": "2026-11-09",
+   "slateIsToday": true,
+   "gamesRead": 3,
+   "rows": [
+    {
+     "playerId": "o",
+     "name": "Other Oscar",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "reference": {
+      "pts": 12,
+      "reb": 4,
+      "ast": 2
+     },
+     "windows": [
+      {
+       "size": 5,
+       "played": 2,
+       "above": {
+        "pts": 1,
+        "reb": 1,
+        "ast": 1
+       }
+      },
+      {
+       "size": 10,
+       "played": 2,
+       "above": {
+        "pts": 1,
+        "reb": 1,
+        "ast": 1
+       }
+      },
+      {
+       "size": 20,
+       "played": 2,
+       "above": {
+        "pts": 1,
+        "reb": 1,
+        "ast": 1
+       }
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 22,
+       "pts": 30,
+       "reb": 1,
+       "ast": 1
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 25,
+       "pts": 12,
+       "reb": 6,
+       "ast": 3
+      }
+     ],
+     "rank": 1,
+     "expectedMinutes": 36,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "ELIGIBLE",
+      "reasons": [
+       "ROSTER_ACTIVE"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": null,
+        "statedAt": null,
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "active",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": [
+      {
+       "stat": "ast",
+       "line": 2.5,
+       "capturedAt": "2026-11-09T17:00:00Z",
+       "hits": [
+        {
+         "size": 5,
+         "played": 2,
+         "hit": 1
+        },
+        {
+         "size": 10,
+         "played": 2,
+         "hit": 1
+        },
+        {
+         "size": 20,
+         "played": 2,
+         "hit": 1
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "playerId": "e",
+     "name": "Eligible Eddie",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "reference": {
+      "pts": 15,
+      "reb": 5,
+      "ast": 3
+     },
+     "windows": [
+      {
+       "size": 5,
+       "played": 3,
+       "above": {
+        "pts": 2,
+        "reb": 2,
+        "ast": 2
+       }
+      },
+      {
+       "size": 10,
+       "played": 3,
+       "above": {
+        "pts": 2,
+        "reb": 2,
+        "ast": 2
+       }
+      },
+      {
+       "size": 20,
+       "played": 3,
+       "above": {
+        "pts": 2,
+        "reb": 2,
+        "ast": 2
+       }
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g4",
+       "dateEt": "2026-11-08",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 99,
+       "reb": 9,
+       "ast": 9
+      },
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 32,
+       "pts": 10,
+       "reb": 9,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 20,
+       "reb": 5,
+       "ast": 4
+      }
+     ],
+     "rank": 2,
+     "expectedMinutes": 30,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "ELIGIBLE",
+      "reasons": [
+       "ROSTER_ACTIVE"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": null,
+        "statedAt": null,
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "active",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": [
+      {
+       "stat": "pts",
+       "line": 15.5,
+       "capturedAt": "2026-11-09T17:00:00Z",
+       "hits": [
+        {
+         "size": 5,
+         "played": 3,
+         "hit": 2
+        },
+        {
+         "size": 10,
+         "played": 3,
+         "hit": 2
+        },
+        {
+         "size": 20,
+         "played": 3,
+         "hit": 2
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "playerId": "d",
+     "name": "Doubtful Dan",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "not-verified",
+     "availabilityNote": "cleared to play · flagged questionable, so not ranked",
+     "reference": {
+      "pts": 7,
+      "reb": 2,
+      "ast": 1
+     },
+     "windows": [
+      {
+       "size": 5,
+       "played": 1,
+       "above": {
+        "pts": 1,
+        "reb": 0,
+        "ast": 0
+       }
+      },
+      {
+       "size": 10,
+       "played": 1,
+       "above": {
+        "pts": 1,
+        "reb": 0,
+        "ast": 0
+       }
+      },
+      {
+       "size": 20,
+       "played": 1,
+       "above": {
+        "pts": 1,
+        "reb": 0,
+        "ast": 0
+       }
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 20,
+       "pts": 8,
+       "reb": 2,
+       "ast": 1
+      }
+     ],
+     "rank": null,
+     "expectedMinutes": 34,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "ELIGIBLE",
+      "reasons": [],
+      "flags": [
+       "QUESTIONABLE"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": "Day-To-Day",
+        "statedAt": "2026-11-09T18:00:00Z",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "day-to-day",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    },
+    {
+     "playerId": "x",
+     "name": "Out Xavier",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "ineligible",
+     "availabilityNote": "not eligible to play: ruled out on the injury report · no official projection tonight",
+     "reference": null,
+     "windows": [
+      {
+       "size": 5,
+       "played": 2,
+       "above": null
+      },
+      {
+       "size": 10,
+       "played": 2,
+       "above": null
+      },
+      {
+       "size": 20,
+       "played": 2,
+       "above": null
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 12,
+       "pts": 4,
+       "reb": 2,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 15,
+       "pts": 3,
+       "reb": 1,
+       "ast": 0
+      }
+     ],
+     "rank": null,
+     "expectedMinutes": null,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "INELIGIBLE",
+      "reasons": [
+       "BLOCKING_DESIGNATION"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": "Out",
+        "statedAt": "2026-11-09T18:00:00Z",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "active",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    }
+   ]
+  },
+  "notTonight": {
+   "slateDate": "2026-11-09",
+   "slateIsToday": false,
+   "gamesRead": 3,
+   "rows": [
+    {
+     "playerId": "e",
+     "name": "Eligible Eddie",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "reference": {
+      "pts": 15,
+      "reb": 5,
+      "ast": 3
+     },
+     "windows": [
+      {
+       "size": 5,
+       "played": 3,
+       "above": {
+        "pts": 2,
+        "reb": 2,
+        "ast": 2
+       }
+      },
+      {
+       "size": 10,
+       "played": 3,
+       "above": {
+        "pts": 2,
+        "reb": 2,
+        "ast": 2
+       }
+      },
+      {
+       "size": 20,
+       "played": 3,
+       "above": {
+        "pts": 2,
+        "reb": 2,
+        "ast": 2
+       }
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g4",
+       "dateEt": "2026-11-08",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 99,
+       "reb": 9,
+       "ast": 9
+      },
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 32,
+       "pts": 10,
+       "reb": 9,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 20,
+       "reb": 5,
+       "ast": 4
+      }
+     ],
+     "rank": null,
+     "expectedMinutes": 30,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "ELIGIBLE",
+      "reasons": [
+       "ROSTER_ACTIVE"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": null,
+        "statedAt": null,
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "active",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    },
+    {
+     "playerId": "o",
+     "name": "Other Oscar",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "reference": {
+      "pts": 12,
+      "reb": 4,
+      "ast": 2
+     },
+     "windows": [
+      {
+       "size": 5,
+       "played": 2,
+       "above": {
+        "pts": 1,
+        "reb": 1,
+        "ast": 1
+       }
+      },
+      {
+       "size": 10,
+       "played": 2,
+       "above": {
+        "pts": 1,
+        "reb": 1,
+        "ast": 1
+       }
+      },
+      {
+       "size": 20,
+       "played": 2,
+       "above": {
+        "pts": 1,
+        "reb": 1,
+        "ast": 1
+       }
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 22,
+       "pts": 30,
+       "reb": 1,
+       "ast": 1
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 25,
+       "pts": 12,
+       "reb": 6,
+       "ast": 3
+      }
+     ],
+     "rank": null,
+     "expectedMinutes": 36,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "ELIGIBLE",
+      "reasons": [
+       "ROSTER_ACTIVE"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": null,
+        "statedAt": null,
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "active",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    },
+    {
+     "playerId": "d",
+     "name": "Doubtful Dan",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "not-verified",
+     "availabilityNote": "cleared to play · flagged questionable, so not ranked",
+     "reference": {
+      "pts": 7,
+      "reb": 2,
+      "ast": 1
+     },
+     "windows": [
+      {
+       "size": 5,
+       "played": 1,
+       "above": {
+        "pts": 1,
+        "reb": 0,
+        "ast": 0
+       }
+      },
+      {
+       "size": 10,
+       "played": 1,
+       "above": {
+        "pts": 1,
+        "reb": 0,
+        "ast": 0
+       }
+      },
+      {
+       "size": 20,
+       "played": 1,
+       "above": {
+        "pts": 1,
+        "reb": 0,
+        "ast": 0
+       }
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 20,
+       "pts": 8,
+       "reb": 2,
+       "ast": 1
+      }
+     ],
+     "rank": null,
+     "expectedMinutes": 34,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "ELIGIBLE",
+      "reasons": [],
+      "flags": [
+       "QUESTIONABLE"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": "Day-To-Day",
+        "statedAt": "2026-11-09T18:00:00Z",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "day-to-day",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    },
+    {
+     "playerId": "x",
+     "name": "Out Xavier",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "ineligible",
+     "availabilityNote": "not eligible to play: ruled out on the injury report · no official projection tonight",
+     "reference": null,
+     "windows": [
+      {
+       "size": 5,
+       "played": 2,
+       "above": null
+      },
+      {
+       "size": 10,
+       "played": 2,
+       "above": null
+      },
+      {
+       "size": 20,
+       "played": 2,
+       "above": null
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 12,
+       "pts": 4,
+       "reb": 2,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 15,
+       "pts": 3,
+       "reb": 1,
+       "ast": 0
+      }
+     ],
+     "rank": null,
+     "expectedMinutes": null,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "INELIGIBLE",
+      "reasons": [
+       "BLOCKING_DESIGNATION"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": "Out",
+        "statedAt": "2026-11-09T18:00:00Z",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "active",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    }
+   ]
+  },
+  "minutesReview": {
+   "slateDate": "2026-11-09",
+   "slateIsToday": true,
+   "gamesRead": 3,
+   "rows": [
+    {
+     "playerId": "m",
+     "name": "Max Minutes",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "reference": {
+      "pts": 9,
+      "reb": 3,
+      "ast": 2
+     },
+     "windows": [
+      {
+       "size": 5,
+       "played": 0,
+       "above": {
+        "pts": 0,
+        "reb": 0,
+        "ast": 0
+       }
+      },
+      {
+       "size": 10,
+       "played": 0,
+       "above": {
+        "pts": 0,
+        "reb": 0,
+        "ast": 0
+       }
+      },
+      {
+       "size": 20,
+       "played": 0,
+       "above": {
+        "pts": 0,
+        "reb": 0,
+        "ast": 0
+       }
+      }
+     ],
+     "games": [],
+     "rank": 1,
+     "expectedMinutes": 42,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "ELIGIBLE",
+      "reasons": [
+       "ROSTER_ACTIVE"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": null,
+        "statedAt": null,
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "active",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    },
+    {
+     "playerId": "o",
+     "name": "Other Oscar",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "reference": {
+      "pts": 12,
+      "reb": 4,
+      "ast": 2
+     },
+     "windows": [
+      {
+       "size": 5,
+       "played": 2,
+       "above": {
+        "pts": 1,
+        "reb": 1,
+        "ast": 1
+       }
+      },
+      {
+       "size": 10,
+       "played": 2,
+       "above": {
+        "pts": 1,
+        "reb": 1,
+        "ast": 1
+       }
+      },
+      {
+       "size": 20,
+       "played": 2,
+       "above": {
+        "pts": 1,
+        "reb": 1,
+        "ast": 1
+       }
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 22,
+       "pts": 30,
+       "reb": 1,
+       "ast": 1
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 25,
+       "pts": 12,
+       "reb": 6,
+       "ast": 3
+      }
+     ],
+     "rank": 2,
+     "expectedMinutes": 36,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "ELIGIBLE",
+      "reasons": [
+       "ROSTER_ACTIVE"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": null,
+        "statedAt": null,
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "active",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    },
+    {
+     "playerId": "e",
+     "name": "Eligible Eddie",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "eligible",
+     "availabilityNote": "cleared to play: on the active roster",
+     "reference": {
+      "pts": 15,
+      "reb": 5,
+      "ast": 3
+     },
+     "windows": [
+      {
+       "size": 5,
+       "played": 3,
+       "above": {
+        "pts": 2,
+        "reb": 2,
+        "ast": 2
+       }
+      },
+      {
+       "size": 10,
+       "played": 3,
+       "above": {
+        "pts": 2,
+        "reb": 2,
+        "ast": 2
+       }
+      },
+      {
+       "size": 20,
+       "played": 3,
+       "above": {
+        "pts": 2,
+        "reb": 2,
+        "ast": 2
+       }
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g4",
+       "dateEt": "2026-11-08",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 99,
+       "reb": 9,
+       "ast": 9
+      },
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 32,
+       "pts": 10,
+       "reb": 9,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 20,
+       "reb": 5,
+       "ast": 4
+      }
+     ],
+     "rank": null,
+     "expectedMinutes": 46.8,
+     "minutesUnderReview": true,
+     "eligibility": {
+      "state": "ELIGIBLE",
+      "reasons": [
+       "ROSTER_ACTIVE"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": null,
+        "statedAt": null,
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "active",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    },
+    {
+     "playerId": "d",
+     "name": "Doubtful Dan",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "not-verified",
+     "availabilityNote": "cleared to play · flagged questionable, so not ranked",
+     "reference": {
+      "pts": 7,
+      "reb": 2,
+      "ast": 1
+     },
+     "windows": [
+      {
+       "size": 5,
+       "played": 1,
+       "above": {
+        "pts": 1,
+        "reb": 0,
+        "ast": 0
+       }
+      },
+      {
+       "size": 10,
+       "played": 1,
+       "above": {
+        "pts": 1,
+        "reb": 0,
+        "ast": 0
+       }
+      },
+      {
+       "size": 20,
+       "played": 1,
+       "above": {
+        "pts": 1,
+        "reb": 0,
+        "ast": 0
+       }
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 20,
+       "pts": 8,
+       "reb": 2,
+       "ast": 1
+      }
+     ],
+     "rank": null,
+     "expectedMinutes": 34,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "ELIGIBLE",
+      "reasons": [],
+      "flags": [
+       "QUESTIONABLE"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": "Day-To-Day",
+        "statedAt": "2026-11-09T18:00:00Z",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "day-to-day",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    },
+    {
+     "playerId": "x",
+     "name": "Out Xavier",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "ineligible",
+     "availabilityNote": "not eligible to play: ruled out on the injury report · no official projection tonight",
+     "reference": null,
+     "windows": [
+      {
+       "size": 5,
+       "played": 2,
+       "above": null
+      },
+      {
+       "size": 10,
+       "played": 2,
+       "above": null
+      },
+      {
+       "size": 20,
+       "played": 2,
+       "above": null
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 12,
+       "pts": 4,
+       "reb": 2,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 15,
+       "pts": 3,
+       "reb": 1,
+       "ast": 0
+      }
+     ],
+     "rank": null,
+     "expectedMinutes": null,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "INELIGIBLE",
+      "reasons": [
+       "BLOCKING_DESIGNATION"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": "Out",
+        "statedAt": "2026-11-09T18:00:00Z",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "active",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    }
+   ]
+  },
+  "stale": {
+   "slateDate": "2026-11-09",
+   "slateIsToday": true,
+   "gamesRead": 3,
+   "rows": [
+    {
+     "playerId": "d",
+     "name": "Doubtful Dan",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "not-verified",
+     "availabilityNote": "availability not confirmed: the injury report is out of date; the roster is out of date",
+     "reference": {
+      "pts": 7,
+      "reb": 2,
+      "ast": 1
+     },
+     "windows": [
+      {
+       "size": 5,
+       "played": 1,
+       "above": {
+        "pts": 1,
+        "reb": 0,
+        "ast": 0
+       }
+      },
+      {
+       "size": 10,
+       "played": 1,
+       "above": {
+        "pts": 1,
+        "reb": 0,
+        "ast": 0
+       }
+      },
+      {
+       "size": 20,
+       "played": 1,
+       "above": {
+        "pts": 1,
+        "reb": 0,
+        "ast": 0
+       }
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 20,
+       "pts": 8,
+       "reb": 2,
+       "ast": 1
+      }
+     ],
+     "rank": null,
+     "expectedMinutes": 34,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "UNKNOWN",
+      "reasons": [
+       "INJURIES_STALE",
+       "ROSTER_STALE"
+      ],
+      "flags": [
+       "QUESTIONABLE"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": "Day-To-Day",
+        "statedAt": "2026-11-09T18:00:00Z",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "day-to-day",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    },
+    {
+     "playerId": "e",
+     "name": "Eligible Eddie",
+     "team": "HHH",
+     "opp": "AAA",
+     "home": true,
+     "availability": "not-verified",
+     "availabilityNote": "availability not confirmed: the injury report is out of date; the roster is out of date",
+     "reference": {
+      "pts": 15,
+      "reb": 5,
+      "ast": 3
+     },
+     "windows": [
+      {
+       "size": 5,
+       "played": 3,
+       "above": {
+        "pts": 2,
+        "reb": 2,
+        "ast": 2
+       }
+      },
+      {
+       "size": 10,
+       "played": 3,
+       "above": {
+        "pts": 2,
+        "reb": 2,
+        "ast": 2
+       }
+      },
+      {
+       "size": 20,
+       "played": 3,
+       "above": {
+        "pts": 2,
+        "reb": 2,
+        "ast": 2
+       }
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g4",
+       "dateEt": "2026-11-08",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 99,
+       "reb": 9,
+       "ast": 9
+      },
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 32,
+       "pts": 10,
+       "reb": 9,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "HHH",
+       "opp": "AAA",
+       "home": true,
+       "minutes": 30,
+       "pts": 20,
+       "reb": 5,
+       "ast": 4
+      }
+     ],
+     "rank": null,
+     "expectedMinutes": 30,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "UNKNOWN",
+      "reasons": [
+       "INJURIES_STALE",
+       "ROSTER_STALE"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": null,
+        "statedAt": null,
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "active",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    },
+    {
+     "playerId": "o",
+     "name": "Other Oscar",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "not-verified",
+     "availabilityNote": "availability not confirmed: the injury report is out of date; the roster is out of date",
+     "reference": {
+      "pts": 12,
+      "reb": 4,
+      "ast": 2
+     },
+     "windows": [
+      {
+       "size": 5,
+       "played": 2,
+       "above": {
+        "pts": 1,
+        "reb": 1,
+        "ast": 1
+       }
+      },
+      {
+       "size": 10,
+       "played": 2,
+       "above": {
+        "pts": 1,
+        "reb": 1,
+        "ast": 1
+       }
+      },
+      {
+       "size": 20,
+       "played": 2,
+       "above": {
+        "pts": 1,
+        "reb": 1,
+        "ast": 1
+       }
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 22,
+       "pts": 30,
+       "reb": 1,
+       "ast": 1
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 25,
+       "pts": 12,
+       "reb": 6,
+       "ast": 3
+      }
+     ],
+     "rank": null,
+     "expectedMinutes": 36,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "UNKNOWN",
+      "reasons": [
+       "INJURIES_STALE",
+       "ROSTER_STALE"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": null,
+        "statedAt": null,
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "active",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    },
+    {
+     "playerId": "x",
+     "name": "Out Xavier",
+     "team": "AAA",
+     "opp": "HHH",
+     "home": false,
+     "availability": "ineligible",
+     "availabilityNote": "not eligible to play: ruled out on the injury report · no official projection tonight",
+     "reference": null,
+     "windows": [
+      {
+       "size": 5,
+       "played": 2,
+       "above": null
+      },
+      {
+       "size": 10,
+       "played": 2,
+       "above": null
+      },
+      {
+       "size": 20,
+       "played": 2,
+       "above": null
+      }
+     ],
+     "games": [
+      {
+       "eventId": "g2",
+       "dateEt": "2026-11-06",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 12,
+       "pts": 4,
+       "reb": 2,
+       "ast": 2
+      },
+      {
+       "eventId": "g1",
+       "dateEt": "2026-11-04",
+       "team": "AAA",
+       "opp": "HHH",
+       "home": false,
+       "minutes": 15,
+       "pts": 3,
+       "reb": 1,
+       "ast": 0
+      }
+     ],
+     "rank": null,
+     "expectedMinutes": null,
+     "minutesUnderReview": false,
+     "eligibility": {
+      "state": "INELIGIBLE",
+      "reasons": [
+       "BLOCKING_DESIGNATION"
+      ],
+      "contractVersion": "eligibility@1",
+      "sources": {
+       "injuries": {
+        "status": "Out",
+        "statedAt": "2026-11-09T18:00:00Z",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       },
+       "roster": {
+        "status": "active",
+        "fetchedAt": "2026-11-09T19:00:00Z"
+       }
+      }
+     },
+     "position": null,
+     "lines": []
+    }
+   ]
+  },
+  "empty": {
+   "slateDate": null,
+   "slateIsToday": true,
+   "gamesRead": 0,
+   "rows": []
+  }
+ }
+}

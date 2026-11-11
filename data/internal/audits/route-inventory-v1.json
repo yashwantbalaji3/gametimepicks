@@ -4,10 +4,10 @@
  "dataClass": "PRIVATE_AUDIT",
  "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
-  "routes": 105,
+  "routes": 106,
   "public": 74,
-  "internal": 10,
-  "redirects": 18,
+  "internal": 12,
+  "redirects": 17,
   "archive": 1,
   "findings": 0,
   "p0": 0
@@ -491,6 +491,15 @@
    "built": "FAMILY (16 generated page(s))"
   },
   {
+   "route": "/nfl/trends",
+   "classification": "internal",
+   "owner": "product",
+   "purpose": "NFL QB trends on the shared Trends board (gated OFF, GTP_NFL_TRENDS_PUBLIC): each upcoming game's projected QB, last 5/10 games of passing yds/TD/cmp/att/int against the receipt of record's MODEL PROJECTION (a model threshold, not a sportsbook line), 5/5·4/5·3/5 filters, eligibility@1 + R5; no line (NFL pass_yds unqualified) and no price; OFF the page 404s and the prune deletes it",
+   "dataOwner": "sim-v2 shadow receipts of record + player-events-v1 box scores + eligibility@1 over data/internal/research/injuries/nfl + public NFL rosters + the official forecast of record (R5) via lib/sports/nfl/trends.ts (PRIVATE_RESEARCH reads become BUILD_INPUTS when the route is reclassified public)",
+   "freshness": "build-time; upcoming week; eligibility@1 6 h window",
+   "built": false
+  },
+  {
    "route": "/nfl/week/[key]",
    "classification": "public",
    "owner": "product",
@@ -928,11 +937,12 @@
   },
   {
    "route": "/trends",
-   "classification": "redirect",
+   "classification": "internal",
    "owner": "product",
-   "purpose": "retired trends",
-   "redirectTo": "/results",
-   "built": true
+   "purpose": "NBA player trends (gated OFF, GTP_NBA_TRENDS_PUBLIC): last 5/10/20 games of PTS/REB/AST against tonight's official MODEL PROJECTION median; no sportsbook line or price; OFF the page 404s and the prune deletes it (was the retired /mlb/board alias)",
+   "dataOwner": "experimental-public lane + the graders' committed box scores (projection-board-actuals gradedBoxscore) + the finals record; availability = eligibility@1 over data/internal/research/injuries/nba + nba/rosters (PRIVATE_RESEARCH, become BUILD_INPUTS when the route is reclassified public)",
+   "freshness": "build-time; slate date stamped; eligibility@1 6 h window",
+   "built": false
   },
   {
    "route": "/ufc",
