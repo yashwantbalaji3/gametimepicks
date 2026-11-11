@@ -134,3 +134,18 @@ points with the reference pools. n = 2020 team-games, 446 of them with an absenc
 | log loss − walk-forward Elo | −0.0068 | [−0.0130, −0.0007] |
 
 **No detectable effect**, as with M1. The gain over Elo is v1's own. The 2025-26 holdout stays unspent.
+
+## 9. What to try next (closed 2026-11-11; no further iteration without a new hypothesis)
+M1 and M2 are two honest nulls. Both used the ex-post tip-time DNP proxy and rate-based pool measures. We stop iterating
+availability measures on this input. Both constant sets (λ; a, b) stay unarmed, with no founder ask.
+
+A new attempt needs a new hypothesis, not a new coefficient. Candidates:
+1. **Lineup-driven margin.** The possession engine simulates who is on the floor, so an absence changes the
+   lineup-level net rating directly, instead of a team-pool rate average that water-fill dilutes.
+2. **Pregame-timestamped availability.** Replace the DNP proxy with our own write-once injury captures once enough
+   accumulate for a fit and a development split. This removes the proxy's in-game-injury and late-scratch noise and
+   matches the forward input exactly.
+3. **Star-specific effects.** Fit on-off effects for the few players whose absence moves the market, with shrinkage,
+   rather than one league-wide coefficient. This needs more seasons than the corpus has, so it ranks last.
+
+The 2025-26 holdout stays unspent until one of these shows a development signal.
