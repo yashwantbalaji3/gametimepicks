@@ -22,56 +22,8 @@ const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
 const text = (h) => h.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 const LANE = JSON.parse(read("public/data/nba/experimental-public/latest.json"));
 
-/* ── fixture: one slate, two past games, four players ─────────────────────────────────────────────────────────── */
-const box = (id, dateUtc, players, { phase = 2, ft = [100, 90] } = {}) => ({
-  doc: {
-    providerEventId: id, phase, dateUtc, status: "STATUS_FINAL", boxscoreAvailable: true,
-    teams: [{ providerTeamId: "1", abbr: "HHH", homeAway: "home" }, { providerTeamId: "2", abbr: "AAA", homeAway: "away" }],
-    players: [
-      ...players,
-      // fillers so the team points equal the final
-      { providerAthleteId: "fh", providerTeamId: "1", minutes: 10, pts: ft[0] - players.filter((p) => p.providerTeamId === "1" && Number.isInteger(p.minutes)).reduce((s, p) => s + p.pts, 0), reb: 0, ast: 0 },
-      { providerAthleteId: "fa", providerTeamId: "2", minutes: 10, pts: ft[1] - players.filter((p) => p.providerTeamId === "2" && Number.isInteger(p.minutes)).reduce((s, p) => s + p.pts, 0), reb: 0, ast: 0 },
-    ],
-  },
-  final: { state: "FINAL", ftHome: ft[0], ftAway: ft[1] },
-});
-const P = (id, team, minutes, pts, reb, ast, extra = {}) => ({ providerAthleteId: id, providerTeamId: team, minutes, pts, reb, ast, ...extra });
-const SOURCES = [
-  box("g1", "2026-11-05T00:00Z", [P("e", "1", 30, 20, 5, 4), P("d", "1", 20, 8, 2, 1), P("o", "2", 25, 12, 6, 3), P("x", "2", 15, 3, 1, 0)]),
-  box("g2", "2026-11-07T00:00Z", [P("e", "1", 32, 10, 9, 2), P("d", "1", 0, 0, 0, 0, { didNotPlay: true }), P("o", "2", 22, 30, 1, 1), P("x", "2", 12, 4, 2, 2)]),
-  box("g3", "2026-11-08T00:00Z", [P("e", "1", 30, 99, 9, 9)], { phase: 1 }), // preseason: never counted
-  box("g4", "2026-11-09T00:30Z", [P("e", "1", 30, 99, 9, 9)]), // ET 2026-11-08 evening, before the slate: counted
-  box("g5", "2026-11-10T00:30Z", [P("e", "1", 30, 99, 9, 9)]), // ET 2026-11-09 = the slate itself: never counted
-];
-const row = (id, name, injuryStatus, medians, expectedMinutes) => ({ providerAthleteId: id, name, injuryStatus, expectedMinutes, medians });
-const lane = {
-  date: "2026-11-09",
-  games: [{
-    providerEventId: "tonight", home: { abbr: "HHH" }, away: { abbr: "AAA" },
-    players: {
-      home: [row("e", "Eligible Eddie", null, { pts: 15, reb: 5, ast: 3 }, 30), row("d", "Doubtful Dan", "Day-To-Day", { pts: 7, reb: 2, ast: 1 }, 34)],
-      away: [row("o", "Other Oscar", null, { pts: 12, reb: 4, ast: 2 }, 36)],
-      unavailable: { away: [{ providerAthleteId: "x", name: "Out Xavier", reason: "RULED_OUT", status: "Out" }], home: [] },
-    },
-  }],
-};
+const { box, P, SOURCES, row, lane, NOW, rp, ELIG, opts, REC } = await import("./__fixtures__/trends-fixture.mjs");
 
-/* eligibility@1 inputs for the fixture: both captures fresh at NOW; d Day-To-Day, x Out on the injury report, u on no roster */
-const NOW = "2026-11-09T20:00:00Z";
-const rp = (id, status = "active") => ({ providerAthleteId: id, rosterStatusType: status });
-const ELIG = {
-  asOf: NOW,
-  injuries: { generatedAt: "2026-11-09T19:00:00Z", entries: [
-    { sport: "nba", providerTeamId: "1", athleteId: "d", athleteName: "Doubtful Dan", status: "Day-To-Day", statedAt: "2026-11-09T18:00:00Z" },
-    { sport: "nba", providerTeamId: "2", athleteId: "x", athleteName: "Out Xavier", status: "Out", statedAt: "2026-11-09T18:00:00Z" },
-  ] },
-  roster: { capturedAt: "2026-11-09T19:00:00Z", teams: [
-    { providerTeamId: "1", espnAbbr: "HHH", state: "CAPTURED", players: [rp("e"), rp("d", "day-to-day"), rp("m")] },
-    { providerTeamId: "2", espnAbbr: "AAA", state: "CAPTURED", players: [rp("o"), rp("x")] },
-  ] },
-};
-const opts = (slateIsToday = true, eligibility = ELIG) => ({ slateIsToday, eligibility });
 
 test("counting rule: regular season before the slate, FINAL with agreeing points, measured lines only; 'above' is strictly greater", () => {
   const t = T.buildTrends(lane, SOURCES, opts());
@@ -267,7 +219,6 @@ test("tonight's matchup reads from the player's side: home 'vs', away '@'", () =
 
 /* ── slice 2: lines only through the display gate; hit counts; no line in the drawer file; no price anywhere ───── */
 const { DISPLAY_AUTHORIZATION } = await import("../../odds/display-authorization.mjs");
-const REC = (athlete, family, line, capturedAt = "2026-11-09T17:00:00Z", extra = {}) => ({ schema: "x", provider: "the-odds-api", eventId: "tonight", providerAthleteId: athlete, family, providerMarketKey: `player_${family}`, line, book: "somebook", overAmerican: -115, underAmerican: -105, capturedAt, ...extra });
 
 test("hit rate at a line: games strictly above the line in the last 5 / 10 / 20 played (fixture)", () => {
   const games = [30, 12, 25, 25, 8, 40, 19, 25].map((pts, i) => ({ eventId: `g${i}`, pts, reb: 0, ast: 0 }));
