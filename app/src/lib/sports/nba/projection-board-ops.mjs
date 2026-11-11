@@ -15,6 +15,7 @@
  * passed in so this file needs no import. A row's `v` is aligned with `stats`.
  * @param {object|null} snapshot
  * @param {ReadonlyArray<ReadonlyArray<string>>} stats
+ * @param {Record<string, string> | null} [postFreeze]  "<eventId>:<athleteId>" → post-freeze note
  */
 export function boardRows(snapshot, stats, postFreeze = null) {
   const rows = [];
