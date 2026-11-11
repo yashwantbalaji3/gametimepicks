@@ -1,0 +1,320 @@
+{
+ "_note": "GitHub REST responses (fields the monitor reads), keyed by path after repos/<owner>/<repo>/. now = 2026-11-10T19:30:00Z. Shapes taken from the live API on 2026-11-10; #1302's head message paraphrased from 3c23246140, the zombie ids are the real 2026-10-07 runs.",
+ "nowIso": "2026-11-10T19:30:00Z",
+ "api": {
+  "pulls?state=open&per_page=100": [
+   {
+    "number": 1302,
+    "updated_at": "2026-11-10T19:13:20Z",
+    "head": {
+     "sha": "3c23246140af6461dc743d716374fa307f7ad1b0"
+    }
+   },
+   {
+    "number": 1295,
+    "updated_at": "2026-11-10T06:15:00Z",
+    "head": {
+     "sha": "6f290cb2c0a440990e683c73b91622df5e4f71db"
+    }
+   },
+   {
+    "number": 1400,
+    "updated_at": "2026-11-10T19:00:00Z",
+    "head": {
+     "sha": "aaaaaaaaaa00000000000000000000000000000a"
+    }
+   },
+   {
+    "number": 1401,
+    "updated_at": "2026-11-10T19:27:00Z",
+    "head": {
+     "sha": "bbbbbbbbbb00000000000000000000000000000b"
+    }
+   },
+   {
+    "number": 1402,
+    "updated_at": "2026-11-10T18:00:00Z",
+    "head": {
+     "sha": "cccccccccc00000000000000000000000000000c"
+    }
+   },
+   {
+    "number": 1100,
+    "updated_at": "2026-10-20T10:00:00Z",
+    "head": {
+     "sha": "dddddddddd00000000000000000000000000000d"
+    }
+   }
+  ],
+  "actions/runs?head_sha=3c23246140af6461dc743d716374fa307f7ad1b0&per_page=20": {
+   "total_count": 1,
+   "workflow_runs": [
+    {
+     "id": 1,
+     "name": "pipeline-monitor",
+     "event": "pull_request_target",
+     "status": "completed",
+     "conclusion": null,
+     "head_branch": "main",
+     "head_sha": null,
+     "created_at": "2026-11-10T19:19:30Z",
+     "run_started_at": "2026-11-10T19:19:30Z"
+    }
+   ]
+  },
+  "actions/runs?head_sha=6f290cb2c0a440990e683c73b91622df5e4f71db&per_page=20": {
+   "total_count": 1,
+   "workflow_runs": [
+    {
+     "id": 42760747223,
+     "name": "quality-gate",
+     "event": "pull_request",
+     "status": "completed",
+     "conclusion": null,
+     "head_branch": "claude/site-safe-fixes-1109",
+     "head_sha": null,
+     "created_at": "2026-11-10T06:16:00Z",
+     "run_started_at": "2026-11-10T06:16:00Z"
+    }
+   ]
+  },
+  "actions/runs?head_sha=aaaaaaaaaa00000000000000000000000000000a&per_page=20": {
+   "total_count": 0,
+   "workflow_runs": []
+  },
+  "actions/runs?head_sha=bbbbbbbbbb00000000000000000000000000000b&per_page=20": {
+   "total_count": 0,
+   "workflow_runs": []
+  },
+  "actions/runs?head_sha=cccccccccc00000000000000000000000000000c&per_page=20": {
+   "total_count": 0,
+   "workflow_runs": []
+  },
+  "commits/3c23246140af6461dc743d716374fa307f7ad1b0": {
+   "sha": "3c23246140af6461dc743d716374fa307f7ad1b0",
+   "commit": {
+    "committer": {
+     "date": "2026-11-10T19:13:08Z"
+    },
+    "message": "Forecast guard: NFL QB props ledger, regenerated only on change\n\nThe ledger job commits dashboard.json as \"auto: nfl qb props ledger ... [skip ci]\" when it changed.\nDeterministic: a rerun gives identical bytes."
+   }
+  },
+  "commits/aaaaaaaaaa00000000000000000000000000000a": {
+   "sha": "aaaaaaaaaa00000000000000000000000000000a",
+   "commit": {
+    "committer": {
+     "date": "2026-11-10T18:59:00Z"
+    },
+    "message": "docs: runbook wording"
+   }
+  },
+  "commits/bbbbbbbbbb00000000000000000000000000000b": {
+   "sha": "bbbbbbbbbb00000000000000000000000000000b",
+   "commit": {
+    "committer": {
+     "date": "2026-11-10T19:26:30Z"
+    },
+    "message": "Results: tidy"
+   }
+  },
+  "commits/cccccccccc00000000000000000000000000000c": {
+   "sha": "cccccccccc00000000000000000000000000000c",
+   "commit": {
+    "committer": {
+     "date": "2026-11-10T17:59:00Z"
+    },
+    "message": "Merge origin/main"
+   }
+  },
+  "pulls/1302/files?per_page=100": [
+   {
+    "filename": "app/src/lib/sports/nfl/qb-props-ledger.mjs"
+   },
+   {
+    "filename": ".github/workflows/nfl-qb-props.yml"
+   }
+  ],
+  "pulls/1400/files?per_page=100": [
+   {
+    "filename": "docs/RUNBOOK.md"
+   }
+  ],
+  "pulls/1401/files?per_page=100": [
+   {
+    "filename": "app/src/components/results/results-trend.tsx"
+   }
+  ],
+  "pulls/1402/files?per_page=100": [
+   {
+    "filename": "app/src/app/page.tsx"
+   }
+  ],
+  "pulls/1302": {
+   "number": 1302,
+   "mergeable": true
+  },
+  "pulls/1400": {
+   "number": 1400,
+   "mergeable": true
+  },
+  "pulls/1401": {
+   "number": 1401,
+   "mergeable": true
+  },
+  "pulls/1402": {
+   "number": 1402,
+   "mergeable": false
+  },
+  "actions/runs?status=queued&per_page=100": {
+   "total_count": 3,
+   "workflow_runs": [
+    {
+     "id": 37672956236,
+     "name": "nba-forecast-window",
+     "event": "workflow_run",
+     "status": "queued",
+     "conclusion": null,
+     "head_branch": "main",
+     "head_sha": null,
+     "created_at": "2026-10-07T19:14:19Z",
+     "run_started_at": "2026-10-07T19:14:19Z"
+    },
+    {
+     "id": 37655527836,
+     "name": "soccer-dc-shadow",
+     "event": "schedule",
+     "status": "queued",
+     "conclusion": null,
+     "head_branch": "main",
+     "head_sha": null,
+     "created_at": "2026-10-07T16:56:32Z",
+     "run_started_at": "2026-10-07T16:56:32Z"
+    },
+    {
+     "id": 37655501437,
+     "name": "nightly-settle",
+     "event": "schedule",
+     "status": "queued",
+     "conclusion": null,
+     "head_branch": "main",
+     "head_sha": null,
+     "created_at": "2026-10-07T16:53:09Z",
+     "run_started_at": "2026-10-07T16:53:09Z"
+    }
+   ]
+  },
+  "actions/runs?status=in_progress&per_page=100": {
+   "total_count": 3,
+   "workflow_runs": [
+    {
+     "id": 42900000001,
+     "name": "quality-gate",
+     "event": "pull_request",
+     "status": "in_progress",
+     "conclusion": null,
+     "head_branch": "claude/long-one",
+     "head_sha": null,
+     "created_at": "2026-11-10T18:05:00Z",
+     "run_started_at": "2026-11-10T18:05:00Z"
+    },
+    {
+     "id": 42900000002,
+     "name": "quality-gate",
+     "event": "pull_request",
+     "status": "in_progress",
+     "conclusion": null,
+     "head_branch": "claude/normal-one",
+     "head_sha": null,
+     "created_at": "2026-11-10T18:40:00Z",
+     "run_started_at": "2026-11-10T18:40:00Z"
+    },
+    {
+     "id": 42900000003,
+     "name": "nfl-event-window",
+     "event": "schedule",
+     "status": "in_progress",
+     "conclusion": null,
+     "head_branch": "main",
+     "head_sha": null,
+     "created_at": "2026-11-10T18:00:00Z",
+     "run_started_at": "2026-11-10T18:00:00Z"
+    }
+   ]
+  },
+  "actions/runs?status=waiting&per_page=100": {
+   "total_count": 0,
+   "workflow_runs": []
+  },
+  "actions/runs?status=pending&per_page=100": {
+   "total_count": 0,
+   "workflow_runs": []
+  },
+  "actions/runs?status=requested&per_page=100": {
+   "total_count": 0,
+   "workflow_runs": []
+  },
+  "actions/workflows/quality-gate.yml/runs?branch=main&status=completed&per_page=1": {
+   "total_count": 1,
+   "workflow_runs": [
+    {
+     "id": 42719864782,
+     "name": "quality-gate",
+     "event": "push",
+     "status": "completed",
+     "conclusion": "failure",
+     "head_branch": "main",
+     "head_sha": "209c9395aa0000000000000000000000000000aa",
+     "created_at": "2026-11-10T07:10:00Z",
+     "run_started_at": "2026-11-10T07:10:00Z"
+    }
+   ]
+  },
+  "deployments?environment=Production&per_page=20": [
+   {
+    "id": 7695530097,
+    "sha": "5c7caee9c5e271b5bf8762d9b49bd23a1622f279",
+    "environment": "Production",
+    "created_at": "2026-11-10T19:04:00Z"
+   },
+   {
+    "id": 7694767300,
+    "sha": "e36b50ddcbb6fe50c3f00037e55f53cb0a61ed60",
+    "environment": "Production",
+    "created_at": "2026-11-10T18:27:54Z"
+   },
+   {
+    "id": 7694430396,
+    "sha": "ac13e25b46079799e5feabc47e86b92101180e79",
+    "environment": "Production",
+    "created_at": "2026-11-10T18:13:25Z"
+   },
+   {
+    "id": 7600000000,
+    "sha": "0000000000000000000000000000000000000001",
+    "environment": "Production",
+    "created_at": "2026-11-05T10:00:00Z"
+   }
+  ],
+  "deployments/7695530097/statuses?per_page=1": [
+   {
+    "state": "success",
+    "description": "Deployment has completed",
+    "environment": "Production"
+   }
+  ],
+  "deployments/7694767300/statuses?per_page=1": [
+   {
+    "state": "failure",
+    "description": "Canceled from the Vercel Dashboard",
+    "environment": "Production"
+   }
+  ],
+  "deployments/7694430396/statuses?per_page=1": [
+   {
+    "state": "error",
+    "description": "Deployment has failed",
+    "environment": "Production"
+   }
+  ]
+ }
+}

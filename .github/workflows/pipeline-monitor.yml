@@ -1,0 +1,125 @@
+# PIPELINE MONITOR (founder P0, Track B #6, 2026-11-10) — watches CI and deploys from GitHub, so nothing depends on
+# a Mac or a Claude session being awake. Conditions, thresholds and de-duplication: app/src/lib/ops/pipeline-monitor.mjs.
+#
+#   PR_HEAD_NO_RUN       a PR head with no workflow run 5+ min after its push (skip-CI marker, merge conflict, other)
+#   QUALITY_GATE_LONG    quality-gate in progress > 75 min          RUN_ZOMBIE   any run queued/in progress > 12 h
+#   CRON_SLOT_MISSED     cron-watchdog's slot report: missed / failing slots, or the report itself stale
+#   VERCEL_PROD_FAILED   a Production deployment failed (the coalescing "Canceled from the Vercel Dashboard" is not)
+#   MAIN_GATE_RED        main's newest completed quality-gate run is red
+#
+# WAKE-UPS ARE EVENTS. GitHub drops frequent crons in this repo (*/30 got 3 of 48 slots), so the triggers are events
+# that are delivered when they happen: every PR push (pull_request_target — see below), every quality-gate run
+# start/finish, and every commit status (Vercel posts one per main push, several an hour). One low-frequency cron is
+# only the backstop. Each run evaluates ALL conditions, so any wake-up catches any of them.
+#
+# WHY pull_request_target AND NOT pull_request. GitHub skips push and pull_request workflows when the head commit
+# message carries a skip-CI marker — the exact failure this must catch (#1302, 3.5 h). pull_request_target is not
+# skipped. It runs THIS file from main with a token, so it never checks out or executes PR code: the PR is only read
+# through the REST API as data, and no PR-controlled text is ever expanded into a script.
+#
+# READ-ONLY. Nothing here re-runs, cancels, approves or merges anything (guarded by pipeline-monitor.test.mjs). The
+# only write is data/internal/ops/pipeline-status.json, committed only when it changes and never a build input, so
+# a status commit costs no Vercel build.
+name: pipeline-monitor
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened, ready_for_review]
+  workflow_run:
+    workflows: [quality-gate]
+    types: [requested, completed]
+  status:
+  schedule:
+    # Backstop only (see WAKE-UPS): every 3 h at :41, off the busy :00/:30 marks.
+    - cron: "41 */3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  # A PR push: wait until the 5-minute no-run threshold has passed, then evaluate. A newer push to the same PR
+  # restarts the wait.
+  wait:
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    concurrency:
+      group: pipeline-monitor-wait-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+    steps:
+      - name: Wait past the no-run threshold
+        run: sleep 360
+
+  monitor:
+    needs: wait
+    # Commit statuses: Vercel's final ones only (its "pending" adds nothing; other contexts are not deploys).
+    if: >-
+      always() && (needs.wait.result == 'success' || needs.wait.result == 'skipped') &&
+      (github.event_name != 'status' || (github.event.context == 'Vercel' && github.event.state != 'pending'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # One evaluation at a time; GitHub keeps one pending run and drops the rest, which is right here because every
+    # run evaluates the whole pipeline.
+    concurrency:
+      group: pipeline-monitor
+      cancel-in-progress: false
+    permissions:
+      contents: write
+      actions: read
+      pull-requests: read
+      statuses: read
+      deployments: read
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 20
+
+      - name: Evaluate the pipeline
+        id: eval
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -uo pipefail
+          node app/scripts/ops/pipeline-monitor.mjs --repo "$GITHUB_REPOSITORY" --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+            --alerts "$RUNNER_TEMP/pipeline-alerts.jsonl" --write | tee "$RUNNER_TEMP/pipeline-monitor.txt"
+          rc=${PIPESTATUS[0]}
+          { echo "### Pipeline monitor"; echo '```'; cat "$RUNNER_TEMP/pipeline-monitor.txt"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+          exit "$rc"
+
+      - name: Commit the status (only when it changed)
+        run: |
+          set -euo pipefail
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/internal/ops/pipeline-status.json
+          GENERATED_PATHS="data/internal/ops/pipeline-status.json" \
+            bash scripts/ci/commit-generated.sh "auto: pipeline status $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
+
+      # One message per NEW condition key (a condition already alerted stays quiet until it clears). Sent after the
+      # commit so the de-dup state is on main first; sent even if the commit failed, since a missed alert is worse
+      # than a repeated one.
+      - name: Alert on new conditions
+        if: always() && steps.eval.outcome == 'success'
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+        run: |
+          set -u
+          F="$RUNNER_TEMP/pipeline-alerts.jsonl"
+          [ -s "$F" ] || { echo "no new conditions"; exit 0; }
+          while IFS= read -r line; do
+            KIND="$(printf '%s' "$line" | node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(0,"utf8")).kind)')"
+            DETAIL="$(printf '%s' "$line" | node -e 'process.stdout.write(JSON.parse(require("fs").readFileSync(0,"utf8")).detail)')"
+            PHASE="pipeline-monitor/${KIND}" OPS_ALERT_KIND=warning EXIT_STATUS=0 ERROR_LINE="$DETAIL" bash scripts/ops_alert.sh
+          done < "$F"
+
+      - name: Alert on a failed monitor run
+        if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+        run: |
+          PHASE=pipeline-monitor EXIT_STATUS=1 ERROR_LINE="the pipeline monitor itself failed (API unreadable or status commit refused)" bash scripts/ops_alert.sh
