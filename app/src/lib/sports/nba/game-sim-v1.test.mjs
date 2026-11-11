@@ -289,3 +289,21 @@ test("published sample minutes are 0.01-rounded AND sum to exactly 240 + 25·OT 
   assert.deepEqual(roundMinutesPreservingTotal([0, 132.5, 132.5], 1), [0, 132.5, 132.5], "OT target 265; zero stays zero");
   assert.throws(() => roundMinutesPreservingTotal([100, 100], 0), /invariant 3/);
 });
+
+/* ─────────────── M1 research candidate nba-sim-v1-availability-margin (UNARMED) ─────────────── */
+test("M1 · marginShift 0 (or absent) is v1 byte for byte: no new field, identical full output", () => {
+  const { input } = game({ simulations: 400 });
+  assert.equal(JSON.stringify(simulateGameV1({ ...input, marginShift: 0 })), JSON.stringify(simulateGameV1(input)));
+  assert.ok(!("availabilityMarginShift" in prepareGame(input).expectations));
+});
+
+test("M1 · a shift moves only the expected margin (never the total); every draw still satisfies the seven invariants", () => {
+  const { input } = game({ simulations: 800 });
+  const e0 = prepareGame(input).expectations, e1 = prepareGame({ ...input, marginShift: 3 }).expectations;
+  assert.ok(Math.abs(e1.muMargin - e0.muMargin - 3) < 1e-12);
+  assert.equal(e1.muTotal, e0.muTotal);
+  const o0 = simulateGameV1(input), o1 = simulateGameV1({ ...input, marginShift: 3 });
+  assert.equal(o1.invariants.violations, 0);
+  assert.ok(o1.sim.pHome > o0.sim.pHome, "a positive home shift raises P(home)");
+  assert.ok(o1.sim.margin.mean > o0.sim.margin.mean);
+});

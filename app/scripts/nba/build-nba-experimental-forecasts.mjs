@@ -61,11 +61,14 @@ const opt0 = (n) => { const i = argv0.indexOf(n); return i === -1 ? null : argv0
 // RESEARCH REPLAY ONLY: --schedule-file / --rosters-file / --injuries-file replace the three committed inputs (e.g. the
 // exact git blobs a past receipt hashed). They require --out OUTSIDE the repository, so a replayed past instant can
 // never become a frozen forecast, a receipt or a sample (2026-10-20/21 are never v0.3 forward samples).
-const OVERRIDES = { schedule: opt0("--schedule-file"), rosters: opt0("--rosters-file"), injuries: opt0("--injuries-file") };
+// --v1-margin-shift <eventId>=<points> (repeatable): the M1 research candidate's availability margin term
+// (scripts/nba/research-v1-availability-margin.mjs) — research replay only, same --out rule.
+const V1_MARGIN_SHIFTS = Object.fromEntries(argv0.flatMap((a, i) => (a === "--v1-margin-shift" ? [argv0[i + 1]] : [])).map((x) => String(x).split("=")).filter(([k, v]) => k && Number.isFinite(Number(v))).map(([k, v]) => [k, Number(v)]));
+const OVERRIDES = { schedule: opt0("--schedule-file"), rosters: opt0("--rosters-file"), injuries: opt0("--injuries-file"), marginShift: Object.keys(V1_MARGIN_SHIFTS).length ? "yes" : null };
 const OVERRIDDEN = Object.values(OVERRIDES).some(Boolean);
 if (OVERRIDDEN) {
   const out = opt0("--out") ? path.resolve(opt0("--out")) : null;
-  if (!out || out === REPO || out.startsWith(REPO + path.sep)) { console.error("REFUSED: --schedule-file / --rosters-file / --injuries-file are research replays only — they require --out <file> outside the repository"); process.exit(1); }
+  if (!out || out === REPO || out.startsWith(REPO + path.sep)) { console.error("REFUSED: --schedule-file / --rosters-file / --injuries-file / --v1-margin-shift are research replays only — they require --out <file> outside the repository"); process.exit(1); }
 }
 const SCHEDULE = OVERRIDES.schedule ? path.resolve(OVERRIDES.schedule) : path.join(APP, "public", "data", "nba", "schedule", "latest.json");
 const INJURIES = OVERRIDES.injuries ? path.resolve(OVERRIDES.injuries) : path.join(RESEARCH, "injuries", "nba", "latest.json");
@@ -177,6 +180,7 @@ const { artifact, manifest } = buildForecastArtifact({
   date: DATE, now: NOW,
   scheduleRows: (schedule.rows ?? []).filter((r) => buildIds.has(String(r?.providerEventId))), corpusRows, boxscores,
   injuries: injuries?.entries ?? null, rosters, simulations: SIMS, family: FAMILY.family,
+  ...(Object.keys(V1_MARGIN_SHIFTS).length ? { v1MarginShifts: V1_MARGIN_SHIFTS } : {}),
 });
 artifact.inputs = {
   corpus: { file: "corpus-v1.json", generatedAt: corpus.generatedAt ?? null, rows: (corpus.rows ?? []).length },

@@ -234,7 +234,7 @@ export function reconcileRoster(rosters, providerTeamId, minutesResult) {
  * @param injuries      injuries feed entries[] (null → availability unknown)
  * @param rosters       roster capture artifact (roster-parse.mjs) or null → reconciliation absent, never guessed
  */
-export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, boxscores, injuries = null, rosters = null, simulations = DEFAULT_SIMULATIONS, family = "v0" }) {
+export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, boxscores, injuries = null, rosters = null, simulations = DEFAULT_SIMULATIONS, family = "v0", v1MarginShifts = null }) {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(String(date))) throw new Error("REFUSED: --date YYYY-MM-DD required");
   if (typeof now !== "string" || !Number.isFinite(Date.parse(now))) throw new Error("REFUSED: --now ISO required");
   const spec = familySpec(family);
@@ -359,7 +359,9 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
     let sim;
     if (engineV1) {
       try {
-        sim = simulateGameV1({ providerEventId: row.providerEventId, inputAsOf: now, neutralSite: row.neutralSite === true, home, away, league: v1LeagueFor(population), eloWinProbability: eloP, simulations });
+        // v1MarginShifts: RESEARCH REPLAY ONLY (M1 candidate nba-sim-v1-availability-margin; the builder allows it only with
+        // --out outside the repository). Absent ⇒ marginShift 0 ⇒ v1 exactly.
+        sim = simulateGameV1({ providerEventId: row.providerEventId, inputAsOf: now, neutralSite: row.neutralSite === true, home, away, league: v1LeagueFor(population), eloWinProbability: eloP, simulations, marginShift: v1MarginShifts?.[String(row.providerEventId)] ?? 0 });
       } catch (e) {
         if (!/^REFUSED/.test(e.message)) throw e; // an invariant violation is a bug, never a refusal
         manifest.refused.push({ providerEventId: String(row.providerEventId), reason: `V1_ENGINE: ${e.message}` });

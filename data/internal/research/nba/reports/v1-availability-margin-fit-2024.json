@@ -1,0 +1,16 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nba-v1-availability-margin-fit",
+ "dataClass": "PRIVATE_RESEARCH",
+ "candidate": "nba-sim-v1-availability-margin",
+ "armed": false,
+ "fitSeason": "2023-24 (corpus season 2024), regular season, ≥ 30 days in",
+ "method": "OLS, no intercept: (regulation margin − V1 HCA·home − V1 ELO_TO_MARGIN·ΔElo) on (ΔO_home − ΔO_away); v1 parameters fixed",
+ "availabilityProxy": "TIP-TIME PROXY — injury-type DNP (dnpReason not a coach's decision) in the game's box score, for players in the historical roster proxy pool",
+ "n": 1010,
+ "gamesWithAbsence": 387,
+ "xSd": 2.4536,
+ "lambda": 0.1617,
+ "lambdaSE": 0.1842,
+ "approval": "PENDING — founder approval required before any arming (methodology-constants rule)"
+}

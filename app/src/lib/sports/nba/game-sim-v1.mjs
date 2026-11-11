@@ -182,25 +182,28 @@ export function expectedSidePoints(sideProfile) {
   return { offence: e > 0 ? (REGULATION_MINUTES * pts) / e : null, poolExpectedMinutes: e };
 }
 
-export function gameExpectations({ home, away, neutralSite = false, league, params = V1_PARAMS }) {
+/* `marginShift` (research candidate nba-sim-v1-availability-margin, UNARMED; scripts/nba/research-v1-availability-margin.mjs):
+   regulation points added to the Elo margin from post-freeze absences. 0 (the default) leaves every number and every
+   returned object exactly as v1 — the field is not even present. */
+export function gameExpectations({ home, away, neutralSite = false, league, params = V1_PARAMS, marginShift = 0 }) {
   const L = 2 * league.pointsPerTeamGame;
   const oh = expectedSidePoints(home.profile).offence, oa = expectedSidePoints(away.profile).offence;
   if (!Number.isFinite(oh) || !Number.isFinite(oa)) throw new Error("REFUSED: a side has no simulable pool offence");
   const Traw = (oh + away.profile.defence.ptsAllowed + oa + home.profile.defence.ptsAllowed) / 2;
   const eloH = Number.isFinite(home.rating?.rating) ? home.rating.rating : 1500, eloA = Number.isFinite(away.rating?.rating) ? away.rating.rating : 1500;
-  const muMargin = (neutralSite ? 0 : params.HCA_POINTS) + params.ELO_TO_MARGIN * (eloH - eloA);
+  const muMargin = (neutralSite ? 0 : params.HCA_POINTS) + params.ELO_TO_MARGIN * (eloH - eloA) + (marginShift ? marginShift : 0);
   const muTotal = L + params.TOTAL_OFFSET + params.TOTAL_WEIGHT * (Traw - L);
-  return { L, offenceHome: oh, offenceAway: oa, defenceHome: home.profile.defence.ptsAllowed, defenceAway: away.profile.defence.ptsAllowed, Traw, muMargin, muTotal, home: (muTotal + muMargin) / 2, away: (muTotal - muMargin) / 2 };
+  return { ...(marginShift ? { availabilityMarginShift: marginShift } : {}), L, offenceHome: oh, offenceAway: oa, defenceHome: home.profile.defence.ptsAllowed, defenceAway: away.profile.defence.ptsAllowed, Traw, muMargin, muTotal, home: (muTotal + muMargin) / 2, away: (muTotal - muMargin) / 2 };
 }
 
 /** Prepare everything a draw needs (pure, fixed per game). Throws REFUSED when a side cannot fill the floor. */
-export function prepareGame({ providerEventId, seed = null, neutralSite = false, home, away, league, params = V1_PARAMS }) {
+export function prepareGame({ providerEventId, seed = null, neutralSite = false, home, away, league, params = V1_PARAMS, marginShift = 0 }) {
   for (const [k, s] of [["home", home], ["away", away]]) {
     const n = (s.profile?.players ?? []).length;
     if (n < MIN_SIMULABLE_PLAYERS) throw new Error(`REFUSED: ${k} side has ${n} simulable players (< ${MIN_SIMULABLE_PLAYERS}) — cannot fill 240 minutes under the 48-minute cap`);
   }
   const seeded = seed != null ? { seed: String(seed), seedPolicy: "explicit" } : { seed: fnv1a32(String(providerEventId)), seedPolicy: V1_SEED_POLICY };
-  const exp = gameExpectations({ home, away, neutralSite, league, params });
+  const exp = gameExpectations({ home, away, neutralSite, league, params, marginShift });
   const side = (s) => ({
     players: s.profile.players.map((p) => ({ id: p.providerAthleteId, mean: p.minutesMean, sd: p.minutesSd, play: p.playRate, r: p.rates, p3: p.p3, p2: p.p2 })),
   });
@@ -414,10 +417,10 @@ function sampleView(prep, draw, label, selectionRule, names) {
  * @param home/away  { name, providerTeamId, rating: { rating, games, basis }, profile: buildSideProfile() result }
  * @param league     leagueMeans() result (as of the same instant)
  */
-export function simulateGameV1({ providerEventId, inputAsOf, neutralSite = false, home, away, league, eloWinProbability, simulations = V1_DEFAULT_SIMULATIONS, seed = null, params = V1_PARAMS, __testMutateDraw = null }) {
+export function simulateGameV1({ providerEventId, inputAsOf, neutralSite = false, home, away, league, eloWinProbability, simulations = V1_DEFAULT_SIMULATIONS, seed = null, params = V1_PARAMS, marginShift = 0, __testMutateDraw = null }) {
   if (!providerEventId) throw new Error("simulateGameV1: providerEventId required");
   if (!Number.isInteger(simulations) || simulations < 1) throw new Error("simulateGameV1: simulations must be a positive integer");
-  const prep = prepareGame({ providerEventId, seed, neutralSite, home, away, league, params });
+  const prep = prepareGame({ providerEventId, seed, neutralSite, home, away, league, params, marginShift });
   const N = simulations;
   const fH = new Int32Array(N), fA = new Int32Array(N), ots = new Int32Array(N);
   const pStats = prep.sides.map((s) => s.players.map(() => ({ minutes: new Float64Array(N), ...Object.fromEntries(STAT_OUT.map((k) => [k, new Float64Array(N)])) })));
