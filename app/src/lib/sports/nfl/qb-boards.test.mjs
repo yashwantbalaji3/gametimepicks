@@ -47,7 +47,7 @@ test("render: labelled EXPERIMENTAL · MODEL PROJECTION; no price, line, pick, e
   const html = renderToStaticMarkup(React.createElement(QbBoards, { model: model() }));
   assert.match(html, /EXPERIMENTAL · MODEL PROJECTION · RESEARCH/);
   assert.match(html, /data-nfl-qb-board="passYds"/);
-  assert.match(html, /QB3<\/a> <span[^>]*>CCC<\/span><\/th><td>300<\/td><td>260–340<\/td>/);
+  assert.match(html, /QB3<\/a> <span[^>]*>CCC<\/span><\/th><td>300<\/td><td>270–330<\/td>/, "median and 80% range from the exact run counts");
   assert.doesNotMatch(html, /\b(odds|edge|lock|confidence|value bet|bet|price|over\/under)\b/i);
   assert.equal(renderToStaticMarkup(React.createElement(QbBoards, { model: { ...model(), quarterbacks: 0 } })), "");
 });
