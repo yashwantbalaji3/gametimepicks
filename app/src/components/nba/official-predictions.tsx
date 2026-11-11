@@ -26,6 +26,8 @@ import { EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probabi
 import { eloWinProbabilityOf, ELO_WIN_PROBABILITY_LABEL } from "@/lib/sports/nba/elo-win-probability.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import NbaPropLines from "@/components/nba/nba-prop-lines";
+import { postFreezeNote } from "@/lib/sports/nba/post-freeze-availability.mjs";
+import type { PostFreezeOut } from "@/components/nba/post-freeze-availability-data";
 
 /* The official panel's shape (possession-types PbOfficial — payload.mjs officialPanel), declared here structurally so
    this official component imports nothing from the research Theater library (public-theater-route research boundary). */
@@ -99,15 +101,17 @@ export function reconciledCombos(official: PbOfficial, lane: OfficialLaneGame): 
   return out;
 }
 
-export default function NbaOfficialPredictions({ official, teams, lane, finalNote, resultsHref, eloCtx }: {
+export default function NbaOfficialPredictions({ official, teams, lane, finalNote, resultsHref, eloCtx, postFreezeOut }: {
   official: PbOfficial | null; teams: Teams; lane: OfficialLaneGame; finalNote: string | null; resultsHref: string; eloCtx?: EloCtx;
+  /** players ruled out after the freeze (post-freeze-availability-data.ts): kept as recorded, demoted, with the note */
+  postFreezeOut?: PostFreezeOut;
 }) {
   const elo = eloCtx ?? loadEloWinProbabilityContext();
   return (
     <section id={OFFICIAL_PREDICTIONS_ID} tabIndex={-1} className="nbx-official" aria-labelledby={`${OFFICIAL_PREDICTIONS_ID}-h`} data-nba-official-predictions={official?.snapshotId ?? "none"} data-theater-default="">
       <p className="nbx-kind">{OFFICIAL_DEFAULT_KIND}</p>
       <h2 id={`${OFFICIAL_PREDICTIONS_ID}-h`}>{OFFICIAL_PREDICTIONS_TITLE}</h2>
-      {official ? <Official official={official} teams={teams} lane={lane} elo={elo} /> : (
+      {official ? <Official official={official} teams={teams} lane={lane} elo={elo} postFreezeOut={postFreezeOut ?? new Map()} /> : (
         <p>{PUBLIC_TERMS.UNAVAILABLE}: no Official Forecast receipt for this game. Nothing on this page is an Official Forecast.</p>
       )}
       {/* Model vs. sportsbook line for this game (founder P0 2026-10-29): renders nothing while NBA_LINE_DISPLAY.public is false. */}
@@ -122,7 +126,7 @@ export default function NbaOfficialPredictions({ official, teams, lane, finalNot
   );
 }
 
-function Official({ official, teams, lane, elo }: { official: PbOfficial; teams: Teams; lane: OfficialLaneGame; elo: EloCtx }) {
+function Official({ official, teams, lane, elo, postFreezeOut }: { official: PbOfficial; teams: Teams; lane: OfficialLaneGame; elo: EloCtx; postFreezeOut: PostFreezeOut }) {
   const fav = official.favouredSide === "HOME" ? teams.home : official.favouredSide === "AWAY" ? teams.away : null;
   const combos = reconciledCombos(official, lane);
   const w = official.withheld ?? {};
@@ -151,7 +155,9 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
         </dl>
       </details>
       {(["away", "home"] as const).map((side) => {
-        const rows = official.players.filter((p) => p.team === side).sort((a, b) => (b.expectedMinutes ?? -1) - (a.expectedMinutes ?? -1));
+        // a player ruled out after the freeze keeps the projection as recorded, but sorts below every active row (demoted)
+        const out = (p: OfficialPlayer) => (postFreezeOut.has(p.playerId) ? 1 : 0);
+        const rows = official.players.filter((p) => p.team === side).sort((a, b) => out(a) - out(b) || (b.expectedMinutes ?? -1) - (a.expectedMinutes ?? -1));
         // only THIS game's lane list, and never a player the official rows already carry
         const shown = new Set(rows.map((p) => p.playerId));
         const none = (lane && String(lane.providerEventId) === String(official.eventId) ? lane.players.unavailable?.[side] ?? [] : []).filter((u) => !shown.has(String(u.providerAthleteId)));
@@ -163,9 +169,10 @@ function Official({ official, teams, lane, elo }: { official: PbOfficial; teams:
               <tbody>
                 {rows.map((p) => {
                   const c = combos.get(p.playerId);
+                  const ruledOut = postFreezeOut.get(p.playerId);
                   return (
-                    <tr key={p.playerId}>
-                      <th scope="row">{p.displayName ?? p.playerId}</th><td>{fmt(p.expectedMinutes)}</td>
+                    <tr key={p.playerId} {...(ruledOut ? { className: "nbx-postfreeze-out", "data-nba-post-freeze-out": p.playerId } : {})}>
+                      <th scope="row">{p.displayName ?? p.playerId}{ruledOut ? <span className="nbx-postfreeze-note">{postFreezeNote(ruledOut.statedAt)}</span> : null}</th><td>{fmt(p.expectedMinutes)}</td>
                       {STATS.map(([k]) => <td key={k}>{fmt(p.medians[k])}</td>)}
                       {COMBO_STATS.map(([k]) => <td key={k}>{fmt(c?.[k])}</td>)}
                     </tr>
