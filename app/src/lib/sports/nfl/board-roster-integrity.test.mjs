@@ -187,7 +187,7 @@ test("fail-closed: a stale chart with several passers, or no chart and no passer
   const stale = qbRows();
   const r1 = applyQbStarterRule({ players: stale, team: "CLE", index: chart("CLE", "2026-09-20T13:00:00Z", [["1", "Starter"]]), asOf: "2026-10-01T20:00:00Z" });
   assert.equal(r1.state, QB_STARTER_WITHHELD);
-  assert.equal(r1.tier, QB_TIER.D);
+  assert.equal(r1.tier, null, "no starter, no tier");
   assert.match(r1.reason, /starting QB not confirmed — depth chart STALE/);
   assert.equal(stale.filter((p) => p.markets.player_pass_yds).length, 0);
   assert.ok(stale[1].markets.player_rush_yds, "only the pass-attempt pool is touched");
@@ -197,29 +197,33 @@ test("fail-closed: a stale chart with several passers, or no chart and no passer
   assert.equal(single[0].markets.player_pass_yds.median, 203);
 });
 
-test("scenario · traded QB (BAL Brissett): QB1 has no club row → tier (b) from all-club history, the backup's line removed", () => {
+test("scenario · traded QB (BAL Brissett): starts; tier (b) is EXPERIMENTAL — named with the reason, no public number anywhere", () => {
   const players = [
     { playerId: "nfl-athlete-4429582", name: "Joe Fagnano", team: "BAL", markets: { player_pass_yds: { median: 127 }, player_rush_yds: { median: 3 } } },
     { playerId: "nfl-athlete-1", name: "Derrick Henry", team: "BAL", markets: { player_rush_yds: { median: 80 } } },
   ];
   const r = applyQbStarterRule({ players, team: "BAL", index: chart("BAL", W10, [["9001", "Jacoby Brissett"], ["4429582", "Joe Fagnano"]]), asOf: AS_OF, tierBFor: tierB(2400), rowFor: newRow("BAL"), shareOf: (id) => (id === "nfl-athlete-4429582" ? 0.36 : undefined) });
-  assert.equal(r.state, "APPLIED");
+  assert.equal(r.state, QB_STARTER_WITHHELD);
   assert.equal(r.tier, QB_TIER.B);
-  assert.deepEqual(players.filter((p) => p.markets.player_pass_yds).map((p) => p.name), ["Jacoby Brissett"]);
-  assert.equal(players.find((p) => p.name === "Jacoby Brissett").markets.player_pass_yds.tier, QB_TIER.B);
+  assert.equal(r.experimental, true);
+  assert.equal(r.starter.name, "Jacoby Brissett");
+  assert.match(r.reason, /Jacoby Brissett starts for BAL \(depth chart QB1\) — experimental projection in research \(limited individual history: 2400 verified NFL pass attempts/);
+  assert.ok(!players.some((p) => p.markets.player_pass_yds), "no passer on the public board");
+  assert.equal(players.length, 2, "no row is created for an experimental starter");
+  assert.doesNotMatch(JSON.stringify(r), /"median"|"p10"|"p90"|"mean"|starterShare/, "the published rule carries no experimental number");
   assert.equal(players[0].markets.player_rush_yds.median, 3, "the backup keeps his other families");
-  assert.match(r.removed[0].reason, /not BAL's starting quarterback \(Jacoby Brissett, depth chart QB1\)/);
 });
 
-test("scenario · backup now starter (NYG McCarthy): club share below the floor no longer withholds — tier (b) replaces it", () => {
+test("scenario · backup now starter (NYG McCarthy): the share floor no longer decides — tier (b) is experimental; a starter's club share is public tier (a)", () => {
   const players = [{ playerId: "nfl-athlete-4433970", name: "J.J. McCarthy", team: "NYG", markets: { player_pass_yds: { median: 140 } } }];
   const r = applyQbStarterRule({ players, team: "NYG", index: chart("NYG", W10, [["4433970", "J.J. McCarthy"], ["2969939", "Jameis Winston"]]), asOf: AS_OF, shareOf: () => 0.59, tierBFor: tierB(700) });
   assert.equal(r.tier, QB_TIER.B);
-  assert.equal(players[0].markets.player_pass_yds.median, 205, "the relief-share line is replaced, never rescaled");
-  /* control: with a starter's club share the existing model stands (tier a) */
+  assert.equal(r.state, QB_STARTER_WITHHELD);
+  assert.equal(players[0].markets.player_pass_yds, undefined, "the relief-share line is not published, never rescaled");
   const a = [{ playerId: "nfl-athlete-4433970", name: "J.J. McCarthy", team: "NYG", markets: { player_pass_yds: { median: 240 } } }];
   const ra = applyQbStarterRule({ players: a, team: "NYG", index: chart("NYG", W10, [["4433970", "J.J. McCarthy"]]), asOf: AS_OF, shareOf: () => 0.93, tierBFor: tierB(700) });
   assert.equal(ra.tier, QB_TIER.A);
+  assert.equal(ra.state, "APPLIED");
   assert.equal(a[0].markets.player_pass_yds.median, 240);
 });
 
@@ -229,7 +233,8 @@ test("scenario · rookie (MIA McCord, 0 attempts): starts, but is withheld with 
   assert.equal(r.state, QB_STARTER_WITHHELD);
   assert.equal(r.tier, QB_TIER.D);
   assert.equal(r.starter.name, "Kyle McCord");
-  assert.match(r.reason, /Kyle McCord: 0 NFL pass attempts in committed data/);
+  assert.match(r.reason, /Kyle McCord starts for MIA \(depth chart QB1\) — experimental projection in research \(rookie\/contextual fallback: Kyle McCord: 0 NFL pass attempts in committed data/);
+  assert.equal(r.experimental, true);
   assert.ok(!players.some((p) => p.markets.player_pass_yds));
   assert.equal(players.length, 1, "no row is created for a withheld starter");
 });
@@ -253,7 +258,8 @@ test("scenario · several QBs with history (MIN): only the chart's starter carri
   ];
   const r = applyQbStarterRule({ players, team: "MIN", index: chart("MIN", W10, [["8001", "Kirk Cousins"], ["3917315", "Kyler Murray"]]), asOf: AS_OF, shareOf: (id) => ({ "nfl-athlete-3917315": 0.44, "nfl-athlete-2573079": 0.41 })[id], tierBFor: tierB(6000), rowFor: newRow("MIN") });
   assert.equal(r.starter.name, "Kirk Cousins");
-  assert.deepEqual(players.filter((p) => p.markets.player_pass_yds).map((p) => p.name), ["Kirk Cousins"]);
+  assert.equal(r.tier, QB_TIER.B);
+  assert.deepEqual(players.filter((p) => p.markets.player_pass_yds).map((p) => p.name), [], "Cousins (tier b) is experimental: no public passer, never Murray or Wentz");
   assert.deepEqual(r.removed.map((x) => x.name).sort(), ["Carson Wentz", "Kyler Murray"]);
   assert.deepEqual(auditBoard({ board: { matchup: "MIN @ GB", players, integrity: { qbStarter: [r] } }, rosterByTeam: new Map(), unavailable: new Map() }), []);
   const cov = buildCoverage({ teams: ["MIN"], players, excluded: [], arrivals: {}, qbRules: [r] });

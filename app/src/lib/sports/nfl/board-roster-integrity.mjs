@@ -116,10 +116,10 @@ export function receivingFamilyGaps({ forecast, gameId, season, toBoardTeam, pub
  * 2. WHAT IS PROJECTED for him — an evidence tier, recorded on the rule and the row:
  *    (a) A_CLUB_HISTORY      his board row, with a starter's share of THIS club's attempts (share ≥ the floor, or a
  *                            share the forecast does not carry) — the existing model, unchanged
- *    (b) B_ALL_CLUB_HISTORY  traded / backup now starting, with ≥ the rate prior's trials of verified NFL attempts:
- *                            qb-starter-projection.mjs tierBProjection (only when its backtest PASSED; `tierBFor`)
- *    (d) D_WITHHELD          otherwise — the exact data limitation is the reason. No tested rookie fallback exists
- *                            (tier c), so none is used.
+ *    (b) B_ALL_CLUB_HISTORY  traded / backup now starting, with ≥ the rate prior's trials of verified NFL attempts
+ *    (d) D_CONTEXTUAL_FALLBACK  rookie / contextual fallback (fewer verified attempts)
+ *    Founder P0 2026-11-11 (~17:40Z): only (a) is public. A (b)/(d) starter is named with "experimental projection in
+ *    research" and no public number; his projection is EXPERIMENTAL, displayed only behind GTP_NFL_QB_FALLBACK_PUBLIC.
  * Exactly one quarterback per team keeps a passing projection; every other QB's passing is removed with its reason.
  * Nothing is rescaled into a projection the evidence does not support.
  *
@@ -130,7 +130,7 @@ export function receivingFamilyGaps({ forecast, gameId, season, toBoardTeam, pub
  *   rowFor?: (starter: { playerId: string, name: string|null }) => object }} a
  */
 export const QB_STARTER_WITHHELD = "WITHHELD_STARTER_NOT_CONFIRMED";
-export const QB_TIER = Object.freeze({ A: "A_CLUB_HISTORY", B: "B_ALL_CLUB_HISTORY", D: "D_WITHHELD" });
+export const QB_TIER = Object.freeze({ A: "A_CLUB_HISTORY", B: "B_ALL_CLUB_HISTORY", D: "D_CONTEXTUAL_FALLBACK" });
 
 export function identifyStarter({ players, team, index, asOf, maxAgeMs = QB_CHART_MAX_AGE_MS, availabilityOf = () => ({ state: "ELIGIBLE" }) }) {
   const passers = (players ?? []).filter((p) => p.team === team && p.markets?.player_pass_yds);
@@ -161,7 +161,7 @@ export function applyQbStarterRule({ players, team, index, asOf, maxAgeMs = QB_C
   const base = { team, snapshotAt: id.snapshotAt ?? null, skipped: id.skipped };
   if (!id.confirmed) {
     const reason = `withheld for ${team}: ${id.reason}`;
-    return { ...base, state: QB_STARTER_WITHHELD, tier: QB_TIER.D, reason, passers: [], removed: removeOthers(null, reason) };
+    return { ...base, state: QB_STARTER_WITHHELD, tier: null, reason, passers: [], removed: removeOthers(null, reason) };
   }
   const starter = id.starter;
   const notStarter = `not ${team}'s starting quarterback (${starter.name ?? starter.playerId}, ${id.source}) — the team's passing projection belongs to the starter`;
@@ -172,21 +172,20 @@ export function applyQbStarterRule({ players, team, index, asOf, maxAgeMs = QB_C
     row.markets.player_pass_yds.tier = QB_TIER.A;
     return { ...base, state: "APPLIED", tier: QB_TIER.A, starter, source: id.source, basis: Number.isFinite(share) ? `club share ${share.toFixed(2)} ≥ ${floor}` : "club share not carried by the forecast", passers: [starter.playerId], removed: removeOthers(starter.playerId, notStarter) };
   }
-  /* (b) verified all-club history in the current team's context — only a tested method */
+  /* (b)/(d) founder P0 2026-11-11 (~17:40Z): every non-established starter's projection is EXPERIMENTAL research,
+     shown only behind GTP_NFL_QB_FALLBACK_PUBLIC (default OFF). The public board names the starter and the reason and
+     carries NO number for him — not on a row, not on this rule (which the board publishes in `integrity`). */
   const b = tierBFor(starter.playerId, starter.name);
-  if (b?.market) {
-    const target = row ?? (rowFor ? rowFor(starter) : null);
-    if (target) {
-      if (!row) players.push(target);
-      target.markets.player_pass_yds = { ...b.market, tier: QB_TIER.B, basis: b.basis, ...(b.starterShare ? { starterShare: b.starterShare } : {}) };
-      return { ...base, state: "APPLIED", tier: QB_TIER.B, starter, source: id.source, basis: b.basis, ...(b.starterShare ? { starterShare: b.starterShare } : {}), careerAttempts: b.careerAttempts, passers: [starter.playerId], removed: removeOthers(starter.playerId, notStarter) };
-    }
-  }
-  /* (d) withheld with the exact limitation */
-  const limitation = b?.limitation ?? (Number.isFinite(share) ? `club share ${share.toFixed(2)} is a relief appearance's, and no tested all-club projection is available` : "no verified passing history the tested methods can use");
-  const reason = `withheld for ${team}: ${starter.name ?? starter.playerId} starts (${id.source}) but is not projected — ${limitation}`;
+  const tier = b?.market ? QB_TIER.B : QB_TIER.D;
+  const evidence = b?.market ? "limited individual history" : "rookie/contextual fallback";
+  const detail = b?.market ? `${b.careerAttempts} verified NFL pass attempts, little of it as ${team}'s starter` : (b?.limitation ?? "no verified NFL passing history the established model can use");
+  const reason = `${starter.name ?? starter.playerId} starts for ${team} (${id.source}) — experimental projection in research (${evidence}: ${detail})`;
   if (row) delete row.markets.player_pass_yds;
-  return { ...base, state: QB_STARTER_WITHHELD, tier: QB_TIER.D, starter, source: id.source, reason, passers: [], removed: [...(row ? [{ playerId: row.playerId, name: row.name, reason }] : []), ...removeOthers(starter.playerId, notStarter)] };
+  return {
+    ...base, state: QB_STARTER_WITHHELD, tier, starter, source: id.source, reason, experimental: true,
+    careerAttempts: b?.careerAttempts ?? null,
+    passers: [], removed: [...(row ? [{ playerId: row.playerId, name: row.name, reason }] : []), ...removeOthers(starter.playerId, notStarter)],
+  };
 }
 
 /**
