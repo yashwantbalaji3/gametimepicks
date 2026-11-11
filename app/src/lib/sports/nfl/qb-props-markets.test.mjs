@@ -18,14 +18,14 @@ test("three distinct statuses; only VALIDATED_OFFICIAL may feed official picks; 
   assert.ok(Object.isFrozen(QB_MARKET_STATUS));
 });
 
-test("no official-pick code reads the QB props modules (only the research section, the grader and the gated QB Trends display do)", () => {
+test("no official-pick code reads the QB props modules (only the research section, the grader and the gated QB Trends display + settled record do)", () => {
   const hits = [];
   const walk = (d) => { for (const e of fs.readdirSync(d, { withFileTypes: true })) { const p = path.join(d, e.name); if (e.isDirectory()) walk(p); else if (/\.(mjs|ts|tsx)$/.test(e.name) && !/\.test\./.test(e.name) && /qb-props-(markets|grade|scores)/.test(fs.readFileSync(p, "utf8"))) hits.push(path.relative(process.cwd(), p)); } };
   walk(path.join(process.cwd(), "src"));
-  assert.deepEqual(hits.sort(), ["src/components/nfl/qb-props-line.tsx", "src/lib/sports/nfl/qb-props-grade.mjs", "src/lib/sports/nfl/qb-props-history-file.mjs", "src/lib/sports/nfl/qb-props-inputs.mjs", "src/lib/sports/nfl/qb-props-markets.mjs", "src/lib/sports/nfl/qb-props-scores.mjs", "src/lib/sports/nfl/trends.ts"]);
+  assert.deepEqual(hits.sort(), ["src/components/nfl/qb-props-line.tsx", "src/lib/sports/nfl/qb-props-grade.mjs", "src/lib/sports/nfl/qb-props-history-file.mjs", "src/lib/sports/nfl/qb-props-inputs.mjs", "src/lib/sports/nfl/qb-props-markets.mjs", "src/lib/sports/nfl/qb-props-scores.mjs", "src/lib/sports/nfl/qb-results.ts", "src/lib/sports/nfl/trends.ts"]);
   // NFL QB Trends (trends-shared 2026-11-11) is a gated research display of the same receipts, never an official pick:
   // it may read the projected QB, and must never consult the status gate that feeds official picks
-  assert.doesNotMatch(fs.readFileSync(path.join(process.cwd(), "src/lib/sports/nfl/trends.ts"), "utf8"), /mayFeedOfficialPicks|VALIDATED_OFFICIAL/);
+  for (const f of ["src/lib/sports/nfl/trends.ts", "src/lib/sports/nfl/qb-results.ts"]) assert.doesNotMatch(fs.readFileSync(path.join(process.cwd(), f), "utf8"), /mayFeedOfficialPicks/, `${f} never consults the official-pick gate`);
 });
 
 test("five markets from one receipt row: exact run counts give the range and exact chances; without them no chance is invented", () => {

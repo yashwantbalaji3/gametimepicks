@@ -179,6 +179,22 @@ type ScoreShapeGame = NonNullable<ScoreShapeArtifact["games"]>[number] & {
   engine?: ScoreShapeArtifact["engine"];
 };
 
+/**
+ * QB results (2026-11-11): a settled game's frozen pregame QB projection, the final and the grade row under the "graded
+ * against" line (#1314). Behind GTP_NFL_TRENDS_PUBLIC (default OFF — a compile-time constant, so OFF nothing is imported
+ * and the page is unchanged).
+ */
+async function QbResultsSlot({ eventId }: { eventId: string }) {
+  if (process.env.GTP_NFL_TRENDS_PUBLIC === "1") {
+    const { loadQbGameResult } = await import("@/lib/sports/nfl/qb-results");
+    const { gradedAgainstFor } = await import("@/lib/sports/nfl/served-grade-io.mjs");
+    const { default: NflQbResultsMount } = await import("@/components/nfl/qb-results/nfl-qb-results-mount");
+    const root = path.resolve(process.cwd(), "..");
+    return <NflQbResultsMount result={await loadQbGameResult(eventId, (e) => gradedAgainstFor(root, e))} />;
+  }
+  return null;
+}
+
 export default function NflGameReport({ params }: { params: { eventId: string } }) {
   const storyNowIso = new Date().toISOString();
   const artifact = forecastArtifact();
@@ -797,6 +813,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       {view ? <Methodology view={view} status={WORLD_MODEL_STATUS} started={started} calibration={s.winProbability.calibration} /> : null}
       {/* Simulation V2 (the drive-level research engine) stays reachable, as research, not as a second forecast. */}
       <SimulationV2Link eventId={f.providerEventId} />
+      {/* flag OFF: the element is never created (an async slot cannot render in a synchronous static render) */}
+      {process.env.GTP_NFL_TRENDS_PUBLIC === "1" ? <QbResultsSlot eventId={f.providerEventId} /> : null}
 
       <section aria-labelledby="how-read" style={{ marginTop: 26 }}>
         <SectionHeader eyebrow="Reading key" title="What these numbers mean" />
