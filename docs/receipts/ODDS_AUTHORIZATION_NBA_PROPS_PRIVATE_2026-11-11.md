@@ -32,11 +32,17 @@ Prop markets authorized: `player_points`, `player_rebounds`, `player_assists`, `
 
 These are the verified The Odds API market keys for points, rebounds, assists and threes (`app/src/lib/sports/odds/nba-props/contract.mjs`, source: the provider's betting-markets page).
 
-Effective cumulative ceiling: 461 credits
+Effective cumulative ceiling: 450 credits under this receipt ID
 
-The arithmetic: the committed ledger's `cumulativeCredits` on main at receipt time is **11**, plus the founder's **450** for this period, gives **461**. The local runner books every call into that same committed ledger, so this period can never spend more than 450.
+**Budget.** The founder authorized 450 credits FOR THIS PERIOD. The guard counts only the credits booked under this receipt's own ID:
+- every paid call this receipt makes is tagged in the ledger with `receiptId` `ODDS_AUTHORIZATION_NBA_PROPS_PRIVATE_2026-11-11` (`recordRequest`);
+- the ceiling compares the sum of those entries, plus the next call's worst case, against 450 (`creditsUnderReceipt`; `parseNbaPropsReceipt` → `ceilingScope: "RECEIPT_ID"`);
+- credits booked under earlier receipts never count toward it, and never allow more than 450 here.
 
-One discrepancy is noted. The 2026-10-29 → 11-03 local captures booked 511 further credits (cumulative 522) only into a local worktree ledger (`gametimepicks-wt/nba-capture`). If that ledger is ever reconciled into main, the cumulative passes 461, and this receipt then refuses every further call. That failure is fail-safe.
+**Three independent hard stops.** Each one alone refuses a paid call:
+1. this receipt's 450-credit budget;
+2. the provider-read shared 3,500-credit weekly cap;
+3. the 2,000-credit reserve floor read from the provider's own balance.
 
 | Term | Value |
 |---|---|
@@ -49,7 +55,7 @@ One discrepancy is noted. The 2026-10-29 → 11-03 local captures booked 511 fur
 | Credit floor | every paid call requires remaining − worst case ≥ `ODDS_API_MIN_CREDITS_REMAINING` (2000). An unreadable balance stops the run before any paid call |
 | Shared weekly cap | 3,500 credits per week across ALL jobs and runners on the key. The local runner reads provider-reported usage (`x-requests-used`, the free `/v4/sports`) before each tick. It stops if usage since the period's baseline, plus the tick's worst case, would exceed 3,500. The baseline is the first preflight reading of the period, kept in the runner's private state. Usage on the key earlier in the same week, before that reading, is not visible to it; the 2,000 floor still bounds it |
 | Failures | any 401/429/5xx/unmodelled status or transport error stops the run; do not retry blindly; a transport error is booked as charged. Unmatched events, stale or one-sided quotes and an exhausted budget are recorded with their reason; a line is never invented. An ops alert (`scripts/ops_alert.sh`) is raised only for an action-needing failure: an authorization failure, a rate or credit limit, a provider incident, or a ledger that cannot be written |
-| Expiry | the 461-credit cumulative ceiling, or 2026-11-17 23:59 ET, whichever comes first |
+| Expiry | 450 credits consumed under this receipt ID, or 2026-11-17 23:59 ET, whichever comes first |
 | Storage | price records ONLY in a private directory outside every repository (founder storage decision 2026-10-22; `app/src/lib/ops/private-data-dir.mjs`): `~/gtp-private/odds/nba/props/`. Each record holds game, player, market, line, price, sportsbook, timestamp and provider provenance. The capture runs on the release owner's machine (a node launchd job), never on a GitHub-hosted runner (public logs, no private storage). Only the credit ledger (credits, status and provider balance; no line, no price, no book) is committed, to an internal path that is not a Vercel build input |
 | Output | PRIVATE_RESEARCH, productEligible false. No price, line or book name reaches any public page, export or social graphic. Sportsbook-line hit records are kept apart from model-threshold hit records. No recommendation, product leg or promotion threshold changes |
 | Kill switch | unload the launchd job (`launchctl bootout gui/$(id -u)/com.gametimepicks.nba-props-local-tick`), or create `~/gtp-private/odds/nba/STOP`: a tick that finds it exits before any network call. The receipt refuses on its own after its expiry or ceiling |

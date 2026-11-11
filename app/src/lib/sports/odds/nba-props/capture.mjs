@@ -35,7 +35,7 @@ import { joinOddsEventToSchedule } from "../event-join.mjs";
 import { canonicalTeamId } from "../../../nba/identity-contract.ts";
 import { ELIGIBLE_OPERATOR_KEYS } from "../eligible-operators.mjs";
 import { PROVIDER_SPORT_KEY, POINTS_FIRST_SCOPE } from "./contract.mjs";
-import { eventOddsWorstCase, parseNbaPropsReceipt, planNbaPropCapture, regionUnits } from "./credits.mjs";
+import { creditsUnderReceipt, eventOddsWorstCase, parseNbaPropsReceipt, planNbaPropCapture, regionUnits } from "./credits.mjs";
 import { parseNbaPropResponses, scheduleJoinRows } from "./parse.mjs";
 
 export const NBA_PROP_CAPTURE_VERSION = "nba-prop-capture@1";
@@ -150,7 +150,7 @@ export async function runNbaPropCapture({
   // 3 · the free listing
   const list = await call(`${BASE}/sports/${PROVIDER_SPORT_KEY}/events?dateFormat=iso`);
   const listClass = list.transportError ? "TRANSPORT_ERROR" : classifyProviderResult({ status: list.status, body: list.body }).class;
-  book = recordRequest(book, { at: now, purpose: "nba props · events listing (free)", endpoint: `/sports/${PROVIDER_SPORT_KEY}/events`, status: list.status, headers: list.headers, charged: false, resultClass: listClass });
+  book = recordRequest(book, { receiptId: auth.receiptId ?? null, at: now, purpose: "nba props · events listing (free)", endpoint: `/sports/${PROVIDER_SPORT_KEY}/events`, status: list.status, headers: list.headers, charged: false, resultClass: listClass });
   calls.push({ endpoint: "events", status: list.status, resultClass: listClass });
   if (listClass !== "OK") return finish(CAPTURE_STATE.STOPPED, `events listing: ${listClass}`);
   let remaining = remainingOf(list.headers);
@@ -177,7 +177,9 @@ export async function runNbaPropCapture({
   const worst = eventOddsWorstCase({ markets, bookmakers });
   for (let i = 0; i < targets.length; i += 1) {
     const t = targets[i];
-    const allowed = assertCallAllowed({ authorization, ledger: book, worstCaseCredits: worst, purpose: `nba props · ${t.espnEventId}` });
+    // A receipt scoped to its own ID counts only the credits booked under it; any other compares the cumulative total.
+    const counted = auth.ceilingScope === "RECEIPT_ID" ? { ...book, cumulativeCredits: creditsUnderReceipt(book, auth.receiptId) } : book;
+    const allowed = assertCallAllowed({ authorization, ledger: counted, worstCaseCredits: worst, purpose: `nba props · ${t.espnEventId}` });
     if (!allowed.ok) {
       skipped.push(...targets.slice(i).map((x) => ({ oddsEventId: x.oddsEventId, espnEventId: x.espnEventId, reason: "CEILING_REACHED" })));
       return finish(CAPTURE_STATE.CEILING_REACHED, allowed.errors.join("; "));
@@ -193,7 +195,7 @@ export async function runNbaPropCapture({
     if (r.transportError) {
       /* The request may have reached the provider and been charged before the connection failed. Unaccounted spend is
          the failure mode (the 2026-09-27 Phase H lesson), so it is recorded as charged at the default cost. */
-      book = recordRequest(book, {
+      book = recordRequest(book, { receiptId: auth.receiptId ?? null,
         at: now, purpose: `nba props · ${t.espnEventId} (transport error)`, endpoint: `/sports/${PROVIDER_SPORT_KEY}/events/{id}/odds`, events: 1,
         markets, regions: null, status: 0, headers: {}, charged: true, fingerprint, resultClass: "TRANSPORT_ERROR",
       });
@@ -201,7 +203,7 @@ export async function runNbaPropCapture({
       return finish(CAPTURE_STATE.STOPPED, `transport error (${r.transportError}) on ${t.oddsEventId}; not retried`);
     }
     const cls = classifyProviderResult({ status: r.status, body: Array.isArray(r.body?.bookmakers) && r.body.bookmakers.length === 0 ? [] : r.body }).class;
-    book = recordRequest(book, {
+    book = recordRequest(book, { receiptId: auth.receiptId ?? null,
       at: now, purpose: `nba props · ${t.espnEventId}`, endpoint: `/sports/${PROVIDER_SPORT_KEY}/events/{id}/odds`, events: 1,
       markets, regions: null, status: r.status, headers: r.headers, charged: r.status === 200, fingerprint, resultClass: cls,
     });

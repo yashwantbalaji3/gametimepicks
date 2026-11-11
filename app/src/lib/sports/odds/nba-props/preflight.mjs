@@ -7,15 +7,15 @@
  *                       already captured in the ledger (one per game), earliest first.
  *   missedWindows       games of the receipt period whose tip has passed with no successful capture and no record yet:
  *                       MISSED_WINDOW (no spend, never retried after tip).
- *   nbaPropsPreflight   before ANY paid call: receipt parses at `now` (present, unexpired, under its ceiling with the
- *                       tick's worst case); the free reply is 200 with a readable balance and `x-requests-last` 0; the
+ *   nbaPropsPreflight   before ANY paid call: receipt parses at `now` (present, unexpired, and the credits booked UNDER
+ *                       ITS ID plus the tick's worst case within its budget); the free reply is 200 with a readable balance and `x-requests-last` 0; the
  *                       expected cost is certain (a plan exists for every target); remaining − worst case ≥ the floor;
  *                       usage since the period baseline + worst case ≤ the receipt's shared weekly cap. Any failure
  *                       refuses with its reason and `paidCallAllowed: false`.
  * The weekly cap is read from the receipt's own row ("Shared weekly cap | 3,500 credits per week"); the floor is
  * ODDS_API_MIN_CREDITS_REMAINING (passed in). No constant of its own.
  */
-import { parseNbaPropsReceipt, planNbaPropCapture } from "./credits.mjs";
+import { creditsUnderReceipt, parseNbaPropsReceipt, planNbaPropCapture } from "./credits.mjs";
 import { captureWindow } from "./capture.mjs";
 
 export const PREFLIGHT_VERSION = "nba-props-preflight@1";
@@ -90,8 +90,9 @@ export function nbaPropsPreflight({ now, receiptText, ledger, targets, markets, 
   const used = num(reply.headers?.["x-requests-used"]), remaining = num(reply.headers?.["x-requests-remaining"]), last = num(reply.headers?.["x-requests-last"]);
   if (used == null || remaining == null) { reasons.push("PLAN_UNREADABLE: x-requests-used / x-requests-remaining missing"); return refuse({ worstCase }); }
   if (last !== 0) { reasons.push(`PLAN_CHECK_NOT_FREE: x-requests-last ${last}`); return refuse({ worstCase, actionable: true }); }
-  const booked = Number(ledger?.cumulativeCredits ?? 0);
-  if (booked + worstCase > auth.ceiling) { reasons.push(`CEILING: ${booked} booked + ${worstCase} worst case > ${auth.ceiling}`); return refuse({ worstCase, budgetExhausted: true }); }
+  // The receipt's own budget (founder 2026-11-11: 450 credits FOR THIS PERIOD) counts only the credits booked under its ID.
+  const booked = auth.ceilingScope === "RECEIPT_ID" ? creditsUnderReceipt(ledger, auth.receiptId) : Number(ledger?.cumulativeCredits ?? 0);
+  if (booked + worstCase > auth.ceiling) { reasons.push(`CEILING: ${booked} booked${auth.ceilingScope === "RECEIPT_ID" ? ` under ${auth.receiptId}` : ""} + ${worstCase} worst case > ${auth.ceiling}`); return refuse({ worstCase, budgetExhausted: true }); }
   if (remaining - worstCase < minCreditsRemaining) { reasons.push(`FLOOR: ${remaining} remaining − ${worstCase} < ${minCreditsRemaining}`); return refuse({ worstCase, budgetExhausted: true, actionable: true }); }
   const baseline = baselineUsed ?? used;
   const weekSpend = used - baseline;
