@@ -49,3 +49,12 @@ test("tier (d): the exploratory report recomputes byte-for-byte; its prior comes
   assert.ok(r.tierDPrior.scale > JSON.parse(fs.readFileSync(path.join(ROOT, "data/internal/research/nfl/reports/player-props-share-level-second-look.json"), "utf8")).devDispersionScales["player_pass_yds|teamFormVolume"], "wider than tiers (a)/(b) by construction");
   assert.ok(F.dispersionScaleGrid.includes(r.tierDPrior.scale), "the scale is a value of the committed grid");
 });
+
+test("challenger (re-examined history + 2026 hold-out): the report recomputes byte-for-byte; the frozen original is untouched", () => {
+  const out = execFileSync("node", [path.join(ROOT, "scripts/research/nfl/evaluate-qb-fallback-challenger.mjs")], { encoding: "utf8", maxBuffer: 1 << 26 });
+  const committed = fs.readFileSync(path.join(ROOT, "data/internal/research/nfl/reports/qb-fallback-challenger-reexamined.json"), "utf8");
+  assert.equal(JSON.stringify(JSON.parse(out), null, 2) + "\n", committed);
+  const r = JSON.parse(committed);
+  assert.match(r.label, /^RE-EXAMINED HISTORY/);
+  assert.ok(r.holdout2026 && r.reexamined, "the hold-out is reported separately");
+});

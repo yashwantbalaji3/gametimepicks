@@ -1,0 +1,604 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-qb-fallback-challenger",
+  "dataClass": "PRIVATE_RESEARCH",
+  "label": "RE-EXAMINED HISTORY (2018–2025, games already seen) + HOLD-OUT (2026 wk 1–9) — not a validation",
+  "rule": "see scripts/research/nfl/evaluate-qb-fallback-challenger.mjs header (fixed before the hold-out was scored)",
+  "frozenOriginal": "data/internal/research/nfl/reports/qb-fallback-categories-exploratory.json (unchanged)",
+  "window": 5,
+  "opponentDecision": {
+    "seasons": [
+      2015,
+      2017
+    ],
+    "n": 35,
+    "pinballWith": 20.195,
+    "pinballWithout": 20.209,
+    "kept": true
+  },
+  "challengerMethod": "challenger_opp",
+  "reexamined": {
+    "low_history": {
+      "n": 108,
+      "challenger": {
+        "n": 108,
+        "meanPinball": 21.279,
+        "bias": -1.8,
+        "coverage80": 0.861,
+        "level": 0.9161
+      },
+      "original": {
+        "n": 108,
+        "meanPinball": 22.428,
+        "bias": -17.51,
+        "coverage80": 0.843,
+        "level": 0.8487
+      },
+      "leagueStarter": {
+        "n": 108,
+        "meanPinball": 23.733,
+        "bias": -31.66,
+        "coverage80": 0.787,
+        "level": 0.807
+      },
+      "teamContext": {
+        "n": 108,
+        "meanPinball": 23.121,
+        "bias": -24.62,
+        "coverage80": 0.787,
+        "level": 0.8332
+      },
+      "challengerVsOriginal": {
+        "n": 108,
+        "meanDiff": -1.149,
+        "ci95": {
+          "lo": -2.131,
+          "hi": -0.166,
+          "clusters": 73
+        }
+      },
+      "challengerVsLeagueStarter": {
+        "n": 108,
+        "meanDiff": -2.454,
+        "ci95": {
+          "lo": -4.375,
+          "hi": -0.545,
+          "clusters": 73
+        }
+      },
+      "challengerVsTeamContext": {
+        "n": 108,
+        "meanDiff": -1.843,
+        "ci95": {
+          "lo": -3.658,
+          "hi": -0.071,
+          "clusters": 73
+        }
+      }
+    },
+    "rookie_first_start": {
+      "n": 78,
+      "challenger": {
+        "n": 78,
+        "meanPinball": 21.722,
+        "bias": -1.73,
+        "coverage80": 0.859,
+        "level": 0.9161
+      },
+      "original": {
+        "n": 78,
+        "meanPinball": 22.809,
+        "bias": -18.63,
+        "coverage80": 0.846,
+        "level": 0.8431
+      },
+      "leagueStarter": {
+        "n": 78,
+        "meanPinball": 24.517,
+        "bias": -34.59,
+        "coverage80": 0.769,
+        "level": 0.7944
+      },
+      "teamContext": {
+        "n": 78,
+        "meanPinball": 23.814,
+        "bias": -25.63,
+        "coverage80": 0.782,
+        "level": 0.8275
+      },
+      "challengerVsOriginal": {
+        "n": 78,
+        "meanDiff": -1.088,
+        "ci95": {
+          "lo": -2.272,
+          "hi": 0.098,
+          "clusters": 58
+        }
+      },
+      "challengerVsLeagueStarter": {
+        "n": 78,
+        "meanDiff": -2.795,
+        "ci95": {
+          "lo": -5.031,
+          "hi": -0.611,
+          "clusters": 58
+        }
+      },
+      "challengerVsTeamContext": {
+        "n": 78,
+        "meanDiff": -2.092,
+        "ci95": {
+          "lo": -4.053,
+          "hi": -0.086,
+          "clusters": 58
+        }
+      }
+    },
+    "emergency_starter": {
+      "n": 23,
+      "challenger": {
+        "n": 18,
+        "meanPinball": 25.373,
+        "bias": -24.11,
+        "coverage80": 0.778,
+        "level": 0.8207
+      },
+      "original": {
+        "n": 23,
+        "meanPinball": 27.012,
+        "bias": -38.37,
+        "coverage80": 0.739,
+        "level": 0.7719
+      },
+      "leagueStarter": {
+        "n": 23,
+        "meanPinball": 26.625,
+        "bias": -38.95,
+        "coverage80": 0.739,
+        "level": 0.7787
+      },
+      "teamContext": {
+        "n": 23,
+        "meanPinball": 25.089,
+        "bias": -36.54,
+        "coverage80": 0.739,
+        "level": 0.7872
+      },
+      "challengerVsOriginal": {
+        "n": 18,
+        "meanDiff": -1.617,
+        "ci95": {
+          "lo": -3.892,
+          "hi": 0.511,
+          "clusters": 18
+        }
+      },
+      "challengerVsLeagueStarter": {
+        "n": 18,
+        "meanDiff": -2.135,
+        "ci95": {
+          "lo": -6.061,
+          "hi": 1.284,
+          "clusters": 18
+        }
+      },
+      "challengerVsTeamContext": {
+        "n": 18,
+        "meanDiff": -0.085,
+        "ci95": {
+          "lo": -3.691,
+          "hi": 3.476,
+          "clusters": 18
+        }
+      }
+    },
+    "traded": {
+      "n": 636,
+      "challenger": {
+        "n": 636,
+        "meanPinball": 21.438,
+        "bias": 9.14,
+        "coverage80": 0.863,
+        "level": 0.9847
+      },
+      "original": {
+        "n": 636,
+        "meanPinball": 21.477,
+        "bias": 6.44,
+        "coverage80": 0.866,
+        "level": 0.9723
+      },
+      "leagueStarter": {
+        "n": 636,
+        "meanPinball": 21.803,
+        "bias": 1.53,
+        "coverage80": 0.857,
+        "level": 0.951
+      },
+      "teamContext": {
+        "n": 636,
+        "meanPinball": 21.769,
+        "bias": 6.02,
+        "coverage80": 0.855,
+        "level": 0.9703
+      },
+      "challengerVsOriginal": {
+        "n": 636,
+        "meanDiff": -0.038,
+        "ci95": {
+          "lo": -0.09,
+          "hi": 0.015,
+          "clusters": 136
+        }
+      },
+      "challengerVsLeagueStarter": {
+        "n": 636,
+        "meanDiff": -0.365,
+        "ci95": {
+          "lo": -0.759,
+          "hi": 0.034,
+          "clusters": 136
+        }
+      },
+      "challengerVsTeamContext": {
+        "n": 636,
+        "meanDiff": -0.331,
+        "ci95": {
+          "lo": -0.676,
+          "hi": 0.021,
+          "clusters": 136
+        }
+      }
+    },
+    "promoted_backup": {
+      "n": 72,
+      "challenger": {
+        "n": 72,
+        "meanPinball": 19.677,
+        "bias": 3.15,
+        "coverage80": 0.861,
+        "level": 0.9546
+      },
+      "original": {
+        "n": 72,
+        "meanPinball": 19.607,
+        "bias": -9.83,
+        "coverage80": 0.875,
+        "level": 0.8985
+      },
+      "leagueStarter": {
+        "n": 72,
+        "meanPinball": 21.334,
+        "bias": -22.08,
+        "coverage80": 0.847,
+        "level": 0.8495
+      },
+      "teamContext": {
+        "n": 72,
+        "meanPinball": 21.319,
+        "bias": -16.91,
+        "coverage80": 0.861,
+        "level": 0.869
+      },
+      "challengerVsOriginal": {
+        "n": 72,
+        "meanDiff": 0.07,
+        "ci95": {
+          "lo": -0.731,
+          "hi": 0.948,
+          "clusters": 55
+        }
+      },
+      "challengerVsLeagueStarter": {
+        "n": 72,
+        "meanDiff": -1.656,
+        "ci95": {
+          "lo": -3.64,
+          "hi": 0.344,
+          "clusters": 55
+        }
+      },
+      "challengerVsTeamContext": {
+        "n": 72,
+        "meanDiff": -1.642,
+        "ci95": {
+          "lo": -3.535,
+          "hi": 0.107,
+          "clusters": 55
+        }
+      }
+    }
+  },
+  "holdout2026": {
+    "low_history": {
+      "n": 4,
+      "challenger": {
+        "n": 4,
+        "meanPinball": 14.928,
+        "bias": -27.62,
+        "coverage80": 1,
+        "level": 0.7434
+      },
+      "original": {
+        "n": 4,
+        "meanPinball": 21.458,
+        "bias": -59.81,
+        "coverage80": 0.75,
+        "level": 0.6162
+      },
+      "leagueStarter": {
+        "n": 4,
+        "meanPinball": 29.028,
+        "bias": -83.04,
+        "coverage80": 0.5,
+        "level": 0.5576
+      },
+      "teamContext": {
+        "n": 4,
+        "meanPinball": 30.698,
+        "bias": -81.76,
+        "coverage80": 0.5,
+        "level": 0.561
+      },
+      "challengerVsOriginal": {
+        "n": 4,
+        "meanDiff": -6.53,
+        "ci95": {
+          "lo": -9.94,
+          "hi": -3.721,
+          "clusters": 3
+        }
+      },
+      "challengerVsLeagueStarter": {
+        "n": 4,
+        "meanDiff": -14.1,
+        "ci95": {
+          "lo": -27.668,
+          "hi": -5.945,
+          "clusters": 3
+        }
+      },
+      "challengerVsTeamContext": {
+        "n": 4,
+        "meanDiff": -15.77,
+        "ci95": {
+          "lo": -32.049,
+          "hi": -1.84,
+          "clusters": 3
+        }
+      }
+    },
+    "rookie_first_start": {
+      "n": 3,
+      "challenger": {
+        "n": 3,
+        "meanPinball": 12.925,
+        "bias": -13.67,
+        "coverage80": 1,
+        "level": 0.834
+      },
+      "original": {
+        "n": 3,
+        "meanPinball": 18.719,
+        "bias": -49.08,
+        "coverage80": 1,
+        "level": 0.6849
+      },
+      "leagueStarter": {
+        "n": 3,
+        "meanPinball": 22.502,
+        "bias": -65.9,
+        "coverage80": 0.667,
+        "level": 0.6421
+      },
+      "teamContext": {
+        "n": 3,
+        "meanPinball": 23.268,
+        "bias": -60.64,
+        "coverage80": 0.667,
+        "level": 0.6583
+      },
+      "challengerVsOriginal": {
+        "n": 3,
+        "meanDiff": -5.794,
+        "ci95": {
+          "lo": -9.94,
+          "hi": -3.721,
+          "clusters": 2
+        }
+      },
+      "challengerVsLeagueStarter": {
+        "n": 3,
+        "meanDiff": -9.577,
+        "ci95": {
+          "lo": -16.84,
+          "hi": -5.945,
+          "clusters": 2
+        }
+      },
+      "challengerVsTeamContext": {
+        "n": 3,
+        "meanDiff": -10.343,
+        "ci95": {
+          "lo": -27.35,
+          "hi": -1.84,
+          "clusters": 2
+        }
+      }
+    },
+    "emergency_starter": {
+      "n": 1,
+      "challenger": {
+        "n": 1,
+        "meanPinball": 17.435,
+        "bias": -57.77,
+        "coverage80": 1,
+        "level": 0.5548
+      },
+      "original": {
+        "n": 1,
+        "meanPinball": 27.375,
+        "bias": -91.25,
+        "coverage80": 1,
+        "level": 0.4586
+      },
+      "leagueStarter": {
+        "n": 1,
+        "meanPinball": 34.275,
+        "bias": -106.07,
+        "coverage80": 0,
+        "level": 0.4326
+      },
+      "teamContext": {
+        "n": 1,
+        "meanPinball": 44.785,
+        "bias": -131.34,
+        "coverage80": 0,
+        "level": 0.3843
+      },
+      "challengerVsOriginal": {
+        "n": 1,
+        "meanDiff": -9.94,
+        "ci95": {
+          "lo": null,
+          "hi": null,
+          "clusters": 1
+        }
+      },
+      "challengerVsLeagueStarter": {
+        "n": 1,
+        "meanDiff": -16.84,
+        "ci95": {
+          "lo": null,
+          "hi": null,
+          "clusters": 1
+        }
+      },
+      "challengerVsTeamContext": {
+        "n": 1,
+        "meanDiff": -27.35,
+        "ci95": {
+          "lo": null,
+          "hi": null,
+          "clusters": 1
+        }
+      }
+    },
+    "traded": {
+      "n": 48,
+      "challenger": {
+        "n": 48,
+        "meanPinball": 19.685,
+        "bias": -1.08,
+        "coverage80": 0.833,
+        "level": 0.9352
+      },
+      "original": {
+        "n": 48,
+        "meanPinball": 19.846,
+        "bias": -4.79,
+        "coverage80": 0.833,
+        "level": 0.9189
+      },
+      "leagueStarter": {
+        "n": 48,
+        "meanPinball": 19.651,
+        "bias": -5.37,
+        "coverage80": 0.896,
+        "level": 0.9166
+      },
+      "teamContext": {
+        "n": 48,
+        "meanPinball": 19.415,
+        "bias": 0.37,
+        "coverage80": 0.854,
+        "level": 0.9419
+      },
+      "challengerVsOriginal": {
+        "n": 48,
+        "meanDiff": -0.162,
+        "ci95": {
+          "lo": -0.498,
+          "hi": 0.151,
+          "clusters": 9
+        }
+      },
+      "challengerVsLeagueStarter": {
+        "n": 48,
+        "meanDiff": 0.033,
+        "ci95": {
+          "lo": -0.858,
+          "hi": 1.082,
+          "clusters": 9
+        }
+      },
+      "challengerVsTeamContext": {
+        "n": 48,
+        "meanDiff": 0.269,
+        "ci95": {
+          "lo": -0.825,
+          "hi": 1.765,
+          "clusters": 9
+        }
+      }
+    },
+    "promoted_backup": {
+      "n": 5,
+      "challenger": {
+        "n": 5,
+        "meanPinball": 27.21,
+        "bias": 58.12,
+        "coverage80": 0.8,
+        "level": 1.2161
+      },
+      "original": {
+        "n": 5,
+        "meanPinball": 24.54,
+        "bias": 36.11,
+        "coverage80": 0.8,
+        "level": 1.1004
+      },
+      "leagueStarter": {
+        "n": 5,
+        "meanPinball": 24.088,
+        "bias": 40.14,
+        "coverage80": 0.8,
+        "level": 1.1218
+      },
+      "teamContext": {
+        "n": 5,
+        "meanPinball": 21.018,
+        "bias": 44.57,
+        "coverage80": 1,
+        "level": 1.1447
+      },
+      "challengerVsOriginal": {
+        "n": 5,
+        "meanDiff": 2.67,
+        "ci95": {
+          "lo": 1.176,
+          "hi": 4.654,
+          "clusters": 3
+        }
+      },
+      "challengerVsLeagueStarter": {
+        "n": 5,
+        "meanDiff": 3.122,
+        "ci95": {
+          "lo": 0.648,
+          "hi": 6.061,
+          "clusters": 3
+        }
+      },
+      "challengerVsTeamContext": {
+        "n": 5,
+        "meanDiff": 6.191,
+        "ci95": {
+          "lo": 0.603,
+          "hi": 9.956,
+          "clusters": 3
+        }
+      }
+    }
+  }
+}
