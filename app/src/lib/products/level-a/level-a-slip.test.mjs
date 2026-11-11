@@ -192,7 +192,9 @@ test("FOUNDER 5 · NO PRICE OR PAYOUT: nothing priced in the stored slip, the vi
 /* ─── real data: the committed 10-26 slate ─────────────────────────────────────────────────────────────────────── */
 const DAY = "2026-10-26";
 const REAL_NOW = "2026-10-26T18:30:00Z";
-const MODEL = buildLevelAModel({ repoRoot: REPO, now: REAL_NOW, productDay: DAY, mixed: { enabled: false } });
+/* 10-26 is a HISTORICAL slate on which the NBA game-winner tiers were live (Release H .. founder decision 2026-11-10 turned
+   them off, forward only). The slip mechanics are tested on that slate as it was, so the block is enabled explicitly. */
+const MODEL = buildLevelAModel({ repoRoot: REPO, now: REAL_NOW, productDay: DAY, mixed: { enabled: false }, nbaGameWinners: { enabled: true } });
 
 test("REAL DATA PAYLOAD: canonical estimates only, the display's own text for NBA; nothing internal crosses", () => {
   const gw = MODEL.nbaGameWinners;

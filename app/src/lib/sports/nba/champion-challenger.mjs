@@ -20,13 +20,15 @@
  *                             the paired rows is BARS_HOLD. Still not a promotion: §8 + a founder-approved record are.
  */
 import { validationMetrics, PREREG, MARKET_STATE } from "./grader-metrics.mjs";
+import { BOOTSTRAP_DEFAULTS, clusterBootstrap } from "./bootstrap.mjs";
 import { LABELS } from "./experimental-forecast.mjs";
 import { isDisputedFinal } from "./experimental-grading-ledger.mjs";
 import { crpsFromPinball, commonLevels, thresholdLogScore, THRESHOLDS, PLAYER_MARKETS, TEAM_MARKETS } from "./distribution-scores.mjs";
 
 export const EVALUATOR_VERSION = "nba-champion-challenger-2";
+// The bootstrap moved to bootstrap.mjs (2026-11-10) so grader-metrics.mjs can use it without an import cycle.
+export { BOOTSTRAP_DEFAULTS, mulberry32, clusterBootstrap } from "./bootstrap.mjs";
 export const VERDICT = Object.freeze({ INSUFFICIENT_N: "INSUFFICIENT_N", NOT_READY: "NOT_READY", READY_FOR_FOUNDER_REVIEW: "READY_FOR_FOUNDER_REVIEW" });
-export const BOOTSTRAP_DEFAULTS = Object.freeze({ B: 2000, seed: 20261020, alpha: 0.05 });
 /**
  * REPORTING RULE, CLAIM-SUPPRESSING ONLY (prereg §14 reporting note, 2026-10-23). A game-clustered percentile bootstrap
  * over k games can only resample those k games, so with very few games its "95% interval" is roughly the span of the
@@ -45,42 +47,6 @@ const REGULAR = LABELS[2];
 const STATS = ["pts", "reb", "ast", "threePm"];
 
 const r4 = (x) => (x == null || !Number.isFinite(x) ? null : Number(x.toFixed(4)));
-
-/** Deterministic PRNG (mulberry32) — a report must re-derive byte-for-byte from the same ledgers. */
-export function mulberry32(seed) {
-  let a = seed >>> 0;
-  return () => {
-    a = (a + 0x6d2b79f5) >>> 0;
-    let t = a;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-/**
- * Cluster (by game) percentile bootstrap of the pooled mean of `values`.
- * @param clusters  Array<number[]> — one array of values per game (empty arrays ignored)
- */
-export function clusterBootstrap(clusters, { B = BOOTSTRAP_DEFAULTS.B, seed = BOOTSTRAP_DEFAULTS.seed, alpha = BOOTSTRAP_DEFAULTS.alpha } = {}) {
-  const cs = clusters.map((c) => c.filter(Number.isFinite)).filter((c) => c.length);
-  const sums = cs.map((c) => c.reduce((s, x) => s + x, 0));
-  const ns = cs.map((c) => c.length);
-  const n = ns.reduce((s, x) => s + x, 0);
-  if (!cs.length) return { n: 0, clusters: 0, mean: null, lo: null, hi: null, B, seed, alpha };
-  const mean = sums.reduce((s, x) => s + x, 0) / n;
-  if (cs.length < 2) return { n, clusters: cs.length, mean: r4(mean), lo: null, hi: null, B, seed, alpha, note: "one cluster — no interval" };
-  const rnd = mulberry32(seed);
-  const stats = new Float64Array(B);
-  for (let b = 0; b < B; b += 1) {
-    let s = 0, k = 0;
-    for (let i = 0; i < cs.length; i += 1) { const j = Math.floor(rnd() * cs.length); s += sums[j]; k += ns[j]; }
-    stats[b] = s / k;
-  }
-  stats.sort();
-  const q = (p) => stats[Math.min(B - 1, Math.max(0, Math.floor(p * B)))];
-  return { n, clusters: cs.length, mean: r4(mean), lo: r4(q(alpha / 2)), hi: r4(q(1 - alpha / 2)), B, seed, alpha };
-}
 
 /** Pair two families' current grades on identical, eligible games. */
 export function pairGames(champion, challenger, { underReview = new Set() } = {}) {

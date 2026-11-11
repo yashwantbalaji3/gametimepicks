@@ -9,6 +9,11 @@
  * inputs changed since the last receipt for that event (same input hash ⇒ UNCHANGED, nothing written). A started game is
  * never simulated; an existing receipt is never rewritten. Scheduled by .github/workflows/nfl-sim-v2-shadow.yml.
  *
+ * SCHEMA UPGRADE (2026-11-11): a receipt written by an older receipt schema (e.g. @2, no count PMFs) with the SAME inputs
+ * counts as a change for a game that has not started — a NEW receipt is written beside it under the current schema
+ * (id `nfl-sim-v2:<event>:<inputHash>:<tag>`, file `<event>-<inputHash>-<tag>.json`, tag from the schema version). The
+ * old receipt is never rewritten or deleted; the receipt of record stays the latest one generated before kickoff.
+ *
  * Inputs, all model-owned and frozen into the receipt's inputSnapshotIds:
  *   anchors       the forecast-of-record receipt's published total and margin medians → team means
  *                 (home = (total + margin) / 2, away = (total − margin) / 2) — the engine's ONLY team-strength input
@@ -36,7 +41,7 @@ import { fileURLToPath } from "node:url";
 
 import { compileParams, NFL_SIM_V2_ENGINE, NFL_SIM_V2_VERSION, prepareTeamPlayers } from "../../src/lib/sports/nfl/sim-v2/engine.mjs";
 import { calibrate, runBatch } from "../../src/lib/sports/nfl/sim-v2/simulate.mjs";
-import { buildNflSimulationReceipt, playersFromRoleShares } from "../../src/lib/sports/nfl/sim-v2/receipt.mjs";
+import { buildNflSimulationReceipt, playersFromRoleShares, SIMULATION_RECEIPT_SCHEMA } from "../../src/lib/sports/nfl/sim-v2/receipt.mjs";
 import { forecastOfRecord } from "../../src/lib/forecast-ledger/adapters/nfl.mjs";
 import { fnv1a64 } from "../../src/lib/forecast-ledger/identity.mjs";
 import { shareExclusions, teamIdsFromRoster } from "../../src/lib/sports/nfl/participation-eligibility.mjs";
@@ -55,6 +60,38 @@ const arg = (k, d = null) => { const i = argv.indexOf(k); return i >= 0 ? argv[i
 const args = (k) => argv.flatMap((a, i) => (a === k ? [argv[i + 1]] : []));
 const read = (rel) => JSON.parse(fs.readFileSync(path.join(ROOT, rel), "utf8"));
 const sha256 = (rel) => crypto.createHash("sha256").update(fs.readFileSync(path.join(ROOT, rel))).digest("hex");
+
+/** "simulation-receipt@2.2" → "s2.2": the id/file tag of a receipt re-written for a schema upgrade. */
+export const schemaTag = (schema) => `s${String(schema).split("@")[1]}`;
+
+/** Every existing shadow receipt id → its schemaVersion (unreadable files ignored). */
+export function existingReceiptIndex(outRoot) {
+  const index = new Map();
+  for (const d of fs.existsSync(outRoot) ? fs.readdirSync(outRoot).sort() : []) {
+    const dir = path.join(outRoot, d);
+    if (!fs.statSync(dir).isDirectory()) continue;
+    for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".json")).sort()) {
+      try { const r = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")); index.set(r.simulationReceiptId, r.schemaVersion ?? null); } catch { /* unreadable: ignored */ }
+    }
+  }
+  return index;
+}
+
+/**
+ * PURE: what the shadow build does for one game with these inputs.
+ *   STARTED         kickoff at/before now — never simulated, nothing written (old receipts untouched)
+ *   UNCHANGED       a current-schema receipt with this input hash exists (plain or upgrade id)
+ *   SCHEMA_UPGRADE  only an older-schema receipt with this input hash exists → a new, tagged receipt
+ *   NEW             no receipt with this input hash
+ */
+export function planShadowReceipt({ eventId, inputHash, kickoffUtc, nowMs, existing, schema = SIMULATION_RECEIPT_SCHEMA }) {
+  if (!(Date.parse(kickoffUtc) > nowMs)) return { action: "STARTED" };
+  const base = `nfl-sim-v2:${eventId}:${inputHash}`;
+  const tag = schemaTag(schema);
+  if (existing.get(base) === schema || existing.get(`${base}:${tag}`) === schema) return { action: "UNCHANGED", id: existing.get(base) === schema ? base : `${base}:${tag}` };
+  if (existing.has(base)) return { action: "SCHEMA_UPGRADE", id: `${base}:${tag}`, idSuffix: tag, fileStem: `${eventId}-${inputHash}-${tag}`, from: existing.get(base) };
+  return { action: "NEW", id: base, idSuffix: null, fileStem: `${eventId}-${inputHash}` };
+}
 
 export function anchorsFromReceipt(r) {
   const s = r?.forecastSummary;
@@ -96,18 +133,11 @@ function main() {
   const eligibilityCtx = { asOf: now, injuries, roster: rosters, teamIdByAbbr: teamIdsFromRoster(rosters) };
   const availability = `injuries@${injuries.generatedAt ?? "?"}+rosters@${rosters.capturedAt ?? rosters.generatedAt ?? "?"}`;
 
-  /* A receipt is re-written only when its INPUTS change (new anchors, availability, role shares, params): every
+  /* A receipt is re-written only when its INPUTS change (new anchors, availability, role shares, params) or it predates
+     the current receipt schema (planShadowReceipt): every
      receipt id embeds its input hash, so an hourly run over an unchanged game is a no-op, and a game whose
      availability moved gets a new receipt beside the old one — the latest pre-kickoff receipt is the one of record. */
-  const outRoot = path.join(ROOT, OUT_DIR);
-  const existingIds = new Set();
-  for (const d of fs.existsSync(outRoot) ? fs.readdirSync(outRoot) : []) {
-    const dir = path.join(outRoot, d);
-    if (!fs.statSync(dir).isDirectory()) continue;
-    for (const f of fs.readdirSync(dir).filter((x) => x.endsWith(".json"))) {
-      try { existingIds.add(JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).simulationReceiptId); } catch { /* unreadable: ignored */ }
-    }
-  }
+  const existing = existingReceiptIndex(path.join(ROOT, OUT_DIR));
   const HORIZON_MS = 8 * 86400000;
 
   let wrote = 0;
@@ -147,18 +177,21 @@ function main() {
       engine: NFL_SIM_V2_VERSION, params: paramsRef.sha256, anchors: [anchors.home, anchors.away], runs,
       players: inputs.map((t) => t.players.map((p) => [p.playerId, p.passShare, p.targetShare, p.carryShare, p.catchRate, p.ypr, p.ypc])),
     }));
-    if (existingIds.has(`nfl-sim-v2:${eventId}:${inputHash}`)) { console.log(`${eventId} ${r.matchup}: UNCHANGED inputs — receipt exists`); continue; }
+    const plan = planShadowReceipt({ eventId, inputHash, kickoffUtc: r.kickoffUtc, nowMs, existing });
+    if (plan.action === "STARTED") continue;
+    if (plan.action === "UNCHANGED") { console.log(`${eventId} ${r.matchup}: UNCHANGED inputs — receipt exists`); continue; }
+    if (plan.action === "SCHEMA_UPGRADE") console.log(`${eventId} ${r.matchup}: SCHEMA UPGRADE ${plan.from} → ${SIMULATION_RECEIPT_SCHEMA} (inputs unchanged; the old receipt is kept)`);
     const baseSeed = fnv1a64(`${NFL_SIM_V2_ENGINE}|${eventId}|${inputHash}`).slice(0, 8);
     const postseason = r.seasonType === 3;
     const calibration = calibrate({ compiled, anchors, baseSeed, postseason });
     const batch = runBatch({ compiled, thetas: calibration.thetas, players: prep, baseSeed, runs, postseason });
     const receipt = buildNflSimulationReceipt({
       event: { eventId, kickoffUtc: r.kickoffUtc, home: r.home, away: r.away },
-      compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt: now, postseason,
+      compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt: now, postseason, idSuffix: plan.idSuffix,
       inputs: { forecastReceipt: `data/internal/nfl/forecast-receipts/${file}`, roleShares: `${ROLE_SHARES}@${roleShares.generatedAt}`, availability, params: paramsRef.sha256, eligibilitySnapshotId: eligibility.snapshotId },
       eligibility, playerAvailability: availabilityByPlayer,
     });
-    const outRel = `${OUT_DIR}/${now.slice(0, 10)}/${eventId}-${inputHash}.json`;
+    const outRel = `${OUT_DIR}/${now.slice(0, 10)}/${plan.fileStem}.json`;
     const a = receipt.aggregate;
     console.log(`${eventId} ${r.matchup}: P(home) ${a.winProbability.home} · OT ${a.overtimeProbability} · total p50 ${a.total.p50} · margin p50 ${a.margin.p50} · failed runs ${receipt.validation.failedRuns}/${runs} · player boxes stored ${receipt.representativeRunBoxes?.pack?.r?.length ?? 0}, refused ${Object.keys(receipt.representativeRunBoxes?.refusals ?? {}).length} → ${outRel}`);
     if (dryRun) continue;

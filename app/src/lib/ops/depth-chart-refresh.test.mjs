@@ -28,11 +28,21 @@ const WF = fs.readFileSync(path.join(ROOT, ".github/workflows/nfl-depth-charts.y
 const WF_CODE = WF.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
 const ACQ = fs.readFileSync(path.join(process.cwd(), "scripts/nfl/acquire-depth-chart-research.mjs"), "utf8");
 
+const EW = fs.readFileSync(path.join(ROOT, ".github/workflows/nfl-event-window.yml"), "utf8");
+
 test("🔴 the acquirer is actually SCHEDULED — an armed script nothing invokes never fires", () => {
-  assert.match(WF, /schedule:/, "a workflow_dispatch-only job is how eighteen days happened");
-  assert.match(WF, /acquire-depth-chart-research\.mjs/, "the workflow must run the acquirer");
-  const crons = [...WF.matchAll(/- cron: "([^"]+)"/g)].map((m) => m[1]);
-  assert.ok(crons.length >= 2, `expected a real cadence, got ${JSON.stringify(crons)}`);
+  /* Parlay Lab V3 slice 3 (2026-11-10): the schedule moved INTO the scheduled nfl-event-window job on NFL game days and
+     the day before, so the snapshot commits with that window's data (no Production build of its own). The standalone
+     workflow stays for manual runs. A step nothing schedules is still the failure this test exists for. */
+  assert.match(WF, /acquire-depth-chart-research\.mjs/, "the manual workflow still runs the acquirer");
+  assert.match(EW, /schedule:/);
+  const step = EW.slice(EW.indexOf("- name: Capture NFL depth charts on game days"), EW.indexOf("- name: Authorized odds capture"));
+  assert.match(step, /node scripts\/nfl\/acquire-depth-chart-research\.mjs --season/, "the scheduled window runs the acquirer");
+  assert.match(step, /TZ=America\/New_York date \+%u/);
+  assert.match(step, /1\|3\|4\|6\|7\)/, "ET Mon, Wed, Thu, Sat, Sun: NFL game days and the day before");
+  const commit = EW.slice(EW.indexOf("- name: Commit the window's artifacts"));
+  assert.match(commit.slice(0, commit.indexOf("git commit")), /git add [^\n]*data\/internal\/research\/nfl\/depth-charts\//, "committed WITH the window's data");
+  assert.doesNotMatch(WF, /- cron:/, "no standalone schedule: its commits would each be a Production build");
 });
 
 test("🔴 it never runs on SUNDAY — a research refresh must not compete during the acceptance", () => {
@@ -91,4 +101,33 @@ test("the acquirer refuses an invalid source rather than writing a partial snaps
 test("it stays PRIVATE_RESEARCH — this job publishes nothing a reader sees", () => {
   assert.match(ACQ, /dataClass: "PRIVATE_RESEARCH"/);
   assert.equal(/app\/public/.test(WF_CODE), false, "a research refresh must not touch a public path");
+});
+
+test("🔴 RED SIGNAL: a failed eligibility-input capture in the window warns and alerts (never silent)", () => {
+  const code = EW.split("\n").filter((l) => !/^\s*#/.test(l)).join("\n");
+  for (const [id, name] of [["nflinjuries", "Capture NFL injury designations"], ["depthcharts", "Capture NFL depth charts on game days"]]) {
+    const step = code.slice(code.indexOf(`- name: ${name}`), code.indexOf("- name:", code.indexOf(`- name: ${name}`) + 8));
+    assert.match(step, new RegExp(`id: ${id}\\b`), `${name} has an id the alert reads`);
+    assert.match(step, /continue-on-error: true/, `${name}: the window still commits`);
+  }
+  const alert = code.slice(code.indexOf("- name: Alert when an eligibility input capture failed"), code.indexOf("- name: Authorized odds capture"));
+  assert.match(alert, /steps\.nflinjuries\.outcome == 'failure'/);
+  assert.match(alert, /steps\.depthcharts\.outcome == 'failure'/);
+  assert.match(alert, /OPS_WEBHOOK_URL: \$\{\{ secrets\.OPS_WEBHOOK_URL \}\}/);
+  assert.match(alert, /OPS_ALERT_KIND: warning/);
+  assert.match(alert, /::warning::/);
+  assert.match(alert, /bash scripts\/ops_alert\.sh/, "the same alert path cron-watchdog uses");
+  assert.ok(code.indexOf("- name: Alert when an eligibility input capture failed") > code.indexOf("- name: Capture NFL depth charts on game days"), "runs after both captures");
+});
+
+test("the NFL injuries file is committed only by the window (one push, no standalone build); sport-schedules still starts the window on a facts change", () => {
+  const SS = fs.readFileSync(path.join(ROOT, ".github/workflows/sport-schedules.yml"), "utf8");
+  const commit = SS.slice(SS.indexOf("- name: Commit injuries captures if content changed"), SS.indexOf("- name:", SS.indexOf("- name: Commit injuries captures if content changed") + 8));
+  const decide = commit.indexOf("NFL_CHANGED=$("), reset = commit.indexOf("git reset -q -- data/internal/research/injuries/nfl/"), git = commit.indexOf('git commit -m "auto: injuries facts capture');
+  assert.ok(decide > 0 && reset > decide && git > reset, "the NFL change is decided first (against HEAD), then the NFL file is unstaged, then NBA commits");
+  assert.equal((commit.match(/echo "nfl_changed=\$NFL_CHANGED"/g) ?? []).length, 2, "the decision is published on both exits (NFL-only and after the NBA push)");
+  assert.match(commit, /git checkout -q -- data\/internal\/research\/injuries\/nfl\//);
+  assert.match(SS, /steps\.injuriescommit\.outputs\.nfl_changed == 'true'/, "a facts change still starts nfl-event-window");
+  const ewCommit = EW.slice(EW.indexOf("- name: Commit the window's artifacts"));
+  assert.match(ewCommit.slice(0, ewCommit.indexOf("git commit")), /data\/internal\/research\/injuries\/nfl\//, "the window commits the NFL injuries file with its data");
 });

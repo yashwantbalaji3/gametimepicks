@@ -57,7 +57,16 @@ export const LEG_REFUSAL = Object.freeze({
   OTHER_PRODUCT_DAY: "The event is not on this product day (the ET date of its start).",
   SOURCE_NOT_READY: "The official forecast is marked degraded: incomplete inputs.",
   SOURCE_UNAVAILABLE: "The official forecast is marked unavailable.",
+  /* NFL gates (founder decision 2026-11-10, Parlay Lab V3 decision 1): a source passes these as `gateRefusals` */
+  FORECAST_MISSING: "No official forecast of record is live for this game.",
+  FORECAST_INVALID: "The official forecast's side or win chances are incomplete or inconsistent.",
+  KICKOFF_UNVERIFIED: "The kickoff could not be verified against a current schedule capture.",
+  QB_BLIND: "The forecast does not account for a starting quarterback's absence.",
+  TEAM_INPUTS_UNKNOWN: "The forecast's starting-quarterback check is missing.",
+  QB_UNVERIFIED: "An expected starting quarterback is not confirmed eligible from fresh injury and roster sources.",
 });
+/** Sports open for the Parlay Lab's Level A suggestions only, never Bank Builder / Moonshot (founder decision 2026-11-10). */
+export const PARLAY_LAB_ONLY_SPORTS = Object.freeze(["nfl"]);
 const ET_DAY = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
 /** The product day of an instant: its America/New_York calendar date (a 00:30Z tip is the previous evening's slate). */
 export const productDayOf = (iso) => { const t = Date.parse(iso ?? ""); return Number.isFinite(t) ? ET_DAY.format(new Date(t)) : null; };
@@ -118,6 +127,7 @@ export function levelALeg(sel, { now, productDay = null }) {
   if (published && !(typeof sel?.probability === "number" && sel.probability > 0 && sel.probability < 1)) reasons.push("BAD_PROBABILITY");
   if ((sel?.participantStatuses ?? []).some((s) => typeof s === "string" && UNAVAILABLE_RE.test(s.trim()))) reasons.push("UNAVAILABLE");
   if (sel?.sourceStatus != null && sel.sourceStatus !== "ready") reasons.push(sel.sourceStatus === "degraded" ? "SOURCE_NOT_READY" : "SOURCE_UNAVAILABLE");
+  for (const r of sel?.gateRefusals ?? []) reasons.push(LEG_REFUSAL[r] ? r : "SOURCE_UNAVAILABLE");
   const identity = { sport: sel?.sport ?? null, eventId: sel?.eventId ?? null, eventLabel: sel?.eventLabel ?? null, market: sel?.market ?? null };
   if (reasons.length) return { ok: false, refusal: { ...identity, reasons, text: reasons.map((r) => LEG_REFUSAL[r]) } };
   return {
@@ -133,6 +143,9 @@ export function levelALeg(sel, { now, productDay = null }) {
         ? "Untiered: the Elo-derived game-winner estimate is shown for information only and does not tier this leg."
         : `Untiered: no published ${SPORT_NAME[sel.sport] ?? String(sel.sport).toUpperCase()} win probability. The official forecast publishes the side only.`,
       forecast: { ...sel.forecast },
+      ...(sel.eligibility ? { eligibility: sel.eligibility } : {}),
+      /* a source's own shown text (NFL: the game page's label and 1-dp win chance), printed verbatim by the cards */
+      ...(sel.shownPct && sel.label ? { shownPct: sel.shownPct, label: sel.label } : {}),
       uncertainty: sel.uncertainty ?? null,
       settlement: { ...sel.settlement },
       priced: false, price: null,
@@ -207,15 +220,16 @@ export function levelASuggestions({ selections = [], now, productDay = null }) {
     const c = best(tierable, sizes, [tier], POLICIES.parlayLab.id);
     return { tier, tierLabel: PUBLIC_RISK_LABELS[tier], ...(c ? { card: c, reason: null } : none(shortReason ?? `no combination of today's legs lands in the ${PUBLIC_RISK_LABELS[tier]} band`)) };
   });
-  const bb = best(tierable, POLICIES.bankBuilder.sizes, POLICIES.bankBuilder.tiers, POLICIES.bankBuilder.id);
-  const moon = best(tierable, POLICIES.moonshot.sizes, POLICIES.moonshot.tiers, POLICIES.moonshot.id);
+  const challengeTierable = tierable.filter((l) => !PARLAY_LAB_ONLY_SPORTS.includes(l.sport));
+  const bb = best(challengeTierable, POLICIES.bankBuilder.sizes, POLICIES.bankBuilder.tiers, POLICIES.bankBuilder.id);
+  const moon = best(challengeTierable, POLICIES.moonshot.sizes, POLICIES.moonshot.tiers, POLICIES.moonshot.id);
   return {
     version: LEVEL_A_VERSION, now, productDay: day, label: LEVEL_A_LABEL, method: TIER_METHOD,
     legs: perEvent, untiered, refused,
     sports: [...new Set(perEvent.map((l) => l.sport))].sort(),
     parlayLab,
-    bankBuilder: bb ? { card: bb, reason: null } : none(shortReason ?? "no two-leg combination of today's legs lands in the Low or Medium band"),
-    moonshot: moon ? { card: moon, reason: null } : none(tierable.length < 3 ? `only ${tierable.length} leg${tierable.length === 1 ? "" : "s"} with a published probability today — Moonshot needs 3 games` : "no three-leg combination of today's legs lands in the High or Longshot band"),
+    bankBuilder: bb ? { card: bb, reason: null } : none((challengeTierable.length < 2 ? `only ${challengeTierable.length} leg${challengeTierable.length === 1 ? "" : "s"} with a published probability today — a card needs legs from 2+ games` : null) ?? "no two-leg combination of today's legs lands in the Low or Medium band"),
+    moonshot: moon ? { card: moon, reason: null } : none(challengeTierable.length < 3 ? `only ${challengeTierable.length} leg${challengeTierable.length === 1 ? "" : "s"} with a published probability today — Moonshot needs 3 games` : "no three-leg combination of today's legs lands in the High or Longshot band"),
   };
 }
 

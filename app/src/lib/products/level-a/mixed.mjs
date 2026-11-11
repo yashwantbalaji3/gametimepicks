@@ -14,7 +14,7 @@
 import { PUBLIC_RISK_TIERS, PUBLIC_RISK_LABELS } from "../../parlays/risk-odds-bands.mjs";
 import { BAND_MAX_LEGS } from "../../parlays/multi-sport.mjs";
 import { best } from "./engine.mjs";
-import { LEVEL_A_LABEL, TIER_METHOD, jointShownFor, tierForJoint } from "./suggestions.mjs";
+import { LEVEL_A_LABEL, TIER_METHOD, jointShownFor, tierForJoint, PARLAY_LAB_ONLY_SPORTS } from "./suggestions.mjs";
 import { NBA_GW_PRODUCT_RULES } from "./nba-game-winner-tiers.mjs";
 
 export const LEVEL_A_MIXED_POLICY = "level-a-mixed@1";
@@ -56,7 +56,10 @@ const range = (sizes) => (sizes.length === 1 ? (sizes[0] === 2 ? "two" : String(
  * @param {{ crossSportLegs: object[], nbaLegs: object[], disclosure?: string | null, enabled?: boolean }} input
  */
 export function levelAMixed({ crossSportLegs = [], nbaLegs = [], disclosure = null, enabled = levelAMixedEnabled() }) {
-  const pool = [...crossSportLegs.filter((l) => l.tierable && typeof l.probability === "number"), ...nbaLegs.filter((l) => l.sport === "nba" && typeof l.probability === "number")];
+  /* Founder decision 2026-11-10 (Parlay Lab V3 decision 2): NBA Elo never assigns a risk tier, so no NBA leg enters a
+     mixed card, whatever the caller passes. `nbaLegs` is kept in the signature for the historical callers and ignored. */
+  void nbaLegs;
+  const pool = crossSportLegs.filter((l) => l.sport !== "nba" && l.tierable && typeof l.probability === "number");
   const sports = sportsOf(pool);
   const tooFew = sports.length < 2 ? `a mixed card needs legs from two sports; today ${sports.length === 0 ? "no sport has" : `only ${sports.map((s) => SPORT_NAME[s] ?? s).join("")} has`} a leg with a published probability` : null;
   const parlayLab = PUBLIC_RISK_TIERS.map((tier) => {
@@ -64,9 +67,13 @@ export function levelAMixed({ crossSportLegs = [], nbaLegs = [], disclosure = nu
     const top = tooFew ? null : best(pool, sizes, [tier], null, twoSports);
     return { tier, tierLabel: PUBLIC_RISK_LABELS[tier], card: top ? cardOf(top.c, tier, LEVEL_A_MIXED_POLICIES.parlayLab) : null, reason: top ? null : tooFew ?? `no ${range(sizes)} of today's legs from two or more sports combine into the ${PUBLIC_RISK_LABELS[tier]} band` };
   });
+  /* Bank Builder / Moonshot never take a Parlay-Lab-only sport (NFL, founder decision 2026-11-10). */
+  const challengePool = pool.filter((l) => !PARLAY_LAB_ONLY_SPORTS.includes(l.sport));
+  const challengeSports = sportsOf(challengePool);
+  const challengeTooFew = challengeSports.length < 2 ? `a mixed card needs legs from two sports; today ${challengeSports.length === 0 ? "no sport has" : `only ${challengeSports.map((s) => SPORT_NAME[s] ?? s).join("")} has`} a leg with a published probability` : null;
   const product = (rule, policy, name) => {
-    const top = tooFew ? null : best(pool, rule.sizes, rule.tiers, null, twoSports);
-    return { card: top ? cardOf(top.c, top.tier, policy) : null, reason: top ? null : tooFew ?? `no ${range(rule.sizes)} of today's legs from two or more sports combine into the ${rule.tiers.map((t) => PUBLIC_RISK_LABELS[t]).join(" or ")} band (${name})` };
+    const top = challengeTooFew ? null : best(challengePool, rule.sizes, rule.tiers, null, twoSports);
+    return { card: top ? cardOf(top.c, top.tier, policy) : null, reason: top ? null : challengeTooFew ?? `no ${range(rule.sizes)} of today's legs from two or more sports combine into the ${rule.tiers.map((t) => PUBLIC_RISK_LABELS[t]).join(" or ")} band (${name})` };
   };
   const bankBuilder = product(NBA_GW_PRODUCT_RULES.bankBuilder, LEVEL_A_MIXED_POLICIES.bankBuilder, "Bank Builder");
   const moonshot = product(NBA_GW_PRODUCT_RULES.moonshot, LEVEL_A_MIXED_POLICIES.moonshot, "Moonshot");

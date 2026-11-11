@@ -19,7 +19,8 @@ test("the registry still has sports that are Level A OPEN but not paper-ladder e
   const suggestionOnly = PUBLIC_SPORTS.filter((s) => !s.productEligible && canEnterModelSuggestions(s.key)).map((s) => s.key);
   assert.ok(suggestionOnly.length > 0);
   assert.ok(suggestionOnly.includes("nba"), "NBA cards are on all three pages");
-  for (const k of ["nfl", "ufc"]) assert.equal(canEnterModelSuggestions(k), false, `${k} stays CLOSED — its row keeps "Never enters"`);
+  assert.equal(canEnterModelSuggestions("nfl"), true, "NFL Level A OPEN: founder decision 2026-11-10 (Parlay Lab V3, decision 1)");
+  for (const k of ["ufc"]) assert.equal(canEnterModelSuggestions(k), false, `${k} stays CLOSED — its row keeps "Never enters"`);
 });
 
 test("the Paper products row and both summary sentences read the Level A axis from the registry, not a typed list", () => {

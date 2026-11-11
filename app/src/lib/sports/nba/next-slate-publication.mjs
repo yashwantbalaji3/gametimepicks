@@ -32,6 +32,7 @@
  */
 
 import { INACTIVE_STATUSES } from "./experimental-lane-publish.mjs";
+import { BUILD_MAX_AGE_HOURS } from "../../availability/eligibility.mjs";
 
 /** The fallback wall-clock time on the slate date, America/New_York. Before noon ET with a 6-hour margin. */
 export const FALLBACK_ET = "06:00";
@@ -150,15 +151,15 @@ export function decideNextSlate({ scheduleRows, finals = [], etDateOf, now, froz
 
 /**
  * What the decider can see of the inputs the builder gates on, labelled by the builder's own thresholds. Describes;
- * withholds nothing (the builder is the gate). A roster older than `rosterRecaptureHours` is re-captured by the
- * window's build step before any roster-gated family reads it.
+ * withholds nothing (the builder is the gate). A roster at least `rosterRecaptureHours` old (eligibility@1's
+ * BUILD_MAX_AGE_HOURS, founder 11-11) is re-captured by the window's pregame roster step before any roster-gated family reads it.
  */
-export function inputReadiness({ now, rosterAsOf, injuriesGeneratedAt, scheduleGeneratedAt, rosterMaxAgeHours, rosterRecaptureHours = 30 }) {
+export function inputReadiness({ now, rosterAsOf, injuriesGeneratedAt, scheduleGeneratedAt, rosterMaxAgeHours, rosterRecaptureHours = BUILD_MAX_AGE_HOURS }) {
   const age = (iso) => { const t = Date.parse(iso ?? ""); return Number.isFinite(t) ? Math.round(((Date.parse(now) - t) / 3_600_000) * 10) / 10 : null; };
   const rosterAge = age(rosterAsOf);
   const roster = rosterAge == null ? "MISSING — the build step captures one; v0.1 refuses if that fails"
     : rosterAge > rosterMaxAgeHours ? `STALE (${rosterAge} h > ${rosterMaxAgeHours} h) — the build step re-captures; v0.1 refuses if that fails`
-    : rosterAge > rosterRecaptureHours ? `AGEING (${rosterAge} h > ${rosterRecaptureHours} h) — the build step re-captures first`
+    : rosterAge >= rosterRecaptureHours ? `AGEING (${rosterAge} h ≥ ${rosterRecaptureHours} h) — the pregame roster step re-captures first`
     : `CURRENT (${rosterAge} h)`;
   const injAge = age(injuriesGeneratedAt);
   const injuries = `captured by the build step at its own instant (committed snapshot ${injAge == null ? "MISSING" : `${injAge} h old`})`;

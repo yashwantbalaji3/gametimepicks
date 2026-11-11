@@ -1,7 +1,7 @@
 # NFL SIMULATION ENGINE V2 — FORWARD SHADOW RECEIPTS (Session 13). $0: no provider call, no market input.
 #
 # Writes a SimulationReceiptV2 (data/internal/research/nfl/sim-v2/shadow/<date>/<eventId>-<inputHash>.json) for every NFL
-# game kicking off within 8 days whose inputs changed since its last receipt (anchors from the forecast of record,
+# game kicking off within 8 days whose inputs changed (or whose receipt predates the current receipt schema) since its last receipt (anchors from the forecast of record,
 # availability from the injuries contract + active roster, role shares, fitted params). Write-once; a started game is
 # never simulated. These receipts are the FORWARD SHADOW LEDGER the promotion gate needs (docs/SIMULATION_ENGINE_V2.md §7):
 # frozen before kickoff, graded later, never public.
@@ -38,10 +38,22 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: "20"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
       - name: Simulate unstarted games whose inputs changed (write-once)
         run: |
           set -euo pipefail
           node app/scripts/nfl/build-nfl-sim-v2-shadow.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      # the QB props scripts reach nflOfficialOfRecord (a .ts module with "@/" imports): tsx, from app/
+      - name: Install app dependencies (tsx)
+        working-directory: app
+        run: npm ci
+      - name: QB props slate job (counts + dashboard; grading runs in the grade step below)
+        working-directory: app
+        run: |
+          set -euo pipefail
+          npx tsx scripts/nfl/grade-qb-props.mjs --write
+          npx tsx scripts/nfl/build-qb-props-history.mjs --write
       - name: Commit new shadow receipts (add-only)
         run: |
           set -euo pipefail
@@ -49,6 +61,10 @@ jobs:
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           mkdir -p data/internal/research/nfl/sim-v2/shadow
           git add data/internal/research/nfl/sim-v2/shadow/
+          # QB props: history.json is a BUILD_INPUT, so the derived files ride only with new receipts (no build of their own)
+          if ! git diff --cached --quiet; then
+            git add data/internal/research/nfl/qb-props/forward-counts.json data/internal/research/nfl/qb-props/dashboard.json data/internal/research/nfl/qb-props/history.json
+          fi
           if git diff --cached --quiet; then
             echo "no new shadow receipt (inputs unchanged or no game inside 8 days)"
             exit 0
@@ -58,6 +74,38 @@ jobs:
             exit 1
           fi
           git commit -m "auto: nfl sim v2 shadow receipts $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
+          for a in 1 2 3 4; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "push rejected (attempt $a) — merging origin/main (never rebase)"
+            git fetch origin main
+            git merge --no-edit origin/main
+            sleep $((a * 5))
+          done
+          echo "::error::push never landed after 4 attempts"
+          exit 1
+      # QB props grading (pre-registration v1.3, founder-approved 2026-11-10T18:55:07Z): finals and box scores land in
+      # nfl-event-window, which triggers this workflow, so the ledger is updated after each game goes final. The gate
+      # refuses (exit 2, red, blocks nothing above) unless the file hashes to an approved sha256. Deterministic: no
+      # wall-clock field, so an unchanged slate rewrites identical bytes and commits nothing.
+      - name: QB props grade (ledger + dashboard)
+        working-directory: app
+        run: |
+          set -euo pipefail
+          npx tsx scripts/nfl/grade-qb-props.mjs --grade --prereg ../docs/NFL_QB_PROPS_PREREGISTRATION_V1_3.md --write
+      - name: Commit QB props ledger + dashboard
+        working-directory: app
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ../data/internal/research/nfl/qb-props/ledger.json ../data/internal/research/nfl/qb-props/dashboard.json
+          if git diff --cached --quiet; then
+            echo "qb props ledger unchanged (no new final)"
+            exit 0
+          fi
+          git commit -m "auto: nfl qb props ledger $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
           for a in 1 2 3 4; do
             if git push origin HEAD:main; then
               exit 0

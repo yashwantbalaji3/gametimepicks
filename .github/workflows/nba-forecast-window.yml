@@ -80,6 +80,33 @@ jobs:
           set -euo pipefail
           node scripts/nba/decide-nba-forecast-window.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
 
+      # PREGAME ROSTER RECAPTURE (founder 11-11, NBA operations; nba-roster-pregame-recapture@1). eligibility@1 trusts a
+      # roster for BUILD_MAX_AGE_HOURS (6 h) at build time, and sport-schedules' daily capture (~17Z) was older than that for
+      # every build after ~23Z, so every NBA player read "not verified". On slate days, every tick: roster-recapture-due.mjs
+      # (eligibility@1's own constant, imported) says whether the committed capture is already that old, or would be by the
+      # slate's last tip while a capture now still covers it; when due, re-capture (free ESPN, no key) at this instant.
+      # The normalised files are kept in $RUNNER_TEMP: the build step below restores them after each attempt's
+      # `git reset --hard origin/main` and commits them IN ITS OWN COMMIT; only a run with no forecast commit commits them
+      # alone (one commit, rosters only). Rosters are not a Vercel build input, so neither adds a Production build.
+      # continue-on-error: a failed capture writes nothing (latest.json stays) and the alert step below raises it.
+      - name: Pregame NBA roster re-capture (slate days)
+        id: roster
+        if: github.event.inputs.dry_run != 'true'
+        continue-on-error: true
+        working-directory: app
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          DUE="$(node scripts/nba/roster-recapture-due.mjs --now "$NOW")"
+          echo "roster: $DUE"
+          if [ "${DUE%% *}" != "due" ]; then exit 0; fi
+          node scripts/nba/capture-nba-rosters.mjs --now "$NOW"
+          mkdir -p "$RUNNER_TEMP/nba-roster"
+          cp ../data/internal/research/nba/rosters/latest.json "../data/internal/research/nba/rosters/${NOW:0:10}.json" "$RUNNER_TEMP/nba-roster/"
+          echo "captured=1" >> "$GITHUB_OUTPUT"
+          echo "dated=${NOW:0:10}.json" >> "$GITHUB_OUTPUT"
+          echo "now=$NOW" >> "$GITHUB_OUTPUT"
+
       - name: Capture injuries, build the owed forecasts, verify, commit
         id: build
         if: steps.decide.outputs.decision == 'BUILD' && github.event.inputs.dry_run != 'true'
@@ -87,6 +114,8 @@ jobs:
         env:
           DATES: ${{ steps.decide.outputs.dates }}
           NEXTDAY: ${{ steps.decide.outputs.nextday }}
+          ROSTER_CAPTURED_NOW: ${{ steps.roster.outputs.captured }}
+          ROSTER_DATED: ${{ steps.roster.outputs.dated }}
         run: |
           set -uo pipefail
           git config user.name "github-actions[bot]"
@@ -95,18 +124,12 @@ jobs:
           for ATTEMPT in 1 2 3; do
             git reset -q --hard origin/main
             NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            # ROSTER BACKSTOP. v0.1 / v0.2 refuse a roster older than ROSTER_MAX_AGE_HOURS (48 h). sport-schedules owns
-            # the daily capture, but its cron arrives hours late and can be dropped; one missed day leaves opening
-            # night's late games (PHI @ NY, OKC @ SA) facing ROSTER_STALE. So when the committed capture is older than
-            # 30 h — i.e. sport-schedules has missed its day — re-capture here (free ESPN, no key) at the forecast's own
-            # instant. Under 30 h nothing is fetched, so the two writers never capture the same day in the normal case.
-            # A failed capture writes nothing (exit 2 leaves latest.json untouched) and the gate decides as before.
+            # The pregame roster re-captured by the step above (if it was due): restored after this attempt's reset, before
+            # any family reads it, and committed in this step's commit below. Never re-captured here.
             ROSTER_CAPTURED=0
-            ROSTER_AGE_H="$(node -e 'const r=JSON.parse(require("fs").readFileSync(process.argv[1],"utf8"));const a=Date.parse(r.asOf??r.capturedAt??"");console.log(Number.isFinite(a)?Math.floor((Date.parse(process.argv[2])-a)/3600000):9999)' ../data/internal/research/nba/rosters/latest.json "$NOW" 2>/dev/null || echo 9999)"
-            if [ "$ROSTER_AGE_H" -gt 30 ]; then
-              echo "::notice::roster capture is ${ROSTER_AGE_H} h old (> 30 h) — re-capturing before the build"
-              if node scripts/nba/capture-nba-rosters.mjs --now "$NOW"; then ROSTER_CAPTURED=1
-              else echo "::warning::roster re-capture failed — the roster gate decides on the committed capture"; fi
+            if [ "${ROSTER_CAPTURED_NOW:-}" = "1" ]; then
+              cp "$RUNNER_TEMP/nba-roster/latest.json" "$RUNNER_TEMP/nba-roster/$ROSTER_DATED" ../data/internal/research/nba/rosters/
+              ROSTER_CAPTURED=1
             fi
             # G4 — injuries first, at the forecast's own instant. A failed capture writes nothing (last-known-good
             # stands) and the receipt records that snapshot's real age; it never blocks the forecast.
@@ -120,8 +143,16 @@ jobs:
               node scripts/nba/build-nba-experimental-forecasts.mjs --date "$NEXTDAY" --now "$NOW" --write --family v0 || V0_FAILED=1
               node scripts/nba/build-nba-experimental-forecasts.mjs --date "$NEXTDAY" --now "$NOW" --write --family v0.1 \
                 || echo "::warning::v0.1 refused for next slate $NEXTDAY (roster gate) — the lane holds until it freezes"
+              # MINUTES SHADOW (founder 2026-11-11): nba-minutes-current-season@1 minutes through the official engine, frozen
+              # pre-tip beside the official v0.1 forecast just built. Private, write-once per game, never published; warns only.
+              node scripts/nba/build-nba-minutes-shadow.mjs --date "$NEXTDAY" --now "$NOW" --write \
+                || echo "::warning::minutes shadow refused for next slate $NEXTDAY — official forecasts unaffected"
               node scripts/nba/build-nba-experimental-forecasts.mjs --date "$NEXTDAY" --now "$NOW" --write --family v0.3 \
                 || echo "::warning::v0.3 refused for next slate $NEXTDAY — v0 and v0.1 unaffected"
+              # Elo SHADOW (founder 2026-11-11; prereg v2): the in-season + HA challengers frozen pre-tip beside the official
+              # v0.1 forecast just built. Private, write-once per game, never published; a refusal warns only.
+              node scripts/nba/build-nba-elo-shadow.mjs --date "$NEXTDAY" --now "$NOW" --write \
+                || echo "::warning::Elo shadow refused for next slate $NEXTDAY — official forecasts unaffected"
             fi
             for D in $DATES; do
               # v0 is the preregistered record: its refusal fails the run. v0.1 is research: its roster gate
@@ -139,6 +170,9 @@ jobs:
               # only where v0.1 froze it at this same --now from the same inputs (alignedCutoffRefusal); refusal warns only.
               node scripts/nba/build-nba-experimental-forecasts.mjs --date "$D" --now "$NOW" --write --family v0.3 --horizon-hours 8 \
                 || echo "::warning::v0.3 refused for $D — v0, v0.1, v0.2 and v1 unaffected"
+              # Elo SHADOW for any game of this slate whose official forecast froze since the last run (write-once per game).
+              node scripts/nba/build-nba-elo-shadow.mjs --date "$D" --now "$NOW" --write \
+                || echo "::warning::Elo shadow refused for $D — official forecasts unaffected"
               # PRIVATE Top Boards (points / rebounds / assists / 3PM), frozen write-once at this same pre-tip instant from
               # the forecasts just built or already committed (v0.1 = player champion, founder N1; v1 = coherent-engine
               # candidate). This workflow is the ONLY writer of top-boards/<family>/<date>.json (grading writes ledger.json
@@ -147,6 +181,9 @@ jobs:
                 || echo "::warning::v0.1 top-board freeze refused for $D — forecasts unaffected"
               node scripts/nba/freeze-nba-top-boards.mjs --family v1 --date "$D" --now "$NOW" --write \
                 || echo "::warning::v1 top-board freeze refused for $D — forecasts unaffected"
+              # MINUTES SHADOW for any game of this slate whose official forecast froze since the last run (write-once per game).
+              node scripts/nba/build-nba-minutes-shadow.mjs --date "$D" --now "$NOW" --write \
+                || echo "::warning::minutes shadow refused for $D — official forecasts unaffected"
             done
             if [ "$V0_FAILED" = "1" ]; then echo "::error::v0 forecast build refused"; exit 1; fi
             # One `git add` per family directory that exists: a single missing pathspec (experimental-v1/ before v1's first
@@ -154,10 +191,14 @@ jobs:
             for FD in experimental experimental-v0.1 experimental-v0.2 experimental-v1 experimental-v0.3; do
               if [ -d "../data/internal/research/nba/$FD" ]; then git add "../data/internal/research/nba/$FD/"; fi
             done
+            # Elo shadow day files (private, write-once per game; the build refuses to change a frozen entry).
+            if [ -d "../data/internal/research/nba/elo-shadow/forecasts" ]; then git add "../data/internal/research/nba/elo-shadow/forecasts/"; fi
             # Frozen board day files (never ledger.json, which belongs to sport-schedules), per family directory that exists.
             for BD in top-boards/v0.1 top-boards/v1; do
               if [ -d "../data/internal/research/nba/$BD" ]; then find "../data/internal/research/nba/$BD" -maxdepth 1 -name '20*.json' -exec git add {} +; fi
             done
+            # Minutes shadow day files (private, write-once per game; the build refuses to change a frozen entry).
+            if [ -d "../data/internal/research/nba/minutes-shadow/forecasts" ]; then git add "../data/internal/research/nba/minutes-shadow/forecasts/"; fi
             if git diff --cached --quiet; then echo "no forecast or board added — nothing to commit"; exit 0; fi
             # Never commit a run that changed or removed an already-committed forecast.
             node scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD || exit 1
@@ -166,10 +207,10 @@ jobs:
             if [ -f ../data/internal/research/transactions/nba/latest.json ]; then git add ../data/internal/research/transactions/nba/latest.json; fi
             # The roster the receipts hash, when this run re-captured it (normalised files only; raw/ is never committed).
             if [ "$ROSTER_CAPTURED" = "1" ]; then
-              git add ../data/internal/research/nba/rosters/latest.json "../data/internal/research/nba/rosters/${NOW:0:10}.json"
+              git add ../data/internal/research/nba/rosters/latest.json "../data/internal/research/nba/rosters/$ROSTER_DATED"
             fi
             git commit -q -m "auto: nba pre-tip forecast window $NOW [skip ci]"
-            if git push -q origin HEAD:main; then echo "committed on attempt $ATTEMPT"; exit 0; fi
+            if git push -q origin HEAD:main; then echo "committed on attempt $ATTEMPT"; echo "committed=1" >> "$GITHUB_OUTPUT"; exit 0; fi
             # Lost a race with another writer: re-plan on the new main (the write-once builder makes that correct).
             echo "::warning::push lost a race (attempt $ATTEMPT) — re-planning on the new main"
             sleep $((ATTEMPT * 15))
@@ -185,6 +226,48 @@ jobs:
       # Tries today ET AND the decider's next slate (founder 2026-10-30): when the previous slate went final before
       # midnight ET, the next slate is tomorrow ET and would otherwise wait for midnight. Oldest first, so latest.json
       # (which only moves forward) ends on the newest slate.
+      # The pregame roster when no forecast commit carried it (no forecast owed this tick, or none added): ONE commit,
+      # roster files only, from this job. Rosters are not a Vercel build input, so the push adds no Production build.
+      - name: Commit the pregame NBA roster (runs with no forecast commit)
+        if: ${{ !cancelled() && steps.roster.outputs.captured == '1' && steps.build.outputs.committed != '1' && github.event.inputs.dry_run != 'true' }}
+        working-directory: app
+        env:
+          ROSTER_DATED: ${{ steps.roster.outputs.dated }}
+          ROSTER_NOW: ${{ steps.roster.outputs.now }}
+        run: |
+          set -uo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          for ATTEMPT in 1 2 3; do
+            git fetch -q origin main
+            git reset -q --hard origin/main
+            cp "$RUNNER_TEMP/nba-roster/latest.json" "$RUNNER_TEMP/nba-roster/$ROSTER_DATED" ../data/internal/research/nba/rosters/
+            git add ../data/internal/research/nba/rosters/latest.json "../data/internal/research/nba/rosters/$ROSTER_DATED"
+            if git diff --cached --quiet; then echo "roster unchanged on main — nothing to commit"; exit 0; fi
+            git commit -q -m "auto: nba pregame roster re-capture $ROSTER_NOW [skip ci]"
+            if git push -q origin HEAD:main; then echo "committed on attempt $ATTEMPT"; exit 0; fi
+            echo "::warning::roster push lost a race (attempt $ATTEMPT)"
+            sleep $((ATTEMPT * 15))
+          done
+          echo "::error::could not push the pregame roster after 3 attempts"
+          exit 1
+
+      # RED SIGNAL (PD 2026-11-11, #1307's pattern): the pregame roster re-capture is an eligibility input and never fails
+      # the window. A failure is never silent: a ::warning on the run and the ops alert (scripts/ops_alert.sh,
+      # OPS_ALERT_KIND warning). No commit here. Guarded by nba-roster-pregame.test.mjs.
+      - name: Alert when the pregame roster re-capture failed
+        if: ${{ !cancelled() && steps.roster.outcome == 'failure' }}
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          OPS_ALERT_KIND: warning
+          PHASE: nba-forecast-window
+          EXIT_STATUS: "1"
+          ERROR_LINE: "NBA pregame roster re-capture failed; the committed capture stays and eligibility@1 reports what it cannot verify"
+        run: |
+          set -euo pipefail
+          echo "::warning::nba-forecast-window: pregame roster re-capture failed"
+          bash scripts/ops_alert.sh
+
       - name: Publish the NBA experimental lane (once per slate)
         if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' && steps.build.outcome != 'failure' }}
         working-directory: app

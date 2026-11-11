@@ -120,6 +120,24 @@ export function recordCall(ledger, { at, endpoint, eventId = null, markets = [],
  * @param {string} markdown
  * @param {{ now?: string|null }} [opts] required for a DATED expiry (e.g. "the ceiling or 2026-11-20 23:59 ET")
  */
+/**
+ * A receipt may scope its ceiling to ITSELF: "Effective cumulative ceiling: N credits under this receipt ID" plus a
+ * "**Receipt ID:** `X`" line (founder 2026-11-11: 450 credits for THIS period, whatever the ledger held before). Then the
+ * ceiling compares against the credits booked under that ID only (creditsUnderReceipt); otherwise against the ledger's
+ * cumulative total, as every earlier receipt does.
+ */
+export function receiptCeilingScope(markdown) {
+  const text = String(markdown ?? "").replace(/^>\s?/gm, "");
+  const perReceipt = /Effective cumulative ceiling[^\n]*?credits under this receipt ID/i.test(text);
+  const receiptId = text.match(/\*\*Receipt ID:\*\*\s*`([A-Za-z0-9_.-]+)`/)?.[1] ?? null;
+  return { scope: perReceipt ? "RECEIPT_ID" : "CUMULATIVE", receiptId };
+}
+
+/** Credits booked under one receipt ID (entries tagged by recordRequest's `receiptId`). */
+export function creditsUnderReceipt(ledger, receiptId) {
+  return (ledger?.requests ?? []).filter((r) => receiptId && r?.receiptId === receiptId).reduce((a, r) => a + (Number(r.creditsUsed) || 0), 0);
+}
+
 export function parseNbaPropsReceipt(markdown, { now = null } = {}) {
   const text = String(markdown ?? "").replace(/^>\s?/gm, "");
   const errors = [];
@@ -136,5 +154,7 @@ export function parseNbaPropsReceipt(markdown, { now = null } = {}) {
   const ceiling = c ? Number(c[1].replace(/,/g, "")) : null;
   if (!(ceiling > 0)) errors.push("ceiling: no 'Effective cumulative ceiling: N credits' line");
   if (!/Approved by:\s*\S+.*\b\d{4}-\d{2}-\d{2}\b/i.test(text)) errors.push("approval: no 'Approved by: <name> <YYYY-MM-DD>' line");
-  return errors.length ? { ok: false, errors: [...new Set(errors)] } : { ok: true, ceiling, markets, expiry: shared.expiry, ledgerRelPath: shared.ledgerRelPath };
+  const scope = receiptCeilingScope(text);
+  if (scope.scope === "RECEIPT_ID" && !scope.receiptId) errors.push("ceiling: scoped to this receipt ID, but no '**Receipt ID:** `…`' line");
+  return errors.length ? { ok: false, errors: [...new Set(errors)] } : { ok: true, ceiling, ceilingScope: scope.scope, receiptId: scope.receiptId, markets, expiry: shared.expiry, ledgerRelPath: shared.ledgerRelPath };
 }

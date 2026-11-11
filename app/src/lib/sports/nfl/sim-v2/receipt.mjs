@@ -13,7 +13,31 @@ import { fnv1a64 } from "../../../forecast-ledger/identity.mjs";
 import { safeNflRunBoxScore } from "../../../simulation-theater/nfl-run-box-score.mjs";
 import { RUN_BOX_RECORD_FIELD, buildRunBoxRecord } from "../../../simulation-theater/nfl-stored-run-box.mjs";
 
-export const SIMULATION_RECEIPT_SCHEMA = "simulation-receipt@2";
+/**
+ * @2.1 (2026-11-10, additive): per-player COUNT PMFs for passTd / int / rushTd / recTd (`countPmf`: P(0), P(1), …,
+ * P(COUNT_PMF_MAX−1), then P(≥ COUNT_PMF_MAX)), and MKT-01 — defensive TDs are their own first-TD bucket
+ * (`firstTdScorer` row DEF_ST per team; `teamFirstTdByType`). Readers accept @2 receipts unchanged.
+ */
+/**
+ * @2.2 (2026-11-10, founder decision 1, additive): EXACT per-player run counts — `exactCounts.<family>` maps each integer
+ * value to the number of runs that produced it (sparse), for passYds (1-yard resolution), cmp, passAtt, passTd, int,
+ * rushTd and recTd. Any half-yard / half-count line probability is then an exact ratio of run counts (exactOver), with no
+ * fitted distribution. `provenance` restates the seed, run count, artifactHash, engine and schema (outside the hashed body).
+ */
+export const SIMULATION_RECEIPT_SCHEMA = "simulation-receipt@2.2";
+export const ACCEPTED_RECEIPT_SCHEMAS = Object.freeze(["simulation-receipt@2", "simulation-receipt@2.1", "simulation-receipt@2.2"]);
+export const EXACT_COUNT_FAMILIES = Object.freeze(["passYds", "cmp", "passAtt", "passTd", "int", "rushTd", "recTd"]);
+/** Families stored only for players who threw a pass in some run (the QB props); the TD families for every player. */
+const PASSER_ONLY = new Set(["passYds", "cmp", "passAtt", "int"]);
+/** Exact P(value > line) from a receipt's sparse run counts: Σ runs above the line / runCount. */
+export function exactOver(counts, line, runCount) {
+  let above = 0;
+  for (const [v, c] of Object.entries(counts ?? {})) if (Number(v) > line) above += c;
+  return above / runCount;
+}
+export const COUNT_PMF_FAMILIES = Object.freeze(["passTd", "int", "rushTd", "recTd"]);
+export const COUNT_PMF_MAX = 6;
+export const DEF_ST_SCORER = Object.freeze({ playerId: "DEF_ST", name: "Defense / special teams", position: null });
 export const RUN_SCHEMA_VERSION = "nfl-drive-run@1";
 export const REPRESENTATIVE_LABEL = "REPRESENTATIVE SIMULATED GAME";
 export const COHERENCE_CHECKS = Object.freeze([
@@ -118,6 +142,23 @@ function playerDistributions(batch, side, prep, teamAbbr) {
       if (any) { stats[k] = quant(v); active = true; }
     }
     if (!active) continue;
+    // count PMFs for the count props (a quantile cannot price "over 1.5"): P(0..MAX−1), then P(≥MAX), over the same runs
+    const countPmf = {};
+    for (const k of COUNT_PMF_FAMILIES) {
+      if (!stats[k]) continue;
+      const c = new Array(COUNT_PMF_MAX + 1).fill(0);
+      for (let i = 0; i < batch.runs; i++) c[Math.min(COUNT_PMF_MAX, Math.max(0, batch.players[side][(i * (n + 1) + slot) * N_PSTAT + PSTAT[k]]))] += 1;
+      countPmf[k] = c.map((x) => r4(x / batch.runs));
+    }
+    // exact sparse run counts (founder decision 1): integer value → runs; passer families only for players who passed
+    const passer = (() => { for (let i = 0; i < batch.runs; i++) if (batch.players[side][(i * (n + 1) + slot) * N_PSTAT + PSTAT.passAtt] > 0) return true; return false; })();
+    const exactCounts = {};
+    for (const k of EXACT_COUNT_FAMILIES) {
+      if (!stats[k] || (PASSER_ONLY.has(k) && !passer)) continue;
+      const m = new Map();
+      for (let i = 0; i < batch.runs; i++) { const v = batch.players[side][(i * (n + 1) + slot) * N_PSTAT + PSTAT[k]]; m.set(v, (m.get(v) ?? 0) + 1); }
+      exactCounts[k] = Object.fromEntries([...m.entries()].sort((a, b) => a[0] - b[0]).map(([v, c]) => [String(v), c]));
+    }
     let atd = 0;
     let two = 0;
     for (let i = 0; i < batch.runs; i++) {
@@ -127,7 +168,7 @@ function playerDistributions(batch, side, prep, teamAbbr) {
       if (tds >= 2) two++;
     }
     const meta = slot < n ? prep.slots[slot] : { playerId: "OTHER", name: "Other / unallocated", position: null };
-    rows.push({ ...meta, team: teamAbbr, anytimeTd: r4(atd / batch.runs), twoPlusTd: r4(two / batch.runs), stats });
+    rows.push({ ...meta, team: teamAbbr, anytimeTd: r4(atd / batch.runs), twoPlusTd: r4(two / batch.runs), stats, ...(Object.keys(countPmf).length ? { countPmf } : {}), ...(Object.keys(exactCounts).length ? { exactCounts } : {}) });
   }
   return rows;
 }
@@ -163,9 +204,10 @@ export function representativeIndices(batch, homeFavoured) {
 }
 
 /**
- * Build the receipt. `generatedAt` is the only clock and is excluded from `artifactHash`.
+ * Build the receipt. `generatedAt` is the only clock and is excluded from `artifactHash`. `idSuffix` (the shadow build's
+ * schema-upgrade tag) is appended to the id as a FOURTH segment, so `id.split(":")[2]` stays the input hash.
  */
-export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt, inputs, postseason = false, eligibility = null, playerAvailability = null }) {
+export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt, inputs, postseason = false, eligibility = null, playerAvailability = null, idSuffix = null }) {
   const n = batch.runs;
   let hw = 0;
   let aw = 0;
@@ -196,18 +238,23 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
   // First TD scorer distribution, from the first TD event of each run.
   const ft = new Map();
   let teamFirst = [0, 0];
+  const teamFirstDef = [0, 0];
   let noTd = 0;
   for (let i = 0; i < n; i++) {
     const side = batch.firstTd[3 * i];
     if (side < 0) { noTd++; continue; }
     teamFirst[side]++;
-    const slot = batch.firstTd[3 * i + 1];
+    const def = batch.firstTd[3 * i + 2] === 2; // MKT-01: a defensive / return TD is its own bucket
+    if (def) teamFirstDef[side]++;
+    const slot = def ? "DEF" : batch.firstTd[3 * i + 1];
     const k = `${side}|${slot}`;
     ft.set(k, (ft.get(k) ?? 0) + 1);
   }
-  const slotMeta = (side, slot) => (prep && slot >= 0 && slot < prep[side].n ? prep[side].slots[slot] : { playerId: "OTHER", name: "Other / unallocated", position: null });
+  const slotMeta = (side, slot) => (slot === "DEF" ? DEF_ST_SCORER : prep && slot >= 0 && slot < prep[side].n ? prep[side].slots[slot] : { playerId: "OTHER", name: "Other / unallocated", position: null });
   const firstTdScorer = [...ft.entries()].map(([k, c]) => {
-    const [side, slot] = k.split("|").map(Number);
+    const [sideS, slotS] = k.split("|");
+    const side = Number(sideS);
+    const slot = slotS === "DEF" ? "DEF" : Number(slotS);
     return { ...slotMeta(side, slot), team: side === 0 ? event.home.abbr : event.away.abbr, probability: r4(c / n) };
   }).sort((a, b) => b.probability - a.probability || (a.playerId < b.playerId ? -1 : 1));
 
@@ -260,7 +307,7 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
 
   const body = {
     schemaVersion: SIMULATION_RECEIPT_SCHEMA,
-    simulationReceiptId: `nfl-sim-v2:${event.eventId}:${inputHash}`,
+    simulationReceiptId: `nfl-sim-v2:${event.eventId}:${inputHash}${idSuffix ? `:${idSuffix}` : ""}`,
     sport: "NFL",
     eventId: event.eventId,
     eventStart: event.kickoffUtc,
@@ -302,13 +349,19 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
     scoringEventDistributions: {
       firstTdScorer,
       teamFirstTd: { home: r4(teamFirst[0] / n), away: r4(teamFirst[1] / n), none: r4(noTd / n) },
+      teamFirstTdByType: {
+        home: { offense: r4((teamFirst[0] - teamFirstDef[0]) / n), defenseSpecialTeams: r4(teamFirstDef[0] / n) },
+        away: { offense: r4((teamFirst[1] - teamFirstDef[1]) / n), defenseSpecialTeams: r4(teamFirstDef[1] / n) },
+      },
       teamTdCount: { home: teamTd(0), away: teamTd(1) },
     },
     representativeRuns,
     ...(prep ? { [RUN_BOX_RECORD_FIELD]: buildRunBoxRecord(runBoxes) } : {}),
     validation: { coherenceChecks: COHERENCE_CHECKS, sampleCount: n, failedRuns: batch.failedRuns, failureCodes: batch.failureCodes },
   };
-  return { ...body, generatedAt, artifactHash: fnv1a64(JSON.stringify(body)) };
+  const artifactHash = fnv1a64(JSON.stringify(body));
+  // provenance sits outside the hashed body so it can name the hash; it restates fields already in the body
+  return { ...body, generatedAt, artifactHash, provenance: { baseSeed, runCount: n, artifactHash, engine: NFL_SIM_V2_ENGINE, engineVersion: NFL_SIM_V2_VERSION, schema: SIMULATION_RECEIPT_SCHEMA } };
 }
 
 /**
@@ -320,7 +373,7 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
  */
 export function validateSimulationReceipt(r) {
   const p = [];
-  if (r?.schemaVersion !== SIMULATION_RECEIPT_SCHEMA) p.push("schemaVersion");
+  if (!ACCEPTED_RECEIPT_SCHEMAS.includes(r?.schemaVersion)) p.push("schemaVersion");
   if (!["SHADOW", "EXPERIMENTAL", "PUBLIC"].includes(r?.promotionState)) p.push("promotionState");
   if (r?.promotionState === "PUBLIC") p.push("PUBLIC promotion is a founder/model gate — no receipt may claim it on its own");
   if (r?.marketReceiptId != null || !/^NOT_AN_INPUT/.test(String(r?.marketUse ?? ""))) p.push("market must not be an input");
@@ -332,8 +385,19 @@ export function validateSimulationReceipt(r) {
     if (rep.label !== REPRESENTATIVE_LABEL) p.push(`representative ${rep.kind} not labelled ${REPRESENTATIVE_LABEL}`);
     if (!(Number.isInteger(rep.runIndex) && rep.runIndex >= 0 && rep.runIndex < r.runCount)) p.push(`representative ${rep.kind} names no real run`);
   }
+  if (r?.schemaVersion === "simulation-receipt@2.2") {
+    const pv = r.provenance;
+    if (!pv || pv.baseSeed !== r.baseSeed || pv.runCount !== r.runCount || pv.artifactHash !== r.artifactHash) p.push("provenance missing or disagrees with the receipt");
+  }
   for (const pl of r?.playerStatDistributions ?? []) {
     if (pl.anytimeTd != null && pl.twoPlusTd != null && pl.twoPlusTd > pl.anytimeTd) p.push(`${pl.playerId}: P(2+ TD) > P(anytime TD)`);
+    for (const [k, pmf] of Object.entries(pl.countPmf ?? {})) {
+      if (Math.abs(pmf.reduce((a, b) => a + b, 0) - 1) > 0.005) p.push(`${pl.playerId}: ${k} count PMF does not sum to 1`);
+    }
+    for (const [k, counts] of Object.entries(pl.exactCounts ?? {})) {
+      const total = Object.values(counts).reduce((a, b) => a + b, 0);
+      if (total !== r?.runCount) p.push(`${pl.playerId}: ${k} exact counts cover ${total} runs, not ${r?.runCount}`);
+    }
   }
   return p;
 }

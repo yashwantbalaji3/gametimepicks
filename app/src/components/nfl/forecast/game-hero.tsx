@@ -8,8 +8,9 @@ import TeamLogo from "@/components/team-logo";
 
 import ModelStatus from "./model-status";
 import { tieNote, unassignedTieShare } from "@/lib/sports/nfl/tie-note.mjs";
+import { nflWinPct, nflWinChanceText } from "@/lib/sports/nfl/win-chance-text.mjs";
 
-const pct = (p: number) => `${(p * 100).toFixed(1)}%`;
+const pct = (p: number) => nflWinPct(p);
 const signed = (x: number) => (x > 0 ? `+${x}` : `${x}`);
 
 export interface HeroProps {
@@ -48,7 +49,7 @@ export default function GameHero({ away, home, kickoffLabel, venue, record: r, l
         <div className="nf-team">
           <TeamLogo team={away.abbr} sport="nfl" size="xl" highlight={!favIsHome} ariaLabel={`${away.name} logo`} />
           <b>{away.name}</b>
-          <span>{pct(r.winProbability.away)} to win</span>
+          <span>{nflWinChanceText(r.winProbability.away)}</span>
         </div>
         <div className="nf-score" aria-label={`Projected score ${away.abbr} ${r.projectedScore.away}, ${home.abbr} ${r.projectedScore.home}`}>
           <p className="nf-eyebrow">{started ? "Pregame projection" : "Projected score"}</p>
@@ -60,7 +61,7 @@ export default function GameHero({ away, home, kickoffLabel, venue, record: r, l
         <div className="nf-team">
           <TeamLogo team={home.abbr} sport="nfl" size="xl" highlight={favIsHome} ariaLabel={`${home.name} logo`} />
           <b>{home.name}</b>
-          <span>{pct(r.winProbability.home)} to win</span>
+          <span>{nflWinChanceText(r.winProbability.home)}</span>
         </div>
       </div>
       <div>

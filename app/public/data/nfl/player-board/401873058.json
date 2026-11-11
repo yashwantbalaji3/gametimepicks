@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-11T01:02:01Z",
- "sourceGeneratedAt": "2026-11-11T01:02:01Z",
+ "generatedAt": "2026-11-11T08:52:01Z",
+ "sourceGeneratedAt": "2026-11-11T08:52:01Z",
  "forecastInputHash": "fdcf747132c3b010",
  "providerEventId": "401873058",
  "matchup": "KC @ ATL",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-11T01:02:01Z",
-  "roleEvidenceAt": "2026-11-11T01:02:01Z",
+  "injuriesCapturedAt": "2026-11-11T08:52:01Z",
+  "roleEvidenceAt": "2026-11-11T08:52:01Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,15 +24,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "ATL",
-     "playerId": "nfl-athlete-5344782",
-     "name": "Jack Strand",
-     "share": 0.469,
-     "reason": "withheld for Jack Strand (ATL): his modelled share of ATL's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -354,7 +345,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Jack Strand (ATL): his modelled share of ATL's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -385,14 +376,21 @@
    },
    {
     "team": "ATL",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4360423",
-     "nfl-athlete-5344782"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4360423",
+     "name": "Michael Penix Jr."
+    },
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-5344782",
+      "name": "Jack Strand"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-11-07T13:54:10Z"
+    "passers": [
+     "nfl-athlete-4360423"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -409,18 +407,9 @@
     "team": "ATL",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4360423",
-     "nfl-athlete-5344782"
+     "nfl-athlete-4360423"
     ],
-    "withheld": [
-     {
-      "team": "ATL",
-      "playerId": "nfl-athlete-5344782",
-      "name": "Jack Strand",
-      "share": 0.469,
-      "reason": "withheld for Jack Strand (ATL): his modelled share of ATL's pass attempts is 0.47, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],
@@ -514,11 +503,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T22:24Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -569,11 +558,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T19:30Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -615,11 +604,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T23:32Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -661,11 +650,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T19:35Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -707,11 +696,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T20:01Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -753,11 +742,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T23:27Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -802,11 +791,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-09T18:20Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -848,11 +837,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T00:43Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -893,12 +882,12 @@
     "sources": {
      "injuries": {
       "status": "Active",
-      "statedAt": "2026-11-02T04:49Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "statedAt": "2026-11-11T01:10Z",
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -948,12 +937,12 @@
     "sources": {
      "injuries": {
       "status": "Active",
-      "statedAt": "2026-11-08T00:19Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "statedAt": "2026-11-11T02:20Z",
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -995,11 +984,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T05:57Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1044,11 +1033,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-09T18:13Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1089,12 +1078,12 @@
     "sources": {
      "injuries": {
       "status": "Active",
-      "statedAt": "2026-11-08T17:03Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "statedAt": "2026-11-11T02:17Z",
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1121,19 +1110,17 @@
    },
    "eligibility": {
     "state": "ELIGIBLE",
-    "reasons": [
-     "ROSTER_ACTIVE"
-    ],
+    "reasons": [],
     "contractVersion": "eligibility@1",
     "sources": {
      "injuries": {
-      "status": null,
-      "statedAt": null,
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "status": "Active",
+      "statedAt": "2026-11-11T03:01Z",
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1175,11 +1162,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T19:58Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1215,11 +1202,11 @@
      "injuries": {
       "status": "Doubtful",
       "statedAt": "2026-11-10T15:44Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1243,11 +1230,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T20:54Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1273,11 +1260,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }

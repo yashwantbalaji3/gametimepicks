@@ -58,8 +58,9 @@ test("the page imports the section only inside the compile-time flag branch; no 
   for (const m of src.matchAll(/^import[^;]*from\s+["']([^"']+)["']/gm)) {
     assert.ok(!/simulation-theater/.test(m[1]), `static import of ${m[1]}`);
   }
-  // exactly one dynamic import of the section, and it sits inside the `=== "1"` branch
-  const dyn = [...src.matchAll(/import\(\s*["']([^"']+)["']\s*\)/g)].map((m) => m[1]);
+  // exactly one dynamic import of a THEATER module, and it sits inside the `=== "1"` branch (the page's other flagged
+  // section, the NFL QB props line, has its own guard: components/nfl/qb-props-line.test.mjs)
+  const dyn = [...src.matchAll(/import\(\s*["']([^"']+)["']\s*\)/g)].map((m) => m[1]).filter((m) => /simulation-theater/.test(m));
   assert.deepEqual(dyn, ["@/components/simulation-theater/PublicTheaterSection"]);
   const branch = src.match(/if \(process\.env\.GTP_NFL_THEATER_PUBLIC === "1"\) \{([\s\S]*?)\n  \}/);
   assert.ok(branch, "the flag branch is a literal `process.env.GTP_NFL_THEATER_PUBLIC === \"1\"` test (DefinePlugin-constant)");

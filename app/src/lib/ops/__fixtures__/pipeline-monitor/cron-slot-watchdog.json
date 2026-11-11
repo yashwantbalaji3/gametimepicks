@@ -1,0 +1,42 @@
+{
+ "kind": "cron-slot-watchdog",
+ "generatedAt": "2026-11-08T16:55:26Z",
+ "lookbackHours": 168,
+ "sports": {
+  "mlb": {
+   "workflow": "mlb-daily-production.yml",
+   "crons": [
+    "17 11 * * *"
+   ],
+   "missed": [],
+   "lastConclusion": "success",
+   "consecutiveFailures": 0,
+   "state": "OK"
+  },
+  "ufc": {
+   "workflow": "ufc-fight-week.yml",
+   "crons": [
+    "0 11 * * 2"
+   ],
+   "missed": [
+    "2026-11-02T13:00:00.000Z"
+   ],
+   "lastConclusion": "success",
+   "consecutiveFailures": 0,
+   "state": "MISSED"
+  },
+  "nfl": {
+   "workflow": "nfl-event-window.yml",
+   "crons": [
+    "5 12 * * *"
+   ],
+   "missed": [],
+   "lastConclusion": "failure",
+   "consecutiveFailures": 2,
+   "state": "FAILING"
+  }
+ },
+ "missedTotal": 1,
+ "failingTotal": 1,
+ "unknown": []
+}

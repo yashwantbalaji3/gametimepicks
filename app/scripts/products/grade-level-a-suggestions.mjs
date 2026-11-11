@@ -47,7 +47,7 @@ export function committedFinals({ repoRoot = REPO, nowIso }) {
     }
     return lines.get(day);
   };
-  let epl = null, ligue = null, nba = null;
+  let epl = null, ligue = null, nba = null, nfl = null;
   return {
     /* An MLB game's linescore lives under its own date; Level A's product day is the ET date of first pitch. */
     mlb: (leg) => mlbDay(leg.productDay ?? String(leg.startUtc ?? "").slice(0, 10)).get(String(leg.eventId)) ?? null,
@@ -62,6 +62,12 @@ export function committedFinals({ repoRoot = REPO, nowIso }) {
       return null;
     },
     nba: (eventId) => (nba ??= committedNbaPropResults({ repoRoot }))({ eventId }),
+    /* NFL: the committed ESPN results capture (app/public/data/nfl/results/latest.json), STATUS_FINAL rows only */
+    nfl: (eventId) => {
+      nfl ??= new Map((readJson(path.join(repoRoot, "app", "public", "data", "nfl", "results", "latest.json"))?.rows ?? [])
+        .map((r) => [String(r.providerEventId), { status: r.statusRaw, homePointsFT: r.ftHome, awayPointsFT: r.ftAway }]));
+      return nfl.get(String(eventId)) ?? null;
+    },
   };
 }
 

@@ -36,7 +36,9 @@ test("REGISTRY: Level A is its own axis; Level B (canEnterPredictionProducts) an
   assert.equal(SPORT_CAPABILITIES.find((c) => c.key === "nba").state, "HISTORICAL_ONLY", "NBA's state is not repurposed");
   assert.equal(canShowLiveProjections("nba"), false);
   for (const k of ["mlb", "nba", "epl", "ligue-1"]) assert.equal(canEnterModelSuggestions(k), true, k);
-  for (const k of ["ufc", "nfl", "soccer", "nhl", "unknown-sport"]) assert.equal(canEnterModelSuggestions(k), false, k);
+  for (const k of ["ufc", "soccer", "nhl", "unknown-sport"]) assert.equal(canEnterModelSuggestions(k), false, k);
+  assert.equal(canEnterModelSuggestions("nfl"), true, "NFL Level A OPEN: founder decision 2026-11-10 (Parlay Lab V3 decision 1); Level B unchanged");
+  assert.equal(canEnterPredictionProducts("nfl"), false);
   assert.equal(modelSuggestionOf("nba").probabilityPublished, false, "NBA's official composition withholds the win probability");
 });
 

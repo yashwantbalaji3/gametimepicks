@@ -2,7 +2,7 @@ import type React from "react";
 import Link from "next/link";
 import TeamLogo from "@/components/team-logo";
 import GameCard, { type GameCardModel } from "@/components/game/game-card";
-import { orderRows, isInProgress, hubStatusDisplay, hubCounts, drawableSplit, type HubGameRow, type HubParticipant, type HubRead } from "@/lib/sport-hub/contract";
+import { orderRows, isInProgress, isSettledFinal, hubStatusDisplay, hubCounts, drawableSplit, type HubGameRow, type HubParticipant, type HubRead } from "@/lib/sport-hub/contract";
 
 /**
  * The first thing on every sport page: what is on, what we think, and where to read it.
@@ -57,7 +57,9 @@ function SplitBar({ split, favored, sides }: { split: Array<{ label: string; p: 
 /**
  * THE SHARED GAME CARD (2026-11-09): a hub row becomes ONE GameCardModel — the same model Home and Today render — and the
  * hub draws it as a card (.gtp-ev) or, on a schedule-only hub, a one-line row (.gtp-cr). A model read is the headline and
- * is tagged MODEL PROJECTION; a market price is shown muted and labelled as the market's (never tagged as ours).
+ * is tagged MODEL PROJECTION; a market price is shown muted and labelled as the market's (never tagged as ours). A settled
+ * final carries the FINAL · settled tag (2026-11-10: every final on a hub says so) — where the row has
+ * a link, pointing at the report that holds the result (the NBA hub's own rows print the score).
  */
 export function hubRowModel(r: HubGameRow, unitLabel: string): GameCardModel {
   const tone = r.read ? READ_TONE[r.read.kind] : null;
@@ -70,7 +72,10 @@ export function hubRowModel(r: HubGameRow, unitLabel: string): GameCardModel {
   return {
     id: String(r.id), startLabel: r.startLabel, statusLabel: hubStatusDisplay(r.status), matchup: r.matchup, separator: r.separator ?? "vs",
     sides: hasSides ? r.participants!.map((p) => ({ name: p.name, logo: p.logoTeam && p.logoSport ? { team: p.logoTeam, sport: p.logoSport } : null, favoured: favoredIsSide && p.name === favored, dim: favoredIsSide && p.name !== favored })) : null,
-    facts: r.read ? [{ state: isModel ? "official" : null, text: r.read.label, sub: `${tone!.label}${r.read.detail ? ` · ${r.read.detail}` : ""}`, headline: isModel }] : [],
+    facts: [
+      ...(r.read ? [{ state: isModel ? "official" as const : null, text: r.read.label, sub: `${tone!.label}${r.read.detail ? ` · ${r.read.detail}` : ""}`, headline: isModel }] : []),
+      ...(isSettledFinal(r) ? [{ state: "final" as const, text: live ? "result on the report" : "game finished" }] : []),
+    ],
     visual: split ? <SplitBar split={split} favored={favored} sides={(r.participants ?? []).map((p) => p.name)} /> : null,
     actions: live ? [{ href: r.reportHref!, label: r.reportState === "ARCHIVE" ? "View archived report" : "Open report", primary: true, srLabel: `for ${r.matchup}` }] : [],
     noRead: `No supported read for this ${unitLabel.toLowerCase().replace(/s$/, "")}`,
