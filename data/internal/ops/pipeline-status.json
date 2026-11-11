@@ -1,0 +1,67 @@
+{
+ "schema": "gtp.pipeline-status@1",
+ "thresholds": {
+  "prNoRunMinutes": 5,
+  "qualityGateMaxMinutes": 75,
+  "zombieHours": 12,
+  "cronReportMaxAgeHours": 26,
+  "vercelLookbackHours": 12,
+  "prLookbackHours": 24
+ },
+ "state": "ATTENTION",
+ "counts": {
+  "CRON_SLOT_MISSED": 4,
+  "MAIN_GATE_RED": 1,
+  "RUN_ZOMBIE": 3
+ },
+ "conditions": [
+  {
+   "key": "CRON_SLOT_MISSED:report-stale:2026-11-08T16:55:26Z",
+   "kind": "CRON_SLOT_MISSED",
+   "detail": "cron-watchdog's cron-slot report is older than 26 h (generated 2026-11-08T16:55:26Z) — the watchdog is not publishing",
+   "since": "2026-11-11T06:19:08Z"
+  },
+  {
+   "key": "CRON_SLOT_MISSED:sport-schedules.yml:2026-11-02T09:07:00.000Z",
+   "kind": "CRON_SLOT_MISSED",
+   "detail": "sport-schedules.yml (nba) missed its 2026-11-02T09:07:00.000Z slot",
+   "since": "2026-11-11T06:19:08Z"
+  },
+  {
+   "key": "CRON_SLOT_MISSED:sport-schedules.yml:2026-11-05T09:07:00.000Z",
+   "kind": "CRON_SLOT_MISSED",
+   "detail": "sport-schedules.yml (nba) missed its 2026-11-05T09:07:00.000Z slot",
+   "since": "2026-11-11T06:19:08Z"
+  },
+  {
+   "key": "CRON_SLOT_MISSED:ufc-fight-week.yml:2026-11-02T13:00:00.000Z",
+   "kind": "CRON_SLOT_MISSED",
+   "detail": "ufc-fight-week.yml (ufc) missed its 2026-11-02T13:00:00.000Z slot",
+   "since": "2026-11-11T06:19:08Z"
+  },
+  {
+   "key": "MAIN_GATE_RED:e3287bcc20",
+   "kind": "MAIN_GATE_RED",
+   "detail": "main quality-gate run 42968027999 on e3287bcc20 is failure",
+   "since": "2026-11-11T06:19:08Z"
+  },
+  {
+   "key": "RUN_ZOMBIE:37655501437",
+   "kind": "RUN_ZOMBIE",
+   "detail": "nightly-settle run 37655501437 still \"queued\" since 2026-10-07T16:53:09Z (over 12 h)",
+   "since": "2026-11-11T06:19:08Z"
+  },
+  {
+   "key": "RUN_ZOMBIE:37655527836",
+   "kind": "RUN_ZOMBIE",
+   "detail": "soccer-dc-shadow run 37655527836 still \"queued\" since 2026-10-07T16:56:32Z (over 12 h)",
+   "since": "2026-11-11T06:19:08Z"
+  },
+  {
+   "key": "RUN_ZOMBIE:37672956236",
+   "kind": "RUN_ZOMBIE",
+   "detail": "nba-forecast-window run 37672956236 still \"queued\" since 2026-10-07T19:14:19Z (over 12 h)",
+   "since": "2026-11-11T06:19:08Z"
+  }
+ ]
+}
