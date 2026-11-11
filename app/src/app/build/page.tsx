@@ -66,6 +66,25 @@ export const metadata = withRouteMetadata("/build/", {
 /* Level A model suggestions (founder policy 2026-10-23): shown when level-a/model.mjs levelAEnabled() says so. */
 const LEVEL_A = levelAEnabled();
 
+/**
+ * Tier performance (Parlay Lab tracking, 2026-11-11): per tier and sport over day … all-time, from the frozen card ledger
+ * and its official settlement only; returns not tracked (no verified prices). Behind GTP_PARLAY_TRACKING_PUBLIC (default
+ * OFF — a compile-time constant; the element is created only inside the literal check, so OFF nothing is imported).
+ */
+async function TierTrackingSlot() {
+  if (process.env.GTP_PARLAY_TRACKING_PUBLIC === "1") {
+    const { levelARecordView } = await import("@/lib/results/nba-level-a-readers");
+    const { tierPerformance, cardSport } = await import("@/lib/parlays/tier-tracking.mjs");
+    const { default: TierTrackingMount } = await import("@/components/parlays/tier-tracking/tier-tracking-mount");
+    const view = levelARecordView();
+    const recent = view.entries.slice(0, 20).map((e: { id: string; productDay: string; tierLabel: string; label: string | null; status: string; legs: { selection: string | null }[] }) => ({
+      id: e.id, productDay: e.productDay, tierLabel: e.tierLabel, label: e.label, sport: cardSport(e), status: e.status, legs: e.legs.map((l) => l.selection ?? "—").join(" · "),
+    }));
+    return <TierTrackingMount model={tierPerformance(view.entries, { today: currentEtDate(), asOf: view.asOf })} recent={recent} />;
+  }
+  return null;
+}
+
 export default function ParlayCenterSuggestedPage() {
   // Same slate framing the rest of the site uses, so every surface agrees on which day is current.
   /* The legacy snapshot list (its producer stopped 2026-09-22). Its legs carry only a display label, not the family
@@ -154,6 +173,8 @@ export default function ParlayCenterSuggestedPage() {
         />
 
         {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="parlay-lab" /> : null}
+
+        {process.env.GTP_PARLAY_TRACKING_PUBLIC === "1" ? <TierTrackingSlot /> : null}
 
         <EmptyTierContext emptyTiers={[...emptyTiers]} lastCards={lastTierCards} lanes={emptyTiers.length ? (loadLabRecord()?.streams ?? []).map((l) => ({ id: l.id, label: l.label, live: l.live, blocked: l.blocked })) : []} />
     </>
