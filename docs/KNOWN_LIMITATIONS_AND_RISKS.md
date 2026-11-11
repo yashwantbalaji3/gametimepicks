@@ -21,6 +21,17 @@ built on transparency.
   overpublishing/repetition and makes empty states honest; it makes **no**
   hit-rate claim.
 
+- **NFL-SIM-QB-GAP (logged 2026-11-11, public).** For established (tier a) NFL
+  starters, the player board's passing projection (P300 share-level model) and
+  Simulation V2's simulated passing for the same QB differ: Week 10 medians
+  Burrow 271 vs 229, Love 256 vs 199, Goff 244 vs 227. Simulation V2 has no
+  QB-specific input — its passer receives the team's passing, calibrated to the
+  official total and margin — so its receivers reconcile to the simulated QB,
+  not the board's. The fix (a QB-efficiency input conditioning the simulation
+  on the board's QB, the score still anchored to the official forecast) is a
+  separate engine change behind GTP_NFL_QB_FALLBACK_PUBLIC and in the founder's
+  demo; public tier (a) numbers do not change before approval.
+
 ## Coverage / data
 
 - **Only NBA + MLB are modeled.** All other leagues are schedule-only or

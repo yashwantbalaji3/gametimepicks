@@ -17,6 +17,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import SimulationV2Report, { type CanonicalForecast } from "@/components/nfl/simulation-v2-report";
+import { maskExperimentalReceipt } from "@/lib/simulation-theater/qb-fallback-mask.mjs";
 import { readShadowReceipts, showableSimulationEvents, simulationOfRecord } from "@/lib/sports/nfl/sim-v2/public-receipt.mjs";
 import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
 import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
@@ -118,7 +119,7 @@ export default function NflSimulationV2Page({ params }: { params: { eventId: str
       {/* P0-A (founder 2026-10-30): with the Theater flag ON the page opens on the Theater's Default view (the official
           projected game), above the simulation report; flag OFF this renders nothing and the page is unchanged */}
       <SimulationReplay rec={rec} />
-      <SimulationV2Report r={r} file={rec.file} canonical={canonicalFor(params.eventId)} gameHref={gameHref} />
+      <SimulationV2Report r={process.env.GTP_NFL_QB_FALLBACK_PUBLIC === "1" ? r : maskExperimentalReceipt(r)} file={rec.file} canonical={canonicalFor(params.eventId)} gameHref={gameHref} />
       <QbProps rec={rec} eventId={params.eventId} />
     </div>
   );

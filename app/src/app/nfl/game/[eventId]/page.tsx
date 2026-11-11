@@ -179,6 +179,17 @@ type ScoreShapeGame = NonNullable<ScoreShapeArtifact["games"]>[number] & {
   engine?: ScoreShapeArtifact["engine"];
 };
 
+/* Founder P0 2026-11-11: EXPERIMENTAL starting-QB projections, only in a build with GTP_NFL_QB_FALLBACK_PUBLIC=1 (a
+   compile-time constant: OFF, neither module is imported and the research file is never read). */
+async function QbFallbackSlot({ eventId }: { eventId: string }) {
+  if (process.env.GTP_NFL_QB_FALLBACK_PUBLIC === "1") {
+    const { default: QbFallbackPanel } = await import("@/components/nfl/qb-fallback-panel");
+    const { readQbFallback } = await import("@/lib/sports/nfl/qb-fallback-read.mjs");
+    return <QbFallbackPanel doc={readQbFallback(path.resolve(process.cwd(), ".."), eventId)} />;
+  }
+  return null;
+}
+
 export default function NflGameReport({ params }: { params: { eventId: string } }) {
   const storyNowIso = new Date().toISOString();
   const artifact = forecastArtifact();
@@ -587,6 +598,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           {/* Gap 4 (2026-10-23): every official-board player in one table first — position, headline and 80% range — from
               the same view the stat tabs below rank. */}
           <NflAllPlayersTable players={view.players ?? []} away={f.away.abbr} home={f.home.abbr} />
+          <QbFallbackSlot eventId={String(f.providerEventId)} />
           {/* Live: the factual in-game stat joins each row through the single live poller (the retired player board's
               per-prop live lines now live here, once per player and family). */}
           <FamilyTabs {...gameTabs(view)} label={`players-${f.providerEventId}`} emptyText="No official projection for this statistic in this game." live={{ eventId: f.providerEventId, kickoffUtc: f.kickoffUtc }} />

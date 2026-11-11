@@ -36,6 +36,7 @@ import { SCENARIOS_KIND, nflOfficialDefault, positionsFromRoster } from "@/lib/s
 import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
 import NflOfficialDefault from "./NflOfficialDefault";
 import { storedRunBoxes } from "@/lib/simulation-theater/nfl-stored-run-box.mjs";
+import { maskExperimentalStarters } from "@/lib/simulation-theater/qb-fallback-mask.mjs";
 import type { RunBoxes } from "./BoxScoreTable";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
@@ -97,7 +98,9 @@ export default function PublicTheaterSection({ rec }: { rec: Rec }) {
   const load = publicTheaterLoad(rec, eventId ? nflTheaterOfficial(REPO_ROOT, eventId) : null) as TheaterLoad;
   const sample = load.ok && load.manifest ? (defaultSample(load.manifest) as TheaterSample | null) : null;
   // the stored runs' player lines, read from the receipt itself (sha + reconciliation to the stored drives; fail closed)
-  const runBoxes = (load.ok && rec?.receipt ? storedRunBoxes(rec.receipt) : null) as RunBoxes | null;
+  const stored = (load.ok && rec?.receipt ? storedRunBoxes(rec.receipt) : null) as RunBoxes | null;
+  // founder P0 2026-11-11: an experimental starting QB's name shows only in a GTP_NFL_QB_FALLBACK_PUBLIC=1 build
+  const runBoxes = (process.env.GTP_NFL_QB_FALLBACK_PUBLIC === "1" ? stored : maskExperimentalStarters(stored, rec?.receipt)) as RunBoxes | null;
   // P0-A (founder 2026-10-30): the Theater opens on the DEFAULT VIEW — the official projected game, from the game page's
   // own forecast view (no simulation input) — and the replay follows as a labelled simulated scenario
   const official = eventId ? nflOfficialDefault(loadForecastView(path.join(REPO_ROOT, "app", "public"), eventId), { positions: readRosterPositions() }) : null;

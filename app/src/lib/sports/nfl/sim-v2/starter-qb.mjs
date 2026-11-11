@@ -13,7 +13,10 @@
  *
  * Founder decision 2026-11-11: the board's starter (depth chart + availability) is projected by evidence tier; a tier
  * (a)/(b) starter is the simulation's passer even when his history with this club put him outside the role-share pool
- * (he is added with the team's passing); a tier (d) starter's passing is not simulated under his name (OTHER).
+ * (he is added with the team's passing). Founder P0 2026-11-11 (~17:40Z): every IDENTIFIED starter is simulated by name,
+ * an experimental (b)/(d) one included — the flag GTP_NFL_QB_FALLBACK_PUBLIC gates display only, never the simulation, so
+ * flag ON and OFF show the same game; OFF, the Theater masks such a passer's name (lib/simulation-theater/qb-fallback-mask.mjs).
+ * Only an UNCONFIRMED starter's passing goes to OTHER.
  */
 export const SIM_STARTER = Object.freeze({ STARTER: "STARTER", WITHHELD: "WITHHELD" });
 
@@ -23,6 +26,7 @@ export function simStarterDecision(board, abbr) {
   if (!board) return { state: SIM_STARTER.WITHHELD, starterQb: null, reason: `no player board for ${abbr}: starting QB not confirmed` };
   if (!rule) return { state: SIM_STARTER.WITHHELD, starterQb: null, reason: `the board records no starting-QB decision for ${abbr}: starting QB not confirmed` };
   if (rule.state === "APPLIED" && rule.starter?.playerId) return { state: SIM_STARTER.STARTER, starterQb: rule.starter.playerId, starterName: rule.starter.name ?? null, tier: rule.tier ?? null, basis: rule.basis ?? null, ...(rule.starterShare ? { starterShare: rule.starterShare } : {}), reason: null };
+  if (rule.experimental && rule.starter?.playerId) return { state: SIM_STARTER.STARTER, starterQb: rule.starter.playerId, starterName: rule.starter.name ?? null, tier: rule.tier ?? null, experimental: true, reason: null };
   if (rule.state === "SINGLE_PASSER" && (rule.passers ?? []).length === 1) return { state: SIM_STARTER.STARTER, starterQb: rule.passers[0], reason: null };
   return { state: SIM_STARTER.WITHHELD, starterQb: null, reason: rule.reason ?? `starting QB not confirmed for ${abbr} (board rule ${rule.state})` };
 }
