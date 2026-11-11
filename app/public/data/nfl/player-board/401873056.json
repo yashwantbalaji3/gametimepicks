@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-11T01:02:01Z",
- "sourceGeneratedAt": "2026-11-11T01:02:01Z",
+ "generatedAt": "2026-11-11T08:52:01Z",
+ "sourceGeneratedAt": "2026-11-11T08:52:01Z",
  "forecastInputHash": "a078bebe0816cbea",
  "providerEventId": "401873056",
  "matchup": "HOU @ CLE",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-11T01:02:01Z",
-  "roleEvidenceAt": "2026-11-11T01:02:01Z",
+  "injuriesCapturedAt": "2026-11-11T08:52:01Z",
+  "roleEvidenceAt": "2026-11-11T08:52:01Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,29 +24,6 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
-   "withheldPassers": [
-    {
-     "team": "HOU",
-     "playerId": "nfl-athlete-4242546",
-     "name": "Davis Mills",
-     "share": 0.351,
-     "reason": "withheld for Davis Mills (HOU): his modelled share of HOU's pass attempts is 0.35, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "CLE",
-     "playerId": "nfl-athlete-4432762",
-     "name": "Shedeur Sanders",
-     "share": 0.536,
-     "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.54, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    },
-    {
-     "team": "CLE",
-     "playerId": "nfl-athlete-4427238",
-     "name": "Dillon Gabriel",
-     "share": 0.481,
-     "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-    }
-   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -254,7 +231,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Davis Mills (HOU): his modelled share of HOU's pass attempts is 0.35, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -324,7 +301,7 @@
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.54, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     },
@@ -404,12 +381,12 @@
      "playerId": "nfl-athlete-4427238",
      "name": "Dillon Gabriel",
      "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start",
+     "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter",
      "notModeled": [
       {
        "family": "player_pass_yds",
        "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
+       "reason": "not the depth chart's QB1 — the team's passing projection belongs to the starter"
       }
      ]
     }
@@ -420,26 +397,43 @@
   "qbStarter": [
    {
     "team": "HOU",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-4432577",
-     "nfl-athlete-4242546"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-4432577",
+     "name": "C.J. Stroud"
+    },
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4242546",
+      "name": "Davis Mills"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-11-07T13:54:10Z"
+    "passers": [
+     "nfl-athlete-4432577"
+    ]
    },
    {
     "team": "CLE",
-    "state": "UNRESOLVED",
-    "reason": "depth chart STALE",
-    "passers": [
-     "nfl-athlete-3122840",
-     "nfl-athlete-4432762",
-     "nfl-athlete-4427238"
+    "state": "APPLIED",
+    "starter": {
+     "playerId": "nfl-athlete-3122840",
+     "name": "Deshaun Watson"
+    },
+    "snapshotAt": "2026-11-11T07:02:21Z",
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4432762",
+      "name": "Shedeur Sanders"
+     },
+     {
+      "playerId": "nfl-athlete-4427238",
+      "name": "Dillon Gabriel"
+     }
     ],
-    "removed": [],
-    "snapshotAt": "2026-11-07T13:54:10Z"
+    "passers": [
+     "nfl-athlete-3122840"
+    ]
    }
   ],
   "passerShareFloor": [
@@ -447,44 +441,18 @@
     "team": "HOU",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-4432577",
-     "nfl-athlete-4242546"
+     "nfl-athlete-4432577"
     ],
-    "withheld": [
-     {
-      "team": "HOU",
-      "playerId": "nfl-athlete-4242546",
-      "name": "Davis Mills",
-      "share": 0.351,
-      "reason": "withheld for Davis Mills (HOU): his modelled share of HOU's pass attempts is 0.35, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    },
    {
     "team": "CLE",
     "floor": 0.75,
     "passers": [
-     "nfl-athlete-3122840",
-     "nfl-athlete-4432762",
-     "nfl-athlete-4427238"
+     "nfl-athlete-3122840"
     ],
-    "withheld": [
-     {
-      "team": "CLE",
-      "playerId": "nfl-athlete-4432762",
-      "name": "Shedeur Sanders",
-      "share": 0.536,
-      "reason": "withheld for Shedeur Sanders (CLE): his modelled share of CLE's pass attempts is 0.54, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     },
-     {
-      "team": "CLE",
-      "playerId": "nfl-athlete-4427238",
-      "name": "Dillon Gabriel",
-      "share": 0.481,
-      "reason": "withheld for Dillon Gabriel (CLE): his modelled share of CLE's pass attempts is 0.48, a relief appearance's share rather than a starter's, so it cannot project the yards of a start"
-     }
-    ],
+    "withheld": [],
     "unjoined": []
    }
   ],
@@ -578,11 +546,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T00:36Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -624,11 +592,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:54Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -679,11 +647,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:22Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -719,11 +687,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-10T15:44Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -765,11 +733,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:07Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -816,11 +784,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:14Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "day-to-day",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -855,11 +823,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -901,11 +869,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T00:53Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -947,11 +915,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T00:42Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -993,11 +961,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:08Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1039,11 +1007,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T02:38Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1085,11 +1053,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T00:48Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1140,11 +1108,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:11Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1186,11 +1154,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:11Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1235,11 +1203,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-10T15:44Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1281,11 +1249,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:31Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1320,11 +1288,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1357,11 +1325,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T00:30Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1403,11 +1371,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:30Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1433,11 +1401,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
@@ -1465,12 +1433,12 @@
     "sources": {
      "injuries": {
       "status": "Active",
-      "statedAt": "2026-10-27T02:01Z",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "statedAt": "2026-11-11T04:28Z",
+      "fetchedAt": "2026-11-11T08:52:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T01:02:01Z"
+      "fetchedAt": "2026-11-11T08:52:01Z"
      }
     }
    }
