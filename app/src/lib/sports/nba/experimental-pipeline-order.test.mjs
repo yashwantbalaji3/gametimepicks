@@ -104,7 +104,9 @@ const WINDOW = path.resolve(process.cwd(), "..", ".github", "workflows", "nba-fo
 test("G2 · the pre-tip window: free, own concurrency group, injuries → v0 → v0.1 → verify → commit", () => {
   const yaml = fs.readFileSync(WINDOW, "utf8");
   const body = yaml.replace(/^\s*#.*$/gm, "");
-  assert.doesNotMatch(body, /secrets\./, "the window is free — it must reference no secret");
+  // The window is free: no paid key. Its only secret is the ops alert webhook (PD 2026-11-11, roster re-capture alert,
+  // scripts/ops_alert.sh), and only in that alert step.
+  assert.deepEqual([...body.matchAll(/secrets\.([A-Z0-9_]+)/g)].map((m) => m[1]), ["OPS_WEBHOOK_URL"], "the window is free — no secret but the ops alert webhook");
   assert.match(body, /group: nba-forecast-window\n/, "own concurrency group (a dense tick in gtp-generated-artifacts would cancel other writers' pending runs)");
   assert.doesNotMatch(body, /gtp-generated-artifacts/);
   // Two clocks that deliver: publication-watchdog (workflow_run) and daily-products' `tick` job (workflow_dispatch —
@@ -158,18 +160,18 @@ test("staging survives a family directory that does not exist yet (a missing pat
   fs.rmSync(root, { recursive: true, force: true });
 });
 
-test("roster backstop: a stale (> 30 h) roster is re-captured BEFORE the roster-gated builds; only normalised files are staged", () => {
+test("pregame roster re-capture: decided by eligibility@1's window, BEFORE the roster-gated builds; only normalised files are staged", () => {
   const body = fs.readFileSync(WINDOW, "utf8").replace(/^\s*#.*$/gm, "");
   const cap = body.indexOf("capture-nba-rosters.mjs --now \"$NOW\"");
   assert.ok(cap > 0, "the window can re-capture the roster");
-  assert.match(body, /if \[ "\$ROSTER_AGE_H" -gt 30 \]; then/, "only when sport-schedules has missed its day (> 30 h), so the two writers do not capture the same day");
+  // Founder 11-11 (NBA operations): the threshold is eligibility@1's BUILD_MAX_AGE_HOURS (was a 30 h backstop), decided
+  // by roster-recapture-due.mjs; nba-roster-pregame.test.mjs pins the rest of the rule.
+  assert.match(body, /DUE="\$\(node scripts\/nba\/roster-recapture-due\.mjs --now "\$NOW"\)"/, "the decision is eligibility@1's window, not a local constant");
   assert.ok(cap < body.indexOf("capture-injuries.mjs"), "roster before injuries");
   assert.ok(cap < body.indexOf("--family v0.1 --horizon-hours 8"), "roster before the roster-gated family reads it");
-  // A failed capture must never fail the run or block v0 (the gate decides on the committed capture).
-  assert.match(body, /capture-nba-rosters\.mjs --now "\$NOW"; then ROSTER_CAPTURED=1\n\s+else echo "::warning::/);
   const rosterAdds = (body.match(/git add [^\n]*/g) ?? []).filter((l) => l.includes("rosters"));
-  assert.equal(rosterAdds.length, 1);
-  assert.doesNotMatch(rosterAdds[0], /rosters\/(\s|"|$)|raw/, "never the whole rosters tree or raw payloads");
+  assert.equal(rosterAdds.length, 2, "the forecast commit and the roster-only commit (runs with no forecast commit)");
+  for (const a of rosterAdds) assert.doesNotMatch(a, /rosters\/(\s|"|$)|raw/, "never the whole rosters tree or raw payloads");
   assert.ok(body.indexOf(rosterAdds[0]) > body.indexOf("verify-nba-forecast-receipts.mjs --against HEAD"), "staged after the frozen-game guard, with the injuries snapshot");
 });
 

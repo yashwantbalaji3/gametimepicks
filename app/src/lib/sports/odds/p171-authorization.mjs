@@ -437,7 +437,7 @@ export function ceilingExhausted({ authorization, ledger, cheapestPaidCredits })
  * (x-requests-last / x-requests-used / x-requests-remaining) — parsed here, defaulting a paid
  * call with unreadable headers to cost 1 (never 0: unaccounted spend is the failure mode).
  */
-export function recordRequest(ledger, { at, purpose, endpoint, events = null, markets = null, regions = null, status, headers = {}, charged = true, fingerprint = null, resultClass = null }) {
+export function recordRequest(ledger, { at, purpose, endpoint, events = null, markets = null, regions = null, status, headers = {}, charged = true, fingerprint = null, resultClass = null, receiptId = null }) {
   const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : null; };
   const lastCost = num(headers["x-requests-last"]);
   const creditsUsed = charged ? (lastCost ?? 1) : (lastCost ?? 0);
@@ -454,6 +454,8 @@ export function recordRequest(ledger, { at, purpose, endpoint, events = null, ma
     creditsUsed,
     providerRequestsUsed: num(headers["x-requests-used"]),
     providerRequestsRemaining: num(headers["x-requests-remaining"]),
+    // A receipt whose ceiling is scoped to its own ID (credits consumed UNDER that receipt) tags each call; others add nothing.
+    ...(receiptId ? { receiptId } : {}),
   };
   return {
     ...ledger,

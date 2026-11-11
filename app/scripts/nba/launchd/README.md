@@ -1,0 +1,41 @@
+# NBA prop prices: the local tick (release owner's machine)
+
+Receipt: `docs/receipts/ODDS_AUTHORIZATION_NBA_PROPS_PRIVATE_2026-11-11.md`. It runs on this machine, never on a GitHub-hosted runner. The founder's 2026-10-22 storage rule applies: prices go only to `~/gtp-private`.
+
+## Install (the Program Director does this, after review)
+1. **Dedicated checkout** outside `~/Downloads`, because launchd bash and git jobs cannot read `~/Downloads`; node can.
+   - Run `git clone <origin> ~/gtp-capture/gametimepicks`, then `touch ~/gtp-capture/gametimepicks/.gtp-capture-checkout`.
+   - The runner resets this checkout to `origin/main` every tick, and refuses any checkout without the marker.
+   - Its git remote needs push access, for the ledger commit.
+2. **Key:** the existing `~/Downloads/gametimepicks/.env`, through `--key-env-file`. There is no duplicate key file (founder 2026-11-11).
+   - It must be mode 600 (`chmod 600`).
+   - Only its `ODDS_API_KEY` line is read; no other variable reaches the runner or the capture.
+   - The key is never logged or written.
+   - `--key-file` (a file holding only the key, also mode 600) remains as an optional override.
+   - launchd runs node, which can read `~/Downloads` under TCC; bash cannot.
+3. **plist:** fill in `com.gametimepicks.nba-props-local-tick.plist.template`:
+   - `__NPX__`: output of `command -v npx`;
+   - `__NODE_BIN__`: the directory of `command -v node`;
+   - `__REPO__` and `__HOME__`.
+
+   The job runs `npx --yes tsx` on the runner, because the runner and the capture import `.ts` modules, which Node 20 cannot strip on its own.
+
+   Then copy the filled-in plist to `~/Library/LaunchAgents/` and run `launchctl bootstrap gui/$(id -u) <plist>`.
+4. **Dry check first,** with no paid call: `npx tsx <repo>/app/scripts/nba/run-nba-props-local-tick.mjs --repo <repo> --private ~/gtp-private`. It prints `NOTHING_TO_PRICE` or `PLANNED`.
+
+## Kill switch
+- `touch ~/gtp-private/odds/nba/STOP`: the next tick exits before any network call.
+- Or `launchctl bootout gui/$(id -u)/com.gametimepicks.nba-props-local-tick`.
+
+## What a tick does
+1. Kill switch.
+2. Sync the checkout.
+3. Record `MISSED_WINDOW` games, once each, in the private state only.
+4. Find games 20–75 min before tip. With none, it makes no network call at all.
+5. Free preflight: receipt, plan balance, certain cost, ceiling, the 2,000 floor and the shared 3,500/week cap.
+6. Authorized capture.
+7. Commit the ledger alone.
+
+A ledger push that fails blocks every later paid tick until a person resolves it and clears `ledgerUnpushed` in `~/gtp-private/odds/nba/props-runner/state.json`.
+
+Mac asleep means the window is missed: no spend, recorded as `MISSED_WINDOW`, and never retried after tip.

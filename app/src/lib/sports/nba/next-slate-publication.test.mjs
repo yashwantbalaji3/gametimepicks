@@ -150,8 +150,10 @@ test("NO REWRITE: an early-published slate stays frozen — a later, different s
 
 test("input readiness labels the roster by the builder's own thresholds (describes; never relaxes)", () => {
   const r = (h) => inputReadiness({ now: "2026-10-31T05:00:00Z", rosterAsOf: new Date(Date.parse("2026-10-31T05:00:00Z") - h * 3_600_000).toISOString(), injuriesGeneratedAt: null, scheduleGeneratedAt: "2026-10-30T16:00:00Z", rosterMaxAgeHours: 48 });
-  assert.match(r(13).roster, /^CURRENT/);
-  assert.match(r(31).roster, /^AGEING/);
+  // the re-capture threshold is eligibility@1's build window (6 h, founder 11-11), not the old 30 h backstop
+  assert.match(r(5).roster, /^CURRENT/);
+  assert.match(r(6).roster, /^AGEING/);
+  assert.match(r(13).roster, /^AGEING/);
   assert.match(r(49).roster, /^STALE .* v0\.1 refuses if that fails/);
   assert.match(inputReadiness({ now: "2026-10-31T05:00:00Z", rosterAsOf: null, rosterMaxAgeHours: 48 }).roster, /^MISSING/);
   assert.match(r(13).injuries, /MISSING/);
