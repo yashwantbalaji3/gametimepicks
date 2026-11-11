@@ -1,8 +1,9 @@
 #!/usr/bin/env node
 /**
  * Writes app/public/data/nba/post-freeze-availability/<date>.json from the frozen lane file and the NBA injuries facts
- * capture (lib/sports/nba/post-freeze-availability.mjs). Writes only when the content changes, so a caller can commit
- * the path unconditionally and a quiet window adds no diff.
+ * capture (lib/sports/nba/post-freeze-availability.mjs). Writes only when the content changes, and never creates a
+ * file that would hold no change (an absent file already means none), so a caller can stage the path unconditionally
+ * and a quiet window adds no diff and no Production build. Called by .github/workflows/nba-forecast-window.yml.
  *   node app/scripts/nba/build-nba-post-freeze-availability.mjs --date 2026-11-11 [--root <repo>] [--check]
  * --check exits 1 when the committed file differs from what the current inputs give (nothing is written).
  */
@@ -26,6 +27,7 @@ const text = JSON.stringify(postFreezeAvailability(lane, capture), null, 1) + "\
 const outPath = path.join(root, POST_FREEZE_REL(date));
 const before = fs.existsSync(outPath) ? fs.readFileSync(outPath, "utf8") : null;
 if (args.includes("--check")) { if (before !== text) { console.error(`${POST_FREEZE_REL(date)} is stale`); process.exit(1); } process.exit(0); }
+if (before === null && JSON.parse(text).changes.length === 0) { console.log(`${POST_FREEZE_REL(date)}: no post-freeze change, no file`); process.exit(0); }
 if (before === text) { console.log(`${POST_FREEZE_REL(date)} unchanged`); process.exit(0); }
 fs.mkdirSync(path.dirname(outPath), { recursive: true });
 fs.writeFileSync(outPath, text);

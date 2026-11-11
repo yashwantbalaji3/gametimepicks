@@ -305,6 +305,43 @@ jobs:
           for D in $(printf '%s\n' "$TODAY" ${SLATE:-} | sort -u); do publish_one "$D" || FAILED=1; done
           exit "$FAILED"
 
+      # POST-FREEZE AVAILABILITY (founder 2026-11-11, Mathurin BKN @ NO 401909972). A player the frozen lane projected
+      # who is ruled Out after his game froze and before tip-off keeps his projection as recorded; the game page and
+      # /nba/projections demote it with "Ruled out after this forecast froze (injury report HH:MM ET)". Runs on every
+      # non-dry tick after the lane publish (BUILD or hold), with its OWN injuries capture first: the build step captures
+      # only on BUILD ticks, and late scratches land after the last forecast froze. Only the public status file
+      # app/public/data/nba/post-freeze-availability/<date>.json is staged, by explicit path; the script writes only on
+      # change and never an empty file, so a quiet tick commits nothing and adds no Production build. The lane file and
+      # every graded record are never touched. A capture or script failure warns and never fails the window.
+      - name: Post-freeze availability (projected players ruled out after the freeze)
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' }}
+        working-directory: app
+        env:
+          SLATE: ${{ steps.decide.outputs.slate }}
+        run: |
+          set -uo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          TODAY="$(TZ=America/New_York date +%Y-%m-%d)"
+          for ATTEMPT in 1 2 3; do
+            git fetch -q origin main && git reset -q --hard origin/main
+            NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            node scripts/sports/capture-injuries.mjs --now "$NOW" \
+              || echo "::warning::injuries capture refused — post-freeze availability reads the committed capture"
+            for D in $(printf '%s\n' "$TODAY" ${SLATE:-} | sort -u); do
+              node scripts/nba/build-nba-post-freeze-availability.mjs --date "$D" \
+                || { echo "::warning::post-freeze availability refused for $D"; continue; }
+              F="public/data/nba/post-freeze-availability/$D.json"
+              if [ -f "$F" ]; then git add "$F"; fi
+            done
+            if git diff --cached --quiet; then echo "no post-freeze availability change — nothing to commit"; exit 0; fi
+            git commit -q -m "auto: nba post-freeze availability $NOW"
+            if git push -q origin HEAD:main; then echo "committed on attempt $ATTEMPT"; exit 0; fi
+            echo "::warning::post-freeze availability push lost a race (attempt $ATTEMPT)"; sleep $((ATTEMPT * 15))
+          done
+          echo "::warning::could not push post-freeze availability after 3 attempts"
+          exit 0
+
       - name: Report a hold
         if: steps.decide.outputs.decision != 'BUILD'
         run: echo "::notice::nba-forecast-window held — no NBA game tips within 8 h without a forecast from every family"

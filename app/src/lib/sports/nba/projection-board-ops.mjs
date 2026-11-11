@@ -16,7 +16,7 @@
  * @param {object|null} snapshot
  * @param {ReadonlyArray<ReadonlyArray<string>>} stats
  */
-export function boardRows(snapshot, stats) {
+export function boardRows(snapshot, stats, postFreeze = null) {
   const rows = [];
   for (const g of snapshot?.games ?? []) {
     for (const side of ["away", "home"]) {
@@ -33,6 +33,8 @@ export function boardRows(snapshot, stats) {
           // the lane's roster position (PR 1230), only on slates published with it; undefined = not recorded
           ...(r.position !== undefined ? { pos: r.position ?? null } : {}),
           v: stats.map(([k]) => (r.medians && k in r.medians ? r.medians[k] : r.comboMedians?.[k] ?? null)),
+          // ruled out after the freeze (post-freeze-availability.mjs): the note, server-formatted; the numbers stay as recorded
+          ...(postFreeze?.[`${g.providerEventId}:${r.providerAthleteId}`] ? { pf: postFreeze[`${g.providerEventId}:${r.providerAthleteId}`] } : {}),
         });
       }
     }
@@ -76,6 +78,8 @@ export function packBoard(rows, actuals = null, awaiting = null, unprojected = n
   });
   const out = { t, r };
   if (sorted.some((x) => x.pos !== undefined)) out.p = sorted.map((x) => x.pos ?? 0);
+  // POST-FREEZE OUT: `o` lists [row index, note] for rows ruled out after the freeze; absent = none
+  if (sorted.some((x) => x.pf)) out.o = sorted.flatMap((x, i) => (x.pf ? [[i, x.pf]] : []));
   if (actuals) out.a = sorted.map((x) => actuals[x.id] ?? (awaiting?.has(x.game) ? 1 : 0));
   if (unprojected?.length) {
     out.u = unprojected.map((x) => {
@@ -97,9 +101,9 @@ export function packBoard(rows, actuals = null, awaiting = null, unprojected = n
 
 /**
  * @param {{ t: [string, string, string][], r: (string | number | null)[][], a?: (0 | 1 | (number | string | null)[])[], u?: (string | number | null)[][], p?: (string | 0)[], c?: [number, number, number | string | null][] }} packed
- * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[], am?: number | "DNP" | null, aw?: boolean, np?: string, pos?: string | null, cv?: Record<number, number | string | null> }[]}
+ * @returns {{ id: string, game: string, name: string, injury: string | null, team: string, teamName: string, min: number | null, v: (number | null)[], am?: number | "DNP" | null, aw?: boolean, np?: string, pos?: string | null, cv?: Record<number, number | string | null>, pf?: string }[]}
  */
-export function unpackBoard({ t, r, a, u, p, c }) {
+export function unpackBoard({ t, r, a, u, p, c, o }) {
   const board = r.map(([name, injury, ti, min, ...v], i) => {
     const [team, teamName, game] = t[/** @type {number} */ (ti)];
     const row = { id: String(i).padStart(4, "0"), game, name: /** @type {string} */ (name), injury: /** @type {string} */ (injury) || null, team, teamName, min: /** @type {number | null} */ (min), v: /** @type {(number | null)[]} */ (v), ...(p ? { pos: p[i] || null } : {}) };
@@ -114,6 +118,7 @@ export function unpackBoard({ t, r, a, u, p, c }) {
     board.push({ id: `u${String(j).padStart(4, "0")}`, game, name: /** @type {string} */ (name), injury: null, team, teamName, min: null, v: [...Array(width).fill(null), ...actual], am: am === undefined ? null : am, aw: false, np: /** @type {string} */ (code), ...(p || pos ? { pos: pos || null } : {}) });
   }
   for (const [i, vi, was] of c ?? []) if (board[i]) board[i].cv = { ...(board[i].cv ?? {}), [vi]: was };
+  for (const [i, note] of o ?? []) if (board[i]) board[i].pf = note;
   return board;
 }
 
@@ -178,7 +183,8 @@ export function filterRows(rows, { matchup = "", team = "", player = "", positio
  */
 export function sortRows(rows, { key = null, dir = "desc" } = {}) {
   const byMinutes = (a, b) => (b.min ?? -Infinity) - (a.min ?? -Infinity) || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
-  if (key == null) return [...rows].sort(byMinutes);
+  // the default order demotes a player ruled out after the freeze below every active row; a column sort is the reader's own
+  if (key == null) return [...rows].sort((a, b) => (a.pf ? 1 : 0) - (b.pf ? 1 : 0) || byMinutes(a, b));
   const at = key === "min" ? (r) => r.min : key === "am" ? (r) => r.am : (r) => r.v[key];
   const num = (x) => (typeof x === "number" ? x : null);
   const sign = dir === "asc" ? 1 : -1;

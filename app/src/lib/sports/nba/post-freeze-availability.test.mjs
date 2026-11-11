@@ -11,6 +11,7 @@ import fs from "node:fs";
 import path from "node:path";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+import { execFileSync } from "node:child_process";
 
 globalThis.React = React;
 const { postFreezeAvailability, postFreezeOutFor, postFreezeNote, POST_FREEZE_AVAILABILITY_SCHEMA, POST_FREEZE_REL } = await import("./post-freeze-availability.mjs");
@@ -89,4 +90,65 @@ test("settled page (same URL after the ET rollover) keeps the same note and orde
   const html = renderToStaticMarkup(React.createElement(SettledSimulation, { view: { id: GAME, date: DATE, game: g, record: null } }));
   assert.equal(html.split("data-nba-post-freeze-out").length - 1, 1);
   assert.match(text(html), /Bennedict Mathurin Ruled out after this forecast froze \(injury report 11:29 AM ET\) 16\.9 8\.4/);
+});
+
+test("tip-off bound: an Out stated after the game tipped is not a pregame availability change", () => {
+  const late = { ...capture, entries: capture.entries.map((e) => (e.athleteId === MATHURIN ? { ...e, statedAt: new Date(Date.parse(g.tipUtc) + 60e3).toISOString() } : e)) };
+  assert.deepEqual(postFreezeAvailability(lane, late).changes, []);
+});
+
+test("/nba/projections all-players board: Mathurin kept as recorded, last in the default order, with the note (wire round-trip)", async () => {
+  const { boardRows, packBoard, unpackBoard, sortRows } = await import("./projection-board-ops.mjs");
+  const { PROJECTION_BOARD_STATS } = await import("./experimental-public-lane.mjs");
+  const { loadPostFreezeNotes } = await import("../../../components/nba/post-freeze-availability-data.ts");
+  const notes = loadPostFreezeNotes(DATE);
+  assert.deepEqual(notes, { [`${GAME}:${MATHURIN}`]: "Ruled out after this forecast froze (injury report 11:29 AM ET)" });
+  assert.equal(loadPostFreezeNotes("2026-11-10"), null, "a date without a file: no notes");
+  const plain = packBoard(boardRows(lane, PROJECTION_BOARD_STATS));
+  const packed = packBoard(boardRows(lane, PROJECTION_BOARD_STATS, notes));
+  assert.equal(plain.o, undefined, "no notes → the wire is unchanged");
+  assert.deepEqual(packed.t, plain.t, "teams unchanged");
+  assert.deepEqual(packed.r.filter((x) => x[0] !== "Bennedict Mathurin"), plain.r.filter((x) => x[0] !== "Bennedict Mathurin"), "every other row, in the same order, unchanged");
+  assert.equal(packed.r.length, plain.r.length, "no row removed");
+  const last = packed.r.at(-1);
+  assert.equal(last[0], "Bennedict Mathurin");
+  assert.deepEqual(last.slice(3, 5), [16.9, 8.4], "expected minutes and points as recorded");
+  assert.deepEqual(packed.o, [[packed.r.length - 1, notes[`${GAME}:${MATHURIN}`]]]);
+  const rows = unpackBoard(packed);
+  const order = sortRows(rows);
+  assert.equal(order.at(-1).name, "Bennedict Mathurin", "the island's default order demotes him (same as the server's)");
+  assert.equal(order.at(-1).pf, notes[`${GAME}:${MATHURIN}`]);
+  assert.deepEqual(order.map((r) => r.id), rows.map((r) => r.id), "client default order = server pack order");
+});
+
+test("the window step: after the build step's capture and the lane publish, its own capture, explicit path, writes on change, no skip marker", () => {
+  const wf = read(".github/workflows/nba-forecast-window.yml");
+  const i = wf.indexOf("- name: Post-freeze availability");
+  assert.ok(i > wf.indexOf("- name: Capture injuries, build the owed forecasts") && i > wf.indexOf("- name: Publish the NBA experimental lane"), "runs after the injuries capture and the lane publish");
+  const step = wf.slice(i, wf.indexOf("- name: Report a hold"));
+  assert.ok(step.indexOf("capture-injuries.mjs") < step.indexOf("build-nba-post-freeze-availability.mjs"), "its own capture first");
+  const adds = [...step.matchAll(/git add ([^\n;]+)/g)].map((m) => m[1].trim());
+  assert.deepEqual(adds, ['"$F"'], "one git add, of the explicit file path only");
+  assert.match(step, /F="public\/data\/nba\/post-freeze-availability\/\$D\.json"/);
+  assert.match(step, /git commit -q -m "auto: nba post-freeze availability \$NOW"/);
+  assert.doesNotMatch(step, /skip[ -]ci|ci[ -]skip/i, "the commit message carries no CI skip marker");
+  assert.doesNotMatch(step, /experimental-public|graded|exit 1\b/, "never stages the lane or a graded record; never fails the window");
+});
+
+test("script: writes only on change and never an empty file", () => {
+  const tmp = fs.mkdtempSync(path.join(process.env.TMPDIR ?? "/tmp", "pfa-"));
+  const put = (rel, obj) => { fs.mkdirSync(path.dirname(path.join(tmp, rel)), { recursive: true }); fs.writeFileSync(path.join(tmp, rel), JSON.stringify(obj)); };
+  put(LANE_REL, lane);
+  const run = () => execFileSync(process.execPath, [path.join(APP, "scripts/nba/build-nba-post-freeze-availability.mjs"), "--date", DATE, "--root", tmp], { encoding: "utf8" });
+  const out = path.join(tmp, POST_FREEZE_REL(DATE));
+  put("data/internal/research/injuries/nba/latest.json", { ...capture, entries: [] });
+  assert.match(run(), /no post-freeze change, no file/);
+  assert.ok(!fs.existsSync(out), "no change → no file → no commit, no build");
+  put("data/internal/research/injuries/nba/latest.json", capture);
+  assert.match(run(), /1 change/);
+  const first = fs.readFileSync(out, "utf8");
+  assert.match(run(), /unchanged/);
+  assert.equal(fs.readFileSync(out, "utf8"), first, "byte-identical rerun");
+  assert.equal(first, read(POST_FREEZE_REL(DATE)), "the committed file is exactly what the script writes from the 16:32Z capture");
+  fs.rmSync(tmp, { recursive: true, force: true });
 });

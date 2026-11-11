@@ -37,7 +37,7 @@ import React, { useEffect, useId, useMemo, useState } from "react";
 
 import { filterRows, sortRows, unpackBoard, gameStatusOnClock, GAME_STATUS_LABEL, noProjectionShort, POSITION_GROUPS } from "@/lib/sports/nba/projection-board-ops.mjs";
 
-export type BoardRow = { id: string; game: string; name: string; injury: string | null; team: string; teamName: string; min: number | null; v: (number | null)[]; am?: number | "DNP" | null; aw?: boolean; np?: string; pos?: string | null; cv?: Record<number, number | string | null> };
+export type BoardRow = { id: string; game: string; name: string; injury: string | null; team: string; teamName: string; min: number | null; v: (number | null)[]; am?: number | "DNP" | null; aw?: boolean; np?: string; pos?: string | null; cv?: Record<number, number | string | null>; pf?: string };
 /** One game chip: id, short matchup ("BOS @ DET"), build-time status code, tip-off instant, optional actual-state note. */
 export type BoardGameNav = [string, string, "upcoming" | "started" | "final" | "postponed", string, string?];
 type SortKey = number | "min" | "am";
@@ -222,8 +222,8 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
             </thead>
             <tbody style={{ color: "var(--vault-text)" }}>
               {(mounted ? shown : shown.slice(0, SSR_ROWS)).map((r) => (
-                <tr key={r.id}>
-                  <th scope="row">{r.name}{r.injury ? ` · ${r.injury}` : ""}{r.np ? <span className="block text-[11px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{noProjectionShort(r.np)}</span> : null}</th>
+                <tr key={r.id} {...(r.pf ? { "data-nba-post-freeze-out": "", style: { color: "var(--vault-text-mute)" } } : {})}>
+                  <th scope="row">{r.name}{r.injury ? ` · ${r.injury}` : ""}{r.pf ? <span className="block text-[11px] leading-snug font-normal" style={{ color: "var(--vault-text-mute)", whiteSpace: "normal" }}>{r.pf}</span> : null}{r.np ? <span className="block text-[11px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>{noProjectionShort(r.np)}</span> : null}</th>
                   <td title={r.teamName}>{r.team}</td>
                   <td>{fmt(r.min)}</td>
                   {post ? <td>{r.aw ? "awaiting final" : actualCell(r.am, r.cv?.[0], r.cv?.[0] !== undefined)}</td> : null}

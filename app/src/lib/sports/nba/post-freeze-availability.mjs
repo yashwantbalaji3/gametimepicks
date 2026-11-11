@@ -5,7 +5,8 @@
  * never edited. When a later injury report rules a PROJECTED player out, the game page keeps that player's projection
  * as recorded but demotes it and says why. This module derives the public facts that note needs, and nothing more:
  *   a change   a player with a published projection in the frozen lane game (players.away / players.home) whose
- *              injury status is "Out" in the capture, stated AFTER that game's frozenAt
+ *              injury status is "Out" in the capture, stated AFTER that game's frozenAt and BEFORE its tip-off (an
+ *              in-game or postgame "Out" is not a pregame availability change)
  *   kept       providerEventId, providerAthleteId, the lane's name, side, "Out", statedAt — normalized status facts only
  *              (the capture's own license note: no editorial prose); no projection number, no price
  * Out → Day-To-Day changes are NOT changes here: a player already listed unavailable stays unavailable (conservative).
@@ -33,12 +34,12 @@ export function postFreezeAvailability(lane, capture) {
   }
   const changes = [];
   for (const g of lane?.games ?? []) {
-    const frozen = t(g.frozenAt);
-    if (!Number.isFinite(frozen)) continue;
+    const frozen = t(g.frozenAt), tip = t(g.tipUtc);
+    if (!Number.isFinite(frozen) || !Number.isFinite(tip)) continue;
     for (const side of ["away", "home"]) {
       for (const p of g.players?.[side] ?? []) {
         const e = out.get(String(p.providerAthleteId));
-        if (!e || !(t(e.statedAt) > frozen)) continue;
+        if (!e || !(t(e.statedAt) > frozen && t(e.statedAt) < tip)) continue;
         changes.push({ providerEventId: String(g.providerEventId), providerAthleteId: String(p.providerAthleteId), name: p.name ?? e.athleteName ?? null, side, status: POST_FREEZE_OUT_STATUS, statedAt: e.statedAt });
       }
     }
@@ -53,7 +54,12 @@ export function postFreezeAvailability(lane, capture) {
   };
 }
 
-/** This game's post-freeze "Out" changes by athlete id (empty when the file is absent, malformed or for another date). */
+/**
+ * This game's post-freeze "Out" changes by athlete id (empty when the file is absent, malformed or for another date).
+ * @param {any} file
+ * @param {string} eventId
+ * @param {string | null} [date]
+ */
 export function postFreezeOutFor(file, eventId, date = null) {
   if (!file || file.schema !== POST_FREEZE_AVAILABILITY_SCHEMA || (date && file.date !== date)) return new Map();
   return new Map((file.changes ?? []).filter((c) => c.providerEventId === String(eventId) && c.status === POST_FREEZE_OUT_STATUS).map((c) => [c.providerAthleteId, c]));

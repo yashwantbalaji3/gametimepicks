@@ -17,6 +17,7 @@ import { currentEtDate } from "@/lib/freshness";
 import { boardContext } from "@/components/nba/projection-board-context";
 import { committedLaneDates, loadLaneForDate } from "@/components/nba/experimental-lane";
 import NbaProjectionsView from "@/components/nba/projections-view";
+import { loadPostFreezeNotes } from "@/components/nba/post-freeze-availability-data";
 import { AMENDMENT_A } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import { nbaLineSummaryGameLinks } from "@/components/nba/prop-line-game-links";
@@ -40,5 +41,5 @@ export function generateMetadata({ params }: { params: { date: string } }): Meta
 export default async function NbaProjectionsDatePage({ params }: { params: { date: string } }) {
   const now = new Date();
   const ctx = boardContext({ date: params.date, nowIso: now.toISOString(), buildEtDate: currentEtDate(now), enabled: AMENDMENT_A.enabled });
-  return <NbaProjectionsView lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} eloCtx={loadEloWinProbabilityContext()} asOf={now.toISOString()} gameLinks={await nbaLineSummaryGameLinks(currentEtDate(now))} dated />;
+  return <NbaProjectionsView postFreeze={loadPostFreezeNotes(ctx.lane?.date)} lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} eloCtx={loadEloWinProbabilityContext()} asOf={now.toISOString()} gameLinks={await nbaLineSummaryGameLinks(currentEtDate(now))} dated />;
 }

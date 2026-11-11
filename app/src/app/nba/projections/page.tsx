@@ -18,6 +18,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { currentEtDate } from "@/lib/freshness";
 import { boardContext } from "@/components/nba/projection-board-context";
 import NbaProjectionsView from "@/components/nba/projections-view";
+import { loadPostFreezeNotes } from "@/components/nba/post-freeze-availability-data";
 import { AMENDMENT_A } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import { nbaLineSummaryGameLinks } from "@/components/nba/prop-line-game-links";
@@ -41,5 +42,5 @@ export default async function NbaProjectionsPage() {
   const topBoards = ctx.lane && ctx.role === "current"
     ? (gateLaneTopBoards(ctx.lane, { dated: loadLaneForDate(ctx.lane.date ?? ""), nowIso: now.toISOString(), startedIds: ctx.games.filter((g) => g.status !== "upcoming").map((g) => g.id) }) as LaneTopBoardsGate | null)
     : null;
-  return <NbaProjectionsView topBoards={topBoards} lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} eloCtx={loadEloWinProbabilityContext()} asOf={now.toISOString()} gameLinks={await nbaLineSummaryGameLinks(currentEtDate(now))} />;
+  return <NbaProjectionsView topBoards={topBoards} postFreeze={loadPostFreezeNotes(ctx.lane?.date)} lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} eloCtx={loadEloWinProbabilityContext()} asOf={now.toISOString()} gameLinks={await nbaLineSummaryGameLinks(currentEtDate(now))} />;
 }
