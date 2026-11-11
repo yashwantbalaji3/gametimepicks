@@ -1,5 +1,5 @@
 /**
- * NFL QB props v0 display stub (qb-props-line.tsx): R5-gated, labelled EXPERIMENTAL · MODEL PROJECTION, no price, and
+ * NFL QB props v0 display stub (qb-props-line.tsx): R5-gated, labelled MODEL PROJECTION, no price, and
  * behind a build flag that defaults OFF (the page imports the component only inside the compile-time flag branch).
  * Run (from app/): npx tsx --test src/components/nfl/qb-props-line.test.mjs
  */
@@ -37,13 +37,14 @@ test("the section: projected QB per team, five markets from one simulation, exac
   const history = { "nfl-athlete-1": qbHistory(games, "nfl-athlete-1", receipt.eventStart) };
   const html = renderToStaticMarkup(React.createElement(QbPropsLine, { receipt, teamInputs: { state: "NO_STARTING_QB_ABSENCE" }, history }));
   const text = html.replace(/<[^>]+>/g, " ");
-  assert.ok(html.includes(QB_PROPS_LABEL) && QB_PROPS_LABEL === "EXPERIMENTAL · MODEL PROJECTION");
+  assert.ok(html.includes(QB_PROPS_LABEL) && QB_PROPS_LABEL === "MODEL PROJECTION");
   for (const m of ["Passing TDs", "Passing yards", "Completions", "Attempts", "Interceptions"]) assert.ok(text.includes(m), m);
   assert.match(text, /242/, "pass-yards median from receipt quantiles (no exact counts)");
   assert.match(text, /1\+: 80%/, "1+ pass TD = 1 − P(0) from the count PMF");
   assert.match(text, /2\+: 45%/, "2+ pass TD");
   assert.match(text, /200\+: 80% · 225\+: 80% · 250\+: 30%/, "yards chances exactly from the run counts");
-  assert.match(text, /Under forward evaluation/, "market status shown (FORWARD_EVALUATION)");
+  assert.match(text, /Wider projection range/, "market status shown in plain words (FORWARD_EVALUATION)");
+  assert.doesNotMatch(text, /forward evaluation|EXPERIMENTAL|RESEARCH/i, "no research vocabulary (founder language decision 2026-11-11)");
   assert.doesNotMatch(text, /Validated/, "no market is validated");
   assert.match(text, /History: actual results in his previous 2 games before this kickoff\. Not a forecast\./);
   assert.match(text, /2026 wk 3 vs XYZ/);

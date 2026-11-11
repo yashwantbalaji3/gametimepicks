@@ -75,7 +75,7 @@ export function nbaInputs({ appRoot, productDay, env }) {
         team: fav, opponent: home ? g.away?.abbr : g.home?.abbr, participantId: null, participantName: null,
         family: "winner", marketFamily: "team_result", marketKey: "h2h", side: fav, line: null, selection: `${fav} to win`,
         availabilityState: "UNKNOWN",
-        forecast: { ...forecastBase, probability: g.elo?.winProbability?.[home ? "home" : "away"] ?? null, probabilityBasis: PROBABILITY_BASIS.NO_VALIDATED_MAPPING, probabilityReason: "Elo-derived estimate; accuracy not established", projection: null },
+        forecast: { ...forecastBase, probability: g.elo?.winProbability?.[home ? "home" : "away"] ?? null, probabilityBasis: PROBABILITY_BASIS.NO_VALIDATED_MAPPING, probabilityReason: "MODEL PROJECTION; accuracy record still building", projection: null },
         price: null,
       });
     }

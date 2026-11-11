@@ -145,7 +145,6 @@ export default function LevelASuggestions({ model, mode }: { model: LevelAModel 
       </p>
       <MoreDisclosure title="Technical details" summary="Forecast sources and the published data file">
         <div className="flex flex-col gap-1 text-[12px]" style={{ color: "var(--vault-text-mute)" }}>
-          {levelAForecastSources(model, mode).length ? <p className="m-0">Forecast source{levelAForecastSources(model, mode).length === 1 ? "" : "s"}: {levelAForecastSources(model, mode).join(" · ")}</p> : null}
           <p className="m-0"><a href="/data/level-a/v1/model.json" style={{ color: "var(--vault-text-mute)", textDecoration: "underline" }}>These suggestions as data</a></p>
         </div>
       </MoreDisclosure>
@@ -192,7 +191,7 @@ function LevelAReference({ model, refused }: { model: LevelAModel; refused: Arra
             return u ? (
               <>
                 {u.caveat ? <p className="m-0 mt-1" style={{ color: "var(--vault-text-mute)", fontSize: 11.5 }} data-nba-elo-wp-caveat="">{u.caveat}</p> : null}
-                <details className="mt-1"><summary className="cursor-pointer" style={{ minHeight: 40, color: "var(--vault-text-faint)", fontSize: 11.5 }}>How accurate is the Elo estimate?</summary>
+                <details className="mt-1"><summary className="cursor-pointer" style={{ minHeight: 40, color: "var(--vault-text-faint)", fontSize: 11.5 }}>How accurate is this projection?</summary>
                   <p className="m-0 mt-1" style={{ color: "var(--vault-text-faint)", fontSize: 11.5 }} data-nba-elo-wp-disclosure="">{u.note}</p>
                 </details>
               </>

@@ -73,11 +73,10 @@ import SimulationPanel from "@/components/nfl/forecast/simulation-panel";
 import FamilyTabs from "@/components/nfl/forecast/family-tabs";
 import GameExplorer from "@/components/nfl/forecast/game-explorer";
 import Methodology from "@/components/nfl/forecast/methodology";
-import { gameTabs } from "@/lib/sports/nfl/forecast-view.mjs";
+import { gameTabs, withheldReasonText } from "@/lib/sports/nfl/forecast-view.mjs";
 import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
 import { STATUS as WORLD_MODEL_STATUS } from "@/lib/sports/nfl/world-model-v2/artifact.mjs";
 import EtTime from "@/components/ui/et-time";
-import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 import NflPostgameBoxScore from "@/components/game/nfl-postgame-box-score";
 import NflAllPlayersTable from "@/components/game/nfl-all-players-table";
 import { loadNflPostgame } from "@/lib/sports/nfl/postgame-box-score";
@@ -296,7 +295,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <TeamFollowRow away={nflTeamRefByAbbr(f.away.abbr)} home={nflTeamRefByAbbr(f.home.abbr)} researchHrefs={hrefsFor([nflTeamRefByAbbr(f.away.abbr)?.id, nflTeamRefByAbbr(f.home.abbr)?.id])} />
         </div>
         {/* v1.4: factual matchup research for this exact event id — shown only when that page exists. */}
-        {matchupHref("NFL", params.eventId) ? <div style={{ marginTop: 8 }}><CompareCta href={matchupHref("NFL", params.eventId)!}>Research matchup</CompareCta></div> : null}
+        {matchupHref("NFL", params.eventId) ? <div style={{ marginTop: 8 }}><CompareCta href={matchupHref("NFL", params.eventId)!}>Compare matchup</CompareCta></div> : null}
         {wx ? (
           <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--vault-text-faint)", maxWidth: 720, lineHeight: 1.55 }}>
             {wx.summary} — <strong>not used by the model</strong>; no weather term enters the numbers below.
@@ -552,12 +551,12 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
               {withheld.length ? (
                 <details style={{ marginTop: 14, borderTop: "1px solid var(--vault-rule)", paddingTop: 10 }}>
                   <summary className="font-mono" style={{ cursor: "pointer", fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase", color: "var(--vault-text-faint)", minHeight: 44 }}>
-                    {withheld.map(([key, x]) => famLabel(key, x)).join(" · ")} — withheld, with the exact bar each failed
+                    {withheld.map(([key, x]) => famLabel(key, x)).join(" · ")} — not published yet
                   </summary>
                   <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
                     {withheld.map(([key, x]) => (
                       <li key={key} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)" }}>
-                        <strong style={{ color: "var(--vault-text-mute)" }}>{famLabel(key, x)}:</strong> {plainCodes(x.reason) ?? "did not clear its evaluation bar"}
+                        <strong style={{ color: "var(--vault-text-mute)" }}>{famLabel(key, x)}:</strong> {withheldReasonText(x.reason)}
                       </li>
                     ))}
                   </ul>
@@ -583,7 +582,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           <span id="player-board" aria-hidden="true" style={{ display: "block", position: "relative", top: -72 }} />
           <p className="nf-eyebrow">Player projections · expected statistical summaries · not one simulated game</p>
           <h2 id="nf-players-h" className="nf-h2">What each player is projected to do</h2>
-          <p className="nf-sub">Every number here is the official player board&apos;s projection, the one Results grade. A statistic marked Estimate has not yet met its calibration standard: its numbers are shown as an estimate, never as a pick. Players listed as Questionable or Doubtful are marked; players ruled out are not projected.</p>
+          <p className="nf-sub">Every number here is the official player board&apos;s projection, the one Results grade. A statistic marked Wider projection range is shown as a projection to read as a range, never as a pick. Players listed as Questionable or Doubtful are marked; players ruled out are not projected.</p>
           {/* Gap 4 (2026-10-23): every official-board player in one table first — position, headline and 80% range — from
               the same view the stat tabs below rank. */}
           <NflAllPlayersTable players={view.players ?? []} away={f.away.abbr} home={f.home.abbr} />
@@ -824,10 +823,10 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           page's one collapsed "Technical details", verbatim. The model's own measured limit and the paper-only
           disclaimer stay visible below it: those are disclosures, not provenance. */}
       <section aria-labelledby="receipt" style={{ marginTop: 26 }}>
-        <MoreDisclosure title="Technical details" summary="Model version, input fingerprint, timestamps and the per-family evaluation basis.">
+        <MoreDisclosure title="Technical details" summary="How this forecast was made: simulations, input fingerprint and timestamps.">
         <h2 id="receipt" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>Where this came from</h2>
         <dl style={{ margin: 0, fontSize: 12, fontFamily: "var(--font-mono, monospace)", color: "var(--vault-text-mute)", display: "grid", gridTemplateColumns: "auto 1fr", gap: "4px 12px" }}>
-          <dt>model</dt><dd style={{ margin: 0 }}>{f.model.id} v{f.model.version}</dd>
+          <dt>model</dt><dd style={{ margin: 0 }}>GameTimePicks team model</dd>
           <dt>simulations</dt><dd style={{ margin: 0 }}>{f.model.simulations.toLocaleString("en-US")}</dd>
           <dt>input hash</dt><dd style={{ margin: 0 }}>{f.model.inputHash}</dd>
           <dt>generated</dt><dd style={{ margin: 0 }}><EtTime iso={f.generatedAt} /></dd>
@@ -844,25 +843,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
               : <>it is not the official record because it used an input sourced after kickoff, and the official record could not be read for this page.</>}
           </p>
         ) : null}
-        {/* P250 · A15: the player board's model provenance — the receipt above names only the team
-            forecast model, and nothing else on the page said which evaluation produced each player
-            family. Read verbatim from the artifact's per-family basis lines. */}
-        {playerBoard ? (
-          <details style={{ marginTop: 12, border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px" }}>
-            <summary style={{ cursor: "pointer", fontSize: 12, color: "var(--vault-text-mute)", minHeight: 44 }}>
-              Player-family model provenance ({Object.values(playerBoard.families).filter((x) => x.state === "PUBLISHED").length} published)
-            </summary>
-            <ul style={{ margin: "8px 0 0", padding: 0, listStyle: "none", display: "grid", gap: 5 }}>
-              {Object.entries(playerBoard.families)
-                .filter(([, x]) => x.state === "PUBLISHED")
-                .map(([key, x]) => (
-                  <li key={key} style={{ fontSize: 11.5, lineHeight: 1.55, color: "var(--vault-text-faint)" }}>
-                    <strong style={{ color: "var(--vault-text-mute)" }}>{x.label}:</strong> {x.basis ?? "evaluation basis not recorded on the artifact"}
-                  </li>
-                ))}
-            </ul>
-          </details>
-        ) : null}
+        {/* Founder language decision 2026-11-11: the per-family evaluation basis lines (internal evaluation ids and promotion
+            bars) are no longer printed on the game page; they stay in the player-board artifact and on Methodology. */}
         </MoreDisclosure>
         {card?.honestLimit ? (
           <p style={{ margin: "12px 0 0", fontSize: 12.5, color: "var(--vault-text-mute)", maxWidth: 760, lineHeight: 1.6 }}>{card.honestLimit}</p>

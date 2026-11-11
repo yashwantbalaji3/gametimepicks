@@ -359,7 +359,7 @@ export function buildNbaGraphicsExport({ date, asOf, lane, snapshots = new Map()
     const estStatus = est ? MODEL_STATUS.OFFICIAL_ESTIMATE : MODEL_STATUS.UNAVAILABLE;
     push({
       rowId: `nba:${date}:${e.eventId}:game:elo_win_estimate`, kind: "GAME_WIN_ESTIMATE",
-      identity: identity({ market: "elo_win_estimate", marketLabel: est?.label ?? "Elo-derived game-winner estimate" }),
+      identity: identity({ market: "elo_win_estimate", marketLabel: est?.label ?? "Game-winner projection" }),
       officialForecast: official({ rule: g?.elo?.rule ?? null }),
       snapshot: snapBlock,
       model: { status: estStatus, value: est ? est.home : null, kind: "probability_home", display: est ? `${e.home.abbr} ${est.homePct}% · ${e.away.abbr} ${est.awayPct}%` : null, accuracyEstablished: false },

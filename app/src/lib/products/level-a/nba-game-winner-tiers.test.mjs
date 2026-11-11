@@ -63,7 +63,7 @@ test("LEG REFUSALS: no published probability, provenance mismatch, side disagree
   assert.equal(legOf(l, d).ok, true);
   assert.equal(legOf(l, d).leg.probability, 0.7);
   assert.equal(legOf(l, null).code, "NO_PUBLISHED_PROBABILITY");
-  assert.equal(NBA_GW_REFUSAL.NO_PUBLISHED_PROBABILITY, "Untiered: no published Elo-derived game-winner estimate", "the display's own name for the number (founder wording): never called a probability");
+  assert.equal(NBA_GW_REFUSAL.NO_PUBLISHED_PROBABILITY, "Untiered: no published game-winner MODEL PROJECTION", "the display's own name for the number (founder wording): never called a probability");
   assert.equal(legOf(l, { ...d, frozenAt: "2026-01-01T00:00:00Z" }).code, "PROVENANCE_MISMATCH");
   assert.equal(legOf(l, { ...d, payloadSha256: "0".repeat(64) }).code, "PROVENANCE_MISMATCH");
   assert.equal(legOf(l, { ...d, eventId: "999" }).code, "PROVENANCE_MISMATCH");
@@ -107,7 +107,7 @@ test("BANDS: D2 on 1/joint; joint above 0.667 is untiered and said aloud; highes
   const again = nbaGameWinnerTiers({ receiptOf, legs: [...legs].reverse(), accessor: fixtureAccessor(favour(legs, [0.75, 0.75, 0.75, 0.75])), enabled: true });
   assert.deepEqual(tie.tiers.map((t) => t.card?.legs.map((l) => l.eventId).sort()), again.tiers.map((t) => t.card?.legs.map((l) => l.eventId).sort()), "input order never changes the pick");
   const one = nbaGameWinnerTiers({ receiptOf, legs: legs.slice(0, 1), accessor: fixtureAccessor(favour(legs, [0.8])), enabled: true });
-  for (const t of one.tiers) assert.match(t.reason, t.tier === "longshot" ? /needs 3 games with a published Elo-derived estimate; only 1 has one/ : /needs 2 games with a published Elo-derived estimate; only 1 has one/, "two favourites can never reach Longshot, so it needs 3");
+  for (const t of one.tiers) assert.match(t.reason, t.tier === "longshot" ? /needs 3 games with a published game-winner MODEL PROJECTION; only 1 has one/ : /needs 2 games with a published game-winner MODEL PROJECTION; only 1 has one/, "two favourites can never reach Longshot, so it needs 3");
 });
 
 test("NBA-ONLY, ONE LEG PER GAME: mixed input never yields a mixed card; a repeated game counts once", () => {
@@ -215,7 +215,7 @@ test("PRODUCTS (founder mandate 2026-10-24): one engine; Bank Builder = best 2-l
   assert.equal(strong.bankBuilder.reason, "no two of tonight's favourites combine into the Low Risk or Medium Risk band (Bank Builder)", "an accurate empty state");
   assert.match(strong.tiers.find((t) => t.tier === "low").reason, /^no two of tonight's favourites combine into the Low Risk band; 3 combinations are shorter than the Low band, so not tiered$/);
   const two = nbaGameWinnerTiers({ receiptOf, legs: legs.slice(0, 2), accessor: fixtureAccessor(favour(legs, [0.6, 0.6])), enabled: true });
-  assert.match(two.moonshot.reason, /needs 3 games with a published Elo-derived estimate; only 2 have one/);
+  assert.match(two.moonshot.reason, /needs 3 games with a published game-winner MODEL PROJECTION; only 2 have one/);
 });
 
 test("SAME TEAM / SAME GAME: one leg per game, and no team twice in a card even across different event ids", () => {

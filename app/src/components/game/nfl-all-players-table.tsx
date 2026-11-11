@@ -51,7 +51,7 @@ export default function NflAllPlayersTable({ players, away, home }: { players: V
               <th scope="col">Player</th>
               <th scope="col">Team</th>
               <th scope="col">Pos</th>
-              {cols.map((c) => <th key={c.key} scope="col" title={estLabel(c.key) ? `${c.title} · ${estLabel(c.key)}` : c.title} data-estimate={estLabel(c.key) ? c.key : undefined}>{c.short}{estLabel(c.key) ? " (est.)" : ""}</th>)}
+              {cols.map((c) => <th key={c.key} scope="col" title={estLabel(c.key) ? `${c.title} · ${estLabel(c.key)}` : c.title} data-estimate={estLabel(c.key) ? c.key : undefined}>{c.short}{estLabel(c.key) ? " *" : ""}</th>)}
             </tr>
           </thead>
           <tbody>
@@ -76,7 +76,7 @@ export default function NflAllPlayersTable({ players, away, home }: { players: V
       </div>
       {estCols.length ? (
         <p className="ap-sub" data-estimate-columns>
-          {[...new Set(estCols.map((c) => estLabel(c.key)))].map((l) => `${estCols.filter((c) => estLabel(c.key) === l).map((c) => c.title).join(" and ")}: ${l}.`).join(" ")}
+          {[...new Set(estCols.map((c) => estLabel(c.key)))].map((l) => `* ${estCols.filter((c) => estLabel(c.key) === l).map((c) => c.title).join(" and ")}: ${l}.`).join(" ")}
         </p>
       ) : null}
     </div>

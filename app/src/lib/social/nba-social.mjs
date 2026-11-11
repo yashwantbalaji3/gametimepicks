@@ -52,7 +52,7 @@ export const PLAYER_FAMILIES = Object.freeze([
 
 export const USAGE_RULES = Object.freeze([
   "Quote only fields present in this file; a field marked withheld or absent must not be stated or estimated.",
-  "The favoured side is the Official Forecast; the Elo-derived estimate is an estimate (accuracy not established), never a validated probability.",
+  "The favoured side is the Official Forecast; the game-winner MODEL PROJECTION is a model projection (accuracy record still building), never a validated probability.",
   "Player figures are medians, not lines, picks or predictions to bet; never pair them with sportsbook prices.",
   "No 'lock', 'edge', 'value', 'best bet' or accuracy claims; the record is counts only until the minimum graded games is reached.",
   "Game Simulations are hypothetical and never a forecast; this file carries none.",
@@ -159,7 +159,7 @@ export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, latestD
       { family: "teamScores", reason: "Team score, margin and total are not published: the player-sum score ignores the opponent and has not met its historical checks." },
       { family: "playerRanges", reason: "Medians only: the model's ranges have not yet shown reliable coverage." },
       ...(feedPrices ? [] : [{ family: "prices", reason: "No sportsbook prices are published for NBA." }]),
-      ...(est ? [] : [{ family: "eloEstimate", reason: eloEnabled === false ? "The Elo-derived estimate is switched off." : "No Elo-derived estimate was published with this game's frozen forecast." }]),
+      ...(est ? [] : [{ family: "eloEstimate", reason: eloEnabled === false ? "The game-winner MODEL PROJECTION is switched off." : "No game-winner MODEL PROJECTION was published with this game's frozen forecast." }]),
     ];
     return {
       eventId: id,

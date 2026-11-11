@@ -12,7 +12,7 @@
  *   - AN ESTIMATE FAMILY RANKS AS AN ESTIMATE (founder P0 2026-10-30, restoring the P250-GD2 pathway the weekly boards
  *     used for weeks 1–7). When EVERY board in scope marks the family ESTIMATE (passing and rushing yards today), it ranks
  *     by the same rule on the same median, with state "ESTIMATE" and the ONE qualification label
- *     (family-publication.mjs `estimateLabel`: "Estimate · calibration standard not yet met") plus the board's reason and
+ *     (family-publication.mjs `estimateLabel`: "Wider projection range") plus the board's reason and
  *     caveat. It is never promoted: the state stays ESTIMATE, no line, side or direction ever rides on it.
  *   - A FAMILY THAT IS NEITHER (WITHHELD, ABSENT, or mixed across the scope) NEVER RANKS: no rows, and a readiness entry
  *     that states the actual state.
@@ -180,7 +180,7 @@ export function buildTopBoards({ weekBoards, now, slotFor, forwardFor = () => nu
     contract: TOP_BOARDS_CONTRACT,
     source: TOP_BOARD_SOURCE,
     size: TOP_BOARD_SIZE,
-    ranking: "Official player board only, ranked by the official median (yards, receptions) or the official probability (anytime touchdown); cleared players only; a maximum, never a quota. A family the board marks ESTIMATE ranks on the same median under the label \"Estimate · … standard not yet met\" and carries no price. Sportsbook prices, simulations and fallbacks never rank.",
+    ranking: "Official player board only, ranked by the official median (yards, receptions) or the official probability (anytime touchdown); cleared players only; a maximum, never a quota. A family the board marks ESTIMATE ranks on the same median under the label \"Wider projection range\" and carries no price. Sportsbook prices, simulations and fallbacks never rank.",
     weekly,
     daily,
     fullWeek,

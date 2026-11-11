@@ -28,8 +28,8 @@
 
 import { BOARD_METRIC, PUBLIC_BOARD_CLEARED } from "./board-ranking.mjs";
 import { isWithheldOffer, sanitizeOffer } from "../odds/public-offer-sanitizer.mjs";
-import { plainCodes } from "../../uiux/plain-codes.mjs";
 import { estimateLabel } from "./family-publication.mjs";
+export { withheldReasonText } from "./family-publication.mjs";
 
 export const NFL_FORECAST_VIEW_VERSION = 2;
 
@@ -61,12 +61,10 @@ export const NO_OFFICIAL_PROJECTION = "No official projection";
 export const NOT_CLEARED_GAME = "The official player board has not cleared this statistic for publication in this game, so no number for it is shown among the official projections.";
 /** The failed bar and caveat under an estimate label, in reader words (policy: "with the failed bar(s) and a
  *  plain-English caveat"). The record keeps its codes; plain-codes.mjs translates them. */
-export const estimateDetail = (x) => {
-  if (!x) return null;
-  const c = x.caveat ? `${String(x.caveat).charAt(0).toUpperCase()}${String(x.caveat).slice(1)}` : "";
-  const r = x.reason ? `Evaluation: ${plainCodes(x.reason)}.` : "";
-  return [c, r].filter(Boolean).join(" ") || null;
-};
+/* Founder language decision 2026-11-11: ONE short plain-language line on customer pages. The artifact's caveat and its
+   failed-bar codes stay in the record (and on Methodology); they are no longer printed under each estimate label. */
+export const ESTIMATE_DETAIL = "Read the range, not a single number. Shown as a projection, never as a pick.";
+export const estimateDetail = (x) => (x ? ESTIMATE_DETAIL : null);
 export const notClearedBoardNote = (n, total) =>
   `In ${n} of ${total} game${total === 1 ? "" : "s"} still to kick off the official player board has not cleared this statistic for publication, so no player from ${n === 1 ? "that game" : "those games"} is ranked here.`;
 
@@ -408,7 +406,7 @@ export function topBoardTabs(scope) {
       withheld[k] = `${d.charAt(0).toUpperCase()}${d.slice(1)}.`; lists[k] = []; continue; }
     if (b.state === "ESTIMATE") {
       if (!b.estimate?.label) throw new Error(`topBoardTabs: ${b.id} ranks an estimate without its label`);
-      est[k] = b.estimate.label;
+      est[k] = estimateLabel(b.estimate.reason); // the current one label, never an archived artifact's stored wording
       estDetail[k] = estimateDetail(b.estimate);
     }
     if (b.source !== "OFFICIAL_PLAYER_BOARD") throw new Error(`topBoardTabs: ${b.id} is not from the official player board (${b.source})`);

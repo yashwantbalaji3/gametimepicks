@@ -204,7 +204,7 @@ export default function SimulationStory({ manifest, skipHref = "#simulation-stor
       <footer className="font-mono flex flex-wrap gap-x-3 gap-y-1" style={{ color: "var(--vault-text-faint)", fontSize: 9.5 }}>
         {/* UX slice 2026-11-09: public cards carry no internal identifiers — the exact model id stays reachable as the
             element's title (and in each page's Technical details); an absent run count prints nothing rather than jargon. */}
-        {manifest.provenance.modelVersion ? <span title={manifest.provenance.modelVersion} data-model-version={manifest.provenance.modelVersion}>model version on file</span> : null}
+        {manifest.provenance.modelVersion ? <span data-model-version={manifest.provenance.modelVersion}>GameTimePicks model</span> : null}
         {runs ? <span>{runs.toLocaleString("en-US")} simulated games</span> : null}
         {/* etStamp, not toLocaleString: WebKit joins date and time with " at ", so the server text and Safari's differed (UX-001). */}
         {etStamp(manifest.provenance.generatedAt ?? null) ? <span>produced {etStamp(manifest.provenance.generatedAt ?? null)}</span> : null}

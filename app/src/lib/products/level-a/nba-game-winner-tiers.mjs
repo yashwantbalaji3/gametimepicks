@@ -40,7 +40,7 @@ export const nbaGameWinnerTiersEnabled = () => NBA_GAME_WINNER_TIERS_PUBLIC;
 
 export const NBA_GW_REFUSAL = Object.freeze({
   NOT_NBA_GAME_WINNER: "not an NBA game-winner leg",
-  NO_PUBLISHED_PROBABILITY: "Untiered: no published Elo-derived game-winner estimate",
+  NO_PUBLISHED_PROBABILITY: "Untiered: no published game-winner MODEL PROJECTION",
   PROVENANCE_MISMATCH: "the published probability is not from the same frozen forecast as the side",
   SIDE_DISAGREES: "the official side is not the team the published probability favours",
   BAD_PROBABILITY: "the published probability is not a valid probability",
@@ -98,7 +98,7 @@ function cardOf(legs, tier, policy) {
     jointProbability: joint, jointShown: jointShownFor(joint, tierForJoint(joint)),
     dependency: NBA_GW_DEPENDENCY,
     label: legs[0].label,
-    whySelected: `Each leg is the official NBA side with its published Elo-derived game-winner estimate; this is the combination with the highest joint probability in the ${PUBLIC_RISK_LABELS[tier]} band (${legs.length} legs).`,
+    whySelected: `Each leg is the official NBA side with its published game-winner MODEL PROJECTION; this is the combination with the highest joint probability in the ${PUBLIC_RISK_LABELS[tier]} band (${legs.length} legs).`,
     priced: false, price: null, payout: null,
   };
 }
@@ -116,7 +116,7 @@ export function nbaGameWinnerTiers({ legs = [], accessor, receiptOf = () => null
   const seen = new Set();
   for (const g of graded) if (g.ok && !seen.has(String(g.leg.eventId))) { seen.add(String(g.leg.eventId)); ok.push(g.leg); } // one leg per game
   const untiered = graded.filter((g) => !g.ok).map((g) => ({ leg: g.leg, code: g.code, reason: NBA_GW_REFUSAL[g.code] }));
-  const tooFew = (need) => `an NBA game-winner card needs ${need} games with a published Elo-derived estimate; ${ok.length === 0 ? "none has" : `only ${ok.length} ${ok.length === 1 ? "has" : "have"}`} one`;
+  const tooFew = (need) => `an NBA game-winner card needs ${need} games with a published game-winner MODEL PROJECTION; ${ok.length === 0 ? "none has" : `only ${ok.length} ${ok.length === 1 ? "has" : "have"}`} one`;
   const shorter = new Set();
   const tiers = PUBLIC_RISK_TIERS.map((tier) => {
     const sizes = Array.from({ length: BAND_MAX_LEGS[tier] - 1 }, (_, i) => i + 2);

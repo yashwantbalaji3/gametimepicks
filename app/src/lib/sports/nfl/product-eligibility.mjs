@@ -34,9 +34,9 @@ export const PRODUCT_ELIGIBILITY_STATES = Object.freeze([
 ]);
 
 const WHAT_WOULD_QUALIFY = Object.freeze([
-  "an NFL model version that meets its own preregistered promotion bar on held-out data",
-  "enough settled experimental forecasts to measure whether it is calibrated",
-  "an explicit validated block on the forecast — the classifier requires one and the public-beta engine never emits it",
+  "a stronger accuracy record on games the model has not seen",
+  "enough graded games to measure how well its chances hold up",
+  "a forecast format the paper products can use"
 ]);
 
 /**

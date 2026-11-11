@@ -89,7 +89,9 @@ test("model ids, receipts and rules only inside Technical details on the settled
   for (const id of [view.game.receipt.modelVersion, view.game.receipt.payloadSha256, view.game.elo.rule, "v0.1", "nba-winner-side@1"]) {
     assert.ok(!outside.includes(id), `${id} not in the reading path`);
   }
-  assert.ok(inside.includes(view.game.receipt.modelVersion) && inside.includes(view.game.receipt.payloadSha256), "kept, verbatim, inside");
+  // founder language decision 2026-11-11: the receipt stays inside; internal model ids leave the page entirely
+  assert.ok(inside.includes(view.game.receipt.payloadSha256), "the receipt is kept, verbatim, inside");
+  for (const id of [view.game.receipt.modelVersion, view.game.elo.rule, "nba-winner-side@1"]) assert.ok(!inside.includes(id), `${id} is not printed inside either`);
 });
 
 test("today's and future games get no settled page (the current slate is the Game Simulation's); unknown ids 404", () => {

@@ -47,7 +47,7 @@ function LaneGames({ lane }: { lane: CommandCenterLane }) {
         }} />
       ))}
       {lane.moreGames ? <li className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>+{lane.moreGames} more on the {lane.label} hub</li> : null}
-      {lane.winChanceDisclosure ? <li className="text-[12px] leading-snug" style={{ color: "var(--vault-text-faint)" }} data-nba-elo-wp-disclosure="">Win chance: Elo-derived game-winner estimate. {lane.winChanceDisclosure}</li> : null}
+      {lane.winChanceDisclosure ? <li className="text-[12px] leading-snug" style={{ color: "var(--vault-text-faint)" }} data-nba-elo-wp-disclosure="">Game winner: MODEL PROJECTION. {lane.winChanceDisclosure}</li> : null}
     </ul>
   );
 }

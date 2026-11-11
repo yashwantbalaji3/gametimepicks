@@ -116,7 +116,7 @@ const MODEL_PERFORMANCE_HREF = "/models/";
  * accuracy claim, before the preregistered minimum of graded games.
  */
 export const NBA_RECORD_MIN_FOR_CLAIM = 300;
-export const NBA_MODEL_PERFORMANCE_NOTE = `NBA forecasts are graded after every game. The favoured-side record is published as counts on NBA results; it is not judged before ${NBA_RECORD_MIN_FOR_CLAIM} graded games.`;
+export const NBA_MODEL_PERFORMANCE_NOTE = "NBA forecasts are graded after every game. The favoured-side record is on NBA results; its accuracy record is still building.";
 /**
  * NBA forecast families, from the switch that decides what is shown (audit 2026-10-28 F03: "win chance withheld" sat
  * beside a displayed Elo-derived estimate). The estimate is its own family while the 2026-10-23 founder switch is ON;
@@ -161,7 +161,7 @@ export const PUBLIC_SPORTS: ReadonlyArray<PublicSport> = Object.freeze([
     key: "nba", label: "NBA", hub: "/nba/",
     families: [
       fam("nba_winner_side", "Favoured side (Elo rating)", "OFFICIAL_FORECAST"),
-      ...(NBA_ELO_ESTIMATE_SHOWN ? [fam("nba_elo_estimate", `${ELO_WIN_PROBABILITY_LABEL} (accuracy not established)`, "OFFICIAL_FORECAST")] : []),
+      ...(NBA_ELO_ESTIMATE_SHOWN ? [fam("nba_elo_estimate", `${ELO_WIN_PROBABILITY_LABEL} (accuracy record still building)`, "OFFICIAL_FORECAST")] : []),
       fam("nba_player_medians", "Predicted Player Statistics (PTS, REB, AST, 3PM, PRA, P+R, P+A medians)", "OFFICIAL_FORECAST"),
       fam("nba_team_scores", NBA_WITHHELD_LABEL, "WITHHELD"),
     ],

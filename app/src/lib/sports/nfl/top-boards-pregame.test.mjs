@@ -193,7 +193,7 @@ test("passing and rushing yards: the pinned (pre-2026-10-30) artifact held them;
   for (const sc of [doc.weekly, ...doc.daily, doc.fullWeek]) for (const fam of ["player_pass_yds", "player_rush_yds"]) {
     const b = sc.boards.find((x) => x.family === fam);
     assert.equal(b.state, "ESTIMATE", `${fam}: never promoted`);
-    assert.equal(b.estimate.label, "Estimate · calibration standard not yet met");
+    assert.equal(b.estimate.label, "Wider projection range");
     assert.ok(b.rows.length >= 1);
     for (const r of b.rows) assert.ok(!("market" in r) && !("pricingState" in r), `${fam} ${r.name}: no price beside an estimate`);
   }

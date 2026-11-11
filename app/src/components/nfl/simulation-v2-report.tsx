@@ -268,17 +268,17 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
           RELOCATED, verbatim, into the page's one collapsed "Technical details". The not-modelled list and the paper-only
           line stay visible below it. */}
       <section aria-labelledby="s2-prov">
-        <MoreDisclosure title="Technical details" summary="Engine version, run checks, timestamps, seed and receipt id.">
+        <MoreDisclosure title="Technical details" summary="Run checks, timestamps, seed and receipt id.">
         <h2 id="s2-prov" style={{ position: "absolute", width: 1, height: 1, overflow: "hidden", clip: "rect(0 0 0 0)" }}>Provenance</h2>
         <Region label="Simulation receipt provenance">
           <table>
             <tbody>
-              <tr><th scope="row">Engine</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.simulationEngine} {r.simulationEngineVersion}</td></tr>
+              <tr><th scope="row">Engine</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>GameTimePicks game simulation</td></tr>
               <tr><th scope="row">Status</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{PUBLIC_TERMS.GAME_SIMULATION} · not promoted · not the {PUBLIC_TERMS.OFFICIAL_FORECAST} · feeds no pick or product</td></tr>
               <tr><th scope="row">Runs</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.runCount.toLocaleString("en-US")} · incoherent runs {r.validation.failedRuns} of {r.validation.sampleCount.toLocaleString("en-US")}</td></tr>
               <tr><th scope="row">Generated</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{stamp(r.generatedAt)} · before kickoff {stamp(kickoff.toISOString())}</td></tr>
               <tr><th scope="row">Seed</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.baseSeed} · {r.seedStrategy}</td></tr>
-              <tr><th scope="row">Team strength</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.calibration?.anchors?.source} · calibrated means {H} {r.calibration?.calibratedMean?.[0]} / {A} {r.calibration?.calibratedMean?.[1]}</td></tr>
+              <tr><th scope="row">Team strength</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>anchored to the published {PUBLIC_TERMS.OFFICIAL_FORECAST} · calibrated means {H} {r.calibration?.calibratedMean?.[0]} / {A} {r.calibration?.calibratedMean?.[1]}</td></tr>
               <tr><th scope="row">Availability</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }} title={r.availabilitySnapshotId}>{readableSnapshotId(r.availabilitySnapshotId)}</td></tr>
               <tr><th scope="row">Market</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{String(r.marketUse ?? "").startsWith("NOT_AN_INPUT") ? "Not used as an input" : r.marketUse}</td></tr>
               <tr><th scope="row">Receipt</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.simulationReceiptId}</td></tr>

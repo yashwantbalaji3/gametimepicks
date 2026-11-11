@@ -73,7 +73,7 @@ const snapshotOf = (id) => {
 };
 const KIND = Object.fromEntries(PLAYER_FAMILIES.filter((f) => MARKET_KEY[f.key]).map((f) => [MARKET_KEY[f.key], f.kind]));
 const cellsOf = (html) => [...html.matchAll(/<div class="v( na| est)?" data-row-id="([^"]+)" data-status="([A-Z_]+)">([^<]*)(<span class="em">([^<]*)<\/span>)?<\/div>/g)].map((m) => ({ rowId: m[2], status: m[3], text: m[4], cls: m[1]?.trim() ?? "", marker: m[6] ?? null }));
-const EST_LABEL = "Estimate · calibration standard not yet met";
+const EST_LABEL = "Wider projection range";
 
 /* ───────────────────────────── scope ───────────────────────────── */
 
@@ -180,7 +180,7 @@ test("passing and rushing yards (ESTIMATE on every week-8 board) print the game 
       } else assert.ok(!c.html.includes(`<p class="est">`), `${c.name}: no estimate footnote without an estimate`);
       assert.doesNotMatch(c.html.replace(/<style>[\s\S]*?<\/style>/, ""), /\b(OVER|UNDER|lean|pick of)\b/);
     }
-    assert.match(g.caption, /Passing yards and rushing yards are shown as estimates \(Estimate · calibration standard not yet met\), never as a pick\./);
+    assert.match(g.caption, /Passing yards and rushing yards are shown as projections \(Wider projection range\), never as a pick\./);
   }
   assert.ok(shown >= 26, `${shown} labelled estimate cells (every starting QB's passing yards at least)`);
   assert.equal(estimateFootnote([]), "");

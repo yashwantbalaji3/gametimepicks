@@ -39,7 +39,7 @@ export const NBA_OFFICIAL_RECORD_GAP = Object.freeze({
     "not rows in this ledger yet, so they are not in the totals above; whether NBA joins them is a pending decision. " +
     // Audit 2026-10-28 F03: since the 2026-10-23 switch the boards show an Elo-derived estimate — say what is withheld now.
     (ELO_WIN_PROBABILITY.enabled
-      ? "NBA team scores, margins, totals and ranges are withheld; the Elo-derived game-winner estimate on the boards is not a validated probability and is not graded here."
+      ? "NBA team scores, margins, totals and ranges are withheld; the game-winner MODEL PROJECTION on the boards is not a validated probability and is not graded here."
       : "NBA team scores and win chances are withheld and never published."),
 });
 

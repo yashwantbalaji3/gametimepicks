@@ -257,7 +257,6 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
       })
     : [];
   const pendingActuals = live && !post && live.games.some((g) => due(g.providerEventId) && stateOf(g.providerEventId) !== "recorded");
-  const models = live ? [...new Set(live.games.map((g) => g.receipt.modelVersion))] : [];
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-4 min-w-0">
       <p className="m-0 text-[13px]"><Link href="/nba/" className="gtp-backlink underline" style={TEXT}>← NBA hub</Link></p>
@@ -302,7 +301,7 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
           <MoreDisclosure title="Technical details" summary={`Freeze times, receipts and method · ${live.games.length} game${live.games.length === 1 ? "" : "s"}`}>
             <div className="flex flex-col gap-2 text-[12px]" style={MUTE}>
               <p className="m-0 leading-relaxed">
-                Model: {models.join(", ")}. Source: {live.games[0].players.source}. PRA, P+R and P+A: {COMBO_LABEL} — the median of
+                Player statistics: GameTimePicks player model, medians of simulated games. PRA, P+R and P+A: {COMBO_LABEL} — the median of
                 each simulated game&rsquo;s sum, so it need not equal the sum of the separate medians. Players with at least 10
                 expected minutes who are not ruled out. The default order is expected minutes; a column sort is the reader&rsquo;s own.
                 {games.length ? " Game status is read-only, from the schedule and finals record (Started: tipped off, no final recorded yet); it never changes a frozen figure." : ""}

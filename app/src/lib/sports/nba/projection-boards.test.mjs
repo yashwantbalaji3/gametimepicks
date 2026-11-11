@@ -154,12 +154,12 @@ test("every view carries the one Predicted Player Statistics note, freeze times,
   const { PREDICTED_NOTE } = await import("../../../components/nba/projections-view.tsx");
   // REPOINTED (audit 2026-10-28 F04): the board prints the registry's one sentence, not a copy of it.
   assert.equal(PREDICTED_NOTE, NBA_MODEL_PERFORMANCE_NOTE);
-  assert.equal(PREDICTED_NOTE, "NBA forecasts are graded after every game. The favoured-side record is published as counts on NBA results; it is not judged before 300 graded games.");
+  assert.equal(PREDICTED_NOTE, "NBA forecasts are graded after every game. The favoured-side record is on NBA results; its accuracy record is still building.");
   assert.equal(html.split(PREDICTED_NOTE).length - 1, 1);
   assert.doesNotMatch(html, /UNVALIDATED EXPERIMENTAL SIMULATION|experimental, not validated/);
   for (const g of PUB.games) {
     assert.ok(html.includes(g.receipt.payloadSha256.slice(0, 12)), `receipt hash ${g.providerEventId}`);
-    assert.ok(html.includes(g.receipt.modelVersion));
+    assert.ok(!html.includes(g.receipt.modelVersion), "no internal model version on the page (founder language decision 2026-11-11)");
   }
   assert.match(visibleText(html), /frozen Oct 20, 8:29 AM ET/);
   assert.ok(html.includes(COMBO_LABEL));
