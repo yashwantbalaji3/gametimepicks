@@ -133,7 +133,9 @@ test("PARITY with the NBA Top Boards: Trends ranks only players the Top Boards w
     const lr = laneRows.get(r.playerId);
     if (!lr || !r.reference || r.minutesUnderReview) continue;
     const feed = r.eligibility.sources.injuries.status ?? null;
-    if ((feed ?? null) !== (lr.injuryStatus ?? null) || r.eligibility.state === "UNKNOWN") continue; // the report moved since the freeze, or a source is missing
+    // the report moved since the freeze, a source is missing, or the roster moved since the freeze (the Top Boards read the
+    // frozen lane's roster; Lawson Lovering 2026-11-11: in the 08:23Z lane, off the 13:04Z LAL roster capture)
+    if ((feed ?? null) !== (lr.injuryStatus ?? null) || r.eligibility.state === "UNKNOWN" || r.eligibility.reasons?.includes("NOT_ON_ROSTER")) continue;
     same += 1;
     assert.equal(r.availability === "eligible", !withheld.has(r.playerId), `${r.name}: same report, same verdict`);
   }
