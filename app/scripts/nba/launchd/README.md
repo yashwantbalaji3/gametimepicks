@@ -13,8 +13,15 @@ Receipt: `docs/receipts/ODDS_AUTHORIZATION_NBA_PROPS_PRIVATE_2026-11-11.md`. It 
    - The key is never logged or written.
    - `--key-file` (a file holding only the key, also mode 600) remains as an optional override.
    - launchd runs node, which can read `~/Downloads` under TCC; bash cannot.
-3. **plist:** fill `__NODE__` (output of `command -v node`), `__REPO__` and `__HOME__` in `com.gametimepicks.nba-props-local-tick.plist.template`. Copy it to `~/Library/LaunchAgents/`, then run `launchctl bootstrap gui/$(id -u) <plist>`.
-4. **Dry check first,** with no paid call: `node <repo>/app/scripts/nba/run-nba-props-local-tick.mjs --repo <repo> --private ~/gtp-private`. It prints `NOTHING_TO_PRICE` or `PLANNED`.
+3. **plist:** fill in `com.gametimepicks.nba-props-local-tick.plist.template`:
+   - `__NPX__`: output of `command -v npx`;
+   - `__NODE_BIN__`: the directory of `command -v node`;
+   - `__REPO__` and `__HOME__`.
+
+   The job runs `npx --yes tsx` on the runner, because the runner and the capture import `.ts` modules, which Node 20 cannot strip on its own.
+
+   Then copy the filled-in plist to `~/Library/LaunchAgents/` and run `launchctl bootstrap gui/$(id -u) <plist>`.
+4. **Dry check first,** with no paid call: `npx tsx <repo>/app/scripts/nba/run-nba-props-local-tick.mjs --repo <repo> --private ~/gtp-private`. It prints `NOTHING_TO_PRICE` or `PLANNED`.
 
 ## Kill switch
 - `touch ~/gtp-private/odds/nba/STOP`: the next tick exits before any network call.

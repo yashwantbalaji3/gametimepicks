@@ -69,8 +69,10 @@ test("end to end: the runner reads the key from --key-env-file and it appears in
   const env = envFile(d, `GTP_ODDS_DISPLAY_KEY=display-secret\nODDS_API_KEY=${KEY}\n`);
   const stub = path.join(d, "fetch-stub.mjs");
   fs.writeFileSync(stub, "globalThis.fetch = async () => new Response('', { status: 401 });\n");
-  const r = spawnSync(process.execPath, ["--import", stub, path.join(ROOT, "app/scripts/nba/run-nba-props-local-tick.mjs"), "--repo", repo, "--private", priv, "--key-env-file", env, "--now", "2026-11-12T00:00:00Z", "--apply", "--commit-ledger"], {
-    encoding: "utf8", env: { PATH: process.env.PATH, HOME: process.env.HOME },
+  // Through `npx tsx`, as the launchd job runs it: the runner and the capture import .ts modules, which Node 20 (CI) cannot
+  // strip on its own.
+  const r = spawnSync("npx", ["tsx", "--import", stub, path.join(ROOT, "app/scripts/nba/run-nba-props-local-tick.mjs"), "--repo", repo, "--private", priv, "--key-env-file", env, "--now", "2026-11-12T00:00:00Z", "--apply", "--commit-ledger"], {
+    cwd: process.cwd(), encoding: "utf8", timeout: 120_000, env: { PATH: process.env.PATH, HOME: process.env.HOME },
   });
   const out = `${r.stdout}\n${r.stderr}`;
   assert.match(out, /PREFLIGHT_REFUSED/, out);

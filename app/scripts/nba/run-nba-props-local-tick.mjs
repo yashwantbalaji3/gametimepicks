@@ -2,10 +2,11 @@
 /**
  * NBA PROP PRICES · ONE LOCAL TICK on the release owner's machine (receipt
  * docs/receipts/ODDS_AUTHORIZATION_NBA_PROPS_PRIVATE_2026-11-11.md; Program Director decision 2026-11-11, option B: the
- * founder's 2026-10-22 storage rule stands, so the capture never runs on a GitHub-hosted runner). Plain node, so a
- * launchd job can run it (bash/git launchd jobs cannot read ~/Downloads; app/scripts/nba/launchd/README.md).
+ * founder's 2026-10-22 storage rule stands, so the capture never runs on a GitHub-hosted runner). Run through `npx tsx`
+ * (it imports .ts modules; Node 20 cannot strip types), by node, so a launchd job can run it (bash/git launchd jobs
+ * cannot read ~/Downloads; app/scripts/nba/launchd/README.md).
  *
- *   node app/scripts/nba/run-nba-props-local-tick.mjs --repo /abs/dedicated/checkout --private ~/gtp-private
+ *   npx tsx app/scripts/nba/run-nba-props-local-tick.mjs --repo /abs/dedicated/checkout --private ~/gtp-private
  *        --key-env-file /abs/.env [--key-file /abs/private/odds.key] [--now ISO] [--apply] [--commit-ledger]
  *
  * THE KEY (founder 2026-11-11: no duplicate key file): --key-env-file names the existing dotenv file; only its
@@ -130,7 +131,9 @@ if (!pf.paidCallAllowed) {
 log({ state: "PREFLIGHT_OK", worstCase: pf.worstCase, remaining: pf.remaining, weekSpend: pf.weekSpend, booked: pf.booked, ceiling: pf.ceiling });
 
 // 6. the authorized capture (prices only to the private directory; every call on the ledger)
-const cap = spawnSync(process.execPath, [path.join(REPO, "app/scripts/nba/capture-nba-props-odds.mjs"), "--now", NOW, "--authorized", "--receipt", RECEIPT_REL,
+// process.execArgv carries tsx's loader flags (the runner is started through `npx tsx`), so the capture — which imports
+// .ts modules — runs on any Node, not only on Node 22's type stripping.
+const cap = spawnSync(process.execPath, [...process.execArgv, path.join(REPO, "app/scripts/nba/capture-nba-props-odds.mjs"), "--now", NOW, "--authorized", "--receipt", RECEIPT_REL,
   "--markets", MARKETS.join(","), "--lead-minutes", "20,75", "--phase", "pregame", "--apply", "--out-dir", priv.dir], {
   cwd: path.join(REPO, "app"), encoding: "utf8",
   env: { ...process.env, ODDS_API_KEY: apiKey, ODDS_MAX_EVENTS_PER_RUN: String(targets.length), ODDS_API_MIN_CREDITS_REMAINING: String(pf.minCreditsRemaining) },
