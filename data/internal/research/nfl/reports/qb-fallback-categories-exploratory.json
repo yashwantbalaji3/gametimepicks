@@ -1,0 +1,523 @@
+{
+  "schemaVersion": 1,
+  "artifact": "nfl-qb-fallback-categories-exploratory",
+  "dataClass": "PRIVATE_RESEARCH",
+  "label": "EXPLORATORY — not a validation; decisions wait for the preregistered forward test",
+  "rule": "see scripts/research/nfl/evaluate-qb-fallback-categories.mjs header",
+  "starterShare": 0.9746,
+  "tierDPrior": {
+    "comp": 0.61643,
+    "ypcmp": 11.3835,
+    "share": 0.9232,
+    "games": 115,
+    "seasons": [
+      2013,
+      2017
+    ],
+    "scale": 1.5,
+    "scaleChosenOn": {
+      "seasons": [
+        2013,
+        2017
+      ],
+      "n": 115,
+      "coverage80": 0.861,
+      "grid": [
+        1.5,
+        2,
+        2.5,
+        3,
+        4,
+        5
+      ]
+    }
+  },
+  "categories": {
+    "rookie_first_start": {
+      "n": 81,
+      "methods": {
+        "leagueStarter": {
+          "meanPinball": 24.442,
+          "bias": -35.75,
+          "coverage80": 0.765,
+          "level": 0.789
+        },
+        "teamContext": {
+          "meanPinball": 23.793,
+          "bias": -26.92,
+          "coverage80": 0.778,
+          "level": 0.8214,
+          "vsLeagueStarter": {
+            "meanDiff": -0.649,
+            "ci95": {
+              "lo": -2.035,
+              "hi": 0.557,
+              "clusters": 60
+            }
+          }
+        },
+        "tierB": {
+          "meanPinball": 24.072,
+          "bias": -33.07,
+          "coverage80": 0.765,
+          "level": 0.7986,
+          "vsLeagueStarter": {
+            "meanDiff": -0.371,
+            "ci95": {
+              "lo": -1.137,
+              "hi": 0.265,
+              "clusters": 60
+            }
+          }
+        },
+        "tierD": {
+          "meanPinball": 22.671,
+          "bias": -19.79,
+          "coverage80": 0.852,
+          "level": 0.8372,
+          "vsLeagueStarter": {
+            "meanDiff": -1.772,
+            "ci95": {
+              "lo": -3.195,
+              "hi": -0.494,
+              "clusters": 60
+            }
+          }
+        },
+        "tierD_noOpponent": {
+          "meanPinball": 22.204,
+          "bias": -16.55,
+          "coverage80": 0.864,
+          "level": 0.8508,
+          "vsLeagueStarter": {
+            "meanDiff": -2.238,
+            "ci95": {
+              "lo": -3.652,
+              "hi": -0.984,
+              "clusters": 60
+            }
+          }
+        },
+        "clubShare": {
+          "meanPinball": 80.346,
+          "bias": 169.35,
+          "coverage80": 0.037,
+          "level": 11.5597,
+          "vsLeagueStarter": {
+            "meanDiff": 55.903,
+            "ci95": {
+              "lo": 44.046,
+              "hi": 67.317,
+              "clusters": 60
+            }
+          }
+        }
+      }
+    },
+    "injury_promoted_backup": {
+      "n": 297,
+      "methods": {
+        "leagueStarter": {
+          "meanPinball": 21.167,
+          "bias": -9.42,
+          "coverage80": 0.872,
+          "level": 0.9034
+        },
+        "teamContext": {
+          "meanPinball": 21.116,
+          "bias": -2.98,
+          "coverage80": 0.865,
+          "level": 0.93,
+          "vsLeagueStarter": {
+            "meanDiff": -0.052,
+            "ci95": {
+              "lo": -0.658,
+              "hi": 0.547,
+              "clusters": 116
+            }
+          }
+        },
+        "tierB": {
+          "meanPinball": 20.503,
+          "bias": -2.23,
+          "coverage80": 0.879,
+          "level": 0.9335,
+          "vsLeagueStarter": {
+            "meanDiff": -0.664,
+            "ci95": {
+              "lo": -1.172,
+              "hi": -0.206,
+              "clusters": 116
+            }
+          }
+        },
+        "tierD": {
+          "meanPinball": 20.553,
+          "bias": 10.59,
+          "coverage80": 0.906,
+          "level": 0.9783,
+          "vsLeagueStarter": {
+            "meanDiff": -0.615,
+            "ci95": {
+              "lo": -1.394,
+              "hi": 0.114,
+              "clusters": 116
+            }
+          }
+        },
+        "tierD_noOpponent": {
+          "meanPinball": 20.533,
+          "bias": 12.58,
+          "coverage80": 0.906,
+          "level": 0.9883,
+          "vsLeagueStarter": {
+            "meanDiff": -0.634,
+            "ci95": {
+              "lo": -1.4,
+              "hi": 0.084,
+              "clusters": 116
+            }
+          }
+        },
+        "clubShare": {
+          "meanPinball": 78.137,
+          "bias": 169.57,
+          "coverage80": 0.165,
+          "level": 4.716,
+          "vsLeagueStarter": {
+            "meanDiff": 56.97,
+            "ci95": {
+              "lo": 49.409,
+              "hi": 64.277,
+              "clusters": 116
+            }
+          }
+        }
+      }
+    },
+    "traded": {
+      "n": 691,
+      "methods": {
+        "leagueStarter": {
+          "meanPinball": 21.646,
+          "bias": 0.76,
+          "coverage80": 0.86,
+          "level": 0.9475
+        },
+        "teamContext": {
+          "meanPinball": 21.576,
+          "bias": 5.36,
+          "coverage80": 0.855,
+          "level": 0.9673,
+          "vsLeagueStarter": {
+            "meanDiff": -0.07,
+            "ci95": {
+              "lo": -0.453,
+              "hi": 0.332,
+              "clusters": 145
+            }
+          }
+        },
+        "tierB": {
+          "meanPinball": 21.378,
+          "bias": 5.25,
+          "coverage80": 0.864,
+          "level": 0.9669,
+          "vsLeagueStarter": {
+            "meanDiff": -0.269,
+            "ci95": {
+              "lo": -0.596,
+              "hi": 0.094,
+              "clusters": 145
+            }
+          }
+        },
+        "tierD": {
+          "meanPinball": 21.911,
+          "bias": 17.65,
+          "coverage80": 0.886,
+          "level": 1.0113,
+          "vsLeagueStarter": {
+            "meanDiff": 0.265,
+            "ci95": {
+              "lo": -0.224,
+              "hi": 0.763,
+              "clusters": 145
+            }
+          }
+        },
+        "tierD_noOpponent": {
+          "meanPinball": 21.662,
+          "bias": 19.44,
+          "coverage80": 0.886,
+          "level": 1.0204,
+          "vsLeagueStarter": {
+            "meanDiff": 0.015,
+            "ci95": {
+              "lo": -0.434,
+              "hi": 0.467,
+              "clusters": 145
+            }
+          }
+        },
+        "clubShare": {
+          "meanPinball": 41.64,
+          "bias": 71.43,
+          "coverage80": 0.602,
+          "level": 1.3915,
+          "vsLeagueStarter": {
+            "meanDiff": 19.993,
+            "ci95": {
+              "lo": 15.739,
+              "hi": 24.573,
+              "clusters": 145
+            }
+          }
+        }
+      }
+    },
+    "under_25_prior_attempts": {
+      "n": 112,
+      "methods": {
+        "leagueStarter": {
+          "meanPinball": 23.922,
+          "bias": -33.5,
+          "coverage80": 0.777,
+          "level": 0.7986
+        },
+        "teamContext": {
+          "meanPinball": 23.392,
+          "bias": -26.66,
+          "coverage80": 0.777,
+          "level": 0.8238,
+          "vsLeagueStarter": {
+            "meanDiff": -0.53,
+            "ci95": {
+              "lo": -1.473,
+              "hi": 0.374,
+              "clusters": 76
+            }
+          }
+        },
+        "tierB": {
+          "meanPinball": 23.621,
+          "bias": -32.16,
+          "coverage80": 0.777,
+          "level": 0.8033,
+          "vsLeagueStarter": {
+            "meanDiff": -0.301,
+            "ci95": {
+              "lo": -0.908,
+              "hi": 0.288,
+              "clusters": 76
+            }
+          }
+        },
+        "tierD": {
+          "meanPinball": 22.393,
+          "bias": -19.03,
+          "coverage80": 0.839,
+          "level": 0.8412,
+          "vsLeagueStarter": {
+            "meanDiff": -1.529,
+            "ci95": {
+              "lo": -2.68,
+              "hi": -0.407,
+              "clusters": 76
+            }
+          }
+        },
+        "tierD_noOpponent": {
+          "meanPinball": 21.933,
+          "bias": -15.77,
+          "coverage80": 0.848,
+          "level": 0.855,
+          "vsLeagueStarter": {
+            "meanDiff": -1.989,
+            "ci95": {
+              "lo": -3.108,
+              "hi": -0.902,
+              "clusters": 76
+            }
+          }
+        },
+        "clubShare": {
+          "meanPinball": 71.642,
+          "bias": 147.11,
+          "coverage80": 0.161,
+          "level": 4.4413,
+          "vsLeagueStarter": {
+            "meanDiff": 47.721,
+            "ci95": {
+              "lo": 36.834,
+              "hi": 57.817,
+              "clusters": 76
+            }
+          }
+        }
+      }
+    },
+    "emergency_starter": {
+      "n": 24,
+      "methods": {
+        "leagueStarter": {
+          "meanPinball": 26.943,
+          "bias": -41.75,
+          "coverage80": 0.708,
+          "level": 0.7657
+        },
+        "teamContext": {
+          "meanPinball": 25.91,
+          "bias": -40.49,
+          "coverage80": 0.708,
+          "level": 0.7701,
+          "vsLeagueStarter": {
+            "meanDiff": -1.034,
+            "ci95": {
+              "lo": -2.288,
+              "hi": 0.449,
+              "clusters": 23
+            }
+          }
+        },
+        "tierB": {
+          "meanPinball": 28.842,
+          "bias": -49.73,
+          "coverage80": 0.708,
+          "level": 0.739,
+          "vsLeagueStarter": {
+            "meanDiff": 1.899,
+            "ci95": {
+              "lo": -0.097,
+              "hi": 4.218,
+              "clusters": 23
+            }
+          }
+        },
+        "tierD": {
+          "meanPinball": 26.787,
+          "bias": -38.16,
+          "coverage80": 0.75,
+          "level": 0.7661,
+          "vsLeagueStarter": {
+            "meanDiff": -0.156,
+            "ci95": {
+              "lo": -1.955,
+              "hi": 1.363,
+              "clusters": 23
+            }
+          }
+        },
+        "tierD_noOpponent": {
+          "meanPinball": 26.51,
+          "bias": -32.89,
+          "coverage80": 0.75,
+          "level": 0.7855,
+          "vsLeagueStarter": {
+            "meanDiff": -0.433,
+            "ci95": {
+              "lo": -2.262,
+              "hi": 1.244,
+              "clusters": 23
+            }
+          }
+        },
+        "clubShare": {
+          "meanPinball": 66.23,
+          "bias": 131.75,
+          "coverage80": 0.25,
+          "level": 3.4061,
+          "vsLeagueStarter": {
+            "meanDiff": 39.287,
+            "ci95": {
+              "lo": 13.106,
+              "hi": 64.392,
+              "clusters": 23
+            }
+          }
+        }
+      }
+    },
+    "multi_qb_game": {
+      "n": 295,
+      "methods": {
+        "leagueStarter": {
+          "meanPinball": 28.712,
+          "bias": -66.67,
+          "coverage80": 0.634,
+          "level": 0.6596
+        },
+        "teamContext": {
+          "meanPinball": 27.644,
+          "bias": -63.93,
+          "coverage80": 0.647,
+          "level": 0.6676,
+          "vsLeagueStarter": {
+            "meanDiff": -1.069,
+            "ci95": {
+              "lo": -1.776,
+              "hi": -0.283,
+              "clusters": 128
+            }
+          }
+        },
+        "tierB": {
+          "meanPinball": 27.271,
+          "bias": -63.41,
+          "coverage80": 0.634,
+          "level": 0.6692,
+          "vsLeagueStarter": {
+            "meanDiff": -1.441,
+            "ci95": {
+              "lo": -2.159,
+              "hi": -0.691,
+              "clusters": 128
+            }
+          }
+        },
+        "tierD": {
+          "meanPinball": 24.6,
+          "bias": -51.74,
+          "coverage80": 0.746,
+          "level": 0.6968,
+          "vsLeagueStarter": {
+            "meanDiff": -4.112,
+            "ci95": {
+              "lo": -5.068,
+              "hi": -3.2,
+              "clusters": 128
+            }
+          }
+        },
+        "tierD_noOpponent": {
+          "meanPinball": 24.268,
+          "bias": -48.9,
+          "coverage80": 0.759,
+          "level": 0.7065,
+          "vsLeagueStarter": {
+            "meanDiff": -4.444,
+            "ci95": {
+              "lo": -5.262,
+              "hi": -3.601,
+              "clusters": 128
+            }
+          }
+        },
+        "clubShare": {
+          "meanPinball": 31.426,
+          "bias": -7.75,
+          "coverage80": 0.6,
+          "level": 0.8928,
+          "vsLeagueStarter": {
+            "meanDiff": 2.714,
+            "ci95": {
+              "lo": -0.426,
+              "hi": 6.197,
+              "clusters": 128
+            }
+          }
+        }
+      }
+    }
+  }
+}

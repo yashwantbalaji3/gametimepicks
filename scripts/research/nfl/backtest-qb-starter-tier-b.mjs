@@ -57,7 +57,7 @@ export function loadRows() {
     for (const [k, v] of Object.entries(t.teamTotals)) totals.set(k, v);
     for (const r of t.rows) {
       if (r[C.season] === 2026 && r[C.week] > THROUGH_2026_WEEK) continue;
-      rows.push({ gameId: r[C.gameId], season: r[C.season], week: r[C.week], date: r[C.date], type: r[C.seasonType], team: r[C.team], id: String(r[C.playerId]), name: r[C.name], position: r[C.position], participation: r[C.participation], passAtt: r[C.passAtt], passCmp: r[C.passCmp], passYds: r[C.passYds] });
+      rows.push({ gameId: r[C.gameId], season: r[C.season], week: r[C.week], date: r[C.date], type: r[C.seasonType], team: r[C.team], opponent: r[C.opponent], id: String(r[C.playerId]), name: r[C.name], position: r[C.position], participation: r[C.participation], passAtt: r[C.passAtt], passCmp: r[C.passCmp], passYds: r[C.passYds] });
     }
   }
   rows.sort((a, b) => (a.date !== b.date ? (a.date < b.date ? -1 : 1) : a.gameId !== b.gameId ? (a.gameId < b.gameId ? -1 : 1) : a.team !== b.team ? (a.team < b.team ? -1 : 1) : a.id < b.id ? -1 : a.id > b.id ? 1 : 0));

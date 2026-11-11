@@ -102,9 +102,18 @@ export function createQbState(F) {
     return intercept + (t.passAtt - intercept) * F.teamForm.boundaryDecay ** Math.max(0, season - t.season);
   };
   const folded = new Set();
+  /* team-context rates (every passer's completions and yards for the club, P300 rate weighting by the club's game index):
+     the "team-context-only" baseline — no individual QB history */
+  const teamRates = new Map();
+  const teamGames = new Map();
+  /* pass defence: completions / yards ALLOWED by each club (its opponents' passing against it), same weighting */
+  const defRates = new Map();
   return {
     players,
     teamVolume,
+    teamRates,
+    teamGames,
+    defRates,
     /** @param {{ id:string, name:string, team:string, season:number, gameKey:string, passAtt:number, passCmp:number, passYds:number }} r @param {number} teamPassAtt */
     fold(r, teamPassAtt) {
       const st = ST(r.id);
@@ -116,6 +125,21 @@ export function createQbState(F) {
       st.careerAtt += r.passAtt;
       st.games = idx;
       st.name = r.name;
+      if (!folded.has(r.gameKey)) teamGames.set(r.team, (teamGames.get(r.team) ?? 0) + 1);
+      if (r.passAtt > 0 && r.opponent) {
+        const dr = defRates.get(r.opponent) ?? { comp: [], ypcmp: [], games: 0 };
+        dr.games = teamGames.get(r.opponent) ?? 0;
+        dr.comp.push({ num: r.passCmp, den: r.passAtt, idx: dr.games, season: r.season });
+        if (r.passCmp > 0) dr.ypcmp.push({ num: r.passYds, den: r.passCmp, idx: dr.games, season: r.season });
+        defRates.set(r.opponent, dr);
+      }
+      if (r.passAtt > 0) {
+        const tr = teamRates.get(r.team) ?? { comp: [], ypcmp: [], games: 0 };
+        tr.games = teamGames.get(r.team);
+        tr.comp.push({ num: r.passCmp, den: r.passAtt, idx: tr.games, season: r.season });
+        if (r.passCmp > 0) tr.ypcmp.push({ num: r.passYds, den: r.passCmp, idx: tr.games, season: r.season });
+        teamRates.set(r.team, tr);
+      }
       if (!folded.has(r.gameKey)) {
         folded.add(r.gameKey);
         const alpha = 1 - 0.5 ** (1 / F.teamForm.halfLifeGames);
@@ -176,6 +200,36 @@ export function clubShareProjection({ st, team, season, state, F, scale }) {
     share: clubShare(st, season, F), volume: state.teamVolume(team, season),
     comp: shrunkRate(st, "comp", L.completionRate, season, F), ypcmp: shrunkRate(st, "ypcmp", L.yardsPerCompletion, season, F), F, scale,
   });
+}
+
+/** Baseline: the team's own recent passing efficiency (all its passers), no individual QB history. */
+export function teamContextProjection({ team, season, state, F, scale, starterShare }) {
+  const L = F.league;
+  const tr = state.teamRates.get(team);
+  const st = { games: state.teamGames.get(team) ?? 0, rates: { comp: tr?.comp ?? [], ypcmp: tr?.ypcmp ?? [] } };
+  return passYardsQuantiles({ share: starterShare, volume: state.teamVolume(team, season), comp: shrunkRate(st, "comp", L.completionRate, season, F), ypcmp: shrunkRate(st, "ypcmp", L.yardsPerCompletion, season, F), F, scale });
+}
+
+/**
+ * TIER (d) — rookie / contextual fallback (founder P0 2026-11-11). No invented history: the starter's own verified
+ * attempts (often none) are shrunk toward a LOW-HISTORY PRIOR (completion rate, yards per completion and attempt share
+ * of past starters with fewer than F.rate.priorTrials prior attempts — derived from committed REG seasons the evaluation
+ * never scores), in the club's pass-attempt context, adjusted for the opponent's pass defence (its allowed completion
+ * rate and yards per completion relative to the league, shrunk), with a WIDER dispersion `prior.scale` (≥ the P300
+ * scale, by construction). `prior` = { comp, ypcmp, share, scale } from the committed fallback report.
+ */
+export function tierDProjection({ st, team, opponent, season, state, F, prior, useOpponent = true }) {
+  const L = F.league;
+  const comp0 = shrunkRate(st, "comp", prior.comp, season, F);
+  const ypc0 = shrunkRate(st, "ypcmp", prior.ypcmp, season, F);
+  let comp = comp0, ypcmp = ypc0;
+  if (useOpponent && opponent) {
+    const dr = state.defRates.get(opponent);
+    const d = { games: state.teamGames.get(opponent) ?? 0, rates: { comp: dr?.comp ?? [], ypcmp: dr?.ypcmp ?? [] } };
+    comp = Math.min(0.95, comp0 * (shrunkRate(d, "comp", L.completionRate, season, F) / L.completionRate));
+    ypcmp = ypc0 * (shrunkRate(d, "ypcmp", L.yardsPerCompletion, season, F) / L.yardsPerCompletion);
+  }
+  return passYardsQuantiles({ share: prior.share, volume: state.teamVolume(team, season), comp, ypcmp, F, scale: prior.scale });
 }
 
 /** Mean pinball loss over QUANTILES (a CRPS proxy; lower is better). */

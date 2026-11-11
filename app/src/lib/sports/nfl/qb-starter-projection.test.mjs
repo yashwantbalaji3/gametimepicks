@@ -37,3 +37,15 @@ test("passing-yard quantiles are ordered, scale with volume, and pinball is 0 on
   assert.ok(Math.abs(a.mean - 0.97 * 33 * 0.65 * 10.9) < 1e-9);
   assert.ok(pinball(a.q, a.q[0.5]) > 0);
 });
+
+test("tier (d): the exploratory report recomputes byte-for-byte; its prior comes only from 2013–2017 and its spread is strictly wider", () => {
+  const script = path.join(ROOT, "scripts/research/nfl/evaluate-qb-fallback-categories.mjs");
+  const out = execFileSync("node", [script], { encoding: "utf8", maxBuffer: 1 << 26 });
+  const committed = fs.readFileSync(path.join(ROOT, "data/internal/research/nfl/reports/qb-fallback-categories-exploratory.json"), "utf8");
+  assert.equal(JSON.stringify(JSON.parse(out), null, 2) + "\n", committed);
+  const r = JSON.parse(committed);
+  assert.match(r.label, /^EXPLORATORY/);
+  assert.deepEqual(r.tierDPrior.seasons, [2013, 2017]);
+  assert.ok(r.tierDPrior.scale > JSON.parse(fs.readFileSync(path.join(ROOT, "data/internal/research/nfl/reports/player-props-share-level-second-look.json"), "utf8")).devDispersionScales["player_pass_yds|teamFormVolume"], "wider than tiers (a)/(b) by construction");
+  assert.ok(F.dispersionScaleGrid.includes(r.tierDPrior.scale), "the scale is a value of the committed grid");
+});
