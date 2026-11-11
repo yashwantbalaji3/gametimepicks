@@ -548,6 +548,40 @@ jobs:
           git pull --rebase --autostash origin main
           git push origin HEAD:main
 
+      # NBA SHADOWS (founder 2026-11-11): the Elo challengers (prereg v2) and the minutes challenger's projections, frozen
+      # pre-tip beside the official v0.1 build of the same instant. Their OWN step and their OWN commit (private files, not
+      # Vercel build inputs), so v0.1's step and commit stay exactly v0.1's. Each refusal warns only; nothing official moves.
+      - name: NBA shadows (Elo challengers + minutes) beside v0.1
+        id: nbashadow
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' && steps.nbaexpv01.outputs.state == 'BUILT' }}
+        working-directory: app
+        env:
+          NOW: ${{ steps.nbaexp.outputs.now }}
+          TODAY: ${{ steps.nbaexp.outputs.today }}
+        run: |
+          set -uo pipefail
+          # Elo SHADOW (founder 2026-11-11; prereg v2): frozen pre-tip beside the official v0.1 build just made. Warns only.
+          node scripts/nba/build-nba-elo-shadow.mjs --date "$TODAY" --now "$NOW" --write \
+            || echo "::warning::Elo shadow refused for $TODAY — v0.1 unaffected"
+          # MINUTES SHADOW (founder 2026-11-11): frozen pre-tip beside the official v0.1 build just made. Warns only.
+          node scripts/nba/build-nba-minutes-shadow.mjs --date "$TODAY" --now "$NOW" --write \
+            || echo "::warning::minutes shadow refused for $TODAY — v0.1 unaffected"
+          echo "state=BUILT" >> "$GITHUB_OUTPUT"
+
+      - name: Commit NBA shadows if changed
+        if: ${{ !cancelled() && github.event.inputs.dry_run != 'true' && steps.nbashadow.outputs.state == 'BUILT' }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          # Each directory only if it exists (one missing pathspec makes `git add` stage nothing).
+          if [ -d data/internal/research/nba/elo-shadow/forecasts ]; then git add data/internal/research/nba/elo-shadow/forecasts/; fi
+          if [ -d data/internal/research/nba/minutes-shadow/forecasts ]; then git add data/internal/research/nba/minutes-shadow/forecasts/; fi
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git commit -m "auto: nba shadows (Elo challengers + minutes, private research) [skip ci]"
+          git pull --rebase --autostash origin main
+          git push origin HEAD:main
+
       # SHADOW GRADING for the families nba-forecast-window builds but nothing graded (NBA-2026-OPENING · NBA-08/10):
       # v0.2 (the 2026-27 challenger, founder N3) and v1 (the coherent-engine candidate, #1134). The preregistration's
       # forward shadow counts only GRADED pre-tip forecasts, so without this their evidence never accrues. Same grader,
@@ -568,6 +602,11 @@ jobs:
               STATE=FAILED; echo "NBA shadow grading $FAM" >> "$REFUSALS"
             fi
           done
+          # Elo challenger ledger (prereg v2, approved 2026-11-11T00:09:14Z): confirmatory rows from the frozen pre-tip
+          # shadow entries + the finals record; verdict null until the single look at n >= 300, then frozen.
+          if ! node scripts/nba/score-nba-elo-challengers.mjs --write; then
+            STATE=FAILED; echo "NBA Elo challenger ledger" >> "$REFUSALS"
+          fi
           echo "state=$STATE" >> "$GITHUB_OUTPUT"
 
       # Release H1a (2026-10-24, NBA model session's text): the §14 evaluator + champion/challenger, report only — gates
@@ -592,6 +631,8 @@ jobs:
           for F in experimental-v0.2/ledger.json experimental-v0.2/boxscores experimental-v1/ledger.json experimental-v1/boxscores experimental-v0.3/ledger.json experimental-v0.3/boxscores; do
             if [ -e "data/internal/research/nba/$F" ]; then git add "data/internal/research/nba/$F"; fi
           done
+          # The Elo challenger ledger (prereg v2), when the scorer has written one.
+          if [ -e data/internal/research/nba/elo-shadow/ledger.json ]; then git add data/internal/research/nba/elo-shadow/ledger.json; fi
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "auto: nba shadow ledgers v0.2 + v1 (private research) [skip ci]"
           git pull --rebase --autostash origin main

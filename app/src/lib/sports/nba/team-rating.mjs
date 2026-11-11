@@ -56,13 +56,14 @@ function regress(stream) {
   for (const [t, r] of stream.ratings) stream.ratings.set(t, r + (MEAN - r) * SEASON_REGRESSION);
 }
 
-function fold(stream, g) {
+function fold(stream, g, onFold = null, population = null) {
   if (stream.curSeason != null && g.season !== stream.curSeason) regress(stream);
   stream.curSeason = g.season;
   stream.seasons.add(g.season);
   const rh = stream.ratings.get(g.home) ?? DEFAULT_RATING;
   const ra = stream.ratings.get(g.away) ?? DEFAULT_RATING;
   const exp = winProbability(rh, ra, { neutralSite: g.neutralSite === true });
+  if (onFold) onFold({ population, providerEventId: g.providerEventId, dateUtc: g.dateUtc, season: g.season, neutralSite: g.neutralSite === true, ratingHome: rh, ratingAway: ra, pHome: exp, homeWon: g.ftHome > g.ftAway ? 1 : 0 });
   const s = g.ftHome > g.ftAway ? 1 : 0;
   stream.ratings.set(g.home, rh + NBA_ELO_PARAMS.K * (s - exp));
   stream.ratings.set(g.away, ra + NBA_ELO_PARAMS.K * ((1 - s) - (1 - exp)));
@@ -83,8 +84,10 @@ const toObject = (m) => Object.fromEntries([...m.entries()].sort(([a], [b]) => a
  *                             than the last folded season of a stream, that stream's boundary
  *                             regression is applied once (so a 2026-27 forecast starts from
  *                             regressed 2025-26 ratings, exactly as the walk-forward would)
+ * @param opts.onFold          optional observer, called once per folded game with its PRE-GAME ratings, pHome and
+ *                             result, in fold order (read-only: the ratings and the return value are unchanged)
  */
-export function buildTeamRatings(rows, { throughDateUtc, targetSeason = null } = {}) {
+export function buildTeamRatings(rows, { throughDateUtc, targetSeason = null, onFold = null } = {}) {
   if (typeof throughDateUtc !== "string" || !Number.isFinite(Date.parse(throughDateUtc))) {
     throw new Error("buildTeamRatings: throughDateUtc (ISO) is required");
   }
@@ -98,7 +101,7 @@ export function buildTeamRatings(rows, { throughDateUtc, targetSeason = null } =
   const preseason = makeStream();
   let skippedNonFinal = 0;
   for (const r of Array.isArray(rows) ? rows : []) if (!isFinalRow(r)) skippedNonFinal += 1;
-  for (const g of games) fold(g.phase === 1 ? preseason : regular, g);
+  for (const g of games) fold(g.phase === 1 ? preseason : regular, g, onFold, g.phase === 1 ? "preseason" : "regular");
 
   const boundaryApplied = { regular: false, preseason: false };
   if (Number.isInteger(targetSeason)) {

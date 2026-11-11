@@ -227,3 +227,22 @@ test("shadow grading: sport-schedules grades v0.2 and v1 after v0.1, stages only
   assert.doesNotMatch(loop, /forecasts/, "the window owns the forecasts");
   assert.match(commit, /if \[ -e "data\/internal\/research\/nba\/\$F" \]; then git add/, "each path only if it exists");
 });
+
+test("Elo shadow (prereg v2): frozen after the official v0.1 build in both writers, warn-only, staged; the ledger scored after grading", () => {
+  const win = fs.readFileSync(WINDOW, "utf8").replace(/^\s*#.*$/gm, "");
+  const ss = fs.readFileSync(path.resolve(process.cwd(), "..", ".github", "workflows", "sport-schedules.yml"), "utf8").replace(/^\s*#.*$/gm, "");
+  for (const [body, v01, shadow] of [
+    [win, '--write --family v0.1 --horizon-hours 8', 'build-nba-elo-shadow.mjs --date "$D" --now "$NOW" --write'],
+    [win, '--date "$NEXTDAY" --now "$NOW" --write --family v0.1', 'build-nba-elo-shadow.mjs --date "$NEXTDAY" --now "$NOW" --write'],
+    [ss, '--date "$TODAY" --now "$NOW" --write --family v0.1', 'build-nba-elo-shadow.mjs --date "$TODAY" --now "$NOW" --write'],
+  ]) {
+    assert.ok(body.indexOf(shadow) > body.indexOf(v01) && body.indexOf(v01) > 0, `${shadow} after the official v0.1 build`);
+    assert.match(body.slice(body.indexOf(shadow)), /^[^\n]*\\\n[^\n]*\|\| echo "::warning::/, "a shadow refusal warns, never fails");
+  }
+  assert.ok(win.indexOf("build-nba-elo-shadow.mjs") < win.indexOf("verify-nba-forecast-receipts.mjs --against HEAD"));
+  assert.match(win, /then git add "\.\.\/data\/internal\/research\/nba\/elo-shadow\/forecasts\/"; fi/);
+  assert.match(ss, /then git add data\/internal\/research\/nba\/elo-shadow\/forecasts\/; fi/);
+  const score = ss.indexOf("score-nba-elo-challengers.mjs --write");
+  assert.ok(score > ss.indexOf('--family "$FAM"'), "the ledger is scored after the shadow grading");
+  assert.match(ss.slice(ss.indexOf("Commit NBA shadow ledgers")), /then git add data\/internal\/research\/nba\/elo-shadow\/ledger\.json; fi/);
+});
