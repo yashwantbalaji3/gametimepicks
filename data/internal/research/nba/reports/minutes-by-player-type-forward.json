@@ -1,0 +1,427 @@
+{
+ "schema": "gtp.nba.minutes-by-player-type@1",
+ "dataClass": "PRIVATE_RESEARCH",
+ "label": "EXPLORATORY — already-graded 2026-27 forecasts, seen before this evaluation; promotes nothing",
+ "mode": "forward",
+ "rows": 3517,
+ "games": 160,
+ "models": [
+  "v0.1-frozen",
+  "challenger",
+  "v0.3"
+ ],
+ "unit": "players who played (minutes > 0) in the shared pool; MAE / bias of expected minutes (projected − actual); coverage = share of those rows the model projected",
+ "bootstrap": "game-clustered percentile, B 2000, seed 20261020",
+ "strata": {
+  "all": {
+   "rows": 3517,
+   "byModel": {
+    "v0.1-frozen": {
+     "n": 3167,
+     "coverage": 0.9,
+     "mae": 7.18,
+     "bias": -1.78
+    },
+    "challenger": {
+     "n": 3413,
+     "coverage": 0.97,
+     "mae": 6.11,
+     "bias": -2.85
+    },
+    "v0.3": {
+     "n": 3231,
+     "coverage": 0.92,
+     "mae": 5.54,
+     "bias": -1.65
+    }
+   },
+   "pairedMaeVsV01Frozen": {
+    "challenger − v0.1-frozen": {
+     "n": 3167,
+     "games": 160,
+     "mean": -1.0403,
+     "ci95": [
+      -1.2642,
+      -0.8324
+     ]
+    },
+    "v0.3 − v0.1-frozen": {
+     "n": 2881,
+     "games": 146,
+     "mean": -1.7569,
+     "ci95": [
+      -1.9534,
+      -1.5656
+     ]
+    }
+   },
+   "pairedMae_v03_minus_challenger": {
+    "n": 3127,
+    "games": 146,
+    "mean": -0.5889,
+    "ci95": [
+     -0.7354,
+     -0.4414
+    ]
+   }
+  },
+  "star": {
+   "rows": 733,
+   "byModel": {
+    "v0.1-frozen": {
+     "n": 700,
+     "coverage": 0.95,
+     "mae": 6,
+     "bias": -2.39
+    },
+    "challenger": {
+     "n": 733,
+     "coverage": 1,
+     "mae": 6.12,
+     "bias": -4.08
+    },
+    "v0.3": {
+     "n": 667,
+     "coverage": 0.91,
+     "mae": 4.74,
+     "bias": -1.29
+    }
+   },
+   "pairedMaeVsV01Frozen": {
+    "challenger − v0.1-frozen": {
+     "n": 700,
+     "games": 159,
+     "mean": 0.1501,
+     "ci95": [
+      -0.2031,
+      0.4811
+     ]
+    },
+    "v0.3 − v0.1-frozen": {
+     "n": 634,
+     "games": 145,
+     "mean": -1.2843,
+     "ci95": [
+      -1.5996,
+      -0.983
+     ]
+    }
+   },
+   "pairedMae_v03_minus_challenger": {
+    "n": 667,
+    "games": 146,
+    "mean": -1.4604,
+    "ci95": [
+     -1.7607,
+     -1.1453
+    ]
+   }
+  },
+  "starter": {
+   "rows": 866,
+   "byModel": {
+    "v0.1-frozen": {
+     "n": 856,
+     "coverage": 0.99,
+     "mae": 7.53,
+     "bias": -3.01
+    },
+    "challenger": {
+     "n": 866,
+     "coverage": 1,
+     "mae": 6.29,
+     "bias": -3.4
+    },
+    "v0.3": {
+     "n": 781,
+     "coverage": 0.9,
+     "mae": 5.9,
+     "bias": -2.56
+    }
+   },
+   "pairedMaeVsV01Frozen": {
+    "challenger − v0.1-frozen": {
+     "n": 856,
+     "games": 159,
+     "mean": -1.2544,
+     "ci95": [
+      -1.5879,
+      -0.9348
+     ]
+    },
+    "v0.3 − v0.1-frozen": {
+     "n": 771,
+     "games": 146,
+     "mean": -1.7723,
+     "ci95": [
+      -2.0942,
+      -1.4574
+     ]
+    }
+   },
+   "pairedMae_v03_minus_challenger": {
+    "n": 781,
+    "games": 146,
+    "mean": -0.4138,
+    "ci95": [
+     -0.6572,
+     -0.1672
+    ]
+   }
+  },
+  "bench": {
+   "rows": 1918,
+   "byModel": {
+    "v0.1-frozen": {
+     "n": 1611,
+     "coverage": 0.84,
+     "mae": 7.5,
+     "bias": -0.86
+    },
+    "challenger": {
+     "n": 1814,
+     "coverage": 0.95,
+     "mae": 6.02,
+     "bias": -2.09
+    },
+    "v0.3": {
+     "n": 1783,
+     "coverage": 0.93,
+     "mae": 5.69,
+     "bias": -1.39
+    }
+   },
+   "pairedMaeVsV01Frozen": {
+    "challenger − v0.1-frozen": {
+     "n": 1611,
+     "games": 160,
+     "mean": -1.4438,
+     "ci95": [
+      -1.7207,
+      -1.1665
+     ]
+    },
+    "v0.3 − v0.1-frozen": {
+     "n": 1476,
+     "games": 146,
+     "mean": -1.9518,
+     "ci95": [
+      -2.1985,
+      -1.7118
+     ]
+    }
+   },
+   "pairedMae_v03_minus_challenger": {
+    "n": 1679,
+    "games": 146,
+    "mean": -0.3241,
+    "ci95": [
+     -0.5064,
+     -0.1478
+    ]
+   }
+  },
+  "rookie": {
+   "rows": 302,
+   "byModel": {
+    "v0.1-frozen": {
+     "n": 0,
+     "coverage": 0,
+     "mae": null,
+     "bias": null
+    },
+    "challenger": {
+     "n": 210,
+     "coverage": 0.7,
+     "mae": 5.95,
+     "bias": -3.8
+    },
+    "v0.3": {
+     "n": 302,
+     "coverage": 1,
+     "mae": 5.78,
+     "bias": -3.55
+    }
+   },
+   "pairedMaeVsV01Frozen": {
+    "challenger − v0.1-frozen": {
+     "n": 0,
+     "games": 0,
+     "mean": null,
+     "ci95": null
+    },
+    "v0.3 − v0.1-frozen": {
+     "n": 0,
+     "games": 0,
+     "mean": null,
+     "ci95": null
+    }
+   },
+   "pairedMae_v03_minus_challenger": {
+    "n": 210,
+    "games": 101,
+    "mean": -0.1195,
+    "ci95": [
+     -0.398,
+     0.1574
+    ]
+   }
+  },
+  "traded": {
+   "rows": 778,
+   "byModel": {
+    "v0.1-frozen": {
+     "n": 778,
+     "coverage": 1,
+     "mae": 8.59,
+     "bias": -1.77
+    },
+    "challenger": {
+     "n": 778,
+     "coverage": 1,
+     "mae": 6.89,
+     "bias": -2.35
+    },
+    "v0.3": {
+     "n": 712,
+     "coverage": 0.92,
+     "mae": 5.95,
+     "bias": -0.54
+    }
+   },
+   "pairedMaeVsV01Frozen": {
+    "challenger − v0.1-frozen": {
+     "n": 778,
+     "games": 159,
+     "mean": -1.7066,
+     "ci95": [
+      -2.0726,
+      -1.3502
+     ]
+    },
+    "v0.3 − v0.1-frozen": {
+     "n": 712,
+     "games": 146,
+     "mean": -2.673,
+     "ci95": [
+      -2.9732,
+      -2.3799
+     ]
+    }
+   },
+   "pairedMae_v03_minus_challenger": {
+    "n": 712,
+    "games": 146,
+    "mean": -0.8092,
+    "ci95": [
+     -1.1362,
+     -0.5096
+    ]
+   }
+  },
+  "returning": {
+   "rows": 42,
+   "byModel": {
+    "v0.1-frozen": {
+     "n": 36,
+     "coverage": 0.86,
+     "mae": 8.7,
+     "bias": 5.53
+    },
+    "challenger": {
+     "n": 37,
+     "coverage": 0.88,
+     "mae": 8.16,
+     "bias": 4.73
+    },
+    "v0.3": {
+     "n": 42,
+     "coverage": 1,
+     "mae": 6.07,
+     "bias": 2.22
+    }
+   },
+   "pairedMaeVsV01Frozen": {
+    "challenger − v0.1-frozen": {
+     "n": 36,
+     "games": 26,
+     "mean": -0.3221,
+     "ci95": [
+      -1.6439,
+      0.7887
+     ]
+    },
+    "v0.3 − v0.1-frozen": {
+     "n": 36,
+     "games": 26,
+     "mean": -2.3731,
+     "ci95": [
+      -4.0454,
+      -0.9712
+     ]
+    }
+   },
+   "pairedMae_v03_minus_challenger": {
+    "n": 37,
+    "games": 26,
+    "mean": -1.9876,
+    "ci95": [
+     -3.4556,
+     -0.7253
+    ]
+   }
+  },
+  "promoted": {
+   "rows": 201,
+   "byModel": {
+    "v0.1-frozen": {
+     "n": 179,
+     "coverage": 0.89,
+     "mae": 7.72,
+     "bias": -4.08
+    },
+    "challenger": {
+     "n": 198,
+     "coverage": 0.99,
+     "mae": 7.05,
+     "bias": -4.99
+    },
+    "v0.3": {
+     "n": 201,
+     "coverage": 1,
+     "mae": 6.27,
+     "bias": -3.64
+    }
+   },
+   "pairedMaeVsV01Frozen": {
+    "challenger − v0.1-frozen": {
+     "n": 179,
+     "games": 59,
+     "mean": -0.6501,
+     "ci95": [
+      -1.4089,
+      0.0409
+     ]
+    },
+    "v0.3 − v0.1-frozen": {
+     "n": 179,
+     "games": 59,
+     "mean": -1.3971,
+     "ci95": [
+      -2.0078,
+      -0.7702
+     ]
+    }
+   },
+   "pairedMae_v03_minus_challenger": {
+    "n": 198,
+    "games": 64,
+    "mean": -0.7634,
+    "ci95": [
+     -1.2078,
+     -0.2505
+    ]
+   }
+  }
+ }
+}
