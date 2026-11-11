@@ -7,18 +7,20 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
-import { decideSlipRead, pathBelongsTo, auditLine, missingConfig, MAX_IMAGE_BYTES, REQUIRED_ENV } from "../../../api/_slip-read-core.mjs";
+import { decideSlipRead, pathBelongsTo, auditLine, missingConfig, slipReadEnabled, MAX_IMAGE_BYTES, REQUIRED_ENV } from "../../../api/_slip-read-core.mjs";
 
-const ENV = { ANTHROPIC_API_KEY: "k", SUPABASE_SERVICE_ROLE_KEY: "s", NEXT_PUBLIC_SUPABASE_URL: "https://abc.supabase.co" };
+const ENV = { SLIP_READ_ENABLED: "1", ANTHROPIC_API_KEY: "k", SUPABASE_SERVICE_ROLE_KEY: "s", NEXT_PUBLIC_SUPABASE_URL: "https://abc.supabase.co" };
 const BODY = { userId: "user-1", path: "user-1/slip.png", contentType: "image/png", bytes: 120_000 };
 /* app/api, not the repo root: the suite runs with cwd = app/. */
 const HANDLER = fs.readFileSync(path.join(process.cwd(), "api/slip-read.mjs"), "utf8");
 
-test("with no keys it refuses and names what is missing — never a half-attempt", () => {
-  const d = decideSlipRead({ env: {}, authorization: "Bearer t", body: BODY });
+test("with no keys it refuses — never a half-attempt — and the public reason names no configuration", () => {
+  const d = decideSlipRead({ env: { SLIP_READ_ENABLED: "1" }, authorization: "Bearer t", body: BODY });
   assert.equal(d.status, 503);
   assert.equal(d.proceed, false);
-  for (const k of REQUIRED_ENV) assert.match(d.reason, new RegExp(k));
+  assert.deepEqual(d.missing, [...REQUIRED_ENV], "what is missing stays on the decision for the log and tests");
+  for (const k of REQUIRED_ENV) assert.doesNotMatch(d.reason, new RegExp(k), "the 503 body must not map the deployment");
+  assert.match(HANDLER, /reason: decision\.reason \}/, "the handler returns only the reason, never the decision's `missing`");
   assert.deepEqual(missingConfig({ ...ENV, ANTHROPIC_API_KEY: " " }), ["ANTHROPIC_API_KEY"], "blank counts as missing");
 });
 
@@ -67,4 +69,21 @@ test("the handler decides before it spends, takes identity from the token, and s
   assert.ok(logLines.length > 0, "the handler does log its decisions");
   for (const l of logLines) assert.doesNotMatch(l, /API_KEY|SERVICE_ROLE|Bearer|authorization/i, `a key or token reaches the log: ${l.trim()}`);
   assert.match(HANDLER, /const MODEL = "claude-[a-z0-9-]+"/, "the model is pinned, not picked at runtime");
+});
+
+test("KILL SWITCH (launch program 2026-10-28): slip reading is OFF unless SLIP_READ_ENABLED is explicitly on — keys alone never switch on a paid path", () => {
+  const { SLIP_READ_ENABLED, ...keysOnly } = ENV;
+  const off = decideSlipRead({ env: keysOnly, authorization: "Bearer t", body: BODY });
+  assert.deepEqual([off.status, off.proceed, off.switchedOff], [503, false, true], "every key present, switch absent → off");
+  for (const v of ["", "0", "false", "off", "no", "disabled", "OFF", " nope "]) assert.equal(slipReadEnabled({ SLIP_READ_ENABLED: v }), false, `"${v}" is off`);
+  for (const v of ["1", "true", "on", "yes", " TRUE "]) assert.equal(slipReadEnabled({ SLIP_READ_ENABLED: v }), true, `"${v}" is on`);
+  assert.doesNotMatch(off.reason, /SLIP_READ_ENABLED/, "the public reason names no configuration");
+});
+
+test("the paid model call has a timeout, and the log never carries a full user id (the path folder is the id)", () => {
+  assert.match(HANDLER, /signal: AbortSignal\.timeout\(30_000\)/);
+  const long = { ...BODY, userId: "0123456789abcdef-uuid", path: "0123456789abcdef-uuid/slip.png" };
+  const line = auditLine(decideSlipRead({ env: ENV, authorization: "Bearer t", body: long }), long);
+  assert.ok(!line.includes("0123456789abcdef-uuid"), line);
+  assert.match(line, /01234567…\/slip\.png/);
 });

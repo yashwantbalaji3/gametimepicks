@@ -26,11 +26,13 @@ export { ASK_REQUIRED_ENV } from "../src/lib/ask/provider.mjs";
  *
  * Default-off is the deliberate choice: the route can ship, the page can render, and the endpoint
  * answers a clean "temporarily unavailable" until someone turns it on. Rollout is therefore flag-off →
- * canary → flag-on, and switching it off is one environment variable rather than a deployment.
+ * canary → flag-on. Switching it off is one environment variable — but on Vercel a changed variable reaches the
+ * functions only with the NEXT deployment, so turning Ask off means: set the variable, then redeploy (2026-10-17: the
+ * earlier "rather than a deployment" was wrong). Any of 0 / false / off / no / disabled (any case) is off.
  */
 export function askDisabled(env = process.env) {
-  const v = env.ASK_GAMETIME_ENABLED;
-  return v === undefined || v === "" || v === "0" || v === "false";
+  const v = String(env.ASK_GAMETIME_ENABLED ?? "").trim().toLowerCase();
+  return v === "" || v === "0" || v === "false" || v === "off" || v === "no" || v === "disabled";
 }
 
 /**
@@ -91,10 +93,11 @@ export function decideAsk({ env = {}, method = "POST", body = null, bodyBytes = 
 
   const provider = selectProvider(env, { isProduction });
   if (!provider.ok) {
-    // Names only. `missingAskConfig` returns VARIABLE NAMES, never values, and the reason string is
-    // built from those names so a 503 body can never carry a secret.
+    // `missingAskConfig` returns VARIABLE NAMES, never values. They stay on the decision for tests and the
+    // operational log; the public reason names none of them (2026-10-14: names are not secrets, but they map
+    // the deployment, and a reader has no use for them).
     const missing = missingAskConfig(env);
-    return refuse(503, provider.code, missing.length ? `Ask GameTime is not configured (${missing.join(", ")})` : provider.detail);
+    return { ...refuse(503, provider.code, "Ask GameTime is not available right now"), missing };
   }
 
   if (bodyBytes > ASK_BUDGET.maxRequestBytes) return refuse(413, ASK_ERROR.REQUEST_TOO_LARGE, "that request is too large");
