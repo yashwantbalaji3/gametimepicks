@@ -122,6 +122,10 @@ jobs:
                 || echo "::warning::v0.1 refused for next slate $NEXTDAY (roster gate) — the lane holds until it freezes"
               node scripts/nba/build-nba-experimental-forecasts.mjs --date "$NEXTDAY" --now "$NOW" --write --family v0.3 \
                 || echo "::warning::v0.3 refused for next slate $NEXTDAY — v0 and v0.1 unaffected"
+              # Elo SHADOW (founder 2026-11-11; prereg v2): the in-season + HA challengers frozen pre-tip beside the official
+              # v0.1 forecast just built. Private, write-once per game, never published; a refusal warns only.
+              node scripts/nba/build-nba-elo-shadow.mjs --date "$NEXTDAY" --now "$NOW" --write \
+                || echo "::warning::Elo shadow refused for next slate $NEXTDAY — official forecasts unaffected"
             fi
             for D in $DATES; do
               # v0 is the preregistered record: its refusal fails the run. v0.1 is research: its roster gate
@@ -139,6 +143,9 @@ jobs:
               # only where v0.1 froze it at this same --now from the same inputs (alignedCutoffRefusal); refusal warns only.
               node scripts/nba/build-nba-experimental-forecasts.mjs --date "$D" --now "$NOW" --write --family v0.3 --horizon-hours 8 \
                 || echo "::warning::v0.3 refused for $D — v0, v0.1, v0.2 and v1 unaffected"
+              # Elo SHADOW for any game of this slate whose official forecast froze since the last run (write-once per game).
+              node scripts/nba/build-nba-elo-shadow.mjs --date "$D" --now "$NOW" --write \
+                || echo "::warning::Elo shadow refused for $D — official forecasts unaffected"
               # PRIVATE Top Boards (points / rebounds / assists / 3PM), frozen write-once at this same pre-tip instant from
               # the forecasts just built or already committed (v0.1 = player champion, founder N1; v1 = coherent-engine
               # candidate). This workflow is the ONLY writer of top-boards/<family>/<date>.json (grading writes ledger.json
@@ -154,6 +161,8 @@ jobs:
             for FD in experimental experimental-v0.1 experimental-v0.2 experimental-v1 experimental-v0.3; do
               if [ -d "../data/internal/research/nba/$FD" ]; then git add "../data/internal/research/nba/$FD/"; fi
             done
+            # Elo shadow day files (private, write-once per game; the build refuses to change a frozen entry).
+            if [ -d "../data/internal/research/nba/elo-shadow/forecasts" ]; then git add "../data/internal/research/nba/elo-shadow/forecasts/"; fi
             # Frozen board day files (never ledger.json, which belongs to sport-schedules), per family directory that exists.
             for BD in top-boards/v0.1 top-boards/v1; do
               if [ -d "../data/internal/research/nba/$BD" ]; then find "../data/internal/research/nba/$BD" -maxdepth 1 -name '20*.json' -exec git add {} +; fi

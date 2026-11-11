@@ -186,21 +186,27 @@ test("trainingSamples: corpus history plus the current season, each game once, i
   for (let i = 1; i < all.length; i += 1) assert.ok(Date.parse(all[i - 1].dateUtc) <= Date.parse(all[i].dateUtc));
 });
 
-test("pre-registration drift: the committed draft's bytes hash to PREREG_DRAFT_SHA256; nothing is approved", () => {
+test("pre-registration drift: the committed v2 bytes hash to the APPROVED sha256, with the founder's approval instant", () => {
   const bytes = fs.readFileSync(path.join(REPO, PREREG_DOC));
-  assert.equal(crypto.createHash("sha256").update(bytes).digest("hex"), PREREG_DRAFT_SHA256);
-  assert.deepEqual([...APPROVED_PREREG_SHA256], []);
-  assert.deepEqual({ ...PREREG_APPROVED_AT }, {});
+  const sha = crypto.createHash("sha256").update(bytes).digest("hex");
+  assert.equal(sha, "4c370915828facd787ca41d1dc816721ea8c6cf915866aca0894cae45510d0d7");
+  assert.equal(sha, PREREG_DRAFT_SHA256);
+  assert.deepEqual([...APPROVED_PREREG_SHA256], [sha]);
+  assert.deepEqual({ ...PREREG_APPROVED_AT }, { [sha]: "2026-11-11T00:09:14Z" });
   assert.ok(Object.isFrozen(APPROVED_PREREG_SHA256) && Object.isFrozen(PREREG_APPROVED_AT));
   assert.equal(MIN_PAIRED_N, PREREG.winner.minN);
   assert.equal(MIN_PAIRED_N, 300);
-  assert.match(bytes.toString("utf8"), /FROZEN, NOT APPROVED/);
 });
 
-test("blind: with the committed (empty) approvals, scoring refuses — even for the draft's own sha256", () => {
-  assert.equal(scoringRefusal(PREREG_DRAFT_SHA256), "no approved pre-registration");
-  assert.throws(() => scoreChallengers([], { preregSha256: PREREG_DRAFT_SHA256 }), /REFUSED: no approved pre-registration/);
+test("approval gate: only the approved v2 sha scores; any other file refuses", () => {
+  assert.equal(scoringRefusal(PREREG_DRAFT_SHA256), null);
+  assert.equal(scoringRefusal("5b9c4e481edce7940e7a5dd731eea424d328c2857914679b6a4cfe08d748a76f"), "no approved pre-registration", "the superseded v1 draft");
+  assert.throws(() => scoreChallengers([], { preregSha256: "not-approved" }), /REFUSED: no approved pre-registration/);
   assert.equal(scoringRefusal("x", ["x"], {}), "the approved pre-registration has no approval timestamp");
+  // with the real constants, a game at or before the approval instant is exploratory: counted, never scored
+  const r = scoreChallengers([{ providerEventId: "x1", tipUtc: "2026-11-11T00:09:14Z", homeWon: 1, official: 0.5, inseason: 0.5 }], { preregSha256: PREREG_DRAFT_SHA256 });
+  assert.equal(r.n, 0);
+  assert.equal(r.window.exploratoryCountedNotScored, 1);
 });
 
 /** SYNTHETIC scored rows: n games after the synthetic approval instant + `before` exploratory ones. */
@@ -355,14 +361,14 @@ test("in-season: the home advantage is re-fit on this model's own pre-game diffe
   assert.equal(inseasonForecast(game, { history: [], startRatings: START, finalsRecord: { finals: [], conflicts: [] } }).reason, "NO_HISTORY");
 });
 
-test("the challengers feed no public surface: nothing outside their own tests imports the module", () => {
+test("the challengers feed no public surface: the only importer is the private shadow module (elo-shadow.mjs)", () => {
   const roots = ["src/app", "src/components", "src/lib", "scripts"].map((d) => path.join(process.cwd(), d));
   const hits = [];
   const walk = (d) => {
     for (const e of fs.readdirSync(d, { withFileTypes: true })) {
       const p = path.join(d, e.name);
       if (e.isDirectory()) { if (e.name !== "node_modules") walk(p); continue; }
-      if (!/\.(mjs|js|ts|tsx)$/.test(e.name) || /elo-ha-walkforward(\.test)?\.mjs$/.test(e.name)) continue;
+      if (!/\.(mjs|js|ts|tsx)$/.test(e.name) || /elo-(ha-walkforward|shadow)(\.test)?\.mjs$/.test(e.name)) continue;
       if (fs.readFileSync(p, "utf8").includes("elo-ha-walkforward")) hits.push(path.relative(process.cwd(), p));
     }
   };

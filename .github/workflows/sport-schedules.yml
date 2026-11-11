@@ -509,6 +509,9 @@ jobs:
           # v0.3 forward-shadow challenger (founder 2026-10-22): aligned to the v0.1 build just made (same --now, same inputs).
           npx tsx scripts/nba/build-nba-experimental-forecasts.mjs --date "$TODAY" --now "$NOW" --write --family v0.3 \
             || echo "::warning::v0.3 refused for $TODAY — v0.1 unaffected"
+          # Elo SHADOW (founder 2026-11-11; prereg v2): frozen pre-tip beside the official v0.1 build just made. Warns only.
+          node scripts/nba/build-nba-elo-shadow.mjs --date "$TODAY" --now "$NOW" --write \
+            || echo "::warning::Elo shadow refused for $TODAY — v0.1 unaffected"
 
       - name: Commit NBA experimental v0 research if its content changed
         if: github.event.inputs.dry_run != 'true' && steps.nbaexp.outputs.state == 'BUILT'
@@ -530,6 +533,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           if [ -d data/internal/research/nba/experimental-v0.3/forecasts ]; then git add data/internal/research/nba/experimental-v0.3/forecasts/; fi
+          if [ -d data/internal/research/nba/elo-shadow/forecasts ]; then git add data/internal/research/nba/elo-shadow/forecasts/; fi
           git add data/internal/research/nba/experimental-v0.1/
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           node app/scripts/nba/verify-nba-forecast-receipts.mjs --against HEAD
@@ -557,6 +561,11 @@ jobs:
               STATE=FAILED; echo "NBA shadow grading $FAM" >> "$REFUSALS"
             fi
           done
+          # Elo challenger ledger (prereg v2, approved 2026-11-11T00:09:14Z): confirmatory rows from the frozen pre-tip
+          # shadow entries + the finals record; verdict null until the single look at n >= 300, then frozen.
+          if ! node scripts/nba/score-nba-elo-challengers.mjs --write; then
+            STATE=FAILED; echo "NBA Elo challenger ledger" >> "$REFUSALS"
+          fi
           echo "state=$STATE" >> "$GITHUB_OUTPUT"
 
       # Release H1a (2026-10-24, NBA model session's text): the §14 evaluator + champion/challenger, report only — gates
@@ -581,6 +590,8 @@ jobs:
           for F in experimental-v0.2/ledger.json experimental-v0.2/boxscores experimental-v1/ledger.json experimental-v1/boxscores experimental-v0.3/ledger.json experimental-v0.3/boxscores; do
             if [ -e "data/internal/research/nba/$F" ]; then git add "data/internal/research/nba/$F"; fi
           done
+          # The Elo challenger ledger (prereg v2), when the scorer has written one.
+          if [ -e data/internal/research/nba/elo-shadow/ledger.json ]; then git add data/internal/research/nba/elo-shadow/ledger.json; fi
           if git diff --cached --quiet; then echo "no change"; exit 0; fi
           git commit -m "auto: nba shadow ledgers v0.2 + v1 (private research) [skip ci]"
           git pull --rebase --autostash origin main

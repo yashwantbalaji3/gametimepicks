@@ -33,10 +33,10 @@
  *   - Home advantage: re-fit exactly as above, the current season entering with THIS model's own pre-game differences.
  *   No other input, window, shrinkage or tuning in either challenger.
  *
- * BLIND: the forecast functions may run for any game. `scoreChallengers` — the only function that reads real outcomes
- * against a challenger — REFUSES unless the pre-registration file's sha256 is in APPROVED_PREREG_SHA256 (empty until the
- * founder approves it in writing) with a timestamp in PREREG_APPROVED_AT, and it scores only games tipping strictly after
- * that timestamp. Every earlier 2026-27 game is exploratory forever: it is counted, never scored. Tests use synthetic
+ * BLIND UNTIL APPROVED, THEN CONFIRMATORY ONLY: `scoreChallengers` — the only function that reads real outcomes against a
+ * challenger — REFUSES unless the pre-registration file's sha256 is in APPROVED_PREREG_SHA256 (v2, approved by the founder
+ * 2026-11-11T00:09:14Z) with a timestamp in PREREG_APPROVED_AT, and it scores only games tipping strictly after that
+ * timestamp. Every earlier 2026-27 game is exploratory forever: it is counted, never scored. Tests use synthetic
  * fixtures and a synthetic approval only.
  */
 import { NBA_ELO_PARAMS, buildTeamRatings, winProbability } from "./team-rating.mjs";
@@ -50,10 +50,13 @@ export const INSEASON_CHALLENGER_ID = "nba-elo-inseason-walkforward@1";
 export const PREREG_DOC = "docs/NBA_ELO_WALKFORWARD_PREREGISTRATION_V2.md";
 /** sha256 of the FROZEN draft above; elo-ha-walkforward.test.mjs pins the file's bytes to it (any edit is a new draft). */
 export const PREREG_DRAFT_SHA256 = "4c370915828facd787ca41d1dc816721ea8c6cf915866aca0894cae45510d0d7";
-/** sha256 of each pre-registration file the founder has APPROVED in writing. Empty: not approved. */
-export const APPROVED_PREREG_SHA256 = Object.freeze([]);
+/**
+ * sha256 of each pre-registration file the founder has APPROVED in writing. v2 (docs/NBA_ELO_WALKFORWARD_PREREGISTRATION_V2.md),
+ * approved 2026-11-11 (~/gtp-evidence/nov11-founder-nba-elo-prereg-v2-approval.md); elo-ha-walkforward.test.mjs pins its bytes.
+ */
+export const APPROVED_PREREG_SHA256 = Object.freeze(["4c370915828facd787ca41d1dc816721ea8c6cf915866aca0894cae45510d0d7"]);
 /** sha256 → the founder's written approval timestamp (ISO). The confirmatory window opens strictly after it. */
-export const PREREG_APPROVED_AT = Object.freeze({});
+export const PREREG_APPROVED_AT = Object.freeze({ "4c370915828facd787ca41d1dc816721ea8c6cf915866aca0894cae45510d0d7": "2026-11-11T00:09:14Z" });
 /** The minimum paired n: §7's winner bar (n ≥ 300), verbatim. */
 export const MIN_PAIRED_N = PREREG.winner.minN;
 export const VERDICT = Object.freeze({
