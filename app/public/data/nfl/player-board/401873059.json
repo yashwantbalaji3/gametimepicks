@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-11T21:05:56Z",
- "sourceGeneratedAt": "2026-11-11T21:05:56Z",
+ "generatedAt": "2026-11-11T21:31:07Z",
+ "sourceGeneratedAt": "2026-11-11T21:31:07Z",
  "forecastInputHash": "246e0cbdb5541e42",
  "providerEventId": "401873059",
  "matchup": "MIA @ IND",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-11T21:05:56Z",
-  "roleEvidenceAt": "2026-11-11T21:05:56Z",
+  "injuriesCapturedAt": "2026-11-11T21:31:07Z",
+  "roleEvidenceAt": "2026-11-11T21:31:07Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -117,37 +117,20 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 50,
+  "absent": 48,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "MIA": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 1,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
-    {
-     "playerId": "nfl-athlete-4242512",
-     "name": "Malik Willis",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not MIA's starting quarterback (Kyle McCord, depth chart QB1) — the team's passing projection belongs to the starter"
-      }
-     ]
-    },
     {
      "playerId": "nfl-athlete-4711533",
      "name": "Ollie Gordon II",
@@ -243,6 +226,12 @@
       "player_receptions"
      ],
      "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4242512",
+     "name": "Malik Willis",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Injured Reserve"
     },
     {
      "playerId": "nfl-athlete-4429160",
@@ -434,13 +423,7 @@
     "experimental": true,
     "careerAttempts": 0,
     "passers": [],
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4242512",
-      "name": "Malik Willis",
-      "reason": "not MIA's starting quarterback (Kyle McCord, depth chart QB1) — the team's passing projection belongs to the starter"
-     }
-    ]
+    "removed": []
    },
    {
     "team": "IND",
@@ -556,11 +539,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T20:21Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -602,11 +585,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-08T23:11Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -648,11 +631,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T00:49Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -694,11 +677,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:29Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -739,12 +722,12 @@
     "sources": {
      "injuries": {
       "status": "Active",
-      "statedAt": "2026-11-09T00:26Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "statedAt": "2026-11-11T21:10Z",
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -777,51 +760,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:04Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
-     }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4242512",
-   "name": "Malik Willis",
-   "team": "MIA",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 14.457,
-     "p10": 0,
-     "p25": 0.84,
-     "median": 8.33,
-     "p75": 21.69,
-     "p90": 37.68,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1637,
-     "pricingState": "NOT_PROBED"
-    }
-   },
-   "eligibility": {
-    "state": "ELIGIBLE",
-    "reasons": [],
-    "flags": [
-     "QUESTIONABLE"
-    ],
-    "contractVersion": "eligibility@1",
-    "sources": {
-     "injuries": {
-      "status": "Questionable",
-      "statedAt": "2026-11-11T20:15Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
-     },
-     "roster": {
-      "status": "day-to-day",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -863,11 +806,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:40Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -900,11 +843,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T01:08Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -946,11 +889,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T01:23Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -993,11 +936,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T01:00Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -1033,11 +976,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-10T15:44Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -1079,11 +1022,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T01:20Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -1118,11 +1061,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -1155,11 +1098,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T17:24Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -1201,11 +1144,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T21:15Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -1247,11 +1190,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T00:16Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -1296,11 +1239,11 @@
      "injuries": {
       "status": "Questionable",
       "statedAt": "2026-11-08T20:00Z",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
@@ -1331,11 +1274,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-11T21:05:56Z"
+      "fetchedAt": "2026-11-11T21:31:07Z"
      }
     }
    }
