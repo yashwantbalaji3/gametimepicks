@@ -6,6 +6,8 @@
  * No Plus100 builder, no audit logs, no unrelated projections. Presentation only — the bankroll /
  * ledger are read from the public artifact and never mutated here. Paper-only, educational.
  */
+import LaneStatus from "@/components/challenge-lanes/lane-status";
+import { loadProductLaneStatus } from "@/lib/products/challenge-lanes/load-lane-status.mjs";
 import RecordComposition from "@/components/bank-builder/record-composition";
 import { loadFoldBacklog } from "@/lib/mr-dub/fold-backlog-view";
 import Link from "next/link";
@@ -488,6 +490,8 @@ export default function BankBuilderPage() {
 
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-6 sm:py-10 overflow-x-hidden">
+      {/* Challenge lanes (site slice 2026-11-09): the canonical lane projections, read through the engine's public reader. */}
+      <LaneStatus product="bank-builder" lanes={loadProductLaneStatus("bank-builder") as Parameters<typeof LaneStatus>[0]["lanes"]} />
       {/* Operating state from THIS product's own artifact (Program 140). The badge previously took
           the MLB slate date, which the daily board keeps current, so a fifteen-day-old set of cards
           rendered under "Live today". `deriveProductState` cannot produce a live label without a
@@ -519,13 +523,6 @@ export default function BankBuilderPage() {
         </span>
       </div>
 
-      {/* v1.7 — which sports could contribute a leg today, from the availability owner. Counts and plain
-          reasons only; it names the market-priced caveat the product carries. Reads no internal artifact. */}
-      <EligibleUniverse availability={loadProductAvailability()} compact scope="Bank Builder" levelASports={levelAModel ? levelASportsShown(levelAModel, "bank-builder") : null} />
-      {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="bank-builder" /> : null}
-      {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none (own section; history below is untouched). */}
-      {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("bank-builder") as unknown as DailyCandidateModel} /> : null}
-
       {/* FLAGSHIP — the "live climb" hero: a plain-English, mobile-first front door to the ladder. It is
           purely presentational (every figure is read verbatim from the data loaded above) and sits ABOVE
           the existing dense ladder components, which remain below unchanged. */}
@@ -542,6 +539,17 @@ export default function BankBuilderPage() {
         lanes={climbLanes}
         completedLadders={completedLadders}
       />
+
+      {/* UX-02 (2026-11-09): the page leads with its own H1 and the bankroll (the hero above), as /moonshot leads with
+          "Where Moonshot stands". Today's eligible universe and the model's suggestions follow the hero; they used to
+          sit above it and pushed the H1 to the fourth phone screen. */}
+      {/* v1.7 — which sports could contribute a leg today, from the availability owner. Counts and plain
+          reasons only; it names the market-priced caveat the product carries. Reads no internal artifact. */}
+      <EligibleUniverse availability={loadProductAvailability()} compact scope="Bank Builder" levelASports={levelAModel ? levelASportsShown(levelAModel, "bank-builder") : null} />
+      {levelAModel ? <LevelASuggestions model={levelAModel as unknown as LevelAModel} mode="bank-builder" /> : null}
+      {/* P0-E: today's priced NBA/NFL candidate or the exact reasons there is none (own section; history below is untouched). */}
+      {dailyCandidateSectionEnabled() ? <DailyCandidatePanel model={dailyCandidateForPage("bank-builder") as unknown as DailyCandidateModel} /> : null}
+
 
       {officialRecordLabel ? (
         <RecordComposition recordLabel={officialRecordLabel} scopeLabel={officialRecord.scope ? RECORD_SCOPE_LABEL[officialRecord.scope] : RECORD_SCOPE_LABEL["all-time"]}

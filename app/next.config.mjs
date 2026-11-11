@@ -45,10 +45,14 @@ function buildInfoEnv() {
  * GTP_NFL_QB_PROPS_PUBLIC — the EXPERIMENTAL QB line on /nfl/simulation/[eventId] (NFL QB props v0, PD 2026-11-10).
  * Same compile-time pattern; default OFF (never imported). Guarded by components/nfl/qb-props-line.test.mjs (source)
  * and qb-props-export.test.mjs (out/: no QB line in a flag-OFF build).
+ *
+ * GTP_NFL_QB_BOARDS_PUBLIC — the EXPERIMENTAL QB market boards on /nfl (row G, PD 2026-11-11). Same pattern; default
+ * OFF. Guarded by components/nfl/qb-boards-export.test.mjs (out/: no QB boards in a flag-OFF build).
  */
 const theaterFlagEnv = () => ({
   GTP_NFL_THEATER_PUBLIC: process.env.GTP_NFL_THEATER_PUBLIC === "1" ? "1" : "0",
   GTP_NFL_QB_PROPS_PUBLIC: process.env.GTP_NFL_QB_PROPS_PUBLIC === "1" ? "1" : "0",
+  GTP_NFL_QB_BOARDS_PUBLIC: process.env.GTP_NFL_QB_BOARDS_PUBLIC === "1" ? "1" : "0",
   GTP_NBA_THEATER_PUBLIC: process.env.GTP_NBA_THEATER_PUBLIC === "1" ? "1" : "0",
 });
 

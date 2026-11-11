@@ -25,7 +25,7 @@ import SiteSearch from "@/components/search/site-search";
 //   Bankroll→ the money story (Bank Builder / Results)
 //   Sports  → the four sport hubs
 //   Learn   → trust + education (How it works / Methodology / About)
-// Old labels ("Straight Bets", "Suggested Parlays", "Sports & Events")
+// Old labels ("Straight Bets", "Parlay Lab", "Sports & Events")
 // are gone; those routes stay reachable and fold into these active states.
 type RailItem = {
   href: string;

@@ -3,7 +3,7 @@
  *
  * One shared map of what each sport hub offers and where it lives — in-page anchors for the hub's
  * own sections, plain routes for the capabilities that live at their canonical owners (Picks,
- * Parlay Center, Results). The shared SportHubNav renders this, so every hub presents the same
+ * Parlay Lab, Results). The shared SportHubNav renders this, so every hub presents the same
  * journey vocabulary in the same order and every capability is ONE action from the hub top.
  *
  * PRESENTATION ONLY. This registry names sections; it never decides availability. Each section on
@@ -47,7 +47,7 @@ export const HUB_SECTIONS: Record<HubSport, readonly HubSection[]> = {
     { kind: "anchor", target: "mlb-board", label: "Model picks" },
     { kind: "link", target: "/results/picks/mlb", label: "Results" },
     { kind: "anchor", target: "mlb-method", label: "How it works" },
-    { kind: "link", target: "/build", label: "Parlay Center" },
+    { kind: "link", target: "/build", label: "Parlay Lab" },
     // Phase A-3: the MLB route tabs folded into this one strip.
     { kind: "link", target: "/mlb/board", label: "Full board" },
     { kind: "link", target: "/homer-nukes", label: "Homer Nukes" }, // GTP-25: /mlb/power is a placeholder

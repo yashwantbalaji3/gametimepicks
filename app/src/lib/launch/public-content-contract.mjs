@@ -134,7 +134,7 @@ export const WALKED_ROUTES = Object.freeze([
     measured: { routeWordsBefore: 18629, routeWordsAfter: null },
   },
   { route: "/simulate", purpose: "date + sport selector — one action per event state", firstAction: "view/generate a simulation", stateOwner: "P209 day-view machine", decisions: [{ block: "whole route", decision: "KEEP", note: "already one-line states, honest empties" }], measured: { routeWordsBefore: 4238, routeWordsAfter: 4238 } },
-  { route: "/build", purpose: "Parlay Center — suggested + custom in one surface", firstAction: "seed/edit a card", stateOwner: "engine slate + slip store", decisions: [], measured: null, pending: "walk pending — filters/conflict copy" },
+  { route: "/build", purpose: "Parlay Lab — suggested + custom in one surface", firstAction: "seed/edit a card", stateOwner: "engine slate + slip store", decisions: [], measured: null, pending: "walk pending — filters/conflict copy" },
   { route: "/nfl", purpose: "phase framing derives from the canonical index (P240 RS cutover)", firstAction: null, stateOwner: "model-status (PUBLIC_EXPERIMENTAL)", decisions: [{ block: "phase framing", decision: "KEEP", note: "the RS cutover happened: tagline/lead read index.model.phaseLabel, so the words follow the published model instead of a hardcoded phase" }], measured: null },
   { route: "/moonshot", purpose: "longshot lane — smallest route, honest 0-7 record", firstAction: "view today's structured card", stateOwner: "signature product state", decisions: [{ block: "whole route", decision: "KEEP" }], measured: null },
 ]);

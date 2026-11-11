@@ -32,7 +32,7 @@ const FAMS = (over = {}) => ({
   ...over,
 });
 const player = (id, team, v, participation = "AVAILABLE_ROLE_UNCERTAIN", extra = {}) => ({
-  playerId: `nfl-athlete-${id}`, name: `P${id}`, team, participation,
+  playerId: `nfl-athlete-${id}`, name: `P${id}`, team, participation, eligibility: { state: "ELIGIBLE", reasons: ["ROSTER_ACTIVE"], contractVersion: "eligibility@1", sources: {} },
   markets: {
     player_pass_yds: { mean: 900 + v, median: 900 + v, p10: 800, p90: 1000 },
     player_rush_yds: { mean: 500 + v, median: 500 + v, p10: 400, p90: 600 },

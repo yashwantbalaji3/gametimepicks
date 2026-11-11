@@ -30,7 +30,8 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
   // P196: order is no longer a hand-picked lead sequence — the spine is grouped by the question a
   // reader is asking, and `beforeDivider` is computed at the group boundary. What survives is the
   // real invariant: the simulate-first destinations lead the NOW cluster, never a paper product.
-  for (const [href, label] of [["/today", "Today"], ["/simulate", "Simulations"]]) {
+  /* 2026-11-09 five-slot nav: "/" is Today and /today is "Tonight's slate"; both stay in the Now cluster. */
+  for (const [href, label] of [["/today", "Tonight's slate"], ["/simulate", "Simulations"]]) {
     const decl = nav.slice(nav.indexOf(`href: "${href}"`));
     const body = decl.slice(0, decl.indexOf("},"));
     assert.match(body, new RegExp(`label: "${label}"`), `${label} keeps its label`);
@@ -66,21 +67,22 @@ test("IA restructure: SIMULATE-first primary spine (Simulate/Today/Results/Bank 
   assert.ok(!nav.includes('href: "/world-cup-specials"'), "Soccer Specials is NOT in the active nav");
 });
 
-test("MOBILE_NAV_ITEMS is the FIVE primary destinations in canonical order (P243 charter E)", () => {
-  // P243 · E: the five primaries are the SAME set on every surface. Founder decision 2026-10-08: Live replaced
-  // Parlays — Home / Sports / Live / Simulations / Results. Today, Picks and Parlays stay first-class rail/footer
-  // routes; the Menu sheet still derives rail-minus-bar, so each is one tap away on a phone.
+test("MOBILE_NAV_ITEMS is the FIVE primary destinations in canonical order (2026-11-09: Today · Sports · Products · Results · Ask)", () => {
+  // The five primaries are the SAME set on every surface (charter E's invariant, kept). Founder mandate 2026-11-09
+  // replaced Home / Sports / Live / Simulations / Results with Today / Sports / Products / Results / Ask; Live,
+  // Simulations, Tonight's slate, Picks and every product stay in the footer sitemap, and the products are one tap
+  // from /products.
   assert.equal(MOBILE_NAV_ITEMS.length, 5);
   assert.deepEqual(
     MOBILE_NAV_ITEMS.map((i) => i.bucket),
-    ["home", "sports", "live", "games", "results"],
+    ["today", "sports", "products", "results", "ask"],
   );
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/diamond-specials"), "no Diamond Specials nav item");
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.href === "/homer-nukes"), "no retired Homer Nukes nav item");
 });
 
-test("retired /homer-nukes + removed /diamond-specials both map to no bucket", () => {
-  assert.equal(resolveMobileNavBucket("/homer-nukes"), null, "retired Homer Nukes → no bucket (dead bucket removed)");
+test("Homer Nukes (a live product since its 2026-08-17 revival) lights Products; removed /diamond-specials maps to no bucket", () => {
+  assert.equal(resolveMobileNavBucket("/homer-nukes"), "products", "a product page lights the Products primary");
   assert.equal(resolveMobileNavBucket("/diamond-specials"), null, "removed route → no bucket");
 });
 
@@ -89,14 +91,16 @@ test("MOBILE_NAV_ITEMS labels are the UNIFIED five-primary set, matching every o
     MOBILE_NAV_ITEMS.map((i) => [i.href, i.label]),
   );
   // Label unification: mobile matches the desktop nav / command rail / footer labels exactly.
-  assert.equal(byHref["/"], "Home");
+  assert.equal(byHref["/"], "Today");
   assert.equal(byHref["/sports"], "Sports");
-  assert.equal(byHref["/simulate"], "Simulations");
-  assert.equal(byHref["/live"], "Live");
-  assert.equal(byHref["/build"], undefined, "Parlays left the bar for Live (founder decision 2026-10-08) — Menu sheet, rail and footer keep it");
+  assert.equal(byHref["/products"], "Products");
   assert.equal(byHref["/results"], "Results");
-  // P243 · E: Today and the ranked-picks board left the bar for the rail/Menu sheet — still one
-  // tap away, never phone-unreachable.
+  assert.equal(byHref["/ask"], "Ask");
+  // 2026-11-09: Live, Simulations and Parlay Lab left the bar — the homepage carries Live, every game links its
+  // simulation, /products links Parlay Lab, and the footer sitemap keeps all three.
+  assert.equal(byHref["/simulate"], undefined);
+  assert.equal(byHref["/live"], undefined);
+  assert.equal(byHref["/build"], undefined);
   assert.equal(byHref["/today"], undefined);
   assert.equal(byHref["/markets"], undefined);
   // Retired routes and products stay off the bar (the products live on the rail/footer).
@@ -107,52 +111,32 @@ test("MOBILE_NAV_ITEMS labels are the UNIFIED five-primary set, matching every o
   assert.equal(byHref["/homer-nukes"], undefined, "Homer Nukes retired — no nav tab");
   // The thumb-width shortLabels stay prefix-or-subset of the real label (WCAG 2.5.3).
   const short = Object.fromEntries(MOBILE_NAV_ITEMS.map((i) => [i.href, i.shortLabel]));
-  assert.equal(short["/live"], "Live");
+  assert.equal(short["/ask"], "Ask");
   for (const i of MOBILE_NAV_ITEMS) {
     assert.ok(i.label.includes(i.shortLabel), `${i.href}: shortLabel "${i.shortLabel}" must appear within "${i.label}"`);
   }
 });
 
-test("products highlight nothing: Bank Builder / Moonshot / Mr. Dub lost their slots to the six primary (P201)", () => {
-  // No bar item carries these buckets any more, and a highlight pointing at a slot that does not
-  // exist is a false claim about where the reader is. Null, like /about — silent over misleading.
-  for (const p of ["/bank-builder", "/bank-builder/", "/bank-builder/ledger", "/moonshot", "/moonshot/ladder", "/mr-dub"]) {
-    assert.equal(resolveMobileNavBucket(p), null, `${p} → no bucket`);
+test("2026-11-09: every paper product lights the Products primary (Bank Builder, Moonshot, Mr. Dub, Picks, Homer Nukes)", () => {
+  // The bar now carries a Products slot, so a product page has a real place to point; /about still lights nothing.
+  for (const p of ["/bank-builder", "/bank-builder/", "/bank-builder/ledger", "/moonshot", "/moonshot/ladder", "/mr-dub", "/markets", "/markets/", "/homer-nukes/board", "/products"]) {
+    assert.equal(resolveMobileNavBucket(p), "products", `${p} → products`);
   }
+  assert.equal(resolveMobileNavBucket("/about"), null);
 });
 
-test("markets: /markets and descendants resolve to the Picks slot (P201, relabelled P208)", () => {
-  assert.equal(resolveMobileNavBucket("/markets"), "markets");
-  assert.equal(resolveMobileNavBucket("/markets/"), "markets");
-});
-
-test("retired homer: /homer-nukes and descendants map to no bucket (dead bucket removed)", () => {
-  assert.equal(resolveMobileNavBucket("/homer-nukes"), null);
-  assert.equal(resolveMobileNavBucket("/homer-nukes/"), null);
-  assert.equal(resolveMobileNavBucket("/homer-nukes/board"), null);
-});
-
-test("home vs today (P208): '/' resolves to Home's slot, '/today' to its own", () => {
-  assert.equal(resolveMobileNavBucket("/"), "home");
+test("2026-11-09: '/' and '/today' both light Today (the homepage is today; /today is tonight's full slate)", () => {
+  assert.equal(resolveMobileNavBucket("/"), "today");
   assert.equal(resolveMobileNavBucket("/today"), "today");
   assert.equal(resolveMobileNavBucket("/today/"), "today");
   assert.equal(resolveMobileNavBucket(""), null); // empty is treated as null input
 });
 
-test("retired /picks + legacy /parlays + /parlay-lab aliases all highlight Build (lab)", () => {
-  // Mid-redirect these must light a REAL nav item; the "picks" bucket has none since Program 143.
-  assert.equal(resolveMobileNavBucket("/picks"), "lab");
-  assert.equal(resolveMobileNavBucket("/picks/"), "lab");
-  assert.equal(resolveMobileNavBucket("/picks/low"), "lab");
-  // /parlays + /parlay-lab redirect to the canonical Parlay Lab → same bucket.
-  assert.equal(resolveMobileNavBucket("/parlays"), "lab");
-  assert.equal(resolveMobileNavBucket("/parlay-lab"), "lab");
-  assert.equal(resolveMobileNavBucket("/parlay-lab/builder"), "lab");
-});
-
-test("lab (Build): /build only (the custom paper-card builder)", () => {
-  assert.equal(resolveMobileNavBucket("/build"), "lab");
-  assert.equal(resolveMobileNavBucket("/build/"), "lab");
+test("retired /picks + legacy /parlays + /parlay-lab aliases and /build all light Products (2026-11-09; Parlay Lab is a product)", () => {
+  // Mid-redirect these must light a REAL bar item; Parlay Lab (/build) is reached through the Products primary.
+  for (const p of ["/picks", "/picks/", "/picks/low", "/parlays", "/parlay-lab", "/parlay-lab/builder", "/build", "/build/", "/build/custom"]) {
+    assert.equal(resolveMobileNavBucket(p), "products", `${p} → products`);
+  }
 });
 
 test("results returned to the bar with the six-primary swap (P201) — every record surface highlights it", () => {
@@ -161,11 +145,13 @@ test("results returned to the bar with the six-primary swap (P201) — every rec
   assert.equal(resolveMobileNavBucket("/results/parlay-lab"), "results");
 });
 
-test("every league surface maps to the Sports slot; game surfaces keep Simulate (P201 split)", () => {
-  // The bar item that promises "enter a league" highlights when the reader is inside one; the
-  // cross-sport game surfaces (lobby, reports, legacy aliases) stay with Simulate.
-  assert.equal(resolveMobileNavBucket("/games"), "games");
-  assert.equal(resolveMobileNavBucket("/projections"), "games");
+test("every league surface maps to the Sports slot; cross-sport game surfaces light Today (2026-11-09)", () => {
+  // The bar item that promises "enter a league" highlights when the reader is inside one; the cross-sport game
+  // surfaces (simulation lobby, Live, legacy aliases) light Today now that Simulations and Live left the bar.
+  assert.equal(resolveMobileNavBucket("/games"), "today");
+  assert.equal(resolveMobileNavBucket("/simulate"), "today");
+  assert.equal(resolveMobileNavBucket("/live"), "today");
+  assert.equal(resolveMobileNavBucket("/projections"), "sports");
   assert.equal(resolveMobileNavBucket("/nba"), "sports");
   assert.equal(resolveMobileNavBucket("/nba/board/2026-05-27"), "sports");
   assert.equal(resolveMobileNavBucket("/mlb"), "sports");
@@ -176,8 +162,8 @@ test("every league surface maps to the Sports slot; game surfaces keep Simulate 
 
 test("schedule-only + directory + archive surfaces map to the Sports slot", () => {
   assert.equal(resolveMobileNavBucket("/sports"), "sports");
-  assert.equal(resolveMobileNavBucket("/events"), "games");
-  assert.equal(resolveMobileNavBucket("/events/"), "games");
+  assert.equal(resolveMobileNavBucket("/events"), "today");
+  assert.equal(resolveMobileNavBucket("/events/"), "today");
   assert.equal(resolveMobileNavBucket("/nhl"), "sports");
   assert.equal(resolveMobileNavBucket("/ipl"), "sports");
   assert.equal(resolveMobileNavBucket("/world-cup"), "sports");

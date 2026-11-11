@@ -6,7 +6,7 @@ import { jointShownFor } from "@/lib/products/level-a/suggestions.mjs";
 import { etStamp } from "@/lib/et-stamp.mjs";
 
 /* LEVEL A · NBA GAME WINNERS (nba-game-winner-tiers@1; docs/LEVEL_A_NBA_GAME_WINNER_TIERING_RULE.md). Server component.
-   The Parlay Center shows a card per tier; Bank Builder its conservative card (2 legs, Low or Medium); Moonshot its
+   The Parlay Lab shows a card per tier; Bank Builder its conservative card (2 legs, Low or Medium); Moonshot its
    Longshot card (up to 5 legs) — one engine, rendered here and computed nowhere else. Each leg's % is the NBA display's
    own text, the joint is Level A's one joint text (jointShownFor), the display's disclosure appears once. No price, no
    odds, no payout, no sportsbook link. Each card carries data-level-a-card, the key the recorder matches exactly. */

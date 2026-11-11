@@ -332,7 +332,7 @@ export default function TrustCenter({ model }: { model: TrustCenterModel }) {
               detail: "The day's model reads and no-play calls",
             },
             {
-              label: "Parlay Center",
+              label: "Parlay Lab",
               href: "/build/",
               status: "Suggested cards + custom builds",
               detail: "Suggested cards — educational",

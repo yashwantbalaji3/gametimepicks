@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-10T03:12:22Z",
+  "generatedAt": "2026-11-11T01:02:01Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
@@ -21,18 +21,57 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "2c052b79de405a1e",
+        "inputHash": "1bda41f3b19db74a",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "c5d5f06237df8116",
-        "excludedCount": 6,
-        "materialExclusions": [],
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "a2979ffcb71b2d3e",
+        "excludedCount": 9,
+        "materialExclusions": [
+          {
+            "name": "Jaxson Dart",
+            "team": "NYG",
+            "state": "roster day-to-day",
+            "statedAt": "2026-11-11T01:02:01Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Gunner Olszewski",
+            "team": "NYG",
+            "state": "roster day-to-day",
+            "statedAt": "2026-11-11T01:02:01Z",
+            "families": [
+              "passAttempts",
+              "targets"
+            ]
+          }
+        ],
         "excluded": [
+          {
+            "name": "Jaxson Dart",
+            "team": "NYG",
+            "state": "roster day-to-day",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Gunner Olszewski",
+            "team": "NYG",
+            "state": "roster day-to-day",
+            "families": [
+              "passAttempts",
+              "targets"
+            ]
+          },
           {
             "name": "Cam Skattebo",
             "team": "NYG",
@@ -43,11 +82,19 @@
             ]
           },
           {
-            "name": "Tyrone Tracy Jr.",
+            "name": "Eric Gray",
             "team": "NYG",
-            "state": "Injured Reserve",
+            "state": "roster practice-squad",
             "families": [
               "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Braxton Berrios",
+            "team": "NYG",
+            "state": "roster day-to-day",
+            "families": [
               "targets"
             ]
           },
@@ -96,31 +143,38 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "cd1f2c8baf85787e",
+        "inputHash": "89c592ec2ac0b981",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "c26d1cdb8a52f3b1",
-        "excludedCount": 2,
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "604f798ecf7c5342",
+        "excludedCount": 3,
         "materialExclusions": [],
         "excluded": [
           {
-            "name": "TreVeyon Henderson",
+            "name": "Terrell Jennings",
             "team": "NE",
-            "state": "Out",
+            "state": "roster practice-squad",
             "families": [
-              "rushAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Romeo Doubs",
+            "team": "NE",
+            "state": "roster day-to-day",
+            "families": [
               "targets"
             ]
           },
           {
-            "name": "A.J. Brown",
+            "name": "Reggie Gilliam",
             "team": "NE",
-            "state": "Out",
+            "state": "roster day-to-day",
             "families": [
               "targets"
             ]
@@ -137,16 +191,16 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "af80b964ef4fb539",
+        "inputHash": "fdcf747132c3b010",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "1882c87f121523e9",
-        "excludedCount": 2,
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "da0a3c8f9309ecbb",
+        "excludedCount": 4,
         "materialExclusions": [],
         "excluded": [
           {
@@ -159,11 +213,27 @@
             ]
           },
           {
-            "name": "Zachariah Branch",
+            "name": "Dylan Drummond",
             "team": "ATL",
-            "state": "Out",
+            "state": "roster practice-squad",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Brashard Smith",
+            "team": "KC",
+            "state": "roster day-to-day",
             "families": [
               "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Tyquan Thornton",
+            "team": "KC",
+            "state": "roster day-to-day",
+            "families": [
               "targets"
             ]
           }
@@ -179,45 +249,33 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "ef9d273f3a7a600d",
+        "inputHash": "a078bebe0816cbea",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "063d0592651a1934",
-        "excludedCount": 3,
-        "materialExclusions": [
-          {
-            "name": "Deshaun Watson",
-            "team": "CLE",
-            "state": "Out",
-            "statedAt": "2026-11-09T18:35Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "259539ea0f75aaa6",
+        "excludedCount": 4,
+        "materialExclusions": [],
         "excluded": [
           {
-            "name": "Deshaun Watson",
+            "name": "Raheim Sanders",
             "team": "CLE",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "David Montgomery",
-            "team": "HOU",
-            "state": "Out",
+            "state": "roster day-to-day",
             "families": [
               "rushAttempts",
               "targets"
+            ]
+          },
+          {
+            "name": "British Brooks",
+            "team": "HOU",
+            "state": "roster day-to-day",
+            "families": [
+              "rushAttempts"
             ]
           },
           {
@@ -226,6 +284,14 @@
             "state": "Injured Reserve",
             "families": [
               "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Jayden Higgins",
+            "team": "HOU",
+            "state": "roster day-to-day",
+            "families": [
               "targets"
             ]
           }
@@ -241,40 +307,20 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "0e582695d3041907",
+        "inputHash": "3812698dacef3a4a",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "8c54a903e47d6639",
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "5fd37cb90016ba62",
         "excludedCount": 7,
-        "materialExclusions": [
-          {
-            "name": "Kyler Murray",
-            "team": "MIN",
-            "state": "Out",
-            "statedAt": "2026-11-09T23:49Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
+        "materialExclusions": [],
         "excluded": [
           {
             "name": "Josh Jacobs",
-            "team": "GB",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "MarShawn Lloyd",
             "team": "GB",
             "state": "Out",
             "families": [
@@ -292,20 +338,28 @@
             ]
           },
           {
-            "name": "Josh Whyle",
+            "name": "Jayden Reed",
             "team": "GB",
-            "state": "Out",
+            "state": "roster day-to-day",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Luke Musgrave",
+            "team": "GB",
+            "state": "roster day-to-day",
             "families": [
               "targets"
             ]
           },
           {
-            "name": "Kyler Murray",
-            "team": "MIN",
-            "state": "Out",
+            "name": "Skyy Moore",
+            "team": "GB",
+            "state": "roster day-to-day",
             "families": [
-              "passAttempts",
-              "rushAttempts"
+              "targets"
             ]
           },
           {
@@ -318,9 +372,9 @@
             ]
           },
           {
-            "name": "Jauan Jennings",
+            "name": "Josh Oliver",
             "team": "MIN",
-            "state": "Out",
+            "state": "roster day-to-day",
             "families": [
               "targets"
             ]
@@ -337,31 +391,38 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "3d454ce3174a2c20",
+        "inputHash": "59757fb8484e6c23",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "58a08641479e61b5",
-        "excludedCount": 2,
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "2ae07a86757561e2",
+        "excludedCount": 3,
         "materialExclusions": [],
         "excluded": [
           {
-            "name": "Tyjae Spears",
+            "name": "Xavier Restrepo",
             "team": "TEN",
-            "state": "Out",
+            "state": "roster practice-squad",
             "families": [
-              "rushAttempts",
               "targets"
             ]
           },
           {
-            "name": "Carnell Tate",
-            "team": "TEN",
-            "state": "Out",
+            "name": "Austin Trammell",
+            "team": "JAX",
+            "state": "roster practice-squad",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Tim Jones",
+            "team": "JAX",
+            "state": "roster practice-squad",
             "families": [
               "targets"
             ]
@@ -378,16 +439,16 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "f76475e000407b9b",
+        "inputHash": "992b12debeff0c20",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "1812c8acbbb3a258",
-        "excludedCount": 2,
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "b5adab0908a169e8",
+        "excludedCount": 3,
         "materialExclusions": [],
         "excluded": [
           {
@@ -399,9 +460,17 @@
             ]
           },
           {
-            "name": "Jaylen Wright",
+            "name": "D.J. Montgomery",
+            "team": "IND",
+            "state": "roster day-to-day",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "De'Von Achane",
             "team": "MIA",
-            "state": "Out",
+            "state": "roster day-to-day",
             "families": [
               "rushAttempts",
               "targets"
@@ -419,16 +488,16 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "df635c2a7f1c6278",
+        "inputHash": "27c05f9bf448ae6b",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "2869919a5bc24da6",
-        "excludedCount": 4,
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "1aa543023c136f46",
+        "excludedCount": 6,
         "materialExclusions": [],
         "excluded": [
           {
@@ -441,11 +510,27 @@
             ]
           },
           {
-            "name": "CJ Donaldson",
+            "name": "Mason Tipton",
             "team": "NO",
-            "state": "Out",
+            "state": "roster day-to-day",
             "families": [
               "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Kevin Austin Jr.",
+            "team": "NO",
+            "state": "roster practice-squad",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Moliki Matavao",
+            "team": "NO",
+            "state": "roster day-to-day",
+            "families": [
               "targets"
             ]
           },
@@ -478,24 +563,32 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "083fd1fa59c855c6",
+        "inputHash": "50220012dcb99b68",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "b9e0be6abd99d6ca",
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "32bf619f477058c5",
         "excludedCount": 4,
         "materialExclusions": [],
         "excluded": [
           {
-            "name": "Garrett Wilson",
+            "name": "Arian Smith",
             "team": "NYJ",
-            "state": "Out",
+            "state": "roster day-to-day",
             "families": [
               "targets"
+            ]
+          },
+          {
+            "name": "Frank Gore Jr.",
+            "team": "BUF",
+            "state": "roster practice-squad",
+            "families": [
+              "rushAttempts"
             ]
           },
           {
@@ -508,14 +601,6 @@
           },
           {
             "name": "Tyrell Shavers",
-            "team": "BUF",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Skyler Bell",
             "team": "BUF",
             "state": "Out",
             "families": [
@@ -534,22 +619,22 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "b5ec2b912eca4265",
+        "inputHash": "da53c3427a114ad7",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "9f2cb4b27296510a",
-        "excludedCount": 2,
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "e02c5670dbce66de",
+        "excludedCount": 8,
         "materialExclusions": [
           {
             "name": "Sam Darnold",
             "team": "SEA",
             "state": "Out",
-            "statedAt": "2026-11-10T01:02Z",
+            "statedAt": "2026-11-10T15:44Z",
             "families": [
               "passAttempts",
               "rushAttempts"
@@ -557,6 +642,23 @@
           }
         ],
         "excluded": [
+          {
+            "name": "Chris Collier",
+            "team": "LV",
+            "state": "roster day-to-day",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Carter Runyon",
+            "team": "LV",
+            "state": "roster practice-squad",
+            "families": [
+              "targets"
+            ]
+          },
           {
             "name": "Sam Darnold",
             "team": "SEA",
@@ -567,11 +669,43 @@
             ]
           },
           {
-            "name": "Rashid Shaheed",
+            "name": "Velus Jones Jr.",
             "team": "SEA",
-            "state": "Out",
+            "state": "roster practice-squad",
             "families": [
               "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Jacardia Wright",
+            "team": "SEA",
+            "state": "roster practice-squad",
+            "families": [
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Elijah Arroyo",
+            "team": "SEA",
+            "state": "roster day-to-day",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Jake Bobo",
+            "team": "SEA",
+            "state": "roster day-to-day",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Robbie Ouzts",
+            "team": "SEA",
+            "state": "roster day-to-day",
+            "families": [
               "targets"
             ]
           }
@@ -587,18 +721,38 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "75b8e2fb5a148c8f",
+        "inputHash": "31096a8ece0e5da8",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "c6a54508e596e1c4",
-        "excludedCount": 8,
-        "materialExclusions": [],
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "4efaa433493c22de",
+        "excludedCount": 13,
+        "materialExclusions": [
+          {
+            "name": "Gardner Minshew II",
+            "team": "ARI",
+            "state": "Injured Reserve",
+            "statedAt": "2026-11-10T22:13Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          }
+        ],
         "excluded": [
+          {
+            "name": "Gardner Minshew II",
+            "team": "ARI",
+            "state": "Injured Reserve",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
           {
             "name": "Jeremiyah Love",
             "team": "ARI",
@@ -618,9 +772,9 @@
             ]
           },
           {
-            "name": "Bam Knight",
+            "name": "Trey Benson",
             "team": "ARI",
-            "state": "Out",
+            "state": "roster day-to-day",
             "families": [
               "rushAttempts",
               "targets"
@@ -629,7 +783,7 @@
           {
             "name": "Michael Wilson",
             "team": "ARI",
-            "state": "Out",
+            "state": "Injured Reserve",
             "families": [
               "rushAttempts",
               "targets"
@@ -644,9 +798,33 @@
             ]
           },
           {
-            "name": "Jalen Brooks",
+            "name": "Zay Jones",
             "team": "ARI",
-            "state": "Injured Reserve",
+            "state": "roster practice-squad",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Xavier Weaver",
+            "team": "ARI",
+            "state": "roster day-to-day",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Tip Reiman",
+            "team": "ARI",
+            "state": "roster day-to-day",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Hunter Long",
+            "team": "ARI",
+            "state": "roster day-to-day",
             "families": [
               "targets"
             ]
@@ -666,6 +844,14 @@
             "families": [
               "targets"
             ]
+          },
+          {
+            "name": "Jordan Whittington",
+            "team": "LAR",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
           }
         ]
       },
@@ -679,16 +865,16 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "e7355c6ff23f1a60",
+        "inputHash": "61ce6d0876fd14b6",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "bf8bc995736a89c8",
-        "excludedCount": 8,
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "1d5928008544d82e",
+        "excludedCount": 7,
         "materialExclusions": [],
         "excluded": [
           {
@@ -701,19 +887,11 @@
             ]
           },
           {
-            "name": "KaVontae Turpin",
+            "name": "Malik Davis",
             "team": "DAL",
-            "state": "Out",
+            "state": "roster day-to-day",
             "families": [
               "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "George Pickens",
-            "team": "DAL",
-            "state": "Out",
-            "families": [
               "targets"
             ]
           },
@@ -726,26 +904,25 @@
             ]
           },
           {
-            "name": "Luke Schoonmaker",
-            "team": "DAL",
-            "state": "Out",
+            "name": "Isaac Guerendo",
+            "team": "SF",
+            "state": "roster day-to-day",
+            "families": [
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Ricky Pearsall",
+            "team": "SF",
+            "state": "roster day-to-day",
             "families": [
               "targets"
             ]
           },
           {
-            "name": "Deebo Samuel Sr.",
+            "name": "Jake Tonges",
             "team": "SF",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Mike Evans",
-            "team": "SF",
-            "state": "Out",
+            "state": "roster day-to-day",
             "families": [
               "targets"
             ]
@@ -770,18 +947,34 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "1e93e9850b710f6f",
+        "inputHash": "0a07b5a688754186",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "7067d1ed143a5f79",
-        "excludedCount": 4,
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "dcdc3dabb198fb88",
+        "excludedCount": 8,
         "materialExclusions": [],
         "excluded": [
+          {
+            "name": "Kendall Milton",
+            "team": "CIN",
+            "state": "roster practice-squad",
+            "families": [
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Ke'Shawn Williams",
+            "team": "CIN",
+            "state": "roster practice-squad",
+            "families": [
+              "rushAttempts"
+            ]
+          },
           {
             "name": "Erick All Jr.",
             "team": "CIN",
@@ -799,6 +992,22 @@
             ]
           },
           {
+            "name": "Tanner Hudson",
+            "team": "CIN",
+            "state": "roster day-to-day",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Roman Wilson",
+            "team": "PIT",
+            "state": "roster day-to-day",
+            "families": [
+              "targets"
+            ]
+          },
+          {
             "name": "Michael Pittman Jr.",
             "team": "PIT",
             "state": "Injured Reserve",
@@ -807,9 +1016,9 @@
             ]
           },
           {
-            "name": "Ben Skowronek",
+            "name": "Brandon Johnson",
             "team": "PIT",
-            "state": "Out",
+            "state": "roster practice-squad",
             "families": [
               "targets"
             ]
@@ -826,16 +1035,16 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "854cfbf043249d67",
+        "inputHash": "9fef8f6b57a441d8",
         "simulations": 10000,
-        "generatedAt": "2026-11-10T03:12:22Z"
+        "generatedAt": "2026-11-11T01:02:01Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-10T03:12:22Z",
-        "participationInputHash": "e2103b98b1728154",
-        "excludedCount": 4,
+        "snapshotAsOf": "2026-11-11T01:02:01Z",
+        "participationInputHash": "ce1c88dd3722b2f9",
+        "excludedCount": 9,
         "materialExclusions": [
           {
             "name": "Lamar Jackson",
@@ -852,6 +1061,16 @@
             "team": "BAL",
             "state": "Injured Reserve",
             "statedAt": "2026-11-05T21:20Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Trey Lance",
+            "team": "LAC",
+            "state": "roster day-to-day",
+            "statedAt": "2026-11-11T01:02:01Z",
             "families": [
               "passAttempts",
               "rushAttempts"
@@ -878,6 +1097,40 @@
             ]
           },
           {
+            "name": "Chris Moore",
+            "team": "BAL",
+            "state": "roster practice-squad",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Durham Smythe",
+            "team": "BAL",
+            "state": "roster day-to-day",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Trey Lance",
+            "team": "LAC",
+            "state": "roster day-to-day",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Amar Johnson",
+            "team": "LAC",
+            "state": "roster practice-squad",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
             "name": "David Njoku",
             "team": "LAC",
             "state": "Injured Reserve",
@@ -886,9 +1139,17 @@
             ]
           },
           {
-            "name": "Brenen Thompson",
+            "name": "Alec Ingold",
             "team": "LAC",
-            "state": "Out",
+            "state": "roster day-to-day",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Trevor Penning",
+            "team": "LAC",
+            "state": "roster day-to-day",
             "families": [
               "targets"
             ]

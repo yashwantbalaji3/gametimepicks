@@ -36,13 +36,19 @@ const current = JSON.parse(fs.readFileSync(path.join(ROOT, REL), "utf8"));
 if (captures.length && captures[captures.length - 1].generatedAt === current.generatedAt) captures[captures.length - 1] = current;
 else captures.push(current);
 
-const result = recoverFromHistory({ captures, nowIso: NOW });
+// R1: the roster capture is the explicit-activation source (a carried designation ends when it says "active")
+let roster = null;
+try { roster = JSON.parse(fs.readFileSync(path.join(ROOT, "app/public/data/nfl/rosters/latest.json"), "utf8")); } catch { roster = null; }
+// founder decision 4: the stored transaction activations end recovered designations too (none stored ⇒ none applied)
+let activations = [];
+try { activations = JSON.parse(fs.readFileSync(path.join(ROOT, "data/internal/research/transactions/nfl/latest.json"), "utf8")).activations ?? []; } catch { activations = []; }
+const result = recoverFromHistory({ captures, nowIso: NOW, roster, activations });
 const fresh = new Set(result.carried.map((e) => String(e.athleteId)));
 const entries = result.entries.map((e) => (fresh.has(String(e.athleteId)) && e.carriedForward ? { ...e, backfilled: true, backfilledAt: NOW } : e));
 const marked = entries.filter((e) => e.carriedForward === true).length;
 
 console.log(`history: ${captures.length} captures (${captures[0]?.generatedAt} → ${current.generatedAt})`);
-console.log(`recovered: ${result.carried.length} · skipped ${JSON.stringify(result.skipped)} · window ${ABSENT_DESIGNATION_CARRY_H}h`);
+console.log(`recovered: ${result.carried.length} · skipped ${JSON.stringify(result.skipped)} · window ${ABSENT_DESIGNATION_CARRY_H ?? "none (R1)"}`);
 for (const e of result.carried) console.log(`  + ${e.athleteName} — ${e.status} (stated ${e.statedAt}, missing since ${e.absentFromFeedSince})`);
 
 if (!WRITE) { console.log("\ndry run — nothing written (pass --write)"); process.exit(0); }

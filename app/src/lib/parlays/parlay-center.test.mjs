@@ -28,13 +28,14 @@ test("both modes exist in the built export with the mode tabs, each marking its 
   const suggested = built("build/index.html");
   const custom = built("build/custom/index.html");
   for (const html of [suggested, custom]) {
-    assert.match(html, /aria-label="Parlay Center modes"/, "mode tabs render");
-    assert.match(html, /Suggested Parlays/);
+    // UX-06 (2026-11-09): the product is Parlay Lab; its default mode is "Suggested cards"
+    assert.match(html, /aria-label="Parlay Lab modes"/, "mode tabs render");
+    assert.match(html, /Suggested cards/);
     assert.match(html, /Build Your Own/);
     assert.match(html, /href="\/build\/custom/, "custom tab links the real route");
   }
   // aria-current marks the ACTIVE mode's tab on each page (URL-stable mode, not hydration state).
-  assert.match(suggested, /aria-current="page"[^>]*>[\s\S]{0,200}?Suggested Parlays|Suggested Parlays[\s\S]{0,200}?aria-current="page"/);
+  assert.match(suggested, /aria-current="page"[^>]*>[\s\S]{0,200}?Suggested cards|Suggested cards[\s\S]{0,200}?aria-current="page"/);
   assert.match(custom, /aria-current="page"[^>]*>[\s\S]{0,200}?Build Your Own|Build Your Own[\s\S]{0,200}?aria-current="page"/);
 });
 

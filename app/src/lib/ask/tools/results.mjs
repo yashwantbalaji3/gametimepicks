@@ -36,13 +36,13 @@ import { ASK_ERROR, ASK_STATUS, askAssetPath } from "../contract.mjs";
    runtime does not import the projection builder. */
 export const MODEL_DETAIL_RECORD_TYPES = Object.freeze(["CANDIDATE_POOL_RECORD"]);
 /* Mirrors projection-core isCandidatePoolCell / isPublishedLabHeadline: a pre-D1 artifact types the pool LAB_CARD_RECORD,
-   so its owner segment identifies it too (2026-10-02 Production Ask called 383–1,608 "Suggested Parlays's record"). */
+   so its owner segment identifies it too (2026-10-02 Production Ask called 383–1,608 "Parlay Lab's record"). */
 export const isCandidatePoolCell = (c) => MODEL_DETAIL_RECORD_TYPES.includes(c?.recordType) || /^risk-ladder-/.test(String(c?.segment ?? ""));
 const isPublishedLabHeadline = (c) => c?.family === "lab" && c?.recordType === "LAB_CARD_RECORD" && c?.segment === "stream" && c?.sport === "mlb";
 
-/* "parlay-lab" is the internal id; the rendered name is Suggested Parlays (Parlay Lab is retired in rendered copy), and
+/* "parlay-lab" is the internal id; the rendered name is Parlay Lab (Parlay Lab is retired in rendered copy), and
    its record is the published cards (founder decision D1). */
-const PRODUCT_LABEL = { "bank-builder": "Bank Builder", moonshot: "Moonshot", "parlay-lab": "Suggested Parlays" };
+const PRODUCT_LABEL = { "bank-builder": "Bank Builder", moonshot: "Moonshot", "parlay-lab": "Parlay Lab" };
 const PRODUCT_HREF = { "bank-builder": "/bank-builder/", moonshot: "/moonshot/", "parlay-lab": "/results/" };
 
 /** Load the projection, or a refusal that degrades one tool rather than the turn. */

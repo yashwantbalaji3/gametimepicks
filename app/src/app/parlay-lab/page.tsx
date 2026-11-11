@@ -7,7 +7,7 @@ import ClientRedirect from "@/components/client-redirect";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata = withRouteMetadata("/parlay-lab/", {
-  title: "Parlay Center · GameTime Picks",
+  title: "Parlay Lab · GameTime Picks",
   robots: { index: false, follow: false },
 });
 

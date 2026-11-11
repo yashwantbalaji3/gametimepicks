@@ -127,7 +127,7 @@ export default function AccountExperience({ bandByTier = null, legRecord = null 
         </p>
       ) : null}
 
-      {/* The style the reader already stated in the Parlay Center, reconciled with the copy their
+      {/* The style the reader already stated in the Parlay Lab, reconciled with the copy their
           account holds — shown before their record, because it is what decided which cards they saw. */}
       <StyleSyncPanel userId={user.id} />
 

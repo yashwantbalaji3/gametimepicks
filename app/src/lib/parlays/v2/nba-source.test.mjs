@@ -22,7 +22,7 @@ import {
 } from "./__fixtures__/nba-fixtures.mjs";
 
 const OPEN = { nbaRegistry: PERMISSIVE_REGISTRY, canEnterSport: FIXTURE_SPORT_GATE, settlesNba: FIXTURE_NBA_SETTLES, isVerifiedOperator: FIXTURE_OPERATORS };
-const lab = (slate = nbaSlate(), extra = {}) => nbaParlayLab({ results: slate.results, snapshots: slate.snapshots, otherInputs: nflInputs(), now: NOW, coverage: COVERAGE, ...OPEN, ...extra });
+const lab = (slate = nbaSlate(), extra = {}) => nbaParlayLab({ results: slate.results, snapshots: slate.snapshots, statusFeed: slate.statusFeed, otherInputs: nflInputs(), now: NOW, coverage: COVERAGE, ...OPEN, ...extra });
 const allCards = (rec) => rec.tiers.flatMap((t) => t.cards.map((c) => ({ ...c, tierOf: t.tier })));
 const nbaLegs = (rec) => allCards(rec).flatMap((c) => c.legs.filter((l) => l.sport === "nba").map((l) => ({ ...l, tierOf: c.tierOf, cardId: c.cardId })));
 const ANY_URL = /[a-z][a-z0-9+.-]*:\/\/|www\./i;
@@ -62,7 +62,7 @@ test("PERMISSIVE TEST registry + fixture prices: all four tiers hold an NBA-only
 test("REAL registry: NBA contributes zero candidates and the board says 'NBA legs need an authorized NBA price'", () => {
   const real = nbaSlate({ registry: REAL_REGISTRY });
   for (const r of real.results) { assert.equal(r.ok, false); assert.ok(r.refusal.reasons.includes(REFUSAL.REGISTRY_NOT_PRODUCT_ELIGIBLE)); }
-  const out = nbaParlayLab({ results: real.results, snapshots: real.snapshots, otherInputs: nflInputs(), now: NOW, coverage: COVERAGE, isVerifiedOperator: FIXTURE_OPERATORS });
+  const out = nbaParlayLab({ results: real.results, snapshots: real.snapshots, statusFeed: real.statusFeed, otherInputs: nflInputs(), now: NOW, coverage: COVERAGE, isVerifiedOperator: FIXTURE_OPERATORS });
   assert.equal(out.pool.nbaEligible, 0);
   assert.equal(out.nbaInputs.inputs.length, 0);
   assert.equal(out.composed.cards, 0, "no NBA card is composed — and no NFL-only card is invented either");
@@ -86,9 +86,9 @@ test("an injected sport gate never launders a leg: published-provenance NBA legs
   const res = recommendTiers({ candidates: [laundered], now: NOW, coverage: COVERAGE, isVerifiedOperator: FIXTURE_OPERATORS, settlesNba: FIXTURE_NBA_SETTLES, canEnterSport: () => true });
   assert.ok(res.rejected[0].reasons.includes("SPORT_NOT_ELIGIBLE"), "a published leg under an injected gate still needs the real registry");
   // candidate gate: a FIXTURE NBA candidate enters only with the injected NBA registry object
-  const inputs = nbaCandidateInputs({ results: nbaSlate().results, snapshots: nbaSlate().snapshots }).inputs;
+  const inputs = nbaCandidateInputs({ results: nbaSlate().results, snapshots: nbaSlate().snapshots, statusFeed: nbaSlate().statusFeed }).inputs;
   const c = toNbaAwareCandidate(inputs[0]);
-  const pool = nbaParlayLab({ results: nbaSlate().results, snapshots: nbaSlate().snapshots, now: NOW, coverage: COVERAGE, canEnterSport: FIXTURE_SPORT_GATE, settlesNba: FIXTURE_NBA_SETTLES, isVerifiedOperator: FIXTURE_OPERATORS });
+  const pool = nbaParlayLab({ results: nbaSlate().results, snapshots: nbaSlate().snapshots, statusFeed: nbaSlate().statusFeed, now: NOW, coverage: COVERAGE, canEnterSport: FIXTURE_SPORT_GATE, settlesNba: FIXTURE_NBA_SETTLES, isVerifiedOperator: FIXTURE_OPERATORS });
   assert.equal(pool.pool.nbaEligible, 0, "no nbaRegistry ⇒ evaluateCandidate keeps NBA on the real registry");
   assert.equal(c.provenance, "FIXTURE");
 });
@@ -97,7 +97,9 @@ test("settlement: under the REAL NBA settlement contract (team markets only) eve
   const out = lab(nbaSlate(), { settlesNba: null });
   assert.equal(out.composed.cards, 0);
   assert.ok(out.composed.refusals.CARD_GATES > 0);
-  const leg = toV2Leg(toNbaAwareCandidate(nbaCandidateInputs({ results: nbaSlate().results }).inputs[0]));
+  // with the slate's snapshots, so the leg carries its stated status (PL-02) and settlement is the only reason left
+  const slate = nbaSlate();
+  const leg = toV2Leg(toNbaAwareCandidate(nbaCandidateInputs({ results: slate.results, snapshots: slate.snapshots, statusFeed: slate.statusFeed }).inputs[0]));
   const r = legReasons(leg, recommendCtx({ nowMs: Date.parse(NOW), coverage: COVERAGE, isVerifiedOperator: FIXTURE_OPERATORS, canEnterSport: FIXTURE_SPORT_GATE }));
   assert.deepEqual(r, ["NO_SETTLEMENT_PATH"]);
 });
@@ -109,7 +111,7 @@ test("negative: an injured / unavailable player is refused — at the evaluator 
   assert.ok(r101.refusal.reasons.includes(REFUSAL.EVALUATION_NOT_QUALIFIED));
   assert.ok(r101.refusal.evaluatorReasons.includes("PARTICIPATION_NOT_CLEARED"));
   const fresh = nbaSlate();
-  const res = lab(fresh, { statusFeed: { 102: "Out" } });
+  const res = lab(fresh, { statusFeed: { ...fresh.statusFeed, 102: "Out" } });
   const rej = res.pool.rejected.find((x) => x.league === "nba");
   assert.ok(rej && rej.reasons.includes("PARTICIPANT_UNAVAILABLE"), JSON.stringify(res.pool.rejected));
   assert.ok(!nbaLegs(res.recommendation).some((l) => l.participant === "102"), "player 102 is on no card");
@@ -143,7 +145,7 @@ test("negative: duplicate markets collapse to one, and no card ever repeats a pl
   const s = nbaSlate();
   const dupe = { ...s.results[0], leg: { ...s.results[0].leg, book: "fanduel", capturedAt: "2026-11-01T12:20:00.000Z" } };
   const conflict = { ok: true, leg: { ...s.results[1].leg, book: "fanduel", side: "UNDER" } };
-  const inp = nbaCandidateInputs({ results: [...s.results, dupe, conflict], snapshots: s.snapshots });
+  const inp = nbaCandidateInputs({ results: [...s.results, dupe, conflict], snapshots: s.snapshots, statusFeed: s.statusFeed });
   assert.equal(inp.inputs.filter((x) => x.participant === "101").length, 1, "the same market from two books is one market");
   assert.deepEqual(inp.duplicateMarkets.refused.map((x) => x.reason), ["DUPLICATE_MARKET_LEAN_CONFLICT"], "books disagreeing on the lean refuse the market");
   const out = lab();
@@ -161,7 +163,7 @@ test("correlation: same-game NBA legs are REFUSED (no independence assumption, n
   for (const c of allCards(out.recommendation)) assert.equal(new Set(c.legs.map((l) => `${l.sport}:${l.eventId}`)).size, c.legs.length, c.cardId);
   // a hand-built same-game card (players 101 + 102, one game) is withheld and gets no combined price
   const s = nbaSlate();
-  const legs = nbaCandidateInputs({ results: s.results.slice(0, 2), snapshots: s.snapshots }).inputs.map((i) => toV2Leg(toNbaAwareCandidate(i)));
+  const legs = nbaCandidateInputs({ results: s.results.slice(0, 2), snapshots: s.snapshots, statusFeed: s.statusFeed }).inputs.map((i) => toV2Leg(toNbaAwareCandidate(i)));
   assert.equal(legs[0].eventId, legs[1].eventId);
   assert.equal(combinedPrice(legs).available, false);
   const res = recommendTiers({ candidates: [{ cardId: "sg", tier: "medium", legs }], now: NOW, coverage: COVERAGE, ...OPEN });
@@ -239,7 +241,7 @@ test("determinism and no links: the same inputs give the same board, and nothing
 test("cross-sport NBA+UFC fixture cards, and settlement routing never grades an NBA leg with another sport's rules", () => {
   const s = nbaSlate();
   const gate = (x) => ["nba", "ufc"].includes(String(x).toLowerCase());
-  const out = nbaParlayLab({ results: s.results, snapshots: s.snapshots, otherInputs: ufcInputs(), now: NOW, coverage: COVERAGE, ...OPEN, canEnterSport: gate });
+  const out = nbaParlayLab({ results: s.results, snapshots: s.snapshots, statusFeed: s.statusFeed, otherInputs: ufcInputs(), now: NOW, coverage: COVERAGE, ...OPEN, canEnterSport: gate });
   const ufcCards = allCards(out.recommendation).filter((c) => c.composition.join("+") === "nba+ufc");
   assert.ok(ufcCards.length > 0, "an NBA+UFC fixture card qualifies");
   const all = [...allCards(out.recommendation), ...allCards(lab().recommendation)];
@@ -256,4 +258,14 @@ test("cross-sport NBA+UFC fixture cards, and settlement routing never grades an 
   }
   assert.equal(legGradingRoute({ sport: "NBA" }).route, "nba", "case does not matter");
   assert.equal(legGradingRoute({ sport: "wnba" }).refusal.code, ROUTE_REFUSAL.UNSUPPORTED_SPORT, "a sport with no grader is still refused");
+});
+
+/* PL-02 (eligibility contract v1) — moved here from availability/eligibility-consumers.test.mjs: the NBA product modules
+   are import-gated to their own tests. */
+test("NBA Parlay Lab: a snapshot's 'active' (merely absent from the injury feed) is never a status — no statusFeed ⇒ PARTICIPANT_STATUS_MISSING", () => {
+  const slate = nbaSlate(); // TEST FIXTURE slate: every snapshot row says participation "active"
+  const out = nbaCandidateInputs({ results: slate.results, snapshots: slate.snapshots });
+  assert.ok(out.inputs.length > 0 && out.inputs.every((i) => i.participantStatus == null));
+  const fed = nbaCandidateInputs({ results: slate.results, snapshots: slate.snapshots, statusFeed: slate.statusFeed });
+  assert.ok(fed.inputs.every((i) => i.participantStatus === "ELIGIBLE"));
 });

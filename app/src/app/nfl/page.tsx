@@ -58,6 +58,7 @@ import { availableWeekKeys, weekKeyOf } from "@/lib/sports/nfl/week-keys";
 import ForecastStyles from "@/components/nfl/forecast/styles";
 import ModelStatus from "@/components/nfl/forecast/model-status";
 import LiveNow from "@/components/live/live-now";
+import LiveShortcut from "@/components/live/live-shortcut";
 import FamilyTabs from "@/components/nfl/forecast/family-tabs";
 import EtTime from "@/components/ui/et-time";
 import { topBoardTabs } from "@/lib/sports/nfl/forecast-view.mjs";
@@ -203,6 +204,19 @@ const NFL_LANE_STATE_LABEL: Record<string, string> = {
   NO_PLAY: "No qualified card",
   REFUSED: "No eligible games to consider",
 };
+
+/**
+ * The EXPERIMENTAL QB market boards (row G): behind GTP_NFL_QB_BOARDS_PUBLIC (default OFF — a compile-time constant,
+ * next.config.mjs), so OFF neither the component nor its reader is part of the build.
+ */
+async function QbBoardsSlot({ eventIds }: { eventIds: string[] }) {
+  if (process.env.GTP_NFL_QB_BOARDS_PUBLIC === "1") {
+    const { default: QbBoards } = await import("@/components/nfl/qb-boards");
+    const { readQbBoards } = await import("@/lib/sports/nfl/qb-boards-read.mjs");
+    return <QbBoards model={readQbBoards(path.resolve(process.cwd(), ".."), eventIds)} />;
+  }
+  return null;
+}
 
 export default function NflHubPage() {
   const schedule = read("nfl/schedule/latest.json");
@@ -476,6 +490,7 @@ export default function NflHubPage() {
       <SportSwitcher current="nfl" />
       <HubTitle model={__hubModel} />
       {/* Founder UX decision 2026-10-08: a game in play leads the hub (client-read; nothing when none is live). */}
+      <LiveShortcut sports={["nfl"]} where="nfl" />
       <LiveNow sports={["nfl"]} />
       <SportHubNav
         sport="nfl"
@@ -735,6 +750,7 @@ export default function NflHubPage() {
             {...topBoardTabs(topBoardsBlock.weekly)} linkToGame label="hub-boards" listLabel="Weekly leaders by statistic" staticPanels="active" emptyText="No player is cleared for this list in the games still to kick off."
             filters={{ teamRefs: nflTeamRefsByAbbr((forecastArtifact?.forecasts ?? []).flatMap((x: { home?: { abbr?: string }; away?: { abbr?: string } }) => [x.home?.abbr, x.away?.abbr])) }}
           />
+          <QbBoardsSlot eventIds={topBoardsBlock.weekly.scope.events ?? []} />
           {todayLive ? (
             <div style={{ marginTop: 18 }} data-top-boards-day={todayLive.etDate}>
               <h3 style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color: "var(--vault-text)" }}>

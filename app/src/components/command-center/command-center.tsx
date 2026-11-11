@@ -12,12 +12,12 @@
  * ("Game forecasts: not market-validated · Player ranges: paused", each with its evidence in the title); the
  * featured card keeps its own one chip. Every state, label and link is unchanged, and no text is under 12px.
  */
+import GameCard from "@/components/game/game-card";
 import Link from "next/link";
 import type { CommandCenterLane } from "@/lib/command-center/command-center";
 import { PUBLIC_STATE_LABEL } from "@/lib/command-center/contract";
 import { MODEL_STATE_TONE } from "./model-status-chip";
 import PredictionCard from "./prediction-card";
-import TeamLogo from "@/components/team-logo";
 
 const SPORT_ACCENT: Record<CommandCenterLane["sport"], string> = { nfl: "var(--sport-nfl)", mlb: "var(--sport-mlb)", epl: "var(--sport-soccer)", ufc: "var(--sport-ufc)", nba: "var(--sport-nba)" };
 const STATE_TONE: Record<string, string> = { LIVE_TODAY: "var(--vault-success)", EVENT_THIS_WEEK: "var(--vault-info)", IN_SEASON_NO_SLATE: "var(--vault-text-mute)", HISTORICAL_ONLY: "var(--vault-text-faint)", NOT_SUPPORTED: "var(--vault-text-faint)" };
@@ -34,26 +34,20 @@ export function plainStatusPart(s: LaneStatus): string {
 /* A lane that lists today's games (NBA): one row per matchup, the whole row ONE link (44px target) to the game's card on
    the hub; a row without an href is plain text. */
 function LaneGames({ lane }: { lane: CommandCenterLane }) {
+  /* 2026-11-09: each matchup is the SHARED game card's row (components/game/game-card.tsx) — the component Today and the
+     sport hubs use — so a game reads the same everywhere: time, crests, the tagged fact, one link to the game. */
   return (
-    <ul className="m-0 flex list-none flex-col gap-1 p-0" aria-label={`${lane.label} games today`}>
-      {lane.games!.map((g) => {
-        const body = (
-          <>
-            {g.crests.map((c, i) => (c ? <TeamLogo key={i} team={c} sport="nba" size="sm" ariaLabel="" /> : null))}
-            <span className="font-semibold" style={{ color: "var(--vault-text)" }}>{g.label}</span>
-            <span style={{ color: "var(--vault-text-mute)" }}>{g.time}</span>
-            <span className="basis-full" style={{ color: "var(--vault-text-mute)" }}>{g.note}{g.href ? " →" : ""}</span>
-          </>
-        );
-        return (
-          <li key={g.id}>
-            {g.href
-              ? <Link href={g.href} className="nbx-lane-row no-underline">{body}</Link>
-              : <div className="nbx-lane-row">{body}</div>}
-          </li>
-        );
-      })}
+    <ul className="m-0 flex list-none flex-col p-0" aria-label={`${lane.label} games today`}>
+      {lane.games!.map((g) => (
+        <GameCard key={g.id} density="row" model={{
+          id: g.id, startLabel: g.time, matchup: g.label,
+          sides: g.crests.map((c) => ({ name: "", logo: c ? { team: c, sport: "nba" } : null })),
+          facts: [{ state: g.state ?? null, text: g.note, aside: g.winChance ? <span data-nba-elo-wp={g.winChance.attr} style={{ color: "var(--vault-text)" }}>{g.winChance.text}</span> : null }],
+          actions: g.href ? [{ href: g.href, label: g.label }] : [],
+        }} />
+      ))}
       {lane.moreGames ? <li className="text-[12px]" style={{ color: "var(--vault-text-mute)" }}>+{lane.moreGames} more on the {lane.label} hub</li> : null}
+      {lane.winChanceDisclosure ? <li className="text-[12px] leading-snug" style={{ color: "var(--vault-text-faint)" }} data-nba-elo-wp-disclosure="">Win chance: Elo-derived game-winner estimate. {lane.winChanceDisclosure}</li> : null}
     </ul>
   );
 }

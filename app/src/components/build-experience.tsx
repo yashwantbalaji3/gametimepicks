@@ -1,6 +1,6 @@
 "use client";
 /**
- * BuildExperience — the Parlay Center's Build Your Own mode (P208 · Release A).
+ * BuildExperience — the Parlay Lab's Build Your Own mode (P208 · Release A).
  *
  * THE DRAFT IS THE SLIP. Selection state lives in the shared slip store (browser-local,
  * localStorage) rather than in this component's memory, so:

@@ -29,7 +29,7 @@ export function fx(over = {}) {
     sport: "mlb", eventId: `fx-ev-${seq}`, eventLabel: `Fixture Away ${seq} @ Fixture Home ${seq}`, startUtc: iso(3 * HOUR),
     market: "pitcher_outs", marketLabel: "Outs recorded", selection: `Fixture Pitcher ${seq} — Outs recorded Over`, side: "Over", line: 15.5,
     participant: `Fixture Pitcher ${seq}`, team: `FX${seq}`, book: "DraftKings", price: -115, capturedAt: iso(-5 * MIN),
-    participantStatus: null, marketStatus: null, forecastClass: "MARKET_IMPLIED_NO_FORECAST", modelId: null, modelProbability: null,
+    participantStatus: "Active", marketStatus: null, forecastClass: "MARKET_IMPLIED_NO_FORECAST", modelId: null, modelProbability: null,
     receipts: ["fixture:cross-sport"],
     ...over,
   };

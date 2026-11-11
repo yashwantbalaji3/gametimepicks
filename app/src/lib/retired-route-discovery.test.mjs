@@ -27,9 +27,9 @@ test("the dead 'homer' mobile-nav bucket is removed (type, resolver, glyph)", ()
   assert.ok(!/\|\s*"homer"/.test(NAV_SRC), "MobileNavBucket no longer includes 'homer'");
   assert.ok(!/return "homer"/.test(NAV_SRC), "resolver no longer returns 'homer'");
   assert.ok(!/case "homer"/.test(GLYPH), "the mobile glyph no longer has a 'homer' case");
-  // Still no MOBILE bucket: the phone bar is a six-item thumb spine and Homer Nukes lives in the
-  // rail and top nav. Reachability is asserted in nav-three-click.test.mjs.
-  assert.equal(resolveMobileNavBucket("/homer-nukes"), null, "/homer-nukes has no mobile bottom-bar bucket");
+  // No bucket of its own: since 2026-11-09 the live Homer Nukes product lights the Products primary that holds it.
+  // Reachability is asserted in nav-three-click.test.mjs.
+  assert.equal(resolveMobileNavBucket("/homer-nukes"), "products", "/homer-nukes lights the Products slot");
   assert.ok(!MOBILE_NAV_ITEMS.some((i) => i.bucket === "homer"), "no 'homer' item in the mobile spine");
 });
 
