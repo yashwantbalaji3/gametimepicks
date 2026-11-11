@@ -70,14 +70,16 @@ forecast, a grade or a social post on merge.
 | Unit suite | 11,743 tests: 11,739 passed, 0 failed, 4 skipped |
 | Flag-OFF build, branch and main (same absolute path, no GTP_* env) | both exit 0 |
 | Post-build suite (branch) | 820 passed, 0 failed |
-| out/ comparison | identical file list outside `_next` (8,508 files); `_next` file sets equal after normalizing hashes (155 vs 155) |
+| out/ comparison, **full, every file** | 8,659 files on both sides; identical file list; 1,998 byte-identical; 6,624 identical after normalizing build-instant fields; **37 residual**: 33 `_next` page chunks whose content is identical up to module-id ORDER (same tokens, same length), and `/nba/projections` and `/today` (.html/.txt), whose only difference is the page's "updated h:mm PM ET" build time. **No public content difference.** |
 
-Every content difference examined was a build-instant field, so treat the comparison as a sample, not a full
-normalized pass:
+Normalized build-instant fields:
 - the build id and chunk hashes;
 - the commit sha and message;
 - `builtAt`, `asOf` and `generatedAt`;
-- `serverNowMs`, and the displayed "Nov 11, 3:49/3:57 PM EST" stamp.
+- `serverNowMs`, the displayed build stamp, and the Level-A `modelSha256`, which hashes `asOf`.
+
+The comparison was main `b7d46a61d1` vs branch `2ef357b384` (the code head; later commits are docs). Both were built
+flag-OFF in the same worktree path.
 
 ## Poller — superseded by the terms re-evaluation
 See `~/gtp-evidence/injury-poller-reevaluation-2026-11-11.md`. ESPN is covered by the Disney Terms of Use, which
