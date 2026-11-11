@@ -94,7 +94,9 @@ export function guardReasons(r, status) {
 
 /** Pure: inputs → roster file and readiness table. */
 export function unifiedRoster(I) {
-  const roster = { __cells: {}, __guard: {} }, table = {};
+  // __players: every assessed player's eligibility, as the stat cards apply it (guard rules, whole-row and per-cell hides), so
+  // a board drawing from the whole slate (the Top 5 refill) applies the same exclusions. A player not listed was not assessed.
+  const roster = { __cells: {}, __guard: {}, __players: {} }, table = {};
   for (const [ab, t] of Object.entries(I)) {
     const A = {};
     for (const [i, r] of Object.entries(t.players)) {
@@ -106,6 +108,7 @@ export function unifiedRoster(I) {
       if (g.length) { A[i].guard = g; roster.__guard[i] = g; if (status) (roster.__status ??= {})[i] = status; }
       if (g.length || a.reasons.some((x) => HIDE_ROW.has(x))) A[i].hideAll = true;
       else { const h = ["pts", "reb", "ast"].filter((m) => a.cells[m].reasons.length); if (h.length) A[i].hideCells = h; }
+      roster.__players[i] = { name: r.name, team: ab, state: a.state, status, guard: g, hideAll: A[i].hideAll === true, rowHide: a.reasons.filter((x) => HIDE_ROW.has(x)), hideCells: A[i].hideCells ?? [] };
     }
     const isOut = (i) => OUT.has(t.injAll[i]);
     const row = [];

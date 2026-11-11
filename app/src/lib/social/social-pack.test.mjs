@@ -12,7 +12,7 @@ import path from "node:path";
 import { xWeighted, CC_KIND_MAP, ccCaptionProblems, editorialPlan, CC_KIND, buildNbaRecap, buildNflRecap, buildSocialPackage, recapFinalsProblems, recommendedPostTime, socialPackageViolations, CONTENT_TYPE, denominatorText } from "./social-package.mjs";
 import { formatValue } from "../sports/nfl/forecast-view.mjs";
 import { prepareNbaRecap, prepareNbaTop5, prepareNflRecap, prepareNflTop5, prepareNflWinners, winnerRow, writePackages, prepareNbaTonight, prepareNflGameWinners, prepareNflPlayerStats, lineBlock, TONIGHT_ROWS, boxscorePosts, prepareNbaBoxscore, prepareGameDay } from "../../../scripts/social/render-social-pack.mjs";
-import { nflTdYes, nflTop5Line, top5LineOf, nbaTop5Carousel, nflTdRows, nflPropRows, prepareNflGamePosts, prepareNflSundayTop5 } from "../../../scripts/social/render-social-pack.mjs";
+import { nflTdYes, nflTop5Line, top5LineOf, nbaTop5Carousel, top5Eligible, TOP5_SUPPRESSED, nflTdRows, nflPropRows, prepareNflGamePosts, prepareNflSundayTop5 } from "../../../scripts/social/render-social-pack.mjs";
 import { nflMoneylineQuote, nflPropOffer } from "../../../scripts/social/nfl-line-capture.mjs";
 import { approvedCaption } from "./approved-captions.mjs";
 import { applyDisplayException } from "./display-exception.mjs";
@@ -402,6 +402,71 @@ test("NBA_TOP5_CAROUSEL: PTS, REB, AST in one package, worst anomaly check, sepa
   assert.equal(c.anomalyCheck, "REVIEW");
   assert.equal(c.anomalies.length, 1);
   assert.equal(nbaTop5Carousel({ posts: posts.slice(0, 2), date: "2026-11-01" }).refused[0].reason, "MISSING_BOARD");
+});
+
+// Top 5 eligibility refill (PD 2026-11-11): the first 5 eligible in the official order; fewer suppresses the board.
+const t5Order = (n) => Array.from({ length: n }, (_, i) => ({ rank: i + 1, providerAthleteId: String(100 + i), name: `P${i + 1}`, team: "AAA", value: 30 - i }));
+const t5Roster = (n, over = {}) => ({ __players: Object.fromEntries(t5Order(n).map((r) => [r.providerAthleteId, { guard: [], status: null, hideAll: false, rowHide: [], hideCells: [], ...over[r.providerAthleteId] }])) });
+test("Top 5 refill: two excluded players in the top 5 are replaced from ranks 6 and 7, official ranks kept", () => {
+  const roster = t5Roster(9, { 101: { guard: ["R1"], status: "Day-To-Day", hideAll: true }, 103: { hideCells: ["pts"] } });
+  const r = top5Eligible({ ordered: t5Order(9), board: "pts", roster });
+  assert.equal(r.state, "SHOWN");
+  assert.deepEqual(r.rows.map((x) => x.rank), [1, 3, 5, 6, 7]);
+  assert.deepEqual(r.audit.filter((a) => !a.eligible).map((a) => [a.rank, a.reasons]), [[2, ["R1:Day-To-Day"]], [4, ["READINESS_CELL:pts"]]]);
+  assert.equal(r.audit.length, 7); // stops at the fifth eligible
+  // the same player's other stat is not hidden by a pts-only cell hide
+  assert.deepEqual(top5Eligible({ ordered: t5Order(9), board: "reb", roster }).rows.map((x) => x.rank), [1, 3, 4, 5, 6]);
+});
+test("Top 5 refill: only 4 eligible suppresses the board with the count; never a manufactured row", () => {
+  const roster = t5Roster(6, { 100: { guard: ["R3"], hideAll: true }, 104: { rowHide: ["R_GAP"], hideAll: true } });
+  const r = top5Eligible({ ordered: t5Order(6), board: "ast", roster });
+  assert.equal(r.state, TOP5_SUPPRESSED);
+  assert.equal(TOP5_SUPPRESSED, "BOARD_SUPPRESSED_INSUFFICIENT_ELIGIBLE");
+  assert.deepEqual([r.eligible, r.needed, r.rows.length, r.audit.length], [4, 5, 0, 6]);
+  assert.deepEqual(r.audit.filter((a) => !a.eligible).map((a) => a.reasons), [["R3"], ["READINESS:R_GAP"]]);
+});
+test("Top 5 refill: with a roster file, a player it did not assess is UNKNOWN and ineligible; a flagged projection stays withheld", () => {
+  const roster = t5Roster(8); delete roster.__players["102"];
+  const r = top5Eligible({ ordered: t5Order(8), board: "pts", roster, withheld: new Set(["100.pts"]) });
+  assert.deepEqual(r.rows.map((x) => x.rank), [2, 4, 5, 6, 7]);
+  assert.deepEqual(r.audit.filter((a) => !a.eligible).map((a) => a.reasons), [["MODEL_REVIEW_WITHHELD"], ["UNKNOWN_NOT_ASSESSED"]]);
+});
+test("Top 5 refill on a committed lane: printed rows are the first 5 eligible in the site's order and every number equals the lane", async () => {
+  const { buildLaneTopBoards, laneValue } = await import("../sports/nba/lane-top-boards.mjs");
+  const date = "2026-10-30", asOf = "2026-10-30T19:00:00Z";
+  const lane = JSON.parse(fs.readFileSync(path.join(process.cwd(), `public/data/nba/experimental-public/${date}.json`), "utf8"));
+  const order = buildLaneTopBoards(lane, { nowIso: asOf, size: Infinity }).boards.find((b) => b.key === "pts").rows;
+  const ids = lane.games.flatMap((g) => [...g.players.away, ...g.players.home]).map((p) => String(p.providerAthleteId));
+  const out = { __cells: {}, __guard: {}, __players: Object.fromEntries(ids.map((i) => [i, { guard: [], status: null, hideAll: false, rowHide: [], hideCells: [] }])) };
+  for (const r of order.slice(0, 2)) out.__players[r.providerAthleteId] = { guard: ["R1"], status: "Out", hideAll: true, rowHide: [], hideCells: [] };
+  const f = path.join(fs.mkdtempSync(path.join(os.tmpdir(), "t5-")), "roster.json"); fs.writeFileSync(f, JSON.stringify(out));
+  const prev = process.env.GTP_NBA_UNIFIED_ROSTER; process.env.GTP_NBA_UNIFIED_ROSTER = f;
+  let posts;
+  try { ({ posts } = prepareGameDay({ date, asOf })); } finally { if (prev === undefined) delete process.env.GTP_NBA_UNIFIED_ROSTER; else process.env.GTP_NBA_UNIFIED_ROSTER = prev; }
+  const b = posts.find((p) => p.contentType === "NBA_DAILY_TOP5" && p.variant === "pts-model");
+  const withheld = new Set((b.anomalies ?? []).filter((a) => a.verdict !== "GENUINE_EXPECTATION").map((a) => a.playerId));
+  const want = order.slice(2).filter((r) => !withheld.has(r.providerAthleteId)).slice(0, 5);
+  assert.deepEqual(b.content.rows.map((r) => r.key), want.map((r) => r.providerAthleteId));
+  assert.deepEqual(b.content.rows.map((r) => r.rank), want.map((r) => r.rank));
+  const rowOf = new Map(lane.games.flatMap((g) => [...g.players.away, ...g.players.home]).map((p) => [String(p.providerAthleteId), p]));
+  for (const r of want) {
+    const printed = b.cards[0].cells[`${r.providerAthleteId}.num`];
+    assert.equal(Number(printed), laneValue(rowOf.get(r.providerAthleteId), "pts"), r.name);
+    assert.equal(printed, laneValue(rowOf.get(r.providerAthleteId), "pts").toFixed(1));
+  }
+  assert.deepEqual(b.content.eligibility.audit.slice(0, 2).map((a) => [a.eligible, a.reasons.includes("R1:Out")]), [[false, true], [false, true]]);
+  assert.ok(b.content.eligibility.audit.filter((a) => !a.eligible).every((a) => a.reasons.length), "every exclusion names its rule");
+  assert.equal(Object.keys(b.cards[0].cells).filter((k) => /^\d+\.num$/.test(k)).length, 5);
+});
+test("NBA_TOP5_CAROUSEL: a suppressed board is named with its eligible count, not refused as missing", () => {
+  const card = (n) => ({ name: "x", html: "", cells: Object.fromEntries(Array.from({ length: n }, (_, i) => [`${i + 1}.num`, "1"])) });
+  const part = (k) => ({ contentType: "NBA_DAILY_TOP5", variant: `${k}-model`, cards: [card(5)], firstStartUtc: "2026-11-01T22:00:00Z", window: {}, recommended: null, freshness: {}, anomalyCheck: "PASS", anomalies: [], disclosures: ["d"], snapshotRefs: [], checks: [], content: {} });
+  const sup = [{ job: "nba-top5-reb", board: "reb", reason: TOP5_SUPPRESSED, eligible: 4, needed: 5 }];
+  const { posts: [c], refused } = nbaTop5Carousel({ posts: [part("pts"), part("ast")], date: "2026-11-01", minRows: 5, suppressed: sup });
+  assert.deepEqual(c.content.boards, ["pts", "ast"]);
+  assert.deepEqual(c.content.suppressed, ["reb"]);
+  assert.deepEqual(refused, [{ contentType: "NBA_TOP5_CAROUSEL", reason: TOP5_SUPPRESSED, boards: ["reb"], eligible: { reb: 4 } }]);
+  assert.equal(nbaTop5Carousel({ posts: [part("pts"), part("ast")], date: "2026-11-01" }).refused[0].reason, "MISSING_BOARD");
 });
 
 test("NBA_TOP5_CAROUSEL minRows: a thin board is left out and named; no board left refuses", () => {

@@ -32,7 +32,7 @@ import { familyStateAcross, poolWithheldTeams, rankFamily } from "../../src/lib/
 import { opponentIn } from "../../src/lib/sports/nfl/matchup.mjs";
 import { shortPricedWindow, withSendWindow } from "../../src/lib/social/send-window.mjs";
 import { estimateLabel } from "../../src/lib/sports/nfl/family-publication.mjs";
-import { gateLaneTopBoards, laneDisplay, laneProvenance } from "../../src/lib/sports/nba/lane-top-boards.mjs";
+import { buildLaneTopBoards, gateLaneTopBoards, laneDisplay, laneProvenance } from "../../src/lib/sports/nba/lane-top-boards.mjs";
 import { eloWinProbabilityOf, ELO_WIN_PROBABILITY_LABEL } from "../../src/lib/sports/nba/elo-win-probability.mjs";
 import { loadCurrentNbaResults } from "../../src/lib/sports/nba/current-results.mjs";
 import {
@@ -571,23 +571,56 @@ export function prepareNbaTop5({ date, asOf, lineDoc = null }) {
 
 /** PTS, REB and AST real-line boards as one swipeable package. The three separate packages stay. */
 /** Rows a Top 5 board still shows after flagged projections are left off. */
+/**
+ * Top 5 eligibility refill (PD 2026-11-11). `ordered`: the official board order over the whole pregame pool (buildLaneTopBoards
+ * with no size cap). Each candidate, in that order, meets the existing exclusions unchanged: a withheld (flagged) projection;
+ * with the unified roster file, guard R1-R3 and a readiness hide of the row or of this stat, and a player the file did not
+ * assess is UNKNOWN, so ineligible. The first `size` eligible make the board, in official order with official ranks; fewer
+ * suppresses it. Never adds a row, never changes a number. `audit`: every candidate looked at, eligible or not, and why.
+ */
+export const TOP5_SUPPRESSED = "BOARD_SUPPRESSED_INSUFFICIENT_ELIGIBLE";
+export function top5Eligible({ ordered, board, withheld = new Set(), roster = null, size = 5 }) {
+  const shown = []; const audit = [];
+  for (const r of ordered) {
+    if (shown.length === size) break;
+    const id = String(r.providerAthleteId);
+    const why = [];
+    if (withheld.has(`${id}.${board}`)) why.push("MODEL_REVIEW_WITHHELD");
+    if (roster) {
+      const p = roster.__players?.[id];
+      if (!p) why.push("UNKNOWN_NOT_ASSESSED");
+      else {
+        for (const g of p.guard ?? []) why.push(g === "R1" && p.status ? `R1:${p.status}` : g);
+        for (const x of p.rowHide ?? []) why.push(`READINESS:${x}`);
+        if (p.hideAll && !(p.guard ?? []).length && !(p.rowHide ?? []).length) why.push("READINESS_ROW_HIDDEN");
+        if ((p.hideCells ?? []).includes(board)) why.push(`READINESS_CELL:${board}`);
+      }
+    }
+    audit.push({ rank: r.rank, playerId: id, name: r.name, team: r.team, value: r.value, eligible: !why.length, reasons: why });
+    if (!why.length) shown.push(r);
+  }
+  return shown.length === size ? { state: "SHOWN", rows: shown, audit } : { state: TOP5_SUPPRESSED, eligible: shown.length, needed: size, rows: [], audit };
+}
+
 export const top5ShownRows = (p) => Object.keys(p.cards[0].cells ?? {}).filter((k) => /^\d+\.num$/.test(k)).length;
 
 /**
  * `minRows`: a board showing fewer rows is left out of the carousel (default 0 keeps all; the Nov 4 runner skips boards under 5
  * until the founder rules on thin boards). A carousel with no board left is refused.
  */
-export function nbaTop5Carousel({ posts, date, minRows = 0 }) {
+export function nbaTop5Carousel({ posts, date, minRows = 0, suppressed = [] }) {
   const type = CONTENT_TYPE.NBA_TOP5_CAROUSEL;
   // Without verified lines only the projection boards exist (`pts-model`); the carousel takes those (rehearsal 2026-11-03).
   const board = (k) => posts.find((p) => p.contentType === CONTENT_TYPE.NBA_DAILY_TOP5 && p.variant === k);
   const all = NBA_TOP5.map((k) => board(k) ?? board(`${k}-model`));
-  const missing = NBA_TOP5.filter((_, i) => !all[i]);
+  // A board suppressed for too few eligible players (prepareGameDay's refused, TOP5_SUPPRESSED) is left out and named, not missing.
+  const off = new Map(suppressed.filter((x) => x.reason === TOP5_SUPPRESSED).map((x) => [x.board, x]));
+  const missing = NBA_TOP5.filter((k, i) => !all[i] && !off.has(k));
   if (missing.length) return { posts: [], refused: [{ contentType: type, reason: "MISSING_BOARD", boards: missing }] };
-  const keys = NBA_TOP5.filter((_, i) => top5ShownRows(all[i]) >= minRows);
-  const thin = NBA_TOP5.filter((k) => !keys.includes(k));
+  const keys = NBA_TOP5.filter((k, i) => all[i] && !off.has(k) && top5ShownRows(all[i]) >= minRows);
+  const thin = NBA_TOP5.filter((k, i) => all[i] && !off.has(k) && !keys.includes(k));
   const parts = keys.map((k) => all[NBA_TOP5.indexOf(k)]);
-  const skipped = thin.length ? [{ contentType: type, reason: "THIN_BOARD_SKIPPED", boards: thin, minRows }] : [];
+  const skipped = [...(off.size ? [{ contentType: type, reason: TOP5_SUPPRESSED, boards: [...off.keys()], eligible: Object.fromEntries([...off].map(([k, x]) => [k, x.eligible])) }] : []), ...(thin.length ? [{ contentType: type, reason: "THIN_BOARD_SKIPPED", boards: thin, minRows }] : [])];
   if (!parts.length) return { posts: [], refused: skipped };
   const [p0] = parts;
   const firstMs = Math.min(...parts.map((p) => instant(p.firstStartUtc)));
@@ -602,7 +635,7 @@ export function nbaTop5Carousel({ posts, date, minRows = 0 }) {
     ...p0, contentType: type, variant: null, title: `NBA top 5 carousel ${date}`, firstStartUtc: firstUtc, window: opener.window, recommended: opener.recommended, freshness: opener.freshness,
     cards: parts.map((p, i) => ({ ...p.cards[0], name: `nba-${date}-top5-carousel-${keys[i]}`, cells: Object.fromEntries(Object.entries(p.cards[0].cells).map(([k, x]) => [/^\d+\.num$/.test(k) ? `${k.slice(0, -4)}.${keys[i]}` : `${keys[i]}.${k}`, x])) })), caption: pregameCaption(cc), ccCaption: cc, ccCaptionB: cc,
     anomalyCheck: check, anomalies, disclosures: [...new Set(parts.flatMap((p) => p.disclosures))], snapshotRefs: [...new Map(parts.flatMap((p) => p.snapshotRefs).map((r) => [r.ref, r])).values()], checks: [...new Set([...parts.flatMap((p) => p.checks), `images in order: ${keys.map((k) => k.toUpperCase()).join(", ")}`, "anomalyCheck is the worst of the boards shown"])],
-    content: { boards: keys, skippedThin: thin, parts: parts.map((p) => p.content), anomalyChecks: Object.fromEntries(parts.map((p, i) => [keys[i], p.anomalyCheck ?? null])), socialAuthorized: false },
+    content: { boards: keys, skippedThin: thin, ...(off.size ? { suppressed: [...off.keys()] } : {}), parts: parts.map((p) => p.content), anomalyChecks: Object.fromEntries(parts.map((p, i) => [keys[i], p.anomalyCheck ?? null])), socialAuthorized: false },
   }], refused: skipped };
 }
 
@@ -757,26 +790,39 @@ export function prepareGameDay({ date, asOf, lineDoc = null, laneOverride = null
       g.cov.validation = "PASSED";
     } catch (e) { g.cov.validation = "FAILED"; g.cov.reasonMissing = e.message; refused.push({ job: `nba-game-${g.eventId}`, reason: e.message }); }
   }
-  const gate = gateLaneTopBoards(lane, { dated: lane, nowIso: asOf, startedIds: startedIdsAt(readPublic("data/nba/results/latest.json")?.rows, asOf) });
+  const startedIds = startedIdsAt(readPublic("data/nba/results/latest.json")?.rows, asOf);
+  const gate = gateLaneTopBoards(lane, { dated: lane, nowIso: asOf, startedIds });
+  // The whole official order (same pool, same sort, no cap) for the eligibility refill; the unified roster when supplied.
+  const fullOrder = gate?.state === "PUBLISHED" ? buildLaneTopBoards(lane, { nowIso: asOf, startedIds, size: Infinity }) : null;
+  const top5Roster = process.env.GTP_NBA_UNIFIED_ROSTER ? JSON.parse(fs.readFileSync(process.env.GTP_NBA_UNIFIED_ROSTER, "utf8")) : null;
+  const withheld = withheldKeys(modelCheck.anomalies);
   if (gate?.state !== "PUBLISHED") refused.push({ job: "nba-top5", reason: gate?.reason ?? "gate closed" });
   else for (const k of NBA_TOP5) {
     const b = gate.doc.boards.find((x) => x.key === k);
     if (b.state !== "RANKED") { refused.push({ job: `nba-top5-${k}`, reason: b.reason }); continue; }
+    const ordered = fullOrder.boards.find((x) => x.key === k).rows;
+    const head = (l) => l.map((r) => [r.rank, r.providerAthleteId, r.value].join("|")).join(",");
+    if (head(ordered.slice(0, b.rows.length)) !== head(b.rows)) { refused.push({ job: `nba-top5-${k}`, reason: "TOP5_ORDER_MISMATCH" }); continue; }
+    const pick = top5Eligible({ ordered, board: k, withheld, roster: top5Roster });
+    if (pick.state !== "SHOWN") { refused.push({ job: `nba-top5-${k}`, board: k, reason: TOP5_SUPPRESSED, eligible: pick.eligible, needed: pick.needed, audit: pick.audit }); continue; }
+    // every printed number is the lane's own value (one decimal), never re-rounded away from it
+    const offLane = pick.rows.filter((r) => Number(Number(r.value).toFixed(1)) !== r.value);
+    if (offLane.length) { refused.push({ job: `nba-top5-${k}`, reason: "PRINTED_NUMBER_NOT_LANE", players: offLane.map((r) => r.providerAthleteId) }); continue; }
+    const eligibility = { rule: "first 5 eligible in the official order (PD 2026-11-11)", roster: top5Roster ? "unified roster" : "not supplied (only the model review withhold applies)", considered: pick.audit.length, audit: pick.audit };
     const byAbbr = new Map(games.flatMap((g) => [[g.away.abbr, g.away], [g.home.abbr, g.home]]));
-    const rows = b.rows.map((r) => ({ key: r.providerAthleteId, rank: r.rank, name: r.name, team: byAbbr.get(r.team), opponent: r.opponent, tip: tipClock(instant(r.tipUtc)), text: Number(r.value).toFixed(1), value: r.value, line: top5LineOf(lineFor.get(`${r.providerAthleteId}:${k}`)), kickoffUtc: r.tipUtc }));
+    const rows = pick.rows.map((r) => ({ key: r.providerAthleteId, rank: r.rank, name: r.name, team: byAbbr.get(r.team), opponent: r.opponent, tip: tipClock(instant(r.tipUtc)), text: Number(r.value).toFixed(1), value: r.value, line: top5LineOf(lineFor.get(`${r.providerAthleteId}:${k}`)), kickoffUtc: r.tipUtc }));
     const f = Math.min(...rows.map((r) => instant(r.kickoffUtc)));
     const cap = `Top 5 projected ${b.label.toLowerCase()} in the NBA tonight, from our model.`;
     const base = (o) => ({ ...META, slateGames: games.length, contentType: CONTENT_TYPE.NBA_DAILY_TOP5, eligibilityClass: ELIGIBILITY.OFFICIAL, title: `NBA top 5 ${b.label.toLowerCase()} ${date}`, firstStartUtc: toIso(f), caption: pregameCaption(cap), ccCaption: cap, ccCaptionB: `NBA top 5 ${b.label.toLowerCase()} tonight.`, extraClaims: [{ key: "topN", display: "5", evidenceRef: rel }], window: { opensAt: asOf, closesAt: toIso(f) }, recommended: recommendedPostTime({ games: rows, afterEtDate: dayBefore(date), asOf }), recommendedNote: "the two hours before tip-off have passed", freshness: fresh(f), ...o });
     const content = rows.map(({ team, line: _l, ...r }) => ({ ...r, team: team.abbr }));
-    const ids = rows.map((r) => r.key);
-    // A flagged projection is left off, never printed; the board keeps the site's ranks and says so (2026-11-02 founder-cleared carousel; rehearsal 2026-11-03 found 7 printed).
-    const withheld = withheldKeys(modelCheck.anomalies);
-    const shownRows = rows.filter((r) => !withheld.has(`${r.key}.${k}`));
-    const held = shownRows.length < rows.length ? { kicker: "Model Projection", sub: "Some projections are held for review." } : { kicker: "Model Projection" };
-    posts.push(base({ ...anomaliesFor(modelCheck, ids, [k]), variant: `${k}-model`, cards: v2Cards([v2Top5Card({ title: b.label, chip, rows: shownRows, ...held })], `nba-${date}-top5-${k}-model`), disclosures: [DISCLOSURE], content: { board: k, rows: content, ranking: "projection only" } }));
-    if (lineDoc) posts.push(base({ ...anomaliesFor(realCheck, ids, [k]), variant: k, containsMarketData: true, cards: v2Cards([v2Top5Card({ title: b.label, chip, rows, real: true, section: MODEL_SECTION, note: rows.some((r) => r.line) ? COMPARISON_LEGEND : null })], `nba-${date}-top5-${k}`), disclosures: [DISCLOSURE], content: { board: k, rows: content, ranking: "projection only", lines: { shown: rows.filter((r) => r.line).length, missing: rows.filter((r) => !r.line).map((r) => ({ playerId: r.key, name: r.name, reason: top5Reason(lineFor.get(`${r.key}:${k}`)) })) }, quotedAt: quoteRangeText(rows.map((r) => lineFor.get(`${r.key}:${k}`)).filter(Boolean)) } }));
+    // Flags stay on record for every candidate looked at (shown or not); an ineligible one is left off, never printed, and the
+    // board keeps the official ranks and says so (2026-11-02 founder-cleared carousel; rehearsal 2026-11-03 found 7 printed).
+    const ids = pick.audit.map((a) => a.playerId);
+    const held = pick.audit.some((a) => !a.eligible) ? { kicker: "Model Projection", sub: "Some projections are held for review." } : { kicker: "Model Projection" };
+    posts.push(base({ ...anomaliesFor(modelCheck, ids, [k]), variant: `${k}-model`, checks: [...META.checks, "Top 5: first 5 eligible in the official order; numbers equal the lane"], cards: v2Cards([v2Top5Card({ title: b.label, chip, rows, ...held })], `nba-${date}-top5-${k}-model`), disclosures: [DISCLOSURE], content: { board: k, rows: content, ranking: "projection only", eligibility } }));
+    if (lineDoc) posts.push(base({ ...anomaliesFor(realCheck, ids, [k]), variant: k, containsMarketData: true, cards: v2Cards([v2Top5Card({ title: b.label, chip, rows, real: true, section: MODEL_SECTION, note: rows.some((r) => r.line) ? COMPARISON_LEGEND : null })], `nba-${date}-top5-${k}`), disclosures: [DISCLOSURE], content: { board: k, rows: content, ranking: "projection only", eligibility, lines: { shown: rows.filter((r) => r.line).length, missing: rows.filter((r) => !r.line).map((r) => ({ playerId: r.key, name: r.name, reason: top5Reason(lineFor.get(`${r.key}:${k}`)) })) }, quotedAt: quoteRangeText(rows.map((r) => lineFor.get(`${r.key}:${k}`)).filter(Boolean)) } }));
   }
-  if (lineDoc) { const c = nbaTop5Carousel({ posts, date }); posts.push(...c.posts); refused.push(...c.refused); }
+  if (lineDoc) { const c = nbaTop5Carousel({ posts, date, suppressed: refused }); posts.push(...c.posts); refused.push(...c.refused); }
   let moneylineMatch = null;
   if (moneyline) { moneylineMatch = moneylinePosts({ games, schedule, moneyline, date, asOf, META, refs }); posts.push(...moneylineMatch.posts); refused.push(...moneylineMatch.refused); moneylineMatch = moneylineMatch.match; }
   const gamePosts = gamePostsFrom({ games, posts, date, evidenceRef: rel, hasLines: Boolean(lineDoc), hasMoneyline: Boolean(moneyline) });

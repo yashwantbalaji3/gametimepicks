@@ -49,9 +49,12 @@ const missing = laneIds.filter((id: string) => !of("NBA_GAME_WINNER", id) || !of
 if (missing.length) refuse("INCOMPLETE_SLATE", { missing, refused: r.refused });
 const ton = r.posts.find((p: any) => p.contentType === "NBA_TONIGHT");
 if (!ton) refuse("NO_NBA_TODAY", r.refused);
-const car = m.nbaTop5Carousel({ posts: r.posts.filter((p: any) => p.contentType === "NBA_DAILY_TOP5"), date, minRows });
+// Top 5 eligibility refill (PD 2026-11-11): a board with fewer than 5 eligible is suppressed and named; the full exclusion
+// audit of every board is kept here and in each board's package content.
+const car = m.nbaTop5Carousel({ posts: r.posts.filter((p: any) => p.contentType === "NBA_DAILY_TOP5"), date, minRows, suppressed: r.refused });
 result.refused.push(...car.refused);
-if (car.refused.some((x: any) => x.reason !== "THIN_BOARD_SKIPPED")) refuse("TOP5_CAROUSEL", car.refused);
+result.top5Eligibility = Object.fromEntries(["pts", "reb", "ast"].map((k) => { const s = r.refused.find((x: any) => x.job === `nba-top5-${k}` && x.reason === m.TOP5_SUPPRESSED); const p = r.posts.find((x: any) => x.contentType === "NBA_DAILY_TOP5" && x.variant === `${k}-model`); return [k, s ? { state: s.reason, eligible: s.eligible, needed: s.needed, audit: s.audit } : p ? { state: "SHOWN", audit: p.content.eligibility.audit } : { state: "NOT_BUILT" }]; }));
+if (car.refused.some((x: any) => x.reason !== "THIN_BOARD_SKIPPED" && x.reason !== m.TOP5_SUPPRESSED)) refuse("TOP5_CAROUSEL", car.refused);
 
 const V = (p: any, v: string) => ({ ...p, variant: `${p.variant ?? "slate"}-${v}` });
 const roster = JSON.parse(fs.readFileSync(process.env.GTP_NBA_UNIFIED_ROSTER!, "utf8"));
