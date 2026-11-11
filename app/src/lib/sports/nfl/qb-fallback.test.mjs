@@ -90,3 +90,13 @@ test("full QB markets: passing (pre-registered five, unchanged) + rushing from t
   assert.equal(td.chances[0].p, 0.25);
   assert.equal(v.find((x) => x.market === "rushYds").status, "IMPLEMENTED_EXPERIMENTAL");
 });
+
+test("alternative-starter scenario receipts: opt-in, their own directory (never read as receipts of record), never confirmed", () => {
+  const src = fs.readFileSync(path.join(APP, "scripts/nfl/build-nfl-sim-v2-shadow.mjs"), "utf8");
+  assert.match(src, /const QB_SCENARIOS = process\.env\.GTP_NFL_SIM_QB_SCENARIOS === "1";/);
+  assert.match(src, /const SCENARIO_DIR = "data\/internal\/research\/nfl\/sim-v2\/scenarios";/);
+  assert.match(src, /scenario: \{ team: abbr, confirmed: false, label: opt\.scenario/);
+  const reader = fs.readFileSync(path.join(APP, "src/lib/sports/nfl/sim-v2/public-receipt.mjs"), "utf8");
+  assert.doesNotMatch(reader, /scenarios/, "the receipt-of-record reader never reads the scenario directory");
+  assert.match(reader, /sim-v2\/shadow/);
+});

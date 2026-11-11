@@ -54,6 +54,12 @@ const ROSTERS = "app/public/data/nfl/rosters/latest.json";
    sim-v2/simulate.mjs calibratePassWeights) are a DEMO lane until the founder approves: opt-in by
    GTP_NFL_SIM_QB_CONDITION=1, written to their own directory, never mixed into the shadow receipts of record. */
 const QB_CONDITION = process.env.GTP_NFL_SIM_QB_CONDITION === "1";
+/* Founder directive 2026-11-11 (~18:00Z) item 5: a team whose starter is NOT confirmed gets one SCENARIO receipt per
+   alternative starter ("if X starts", data/internal/nfl/qb-fallback unconfirmedScenarios), simulated in the same engine
+   with that QB as the starter. Opt-in (GTP_NFL_SIM_QB_SCENARIOS=1), its own directory, write-once, never a receipt of
+   record and never presented as confirmed. */
+const QB_SCENARIOS = process.env.GTP_NFL_SIM_QB_SCENARIOS === "1";
+const SCENARIO_DIR = "data/internal/research/nfl/sim-v2/scenarios";
 const OUT_DIR = QB_CONDITION ? "data/internal/research/nfl/sim-v2/shadow-qb-conditioned" : "data/internal/research/nfl/sim-v2/shadow";
 
 const argv = process.argv.slice(2);
@@ -167,6 +173,32 @@ function main() {
     const inputs = [r.home.abbr, r.away.abbr].map((abbr, i) => playersFromRoleShares(teamBlock(abbr), excludedFor(abbr), starterOptions(starters[i])));
     if (!inputs[0].players.length || !inputs[1].players.length) { console.log(`SKIP ${eventId}: no role shares for a team`); continue; }
     const prep = inputs.map(prepareTeamPlayers);
+    if (QB_SCENARIOS && !dryRun) {
+      const fallback = (() => { try { return JSON.parse(fs.readFileSync(path.join(ROOT, `data/internal/nfl/qb-fallback/${eventId}.json`), "utf8")); } catch { return null; } })();
+      for (const [side, abbr] of [r.home.abbr, r.away.abbr].entries()) {
+        if (starters[side].state === "STARTER") continue;
+        const sc = (fallback?.unconfirmedScenarios ?? []).find((x) => x.team === abbr);
+        for (const opt of sc?.options ?? []) {
+          const altInputs = inputs.map((t, i) => (i === side ? playersFromRoleShares(teamBlock(abbr), excludedFor(abbr), { starterQb: opt.starter.playerId, starterName: opt.starter.name, strictStarter: true }) : t));
+          const altPrep = altInputs.map(prepareTeamPlayers);
+          const h = fnv1a64(JSON.stringify({ engine: NFL_SIM_V2_VERSION, params: paramsRef.sha256, anchors: [anchors.home, anchors.away], runs, scenario: { team: abbr, starter: opt.starter.playerId }, players: altInputs.map((t) => t.players.map((p) => [p.playerId, p.passShare, p.targetShare, p.carryShare, p.catchRate, p.ypr, p.ypc])) }));
+          const tag = `scenario-${abbr}-${String(opt.starter.playerId).replace(/^nfl-athlete-/, "")}`;
+          const rel = `${SCENARIO_DIR}/${now.slice(0, 10)}/${eventId}-${h}-${tag}.json`;
+          if (fs.existsSync(path.join(ROOT, rel))) { console.log(`  scenario EXISTS: ${rel}`); continue; }
+          const seed = fnv1a64(`${NFL_SIM_V2_ENGINE}|${eventId}|${h}`).slice(0, 8);
+          const cal = calibrate({ compiled, anchors, baseSeed: seed, postseason: r.seasonType === 3 });
+          const b = runBatch({ compiled, thetas: cal.thetas, players: altPrep, baseSeed: seed, runs, postseason: r.seasonType === 3 });
+          const scen = buildNflSimulationReceipt({
+            event: { eventId, kickoffUtc: r.kickoffUtc, home: r.home, away: r.away },
+            compiled, paramsRef, anchors, calibration: cal, prep: altPrep, batch: b, baseSeed: seed, inputHash: h, generatedAt: now, postseason: r.seasonType === 3, idSuffix: tag,
+            inputs: { forecastReceipt: `data/internal/nfl/forecast-receipts/${file}`, roleShares: `${ROLE_SHARES}@${roleShares.generatedAt}`, availability, params: paramsRef.sha256, starters: { [r.home.abbr]: starters[0], [r.away.abbr]: starters[1] }, scenario: { team: abbr, confirmed: false, label: opt.scenario, starter: opt.starter, tier: opt.tier, reason: sc.reason } },
+          });
+          fs.mkdirSync(path.dirname(path.join(ROOT, rel)), { recursive: true });
+          fs.writeFileSync(path.join(ROOT, rel), JSON.stringify(scen) + "\n", { flag: "wx" });
+          console.log(`  scenario ${opt.scenario} (${abbr}) → ${rel} · failed runs ${scen.validation.failedRuns}/${runs}`);
+        }
+      }
+    }
     const inputHash = fnv1a64(JSON.stringify({
       engine: NFL_SIM_V2_VERSION, params: paramsRef.sha256, anchors: [anchors.home, anchors.away], runs,
       players: inputs.map((t) => t.players.map((p) => [p.playerId, p.passShare, p.targetShare, p.carryShare, p.catchRate, p.ypr, p.ypc])),
