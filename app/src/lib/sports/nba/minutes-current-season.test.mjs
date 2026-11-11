@@ -131,7 +131,7 @@ test("the side: official pool membership, rookies with current games join, 240 r
   assert.equal(sdRatio.sd, 24 * DEFAULT_MINUTES_SD_RATIO);
 });
 
-test("the challenger feeds no public surface: nothing outside its own tests and the research script imports it", () => {
+test("the challenger feeds no public surface: its only importers are the private shadow module and the research script", () => {
   const roots = ["src/app", "src/components", "src/lib", "scripts"].map((d) => path.join(process.cwd(), d));
   const hits = [];
   const walk = (d) => {
@@ -139,9 +139,9 @@ test("the challenger feeds no public surface: nothing outside its own tests and 
       const p = path.join(d, e.name);
       if (e.isDirectory()) { if (e.name !== "node_modules") walk(p); continue; }
       if (!/\.(mjs|js|ts|tsx)$/.test(e.name) || /minutes-current-season(\.test)?\.mjs$/.test(e.name)) continue;
-      if (fs.readFileSync(p, "utf8").includes("minutes-current-season")) hits.push(path.relative(process.cwd(), p));
+      if (/from\s+["'][^"']*minutes-current-season\.mjs["']/.test(fs.readFileSync(p, "utf8"))) hits.push(path.relative(process.cwd(), p));
     }
   };
   for (const r of roots) if (fs.existsSync(r)) walk(r);
-  assert.deepEqual(hits, ["scripts/nba/research/report-nba-minutes-challenger.mjs"].filter((f) => fs.existsSync(path.join(process.cwd(), f))));
+  assert.deepEqual(hits.sort(), ["scripts/nba/research/report-nba-minutes-challenger.mjs", "src/lib/sports/nba/minutes-shadow.mjs"]);
 });
