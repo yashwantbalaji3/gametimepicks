@@ -114,3 +114,23 @@ test("CUSTOMER COPY · a hidden cell renders EMPTY on the board and on the game 
   const brow = boardRows(eligibleLaneView(lane, eligibilityInputs(doc, DATE)).snapshot, PROJECTION_BOARD_STATS).find((r) => r.id.endsWith(`:${OUBRE}`));
   assert.equal(brow.v[PROJECTION_BOARD_STATS.findIndex(([k]) => k === "reb")], "", "the board carries the empty cell verbatim (its fmt prints it empty)");
 });
+
+test("CC FEED · gtp-social-nba@1 gains an additive, LAST eligibility block only with the switch on; medians and every other byte unchanged", async () => {
+  const { buildNbaSocialDay } = await import("../../social/nba-social.mjs");
+  const base = { lane, recordGames: [], buildEtDate: DATE, latestDate: DATE, laneSha256: "x", eloEnabled: false };
+  const off = buildNbaSocialDay(base);
+  assert.ok(off.events.every((e) => !("eligibility" in e)), "switch off: no block");
+  const view = eligibleLaneView(lane, eligibilityInputs(doc, DATE));
+  const on = buildNbaSocialDay({ ...base, eligibility: { basis: view.basis, source: `app/public/data/nba/player-eligibility/${DATE}.json`, audit: view.audit } });
+  for (const [i, e] of on.events.entries()) {
+    const { eligibility, ...rest } = e;
+    assert.deepEqual(rest, off.events[i], "every other field, medians included, is unchanged");
+    assert.equal(Object.keys(e).at(-1), "eligibility", "appended last (schema-additive)");
+    assert.equal(eligibility.basis, "ELIGIBILITY_FILE");
+  }
+  const all = on.events.flatMap((e) => [...e.eligibility.excludedPlayers.map((p) => ["x", p]), ...e.eligibility.withheld.map((w) => ["w", w])]);
+  assert.ok(all.some(([k, v]) => k === "x" && v === NEMBHARD), "R1 Out: excluded player");
+  assert.ok(all.some(([k, v]) => k === "w" && v === `${OUBRE}.reb`) && all.some(([k, v]) => k === "w" && v === `${OUBRE}.pra`), "a hidden cell and the combos that follow it");
+  assert.ok(all.some(([k, v]) => k === "w" && v === `${SIAKAM}.pts`), "a model-review withhold");
+  assert.doesNotMatch(JSON.stringify(on.events.map((e) => e.eligibility)), /R1|READINESS|MODEL_REVIEW|UNKNOWN_NOT/, "keys only: no reason in the feed");
+});

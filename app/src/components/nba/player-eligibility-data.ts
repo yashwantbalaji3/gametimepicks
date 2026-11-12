@@ -5,7 +5,7 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { eligibilityInputs, eligibleLaneView, siteEligibilityEnabled } from "@/lib/sports/nba/lane-eligibility.mjs";
+import { eligibilityInputs, eligibleLaneView, siteEligibilityEnabled, PLAYER_ELIGIBILITY_REL } from "@/lib/sports/nba/lane-eligibility.mjs";
 import type { Snapshot } from "@/components/nba/experimental-lane";
 
 const file = (date: string) => path.join(process.cwd(), "public", "data", "nba", "player-eligibility", `${date}.json`);
@@ -28,4 +28,11 @@ export function loadEligibleGameView(date: string | null, laneGame: Snapshot["ga
   if (!siteEligibilityEnabled() || !date || !laneGame) return null;
   const view = eligibleLaneView({ date, games: [laneGame] }, eligibilityInputs(readDoc(date), date));
   return (view.snapshot as { games: Snapshot["games"] }).games[0] ?? null;
+}
+
+/** The slate's eligibility decision for the CC feed (nba-social.mjs eligibilityBlockFor), or null when the switch is off. */
+export function loadEligibilityAudit(lane: Snapshot | null): { basis: string; source: string; audit: unknown[] } | null {
+  if (!siteEligibilityEnabled() || !lane?.date) return null;
+  const view = eligibleLaneView(lane, eligibilityInputs(readDoc(lane.date), lane.date));
+  return { basis: view.basis, source: PLAYER_ELIGIBILITY_REL(lane.date), audit: view.audit };
 }
