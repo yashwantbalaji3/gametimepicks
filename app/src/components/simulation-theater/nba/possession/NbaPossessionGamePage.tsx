@@ -51,6 +51,10 @@ export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOS
   const teams = payload?.teams ?? null;
   // One eligibility standard with /nba/projections and the social cards (lane-eligibility.mjs); switch default OFF → null.
   const eligibleGame = loadEligibleGameView(slateDate, laneGame);
+  const official = eligibleGame && payload ? eligibleOfficial(payload.official, eligibleGame) : payload?.official ?? null;
+  /* The scenarios' own official panel, comparison and end card read payload.official: they get the same eligible rows, so
+     a hypothetical run never presents a ruled-out player as part of the Official Forecast. Switch off → the same load. */
+  const scenarioLoad: PbLoad = eligibleGame && load.ok && payload ? { ...load, payload: { ...payload, official } } as PbLoad : load;
   return (
     <>
       <nav aria-label="This game" className="nbx-gamenav">
@@ -67,14 +71,14 @@ export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOS
         <a href={`#${OFFICIAL_PREDICTIONS_ID}`} aria-current="true" data-nba-view="default">Official projected game <span>Default</span></a>
         <a href={`#${SIMULATED_SCENARIOS_ID}`} data-nba-view="scenarios">Simulated scenarios <span>Hypothetical</span></a>
       </nav>
-      {payload ? <NbaOfficialPredictions official={eligibleGame ? eligibleOfficial(payload.official, eligibleGame) : payload.official} teams={payload.teams} lane={eligibleGame ?? laneGame} finalNote={finalNote} resultsHref={NBA_RESULTS_HREF} postFreezeOut={loadPostFreezeOut(slateDate, eventId)} /> : null}
+      {payload ? <NbaOfficialPredictions official={official ?? payload.official} teams={payload.teams} lane={eligibleGame ?? laneGame} finalNote={finalNote} resultsHref={NBA_RESULTS_HREF} postFreezeOut={loadPostFreezeOut(slateDate, eventId)} /> : null}
       <section id={SIMULATED_SCENARIOS_ID} tabIndex={-1} className="nbp-scenarios" aria-labelledby={`${SIMULATED_SCENARIOS_ID}-h`} data-nba-simulated-scenarios="">
         <p className="nbx-kind">{SIMULATED_SCENARIOS_KIND}</p>
         <h2 id={`${SIMULATED_SCENARIOS_ID}-h`}>{SIMULATED_SCENARIOS_TITLE}</h2>
         <p className="nbx-fine">{SIMULATED_SCENARIOS_NOTE}</p>
         {/* This game's projection-unavailable players (lane `players.unavailable`, PR 1230), by name and reason only — the
             in-Theater Official Forecast panel lists them as the section above does, never as 0. */}
-        <NbaPossessionSection load={load} unavailable={unavailableOf(laneGame)} defaultHref={teams ? `#${OFFICIAL_PREDICTIONS_ID}` : null} />
+        <NbaPossessionSection load={scenarioLoad} unavailable={unavailableOf(laneGame)} defaultHref={teams ? `#${OFFICIAL_PREDICTIONS_ID}` : null} />
       </section>
     </>
   );

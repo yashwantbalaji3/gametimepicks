@@ -48,10 +48,10 @@ test("a file hides exactly what player-eligibility.mjs excludes: whole row, one 
   assert.equal(view.basis, ELIGIBILITY_BASIS.FILE);
   assert.equal(rowOf(view.snapshot, NEMBHARD), undefined, "R1 Out: off the board");
   const o = rowOf(view.snapshot, OUBRE), o0 = rowOf(lane, OUBRE);
-  assert.equal(o.medians.reb, null); assert.equal(o.comboMedians.pra, null); assert.equal(o.comboMedians.ptsReb, null);
+  assert.equal(o.medians.reb, ""); assert.equal(o.comboMedians.pra, ""); assert.equal(o.comboMedians.ptsReb, "");
   assert.equal(o.medians.pts, o0.medians.pts); assert.equal(o.comboMedians.ptsAst, o0.comboMedians.ptsAst);
   const s = rowOf(view.snapshot, SIAKAM);
-  assert.equal(s.medians.pts, null); assert.equal(s.medians.reb, rowOf(lane, SIAKAM).medians.reb);
+  assert.equal(s.medians.pts, ""); assert.equal(s.medians.reb, rowOf(lane, SIAKAM).medians.reb);
   for (const [id, stat] of [[NEMBHARD, "pts"], [OUBRE, "reb"], [SIAKAM, "pts"]]) assert.ok(exclusionReasons(id, stat, { elig: doc.players, withheld: new Set(doc.withheld) }).length, "the module's own reasons");
   assert.deepEqual(view.audit.map((a) => a.playerId).sort(), [NEMBHARD, OUBRE, SIAKAM].sort());
   const shown = boardRows(view.snapshot, PROJECTION_BOARD_STATS).length, all = boardRows(lane, PROJECTION_BOARD_STATS).length;
@@ -89,10 +89,28 @@ test("GAME PAGE · the official snapshot rows follow the same view: ineligible p
   const out = eligibleOfficial(official, view);
   const byId = (id) => out.players.find((p) => String(p.playerId) === id);
   assert.equal(byId(NEMBHARD), undefined, "R1 Out: off the game page");
-  assert.equal(byId(OUBRE).medians.reb, null);
+  assert.equal(byId(OUBRE).medians.reb, "");
   assert.equal(byId(OUBRE).medians.pts, official.players.find((p) => String(p.playerId) === OUBRE).medians.pts);
   assert.equal(out.players.length, official.players.length - 1);
   assert.equal(eligibleOfficial(official, null), official, "switch off (no view) → the snapshot unchanged, same object");
   const none = eligibleLaneView(lane, eligibilityInputs(null, DATE)).snapshot.games.find((x) => x.providerEventId === g.providerEventId);
   assert.deepEqual(eligibleOfficial(official, none), official, "no file → identical rows");
+});
+
+test("CUSTOMER COPY · a hidden cell renders EMPTY on the board and on the game page — no dash, no placeholder text", async () => {
+  const React = (await import("react")).default; globalThis.React = React;
+  const { renderToStaticMarkup } = await import("react-dom/server");
+  const { default: NbaOfficialPredictions } = await import("../../../components/nba/official-predictions.tsx");
+  const { eligibleOfficial } = await import("./lane-eligibility.mjs");
+  const g = lane.games.find((x) => [...x.players.home, ...x.players.away].some((r) => String(r.providerAthleteId) === OUBRE));
+  const official = { snapshotId: "t", eventId: g.providerEventId, favouredSide: null, models: { game: null, players: [g.receipt.modelVersion] }, frozenAt: g.frozenAt, lockAt: g.tipUtc, withheld: {}, players: ["away", "home"].flatMap((side) => g.players[side].map((p) => ({ playerId: p.providerAthleteId, team: side, displayName: p.name, medians: p.medians, expectedMinutes: p.expectedMinutes }))) };
+  const view = eligibleLaneView(lane, eligibilityInputs(doc, DATE)).snapshot.games.find((x) => x.providerEventId === g.providerEventId);
+  const html = renderToStaticMarkup(React.createElement(NbaOfficialPredictions, { official: eligibleOfficial(official, view), teams: { away: g.away, home: g.home }, lane: view, finalNote: null, resultsHref: "/results/nba/", eloCtx: { enabled: false, disclosure: "" } }));
+  const row = html.split("<tr").find((r) => r.includes("Kelly Oubre"));
+  const cells = [...row.matchAll(/<td[^>]*>([^<]*)<\/td>/g)].map((m) => m[1]);
+  assert.ok(cells.includes(""), "the hidden REB cell is empty");
+  assert.doesNotMatch(html, /model review|under review|withheld from display|not assessed|R1|READINESS/i, "no reason or placeholder reaches the page");
+  const { boardRows } = await import("./projection-board-ops.mjs");
+  const brow = boardRows(eligibleLaneView(lane, eligibilityInputs(doc, DATE)).snapshot, PROJECTION_BOARD_STATS).find((r) => r.id.endsWith(`:${OUBRE}`));
+  assert.equal(brow.v[PROJECTION_BOARD_STATS.findIndex(([k]) => k === "reb")], "", "the board carries the empty cell verbatim (its fmt prints it empty)");
 });

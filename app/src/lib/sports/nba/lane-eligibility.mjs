@@ -16,7 +16,9 @@
  * WHAT IT CHANGES: which rows and which cells show, never a number.
  * - A stat cell is shown only when player-eligibility.mjs `exclusionReasons` is empty for that stat. A combo (PRA, P+R,
  *   P+A) needs every component eligible.
- * - A player with no eligible stat is left off the board. An ineligible cell carries null, the board's missing value.
+ * - A player with no eligible stat is left off the board. An ineligible cell carries HIDDEN_CELL (""), which every renderer
+ *   prints as an EMPTY, neutral cell: never a dash that reads as "no projection", never placeholder text such as "under
+ *   review" (founder 2026-11-11/12). The reasons stay in the returned audit and the committed file, for diagnostics only.
  * Applied to a VIEW copy only: the lane snapshot itself (provenance, receipts, post-game actuals, "no projection" rows)
  * is never touched, so every consistency check still runs against the published file.
  */
@@ -26,6 +28,8 @@ import { STATS, COMBO_STATS } from "./experimental-public-lane.mjs";
 export const SITE_ELIGIBILITY_ENV = "GTP_NBA_SITE_SHARED_ELIGIBILITY";
 export const PLAYER_ELIGIBILITY_SCHEMA = "gtp.nba.player-eligibility@1";
 export const PLAYER_ELIGIBILITY_REL = (date) => `app/public/data/nba/player-eligibility/${date}.json`;
+/** The value an ineligible cell carries: renders empty (projection-board fmt, official-predictions fmt), sorts last, never ranks. */
+export const HIDDEN_CELL = "";
 export const ELIGIBILITY_BASIS = Object.freeze({ FILE: "ELIGIBILITY_FILE", MODEL_REVIEW_ONLY: "MODEL_REVIEW_ONLY", MALFORMED: "MALFORMED" });
 /** Combo → its components (game-sim.mjs COMBO_KEYS). */
 export const COMBO_COMPONENTS = Object.freeze({ pra: ["pts", "reb", "ast"], ptsReb: ["pts", "reb"], ptsAst: ["pts", "ast"] });
@@ -70,8 +74,8 @@ export function eligibleLaneView(snapshot, inputs) {
         if (!hidden.length) return [r];
         return [{
           ...r,
-          medians: Object.fromEntries(Object.entries(r.medians ?? {}).map(([k, v]) => [k, okBase.has(k) ? v : null])),
-          ...(r.comboMedians ? { comboMedians: Object.fromEntries(Object.entries(r.comboMedians).map(([k, v]) => [k, okCombo.has(k) ? v : null])) } : {}),
+          medians: Object.fromEntries(Object.entries(r.medians ?? {}).map(([k, v]) => [k, okBase.has(k) ? v : HIDDEN_CELL])),
+          ...(r.comboMedians ? { comboMedians: Object.fromEntries(Object.entries(r.comboMedians).map(([k, v]) => [k, okCombo.has(k) ? v : HIDDEN_CELL])) } : {}),
         }];
       });
     }
@@ -82,7 +86,7 @@ export function eligibleLaneView(snapshot, inputs) {
 
 /**
  * GAME PAGE (the Theater's Default view, NbaPossessionGamePage → official-predictions.tsx): the official snapshot's player
- * rows through the same VIEW. A player off the view is dropped, a cell the view nulled is null; every other number is the
+ * rows through the same VIEW. A player off the view is dropped, a cell the view hid is HIDDEN_CELL; every other number is the
  * snapshot's own. The lane game passed to the page is the view's game, so combo cells follow the same rule.
  * @param {any} official  the page's official payload ({ eventId, players: [{ playerId, medians, ... }] })
  * @param {any} viewGame  eligibleLaneView(...).snapshot game for the same event (null → unchanged)
@@ -93,7 +97,7 @@ export function eligibleOfficial(official, viewGame) {
   const players = (official.players ?? []).flatMap((p) => {
     const r = rows.get(String(p.playerId));
     if (!r) return [];
-    return [{ ...p, medians: Object.fromEntries(Object.entries(p.medians ?? {}).map(([k, v]) => [k, r.medians && k in r.medians && r.medians[k] === null ? null : v])) }];
+    return [{ ...p, medians: Object.fromEntries(Object.entries(p.medians ?? {}).map(([k, v]) => [k, r.medians && k in r.medians && r.medians[k] === HIDDEN_CELL ? HIDDEN_CELL : v])) }];
   });
   return { ...official, players };
 }
