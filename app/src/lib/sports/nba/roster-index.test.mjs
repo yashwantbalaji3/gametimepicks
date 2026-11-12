@@ -46,3 +46,22 @@ test("COMMITTED: every committed retained capture's name is its own sha256 and i
     assert.equal(JSON.parse(bytes).capturedAt.slice(0, 10), day, f);
   }
 });
+
+test("FROZEN RECEIPTS: every official v0.1 receipt of a published lane date resolves its roster sha256 to committed bytes (fails on 2026-11-12 without retention)", () => {
+  const repo = path.resolve(process.cwd(), "..");
+  const idx = loadRosterIndex(repo);
+  const laneDates = new Set(fs.readdirSync(path.join(process.cwd(), "public/data/nba/experimental-public")).filter((f) => /^\d{4}-\d{2}-\d{2}\.json$/.test(f)).map((f) => f.slice(0, 10)));
+  const dir = path.join(repo, "data/internal/research/nba/experimental-v0.1/forecasts");
+  let n = 0;
+  for (const f of fs.readdirSync(dir).filter((x) => /^\d{4}-\d{2}-\d{2}\.json$/.test(x) && laneDates.has(x.slice(0, 10)))) {
+    for (const g of JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")).games ?? []) {
+      const want = g.receipt?.inputs?.rosters?.sha256;
+      if (!want) continue;
+      n += 1;
+      assert.ok(idx.has(want), `${f} ${g.providerEventId}: roster ${want.slice(0, 12)} resolves`);
+    }
+  }
+  assert.ok(n >= 60, `checked ${n} receipts`);
+  // both 11-12 captures stay addressable: the 07:07Z one the receipts pin, and the 14:07Z re-capture
+  assert.equal(idx.get("3e4437a7c24c418449d5913f97c303986e67000140119ba5e5cb9cf1d0f55d50")?.doc.capturedAt, "2026-11-12T07:07:04Z");
+});
