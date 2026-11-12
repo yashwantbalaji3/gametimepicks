@@ -79,3 +79,21 @@ export function eligibleLaneView(snapshot, inputs) {
   });
   return { snapshot: snapshot ? { ...snapshot, games } : snapshot, basis, audit };
 }
+
+/**
+ * GAME PAGE (the Theater's Default view, NbaPossessionGamePage → official-predictions.tsx): the official snapshot's player
+ * rows through the same VIEW. A player off the view is dropped, a cell the view nulled is null; every other number is the
+ * snapshot's own. The lane game passed to the page is the view's game, so combo cells follow the same rule.
+ * @param {any} official  the page's official payload ({ eventId, players: [{ playerId, medians, ... }] })
+ * @param {any} viewGame  eligibleLaneView(...).snapshot game for the same event (null → unchanged)
+ */
+export function eligibleOfficial(official, viewGame) {
+  if (!official || !viewGame || String(viewGame.providerEventId) !== String(official.eventId)) return official;
+  const rows = new Map([...(viewGame.players?.away ?? []), ...(viewGame.players?.home ?? [])].map((r) => [String(r.providerAthleteId), r]));
+  const players = (official.players ?? []).flatMap((p) => {
+    const r = rows.get(String(p.playerId));
+    if (!r) return [];
+    return [{ ...p, medians: Object.fromEntries(Object.entries(p.medians ?? {}).map(([k, v]) => [k, r.medians && k in r.medians && r.medians[k] === null ? null : v])) }];
+  });
+  return { ...official, players };
+}

@@ -19,6 +19,8 @@ import type { PbLoad, PbUnavailable } from "./possession-types";
 import NbaOfficialPredictions, { OFFICIAL_PREDICTIONS_ID } from "@/components/nba/official-predictions";
 import { loadCurrentLane, loadLaneForDate } from "@/components/nba/experimental-lane";
 import { loadPostFreezeOut } from "@/components/nba/post-freeze-availability-data";
+import { loadEligibleGameView } from "@/components/nba/player-eligibility-data";
+import { eligibleOfficial } from "@/lib/sports/nba/lane-eligibility.mjs";
 import { nbaTodaySlate } from "@/lib/sport-hub/nba-hub";
 import { etDateOf } from "@/lib/sports/nba/finals-record.mjs";
 
@@ -47,6 +49,8 @@ export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOS
   const laneGame = (slateDate ? loadLaneForDate(slateDate) : null)?.games.find((g) => g.providerEventId === eventId) ?? null;
   const finalNote = nbaTodaySlate(nowIso, loadCurrentLane(etDateOf(nowIso) as string)).games.find((g) => g.id === eventId)?.finalNote ?? null;
   const teams = payload?.teams ?? null;
+  // One eligibility standard with /nba/projections and the social cards (lane-eligibility.mjs); switch default OFF → null.
+  const eligibleGame = loadEligibleGameView(slateDate, laneGame);
   return (
     <>
       <nav aria-label="This game" className="nbx-gamenav">
@@ -63,7 +67,7 @@ export default function NbaPossessionGamePage({ load, nowIso = new Date().toISOS
         <a href={`#${OFFICIAL_PREDICTIONS_ID}`} aria-current="true" data-nba-view="default">Official projected game <span>Default</span></a>
         <a href={`#${SIMULATED_SCENARIOS_ID}`} data-nba-view="scenarios">Simulated scenarios <span>Hypothetical</span></a>
       </nav>
-      {payload ? <NbaOfficialPredictions official={payload.official} teams={payload.teams} lane={laneGame} finalNote={finalNote} resultsHref={NBA_RESULTS_HREF} postFreezeOut={loadPostFreezeOut(slateDate, eventId)} /> : null}
+      {payload ? <NbaOfficialPredictions official={eligibleGame ? eligibleOfficial(payload.official, eligibleGame) : payload.official} teams={payload.teams} lane={eligibleGame ?? laneGame} finalNote={finalNote} resultsHref={NBA_RESULTS_HREF} postFreezeOut={loadPostFreezeOut(slateDate, eventId)} /> : null}
       <section id={SIMULATED_SCENARIOS_ID} tabIndex={-1} className="nbp-scenarios" aria-labelledby={`${SIMULATED_SCENARIOS_ID}-h`} data-nba-simulated-scenarios="">
         <p className="nbx-kind">{SIMULATED_SCENARIOS_KIND}</p>
         <h2 id={`${SIMULATED_SCENARIOS_ID}-h`}>{SIMULATED_SCENARIOS_TITLE}</h2>

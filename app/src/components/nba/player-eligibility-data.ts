@@ -22,3 +22,10 @@ export function loadEligibleLaneView(lane: Snapshot | null): { snapshot: Snapsho
   const view = eligibleLaneView(lane, eligibilityInputs(readDoc(lane.date), lane.date));
   return { snapshot: view.snapshot as Snapshot, basis: view.basis };
 }
+
+/** One game's eligibility VIEW (the game page), or null when the switch is off or the game has no lane row. */
+export function loadEligibleGameView(date: string | null, laneGame: Snapshot["games"][number] | null): Snapshot["games"][number] | null {
+  if (!siteEligibilityEnabled() || !date || !laneGame) return null;
+  const view = eligibleLaneView({ date, games: [laneGame] }, eligibilityInputs(readDoc(date), date));
+  return (view.snapshot as { games: Snapshot["games"] }).games[0] ?? null;
+}

@@ -80,3 +80,19 @@ test("Top Boards rank over the same view the table shows: provenance still reads
   const off = gateLaneTopBoards(lane, { dated: lane, nowIso, enabled: true });
   assert.deepEqual(gateLaneTopBoards(lane, { dated: lane, nowIso, enabled: true, view: lane }), off, "view = lane is the switch-off result");
 });
+
+test("GAME PAGE · the official snapshot rows follow the same view: ineligible player dropped, ineligible cell null, other numbers the snapshot's own", async () => {
+  const { eligibleOfficial } = await import("./lane-eligibility.mjs");
+  const g = lane.games.find((x) => [...x.players.home, ...x.players.away].some((r) => String(r.providerAthleteId) === OUBRE));
+  const official = { eventId: g.providerEventId, players: ["away", "home"].flatMap((side) => g.players[side].map((p) => ({ playerId: p.providerAthleteId, team: side, displayName: p.name, medians: p.medians, expectedMinutes: p.expectedMinutes }))) };
+  const view = eligibleLaneView(lane, eligibilityInputs(doc, DATE)).snapshot.games.find((x) => x.providerEventId === g.providerEventId);
+  const out = eligibleOfficial(official, view);
+  const byId = (id) => out.players.find((p) => String(p.playerId) === id);
+  assert.equal(byId(NEMBHARD), undefined, "R1 Out: off the game page");
+  assert.equal(byId(OUBRE).medians.reb, null);
+  assert.equal(byId(OUBRE).medians.pts, official.players.find((p) => String(p.playerId) === OUBRE).medians.pts);
+  assert.equal(out.players.length, official.players.length - 1);
+  assert.equal(eligibleOfficial(official, null), official, "switch off (no view) → the snapshot unchanged, same object");
+  const none = eligibleLaneView(lane, eligibilityInputs(null, DATE)).snapshot.games.find((x) => x.providerEventId === g.providerEventId);
+  assert.deepEqual(eligibleOfficial(official, none), official, "no file → identical rows");
+});
