@@ -16,7 +16,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { buildTopBoards, readinessFor, etDateOfKickoff, TOP_BOARD_SPECS, TOP_BOARD_SIZE, TOP_BOARD_SOURCE } from "./top-boards.mjs";
-import { BOARD_METRIC } from "./board-ranking.mjs";
+import { BOARD_METRIC, publicBoardEligibility } from "./board-ranking.mjs";
 
 const APP = process.cwd();
 const read = (rel) => JSON.parse(fs.readFileSync(path.join(APP, rel), "utf8"));
@@ -167,10 +167,38 @@ test("COMMITTED · the current week's artifact carries the five boards, additive
       assert.equal(top.estimate.label, "Estimate · calibration standard not yet met", fam);
       assert.equal(top.estimate.reason, legacy.reason, `${fam}: the failed bar is the board's own`);
       assert.equal(top.estimate.caveat, legacy.caveat, `${fam}: the caveat is the board's own`);
-      assert.ok(top.rows.length >= 1 && top.rows.length <= 5, fam);
+      assert.ok(top.rows.length <= 5, fam);
+      /* An EMPTY estimate board is truthful only when nobody in its scope may rank (founder-approved repair 2026-11-12:
+         Monday 401873065 LAC @ BAL — Herbert Questionable, not cleared; Brissett a non-established starter whose passing
+         projection #1326 withholds). Every projected candidate in scope must fail the public board rule. */
+      if (!top.rows.length) {
+        const inScope = scope.scope.events.map((id) => read(`public/data/nfl/player-board/${id}.json`));
+        const rankable = inScope.flatMap((b) => (b.players ?? []).filter((p) => Number.isFinite(p.markets?.[fam]?.median) && publicBoardEligibility(p, b, wb.generatedAt).eligible).map((p) => p.name));
+        assert.deepEqual(rankable, [], `${fam}: an empty ${scope.scope.kind} board while ${rankable.join(", ")} could rank`);
+      }
       for (const r of top.rows) assert.ok(!("market" in r) && !("pricingState" in r), `${fam} ${r.name}: an estimate row carries no price`);
     }
   }
+});
+
+test("COMMITTED · passing: only an identified, ESTABLISHED starter carries a passing projection, and every cleared one ranks", () => {
+  /* #1326: a starter without an established projection (state WITHHELD_*) carries no public passing market; an APPLIED
+     starter does. The week's passing board ranks exactly the cleared APPLIED starters, highest median first. */
+  const wb = read("public/data/nfl/weekly-boards/latest.json");
+  if (!wb.topBoards) return;
+  const weekly = wb.topBoards.weekly;
+  const boards = weekly.scope.events.map((id) => read(`public/data/nfl/player-board/${id}.json`));
+  const applied = new Set(boards.flatMap((b) => (b.integrity?.qbStarter ?? []).filter((q) => q.state === "APPLIED").map((q) => q.starter.playerId)));
+  for (const b of boards) for (const p of b.players ?? []) {
+    if (!p.markets?.player_pass_yds) continue;
+    assert.ok(applied.has(p.playerId), `${b.providerEventId} ${p.name}: a passing projection on a QB the board did not apply as its established starter`);
+  }
+  const cleared = boards.flatMap((b) => (b.players ?? []).filter((p) => Number.isFinite(p.markets?.player_pass_yds?.median) && publicBoardEligibility(p, b, wb.generatedAt).eligible).map((p) => ({ id: p.playerId, v: p.markets.player_pass_yds.median })));
+  assert.ok(cleared.length >= 1, "established, cleared starters this week produce passing projections");
+  const top = weekly.boards.find((b) => b.family === "player_pass_yds");
+  assert.equal(top.rows.length, Math.min(5, cleared.length), "a passing board ranks every cleared established starter, up to five");
+  for (const r of top.rows) assert.ok(applied.has(r.playerId), `${r.name}: ranked passer is an applied starter`);
+  assert.ok(top.rows.every((r, i, a) => i === 0 || a[i - 1].value >= r.value), "highest median first");
 });
 
 test("SOURCE · the builder emits topBoards from the official boards only (no odds, simulations or fallbacks rank)", () => {

@@ -3,6 +3,14 @@
  * projected in the lane frozen 08:23Z, ruled Out on the 16:32Z capture (stated 16:29Z). The page keeps his projection
  * as recorded, demotes it below every active row and says why; the frozen lane file is never edited.
  *
+ * IMMUTABLE FIXTURE (founder-approved repair, 2026-11-12). The live file app/public/data/nba/post-freeze-availability/
+ * 2026-11-11.json is rewritten by the window step from each later capture (nine Outs by 23:53Z; Mathurin's statedAt
+ * moved 16:29Z → 16:55Z as ESPN re-posted the item), so the pinned assertions read __fixtures__/
+ * post-freeze-availability-2026-11-11-from-1632Z.json: the script's own output from the 16:32Z capture, byte-equal to
+ * the file's first committed version (#1323). The LIVE file is held to the rule instead: every change it carries must be
+ * a real post-freeze Out of a projected lane player (validateAgainstLane), and so must the derivation from the latest
+ * committed capture.
+ *
  * Run (from app/): npx tsx --test src/lib/sports/nba/post-freeze-availability.test.mjs
  */
 import test from "node:test";
@@ -28,6 +36,40 @@ const MATHURIN = "4683634";
 const LANE_REL = `app/public/data/nba/experimental-public/${DATE}.json`;
 const lane = JSON.parse(read(LANE_REL));
 const capture = JSON.parse(fs.readFileSync(path.join(APP, "src/lib/sports/nba/__fixtures__/nba-injuries-2026-11-11T1632Z.json"), "utf8"));
+const FIXTURE_REL = "src/lib/sports/nba/__fixtures__/post-freeze-availability-2026-11-11-from-1632Z.json";
+const fixture = JSON.parse(fs.readFileSync(path.join(APP, FIXTURE_REL), "utf8"));
+/** Run `fn` with process.cwd() at a temp app root whose public post-freeze file for DATE is `doc` (the readers resolve
+ *  public/ from the cwd), so a render reads the immutable fixture, never the live file. */
+function withPublicFile(doc, fn) {
+  const tmp = fs.mkdtempSync(path.join(process.env.TMPDIR ?? "/tmp", "pfa-cwd-"));
+  const at = path.join(tmp, "public/data/nba/post-freeze-availability", `${DATE}.json`);
+  fs.mkdirSync(path.dirname(at), { recursive: true }); fs.writeFileSync(at, JSON.stringify(doc));
+  const cwd = process.cwd();
+  process.chdir(tmp);
+  try { return fn(); } finally { process.chdir(cwd); fs.rmSync(tmp, { recursive: true, force: true }); }
+}
+/** The rule, against the frozen lane: problems in a post-freeze file (empty = valid). */
+function validateAgainstLane(doc, laneDoc) {
+  const p = [];
+  if (doc?.schema !== POST_FREEZE_AVAILABILITY_SCHEMA) p.push(`schema ${doc?.schema}`);
+  if (doc?.date !== laneDoc.date) p.push(`date ${doc?.date}`);
+  if (doc?.lane?.generatedAt !== laneDoc.generatedAt) p.push(`lane ${doc?.lane?.generatedAt}`);
+  if (!Array.isArray(doc?.changes) || !doc.changes.length) p.push("no changes array");
+  const seen = new Set();
+  for (const c of doc?.changes ?? []) {
+    const k = `${c.providerEventId}:${c.providerAthleteId}`;
+    if (seen.has(k)) p.push(`${k}: duplicate`); seen.add(k);
+    const gm = laneDoc.games.find((x) => x.providerEventId === c.providerEventId);
+    const row = gm && gm.players?.[c.side]?.find((r) => r.providerAthleteId === c.providerAthleteId);
+    if (!row) { p.push(`${k}: not a projected ${c.side} player of a slate game`); continue; }
+    if (c.status !== "Out") p.push(`${k}: status ${c.status}`);
+    const t = Date.parse(c.statedAt ?? "");
+    if (!(t > Date.parse(gm.frozenAt) && t < Date.parse(gm.tipUtc))) p.push(`${k}: stated ${c.statedAt} not after the freeze and before tip-off`);
+    if (c.name !== row.name) p.push(`${k}: name ${c.name} ≠ lane ${row.name}`);
+  }
+  if (/median|expectedMinutes|price|odds/i.test(JSON.stringify(doc ?? {}))) p.push("carries a projection number or a price");
+  return p;
+}
 const text = (h) => h.replace(/<[^>]+>/g, " ").replace(/&#x27;|&#39;/g, "'").replace(/&amp;/g, "&").replace(/\s+/g, " ");
 
 test("derivation: only a PROJECTED player ruled Out after the game froze; Out → Day-To-Day and pre-freeze Outs are not changes", () => {
@@ -41,17 +83,44 @@ test("derivation: only a PROJECTED player ruled Out after the game froze; Out �
   assert.ok(!Object.keys(f).some((k) => /generated|built|now/i.test(k)) && !JSON.stringify(f).match(/median|expectedMinutes|price|odds/i), "facts only, no wall clock");
 });
 
-test("the committed public file is what the script derives (no projection number, no price) and the frozen lane file is untouched", () => {
-  const committed = JSON.parse(read(POST_FREEZE_REL(DATE)));
-  // a later capture may add changes to the same day's file; the fixture's change is always among them
-  for (const c of postFreezeAvailability(lane, capture).changes) assert.ok(committed.changes.some((x) => JSON.stringify(x) === JSON.stringify(c)), `${c.name} is in the committed file`);
-  assert.ok(!/median|expectedMinutes|price|odds/i.test(read(POST_FREEZE_REL(DATE))), "facts only");
-  assert.equal(committed.date, DATE);
-  assert.equal(committed.lane.generatedAt, lane.generatedAt, "derived from the lane frozen at 08:23Z");
+test("the immutable fixture is what the script derives from the 16:32Z capture (no projection number, no price) and the frozen lane file is untouched", () => {
+  assert.deepEqual(fixture.changes, postFreezeAvailability(lane, capture).changes, "the fixture is the 16:32Z derivation");
+  assert.deepEqual(validateAgainstLane(fixture, lane), []);
+  assert.ok(!/median|expectedMinutes|price|odds/i.test(JSON.stringify(fixture)), "facts only");
+  assert.equal(fixture.date, DATE);
+  assert.equal(fixture.lane.generatedAt, lane.generatedAt, "derived from the lane frozen at 08:23Z");
   const g = lane.games.find((x) => x.providerEventId === GAME);
   const row = g.players.home.find((p) => p.providerAthleteId === MATHURIN);
   assert.deepEqual([row.expectedMinutes, row.medians.pts, row.injuryStatus], [16.9, 8.4, null], "the frozen lane still holds the projection as recorded");
   assert.equal(g.receipt.payloadSha256, "04e35976bbe53247a877aff34571254339aaca379df4c79d04c65cf45d11e215", "the receipt the lane froze at 08:23Z");
+});
+
+test("LIVE · the committed public file obeys the rule: every change is a real post-freeze Out of a projected lane player", () => {
+  const live = JSON.parse(read(POST_FREEZE_REL(DATE)));
+  assert.deepEqual(validateAgainstLane(live, lane), [], "the live file the pages read");
+  const latest = JSON.parse(read("data/internal/research/injuries/nba/latest.json"));
+  const fromLatest = postFreezeAvailability(lane, latest);
+  if (fromLatest.changes.length) assert.deepEqual(validateAgainstLane(fromLatest, lane), [], "the latest committed capture's derivation obeys the same rule");
+  const { loadPostFreezeOut } = { loadPostFreezeOut: (d, e) => postFreezeOutFor(live, e, d) };
+  for (const c of live.changes) assert.ok(loadPostFreezeOut(DATE, c.providerEventId).has(c.providerAthleteId), `${c.name} reaches its game page`);
+});
+
+test("the rule still refuses: a non-Out status, an Out stated before the freeze or after tip-off, a player not projected, a wrong lane or date, a number", () => {
+  const ok = structuredClone(fixture);
+  const bad = (mut) => { const d = structuredClone(ok); mut(d); return validateAgainstLane(d, lane); };
+  assert.deepEqual(validateAgainstLane(ok, lane), []);
+  assert.ok(bad((d) => { d.changes[0].status = "Day-To-Day"; }).some((x) => /status/.test(x)));
+  assert.ok(bad((d) => { d.changes[0].statedAt = "2026-11-11T08:00Z"; }).some((x) => /not after the freeze/.test(x)));
+  assert.ok(bad((d) => { d.changes[0].statedAt = "2026-11-12T03:00Z"; }).some((x) => /before tip-off/.test(x)));
+  assert.ok(bad((d) => { d.changes[0].providerAthleteId = "999999"; }).some((x) => /not a projected/.test(x)));
+  assert.ok(bad((d) => { d.changes[0].side = "away"; }).some((x) => /not a projected/.test(x)));
+  assert.ok(bad((d) => { d.date = "2026-11-10"; }).some((x) => /date/.test(x)));
+  assert.ok(bad((d) => { d.lane.generatedAt = "2026-11-11T07:00:00Z"; }).some((x) => /lane/.test(x)));
+  assert.ok(bad((d) => { d.changes[0].expectedMinutes = 16.9; }).some((x) => /projection number/.test(x)));
+  assert.ok(bad((d) => { d.changes.push(d.changes[0]); }).some((x) => /duplicate/.test(x)));
+  assert.ok(bad((d) => { d.schema = "x"; }).some((x) => /schema/.test(x)));
+  assert.equal(postFreezeOutFor({ schema: "x", changes: ok.changes }, GAME, DATE).size, 0, "a foreign schema is never applied");
+  assert.equal(postFreezeOutFor(null, GAME, DATE).size, 0, "a missing file is never applied");
 });
 
 test("note text: ET clock time of the injury report", () => {
@@ -70,8 +139,8 @@ const teams = { away: { abbr: g.away.abbr, name: g.away.name }, home: { abbr: g.
 const eloCtx = { enabled: false, disclosure: "" };
 
 test("game page Default view: Mathurin's projection stays as recorded, demoted below every active NO row, with the note", () => {
-  const ruled = loadPostFreezeOut(DATE, GAME);
-  assert.ok(ruled.has(MATHURIN), "the page reads the committed public file");
+  const ruled = withPublicFile(fixture, () => loadPostFreezeOut(DATE, GAME));
+  assert.ok(ruled.has(MATHURIN), "the page's reader reads the public file (here: the immutable fixture)");
   const html = renderToStaticMarkup(React.createElement(NbaOfficialPredictions, { official, teams, lane: g, finalNote: null, resultsHref: "/results/nba/", eloCtx, postFreezeOut: ruled }));
   const table = html.split('data-nba-official-table="home"')[1].split("</table>")[0];
   const rows = table.split("<tr").slice(2); // header row, then body rows
@@ -87,7 +156,7 @@ test("game page Default view: Mathurin's projection stays as recorded, demoted b
 });
 
 test("settled page (same URL after the ET rollover) keeps the same note and order", () => {
-  const html = renderToStaticMarkup(React.createElement(SettledSimulation, { view: { id: GAME, date: DATE, game: g, record: null } }));
+  const html = withPublicFile(fixture, () => renderToStaticMarkup(React.createElement(SettledSimulation, { view: { id: GAME, date: DATE, game: g, record: null } })));
   assert.equal(html.split("data-nba-post-freeze-out").length - 1, 1);
   assert.match(text(html), /Bennedict Mathurin Ruled out after this forecast froze \(injury report 11:29 AM ET\) 16\.9 8\.4/);
 });
@@ -101,7 +170,7 @@ test("/nba/projections all-players board: Mathurin kept as recorded, last in the
   const { boardRows, packBoard, unpackBoard, sortRows } = await import("./projection-board-ops.mjs");
   const { PROJECTION_BOARD_STATS } = await import("./experimental-public-lane.mjs");
   const { loadPostFreezeNotes } = await import("../../../components/nba/post-freeze-availability-data.ts");
-  const notes = loadPostFreezeNotes(DATE);
+  const notes = withPublicFile(fixture, () => loadPostFreezeNotes(DATE));
   assert.deepEqual(notes, { [`${GAME}:${MATHURIN}`]: "Ruled out after this forecast froze (injury report 11:29 AM ET)" });
   assert.equal(loadPostFreezeNotes("2026-11-10"), null, "a date without a file: no notes");
   const plain = packBoard(boardRows(lane, PROJECTION_BOARD_STATS));
@@ -149,6 +218,6 @@ test("script: writes only on change and never an empty file", () => {
   const first = fs.readFileSync(out, "utf8");
   assert.match(run(), /unchanged/);
   assert.equal(fs.readFileSync(out, "utf8"), first, "byte-identical rerun");
-  assert.equal(first, read(POST_FREEZE_REL(DATE)), "the committed file is exactly what the script writes from the 16:32Z capture");
+  assert.equal(first, fs.readFileSync(path.join(APP, FIXTURE_REL), "utf8"), "the immutable fixture is exactly what the script writes from the 16:32Z capture");
   fs.rmSync(tmp, { recursive: true, force: true });
 });
