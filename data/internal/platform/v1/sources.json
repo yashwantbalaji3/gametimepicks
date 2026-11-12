@@ -6,16 +6,16 @@
    "epl.fixtures": "2026-10-24T14:16:20Z"
   },
   "MLB": {
-   "mlb.boards": "2026-11-11",
+   "mlb.boards": "2026-11-12",
    "mlb.finals-history": "2025-09-28",
-   "mlb.linescores": "2026-11-10",
+   "mlb.linescores": "2026-11-11",
    "mlb.settled-leans": "2026-10-28",
-   "mlb.statsapi-schedule": "2026-11-11T09:27:30.942Z"
+   "mlb.statsapi-schedule": "2026-11-12T09:27:15.413Z"
   },
   "NFL": {
    "nfl.espn-player-events": "2026-11-10T01:15Z",
    "nfl.espn-results": "2026-11-11T17:03:36Z",
-   "nfl.espn-rosters": "2026-11-11T17:07:16Z",
+   "nfl.espn-rosters": "2026-11-12T02:08:47Z",
    "nfl.espn-schedule": "2026-11-11T17:03:29Z",
    "nfl.nflverse-current-season": "2026-11-10T20:59:40Z",
    "nfl.nflverse-games-history": "2026-02-08",
@@ -24,7 +24,7 @@
   "UFC": {
    "ufc.espn-history": "2026-08-09T00:00Z",
    "ufc.espn-results": "2026-11-11T15:58:04Z",
-   "ufc.espn-schedule": "2026-11-11T17:03:30Z"
+   "ufc.espn-schedule": "2026-11-11T20:05:51Z"
   }
  },
  "note": "Every committed artifact the builder read, fingerprinted. Internal only — repository-relative paths never reach a public projection.",
@@ -831,7 +831,7 @@
    "timeMeaning": "kickoffIso = scheduled kickoff (UTC); capturedAt = observation"
   },
   {
-   "artifactCount": 161,
+   "artifactCount": 162,
    "artifacts": [
     {
      "bytes": 550572,
@@ -1637,6 +1637,11 @@
      "bytes": 1142,
      "path": "app/public/data/mlb/boards/2026-11-11.json",
      "sha256": "60b345b52cdbd9c4c66b3cecda95fc63e048eb7aeca04d46d13a4c337e8d2886"
+    },
+    {
+     "bytes": 1142,
+     "path": "app/public/data/mlb/boards/2026-11-12.json",
+     "sha256": "194f2d3025fffad20b7eef94464846ea432d0de64d71eb188f33c9fd5cb85aaf"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
@@ -4541,7 +4546,7 @@
    "timeMeaning": "officialDate = StatsAPI official game date; no instant"
   },
   {
-   "artifactCount": 130,
+   "artifactCount": 131,
    "artifacts": [
     {
      "bytes": 4585,
@@ -5192,6 +5197,11 @@
      "bytes": 103,
      "path": "data/internal/mlb/linescores/2026-11-10.json",
      "sha256": "43038034a16ce83b8a69989ced7e29430596f6d83f3248fde15e2e30b8ce8753"
+    },
+    {
+     "bytes": 103,
+     "path": "data/internal/mlb/linescores/2026-11-11.json",
+     "sha256": "ff7af3bd602c36ed623243a4b1eb8afc37a0ed92d79b6b66e0b33aba83c9fdfa"
     }
    ],
    "dataClass": "INTERNAL",
@@ -5206,7 +5216,7 @@
     {
      "bytes": 22628186,
      "path": "app/public/data/mlb/results/settled_leans.jsonl",
-     "sha256": "2a3bcea275799f267afce4009df89d4f1a5cb7957167ddd7f02cd376298c4c06"
+     "sha256": "78bc80ec4c6a5b253efb508542762f7d61131960bb473c0cb0cec4ab7529f015"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
@@ -5216,7 +5226,7 @@
    "timeMeaning": "date = slate date; actual = box-score value read at settlement"
   },
   {
-   "artifactCount": 78,
+   "artifactCount": 79,
    "artifacts": [
     {
      "bytes": 6076,
@@ -5607,6 +5617,11 @@
      "bytes": 462,
      "path": "app/public/data/mlb/statsapi-schedule/2026-11-17.json",
      "sha256": "a0591bd7ccce607152aa0f85bd76b6fc592ca34e4f2d1f734ae5662526e3bd13"
+    },
+    {
+     "bytes": 462,
+     "path": "app/public/data/mlb/statsapi-schedule/2026-11-18.json",
+     "sha256": "ca1246c34cc2e969cf296aac38731e27a997a0a5c15a69cbce28c8ab91f2db91"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
@@ -5636,7 +5651,7 @@
     {
      "bytes": 865261,
      "path": "data/internal/research/nfl/player-events-v1/2026.json",
-     "sha256": "9edebe6d7121387d9e3d38511189f4b586f2b6d85ebacd7e170396932750eb04"
+     "sha256": "a9d32f36bbff9e7f7604db8873f828acce409fac54ec6ee2bdad10606c436efd"
     }
    ],
    "dataClass": "PRIVATE_RESEARCH",
@@ -5661,7 +5676,7 @@
    "timeMeaning": "dateUtc = kickoff; capturedAt = fetch time; STATUS_FINAL rows only"
   },
   {
-   "artifactCount": 475,
+   "artifactCount": 479,
    "artifacts": [
     {
      "bytes": 355693,
@@ -8034,9 +8049,29 @@
      "sha256": "d6650bab39c150af7ce55d7d480caacacf956f03a243586e71cafc000c3ea330"
     },
     {
-     "bytes": 308082,
+     "bytes": 308205,
+     "path": "app/public/data/nfl/rosters/capture-2026-11-11T2105.json",
+     "sha256": "d8a62f85527fce2fc1297f14904f4f796b4e1a24b7bd3ecd4cbdb9aca8064958"
+    },
+    {
+     "bytes": 308205,
+     "path": "app/public/data/nfl/rosters/capture-2026-11-11T2131.json",
+     "sha256": "79a8dd1df110e5745dc64f1a964f4c773c9111a1255f35e0934d61793f45d2f3"
+    },
+    {
+     "bytes": 308205,
+     "path": "app/public/data/nfl/rosters/capture-2026-11-11T2150.json",
+     "sha256": "3c7d4553ec99600b2ae31ca532bb66b01bd6449fbc649ca3fad0b3720fd6ce7b"
+    },
+    {
+     "bytes": 308205,
+     "path": "app/public/data/nfl/rosters/capture-2026-11-12T0208.json",
+     "sha256": "5cb82e988695b03236feba34ae0165b85fdc639f017d9d18de673b263188db33"
+    },
+    {
+     "bytes": 308205,
      "path": "app/public/data/nfl/rosters/latest.json",
-     "sha256": "d6650bab39c150af7ce55d7d480caacacf956f03a243586e71cafc000c3ea330"
+     "sha256": "5cb82e988695b03236feba34ae0165b85fdc639f017d9d18de673b263188db33"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
@@ -8511,7 +8546,7 @@
    "timeMeaning": "dateUtc = bout instant; capturedAt = fetch time; STATUS_FINAL only"
   },
   {
-   "artifactCount": 192,
+   "artifactCount": 193,
    "artifacts": [
     {
      "bytes": 31810,
@@ -9472,6 +9507,11 @@
      "bytes": 15822,
      "path": "app/public/data/ufc/schedule/capture-2026-11-11T1703.json",
      "sha256": "d59846ab0ba91c6afda4d7421afa1a0ad01588bc1aa08e86996d4284159671b2"
+    },
+    {
+     "bytes": 15822,
+     "path": "app/public/data/ufc/schedule/capture-2026-11-11T2005.json",
+     "sha256": "42eb146a39cd830097d5fa10425cd7997e863cf927b7359d97ee742967d6fdea"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
