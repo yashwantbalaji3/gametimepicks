@@ -89,3 +89,13 @@ test("the watchdog asks whether today's fight card is priced, and refuses to buy
   assert.match(lib, /state: priced \? "DONE" : "TOO_LATE"/);
   assert.match(lib, /in-play prices/, "and says why buying late would be wrong");
 });
+
+test("cron-watchdog · the cron-slot step never deepens history and has its own timeout (11-08 → 11-11: every run CANCELLED at the 10-min job timeout)", () => {
+  const wf = fs.readFileSync(path.resolve(process.cwd(), "../.github/workflows/cron-watchdog.yml"), "utf8");
+  assert.doesNotMatch(wf, /^\s*git fetch --deepen/m, "a history deepen of this repository ran past the job timeout");
+  const step = wf.slice(wf.indexOf("- name: Cron-slot coverage"), wf.indexOf("run: |", wf.indexOf("- name: Cron-slot coverage")));
+  assert.match(step, /timeout-minutes: \d+/, "a hung observer must not eat the job's budget");
+  const src = fs.readFileSync(path.join(process.cwd(), "scripts/ops/cron-slot-watchdog.mjs"), "utf8");
+  assert.match(src, /"gh", \["api", "--paginate", `repos\/\{owner\}\/\{repo\}\/commits\?path=\.github\/workflows\/\$\{wf\}/, "workflow ADD dates come from the commits API");
+  assert.match(src, /--is-shallow-repository/, "a shallow clone never answers the graft boundary as the ADD date");
+});
