@@ -3,6 +3,7 @@
  * date: app/public/data/nba/player-eligibility/<date>.json. Only consulted with GTP_NBA_SITE_SHARED_ELIGIBILITY=1.
  * Absent → MODEL_REVIEW_ONLY; unreadable or foreign → MALFORMED (fail closed).
  */
+import crypto from "node:crypto";
 import fs from "node:fs";
 import path from "node:path";
 import { eligibilityInputs, eligibleLaneView, siteEligibilityEnabled, PLAYER_ELIGIBILITY_REL } from "@/lib/sports/nba/lane-eligibility.mjs";
@@ -31,8 +32,10 @@ export function loadEligibleGameView(date: string | null, laneGame: Snapshot["ga
 }
 
 /** The slate's eligibility decision for the CC feed (nba-social.mjs eligibilityBlockFor), or null when the switch is off. */
-export function loadEligibilityAudit(lane: Snapshot | null): { basis: string; source: string; audit: unknown[] } | null {
+export function loadEligibilityAudit(lane: Snapshot | null): { basis: string; source: string; sourceSha256: string | null; audit: unknown[] } | null {
   if (!siteEligibilityEnabled() || !lane?.date) return null;
   const view = eligibleLaneView(lane, eligibilityInputs(readDoc(lane.date), lane.date));
-  return { basis: view.basis, source: PLAYER_ELIGIBILITY_REL(lane.date), audit: view.audit };
+  const p = file(lane.date);
+  const sourceSha256 = fs.existsSync(p) ? crypto.createHash("sha256").update(fs.readFileSync(p)).digest("hex") : null;
+  return { basis: view.basis, source: PLAYER_ELIGIBILITY_REL(lane.date), sourceSha256, audit: view.audit };
 }

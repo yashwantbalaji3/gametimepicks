@@ -121,13 +121,18 @@ test("CC FEED · gtp-social-nba@1 gains an additive, LAST eligibility block only
   const off = buildNbaSocialDay(base);
   assert.ok(off.events.every((e) => !("eligibility" in e)), "switch off: no block");
   const view = eligibleLaneView(lane, eligibilityInputs(doc, DATE));
-  const on = buildNbaSocialDay({ ...base, eligibility: { basis: view.basis, source: `app/public/data/nba/player-eligibility/${DATE}.json`, audit: view.audit } });
+  const on = buildNbaSocialDay({ ...base, eligibility: { basis: view.basis, source: `app/public/data/nba/player-eligibility/${DATE}.json`, sourceSha256: "a".repeat(64), audit: view.audit } });
   for (const [i, e] of on.events.entries()) {
     const { eligibility, ...rest } = e;
     assert.deepEqual(rest, off.events[i], "every other field, medians included, is unchanged");
     assert.equal(Object.keys(e).at(-1), "eligibility", "appended last (schema-additive)");
     assert.equal(eligibility.basis, "ELIGIBILITY_FILE");
+    assert.equal(eligibility.sourceSha256, "a".repeat(64), "the decision file's hash travels with the decision");
   }
+  /* MALFORMED: every projected player of that day's lane is excluded (bb-social: no separate roster needed) */
+  const bad = eligibleLaneView(lane, eligibilityInputs({ schema: "x" }, DATE));
+  const m = buildNbaSocialDay({ ...base, eligibility: { basis: bad.basis, source: "s", sourceSha256: null, audit: bad.audit } });
+  for (const e of m.events) assert.deepEqual(e.eligibility.excludedPlayers, e.players.map((p) => p.id).sort(), `${e.eventId}: every projected player excluded`);
   const all = on.events.flatMap((e) => [...e.eligibility.excludedPlayers.map((p) => ["x", p]), ...e.eligibility.withheld.map((w) => ["w", w])]);
   assert.ok(all.some(([k, v]) => k === "x" && v === NEMBHARD), "R1 Out: excluded player");
   assert.ok(all.some(([k, v]) => k === "w" && v === `${OUBRE}.reb`) && all.some(([k, v]) => k === "w" && v === `${OUBRE}.pra`), "a hidden cell and the combos that follow it");

@@ -100,25 +100,22 @@ const etTime = (iso) => {
 const num = (v) => (typeof v === "number" && Number.isFinite(v) ? v : null);
 
 /**
- * `reasonText` is the NBA pages' own unavailable-reason wording (components/nba/official-predictions.tsx), passed in by the
- * server loader — products never read the Theater library (research boundary), and this pure module imports no component.
- * `latestDate` is the newest date this build ships a day file for (nba-social-data nbaSocialDates().at(-1)); `isLatest` is
- * true only when it equals the lane's date.
- * `lineDirections` is the social surface's direction gate (lib/odds/display-authorization.mjs publicDirectionGate("nba",
- * "social")): a COMPARED row of a family that is not direction-qualified becomes status DIRECTION_WITHHELD — line and
- * capture time only, no direction, side or difference (founder 2026-10-29; every family unqualified today).
- * @param {{ lane: any, recordGames: any[], buildEtDate: string, latestDate?: string|null, laneSha256?: string|null, eloEnabled?: boolean, recordCounts?: { matched: number, missed: number, graded: number }|null, reasonText?: (reason: string|null, status: string|null) => string, lineBoard?: { rows: any[], coverage?: any, attribution?: string|null }|null, lineDisplay?: { public?: boolean, social?: boolean, socialPrices?: boolean, reason?: string|null }, lineDirections?: { scope?: string, shows: (family: string) => boolean } }} input
+ * The per-event eligibility block (gtp-social-nba@1, additive; field shape agreed with bb-social 2026-11-12):
+ * `eligibility` is { basis, source, sourceSha256, audit } from lane-eligibility.mjs eligibleLaneView.
+ *   basis           ELIGIBILITY_FILE · MODEL_REVIEW_ONLY (no per-slate file committed: empty lists) · MALFORMED (fail
+ *                   closed: EVERY projected player of that day's lane is in excludedPlayers — no separate roster needed)
+ *   sourceSha256    sha256 of the per-slate file read (null for MODEL_REVIEW_ONLY), so the CC can check that the site and
+ *                   the cards used the same decision file
+ *   excludedPlayers no eligible stat (off the site board)
+ *   withheld        "<playerId>.<family>" cells hidden for players still featured, family keys as in PLAYER_FAMILIES
+ * @param {string} eventId @param {{ basis: string, source: string, sourceSha256: string | null, audit: any[] }} e
  */
-/**
- * The per-event eligibility block (gtp-social-nba@1, additive): `eligibility` is { basis, source, audit } from
- * lane-eligibility.mjs eligibleLaneView. excludedPlayers = no eligible stat (off the site board); withheld = the
- * "<playerId>.<family>" cells hidden for players still featured, family keys as in PLAYER_FAMILIES.
- */
-export function eligibilityBlockFor(eventId, { basis, source, audit }) {
+export function eligibilityBlockFor(eventId, { basis, source, sourceSha256, audit }) {
   const rows = (audit ?? []).filter((a) => a.eventId === String(eventId));
   return {
     contract: "gtp.nba.player-eligibility@1",
     source,
+    sourceSha256: sourceSha256 ?? null,
     basis,
     excludedPlayers: rows.filter((a) => !a.shown.length).map((a) => a.playerId).sort(),
     withheld: rows.filter((a) => a.shown.length).flatMap((a) => a.hidden.map((k) => `${a.playerId}.${k}`)).sort(),
@@ -126,6 +123,16 @@ export function eligibilityBlockFor(eventId, { basis, source, audit }) {
   };
 }
 
+/**
+ * `reasonText` is the NBA pages' own unavailable-reason wording (components/nba/official-predictions.tsx), passed in by the
+ * server loader — products never read the Theater library (research boundary), and this pure module imports no component.
+ * `latestDate` is the newest date this build ships a day file for (nba-social-data nbaSocialDates().at(-1)); `isLatest` is
+ * true only when it equals the lane's date.
+ * `lineDirections` is the social surface's direction gate (lib/odds/display-authorization.mjs publicDirectionGate("nba",
+ * "social")): a COMPARED row of a family that is not direction-qualified becomes status DIRECTION_WITHHELD — line and
+ * capture time only, no direction, side or difference (founder 2026-10-29; every family unqualified today).
+ * @param {{ lane: any, recordGames: any[], buildEtDate: string, latestDate?: string|null, laneSha256?: string|null, eloEnabled?: boolean, recordCounts?: { matched: number, missed: number, graded: number }|null, reasonText?: (reason: string|null, status: string|null) => string, lineBoard?: { rows: any[], coverage?: any, attribution?: string|null }|null, lineDisplay?: { public?: boolean, social?: boolean, socialPrices?: boolean, reason?: string|null }, lineDirections?: { scope?: string, shows: (family: string) => boolean }, eligibility?: { basis: string, source: string, sourceSha256: string|null, audit: any[] }|null }} input
+ */
 export function buildNbaSocialDay({ lane, recordGames = [], buildEtDate, latestDate = null, laneSha256 = null, eloEnabled, recordCounts = null, reasonText = (r) => String(r ?? ""), lineBoard = null, lineDisplay = NBA_LINE_DISPLAY, lineDirections = publicDirectionGate("nba", "social"), eligibility = null }) {
   /* Model-versus-line (launch program P0): per player and family, from the published comparison artifact
      (lib/sports/nba/public-line-records.mjs nbaSocialLineBoard — the SAME artifact the pages render) — only when the social
