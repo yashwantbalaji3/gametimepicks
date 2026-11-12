@@ -38,6 +38,13 @@ const BASIS_LABEL: Record<string, string> = {
  * event it grades. A row with no entry renders as plain text — never a guessed URL. UFC passes its settled bout pages
  * (Batch 1 #3); other sports pass nothing and render exactly as before.
  */
+/* Founder language decision 2026-11-11: already-published record files carry the earlier NFL caveat (research and
+   preregistration vocabulary). Exact-phrase, render-time only: the files keep their words; the script writes the new one. */
+const PUBLIC_CAVEAT: Readonly<Record<string, string>> = {
+  "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.": "The model's favoured team, graded against the official final. Not used in paper products yet. A tie is recorded as void, not a miss.",
+};
+const publicCaveat = (c: string) => PUBLIC_CAVEAT[c] ?? c;
+
 export default function GradedPicksSection({ record, rows = 6, href, rowHrefs }: { record: GradedRecord; rows?: number; href: string; rowHrefs?: Readonly<Record<string, string>> }) {
   const c = record.counts;
   /* P246 (UFC labeling audit): the UFC caveat said the market's de-vigged probability "is shown
@@ -68,7 +75,7 @@ export default function GradedPicksSection({ record, rows = 6, href, rowHrefs }:
         {record.sampleNote}
       </p>
       {record.caveat ? (
-        <p style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)", margin: "6px 0 0" }}>{record.caveat}</p>
+        <p style={{ fontSize: 12, lineHeight: 1.6, color: "var(--vault-text-faint)", margin: "6px 0 0" }}>{publicCaveat(record.caveat)}</p>
       ) : null}
 
       <div className="mt-4 overflow-x-auto">

@@ -22,6 +22,7 @@ import EtTime from "@/components/ui/et-time";
 import { dailyFor, etDateOfKickoff, pregameScope, rankingMethodText } from "@/lib/sports/nfl/top-boards.mjs";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 import { estimateLabel } from "@/lib/sports/nfl/family-publication.mjs";
+import { ESTIMATE_DETAIL } from "@/lib/sports/nfl/forecast-view.mjs";
 
 const read = (rel: string) => {
   try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
@@ -56,7 +57,8 @@ function TopBoardsList({ artifact, scope, completed }: { artifact: WeeklyBoards;
             {/* An estimate board says so once, with its failed bar's caveat (the one label every surface prints). */}
             {b.state === "ESTIMATE" && b.estimate ? (
               <p data-estimate={b.family} style={{ margin: "0 0 2px", fontSize: 11, color: "var(--vault-text-mute)" }}>
-                <strong>{b.estimate.label}</strong>{b.estimate.caveat ? ` · ${b.estimate.caveat.charAt(0).toUpperCase()}${b.estimate.caveat.slice(1)}` : ""}
+                {/* founder language decision 2026-11-11: the one label and one plain line — never the artifact's stored caveat */}
+                <strong>{b.estimate.label}</strong> · {ESTIMATE_DETAIL}
               </p>
             ) : null}
             <p data-ranking-method={b.family} style={{ margin: "0 0 4px", fontSize: 11, color: "var(--vault-text-faint)" }}>{rankingMethodText(b)}</p>
@@ -222,7 +224,7 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
           <SectionHeader
             eyebrow={weeklyPregame.scope.kind === "REMAINING_EVENTS" ? `${weeklyPregame.scope.eventsIncluded} games left` : "Full week"}
             title="Top boards"
-            sub="The official player board's top five per statistic, over games still to kick off only; a list is a maximum, not a quota; a statistic marked Estimate has not yet met its calibration standard and is labelled so; a statistic that has neither says so instead of ranking."
+            sub="The official player board's top five per statistic, over games still to kick off only; a list is a maximum, not a quota; a statistic with a wider projection range is labelled so; a statistic that has neither says so instead of ranking."
           />
           <TopBoardsList artifact={wb} scope={weeklyPregame} />
           {todayBoards ? (
@@ -256,7 +258,7 @@ export default function NflWeekPage({ params }: { params: { key: string } }) {
                   </h2>
                   {b.state === "ESTIMATE" ? (
                     <p data-estimate={b.family} style={{ margin: "0 0 4px", fontSize: 11, color: "var(--vault-text-mute)" }}>
-                      <strong>{estimateLabel(b.reason)}</strong>{b.caveat ? ` · ${b.caveat.charAt(0).toUpperCase()}${b.caveat.slice(1)}` : ""}
+                      <strong>{estimateLabel(b.reason)}</strong> · {ESTIMATE_DETAIL}
                     </p>
                   ) : null}
                   <PredictionBoard

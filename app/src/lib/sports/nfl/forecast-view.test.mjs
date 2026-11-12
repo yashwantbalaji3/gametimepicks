@@ -14,7 +14,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
 
-import { topBoards, gameView, gameTabs, boardTabs, formatValue, PLAYER_FAMILIES, CLEARED, SOURCES, SUPPORTING_LABEL, MARKET_KEY, ESTIMATE_NOTE, NOT_CLEARED_GAME, notClearedBoardNote, simulatedShareNote } from "./forecast-view.mjs";
+import { topBoards, gameView, gameTabs, boardTabs, formatValue, PLAYER_FAMILIES, CLEARED, SOURCES, SUPPORTING_LABEL, MARKET_KEY, ESTIMATE_NOTE, ESTIMATE_DETAIL, NOT_CLEARED_GAME, notClearedBoardNote, simulatedShareNote } from "./forecast-view.mjs";
 import { loadForecastViews, officialSnapshotFor, publicRecordOf } from "./forecast-view-load.mjs";
 import { unionFrozenForecasts } from "./public-forecast-union.mjs";
 import { readWorldModelArtifacts } from "./world-model-v2/read.mjs";
@@ -248,22 +248,24 @@ test("ESTIMATE · a family the board marks ESTIMATE renders its rows under the o
   const e = v.players[0].families.passingYards;
   assert.equal(e.value, 228, "the board's median, exact");
   assert.equal(e.familyState, "ESTIMATE", "never relabelled PUBLISHED");
-  assert.equal(e.estimateLabel, "Estimate · calibration standard not yet met");
+  assert.equal(e.estimateLabel, "Wider projection range");
   assert.equal(e.market, null, "no sportsbook line beside an estimate (no side can be read)");
   assert.equal(v.players[0].families.rushingYards.value, 18, "a published family is untouched");
   assert.equal(v.players[0].families.rushingYards.estimateLabel, undefined);
-  assert.deepEqual(v.estimates.passingYards.label, "Estimate · calibration standard not yet met");
+  assert.deepEqual(v.estimates.passingYards.label, "Wider projection range");
   assert.deepEqual(v.notCleared, {});
   const tabs = gameTabs(v);
   const pass = tabs.families.find((x) => x.key === "passingYards");
   assert.equal(tabs.lists.passingYards.length, 1);
   assert.equal(pass.withheld, null);
-  assert.equal(pass.estimate, "Estimate · calibration standard not yet met");
-  assert.match(pass.estimateDetail, /^Read the range, not a precise over\/under chance\. Evaluation: /);
+  assert.equal(pass.estimate, "Wider projection range");
+  // founder language decision 2026-11-11: one plain line; the failed-bar codes stay in the artifact, never in the detail
+  assert.equal(pass.estimateDetail, ESTIMATE_DETAIL);
+  assert.doesNotMatch(pass.estimateDetail, /Evaluation|failed bar|calibrat|SECOND_LOOK/i);
   assert.equal(tabs.families.find((x) => x.key === "rushingYards").estimate, null);
   const bt = boardTabs(topBoards([v], { now: "2098-01-01T00:00Z" }).boards);
   assert.equal(bt.lists.passingYards.length, 1, "the view's Top board ranks the same estimate row");
-  assert.equal(bt.families.find((x) => x.key === "passingYards").estimate, "Estimate · calibration standard not yet met");
+  assert.equal(bt.families.find((x) => x.key === "passingYards").estimate, "Wider projection range");
   assert.equal(bt.families.find((x) => x.key === "passingYards").notCleared, null);
   assert.ok(ESTIMATE_NOTE.some.length > 20);
   assert.ok(NOT_CLEARED_GAME && notClearedBoardNote(1, 2));
@@ -284,7 +286,7 @@ test("committed data · every official row is PUBLISHED or a board ESTIMATE carr
       assert.ok(e.familyState === "PUBLISHED" || e.familyState === "ESTIMATE", `${v.matchup} ${p.name} ${k}: ${e.familyState}`);
       if (e.familyState === "ESTIMATE") {
         assert.equal(board.families[MARKET_KEY[k]].state, "ESTIMATE", `${v.matchup} ${k}: the board itself says ESTIMATE`);
-        assert.match(e.estimateLabel, /^Estimate · (calibration|publication) standard not yet met$/);
+        assert.equal(e.estimateLabel, "Wider projection range");
         assert.equal(e.market, null);
       }
     }

@@ -104,9 +104,8 @@ export function OfficialProjectionPanel({ official, teams, unavailable = null, d
       <details className="nbp-details" data-nbp-model-details="">
         <summary>{MODEL_DETAILS_TITLE}</summary>
         <dl className="nbp-kv">
-          <dt>Game winner model</dt><dd>{official.models.game ?? "—"}</dd>
-          <dt>Player model</dt><dd>{official.models.players.join(", ") || "—"}</dd>
-          <dt>Snapshot</dt><dd>{official.snapshotId}</dd>
+          <dt>Game winner</dt><dd>{MODEL_PLAIN.game}</dd>
+          <dt>Player statistics</dt><dd>{MODEL_PLAIN.players}</dd>
           <dt>Frozen</dt><dd>{fmtUtc(official.frozenAt)}</dd>
           <dt>Locks at tip</dt><dd>{fmtUtc(official.lockAt)}</dd>
         </dl>
@@ -423,7 +422,8 @@ export function EngineFacts({ payload }: { payload: PbPayload }) {
       <details className="nbp-details">
         <summary>How the runs on this page were chosen</summary>
         <dl className="nbp-kv">
-          {Object.entries(payload.selection.rules).map(([k, v]) => <Fragment key={k}><dt>{k}</dt><dd>{v}</dd></Fragment>)}
+          {/* the seed policy and the distance definition are engineering detail (internal rule ids): kept in the payload, not printed */}
+          {Object.entries(payload.selection.rules).filter(([k]) => k !== "pool" && k !== "distance").map(([k, v]) => <Fragment key={k}><dt>{k}</dt><dd>{v}</dd></Fragment>)}
         </dl>
       </details>
       <h3 className="nba-h3">Not modelled</h3>

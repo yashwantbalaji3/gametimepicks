@@ -39,13 +39,14 @@ export const ELO_WIN_PROBABILITY = Object.freeze({
 export const ELO_WIN_PROBABILITY_SOURCE = "nba-winner-side@1 Elo";
 /** The one name the number is shown under, on every surface. */
 // U+2019 (’), not "'": React escapes "'" to &#x27; — 5 bytes per card on a page that sits at its weight budget
-// Founder wording (Release G, 2026-10-23): an Elo-DERIVED game-winner ESTIMATE — never named a "probability" (it is not an
-// independently validated probability) and never a simulation result. Shorter than the first label: byte-light per card.
-export const ELO_WIN_PROBABILITY_LABEL = "Elo-derived game-winner estimate";
+// Founder wording (Release G, 2026-10-23): never named a "probability" (it is not an independently validated probability)
+// and never a simulation result. Public label (founder language decision 2026-11-11): plain words, no model name —
+// printed beside the MODEL PROJECTION chip, so the label itself never repeats it. Byte-light per card.
+export const ELO_WIN_PROBABILITY_LABEL = "Game-winner projection";
 /** The lane's `elo.source` sentence for a slate that carries the field (a slate without it keeps its frozen sentence).
  * PUBLIC text (the /nba hub prints it): no ops language — the decision is cited in code, never on the page (the built-export
  * banned-string guard caught "founder decision 2026-10-23" here on the 2026-10-23 switch-ON build). */
-export const ELO_SOURCE_WITH_PROBABILITY = "Elo team rating — the published winner side (founder N2) and its Elo-derived game-winner estimate";
+export const ELO_SOURCE_WITH_PROBABILITY = `Team rating — the published winner side and its ${ELO_WIN_PROBABILITY_LABEL}`;
 
 const isP = (x) => typeof x === "number" && Number.isFinite(x) && x > 0 && x < 1;
 /** The receipt stores both numbers at 4 dp; they must be complements (allowing the rounding of each). */
@@ -135,13 +136,16 @@ export function eloWinProbabilityText(view) {
 }
 
 /**
- * The accuracy disclosure printed beside the number on every surface (Model Performance, Release D vocabulary).
+ * The accuracy disclosure printed beside the number on every surface: ONE short plain-language line (founder language
+ * decision 2026-11-11 — the counts and the preregistered minimum live on Methodology and Results, not beside each number),
+ * then the unchanged safety sentence. `graded` / `minN` stay in the signature: Results and Methodology still print them.
  * @param graded  regular-season games with a published Elo side and an official final (elo-win-probability-context.mjs)
  * @param minN    the preregistered minimum before any accuracy claim (grader-metrics PREREG.winner.minN)
  */
 export function eloAccuracyDisclosure({ graded, minN }) {
   const n = Number.isInteger(graded) && graded >= 0 ? graded : 0;
-  return `Model Performance: the Elo rating\u2019s game-outcome accuracy is not yet established — ${n} regular-season game${n === 1 ? "" : "s"} graded so far; the preregistration requires ${minN} before any accuracy claim. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation.`;
+  void n; void minN;
+  return `Accuracy record still building. An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation.`;
 }
 
 /**
@@ -150,7 +154,8 @@ export function eloAccuracyDisclosure({ graded, minN }) {
  */
 export function eloCalibrationCaveat({ graded, minN }) {
   const n = Number.isInteger(graded) && graded >= 0 ? graded : 0;
-  return `Calibration not yet established: ${n} of ${minN} regular-season games graded. An Elo-derived estimate, never a risk tier.`;
+  void n; void minN;
+  return `Accuracy record still building. A model projection, never a risk tier.`;
 }
 
 /**

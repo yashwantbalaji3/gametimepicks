@@ -98,7 +98,7 @@ test("RENDER + RECORDER: labels per leg, the disclosure once, exact card keys on
     assert.deepEqual([...html.matchAll(/data-level-a-card="([^"]+)"/g)].map((m) => m[1]), shown.filter(Boolean).map(levelACardKey), `${mode}: exactly the engine's cards`);
     for (const c of shown.filter(Boolean)) {
       assert.ok(text.includes(`model joint probability ${jointShownFor(c.jointProbability, c.tier)}`));
-      for (const l of c.legs) if (l.sport === "nba") assert.ok(text.includes(`Elo-derived game-winner estimate: ${l.shownPct}`), "the NBA leg keeps its own label");
+      for (const l of c.legs) if (l.sport === "nba") assert.ok(text.includes(`Game-winner projection: ${l.shownPct}`), "the NBA leg keeps its own label");
     }
     if (shown.some((c) => c?.legs.some((l) => l.sport === "nba"))) assert.equal(text.split(DISCLOSURE).length - 1, 1, `${mode}: the display's disclosure once`);
   }

@@ -70,7 +70,7 @@ export const CALIBRATION_STATUS = Object.freeze({
   }),
   nba_game_winner: Object.freeze({
     calibrated: false,
-    detail: "The NBA win figure is an Elo-derived estimate whose accuracy is not established: there is no graded regular-season record yet.",
+    detail: "The NBA game-winner figure is a MODEL PROJECTION whose accuracy record is still building.",
   }),
   nfl_player_prop: Object.freeze({
     calibrated: false,

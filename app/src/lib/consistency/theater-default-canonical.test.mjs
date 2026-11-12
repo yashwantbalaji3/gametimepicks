@@ -184,7 +184,7 @@ test(`NBA ${NBA_DATE}: the Theater opens on the Default view, and every value it
 
 /* ───────────────────────────────────────────── NFL ───────────────────────────────────────────── */
 
-const LABEL = "Estimate · calibration standard not yet met";
+const LABEL = "Wider projection range";
 const FAM_OF_MARKET = Object.fromEntries(Object.entries(MARKET_KEY).map(([fam, mk]) => [mk, fam]));
 const KIND = Object.fromEntries(NFL_DEFAULT_FAMILIES.map((f) => [f.key, f.kind]));
 

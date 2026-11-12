@@ -100,8 +100,10 @@ test("model suggestions: no model id or owner@N in the reading path on any of th
     assert.ok(!text.includes(NBA_MODEL) && !text.includes("Source: "), `${mode}: the per-leg Source line is gone`);
     assert.match(text, /Official forecast · frozen /, `${mode}: the reader still sees that it is the official forecast and when it froze`);
     const tech = technicalOnly(html);
-    assert.ok(tech.includes(`${NBA_OWNER} (${NBA_MODEL})`), `${mode}: the NBA owner and model id are relocated, not removed`);
-    if (mode !== "moonshot") assert.ok(tech.includes("decision-engine@3"), `${mode}: every shown leg's source is listed`);
+    // founder language decision 2026-11-11: internal owners and model ids leave the customer page entirely (Technical details
+    // included); the published data file still names every leg's source
+    assert.ok(!tech.includes(NBA_OWNER) && !tech.includes(NBA_MODEL) && !tech.includes("decision-engine@3"), `${mode}: no internal source ids in Technical details either`);
+    assert.match(tech, /These suggestions as data/, `${mode}: the data file link stays`);
     assert.match(html, /paper only\. No sportsbook price, no payout, not a bet\./, `${mode}: the paper-only disclosure stays visible`);
   }
 });

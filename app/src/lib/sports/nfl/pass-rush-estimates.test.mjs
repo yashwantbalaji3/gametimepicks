@@ -40,7 +40,7 @@ const GAMES = ["401873026", "401873036"]; // BAL @ BUF (Sun), CHI @ SEA (Mon)
 const BEFORE_TNF = "2026-10-29T23:00:00Z";
 const AFTER_TNF = "2026-10-30T13:00:00Z";
 const FAMS = [["player_pass_yds", "passingYards"], ["player_rush_yds", "rushingYards"]];
-const LABEL = "Estimate · calibration standard not yet met";
+const LABEL = "Wider projection range";
 
 const viewFor = (id) => {
   const forecast = FORECASTS.find((f) => String(f.providerEventId) === id);

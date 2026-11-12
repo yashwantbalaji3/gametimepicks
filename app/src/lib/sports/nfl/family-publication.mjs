@@ -23,8 +23,19 @@ export const FAMILY_KEYS = ["player_pass_yds", "player_rush_yds", "player_recept
  */
 /** Which standard an ESTIMATE family has not met, read from the board's own reason (never hand-typed). */
 export const estimateStandard = (reason) => (/calibrat|calOk|\bECE\b/i.test(String(reason ?? "")) ? "calibration" : "publication");
-/** The one qualification label every surface prints beside an ESTIMATE family's numbers. */
-export const estimateLabel = (reason) => `Estimate · ${estimateStandard(reason)} standard not yet met`;
+/** The one qualification label every surface prints beside an ESTIMATE family's numbers. Founder language decision 2026-11-11:
+ * plain words, no calibration-gate vocabulary on customer surfaces — the family's state and failed bars stay in every
+ * artifact and ledger (estimateStandard still reads them). One label for both reasons, so every surface agrees. */
+export const estimateLabel = (_reason) => "Wider projection range";
+/**
+ * Why a statistic is not published, in reader words — still READ FROM THE ARTIFACT's own reason (never a typed blanket line):
+ * the standard it has not met (estimateStandard) picks the plain sentence. The exact codes stay in the artifact and on
+ * Methodology (founder language decision 2026-11-11: no calibration-gate vocabulary on customer pages).
+ */
+export const withheldReasonText = (reason) =>
+  reason == null ? "not published yet." : estimateStandard(reason) === "calibration"
+    ? "not published yet — the projection range is not reliable enough to show."
+    : "not published yet — not enough graded results to publish it.";
 
 const uniq = (xs) => [...new Set(xs)];
 

@@ -107,7 +107,7 @@ test("NFL: receiving yards, receptions, anytime TD are OFFICIAL Top 5s; passing 
      POLICY), so these rows are graphic-eligible ONLY carrying that label — never promoted, never a direction. */
   for (const id of ["top5_pass_yds", "top5_rush_yds"]) {
     assert.equal(by[id].modelStatus, MODEL_STATUS.OFFICIAL_ESTIMATE);
-    assert.equal(by[id].label, "Estimate · calibration standard not yet met");
+    assert.equal(by[id].label, "Wider projection range");
     assert.ok(by[id].rowIds.length >= 1 && by[id].rowIds.length <= 5);
     assert.equal(by[id].graphicEligible, true);
     assert.equal(by[id].readiness, null);
@@ -132,7 +132,7 @@ test("NFL: at the artifact's own instant the export IS the website's Top 5 (same
          ranks, values and ranges, carrying the site's one estimate label; never direction-qualified */
       assert.equal(b.modelStatus, MODEL_STATUS.OFFICIAL_ESTIMATE, b.id);
       assert.equal(b.label, s.estimate.label, b.id);
-      assert.equal(b.label, "Estimate · calibration standard not yet met", b.id);
+      assert.equal(b.label, "Wider projection range", b.id);
       assert.ok(b.rowIds.length >= 1, b.id);
       for (const id of b.rowIds) {
         const r = nflAtArtifact.rows.find((x) => x.rowId === id);

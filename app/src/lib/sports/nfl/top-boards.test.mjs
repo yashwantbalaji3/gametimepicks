@@ -68,7 +68,7 @@ test("ESTIMATE families rank as estimates (founder P0 2026-10-30): same rule, th
   const by = Object.fromEntries(tb.weekly.boards.map((b) => [b.family, b]));
   for (const f of ["player_pass_yds", "player_rush_yds"]) {
     assert.equal(by[f].state, "ESTIMATE", `${f}: ranks, as an estimate — never promoted to PUBLISHED`);
-    assert.equal(by[f].estimate.label, "Estimate · calibration standard not yet met");
+    assert.equal(by[f].estimate.label, "Wider projection range");
     assert.equal(by[f].readiness, undefined);
     assert.ok(by[f].rows.length > 0 && by[f].rows.length <= TOP_BOARD_SIZE);
     for (const r of by[f].rows) assert.ok(!("market" in r) && !("pricingState" in r), `${f} ${r.playerId}: an estimate carries no price slot`);
@@ -164,7 +164,7 @@ test("COMMITTED · the current week's artifact carries the five boards, additive
       if (legacy?.state === "PUBLISHED") { assert.equal(top.state, "PUBLISHED", fam); continue; }
       if (legacy?.state !== "ESTIMATE") { assert.equal(top.state, "NOT_PUBLISHED", fam); continue; }
       assert.equal(top.state, "ESTIMATE", `${fam}: an estimate family ranks as an estimate, never promoted`);
-      assert.equal(top.estimate.label, "Estimate · calibration standard not yet met", fam);
+      assert.equal(top.estimate.label, "Wider projection range", fam);
       assert.equal(top.estimate.reason, legacy.reason, `${fam}: the failed bar is the board's own`);
       assert.equal(top.estimate.caveat, legacy.caveat, `${fam}: the caveat is the board's own`);
       assert.ok(top.rows.length <= 5, fam);

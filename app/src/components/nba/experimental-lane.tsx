@@ -176,7 +176,6 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
   const elo = eloCtx ?? loadEloWinProbabilityContext();
   // the Elo-derived estimate gets a column only when at least one game's receipt carries it (the accessor's own refusal)
   const eloCol = snapshot.games.some((g) => eloWinProbabilityOf(g, { enabled: elo.enabled }) != null);
-  const versions = [...new Set(snapshot.games.map((g) => g.receipt.modelVersion))];
   return (
     <section className="flex flex-col gap-3" aria-labelledby="nba-forecast-h">
       <h2 id="nba-forecast-h" className="m-0 font-display text-[18px] font-bold" style={{ color: "var(--vault-text)" }}>{PUBLIC_TERMS.OFFICIAL_FORECAST}s{snapshot.date ? ` · ${slateLabel(snapshot.date)}` : ""}</h2>
@@ -249,11 +248,12 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
       </ul>
       {/* founder mandate 2026-10-24: model ids, sources and receipts move here — out of the consumer text, never deleted.
           Overnight W7 2026-10-28: the site's one shape for it — MoreDisclosure, "Technical details" */}
-      <MoreDisclosure title="Technical details" summary="Model versions and receipts">
+      {/* founder language decision 2026-11-11: plain model names only — internal model ids, rule ids and engine ids stay in
+          the frozen data and receipts, never on the page */}
+      <MoreDisclosure title="Technical details" summary="How the forecast is made and its receipts">
         <ul className="nbx-md">
-          <li>Favoured side: {snapshot.games[0]?.elo.source}{snapshot.games[0]?.elo.rule ? ` · rule ${snapshot.games[0].elo.rule}` : ""}</li>
-          <li>{PUBLIC_TERMS.PLAYER_STATISTICS}: {snapshot.games[0]?.players.source}</li>
-          <li>Model version: {versions.join(", ")} · simulation engine {[...new Set(snapshot.games.map((g) => g.engine.simulation ?? "—"))].join(", ")}</li>
+          <li>Favoured side: team rating</li>
+          <li>{PUBLIC_TERMS.PLAYER_STATISTICS}: GameTimePicks player model · medians of simulated games</li>
           <li>Receipts (payload hash of each frozen forecast): {snapshot.games.map((g) => `${code(g.away.abbr)} @ ${code(g.home.abbr)} ${g.receipt.payloadSha256.slice(0, 12)}`).join(" · ")}</li>
         </ul>
       </MoreDisclosure>

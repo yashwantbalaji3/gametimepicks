@@ -172,7 +172,7 @@ test("week page (V3 PredictionBoard): every presented Top-board row prints the g
     assert.equal(pres.length, b.rows.length);
     if (b.state === "ESTIMATE") {
       /* founder P0 2026-10-30: shown as a labelled estimate — the failed bar and caveat ride on every row; never a price */
-      assert.equal(b.estimate.label, "Estimate · calibration standard not yet met", b.id);
+      assert.equal(b.estimate.label, "Wider projection range", b.id);
       for (const p of pres) {
         assert.equal(p.model.status, "ESTIMATE", `${b.id} ${p.player.name}: presented as an estimate`);
         assert.equal(p.model.reason, b.estimate.reason, `${b.id} ${p.player.name}: the failed bar`);

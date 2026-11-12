@@ -944,7 +944,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
         {/* The full dashboard renders directly (P242) — no generate card, no staged reveal, no
             presentation modal. The numbers are precomputed and deterministic; the page shows them. */}
         {mlbFollowRow}
-        {mlbMatchupHref ? <div style={{ marginTop: 8 }}><CompareCta href={mlbMatchupHref}>Research matchup</CompareCta></div> : null}
+        {mlbMatchupHref ? <div style={{ marginTop: 8 }}><CompareCta href={mlbMatchupHref}>Compare matchup</CompareCta></div> : null}
         {mlbLivePanel}
 
         <GameSimulationRunner
@@ -1103,7 +1103,7 @@ export default function GameDetailPage({ detail, engineCards, multiGameCards, pl
       {/* Live beta (MLB) — also on this path, so an MLB game WITHOUT a simulation still shows live
           state. Null for every other sport and whenever the rollout flags are off. */}
       {mlbFollowRow}
-      {mlbMatchupHref ? <div style={{ marginTop: 8 }}><CompareCta href={mlbMatchupHref}>Research matchup</CompareCta></div> : null}
+      {mlbMatchupHref ? <div style={{ marginTop: 8 }}><CompareCta href={mlbMatchupHref}>Compare matchup</CompareCta></div> : null}
       {mlbLivePanel}
 
       {/* MLB Game Lab report — the deeper per-game model report (model-vs-market, biggest leans, recent

@@ -96,16 +96,18 @@ test("rendered lane: the UNVALIDATED banner, freeze times and sources show; no p
   const { default: Lane } = await import("../../../components/nba/experimental-lane.tsx");
   const html = renderToStaticMarkup(React.createElement(Lane, { snapshot: JSON.parse(JSON.stringify(snap())) }));
   // founder directive 2026-10-23 public readiness: the registry banner (Official Forecast + its one disclosure)
-  assert.match(html, /Frozen before tip-off and shown exactly as frozen\. Not a betting recommendation\. NBA forecasts are graded after every game\. The favoured-side record is published as counts on NBA results; it is not judged before 300 graded games\./); // REPOINTED audit 2026-10-28 F04 (was the 10-23 "not published yet" text beside a published record)
+  assert.match(html, /Frozen before tip-off and shown exactly as frozen\. Not a betting recommendation\. NBA forecasts are graded after every game\. The favoured-side record is on NBA results; its accuracy record is still building\./); // REPOINTED audit 2026-10-28 F04 (was the 10-23 "not published yet" text beside a published record)
   // founder mandate 2026-10-24: one table row per game — the slate date in the heading, each game's freeze time in its row
   assert.match(html, /Official Forecasts · Oct 20/);
   assert.match(html, /<th scope="col">Frozen<\/th>/);
   assert.match(html, /<td>8:29 AM ET<\/td>/);
   assert.match(html, /<strong>New York Knicks<\/strong>/, "team names, never mixed NY/NYK codes");
   assert.match(html, /favoured side comes from a team rating \(Elo\)/);
-  // the sources (model ids) moved into the Technical details disclosure (MoreDisclosure) — present, not deleted
+  // founder language decision 2026-11-11: the Technical details disclosure stays (receipts); the source sentence that names
+  // the internal model version is no longer printed — the player model is named in words
   assert.match(html, /<details class="gtp-more-disclosure[\s\S]*Technical details/);
-  assert.ok(html.includes(snap().games[0].players.source.replace(/'/g, "&#x27;")), "the player source is still printed");
+  assert.ok(!html.includes(snap().games[0].players.source.replace(/'/g, "&#x27;")), "the internal source sentence is not printed");
+  assert.match(html, /GameTimePicks player model/, "the player model, in words");
   assert.match(html, /Not a betting recommendation\./); // founder directive 2026-10-23 public readiness
   assert.match(html, /not ranked/);
   const visible = html.replace(/<[^>]+>/g, " ");

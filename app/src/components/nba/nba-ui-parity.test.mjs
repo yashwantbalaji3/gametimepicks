@@ -297,7 +297,9 @@ test("reader words: no engineering jargon in the hub's visible text outside the 
     renderToStaticMarkup(React.createElement(ForecastLane, { snapshot: snap })),
   ].join("");
   // overnight W7 2026-10-28: the site's one shape (MoreDisclosure, "Technical details") replaced the hand-rolled "Model details"
-  assert.match(html, /<details class="gtp-more-disclosure[^"]*"[^>]*>[\s\S]*?Technical details[\s\S]*nba-preseason-experimental-v0\.1[\s\S]*?<\/details>/, "the model id is kept — in Technical details");
+  // founder language decision 2026-11-11: the disclosure stays (receipts, freeze times), the internal model id is gone from the page
+  assert.match(html, /<details class="gtp-more-disclosure[^"]*"[^>]*>[\s\S]*?Technical details[\s\S]*?<\/details>/, "the Technical details disclosure is kept");
+  assert.doesNotMatch(html, /nba-preseason-experimental-v0\.1/, "no internal model id anywhere on the hub");
   const visible = text(html.replace(/<details class="gtp-more-disclosure[^"]*"[^>]*>[\s\S]*?<\/details>/g, ""));
   assert.doesNotMatch(visible, /experimental|\blane\b|candidate|\bN2\b|v0\.\d|receipt|payload|roster-gated/i);
   // release owner 2026-10-25: one code per team on every NBA surface — the lane's own (ESPN's), never the canonical alias

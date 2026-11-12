@@ -38,26 +38,30 @@ function hub(lane, theaterIds = []) {
   ].join("");
 }
 
-test("the hub has no model ids outside Technical details — and keeps every one of them inside it", () => {
+test("the hub prints no internal model id anywhere (founder language decision 2026-11-11) — receipts only inside Technical details", () => {
   const html = hub(LANE);
   const blocks = html.match(DISCLOSURE) ?? [];
   assert.equal(blocks.length, 1, "one Technical details disclosure");
   assert.match(blocks[0], /Technical details/);
   const outside = text(html.replace(DISCLOSURE, ""));
   const inside = text(blocks[0]);
-  const ids = new Set([
-    ...LANE.games.map((g) => g.receipt.modelVersion), ...LANE.games.map((g) => g.receipt.payloadSha256.slice(0, 12)),
-    ...LANE.games.map((g) => g.elo.rule), ...LANE.games.map((g) => g.engine.simulation), LANE.games[0].players.source, LANE.games[0].elo.source,
+  // founder mandate 2026-10-24 kept the ids verbatim inside Technical details; the founder language decision 2026-11-11
+  // removes internal model versions from customer pages altogether — they stay in the frozen data and receipts
+  const modelIds = new Set([
+    ...LANE.games.map((g) => g.receipt.modelVersion), ...LANE.games.map((g) => g.elo.rule), ...LANE.games.map((g) => g.engine.simulation),
+    LANE.games[0].players.source, LANE.games[0].elo.source,
   ].filter(Boolean));
-  for (const id of ids) {
-    assert.ok(!outside.includes(id), `${id} is not in the reading path`);
-    assert.ok(inside.includes(id), `${id} is kept, verbatim, in Technical details`);
+  for (const id of modelIds) assert.ok(!text(html).includes(id), `${id} is not printed anywhere on the hub`);
+  for (const r of LANE.games.map((g) => g.receipt.payloadSha256.slice(0, 12))) {
+    assert.ok(!outside.includes(r), `${r} is not in the reading path`);
+    assert.ok(inside.includes(r), `${r}: the receipt stays, in Technical details`);
   }
+  assert.doesNotMatch(inside, /preseason|experimental|v0\.\d|@\d\b/i, "no internal model vocabulary inside either");
   assert.doesNotMatch(outside, /preseason|experimental|v0\.\d|receipt|payload|sha256|@1\b/i, "no internal vocabulary outside");
   assert.doesNotMatch(outside, /UNVALIDATED|Model details/, "the retired label and the old disclosure title are gone");
   // KEEP: the one disclosure — frozen, not a betting recommendation, and the record's status.
   // REPOINTED (audit 2026-10-28 F04): the record IS published as counts; the note says so and that it is not judged yet.
-  assert.match(outside, /Not a betting recommendation\. NBA forecasts are graded after every game\. The favoured-side record is published as counts on NBA results; it is not judged before 300 graded games\./);
+  assert.match(outside, /Not a betting recommendation\. NBA forecasts are graded after every game\. The favoured-side record is on NBA results; its accuracy record is still building\./);
   assert.doesNotMatch(outside, /has not been published/, "never claims the published record is missing");
 });
 

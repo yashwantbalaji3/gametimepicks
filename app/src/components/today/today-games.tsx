@@ -110,7 +110,7 @@ export default function TodayGames({ rows, dayLabel, asOf, next, lineSummaries, 
         </div>
       ) : null}
       {eloDisclosure && [...rows, ...(next?.rows ?? [])].some((r) => r.sport === "nba" && /\d%/.test(r.read ?? "")) ? (
-        <p className="m-0" style={{ color: "var(--vault-text-faint)", fontSize: 12 }} data-nba-elo-wp-disclosure="">NBA win chance: Elo-derived game-winner estimate. {eloDisclosure}</p>
+        <p className="m-0" style={{ color: "var(--vault-text-faint)", fontSize: 12 }} data-nba-elo-wp-disclosure="">NBA game winner: MODEL PROJECTION. {eloDisclosure}</p>
       ) : null}
     </section>
   );

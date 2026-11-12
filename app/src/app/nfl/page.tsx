@@ -119,17 +119,20 @@ const COVERAGE_STATE_LABEL: Record<string, string> = {
  */
 const PUBLIC_WORDING: ReadonlyArray<[string, string]> = [
   ["clearly marked experimental", `published as the ${PUBLIC_TERMS.OFFICIAL_FORECAST}`],
-  ["the team model is experimental, not validated", "the team model has not cleared its preregistered bar"],
+  ["the team model is experimental, not validated", "not used in paper products yet"],
+  ["the team model has not cleared its preregistered bar", "not used in paper products yet"],
   ["enough settled experimental forecasts", `enough settled ${PUBLIC_TERMS.OFFICIAL_FORECAST}s`],
 ];
+/* Founder language decision 2026-11-11: internal model ids are never printed (" … under nfl-regular-season-public-v1"). */
+const MODEL_ID_IN_TEXT = / under nfl-[a-z0-9.-]+(?:@[\w.]+)?/g;
 function publicWording(text: string): string {
-  return PUBLIC_WORDING.reduce((t, [from, to]) => t.split(from).join(to), String(text ?? ""));
+  return PUBLIC_WORDING.reduce((t, [from, to]) => t.split(from).join(to), String(text ?? "")).replace(MODEL_ID_IN_TEXT, "");
 }
 
 function coverageStateLabel(state: string): string {
   if (state === "LIVE" || state === "DEPLOYED") return state;
   if (COVERAGE_STATE_LABEL[state]) return COVERAGE_STATE_LABEL[state];
-  if (state.startsWith("ESTIMATE_")) return "Estimate";
+  if (state.startsWith("ESTIMATE_")) return "Wider range";
   const words = state.replace(/_/g, " ").toLowerCase();
   return words.charAt(0).toUpperCase() + words.slice(1);
 }
@@ -542,7 +545,7 @@ export default function NflHubPage() {
           <strong style={{ color: "var(--vault-text-mute)" }}>{PUBLIC_TERMS.MODEL_PERFORMANCE}.</strong>{" "}
           {index?.model?.plainEnglish?.honestLimit}
           {nflPublic && !nflPublic.productEligible
-            ? ` ${PUBLIC_TERMS.OFFICIAL_FORECAST}s do not enter paper products (Bank Builder, Moonshot, Parlays) until the model clears its preregistered bar.`
+            ? ` ${PUBLIC_TERMS.OFFICIAL_FORECAST}s are not used in paper products (Bank Builder, Moonshot, Parlays) yet.`
             : null}{" "}
           <Link href={nflPublic?.features.modelPerformance.href ?? "/models/"} style={{ color: "var(--vault-gold-bright)", textDecoration: "underline" }}>{PUBLIC_TERMS.MODEL_PERFORMANCE} →</Link>
         </p>
@@ -731,7 +734,7 @@ export default function NflHubPage() {
           <SectionHeader
             eyebrow={`This week · ${topBoardsBlock.weekly.scope.eventsIncluded} ${topBoardsBlock.weekly.scope.eventsIncluded === 1 ? "game" : "games"}${topBoardsBlock.weekly.scope.kind === "REMAINING_EVENTS" ? " still to kick off" : ""}`}
             title="Top boards"
-            sub="The official player board's top five in passing yards, rushing yards, receiving yards, receptions and anytime touchdown — the same numbers as each game page. Players listed as Questionable, Doubtful or Out are left out; a statistic marked Estimate has not yet met its calibration standard and is labelled so."
+            sub="The official player board's top five in passing yards, rushing yards, receiving yards, receptions and anytime touchdown — the same numbers as each game page. Players listed as Questionable, Doubtful or Out are left out; a statistic with a wider projection range is labelled so."
           />
           <FamilyTabs
             {...topBoardTabs(topBoardsBlock.weekly)} linkToGame label="hub-boards" listLabel="Weekly leaders by statistic" staticPanels="active" emptyText="No player is cleared for this list in the games still to kick off."

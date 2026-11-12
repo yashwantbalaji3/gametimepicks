@@ -57,7 +57,7 @@ export default function NbaGameWinners({ block, mode }: { block: NbaGameWinnersB
     <section aria-labelledby={`level-a-nba-game-winners-${mode}`} className="flex flex-col gap-2" data-level-a-nba-game-winners={mode}>
       <h3 id={`level-a-nba-game-winners-${mode}`} className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 14 }}>NBA game winners</h3>
       <p className="m-0 text-[12px]" style={{ color: "var(--vault-text-mute)", maxWidth: "72ch" }}>
-        NBA-only cards from the official sides, tiered by the published Elo-derived game-winner estimate. One leg per game.
+        NBA-only cards from the official sides, tiered by the published game-winner MODEL PROJECTION. One leg per game.
       </p>
       {mode === "parlay-lab" ? (
         <div className="grid gap-3 lg:grid-cols-2">{block.tiers.map((t) => <GwCardBox key={t.tier} title={t.tierLabel} slot={t} />)}</div>

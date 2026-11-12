@@ -120,26 +120,26 @@ test("the accessor refuses anything that is not this game's own frozen Elo numbe
 test("text: separately identified, whole percents that read as 100; extremes never print 0 % or 100 %", () => {
   const g = (home, away) => ({ providerEventId: "1", frozenAt: "t", receipt: { payloadSha256: "s" }, home: { abbr: "BOS" }, away: { abbr: "NY" },
     elo: { state: "FAVOURED", favoured: home > 0.5 ? "BOS" : "NY", rule: "nba-winner-side@1", winProbability: { home, away, provenance: { source: W.ELO_WIN_PROBABILITY_SOURCE, rule: "nba-winner-side@1", frozenAt: "t", receiptPayloadSha256: "s" } } } });
-  assert.equal(W.eloWinProbabilityText(W.eloWinProbabilityOf(g(0.6337, 0.3663), { enabled: true })), "Elo-derived game-winner estimate: NY 37% · BOS 63%");
-  assert.equal(W.eloWinProbabilityText(W.eloWinProbabilityOf(g(0.635, 0.365), { enabled: true })), "Elo-derived game-winner estimate: NY 36% · BOS 64%", "the pair always sums to 100");
-  assert.equal(W.eloWinProbabilityText(W.eloWinProbabilityOf(g(0.9962, 0.0038), { enabled: true })), "Elo-derived game-winner estimate: NY <1% · BOS >99%");
+  assert.equal(W.eloWinProbabilityText(W.eloWinProbabilityOf(g(0.6337, 0.3663), { enabled: true })), "Game-winner projection: NY 37% · BOS 63%");
+  assert.equal(W.eloWinProbabilityText(W.eloWinProbabilityOf(g(0.635, 0.365), { enabled: true })), "Game-winner projection: NY 36% · BOS 64%", "the pair always sums to 100");
+  assert.equal(W.eloWinProbabilityText(W.eloWinProbabilityOf(g(0.9962, 0.0038), { enabled: true })), "Game-winner projection: NY <1% · BOS >99%");
   assert.doesNotMatch(W.ELO_WIN_PROBABILITY_LABEL, /official|win chance/i, "never called the official win chance");
   // founder wording (Release G): an Elo-derived ESTIMATE — the number is never named a probability, never a simulation
-  assert.equal(W.ELO_WIN_PROBABILITY_LABEL, "Elo-derived game-winner estimate");
+  assert.equal(W.ELO_WIN_PROBABILITY_LABEL, "Game-winner projection"); // founder language decision 2026-11-11
   assert.doesNotMatch(W.ELO_WIN_PROBABILITY_LABEL, /probabilit|simulat/i);
   assert.doesNotMatch(W.ELO_SOURCE_WITH_PROBABILITY, /probabilit|simulat/i);
-  assert.match(W.ELO_SOURCE_WITH_PROBABILITY, /Elo-derived game-winner estimate$/);
+  assert.match(W.ELO_SOURCE_WITH_PROBABILITY, /Game-winner projection$/);
 });
 
 test("TIE-BREAK: whole percents that would tie on a favoured game show the decimals that make the favoured side read higher (up to 4 dp)", () => {
   const g = (home, favoured) => ({ providerEventId: "1", frozenAt: "t", receipt: { payloadSha256: "s" }, home: { abbr: "BOS" }, away: { abbr: "NY" },
     elo: { state: favoured ? "FAVOURED" : "TOO_CLOSE", favoured, rule: "nba-winner-side@1", winProbability: { home, away: Number((1 - home).toFixed(4)), provenance: { source: W.ELO_WIN_PROBABILITY_SOURCE, rule: "nba-winner-side@1", frozenAt: "t", receiptPayloadSha256: "s" } } } });
   const text = (home, fav) => W.eloWinProbabilityText(W.eloWinProbabilityOf(g(home, fav), { enabled: true }));
-  assert.equal(text(0.4962, "NY"), "Elo-derived game-winner estimate: NY 50.4% · BOS 49.6%", "the 10-23 NY @ BOS case: favours NY, reads higher");
-  assert.equal(text(0.5004, "BOS"), "Elo-derived game-winner estimate: NY 49.96% · BOS 50.04%", "one decimal still ties → two");
-  assert.equal(text(0.4950, "NY"), "Elo-derived game-winner estimate: NY 50.5% · BOS 49.5%");
-  assert.equal(text(0.5050, "BOS"), "Elo-derived game-winner estimate: NY 49% · BOS 51%", "no tie → whole percents");
-  assert.equal(text(0.5, null), "Elo-derived game-winner estimate: NY 50% · BOS 50%", "TOO_CLOSE (exactly 0.5) reads 50 / 50");
+  assert.equal(text(0.4962, "NY"), "Game-winner projection: NY 50.4% · BOS 49.6%", "the 10-23 NY @ BOS case: favours NY, reads higher");
+  assert.equal(text(0.5004, "BOS"), "Game-winner projection: NY 49.96% · BOS 50.04%", "one decimal still ties → two");
+  assert.equal(text(0.4950, "NY"), "Game-winner projection: NY 50.5% · BOS 49.5%");
+  assert.equal(text(0.5050, "BOS"), "Game-winner projection: NY 49% · BOS 51%", "no tie → whole percents");
+  assert.equal(text(0.5, null), "Game-winner projection: NY 50% · BOS 50%", "TOO_CLOSE (exactly 0.5) reads 50 / 50");
   // every 4-dp pHome near 0.5: the favoured side always reads strictly higher, the pair always sums to 100
   for (let i = 4900; i <= 5100; i += 1) {
     if (i === 5000) continue;
@@ -171,7 +171,9 @@ test("disclosure: accuracy not established, with the graded count and the prereg
   assert.equal(ctx.graded, 2); assert.equal(ctx.minN, PREREG.winner.minN);
   assert.equal(ctx.disclosure, W.eloAccuracyDisclosure({ graded: 2, minN: 300 }));
   assert.match(ctx.disclosure, /An estimate derived from the Elo team rating — not an independently validated probability, not a simulation result, and not a betting recommendation\.$/);
-  assert.match(ctx.disclosure, /^Model Performance: the Elo rating’s game-outcome accuracy is not yet established — 2 regular-season games graded so far; the preregistration requires 300 before any accuracy claim\./);
+  // founder language decision 2026-11-11: one short plain line beside the number; the counts live on Results and Methodology
+  assert.match(ctx.disclosure, /^Accuracy record still building\. /);
+  assert.doesNotMatch(ctx.disclosure, /preregistration|regular-season games graded/);
   assert.equal(loadEloWinProbabilityContext({ appDir: tmp, enabled: false }).enabled, false);
 });
 

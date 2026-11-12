@@ -104,13 +104,11 @@ export default function SettledSimulation({ view }: { view: SettledView }) {
       {/* Model vs. sportsbook line, frozen as of tip (founder P0 2026-10-29): nothing while NBA_LINE_DISPLAY.public is false. */}
       <NbaPropLines lane={{ date: view.date, games: [g] }} eventId={view.id} id="nba-settled-prop-lines" linesPage />
 
-      <MoreDisclosure title="Technical details" summary="Model versions, the frozen receipt and the rule behind the favoured side">
+      <MoreDisclosure title="Technical details" summary="How the forecast was made and its frozen receipt">
         <dl className="nbx-kv">
-          <dt>Favoured side</dt><dd>{g.elo.source}{g.elo.rule ? ` · rule ${g.elo.rule}` : ""}</dd>
-          <dt>Player model</dt><dd>{g.players.source}</dd>
-          <dt>Model version</dt><dd>{g.receipt.modelVersion}</dd>
+          <dt>Favoured side</dt><dd>{OFFICIAL_MODEL_PLAIN.game}</dd>
+          <dt>Player statistics</dt><dd>{OFFICIAL_MODEL_PLAIN.players}{g.engine.simulations ? ` · ${g.engine.simulations.toLocaleString("en-US")} simulated games` : ""}</dd>
           <dt>Receipt</dt><dd>payload hash {g.receipt.payloadSha256}</dd>
-          <dt>Simulation engine</dt><dd>{g.engine.simulation ?? "—"}{g.engine.simulations ? ` · ${g.engine.simulations.toLocaleString("en-US")} simulated games` : ""}</dd>
         </dl>
       </MoreDisclosure>
     </article>

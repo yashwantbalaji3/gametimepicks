@@ -84,7 +84,7 @@ function estimateGroups(rows) {
   return [...byLabel].map(([label, names]) => {
     const list = [...names].sort();
     const said = list.length === 1 ? list[0] : `${list.slice(0, -1).join(", ")} and ${list[list.length - 1]}`;
-    return { label, said: `${said.charAt(0).toUpperCase()}${said.slice(1)}`, shown: list.length === 1 ? "is shown as an estimate" : "are shown as estimates" };
+    return { label, said: `${said.charAt(0).toUpperCase()}${said.slice(1)}`, shown: list.length === 1 ? "is shown as a projection" : "are shown as projections" };
   });
 }
 export function estimateFootnote(rows) {
