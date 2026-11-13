@@ -9,6 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import React from "react";
 import { renderToStaticMarkup } from "react-dom/server";
+globalThis.React = React; // the component compiles to classic React.createElement under tsx
 const { default: TodayDailySlateHeader } = await import("./daily-slate-header.tsx");
 
 const render = (props) => renderToStaticMarkup(React.createElement(TodayDailySlateHeader, { dateLabel: "Friday, November 13", slateRelative: null, activeSports: [], ...props }));
