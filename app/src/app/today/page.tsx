@@ -277,6 +277,8 @@ export default function TodayPage() {
     asOf: new Date(nowMs).toISOString(),
     games: ((lines) => todayRows.filter((r) => r.sport === "nba").map((r) => [/(\d+)$/.exec(r.id)?.[1] ?? "", r.eventHref, nbaPropLinesHref(/(\d+)$/.exec(r.id)?.[1] ?? "", lines)] as const))(nbaLinesPageIds({ asOf: new Date(nowMs).toISOString() })),
   }) : undefined;
+  // The header's per-sport chips, counted from the rows the list below renders (so the two can never disagree).
+  const gamesTodayBySport = [...todayRows.reduce((m, r) => m.set(r.sportLabel, (m.get(r.sportLabel) ?? 0) + 1), new Map<string, number>())].map(([label, count]) => ({ label, count }));
   const nextDate = todayRows.length ? null : gamesRows.map((r) => r.date).filter((d) => d > serverToday).sort()[0] ?? null;
   const dayName = (d: string) => new Date(`${d}T12:00:00Z`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric", timeZone: "UTC" });
   /* The MLB detail below is framed on the presented MLB slate, which can be the previous day's in the morning: its fold
@@ -344,6 +346,7 @@ export default function TodayPage() {
         dateLabel={dayName(serverToday)}
         slateRelative={null}
         activeSports={activeSports}
+        gamesToday={gamesTodayBySport}
       />
       {/* UX System V2 (founder directive 2026-10-13): LIVE FIRST. The same view-time strip Home and the hubs use; it
           renders nothing when no game is in play. */}

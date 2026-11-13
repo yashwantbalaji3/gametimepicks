@@ -21,34 +21,53 @@ export interface TodayDailySlateHeaderProps {
   slateRelative?: string | null;
   /** Labels of the sports with events today, e.g. ["NFL", "NBA"] (empty ⇒ none). */
   activeSports: string[];
+  /**
+   * The games listed on this page for today, counted per sport from the SAME rows the list below renders
+   * (UX 2026-11-13). The header may say "No games today" only when this is empty too: on 2026-11-13 it said so above a
+   * list of nine games, because a sport's forecast lane had not published yet and only `activeSports` was consulted.
+   */
+  gamesToday?: readonly { label: string; count: number }[];
 }
 
 export default function TodayDailySlateHeader({
   dateLabel,
   slateRelative,
   activeSports,
+  gamesToday = [],
 }: TodayDailySlateHeaderProps) {
+  // One chip per sport: its game count when the page lists its games, the bare label when the sport is active without
+  // listed rows. Order: the page's own game order first.
+  const listed = new Set(gamesToday.map((g) => g.label));
+  const chips = [
+    ...gamesToday.map((g) => ({ key: g.label, text: `${g.label} · ${g.count} game${g.count === 1 ? "" : "s"}` })),
+    ...activeSports.filter((s) => !listed.has(s)).map((s) => ({ key: s, text: s })),
+  ];
   return (
     <section
       aria-label="Today's slate"
-      className="flex flex-col gap-3 rounded-[16px] px-5 py-5 sm:px-6"
+      className="flex flex-col gap-2.5 rounded-[16px] px-4 py-3.5 sm:gap-3 sm:px-6 sm:py-5"
       style={{ background: "color-mix(in srgb, var(--vault-scrim-base) 55%, transparent)", border: "1px solid var(--vault-border)", borderTop: "2px solid var(--gtp-bank-heat)" }}
     >
-      <div className="flex flex-col gap-1">
-        <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(24px,5vw,34px)", fontWeight: 800, lineHeight: 1.05 }}>
+      {/* Compact on a phone (UX 2026-11-13): title and day share a line and the purpose sentence is short, so the first
+          game is inside the first screen rather than below a full-height hero. */}
+      <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5">
+        <h1 className="font-display tracking-tight" style={{ color: "var(--vault-text)", fontSize: "clamp(22px,5vw,34px)", fontWeight: 800, lineHeight: 1.05 }}>
           Today
         </h1>
-        <span style={{ color: "var(--vault-text-mute)", fontSize: 13 }}>
-          {slateRelative ? `${slateRelative} · ` : ""}{dateLabel} · today&rsquo;s games and their official forecasts · paper-only, educational
+        <span style={{ color: "var(--vault-text)", fontSize: 14, fontWeight: 600 }}>
+          {slateRelative ? `${slateRelative} · ` : ""}{dateLabel}
+        </span>
+        <span className="basis-full" style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>
+          Official forecasts for today&rsquo;s games · paper-only, educational
         </span>
       </div>
 
       {/* The sports with events today (the product-day owner's LIVE days + NBA's published lane). */}
       <div className="flex flex-wrap items-center gap-1.5">
-        {activeSports.length > 0 ? (
-          activeSports.map((s) => (
+        {chips.length > 0 ? (
+          chips.map(({ key, text: s }) => (
             <span
-              key={s}
+              key={key}
               className="rounded-full px-2.5 py-1"
               style={{ fontSize: 12, color: "var(--vault-text)", background: "var(--vault-wash-soft)", border: "1px solid var(--vault-border)" }}
             >
@@ -66,20 +85,20 @@ export default function TodayDailySlateHeader({
       </div>
 
       {/* Primary + secondary CTA — simulate-first, then results */}
-      <div className="flex flex-wrap items-center gap-2.5 pt-0.5">
+      <div className="flex items-stretch gap-2 pt-0.5 sm:flex-wrap sm:items-center sm:gap-2.5">
         <Link
           href="/simulate"
-          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-semibold tracking-[-0.005em]"
-          style={{ minHeight: 44, fontSize: 14.5, fontWeight: 700, textDecoration: "none", background: "var(--vault-gold-bright)", color: "var(--vault-on-accent-deep)" }}
+          className="vault-press inline-flex flex-1 items-center justify-center rounded-full px-3 text-center font-semibold tracking-[-0.005em] sm:flex-none sm:px-5"
+          style={{ minHeight: 44, fontSize: 13.5, fontWeight: 700, textDecoration: "none", background: "var(--vault-gold-bright)", color: "var(--vault-on-accent-deep)" }}
         >
-          Simulate Today&rsquo;s Games →
+          Simulate Today&rsquo;s Games
         </Link>
         <Link
           href="/results"
-          className="vault-press inline-flex items-center justify-center rounded-full px-5 font-semibold tracking-[-0.005em]"
-          style={{ minHeight: 44, fontSize: 14.5, fontWeight: 700, textDecoration: "none", border: "1px solid var(--vault-border-strong)", color: "var(--vault-text)" }}
+          className="vault-press inline-flex flex-1 items-center justify-center rounded-full px-3 text-center font-semibold tracking-[-0.005em] sm:flex-none sm:px-5"
+          style={{ minHeight: 44, fontSize: 13.5, fontWeight: 700, textDecoration: "none", border: "1px solid var(--vault-border-strong)", color: "var(--vault-text)" }}
         >
-          View Results →
+          View Results
         </Link>
       </div>
     </section>
