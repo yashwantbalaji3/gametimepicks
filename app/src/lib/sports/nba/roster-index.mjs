@@ -57,3 +57,24 @@ export function retainRosterCaptures(dir, names = null) {
   }
   return wrote;
 }
+
+/**
+ * The retained file that holds each named capture's current bytes, when it exists on disk — whether this call wrote it
+ * or an earlier one did. A writer that resets its checkout between capturing and committing (nba-forecast-window) finds
+ * the file already written by the capture step: `retainRosterCaptures` then reports nothing new, and staging only "what
+ * was just written" would leave the retained copy out of the commit. Staging by this list is idempotent.
+ */
+export function retainedFilesFor(dir, names) {
+  const out = [];
+  for (const f of names) {
+    const p = path.join(dir, f);
+    if (!fs.existsSync(p)) continue;
+    const bytes = fs.readFileSync(p);
+    let day = null;
+    try { day = String(JSON.parse(bytes.toString("utf8")).capturedAt ?? "").slice(0, 10); } catch { continue; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(day)) continue;
+    const name = `${day}.retained-${sha256(bytes)}.json`;
+    if (fs.existsSync(path.join(dir, name)) && !out.includes(name)) out.push(name);
+  }
+  return out;
+}

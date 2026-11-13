@@ -4,7 +4,7 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import crypto from "node:crypto";
-import { loadRosterIndex, retainRosterCaptures } from "./roster-index.mjs";
+import { loadRosterIndex, retainRosterCaptures, retainedFilesFor } from "./roster-index.mjs";
 
 const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
 const repo = () => { const r = fs.mkdtempSync(path.join(os.tmpdir(), "roster-index-")); fs.mkdirSync(path.join(r, "data/internal/research/nba/rosters"), { recursive: true }); return r; };
@@ -18,6 +18,10 @@ test("RETAINED: an overwritten capture is kept by hash and still resolves, label
   // the re-capture: retain, then overwrite (capture-nba-rosters.mjs and the window's commit steps)
   assert.deepEqual(retainRosterCaptures(d, ["2026-11-12.json", "latest.json"]), [`2026-11-12.retained-${sha(first)}.json`]);
   assert.deepEqual(retainRosterCaptures(d, ["2026-11-12.json", "latest.json"]), [], "idempotent");
+  // the forecast window's commit step runs AFTER the capture step already retained the file: it must still be told
+  // which file to stage (2026-11-13: staging only "newly written" files left the retained copy out of every commit)
+  assert.deepEqual(retainedFilesFor(d, ["latest.json", "2026-11-12.json"]), [`2026-11-12.retained-${sha(first)}.json`], "an already-retained capture is still reported for staging, once");
+  assert.deepEqual(retainedFilesFor(d, ["2026-11-30.json"]), [], "a capture that does not exist reports nothing");
   for (const f of ["2026-11-12.json", "latest.json"]) fs.writeFileSync(path.join(d, f), second);
   const idx = loadRosterIndex(r);
   assert.equal(idx.get(sha(first))?.file, "nba/rosters/2026-11-12.json");
