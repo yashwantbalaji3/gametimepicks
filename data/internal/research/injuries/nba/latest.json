@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "sport": "nba",
  "dataClass": "PRIVATE_RESEARCH",
- "generatedAt": "2026-11-12T18:03:59Z",
- "sourceAsOf": "2026-11-12T18:03:59Z",
+ "generatedAt": "2026-11-13T06:36:25Z",
+ "sourceAsOf": "2026-11-13T06:36:19Z",
  "source": {
   "id": "espn_scoreboard",
   "name": "ESPN NBA public injuries feed",
@@ -11,32 +11,38 @@
  },
  "contractVersion": 1,
  "reconciliation": {
-  "sourceRows": 98,
-  "kept": 98,
-  "quarantined": 0,
+  "sourceRows": 102,
+  "kept": 101,
+  "quarantined": 1,
   "exact": true
  },
  "carryForward": {
   "carried": 0,
   "windowHours": null,
-  "previousGeneratedAt": "2026-11-12T17:32:13Z",
+  "previousGeneratedAt": "2026-11-12T18:03:59Z",
   "skipped": {
-   "spokenInFeed": 66,
-   "gameWeekOut": 0,
+   "spokenInFeed": 65,
+   "gameWeekOut": 1,
    "activatedByRoster": 0,
    "activatedByTransaction": 0,
    "undated": 0
   }
  },
- "quarantined": [],
+ "quarantined": [
+  {
+   "reason": "UNKNOWN_STATUS \"Suspension\" — outside the observed closed set, never guessed into a bucket",
+   "providerTeamId": "10",
+   "athleteId": "2990992"
+  }
+ ],
  "entries": [
   {
    "sport": "nba",
    "providerTeamId": "1",
-   "athleteId": "4873201",
-   "athleteName": "Asa Newell",
+   "athleteId": "4712863",
+   "athleteName": "Mouhamed Gueye",
    "status": "Out",
-   "statedAt": "2026-11-08T22:15Z"
+   "statedAt": "2026-11-13T00:06Z"
   },
   {
    "sport": "nba",
@@ -44,15 +50,23 @@
    "athleteId": "4585618",
    "athleteName": "Keshon Gilbert",
    "status": "Out",
-   "statedAt": "2026-11-08T22:13Z"
+   "statedAt": "2026-11-12T23:10Z"
   },
   {
    "sport": "nba",
    "providerTeamId": "1",
-   "athleteId": "4712863",
-   "athleteName": "Mouhamed Gueye",
+   "athleteId": "4873201",
+   "athleteName": "Asa Newell",
    "status": "Out",
-   "statedAt": "2026-10-19T19:38Z"
+   "statedAt": "2026-11-12T23:08Z"
+  },
+  {
+   "sport": "nba",
+   "providerTeamId": "1",
+   "athleteId": "5149077",
+   "athleteName": "Kingston Flemings",
+   "status": "Day-To-Day",
+   "statedAt": "2026-11-12T23:04Z"
   },
   {
    "sport": "nba",
@@ -89,26 +103,10 @@
   {
    "sport": "nba",
    "providerTeamId": "30",
-   "athleteId": "4066218",
-   "athleteName": "Grant Williams",
-   "status": "Out",
-   "statedAt": "2026-11-12T00:12Z"
-  },
-  {
-   "sport": "nba",
-   "providerTeamId": "30",
-   "athleteId": "4433249",
-   "athleteName": "Moussa Diabate",
-   "status": "Day-To-Day",
-   "statedAt": "2026-11-12T00:10Z"
-  },
-  {
-   "sport": "nba",
-   "providerTeamId": "30",
    "athleteId": "4433287",
    "athleteName": "Brandon Miller",
-   "status": "Out",
-   "statedAt": "2026-11-12T00:06Z"
+   "status": "Day-To-Day",
+   "statedAt": "2026-11-13T04:46Z"
   },
   {
    "sport": "nba",
@@ -129,10 +127,18 @@
   {
    "sport": "nba",
    "providerTeamId": "4",
+   "athleteId": "5105555",
+   "athleteName": "Tobe Awaka",
+   "status": "Out",
+   "statedAt": "2026-11-12T21:40Z"
+  },
+  {
+   "sport": "nba",
+   "providerTeamId": "4",
    "athleteId": "4848625",
    "athleteName": "Dailyn Swain",
    "status": "Day-To-Day",
-   "statedAt": "2026-11-12T15:00Z"
+   "statedAt": "2026-11-12T21:38Z"
   },
   {
    "sport": "nba",
@@ -140,23 +146,23 @@
    "athleteId": "2595516",
    "athleteName": "Norman Powell",
    "status": "Day-To-Day",
-   "statedAt": "2026-11-12T15:00Z"
-  },
-  {
-   "sport": "nba",
-   "providerTeamId": "4",
-   "athleteId": "5105555",
-   "athleteName": "Tobe Awaka",
-   "status": "Day-To-Day",
-   "statedAt": "2026-11-12T15:00Z"
+   "statedAt": "2026-11-12T21:38Z"
   },
   {
    "sport": "nba",
    "providerTeamId": "4",
    "athleteId": "5095151",
    "athleteName": "Caleb Wilson",
-   "status": "Day-To-Day",
-   "statedAt": "2026-11-12T02:53Z"
+   "status": "Out",
+   "statedAt": "2026-11-12T21:35Z"
+  },
+  {
+   "sport": "nba",
+   "providerTeamId": "5",
+   "athleteId": "4432158",
+   "athleteName": "Evan Mobley",
+   "status": "Out",
+   "statedAt": "2026-11-12T22:08Z"
   },
   {
    "sport": "nba",
@@ -189,14 +195,6 @@
    "athleteName": "Sergio de Larrea",
    "status": "Out",
    "statedAt": "2026-11-11T22:10Z"
-  },
-  {
-   "sport": "nba",
-   "providerTeamId": "6",
-   "athleteId": "4873153",
-   "athleteName": "Morez Johnson Jr.",
-   "status": "Day-To-Day",
-   "statedAt": "2026-11-11T22:08Z"
   },
   {
    "sport": "nba",
@@ -233,18 +231,18 @@
   {
    "sport": "nba",
    "providerTeamId": "9",
-   "athleteId": "3975",
-   "athleteName": "Stephen Curry",
-   "status": "Out",
-   "statedAt": "2026-11-12T17:03Z"
+   "athleteId": "4397886",
+   "athleteName": "Charles Bassey",
+   "status": "Day-To-Day",
+   "statedAt": "2026-11-12T22:18Z"
   },
   {
    "sport": "nba",
    "providerTeamId": "9",
-   "athleteId": "3134903",
-   "athleteName": "Gary Payton II",
-   "status": "Day-To-Day",
-   "statedAt": "2026-11-12T15:03Z"
+   "athleteId": "3975",
+   "athleteName": "Stephen Curry",
+   "status": "Out",
+   "statedAt": "2026-11-12T17:03Z"
   },
   {
    "sport": "nba",
@@ -297,10 +295,18 @@
   {
    "sport": "nba",
    "providerTeamId": "11",
+   "athleteId": "2530530",
+   "athleteName": "T.J. McConnell",
+   "status": "Day-To-Day",
+   "statedAt": "2026-11-12T23:08Z"
+  },
+  {
+   "sport": "nba",
+   "providerTeamId": "11",
    "athleteId": "4396909",
    "athleteName": "Aaron Nesmith",
    "status": "Day-To-Day",
-   "statedAt": "2026-11-12T01:59Z"
+   "statedAt": "2026-11-12T23:02Z"
   },
   {
    "sport": "nba",
@@ -329,10 +335,10 @@
   {
    "sport": "nba",
    "providerTeamId": "12",
-   "athleteId": "4845363",
-   "athleteName": "Cam Christie",
-   "status": "Day-To-Day",
-   "statedAt": "2026-11-11T14:59Z"
+   "athleteId": "3913176",
+   "athleteName": "Brandon Ingram",
+   "status": "Out",
+   "statedAt": "2026-11-12T21:05Z"
   },
   {
    "sport": "nba",
@@ -341,14 +347,6 @@
    "athleteName": "Yanic Konan Niederhauser",
    "status": "Out",
    "statedAt": "2026-11-10T00:05Z"
-  },
-  {
-   "sport": "nba",
-   "providerTeamId": "12",
-   "athleteId": "3913176",
-   "athleteName": "Brandon Ingram",
-   "status": "Out",
-   "statedAt": "2026-11-10T00:00Z"
   },
   {
    "sport": "nba",
@@ -403,8 +401,16 @@
    "providerTeamId": "29",
    "athleteId": "4593016",
    "athleteName": "Quinten Post",
-   "status": "Day-To-Day",
-   "statedAt": "2026-11-12T15:00Z"
+   "status": "Out",
+   "statedAt": "2026-11-12T23:17Z"
+  },
+  {
+   "sport": "nba",
+   "providerTeamId": "29",
+   "athleteId": "4600663",
+   "athleteName": "Zach Edey",
+   "status": "Out",
+   "statedAt": "2026-11-12T23:16Z"
   },
   {
    "sport": "nba",
@@ -424,19 +430,27 @@
   },
   {
    "sport": "nba",
-   "providerTeamId": "15",
-   "athleteId": "3133628",
-   "athleteName": "Myles Turner",
+   "providerTeamId": "14",
+   "athleteId": "6475",
+   "athleteName": "Klay Thompson",
    "status": "Day-To-Day",
-   "statedAt": "2026-11-12T15:01Z"
+   "statedAt": "2026-11-12T21:23Z"
   },
   {
    "sport": "nba",
-   "providerTeamId": "15",
-   "athleteId": "4591725",
-   "athleteName": "Ryan Rollins",
+   "providerTeamId": "14",
+   "athleteId": "3032977",
+   "athleteName": "Giannis Antetokounmpo",
    "status": "Day-To-Day",
-   "statedAt": "2026-11-12T03:40Z"
+   "statedAt": "2026-11-12T21:22Z"
+  },
+  {
+   "sport": "nba",
+   "providerTeamId": "14",
+   "athleteId": "4601025",
+   "athleteName": "Pelle Larsson",
+   "status": "Day-To-Day",
+   "statedAt": "2026-11-12T21:20Z"
   },
   {
    "sport": "nba",
@@ -457,26 +471,26 @@
   {
    "sport": "nba",
    "providerTeamId": "3",
-   "athleteId": "4683634",
-   "athleteName": "Bennedict Mathurin",
+   "athleteId": "4576086",
+   "athleteName": "Bryce McGowens",
    "status": "Day-To-Day",
-   "statedAt": "2026-11-12T15:03Z"
+   "statedAt": "2026-11-12T20:56Z"
   },
   {
    "sport": "nba",
    "providerTeamId": "3",
    "athleteId": "4431675",
    "athleteName": "Trendon Watford",
-   "status": "Day-To-Day",
-   "statedAt": "2026-11-12T15:02Z"
+   "status": "Out",
+   "statedAt": "2026-11-12T20:53Z"
   },
   {
    "sport": "nba",
    "providerTeamId": "3",
-   "athleteId": "4397688",
-   "athleteName": "Trey Murphy III",
+   "athleteId": "4683634",
+   "athleteName": "Bennedict Mathurin",
    "status": "Day-To-Day",
-   "statedAt": "2026-11-12T15:02Z"
+   "statedAt": "2026-11-12T20:53Z"
   },
   {
    "sport": "nba",
@@ -484,7 +498,23 @@
    "athleteId": "5061589",
    "athleteName": "Yves Missi",
    "status": "Out",
-   "statedAt": "2026-11-05T20:47Z"
+   "statedAt": "2026-11-12T20:50Z"
+  },
+  {
+   "sport": "nba",
+   "providerTeamId": "3",
+   "athleteId": "4397688",
+   "athleteName": "Trey Murphy III",
+   "status": "Day-To-Day",
+   "statedAt": "2026-11-12T20:48Z"
+  },
+  {
+   "sport": "nba",
+   "providerTeamId": "25",
+   "athleteId": "5061603",
+   "athleteName": "Thomas Sorber",
+   "status": "Out",
+   "statedAt": "2026-11-13T01:07Z"
   },
   {
    "sport": "nba",
@@ -492,7 +522,7 @@
    "athleteId": "4900671",
    "athleteName": "Ajay Mitchell",
    "status": "Day-To-Day",
-   "statedAt": "2026-11-12T15:04Z"
+   "statedAt": "2026-11-13T01:03Z"
   },
   {
    "sport": "nba",
@@ -501,14 +531,6 @@
    "athleteName": "Jaylin Williams",
    "status": "Out",
    "statedAt": "2026-11-11T21:19Z"
-  },
-  {
-   "sport": "nba",
-   "providerTeamId": "25",
-   "athleteId": "5061603",
-   "athleteName": "Thomas Sorber",
-   "status": "Out",
-   "statedAt": "2026-11-03T22:45Z"
   },
   {
    "sport": "nba",
@@ -540,7 +562,7 @@
    "athleteId": "4702382",
    "athleteName": "Tristan da Silva",
    "status": "Day-To-Day",
-   "statedAt": "2026-11-12T15:03Z"
+   "statedAt": "2026-11-12T22:07Z"
   },
   {
    "sport": "nba",
@@ -548,7 +570,7 @@
    "athleteId": "4278572",
    "athleteName": "Jamal Cain",
    "status": "Day-To-Day",
-   "statedAt": "2026-11-12T15:03Z"
+   "statedAt": "2026-11-12T22:04Z"
   },
   {
    "sport": "nba",
@@ -556,7 +578,7 @@
    "athleteId": "4432165",
    "athleteName": "Jalen Suggs",
    "status": "Out",
-   "statedAt": "2026-11-09T23:11Z"
+   "statedAt": "2026-11-12T22:03Z"
   },
   {
    "sport": "nba",
@@ -593,6 +615,14 @@
   {
    "sport": "nba",
    "providerTeamId": "20",
+   "athleteId": "1966",
+   "athleteName": "LeBron James",
+   "status": "Day-To-Day",
+   "statedAt": "2026-11-13T03:28Z"
+  },
+  {
+   "sport": "nba",
+   "providerTeamId": "20",
    "athleteId": "4870562",
    "athleteName": "Dominick Barlow",
    "status": "Out",
@@ -605,22 +635,6 @@
    "athleteName": "Adem Bona",
    "status": "Out",
    "statedAt": "2026-11-12T16:36Z"
-  },
-  {
-   "sport": "nba",
-   "providerTeamId": "20",
-   "athleteId": "3059318",
-   "athleteName": "Joel Embiid",
-   "status": "Day-To-Day",
-   "statedAt": "2026-11-12T16:34Z"
-  },
-  {
-   "sport": "nba",
-   "providerTeamId": "20",
-   "athleteId": "1966",
-   "athleteName": "LeBron James",
-   "status": "Day-To-Day",
-   "statedAt": "2026-11-12T16:32Z"
   },
   {
    "sport": "nba",
@@ -643,8 +657,8 @@
    "providerTeamId": "22",
    "athleteId": "4706557",
    "athleteName": "Chris Youngblood",
-   "status": "Day-To-Day",
-   "statedAt": "2026-11-12T15:04Z"
+   "status": "Out",
+   "statedAt": "2026-11-13T01:06Z"
   },
   {
    "sport": "nba",
@@ -676,7 +690,7 @@
    "athleteId": "4431679",
    "athleteName": "Precious Achiuwa",
    "status": "Day-To-Day",
-   "statedAt": "2026-11-11T14:44Z"
+   "statedAt": "2026-11-13T00:22Z"
   },
   {
    "sport": "nba",
@@ -700,7 +714,15 @@
    "athleteId": "4395630",
    "athleteName": "Devin Vassell",
    "status": "Day-To-Day",
-   "statedAt": "2026-11-12T14:59Z"
+   "statedAt": "2026-11-12T23:07Z"
+  },
+  {
+   "sport": "nba",
+   "providerTeamId": "24",
+   "athleteId": "4066259",
+   "athleteName": "De'Aaron Fox",
+   "status": "Day-To-Day",
+   "statedAt": "2026-11-12T23:05Z"
   },
   {
    "sport": "nba",
@@ -724,7 +746,15 @@
    "athleteId": "4431684",
    "athleteName": "Trayce Jackson-Davis",
    "status": "Day-To-Day",
-   "statedAt": "2026-11-12T03:01Z"
+   "statedAt": "2026-11-13T03:27Z"
+  },
+  {
+   "sport": "nba",
+   "providerTeamId": "28",
+   "athleteId": "4433134",
+   "athleteName": "Scottie Barnes",
+   "status": "Out",
+   "statedAt": "2026-11-12T18:05Z"
   },
   {
    "sport": "nba",
@@ -733,14 +763,6 @@
    "athleteName": "Kawhi Leonard",
    "status": "Out",
    "statedAt": "2026-11-11T22:33Z"
-  },
-  {
-   "sport": "nba",
-   "providerTeamId": "28",
-   "athleteId": "4433134",
-   "athleteName": "Scottie Barnes",
-   "status": "Out",
-   "statedAt": "2026-11-10T21:48Z"
   },
   {
    "sport": "nba",
@@ -781,6 +803,14 @@
    "athleteName": "Jaren Jackson Jr.",
    "status": "Out",
    "statedAt": "2026-10-27T19:25Z"
+  },
+  {
+   "sport": "nba",
+   "providerTeamId": "27",
+   "athleteId": "4845374",
+   "athleteName": "Bub Carrington",
+   "status": "Day-To-Day",
+   "statedAt": "2026-11-13T03:26Z"
   },
   {
    "sport": "nba",
