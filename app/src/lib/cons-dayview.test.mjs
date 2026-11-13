@@ -33,7 +33,8 @@ function homeRows(date, lane, enabled) {
 for (const enabled of [ELO_WIN_PROBABILITY.enabled, false]) {
   test(`every NBA game on the newest committed slates: Today and Home agree on the win chance (switch ${enabled ? "ON" : "OFF"})`, () => {
     assert.ok(DATES.length > 0, "committed lanes exist");
-    let compared = 0;
+    let compared = 0, newestCompared = 0;
+    const newest = DATES.at(-1);
     for (const date of DATES) {
       const lane = loadLaneForDate(date);
       if (!lane?.games?.length) continue;
@@ -44,7 +45,8 @@ for (const enabled of [ELO_WIN_PROBABILITY.enabled, false]) {
         const want = eloWinChanceRead(g, { enabled });
         const t = today.find((r) => r.id.endsWith(id));
         const h = home.find((r) => String(r.id) === id);
-        if (!t) continue; // a past date's game can roll off Today's schedule window; every game Today DOES list is compared
+        if (!t && date !== newest) continue; // a past date's game can roll off Today's schedule window; every game Today DOES list is compared
+        assert.ok(t, `${date} ${id}: Today lists every game of the newest committed slate`);
         // Today prints the accessor's own sentence (WEB-03, live since #1295) or the favoured side + the one reason
         assert.equal(t.read, want.shown ? want.fullText : `${g.elo.favoured} favoured · ${want.reason}`, `${date} ${id}: Today's read`);
         if (want.shown) assert.ok(t.read.endsWith(want.text), `${date} ${id}: Today and Home print the identical numbers`);
@@ -58,9 +60,14 @@ for (const enabled of [ELO_WIN_PROBABILITY.enabled, false]) {
         }
         if (!enabled) assert.equal(want.shown, false, "switch off → withheld everywhere");
         compared += 1;
+        if (date === newest) newestCompared += 1;
       }
     }
-    assert.ok(compared > 5, `compared ${compared} games`);
+    // Positive control (2026-11-12): `compared > 5` assumed yesterday's games were still on Today, which the midday NBA
+    // schedule capture drops (ca566d082f), leaving a 4-game slate at 4. The control is now the whole newest slate: every
+    // favoured game of it must be listed and compared (above), and there must be at least one.
+    const newestLane = loadLaneForDate(newest);
+    assert.ok(newestCompared > 0 && newestCompared === (newestLane?.games ?? []).filter((x) => x.elo?.favoured).length, `compared ${compared} games (${newestCompared} on ${newest})`);
   });
 }
 

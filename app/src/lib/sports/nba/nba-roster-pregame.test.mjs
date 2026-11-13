@@ -42,7 +42,13 @@ test("one commit per capture: the forecast commit carries it; a run with no fore
   assert.match(BUILD, /echo "committed=1" >> "\$GITHUB_OUTPUT"; exit 0; fi/);
   assert.match(COMMIT, /if: \$\{\{ !cancelled\(\) && steps\.roster\.outputs\.captured == '1' && steps\.build\.outputs\.committed != '1' && github\.event\.inputs\.dry_run != 'true' \}\}/, "only when no forecast commit carried it");
   assert.equal((COMMIT.match(/git add /g) ?? []).length, 1);
-  assert.match(COMMIT, /git add \.\.\/data\/internal\/research\/nba\/rosters\/latest\.json "\.\.\/data\/internal\/research\/nba\/rosters\/\$ROSTER_DATED"\n/, "roster files only");
+  assert.match(COMMIT, /git add \.\.\/data\/internal\/research\/nba\/rosters\/latest\.json "\.\.\/data\/internal\/research\/nba\/rosters\/\$ROSTER_DATED" \$RETAINED\n/, "roster files only (+ the captures it overwrote, retained)");
+  // RETAINED CAPTURES (2026-11-12): both writers keep the overwritten captures' exact bytes, after the reset and before the copy
+  for (const s of [BUILD, COMMIT]) {
+    const r = s.indexOf('RETAINED="$(node scripts/nba/retain-nba-roster-captures.mjs latest.json "$ROSTER_DATED")"');
+    assert.ok(r > s.indexOf("git reset -q --hard origin/main") && r < s.indexOf('cp "$RUNNER_TEMP/nba-roster/latest.json"'), "retain before overwrite");
+  }
+  assert.match(BUILD, /rosters\/\$ROSTER_DATED" \$RETAINED\n/);
   assert.equal((COMMIT.match(/git commit /g) ?? []).length, 1);
   // the triggers are the window's own (no cron, no workflow added)
   const triggers = body.slice(body.indexOf("\non:"), body.indexOf("\nconcurrency:"));

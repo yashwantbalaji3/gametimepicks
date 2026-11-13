@@ -6,11 +6,11 @@
  "league": "ligue-1",
  "competition": "Ligue 1",
  "country": "France",
- "generatedAt": "2026-11-11T17:12:09Z",
+ "generatedAt": "2026-11-12T17:39:14Z",
  "model": {
   "id": "epl-model-v1-split-poisson",
   "label": "Ligue 1 split-Poisson model (v1)",
-  "fitThrough": "2026-11-11T17:12:09Z",
+  "fitThrough": "2026-11-12T17:39:14Z",
   "matchesFitted": 1342,
   "description": "a split-Poisson model (v1), fit only on Ligue 1's own results"
  },
@@ -34,9 +34,76 @@
   "history": "openfootball football.json (results, public domain)"
  },
  "counts": {
-  "forecast": 0,
+  "forecast": 1,
   "refused": 0
  },
- "rows": [],
+ "rows": [
+  {
+   "eventId": "soccer:ligue-1:401876395",
+   "providerEventId": "401876395",
+   "kickoffUtc": "2026-11-20T19:45:00.000Z",
+   "homeEspnId": "170",
+   "awayEspnId": "3236",
+   "matchup": "Troyes v Le Havre AC",
+   "homeClub": "Troyes",
+   "awayClub": "Le Havre AC",
+   "historyNames": {
+    "home": "Troyes",
+    "away": "Le Havre"
+   },
+   "slug": "troyes-v-le-havre-ac-2026-11-20",
+   "modelOnly": true,
+   "modelId": "epl-model-v1-split-poisson",
+   "forecastAt": "2026-11-12T17:39:14Z",
+   "probs": {
+    "home": 0.285365,
+    "draw": 0.268063,
+    "away": 0.446572
+   },
+   "expectedGoals": 2.4567,
+   "lambdas": {
+    "home": 1.0597,
+    "away": 1.397
+   },
+   "over25": 0.445022,
+   "btts": {
+    "yes": 0.491808,
+    "no": 0.508192
+   },
+   "doubleChance": {
+    "homeOrDraw": 0.553428,
+    "drawOrAway": 0.714635,
+    "homeOrAway": 0.731937
+   },
+   "topScorelines": [
+    {
+     "score": "1-1",
+     "p": 0.126896
+    },
+    {
+     "score": "0-1",
+     "p": 0.119753
+    },
+    {
+     "score": "1-0",
+     "p": 0.090834
+    },
+    {
+     "score": "1-2",
+     "p": 0.088637
+    },
+    {
+     "score": "0-0",
+     "p": 0.085721
+    }
+   ],
+   "topScorelinesMass": 0.799087,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "sparseInput": null
+  }
+ ],
  "refused": []
 }
