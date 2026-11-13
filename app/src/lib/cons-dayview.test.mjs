@@ -5,6 +5,7 @@
  */
 import test from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 
 const { committedLaneDates, loadLaneForDate } = await import("../components/nba/experimental-lane.tsx");
 const { buildGamesTableRows } = await import("../components/games-experience-table-rows.ts");
@@ -51,11 +52,14 @@ for (const enabled of [ELO_WIN_PROBABILITY.enabled, false]) {
         const want = eloWinChanceRead(g, { enabled });
         const t = today.find((r) => r.id.endsWith(id));
         const h = home.find((r) => String(r.id) === id);
-        if (!t && (date !== newest || newestRolledOff)) continue; // a past date's game can roll off Today's schedule window; every game Today DOES list is compared
-        assert.ok(t, `${date} ${id}: Today lists every game of the newest committed slate`);
-        // Today prints the accessor's own sentence (WEB-03, live since #1295) or the favoured side + the one reason
-        assert.equal(t.read, want.shown ? want.fullText : `${g.elo.favoured} favoured · ${want.reason}`, `${date} ${id}: Today's read`);
-        if (want.shown) assert.ok(t.read.endsWith(want.text), `${date} ${id}: Today and Home print the identical numbers`);
+        if (!t && date !== newest) continue; // a past date's game can roll off Today's schedule window; every game Today DOES list is compared
+        if (!newestRolledOff || t) {
+          assert.ok(t, `${date} ${id}: Today lists every game of the newest committed slate`);
+          // Today prints the accessor's own sentence (WEB-03, live since #1295) or the favoured side + the one reason
+          assert.equal(t.read, want.shown ? want.fullText : `${g.elo.favoured} favoured · ${want.reason}`, `${date} ${id}: Today's read`);
+          if (want.shown) assert.ok(t.read.endsWith(want.text), `${date} ${id}: Today and Home print the identical numbers`);
+        }
+        // A rolled-off newest slate is still read on Home below: the roll-off excuses Today's listing, nothing else.
         if (h && !/^Final/.test(h.note)) {
           if (want.shown) {
             assert.equal(h.winChance?.text, want.text, `${date} ${id}: Home prints the identical number`);
@@ -66,7 +70,7 @@ for (const enabled of [ELO_WIN_PROBABILITY.enabled, false]) {
         }
         if (!enabled) assert.equal(want.shown, false, "switch off → withheld everywhere");
         compared += 1;
-        if (date === newest) newestCompared += 1;
+        if (date === newest && t) newestCompared += 1;
       }
     }
     // Positive control (2026-11-12): `compared > 5` assumed yesterday's games were still on Today, which the midday NBA
@@ -74,9 +78,18 @@ for (const enabled of [ELO_WIN_PROBABILITY.enabled, false]) {
     // favoured game of it must be listed and compared (above), and there must be at least one.
     const newestLane = loadLaneForDate(newest);
     if (newestRolledOff) {
-      // No game of the newest lane is on Today: every NBA row the schedule still holds must be for a LATER date. A row
-      // at or before `newest` would mean the window still covers it and its games are missing — that stays a failure.
-      assert.ok(nbaRowsAtNewest.every((r) => r.date > newest), `${newest} is not listed on Today, yet the schedule still holds NBA rows at or before it`);
+      // No game of the newest lane is on Today: every NBA row still listed must be for a LATER date, or an earlier
+      // day's settled game carried from the results record (Today keeps the previous day's finals; the schedule does
+      // not supply those). An unsettled row before `newest` would mean the window still covers it — that stays a failure.
+      assert.ok(nbaRowsAtNewest.every((r) => r.date > newest || r.status === "Final"), `${newest} is not listed on Today, yet Today still lists unsettled NBA rows before it`);
+      // …and the roll-off must be real, not a capture that lost a live day (independent review 2026-11-13): the schedule
+      // file must exist and have been captured on a LATER ET day than the lane. A capture taken on the lane's own day
+      // that lists none of its games is a missing slate, and a missing or undated schedule file proves nothing.
+      const capturedAt = JSON.parse(fs.readFileSync("public/data/nba/schedule/latest.json", "utf8")).generatedAt;
+      assert.ok(typeof capturedAt === "string" && !Number.isNaN(Date.parse(capturedAt)), "the NBA schedule capture carries its capture time");
+      const capturedEt = new Intl.DateTimeFormat("en-CA", { timeZone: "America/New_York" }).format(new Date(capturedAt));
+      assert.ok(capturedEt > newest, `${newest} is not listed on Today, but the schedule was captured on ${capturedEt} — not after that slate's day`);
+      assert.ok(compared > 0, "the committed slates were still compared (Home, and every game Today lists)");
     } else {
       assert.ok(newestCompared > 0 && newestCompared === (newestLane?.games ?? []).filter((x) => x.elo?.favoured).length, `compared ${compared} games (${newestCompared} on ${newest})`);
     }
