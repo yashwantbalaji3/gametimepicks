@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-11-12",
- "generatedAt": "2026-11-12T17:35:42Z",
+ "generatedAt": "2026-11-12T23:31:30Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "153 model candidates · no current comparable touchdown price is available",
+ "reason": "158 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -108,27 +108,6 @@
    "providerEventId": "401873063",
    "kickoffUtc": "2026-11-15T21:25Z",
    "tdProbability": 0.6788,
-   "probabilitySource": "the game's player board — the published anytime-touchdown family",
-   "probabilityRange": {
-    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
-   "modelVersion": "nfl-anytime-td-opportunity-v1"
-  },
-  {
-   "playerId": "nfl-athlete-3916148",
-   "name": "Tony Pollard",
-   "position": "RB",
-   "team": "TEN",
-   "opponent": "JAX",
-   "event": "JAX @ TEN",
-   "providerEventId": "401873057",
-   "kickoffUtc": "2026-11-15T18:00Z",
-   "tdProbability": 0.6282,
    "probabilitySource": "the game's player board — the published anytime-touchdown family",
    "probabilityRange": {
     "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
@@ -265,9 +244,30 @@
    "pricingState": "NOT_PROBED",
    "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
    "modelVersion": "nfl-anytime-td-opportunity-v1"
+  },
+  {
+   "playerId": "nfl-athlete-4430807",
+   "name": "Bijan Robinson",
+   "position": "RB",
+   "team": "ATL",
+   "opponent": "KC",
+   "event": "KC @ ATL",
+   "providerEventId": "401873058",
+   "kickoffUtc": "2026-11-15T18:00Z",
+   "tdProbability": 0.5455,
+   "probabilitySource": "the game's player board — the published anytime-touchdown family",
+   "probabilityRange": {
+    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
+   "modelVersion": "nfl-anytime-td-opportunity-v1"
   }
  ],
- "candidateCount": 153,
+ "candidateCount": 158,
  "withheld": [
   {
    "event": "NE @ DET",
@@ -285,7 +285,7 @@
    "event": "NE @ DET",
    "team": "NE",
    "player": "Rhamondre Stevenson",
-   "reason": "designated Doubtful — only players with no designation are listed"
+   "reason": "designated Questionable — only players with no designation are listed"
   },
   {
    "event": "NE @ DET",
@@ -332,19 +332,7 @@
   {
    "event": "HOU @ CLE",
    "team": "HOU",
-   "player": "Tank Dell",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "HOU @ CLE",
-   "team": "HOU",
    "player": "Marvin Harrison Jr.",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "MIN @ GB",
-   "team": "GB",
-   "player": "Josh Jacobs",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -357,6 +345,12 @@
    "event": "MIN @ GB",
    "team": "MIN",
    "player": "T.J. Hockenson",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "JAX @ TEN",
+   "team": "TEN",
+   "player": "Tony Pollard",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -393,12 +387,6 @@
    "event": "MIA @ IND",
    "team": "MIA",
    "player": "Chris Bell",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "CAR @ NO",
-   "team": "NO",
-   "player": "Alvin Kamara",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -466,7 +454,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 153,
+  "roleReadyCandidates": 158,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."
