@@ -5332,6 +5332,13 @@ a.nbx-lane-row:hover, a.nbx-lane-row:focus-visible { border-color: var(--sport-n
 .nbx-kv { display: grid; grid-template-columns: max-content minmax(0, 1fr); gap: 0.25rem 0.875rem; margin: 0; font-size: 13px; }
 .nbx-kv dt { color: var(--vault-text-mute); }
 .nbx-kv dd { margin: 0; overflow-wrap: anywhere; }
+/* Phone width: a label beside its value left long values (the Elo disclosure, the withheld-score note) an ~80px column,
+   one word per line (the Official Forecast panel measured ~2,700px tall at 375px). Stack each label above its value. */
+@media (max-width: 559px) {
+  .nbx-kv { grid-template-columns: minmax(0, 1fr); gap: 0; }
+  .nbx-kv dt { font-size: 11.5px; margin-top: 0.625rem; }
+  .nbx-kv dt:first-child { margin-top: 0; }
+}
 .nbx-scroll { overflow-x: auto; max-width: 100%; }
 .nbx-ptable { width: 100%; border-collapse: collapse; font-size: 12.5px; font-variant-numeric: tabular-nums; }
 .nbx-ptable caption { text-align: left; font-weight: 700; padding: 0.25rem 0; }
