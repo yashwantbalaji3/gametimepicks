@@ -137,7 +137,7 @@ test("a final NFL game page has no live-state block", () => {
   const slots = [...page.matchAll(/\{livePanel\}/g)];
   assert.equal(slots.length, 2, "two slots");
   assert.match(page, /\{isFinal \? \([\s\S]*?\) : <KickoffSlot kickoffUtc=\{f\.kickoffUtc\} startedAtBuild=\{liveTop\} when="after"><div style=\{\{ marginTop: 16 \}\}>\{livePanel\}<\/div><\/KickoffSlot>\}/);
-  assert.match(page, /\{isFinal \? null : <KickoffSlot kickoffUtc=\{f\.kickoffUtc\} startedAtBuild=\{liveTop\} when="before">\{livePanel\}<\/KickoffSlot>\}/);
+  assert.match(page, /\{isFinal \? null : <KickoffSlot kickoffUtc=\{f\.kickoffUtc\} startedAtBuild=\{liveTop\} when="before"><MoreDisclosure [^>]*>\{livePanel\}<\/MoreDisclosure><\/KickoffSlot>\}/);
   assert.ok(page.indexOf("const isFinal") < page.indexOf("{isFinal ? ("), "gated on the page's own final facts");
 });
 

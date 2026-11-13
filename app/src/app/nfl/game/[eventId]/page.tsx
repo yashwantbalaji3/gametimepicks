@@ -259,6 +259,26 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
   /* The header's state comes from the facts the page itself renders: SETTLED, an official final box score, or the
      archived record's reconciled final. */
   const isFinal = lifecycle === "SETTLED" || Boolean(postgame) || Boolean(archived?.reconciliation?.final);
+  /* An UPCOMING game's page leads with the forecast itself. At 390 px the follow rows, the research link and the save
+     button pushed the hero's win chance and projected score below the first screen (measured 2026-11-13: hero at 520 px,
+     its numbers past 760). For a game not yet started they now sit directly under the hero. A started, archived or
+     final page keeps its header exactly as it was. */
+  const actionsBelowHero = !started && !archived && !isFinal;
+  const followAndResearch = (
+    <>
+      {/* v1.1.2: follow either club by its ESPN team id, from the game the reader is already on. */}
+      <div style={{ marginTop: 10 }}>
+        <TeamFollowRow away={nflTeamRefByAbbr(f.away.abbr)} home={nflTeamRefByAbbr(f.home.abbr)} researchHrefs={hrefsFor([nflTeamRefByAbbr(f.away.abbr)?.id, nflTeamRefByAbbr(f.home.abbr)?.id])} />
+      </div>
+      {/* v1.4: factual matchup research for this exact event id — shown only when that page exists. */}
+      {matchupHref("NFL", params.eventId) ? <div style={{ marginTop: 8 }}><CompareCta href={matchupHref("NFL", params.eventId)!}>Research matchup</CompareCta></div> : null}
+    </>
+  );
+  const saveForecast = idxEvent && (idxEvent as NflEvent).winProbability ? (
+        <div style={{ marginTop: 14 }}>
+          <SaveForecastButton placement="report" compact={false} card={saveCardOf(cardFromNflEvent(idxEvent as NflEvent, { ...reportCardContext("nfl", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: storyNowIso }), weekLabel: (idx as { counts?: { weekLabel?: string } } | null)?.counts?.weekLabel ?? null }))} />
+        </div>
+      ) : null;
   const livePanel = (
     <LivePanel
       sport="nfl"
@@ -291,12 +311,8 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
         <h1 style={{ margin: "8px 0 0", fontSize: 26 }}>
           {f.away.name} <span style={{ color: "var(--vault-text-faint)", fontSize: 16 }}>at</span> {f.home.name}
         </h1>
-        {/* v1.1.2: follow either club by its ESPN team id, from the game the reader is already on. */}
-        <div style={{ marginTop: 10 }}>
-          <TeamFollowRow away={nflTeamRefByAbbr(f.away.abbr)} home={nflTeamRefByAbbr(f.home.abbr)} researchHrefs={hrefsFor([nflTeamRefByAbbr(f.away.abbr)?.id, nflTeamRefByAbbr(f.home.abbr)?.id])} />
-        </div>
-        {/* v1.4: factual matchup research for this exact event id — shown only when that page exists. */}
-        {matchupHref("NFL", params.eventId) ? <div style={{ marginTop: 8 }}><CompareCta href={matchupHref("NFL", params.eventId)!}>Research matchup</CompareCta></div> : null}
+        {/* Upcoming games lead with the forecast: follow and research sit under the hero (actionsBelowHero). */}
+        {actionsBelowHero ? null : followAndResearch}
         {wx ? (
           <p style={{ margin: "4px 0 0", fontSize: 12, color: "var(--vault-text-faint)", maxWidth: 720, lineHeight: 1.55 }}>
             {wx.summary} — <strong>not used by the model</strong>; no weather term enters the numbers below.
@@ -338,11 +354,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
 
       {/* P319: save exactly this forecast — the card the homepage would feature for this game, same identity and
           settlement key; the control itself refuses once the game has kicked off. */}
-      {idxEvent && (idxEvent as NflEvent).winProbability ? (
-        <div style={{ marginTop: 14 }}>
-          <SaveForecastButton placement="report" compact={false} card={saveCardOf(cardFromNflEvent(idxEvent as NflEvent, { ...reportCardContext("nfl", { dataRoot: path.join(process.cwd(), "public", "data"), repoRoot: path.join(process.cwd(), ".."), nowIso: storyNowIso }), weekLabel: (idx as { counts?: { weekLabel?: string } } | null)?.counts?.weekLabel ?? null }))} />
-        </div>
-      ) : null}
+      {actionsBelowHero ? null : saveForecast}
 
       <section aria-labelledby="sim-summary" style={{ marginTop: 26 }}>
         {/* P179-A0: the report states its OWN readiness before showing a number. A page that leads
@@ -353,6 +365,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
             centrepiece, win chance, margin and total with their ranges (components/nfl/forecast/game-hero.tsx). */}
         {f.teamSignal && f.teamSignal.state !== "APPLIED" ? <p className="nf-eyebrow" style={{ marginBottom: 8 }}>Simulation · BASELINE ONLY</p> : null}
         <GameHero away={f.away} home={f.home} kickoffLabel={`${f.seasonType === 1 ? "Preseason" : "Regular season"} · week ${f.week} · ${etTime(f.kickoffUtc)}`} venue={f.venue} record={{ ...(view?.record ?? { favourite: s.winProbability.home >= s.winProbability.away ? f.home.abbr : f.away.abbr, generatedAt: f.generatedAt }), winProbability: s.winProbability, projectedScore: s.projectedScore, margin: s.margin, total: s.total }} likeliest={hasShape ? shape!.finalScores[0] : null} started={started} />
+        {actionsBelowHero ? <div data-nfl-game-actions="" style={{ margin: "14px 0 4px" }}>{followAndResearch}{saveForecast}</div> : null}
         {f.teamSignal && f.teamSignal.state !== "APPLIED" ? (
           <p style={{ margin: "0 0 12px", fontSize: 12.5, lineHeight: 1.6, color: "var(--vault-text-mute)", maxWidth: 720, borderLeft: "2px solid var(--vault-gold)", paddingLeft: 12 }}>
             <strong style={{ color: "var(--vault-text)" }}>Read the range, not the score.</strong> {f.teamSignal.note} The numbers below are a
@@ -387,7 +400,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           * Self-gates on `liveReadyFor("nfl")`: with the flag off it renders nothing and fetches
           * nothing.
           */}
-        {isFinal ? null : <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="before">{livePanel}</KickoffSlot>}
+        {/* Before kickoff there is no live state to read (the panel says "Scheduled"), so it waits in a fold; at kickoff
+            the slot above the hero takes over and shows it open, as before. */}
+        {isFinal ? null : <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="before"><MoreDisclosure title="Live game state" summary="Starts at kickoff. The live score will appear at the top of this page, beside this frozen forecast." className="mt-4">{livePanel}</MoreDisclosure></KickoffSlot>}
 
       </section>
 

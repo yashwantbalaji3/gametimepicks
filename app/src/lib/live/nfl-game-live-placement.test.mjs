@@ -21,8 +21,12 @@ test("🔴 started or archived → the panel sits directly under the header; bef
      panel to the top once the game starts, without waiting for a rebuild. */
   const header = code.indexOf("</header>");
   const top = code.indexOf('<KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="after"><div style={{ marginTop: 16 }}>{livePanel}</div></KickoffSlot>');
-  const lower = code.indexOf('<KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="before">{livePanel}</KickoffSlot>');
+  // 2026-11-13: before kickoff the panel has no live state to show, so the pregame slot holds it in a fold (same slot,
+  // same place); the top slot is unchanged and still shows it open from kickoff.
+  const lower = code.indexOf('<KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="before"><MoreDisclosure title="Live game state"');
+  assert.match(code.slice(lower, lower + 400), /^<KickoffSlot [^>]*when="before"><MoreDisclosure [^>]*>\{livePanel\}<\/MoreDisclosure><\/KickoffSlot>/, "the fold wraps the panel and nothing else");
   const summary = code.indexOf('aria-labelledby="sim-summary"');
-  assert.ok(header > 0 && top > header && top < code.indexOf("<SaveForecastButton"), "top slot follows the header, before anything else");
+  assert.ok(header > 0 && top > header && top < code.indexOf("{actionsBelowHero ? null : saveForecast}"), "top slot follows the header, before anything else");
+  assert.ok(code.indexOf("{actionsBelowHero ? null : saveForecast}") > 0 && code.indexOf("<SaveForecastButton") < header, "the save control is one element, placed by the page (header position for a started game)");
   assert.ok(lower > summary, "the pregame slot stays inside the forecast section");
 });
