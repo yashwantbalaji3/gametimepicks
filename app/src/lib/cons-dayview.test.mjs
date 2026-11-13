@@ -35,6 +35,12 @@ for (const enabled of [ELO_WIN_PROBABILITY.enabled, false]) {
     assert.ok(DATES.length > 0, "committed lanes exist");
     let compared = 0, newestCompared = 0;
     const newest = DATES.at(-1);
+    // The NBA schedule file holds rows from its capture day forward. On a no-game ET day (first: 2026-11-26), or when a
+    // lane publishes late, the newest lane's date is BEHIND that window and Today lists none of its games. That is a
+    // roll-off, not a disagreement: it is recognised only when NOT ONE game of the date is listed (a partly listed
+    // slate still fails below), and it is then proven from the schedule's own rows at the end of the test.
+    const nbaRowsAtNewest = buildGamesTableRows(newest, { eloEnabled: enabled }).filter((r) => r.sport === "nba");
+    const newestRolledOff = !nbaRowsAtNewest.some((r) => r.date === newest);
     for (const date of DATES) {
       const lane = loadLaneForDate(date);
       if (!lane?.games?.length) continue;
@@ -45,7 +51,7 @@ for (const enabled of [ELO_WIN_PROBABILITY.enabled, false]) {
         const want = eloWinChanceRead(g, { enabled });
         const t = today.find((r) => r.id.endsWith(id));
         const h = home.find((r) => String(r.id) === id);
-        if (!t && date !== newest) continue; // a past date's game can roll off Today's schedule window; every game Today DOES list is compared
+        if (!t && (date !== newest || newestRolledOff)) continue; // a past date's game can roll off Today's schedule window; every game Today DOES list is compared
         assert.ok(t, `${date} ${id}: Today lists every game of the newest committed slate`);
         // Today prints the accessor's own sentence (WEB-03, live since #1295) or the favoured side + the one reason
         assert.equal(t.read, want.shown ? want.fullText : `${g.elo.favoured} favoured · ${want.reason}`, `${date} ${id}: Today's read`);
@@ -67,7 +73,13 @@ for (const enabled of [ELO_WIN_PROBABILITY.enabled, false]) {
     // schedule capture drops (ca566d082f), leaving a 4-game slate at 4. The control is now the whole newest slate: every
     // favoured game of it must be listed and compared (above), and there must be at least one.
     const newestLane = loadLaneForDate(newest);
-    assert.ok(newestCompared > 0 && newestCompared === (newestLane?.games ?? []).filter((x) => x.elo?.favoured).length, `compared ${compared} games (${newestCompared} on ${newest})`);
+    if (newestRolledOff) {
+      // No game of the newest lane is on Today: every NBA row the schedule still holds must be for a LATER date. A row
+      // at or before `newest` would mean the window still covers it and its games are missing — that stays a failure.
+      assert.ok(nbaRowsAtNewest.every((r) => r.date > newest), `${newest} is not listed on Today, yet the schedule still holds NBA rows at or before it`);
+    } else {
+      assert.ok(newestCompared > 0 && newestCompared === (newestLane?.games ?? []).filter((x) => x.elo?.favoured).length, `compared ${compared} games (${newestCompared} on ${newest})`);
+    }
   });
 }
 
