@@ -68,8 +68,11 @@ function ReadRow({ r }: { r: TopRead }) {
   return r.href ? <Link href={r.href} style={{ ...style, textDecoration: "none" }}>{body}</Link> : <div style={style}>{body}</div>;
 }
 
+/** Rows shown per sport before the rest of its ranking is opened (grouped view). */
+const GROUP_PREVIEW = 3;
+
 export default function TopReadsPanel({
-  set, reads, eyebrow, title, sub, groupBySport = false, compact = false, domId,
+  set, reads, eyebrow, title, sub, groupBySport = false, compact = false, domId, groupPreview = GROUP_PREVIEW,
 }: {
   set: TopReadsSet;
   reads: TopRead[];
@@ -96,6 +99,8 @@ export default function TopReadsPanel({
    * caller now says which one it is, and the anchor keeps meaning the today panel.
    */
   domId?: string;
+  /** Grouped view: rows shown per sport before the rest opens in place. A caller showing ONE chosen sport passes Infinity. */
+  groupPreview?: number;
 }) {
   if (reads.length === 0) return null;
   const sports = [...new Set(reads.map((r) => r.sport))];
@@ -109,22 +114,41 @@ export default function TopReadsPanel({
            panel already says nothing here is a recommendation to wager. */
         sub={sub ?? ((hasToday
           ? "Ranked by each model's own probability, never by a gap against a sportsbook price."
-          : "Nothing plays today — the model's next dated reads, ranked by its own probability.") + (compact ? " A watchlist, not a bet." : ""))}
+          /* "Nothing plays today" was a claim about the DAY, and sat above nine listed games on 2026-11-13. This panel
+             only knows its own rows: none of them is for today. */
+          : "None of these is for today — the model's next dated reads, ranked by its own probability.") + (compact ? " A watchlist, not a bet." : ""))}
       />
       <div className="mt-3 rounded-[12px] overflow-hidden" style={{ background: "var(--vault-panel)", border: "1px solid var(--vault-rule)" }}>
-        {reads.map((r, i) => (
-          <span key={`${r.sport}-${r.market}-${r.subject}-${i}`} style={{ display: "contents" }}>
-            {groupBySport && (i === 0 || reads[i - 1]!.sport !== r.sport) ? (
-              <div
-                className="font-mono uppercase tracking-[0.12em]"
-                style={{ padding: "8px 12px 4px", fontSize: 10, color: "var(--vault-text-faint)", borderTop: i > 0 ? "1px solid var(--vault-rule)" : "none" }}
-              >
-                {r.sportLabel} — top {reads.filter((x) => x.sport === r.sport).length}
+        {groupBySport ? (
+          /* UX 2026-11-13: each sport shows its top GROUP_PREVIEW reads; the rest of its ranking opens in place. On a
+             phone the full per-sport lists were 3,300 px — 40% of /today — ahead of everything else on the page.
+             <details> needs no script, keeps every row in the document, and is keyboard- and reader-operable. */
+          sports.map((sp, gi) => {
+            const group = reads.filter((x) => x.sport === sp);
+            const head = group.slice(0, groupPreview), rest = group.slice(groupPreview);
+            return (
+              <div key={sp}>
+                <div
+                  className="font-mono uppercase tracking-[0.12em]"
+                  style={{ padding: "8px 12px 4px", fontSize: 10, color: "var(--vault-text-faint)", borderTop: gi > 0 ? "1px solid var(--vault-rule)" : "none" }}
+                >
+                  {group[0]!.sportLabel} — top {group.length}
+                </div>
+                {head.map((r, i) => <ReadRow key={`${r.sport}-${r.market}-${r.subject}-${i}`} r={r} />)}
+                {rest.length > 0 ? (
+                  <details className="top-reads-more">
+                    <summary
+                      style={{ cursor: "pointer", padding: "11px 12px", minHeight: 44, fontSize: 12.5, fontWeight: 600, color: "var(--vault-text-mute)", borderTop: "1px solid var(--vault-rule)" }}
+                    >
+                      Show {group[0]!.sportLabel} ranks {groupPreview + 1}–{group.length}
+                    </summary>
+                    {rest.map((r, i) => <ReadRow key={`${r.sport}-${r.market}-${r.subject}-rest-${i}`} r={r} />)}
+                  </details>
+                ) : null}
               </div>
-            ) : null}
-            <ReadRow r={r} />
-          </span>
-        ))}
+            );
+          })
+        ) : reads.map((r, i) => <ReadRow key={`${r.sport}-${r.market}-${r.subject}-${i}`} r={r} />)}
       </div>
 
       {/* WHAT EACH MODEL HAS ACTUALLY PROVEN — beside the numbers, not beneath a fold. */}
