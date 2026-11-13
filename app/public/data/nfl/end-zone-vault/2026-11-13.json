@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-11-13",
- "generatedAt": "2026-11-13T20:11:45Z",
+ "generatedAt": "2026-11-13T20:58:44Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "144 model candidates · no current comparable touchdown price is available",
+ "reason": "146 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -87,6 +87,27 @@
    "providerEventId": "401873063",
    "kickoffUtc": "2026-11-15T21:25Z",
    "tdProbability": 0.6788,
+   "probabilitySource": "the game's player board — the published anytime-touchdown family",
+   "probabilityRange": {
+    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
+   "modelVersion": "nfl-anytime-td-opportunity-v1"
+  },
+  {
+   "playerId": "nfl-athlete-3916148",
+   "name": "Tony Pollard",
+   "position": "RB",
+   "team": "TEN",
+   "opponent": "JAX",
+   "event": "JAX @ TEN",
+   "providerEventId": "401873057",
+   "kickoffUtc": "2026-11-15T18:00Z",
+   "tdProbability": 0.6282,
    "probabilitySource": "the game's player board — the published anytime-touchdown family",
    "probabilityRange": {
     "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
@@ -244,30 +265,9 @@
    "pricingState": "NOT_PROBED",
    "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
    "modelVersion": "nfl-anytime-td-opportunity-v1"
-  },
-  {
-   "playerId": "nfl-athlete-4430878",
-   "name": "Jaxon Smith-Njigba",
-   "position": "WR",
-   "team": "SEA",
-   "opponent": "LV",
-   "event": "SEA @ LV",
-   "providerEventId": "401873062",
-   "kickoffUtc": "2026-11-15T21:05Z",
-   "tdProbability": 0.5262,
-   "probabilitySource": "the game's player board — the published anytime-touchdown family",
-   "probabilityRange": {
-    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
-   "modelVersion": "nfl-anytime-td-opportunity-v1"
   }
  ],
- "candidateCount": 144,
+ "candidateCount": 146,
  "withheld": [
   {
    "event": "NE @ DET",
@@ -344,12 +344,6 @@
   {
    "event": "JAX @ TEN",
    "team": "TEN",
-   "player": "Tony Pollard",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "JAX @ TEN",
-   "team": "TEN",
    "player": "Tyjae Spears",
    "reason": "designated Questionable — only players with no designation are listed"
   },
@@ -357,12 +351,6 @@
    "event": "JAX @ TEN",
    "team": "JAX",
    "player": "Chris Rodriguez Jr.",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "JAX @ TEN",
-   "team": "JAX",
-   "player": "Jakobi Meyers",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -454,7 +442,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 144,
+  "roleReadyCandidates": 146,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."
