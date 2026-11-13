@@ -50,6 +50,7 @@ const availMark = (p: { participation: string }) => {
   return label && p.participation !== "ACTIVE_PROJECTED" ? ` · ${label}` : "";
 };
 import { KickoffSlot } from "@/components/live/kickoff-aware";
+import { liveReadyFor } from "@/lib/live/client";
 
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { effectiveLifecycle } from "@/lib/sports/nfl/effective-lifecycle.mjs";
@@ -264,6 +265,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
      its numbers past 760). For a game not yet started they now sit directly under the hero. A started, archived or
      final page keeps its header exactly as it was. */
   const actionsBelowHero = !started && !archived && !isFinal;
+  /* The pre-kickoff fold promises a live score at kickoff, so it exists only where the live panel does: LivePanel
+     renders nothing unless liveReadyFor("nfl"), and an empty fold with that promise would be false. Build-time constant. */
+  const nflLiveOn = liveReadyFor("nfl");
   const followAndResearch = (
     <>
       {/* v1.1.2: follow either club by its ESPN team id, from the game the reader is already on. */}
@@ -402,7 +406,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
           */}
         {/* Before kickoff there is no live state to read (the panel says "Scheduled"), so it waits in a fold; at kickoff
             the slot above the hero takes over and shows it open, as before. */}
-        {isFinal ? null : <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="before"><MoreDisclosure title="Live game state" summary="Starts at kickoff. The live score will appear at the top of this page, beside this frozen forecast." className="mt-4">{livePanel}</MoreDisclosure></KickoffSlot>}
+        {isFinal || !nflLiveOn ? null : <KickoffSlot kickoffUtc={f.kickoffUtc} startedAtBuild={liveTop} when="before"><MoreDisclosure title="Live game state" summary="Starts at kickoff. The live score will appear at the top of this page, beside this frozen forecast." className="mt-4">{livePanel}</MoreDisclosure></KickoffSlot>}
 
       </section>
 

@@ -30,3 +30,25 @@ test("🔴 started or archived → the panel sits directly under the header; bef
   assert.ok(code.indexOf("{actionsBelowHero ? null : saveForecast}") > 0 && code.indexOf("<SaveForecastButton") < header, "the save control is one element, placed by the page (header position for a started game)");
   assert.ok(lower > summary, "the pregame slot stays inside the forecast section");
 });
+
+test("🔴 upcoming game: follow, research and save render once — under the hero, never also in the header", () => {
+  assert.match(code, /const actionsBelowHero = !started && !archived && !isFinal;/, "only an upcoming game moves its actions");
+  const hero = code.indexOf("<GameHero");
+  const below = code.indexOf('{actionsBelowHero ? <div data-nfl-game-actions=""');
+  assert.ok(hero > 0 && below > hero, "the moved block follows the hero");
+  assert.match(code.slice(below, below + 300), /^\{actionsBelowHero \? <div data-nfl-game-actions=""[^>]*>\{followAndResearch\}\{saveForecast\}<\/div> : null\}/, "the block holds both pieces and nothing else");
+  // each piece has exactly two placements, mutually exclusive on the same flag
+  const count = (s) => code.split(s).length - 1;
+  assert.equal(count("{actionsBelowHero ? null : followAndResearch}"), 1);
+  assert.equal(count("{actionsBelowHero ? null : saveForecast}"), 1);
+  assert.equal(count("{followAndResearch}"), 1, "follow/research: one below-hero use");
+  assert.equal(count("{saveForecast}"), 1, "save: one below-hero use");
+  assert.equal(count("<SaveForecastButton"), 1, "one save control on the page");
+});
+
+test("🔴 the pre-kickoff fold exists only where the live panel does", () => {
+  /* LivePanel renders nothing unless liveReadyFor("nfl"); the fold's summary promises a live score at kickoff, so a
+     flag-off build must not ship an empty fold carrying that promise (independent review, 2026-11-13). */
+  assert.match(code, /const nflLiveOn = liveReadyFor\("nfl"\);/);
+  assert.match(code, /\{isFinal \|\| !nflLiveOn \? null : <KickoffSlot [^>]*when="before"><MoreDisclosure title="Live game state"/);
+});
