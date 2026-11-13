@@ -44,12 +44,23 @@ test("the archived lobby links each settled game to its settled page, not to a g
   const games = settledMlbGames(buildDay());
   const byDate = new Map();
   for (const g of games) byDate.set(g.date, [...(byDate.get(g.date) ?? []), g]);
-  let linked = 0;
+  let linked = 0, lobbies = 0;
   for (const [date, list] of byDate) {
     const f = path.join(OUT, "simulate", "d", date, "index.html");
     if (!fs.existsSync(f)) continue;
+    lobbies++;
     const html = fs.readFileSync(f, "utf8");
     for (const g of list) if (html.includes(`/games/mlb/${g.slug}/`)) linked++;
   }
-  assert.ok(linked > 0, "settled MLB rows in archived lobbies open their settled pages");
+  if (lobbies) { assert.ok(linked > 0, "settled MLB rows in archived lobbies open their settled pages"); return; }
+  // OFF-SEASON (2026-11-12): the lobby window (day-view.ts WINDOW_BACK, 14 days) has moved past the last graded MLB game
+  // while the settled-page window (EXPIRED_GAMES_MAX_DAYS) still holds it, so no archived lobby can link one. That is
+  // only acceptable if lobbies ARE exported and every one of them is newer than every settled game; an export that lost
+  // its lobbies still fails here.
+  const dir = path.join(OUT, "simulate", "d");
+  const exported = fs.existsSync(dir) ? fs.readdirSync(dir).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d)).sort() : [];
+  assert.ok(exported.length > 0, "archived lobbies are exported");
+  const newest = [...byDate.keys()].sort().at(-1);
+  if (newest) assert.ok(newest < exported[0], `every settled MLB date (newest ${newest}) is older than the lobby window (from ${exported[0]})`);
+  t.diagnostic(`no settled MLB date inside the lobby window (newest settled ${newest ?? "none"}, lobbies from ${exported[0]})`);
 });

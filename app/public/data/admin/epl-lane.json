@@ -2,46 +2,54 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-11-10T01:43:58Z",
+  "generatedAt": "2026-11-13T01:48:03Z",
   "nextCluster": {
     "kickoffUtc": "2026-11-21T15:00:00.000Z",
     "fixtures": 10,
-    "hoursAway": 277.27
+    "hoursAway": 205.2
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
       "stampedAt": "2026-10-24T14:16:20Z",
-      "ageHours": 395.46
+      "ageHours": 467.53
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-11-07T00:39:09Z",
-      "ageHours": 73.08
+      "ageHours": 145.15
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-11-10T01:43:55Z",
+      "stampedAt": "2026-11-13T01:47:54Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-11-10T01:43:56Z",
+      "stampedAt": "2026-11-13T01:48:01Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-11-10T01:43:43Z",
-      "ageHours": 0
+      "stampedAt": "2026-11-13T01:47:38Z",
+      "ageHours": 0.01
     }
   },
   "cadence": {
     "lineupCoverage": {
-      "state": "EVERY_CLUSTER_SERVED",
-      "clusters": 2,
+      "state": "GAP",
+      "clusters": 3,
       "covered": 2,
-      "uncoveredMatches": 0,
-      "uncovered": []
+      "uncoveredMatches": 10,
+      "uncovered": [
+        {
+          "kickoffIso": "2026-12-02T20:00:00.000Z",
+          "fixtures": 10,
+          "nearestLeadHours": 49.5,
+          "nearestSlotIso": "2026-11-30T18:30:00.000Z",
+          "covered": false
+        }
+      ]
     },
     "budget": {
       "state": "WITHIN_CEILING",
@@ -52,18 +60,18 @@
       "headroom": 60,
       "kickoffWindowHours": 30,
       "spendingFirings": 127,
-      "skippedFirings": 392
+      "skippedFirings": 391
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-11-10T01:43:55Z",
+    "generatedAt": "2026-11-13T01:47:54Z",
     "counts": {
       "READY_EXCEPT_ODDS": 10
     },
     "rows": 10
   },
   "playerSet": {
-    "generatedAt": "2026-11-10T01:43:56Z",
+    "generatedAt": "2026-11-13T01:48:01Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
       "fixtures": 10,
