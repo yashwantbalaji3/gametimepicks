@@ -96,6 +96,8 @@ export default function TopReadsFilter({ set, reads }: { set: TopReadsSet; reads
           set={set}
           reads={filtered}
           groupBySport
+          /* someone who picked one sport asked for its list: show all of it */
+          groupPreview={sport ? Number.POSITIVE_INFINITY : undefined}
           eyebrow="Ranked by the model's own probability"
           title="Top 10 by sport"
         />
