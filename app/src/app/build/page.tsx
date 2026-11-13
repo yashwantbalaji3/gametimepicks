@@ -158,17 +158,9 @@ export default function ParlayCenterSuggestedPage() {
         <EmptyTierContext emptyTiers={[...emptyTiers]} lastCards={lastTierCards} lanes={emptyTiers.length ? (loadLabRecord()?.streams ?? []).map((l) => ({ id: l.id, label: l.label, live: l.live, blocked: l.blocked })) : []} />
     </>
   );
-  const suggestedSection = (
+  /* The section's contents, shared by its two wrappers below (same heading id; the anchor differs by day). */
+  const suggestedBody = (
     <>
-        {/* ── SUGGESTED CARDS (shared loader; the optimizer's full pool) ───────────────────────────
-            Addressable at /build#suggested-cards — the anchor every legacy alias and in-page link
-            targets — so those links land exactly here with no redirect chain. */}
-        {/* UX 2026-11-13: on a no-card day this section sits inside the folded "Why each tier is empty today" detail,
-            and the #suggested-cards anchor belongs to the one empty state above it (parlay-center-no-card.tsx). With
-            the anchor in here, every alias (/parlay-lab, /picks, /parlays…) landed with that fold forced open: 2,147 px
-            of per-tier reasons at 390 px, instead of the short "No card today" answer. */}
-        <section id={noCardToday ? "every-suggested-card" : "suggested-cards"} aria-labelledby="suggested-cards-heading" className="flex flex-col gap-3 scroll-mt-6">
-          {noCardToday ? null : <FocusOnHash hash="suggested-cards" targetId="suggested-cards-heading" />}
           <div>
             <h2
               id="suggested-cards-heading"
@@ -210,7 +202,27 @@ export default function ParlayCenterSuggestedPage() {
               </p>
             </div>
           )}
+    </>
+  );
+  const suggestedSection = (
+    <>
+        {/* ── SUGGESTED CARDS (shared loader; the optimizer's full pool) ───────────────────────────
+            Addressable at /build#suggested-cards — the anchor every legacy alias and in-page link
+            targets — so those links land exactly here with no redirect chain. */}
+        {/* UX 2026-11-13: on a no-card day this section sits inside the folded "Why each tier is empty today" detail,
+            and the #suggested-cards anchor belongs to the one empty state above it (parlay-center-no-card.tsx). With
+            the anchor in here, every alias (/parlay-lab, /picks, /parlays…) landed with that fold forced open: 2,147 px
+            of per-tier reasons at 390 px, instead of the short "No card today" answer. */}
+        {noCardToday ? (
+          <section id="every-suggested-card" aria-labelledby="suggested-cards-heading" className="flex flex-col gap-3 scroll-mt-6">
+            {suggestedBody}
+          </section>
+        ) : (
+        <section id="suggested-cards" aria-labelledby="suggested-cards-heading" className="flex flex-col gap-3 scroll-mt-6">
+          <FocusOnHash hash="suggested-cards" targetId="suggested-cards-heading" />
+            {suggestedBody}
         </section>
+        )}
     </>
   );
 

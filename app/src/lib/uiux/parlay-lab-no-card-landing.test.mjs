@@ -20,9 +20,11 @@ test("the empty state owns the anchor on a no-card day, and takes focus there", 
 });
 
 test("the folded 'every suggested card' section does not carry the anchor on a no-card day (one id, never two)", () => {
-  assert.match(page, /<section id=\{noCardToday \? "every-suggested-card" : "suggested-cards"\}/);
-  assert.match(page, /\{noCardToday \? null : <FocusOnHash hash="suggested-cards" targetId="suggested-cards-heading" \/>\}/);
-  assert.equal((page.match(/id="suggested-cards"/g) ?? []).length, 0, "no unconditional second anchor on the page");
+  const noCard = page.slice(page.indexOf("{noCardToday ? ("), page.indexOf(") : (", page.indexOf("{noCardToday ? (")));
+  assert.match(noCard, /<section id="every-suggested-card" aria-labelledby="suggested-cards-heading"/);
+  assert.doesNotMatch(noCard, /id="suggested-cards"|FocusOnHash/, "the folded copy has neither the anchor nor the focus hop");
+  assert.equal((page.match(/id="suggested-cards"/g) ?? []).length, 1, "the page declares the anchor once, for days with cards");
+  assert.equal((page.match(/\{suggestedBody\}/g) ?? []).length, 2, "both wrappers render the same contents");
 });
 
 test("with cards to show, the anchor is the suggested-cards section as before", () => {
