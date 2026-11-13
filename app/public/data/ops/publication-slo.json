@@ -15,25 +15,26 @@
       }
     },
     "nfl": {
-      "state": "PUBLISHED",
-      "reason": "all 14 event(s) in the horizon carry a forecast",
-      "deadlineUtc": null,
+      "state": "PUBLISHING",
+      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
+      "deadlineUtc": "2026-11-19T23:45:00.000Z",
       "counts": {
-        "scheduled": 14,
+        "scheduled": 15,
         "published": 14,
         "missedCoverage": 0,
-        "awaiting": 0
-      }
+        "awaiting": 1
+      },
+      "missed": []
     },
     "ufc": {
       "state": "PUBLISHING",
-      "reason": "2 event(s) still awaiting a forecast, none of them late yet",
+      "reason": "1 event(s) still awaiting a forecast, none of them late yet",
       "deadlineUtc": "2026-11-14T20:30:00.000Z",
       "counts": {
         "scheduled": 13,
-        "published": 11,
+        "published": 12,
         "missedCoverage": 0,
-        "awaiting": 2
+        "awaiting": 1
       },
       "missed": []
     },
@@ -49,7 +50,7 @@
       }
     }
   },
-  "checkedAt": "2026-11-12T16:52:56.810Z",
+  "checkedAt": "2026-11-13T03:33:29.403Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "NO_EVENT",
