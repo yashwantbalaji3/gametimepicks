@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation",
   "dataClass": "PRIVATE_RESEARCH",
-  "generatedAt": "2026-11-13T00:52:56Z",
+  "generatedAt": "2026-11-13T01:42:58Z",
   "slateDate": "2026-11-13",
-  "eventCount": 14,
+  "eventCount": 13,
   "engineVersion": "nfl-regular-season-public-v1@v2",
   "config": {
     "lambda": 0.25,
@@ -22,11 +22,11 @@
       "observedVariationIsNoise": false,
       "teamSignalState": "APPLIED",
       "tStatistic": -0.5746,
-      "distinctValues": 14,
+      "distinctValues": 13,
       "spread": 0.540051,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "win probability spans 13.07%-67.07% across 14 events, so the engine is consuming team-specific evidence"
+      "reading": "win probability spans 13.07%-67.07% across 13 events, so the engine is consuming team-specific evidence"
     },
     {
       "head": "total",
@@ -40,37 +40,10 @@
       "spread": 15,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "published totals span 39-54 across 14 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
+      "reading": "published totals span 39-54 across 13 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
     }
   ],
   "events": [
-    {
-      "canonicalEventId": "nfl-401873052",
-      "matchup": "WSH @ NYG",
-      "kickoffUtc": "2026-11-13T01:15Z",
-      "inputHash": "a3c28d44db1b0441",
-      "engineVersion": "nfl-regular-season-public-v1@v2",
-      "expected": {
-        "marginMean": 2,
-        "marginMedian": 2,
-        "totalMedian": 48,
-        "totalHead": "matchup-totals-v3-play-efficiency",
-        "winProbHome": 0.6112579299409813,
-        "winProbIsRounded": false,
-        "projected": {
-          "home": 25,
-          "away": 23,
-          "convention": "scores-derived-from-total-and-margin-v1"
-        }
-      },
-      "intervals": {
-        "marginP10": -14,
-        "marginP90": 19,
-        "totalP10": 31,
-        "totalP90": 65
-      },
-      "receiptGeneratedAt": "2026-11-13T00:00:35Z"
-    },
     {
       "canonicalEventId": "nfl-401873053",
       "matchup": "NE @ DET",
