@@ -163,6 +163,25 @@ const inPosition = (pos, g) => String(pos ?? "").split("-").includes(g);
 const norm = (s) => String(s ?? "").normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase().trim();
 
 /**
+ * One game of the board as a URL fragment, so a link (the hub's forecast row, a shared URL) opens the board already
+ * filtered to that game. The fragment carries only the provider event id the board's rows already carry.
+ * @param {string} id
+ */
+export const boardGameHash = (id) => `#game-${id}`;
+
+/**
+ * The game a URL fragment names, or "" when it names none of this board's games (an old link to a past slate, a
+ * mistyped id, any other fragment). Never throws: the fragment is reader-supplied text.
+ * @param {string | null | undefined} hash  location.hash, with or without the leading "#"
+ * @param {readonly string[]} ids  the games on this board
+ * @returns {string}
+ */
+export function gameFromHash(hash, ids) {
+  const m = /^#?game-([A-Za-z0-9_-]{1,40})$/.exec(String(hash ?? ""));
+  return m && ids.includes(m[1]) ? m[1] : "";
+}
+
+/**
  * @template {{ id: string, game: string, name: string, team: string, min: number | null, v: (number | null)[] }} T
  * @param {T[]} rows
  * @returns {T[]}

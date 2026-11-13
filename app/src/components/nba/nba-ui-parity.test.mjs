@@ -315,7 +315,7 @@ test("players without a projection (PR 1230 lane field): counted per game and po
   snap.games[1].players.unavailable = { away: [], home: [] };
   const h = renderToStaticMarkup(React.createElement(ForecastLane, { snapshot: snap }));
   const rows = h.match(/<tr id="nba-fc-[\s\S]*?<\/tr>/g);
-  assert.match(rows[0], /<td>\d+ · 3 without a projection<\/td>/);
+  assert.match(rows[0], /<td><a [^>]*href="\/nba\/projections\/#game-\d+">\d+ players →<\/a> · 3 without a projection<\/td>/, "the count is the link to that game on the board, then the note");
   assert.doesNotMatch(rows[1], /without a projection/, "an empty list adds nothing");
   assert.match(text(h), /listed there with the reason, never as zero/);
   assert.doesNotMatch(h, /ROOKIE|RULED_OUT|BELOW_PUBLISH_CUT/, "reason codes stay on the board, never printed raw here");

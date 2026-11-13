@@ -24,6 +24,7 @@ import { NBA_FORECAST_DISCLOSURE, PUBLIC_TERMS } from "@/lib/public-registry";
 import GameStatusOnClock from "@/components/nba/projection-game-status";
 import { EloAccuracyDisclosure, EloWinProbability, type EloCtx } from "@/components/nba/elo-win-probability";
 import { ELO_WIN_PROBABILITY_LABEL, eloWinProbabilityOf } from "@/lib/sports/nba/elo-win-probability.mjs";
+import { boardGameHash } from "@/lib/sports/nba/projection-board-ops.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 
 /** Lane `players.unavailable` row (PR 1230): name and reason only, never a number. Release H integration: one shape for
@@ -201,7 +202,7 @@ export default function NbaExperimentalLane({ snapshot, statuses = {}, theaterId
                     <th scope="row">{code(g.away.abbr)} @ {code(g.home.abbr)}</th>
                     <td><strong>{favouredName(g) ?? "Neither side"}</strong></td>
                     {eloCol ? <td><EloWinProbability game={g} ctx={elo} /></td> : null}
-                    <td>{g.players.away.length + g.players.home.length}{unavailableCount(g) ? ` · ${unavailableCount(g)} without a projection` : ""}</td>
+                    <td><Link href={`/nba/projections/${boardGameHash(g.providerEventId)}`} className="underline nbx-inl">{g.players.away.length + g.players.home.length} players →</Link>{unavailableCount(g) ? ` · ${unavailableCount(g)} without a projection` : ""}</td>
                     <td>{et(g.frozenAt).replace(/^[A-Z][a-z]{2} \d+, /, "")}</td>
                   </tr>
                 ))}

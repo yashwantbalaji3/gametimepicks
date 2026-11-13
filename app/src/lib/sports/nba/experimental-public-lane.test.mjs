@@ -169,7 +169,8 @@ test("compact hub: with /nba/projections on, /nba cards carry no player table an
   // founder mandate 2026-10-24: one forecast table row per GAME; the player rows still live on /nba/projections only
   assert.doesNotMatch(html, /<th[^>]*>(PTS|REB|AST|3PM|Min)<\/th>/, "the player rows live on /nba/projections only");
   assert.equal((html.match(/href="\/nba\/projections\/"/g) ?? []).length, 1, "one slate-level board link (projection-boards.test pins it)");
-  for (const g of s.games) assert.match(html, new RegExp(`<tr id="nba-fc-${g.providerEventId}">[\\s\\S]*?<td>${g.players.away.length + g.players.home.length}</td>`));
+  // The per-game player count is the link to that game on the board ("#game-<event id>", projection-board-game-hash.test).
+  for (const g of s.games) assert.match(html, new RegExp(`<tr id="nba-fc-${g.providerEventId}">[\\s\\S]*?<td><a [^>]*href="/nba/projections/#game-${g.providerEventId}">${g.players.away.length + g.players.home.length} players →</a></td>`));
   // An 11-game slate with full tables measured /nba at 388 KB (budget 250 KB, empty-lane page 204 KB). The compact card
   // must stay well under the ~3 KB/game (HTML + flight) that a 15-game slate leaves inside the budget.
   const perGame = (html.length - renderToStaticMarkup(React.createElement(Lane, { snapshot: { ...s, games: s.games.slice(0, 1) } })).length) / (s.games.length - 1);
