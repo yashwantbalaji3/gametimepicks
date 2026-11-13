@@ -27,6 +27,7 @@ import { fileURLToPath } from "node:url";
 
 import { ESPN_NBA_TEAMS } from "../../src/lib/sports/nba/roster-contract.mjs";
 import { buildRosterArtifact, serializeRosterArtifact, rosterContentKey } from "../../src/lib/sports/nba/roster-parse.mjs";
+import { retainRosterCaptures } from "../../src/lib/sports/nba/roster-index.mjs";
 
 const SCRIPT_VERSION = "nba-roster-capture-1.0.0";
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -156,6 +157,8 @@ if (fs.existsSync(latestPath)) { try { previousKey = rosterContentKey(JSON.parse
 const changed = previousKey == null || previousKey !== rosterContentKey(artifact);
 artifact.changedSinceLatest = changed;
 const bytes = serializeRosterArtifact(artifact);
+// a frozen receipt may pin the capture this overwrites: keep its exact bytes first (roster-index.mjs, RETAINED CAPTURES)
+for (const f of retainRosterCaptures(ROOT, [`${DATE}.json`, "latest.json"])) console.log(`retained rosters/${f}`);
 fs.writeFileSync(path.join(ROOT, `${DATE}.json`), bytes);
 fs.writeFileSync(latestPath, bytes);
 console.log(`wrote rosters/${DATE}.json + rosters/latest.json (${(bytes.length / 1024).toFixed(0)} KB) · content ${changed ? "CHANGED" : "unchanged"} vs previous latest · requests ${requestsMade}`);

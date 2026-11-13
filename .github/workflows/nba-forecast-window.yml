@@ -127,7 +127,10 @@ jobs:
             # The pregame roster re-captured by the step above (if it was due): restored after this attempt's reset, before
             # any family reads it, and committed in this step's commit below. Never re-captured here.
             ROSTER_CAPTURED=0
+            RETAINED=""
             if [ "${ROSTER_CAPTURED_NOW:-}" = "1" ]; then
+              # Keep the exact bytes of the captures this overwrites (a frozen receipt may pin them; roster-index.mjs).
+              RETAINED="$(node scripts/nba/retain-nba-roster-captures.mjs latest.json "$ROSTER_DATED")"
               cp "$RUNNER_TEMP/nba-roster/latest.json" "$RUNNER_TEMP/nba-roster/$ROSTER_DATED" ../data/internal/research/nba/rosters/
               ROSTER_CAPTURED=1
             fi
@@ -207,7 +210,7 @@ jobs:
             if [ -f ../data/internal/research/transactions/nba/latest.json ]; then git add ../data/internal/research/transactions/nba/latest.json; fi
             # The roster the receipts hash, when this run re-captured it (normalised files only; raw/ is never committed).
             if [ "$ROSTER_CAPTURED" = "1" ]; then
-              git add ../data/internal/research/nba/rosters/latest.json "../data/internal/research/nba/rosters/$ROSTER_DATED"
+              git add ../data/internal/research/nba/rosters/latest.json "../data/internal/research/nba/rosters/$ROSTER_DATED" $RETAINED
             fi
             git commit -q -m "auto: nba pre-tip forecast window $NOW [skip ci]"
             if git push -q origin HEAD:main; then echo "committed on attempt $ATTEMPT"; echo "committed=1" >> "$GITHUB_OUTPUT"; exit 0; fi
@@ -241,8 +244,10 @@ jobs:
           for ATTEMPT in 1 2 3; do
             git fetch -q origin main
             git reset -q --hard origin/main
+            # Keep the exact bytes of the captures this overwrites (a frozen receipt may pin them; roster-index.mjs).
+            RETAINED="$(node scripts/nba/retain-nba-roster-captures.mjs latest.json "$ROSTER_DATED")"
             cp "$RUNNER_TEMP/nba-roster/latest.json" "$RUNNER_TEMP/nba-roster/$ROSTER_DATED" ../data/internal/research/nba/rosters/
-            git add ../data/internal/research/nba/rosters/latest.json "../data/internal/research/nba/rosters/$ROSTER_DATED"
+            git add ../data/internal/research/nba/rosters/latest.json "../data/internal/research/nba/rosters/$ROSTER_DATED" $RETAINED
             if git diff --cached --quiet; then echo "roster unchanged on main — nothing to commit"; exit 0; fi
             git commit -q -m "auto: nba pregame roster re-capture $ROSTER_NOW [skip ci]"
             if git push -q origin HEAD:main; then echo "committed on attempt $ATTEMPT"; exit 0; fi
