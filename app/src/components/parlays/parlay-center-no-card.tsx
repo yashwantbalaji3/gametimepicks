@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import MoreDisclosure from "@/components/ui/more-disclosure";
+import FocusOnHash from "@/components/focus-on-hash";
 import { etDayLabel } from "@/lib/et-stamp.mjs";
 
 /**
@@ -40,7 +41,10 @@ export default function ParlayCenterNoCard({
 }) {
   const next = otherLanes.length ? [...otherLanes].sort((a, b) => a.date.localeCompare(b.date))[0] : null;
   return (
-    <section aria-labelledby="parlay-center-no-card-heading" data-parlay-center-no-card="" className="flex flex-col gap-3 rounded-[12px] px-4 py-4" style={{ border: "1px solid var(--vault-border-strong)", background: "var(--vault-panel)" }}>
+    /* id="suggested-cards": on a no-card day THIS is where /build#suggested-cards lands (every Parlay Lab alias
+       targets that anchor). The per-tier detail stays folded below until the reader opens it. */
+    <section id="suggested-cards" aria-labelledby="parlay-center-no-card-heading" data-parlay-center-no-card="" className="flex flex-col gap-3 rounded-[12px] px-4 py-4 scroll-mt-6" style={{ border: "1px solid var(--vault-border-strong)", background: "var(--vault-panel)" }}>
+      <FocusOnHash hash="suggested-cards" targetId="parlay-center-no-card-heading" />
       <h2 id="parlay-center-no-card-heading" className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 16 }}>No card today</h2>
       <p className="m-0 text-[13px]" style={{ color: "var(--vault-text-mute)", lineHeight: 1.6 }}>
         {lastCardDate ? <>Last card {etDayLabel(lastCardDate) ?? lastCardDate}, {lastCardDate.slice(0, 4)}</> : <>No card has been published in these tiers yet</>}
