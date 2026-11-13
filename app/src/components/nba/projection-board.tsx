@@ -33,9 +33,9 @@
  * Layout: controls stack on a phone; the table scrolls inside its own container, so the page never scrolls sideways at
  * 320 px. No transitions or animation (prefers-reduced-motion has nothing to reduce).
  */
-import React, { useEffect, useId, useMemo, useState } from "react";
+import React, { useEffect, useId, useMemo, useRef, useState } from "react";
 
-import { filterRows, sortRows, unpackBoard, gameStatusOnClock, GAME_STATUS_LABEL, noProjectionShort, POSITION_GROUPS } from "@/lib/sports/nba/projection-board-ops.mjs";
+import { filterRows, sortRows, unpackBoard, gameStatusOnClock, gameFromHash, boardGameHash, GAME_STATUS_LABEL, noProjectionShort, POSITION_GROUPS } from "@/lib/sports/nba/projection-board-ops.mjs";
 
 export type BoardRow = { id: string; game: string; name: string; injury: string | null; team: string; teamName: string; min: number | null; v: (number | null)[]; am?: number | "DNP" | null; aw?: boolean; np?: string; pos?: string | null; cv?: Record<number, number | string | null>; pf?: string };
 /** One game chip: id, short matchup ("BOS @ DET"), build-time status code, tip-off instant, optional actual-state note. */
@@ -84,8 +84,37 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
   const [showNp, setShowNp] = useState(true);
   useEffect(() => setMounted(true), []);
   const rows = useMemo(() => all.filter((r) => !r.np || (mounted && showNp)), [all, mounted, showNp]);
-  const [matchup, setMatchup] = useState("");
+  const [matchup, setMatchupState] = useState("");
   const [team, setTeam] = useState("");
+  const boxRef = useRef<HTMLDivElement | null>(null);
+  // One game is addressable: "#game-<event id>" opens the board on that game (the hub's forecast rows link here), and
+  // choosing a game writes the fragment back so the URL can be shared or reloaded. An unknown id is ignored.
+  const gameIds = useMemo(() => matchups.map((m) => m.id), [matchups]);
+  useEffect(() => {
+    const apply = (scroll: boolean) => {
+      const id = gameFromHash(window.location.hash, gameIds);
+      if (!id) return;
+      setMatchupState(id);
+      setTeam("");
+      // After the filtered rows paint: bring the board (and the chosen game's chip) into view on arrival.
+      if (scroll) window.requestAnimationFrame(() => {
+        boxRef.current?.scrollIntoView({ block: "start" });
+        boxRef.current?.querySelector('[aria-pressed="true"]')?.scrollIntoView({ block: "nearest", inline: "center" });
+      });
+    };
+    apply(true);
+    const onHash = () => apply(false);
+    window.addEventListener("hashchange", onHash);
+    return () => window.removeEventListener("hashchange", onHash);
+  }, [gameIds]);
+  const setMatchup = (id: string) => {
+    setMatchupState(id);
+    try {
+      const { pathname, search, hash } = window.location;
+      if (id) window.history.replaceState(null, "", `${pathname}${search}${boardGameHash(id)}`);
+      else if (gameFromHash(hash, gameIds)) window.history.replaceState(null, "", `${pathname}${search}`);
+    } catch { /* a locked-down history API never blocks the filter itself */ }
+  };
   const [player, setPlayer] = useState("");
   const [position, setPosition] = useState("");
   const hasPositions = Array.isArray(board.p);
@@ -126,7 +155,7 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
   const teamOptions = matchup ? teams.filter((t) => rows.some((r) => r.game === matchup && r.team === t.id)) : teams;
 
   return (
-    <div className="flex flex-col gap-3 min-w-0">
+    <div ref={boxRef} className="flex flex-col gap-3 min-w-0 scroll-mt-24">
       {games.length > 1 ? (
         <div className="flex gap-2 overflow-x-auto min-w-0 pb-1" role="group" aria-label="Games: show one game">
           {games.map(([id, short, built, tip, note]) => (
