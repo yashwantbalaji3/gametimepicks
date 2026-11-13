@@ -156,5 +156,9 @@ test("BUILT · /today — the reading path (outside the folds) carries no operat
   const main = mainOf(fs.readFileSync(OUT_TODAY, "utf8"));
   const visible = text(unfolded(main));
   for (const re of OPERATOR_STRINGS) assert.doesNotMatch(visible, re, `/today's reading path must not render ${re}`);
+  // "Top 10 by sport" keeps ranks 4+ in a per-sport fold (top-reads-panel.tsx). Those rows were on the reading path
+  // before the fold existed and are one tap away, so they stay under this guard rather than leaving it with the fold.
+  const moreRanks = text((main.match(/<details class="top-reads-more"[\s\S]*?<\/details>/g) ?? []).join(" "));
+  for (const re of OPERATOR_STRINGS) assert.doesNotMatch(moreRanks, re, `/today's folded ranks must not render ${re}`);
   assert.match(main, /id="today-games"/, "today's games lead the page");
 });
