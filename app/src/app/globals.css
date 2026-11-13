@@ -5802,8 +5802,11 @@ a.nbx-lane-row:hover, a.nbx-lane-row:focus-visible { border-color: var(--sport-n
 .gtp-nfl-nowrap { white-space: nowrap; }
 .gtp-nfl-mute { color: var(--vault-text-mute); }
 .gtp-nfl-faint { color: var(--vault-text-faint); }
-.gtp-nfl-w200 { max-width: 200px; }
-.gtp-nfl-w220 { max-width: 220px; }
+/* A floor as well as a ceiling: with only a max-width the slate table (min-width 760px, mostly nowrap columns) gave the
+   weather and status sentences ~75px at phone width, so each row ran 300px+ (measured on production at 375px). The table
+   sits in a horizontal scroller, so the floor widens the scroll area instead of stretching every row. */
+.gtp-nfl-w200 { min-width: 150px; max-width: 200px; }
+.gtp-nfl-w220 { min-width: 150px; max-width: 220px; }
 .gtp-nfl-inline { display: inline-flex; align-items: center; gap: 6px; }
 .gtp-nfl-th {
   text-align: left;
