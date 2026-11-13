@@ -97,16 +97,20 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
       setMatchupState(id);
       setTeam("");
       // After the filtered rows paint: bring the board (and the chosen game's chip) into view on arrival.
-      if (scroll) window.requestAnimationFrame(() => {
-        boxRef.current?.scrollIntoView({ block: "start" });
-        boxRef.current?.querySelector('[aria-pressed="true"]')?.scrollIntoView({ block: "nearest", inline: "center" });
-      });
+      if (scroll) window.requestAnimationFrame(() => boxRef.current?.scrollIntoView({ block: "start" }));
     };
     apply(true);
     const onHash = () => apply(false);
     window.addEventListener("hashchange", onHash);
     return () => window.removeEventListener("hashchange", onHash);
   }, [gameIds]);
+  // Keep the chosen game's chip in view inside its own strip (sideways only: the page itself never moves here).
+  const chipsRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const strip = chipsRef.current;
+    const chip = strip?.querySelector<HTMLElement>('[aria-pressed="true"]');
+    if (strip && chip) strip.scrollLeft = chip.offsetLeft - strip.offsetLeft - (strip.clientWidth - chip.offsetWidth) / 2;
+  }, [matchup]);
   const setMatchup = (id: string) => {
     setMatchupState(id);
     try {
@@ -157,7 +161,7 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
   return (
     <div ref={boxRef} className="flex flex-col gap-3 min-w-0 scroll-mt-24">
       {games.length > 1 ? (
-        <div className="flex gap-2 overflow-x-auto min-w-0 pb-1" role="group" aria-label="Games: show one game">
+        <div ref={chipsRef} className="flex gap-2 overflow-x-auto min-w-0 pb-1" role="group" aria-label="Games: show one game">
           {games.map(([id, short, built, tip, note]) => (
             <button key={id} type="button" aria-pressed={matchup === id} onClick={() => { setMatchup(matchup === id ? "" : id); setTeam(""); }}
               className="shrink-0 min-h-[44px] rounded-full px-3 text-[12.5px] text-left focus-visible:outline focus-visible:outline-2"
