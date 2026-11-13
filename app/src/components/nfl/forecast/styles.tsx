@@ -55,6 +55,7 @@ const CSS = `
 .nf-table{width:100%;border-collapse:collapse}
 .nf-table th{text-align:left;padding:6px 8px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--vault-text-faint);white-space:nowrap}
 .nf-table td{padding:6px 8px;border-top:1px solid var(--vault-border);font-size:12.5px;vertical-align:middle}
+.nf-table-sources td{min-width:96px}.nf-table-sources td:first-child{min-width:190px}
 .nf-scroll{overflow-x:auto}
 .nf-scroll:focus-visible{outline:2px solid var(--vault-gold-bright);outline-offset:2px}
 .nf-grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
