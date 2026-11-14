@@ -20,8 +20,13 @@ test("the sources table carries the scoped class, inside its scroller", () => {
 });
 
 test("its description column and the other cells keep a readable floor", () => {
-  const first = Number(css.match(/\.nf-table-sources td:first-child\{min-width:(\d+)px\}/)?.[1]);
-  const rest = Number(css.match(/\.nf-table-sources td\{min-width:(\d+)px\}/)?.[1]);
+  /* Phone widths only: at 768px the same floors made the table 39px TALLER (273 → 312, measured on production), because
+     they pull width from the version column. Tablet and desktop keep the automatic layout. */
+  const phone = css.match(/@media \(max-width:639px\)\{(\.nf-table-sources[^@]*\})\}/)?.[1] ?? "";
+  assert.ok(phone, "the floors live inside a phone-width media query");
+  assert.equal(css.split(".nf-table-sources").length - 1, 2, "and nowhere outside it");
+  const first = Number(phone.match(/\.nf-table-sources td:first-child\{min-width:(\d+)px\}/)?.[1]);
+  const rest = Number(phone.match(/\.nf-table-sources td\{min-width:(\d+)px\}/)?.[1]);
   assert.ok(first >= 170, `description column floor ${first}px`);
   assert.ok(rest >= 90 && rest < first, `other cells floor ${rest}px`);
   assert.match(css, /\.nf-scroll\{overflow-x:auto\}/, "the scroller that makes a floor safe");
