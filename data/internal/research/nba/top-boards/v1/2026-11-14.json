@@ -7257,6 +7257,6339 @@
      "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
     }
    }
+  },
+  {
+   "edition": 2,
+   "frozenAt": "2026-11-14T16:59:53Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v1/forecasts/2026-11-14.json",
+    "sha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+    "artifactGeneratedAt": "2026-11-14T16:24:36Z",
+    "artifactInputAsOf": "2026-11-14T16:24:36Z",
+    "runs": 2,
+    "modelVersion": "nba-sim-v1-coherent"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401909980",
+     "tipoffUtc": "2026-11-15T00:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "New Orleans Pelicans",
+      "abbr": "NOP",
+      "espnAbbr": "NO",
+      "providerTeamId": "3"
+     },
+     "away": {
+      "name": "Denver Nuggets",
+      "abbr": "DEN",
+      "espnAbbr": "DEN",
+      "providerTeamId": "7"
+     },
+     "forecastGeneratedAt": "2026-11-14T16:24:36Z",
+     "forecastInputAsOf": "2026-11-14T16:24:36Z",
+     "gamePayloadSha256": "6b8d705a0e8fc615d8cf76e0399a25a3b44e3aef5edf26bca59a13e9371b996c",
+     "state": "ON_EARLIER_EDITION",
+     "flags": []
+    },
+    {
+     "eventId": "401909981",
+     "tipoffUtc": "2026-11-15T00:30Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Cleveland Cavaliers",
+      "abbr": "CLE",
+      "espnAbbr": "CLE",
+      "providerTeamId": "5"
+     },
+     "away": {
+      "name": "Dallas Mavericks",
+      "abbr": "DAL",
+      "espnAbbr": "DAL",
+      "providerTeamId": "6"
+     },
+     "forecastGeneratedAt": "2026-11-14T16:59:53Z",
+     "forecastInputAsOf": "2026-11-14T16:59:53Z",
+     "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-14|v1|e2|points|401909981|3908809",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Mitchell",
+        "providerAthleteId": "3908809"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.84
+       },
+       "range": {
+        "p10": 14,
+        "p25": 19,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.56,
+       "minutesSd": 7.03,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.84,
+        "expectedMinutes": 33.56,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-14|v1|e2|points|401909981|5041939",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Cooper Flagg",
+        "providerAthleteId": "5041939"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.23
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 25,
+        "p90": 31
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.72,
+       "minutesSd": 7.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.23,
+        "expectedMinutes": 29.72,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-14|v1|e2|points|401909981|3992",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "James Harden",
+        "providerAthleteId": "3992"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.13
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 25,
+        "p90": 30
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.03,
+       "minutesSd": 6.94,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.13,
+        "expectedMinutes": 34.03,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-14|v1|e2|points|401909981|6442",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kyrie Irving",
+        "providerAthleteId": "6442"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.5
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 22,
+        "p90": 27
+       },
+       "playRate": 0.9584,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.11,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.5,
+        "expectedMinutes": 27.11,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-14|v1|e2|points|401909981|4066328",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jarrett Allen",
+        "providerAthleteId": "4066328"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.44
+       },
+       "range": {
+        "p10": 5,
+        "p25": 9,
+        "p75": 18,
+        "p90": 22
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.57,
+       "minutesSd": 7.84,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.44,
+        "expectedMinutes": 25.57,
+        "p90": 22
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-14|v1|e2|points|401909981|4278078",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "P.J. Washington",
+        "providerAthleteId": "4278078"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 12,
+        "mean": 13.07
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 17,
+        "p90": 22
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.14,
+       "minutesSd": 7.5,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.07,
+        "expectedMinutes": 28.14,
+        "p90": 22
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-14|v1|e2|points|401909981|4576087",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Peyton Watson",
+        "providerAthleteId": "4576087"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 12,
+        "mean": 13.04
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 17,
+        "p90": 22
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.26,
+       "minutesSd": 8.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.04,
+        "expectedMinutes": 28.26,
+        "p90": 22
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-14|v1|e2|points|401909981|4683747",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylon Tyson",
+        "providerAthleteId": "4683747"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 10,
+        "mean": 10.53
+       },
+       "range": {
+        "p10": 3,
+        "p25": 6,
+        "p75": 14,
+        "p90": 18
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.17,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 10.53,
+        "expectedMinutes": 23.17,
+        "p90": 18
+       }
+      }
+     ],
+     "eligibleCount": 8,
+     "shownCount": 8,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 3,
+       "AVAILABILITY_OUT": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 7,
+       "TEAM_POOL_FALLBACK_RATES": 7,
+       "MISSING_DISTRIBUTION": 7,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "2995706",
+        "name": "Mario Hezonja",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3138160",
+        "name": "Caleb Martin",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3934723",
+        "name": "Thomas Bryant",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066757",
+        "name": "Sam Merrill",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4278049",
+        "name": "Daniel Gafford",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4278594",
+        "name": "Naji Marshall",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432107",
+        "name": "Marcus Sasser",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432158",
+        "name": "Evan Mobley",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432582",
+        "name": "Max Christie",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4593125",
+        "name": "Santi Aldama",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683688",
+        "name": "Dereck Lively II",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701208",
+        "name": "Moussa Cisse",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701233",
+        "name": "Craig Porter Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702134",
+        "name": "Norchad Omier",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4873153",
+        "name": "Morez Johnson Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4896372",
+        "name": "Walter Clayton Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4997530",
+        "name": "Khalifa Diop",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5023693",
+        "name": "Tyrese Proctor",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041951",
+        "name": "Meleek Thomas",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105806",
+        "name": "Jett Howard",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106040",
+        "name": "Tobi Lawal",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106261",
+        "name": "Ernest Udeh Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106268",
+        "name": "Nae'Qwan Tomlin",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5148538",
+        "name": "Tarik Biberovic",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5177362",
+        "name": "Riley Minix",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211175",
+        "name": "Zaccharie Risacher",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5279129",
+        "name": "Sergio de Larrea",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-14|v1|e2|rebounds|401909981|4066328",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jarrett Allen",
+        "providerAthleteId": "4066328"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 7,
+        "mean": 7.74
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 10,
+        "p90": 13
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.57,
+       "minutesSd": 7.84,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 7.74,
+        "expectedMinutes": 25.57,
+        "p90": 13
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-14|v1|e2|rebounds|401909981|4278078",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "P.J. Washington",
+        "providerAthleteId": "4278078"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.23
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.14,
+       "minutesSd": 7.5,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.23,
+        "expectedMinutes": 28.14,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-14|v1|e2|rebounds|401909981|5041939",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Cooper Flagg",
+        "providerAthleteId": "5041939"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 6,
+        "mean": 5.97
+       },
+       "range": {
+        "p10": 2,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.72,
+       "minutesSd": 7.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.97,
+        "expectedMinutes": 29.72,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-14|v1|e2|rebounds|401909981|3992",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "James Harden",
+        "providerAthleteId": "3992"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.73
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.03,
+       "minutesSd": 6.94,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.73,
+        "expectedMinutes": 34.03,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-14|v1|e2|rebounds|401909981|3908809",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Mitchell",
+        "providerAthleteId": "3908809"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.71
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.56,
+       "minutesSd": 7.03,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.71,
+        "expectedMinutes": 33.56,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-14|v1|e2|rebounds|401909981|4576087",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Peyton Watson",
+        "providerAthleteId": "4576087"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.66
+       },
+       "range": {
+        "p10": 1,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.26,
+       "minutesSd": 8.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.66,
+        "expectedMinutes": 28.26,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-14|v1|e2|rebounds|401909981|4683747",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylon Tyson",
+        "providerAthleteId": "4683747"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.14
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 6,
+        "p90": 7
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.17,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.14,
+        "expectedMinutes": 23.17,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-14|v1|e2|rebounds|401909981|6442",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kyrie Irving",
+        "providerAthleteId": "6442"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.33
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9584,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.11,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.33,
+        "expectedMinutes": 27.11,
+        "p90": 6
+       }
+      }
+     ],
+     "eligibleCount": 8,
+     "shownCount": 8,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 3,
+       "AVAILABILITY_OUT": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 7,
+       "TEAM_POOL_FALLBACK_RATES": 7,
+       "MISSING_DISTRIBUTION": 7,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "2995706",
+        "name": "Mario Hezonja",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3138160",
+        "name": "Caleb Martin",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3934723",
+        "name": "Thomas Bryant",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066757",
+        "name": "Sam Merrill",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4278049",
+        "name": "Daniel Gafford",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4278594",
+        "name": "Naji Marshall",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432107",
+        "name": "Marcus Sasser",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432158",
+        "name": "Evan Mobley",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432582",
+        "name": "Max Christie",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4593125",
+        "name": "Santi Aldama",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683688",
+        "name": "Dereck Lively II",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701208",
+        "name": "Moussa Cisse",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701233",
+        "name": "Craig Porter Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702134",
+        "name": "Norchad Omier",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4873153",
+        "name": "Morez Johnson Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4896372",
+        "name": "Walter Clayton Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4997530",
+        "name": "Khalifa Diop",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5023693",
+        "name": "Tyrese Proctor",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041951",
+        "name": "Meleek Thomas",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105806",
+        "name": "Jett Howard",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106040",
+        "name": "Tobi Lawal",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106261",
+        "name": "Ernest Udeh Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106268",
+        "name": "Nae'Qwan Tomlin",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5148538",
+        "name": "Tarik Biberovic",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5177362",
+        "name": "Riley Minix",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211175",
+        "name": "Zaccharie Risacher",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5279129",
+        "name": "Sergio de Larrea",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-14|v1|e2|assists|401909981|3992",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "James Harden",
+        "providerAthleteId": "3992"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 7,
+        "mean": 6.75
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 9,
+        "p90": 11
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.03,
+       "minutesSd": 6.94,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.75,
+        "expectedMinutes": 34.03,
+        "p90": 11
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-14|v1|e2|assists|401909981|3908809",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Mitchell",
+        "providerAthleteId": "3908809"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.37
+       },
+       "range": {
+        "p10": 2,
+        "p25": 4,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.56,
+       "minutesSd": 7.03,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.37,
+        "expectedMinutes": 33.56,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-14|v1|e2|assists|401909981|5041939",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Cooper Flagg",
+        "providerAthleteId": "5041939"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.54
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.72,
+       "minutesSd": 7.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.54,
+        "expectedMinutes": 29.72,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-14|v1|e2|assists|401909981|6442",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kyrie Irving",
+        "providerAthleteId": "6442"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.69
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9584,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.11,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.69,
+        "expectedMinutes": 27.11,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-14|v1|e2|assists|401909981|4576087",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Peyton Watson",
+        "providerAthleteId": "4576087"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.19
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.26,
+       "minutesSd": 8.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.19,
+        "expectedMinutes": 28.26,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-14|v1|e2|assists|401909981|4683747",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylon Tyson",
+        "providerAthleteId": "4683747"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.98
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.17,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.98,
+        "expectedMinutes": 23.17,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-14|v1|e2|assists|401909981|4066328",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jarrett Allen",
+        "providerAthleteId": "4066328"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.58
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.57,
+       "minutesSd": 7.84,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.58,
+        "expectedMinutes": 25.57,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-14|v1|e2|assists|401909981|4278078",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "P.J. Washington",
+        "providerAthleteId": "4278078"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.5
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.14,
+       "minutesSd": 7.5,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.5,
+        "expectedMinutes": 28.14,
+        "p90": 3
+       }
+      }
+     ],
+     "eligibleCount": 8,
+     "shownCount": 8,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 3,
+       "AVAILABILITY_OUT": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 7,
+       "TEAM_POOL_FALLBACK_RATES": 7,
+       "MISSING_DISTRIBUTION": 7,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "2995706",
+        "name": "Mario Hezonja",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3138160",
+        "name": "Caleb Martin",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3934723",
+        "name": "Thomas Bryant",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066757",
+        "name": "Sam Merrill",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4278049",
+        "name": "Daniel Gafford",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4278594",
+        "name": "Naji Marshall",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432107",
+        "name": "Marcus Sasser",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432158",
+        "name": "Evan Mobley",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432582",
+        "name": "Max Christie",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4593125",
+        "name": "Santi Aldama",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683688",
+        "name": "Dereck Lively II",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701208",
+        "name": "Moussa Cisse",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701233",
+        "name": "Craig Porter Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702134",
+        "name": "Norchad Omier",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4873153",
+        "name": "Morez Johnson Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4896372",
+        "name": "Walter Clayton Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4997530",
+        "name": "Khalifa Diop",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5023693",
+        "name": "Tyrese Proctor",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041951",
+        "name": "Meleek Thomas",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105806",
+        "name": "Jett Howard",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106040",
+        "name": "Tobi Lawal",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106261",
+        "name": "Ernest Udeh Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106268",
+        "name": "Nae'Qwan Tomlin",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5148538",
+        "name": "Tarik Biberovic",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5177362",
+        "name": "Riley Minix",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211175",
+        "name": "Zaccharie Risacher",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5279129",
+        "name": "Sergio de Larrea",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-14|v1|e2|threes|401909981|3908809",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Mitchell",
+        "providerAthleteId": "3908809"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.88
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.56,
+       "minutesSd": 7.03,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.88,
+        "expectedMinutes": 33.56,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-14|v1|e2|threes|401909981|3992",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "James Harden",
+        "providerAthleteId": "3992"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.79
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.03,
+       "minutesSd": 6.94,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.79,
+        "expectedMinutes": 34.03,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-14|v1|e2|threes|401909981|6442",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kyrie Irving",
+        "providerAthleteId": "6442"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.4
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.9584,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.11,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.4,
+        "expectedMinutes": 27.11,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-14|v1|e2|threes|401909981|4683747",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylon Tyson",
+        "providerAthleteId": "4683747"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.59
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.17,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.59,
+        "expectedMinutes": 23.17,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-14|v1|e2|threes|401909981|4278078",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "P.J. Washington",
+        "providerAthleteId": "4278078"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.52
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.14,
+       "minutesSd": 7.5,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.52,
+        "expectedMinutes": 28.14,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-14|v1|e2|threes|401909981|4576087",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Peyton Watson",
+        "providerAthleteId": "4576087"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.38
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.26,
+       "minutesSd": 8.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.38,
+        "expectedMinutes": 28.26,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-14|v1|e2|threes|401909981|5041939",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Cooper Flagg",
+        "providerAthleteId": "5041939"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.13
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.72,
+       "minutesSd": 7.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.13,
+        "expectedMinutes": 29.72,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-14|v1|e2|threes|401909981|4066328",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jarrett Allen",
+        "providerAthleteId": "4066328"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 0,
+        "mean": 0.19
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 0,
+        "p90": 1
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.57,
+       "minutesSd": 7.84,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 0.19,
+        "expectedMinutes": 25.57,
+        "p90": 1
+       }
+      }
+     ],
+     "eligibleCount": 8,
+     "shownCount": 8,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 3,
+       "AVAILABILITY_OUT": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 7,
+       "TEAM_POOL_FALLBACK_RATES": 7,
+       "MISSING_DISTRIBUTION": 7,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "2995706",
+        "name": "Mario Hezonja",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3138160",
+        "name": "Caleb Martin",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3934723",
+        "name": "Thomas Bryant",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066757",
+        "name": "Sam Merrill",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4278049",
+        "name": "Daniel Gafford",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4278594",
+        "name": "Naji Marshall",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432107",
+        "name": "Marcus Sasser",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432158",
+        "name": "Evan Mobley",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432582",
+        "name": "Max Christie",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4593125",
+        "name": "Santi Aldama",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683688",
+        "name": "Dereck Lively II",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701208",
+        "name": "Moussa Cisse",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701233",
+        "name": "Craig Porter Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702134",
+        "name": "Norchad Omier",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4873153",
+        "name": "Morez Johnson Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4896372",
+        "name": "Walter Clayton Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4997530",
+        "name": "Khalifa Diop",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5023693",
+        "name": "Tyrese Proctor",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041951",
+        "name": "Meleek Thomas",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105806",
+        "name": "Jett Howard",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106040",
+        "name": "Tobi Lawal",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106261",
+        "name": "Ernest Udeh Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106268",
+        "name": "Nae'Qwan Tomlin",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5148538",
+        "name": "Tarik Biberovic",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5177362",
+        "name": "Riley Minix",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211175",
+        "name": "Zaccharie Risacher",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5279129",
+        "name": "Sergio de Larrea",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "pra": {
+     "category": "pra",
+     "label": "PRA",
+     "stat": "pra",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-14|v1|e2|pra|401909981|3908809",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Mitchell",
+        "providerAthleteId": "3908809"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 34,
+        "mean": 34.92
+       },
+       "range": {
+        "p10": 22,
+        "p25": 28,
+        "p75": 42,
+        "p90": 49
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.56,
+       "minutesSd": 7.03,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 34.92,
+        "expectedMinutes": 33.56,
+        "p90": 49
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-14|v1|e2|pra|401909981|3992",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "James Harden",
+        "providerAthleteId": "3992"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 31,
+        "mean": 31.61
+       },
+       "range": {
+        "p10": 19,
+        "p25": 25,
+        "p75": 38,
+        "p90": 44
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.03,
+       "minutesSd": 6.94,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 31.61,
+        "expectedMinutes": 34.03,
+        "p90": 44
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-14|v1|e2|pra|401909981|5041939",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Cooper Flagg",
+        "providerAthleteId": "5041939"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 30,
+        "mean": 30.74
+       },
+       "range": {
+        "p10": 17,
+        "p25": 23,
+        "p75": 38,
+        "p90": 45
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.72,
+       "minutesSd": 7.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 30.74,
+        "expectedMinutes": 29.72,
+        "p90": 45
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-14|v1|e2|pra|401909981|6442",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kyrie Irving",
+        "providerAthleteId": "6442"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.52
+       },
+       "range": {
+        "p10": 14,
+        "p25": 18,
+        "p75": 30,
+        "p90": 37
+       },
+       "playRate": 0.9584,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.11,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.52,
+        "expectedMinutes": 27.11,
+        "p90": 37
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-14|v1|e2|pra|401909981|4066328",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jarrett Allen",
+        "providerAthleteId": "4066328"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 22,
+        "mean": 22.77
+       },
+       "range": {
+        "p10": 11,
+        "p25": 16,
+        "p75": 29,
+        "p90": 35
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.57,
+       "minutesSd": 7.84,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.77,
+        "expectedMinutes": 25.57,
+        "p90": 35
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-14|v1|e2|pra|401909981|4278078",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "P.J. Washington",
+        "providerAthleteId": "4278078"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.8
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 32
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.14,
+       "minutesSd": 7.5,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.8,
+        "expectedMinutes": 28.14,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-14|v1|e2|pra|401909981|4576087",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Peyton Watson",
+        "providerAthleteId": "4576087"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.89
+       },
+       "range": {
+        "p10": 9,
+        "p25": 14,
+        "p75": 25,
+        "p90": 31
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.26,
+       "minutesSd": 8.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.89,
+        "expectedMinutes": 28.26,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-14|v1|e2|pra|401909981|4683747",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylon Tyson",
+        "providerAthleteId": "4683747"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.65
+       },
+       "range": {
+        "p10": 7,
+        "p25": 11,
+        "p75": 21,
+        "p90": 27
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.17,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.65,
+        "expectedMinutes": 23.17,
+        "p90": 27
+       }
+      }
+     ],
+     "eligibleCount": 8,
+     "shownCount": 8,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 3,
+       "AVAILABILITY_OUT": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 7,
+       "TEAM_POOL_FALLBACK_RATES": 7,
+       "MISSING_DISTRIBUTION": 7,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "2995706",
+        "name": "Mario Hezonja",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3138160",
+        "name": "Caleb Martin",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3934723",
+        "name": "Thomas Bryant",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066757",
+        "name": "Sam Merrill",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4278049",
+        "name": "Daniel Gafford",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4278594",
+        "name": "Naji Marshall",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432107",
+        "name": "Marcus Sasser",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432158",
+        "name": "Evan Mobley",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432582",
+        "name": "Max Christie",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4593125",
+        "name": "Santi Aldama",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683688",
+        "name": "Dereck Lively II",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701208",
+        "name": "Moussa Cisse",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701233",
+        "name": "Craig Porter Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702134",
+        "name": "Norchad Omier",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4873153",
+        "name": "Morez Johnson Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4896372",
+        "name": "Walter Clayton Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4997530",
+        "name": "Khalifa Diop",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5023693",
+        "name": "Tyrese Proctor",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041951",
+        "name": "Meleek Thomas",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105806",
+        "name": "Jett Howard",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106040",
+        "name": "Tobi Lawal",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106261",
+        "name": "Ernest Udeh Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106268",
+        "name": "Nae'Qwan Tomlin",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5148538",
+        "name": "Tarik Biberovic",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5177362",
+        "name": "Riley Minix",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211175",
+        "name": "Zaccharie Risacher",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5279129",
+        "name": "Sergio de Larrea",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsReb": {
+     "category": "ptsReb",
+     "label": "P+R",
+     "stat": "ptsReb",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-14|v1|e2|ptsReb|401909981|3908809",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Mitchell",
+        "providerAthleteId": "3908809"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 29,
+        "mean": 29.55
+       },
+       "range": {
+        "p10": 18,
+        "p25": 23,
+        "p75": 36,
+        "p90": 42
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.56,
+       "minutesSd": 7.03,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 29.55,
+        "expectedMinutes": 33.56,
+        "p90": 42
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-14|v1|e2|ptsReb|401909981|5041939",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Cooper Flagg",
+        "providerAthleteId": "5041939"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 26,
+        "mean": 26.2
+       },
+       "range": {
+        "p10": 14,
+        "p25": 19,
+        "p75": 32,
+        "p90": 39
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.72,
+       "minutesSd": 7.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 26.2,
+        "expectedMinutes": 29.72,
+        "p90": 39
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-14|v1|e2|ptsReb|401909981|3992",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "James Harden",
+        "providerAthleteId": "3992"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.86
+       },
+       "range": {
+        "p10": 14,
+        "p25": 19,
+        "p75": 30,
+        "p90": 36
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.03,
+       "minutesSd": 6.94,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.86,
+        "expectedMinutes": 34.03,
+        "p90": 36
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-14|v1|e2|ptsReb|401909981|4066328",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jarrett Allen",
+        "providerAthleteId": "4066328"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 20,
+        "mean": 21.18
+       },
+       "range": {
+        "p10": 10,
+        "p25": 15,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.57,
+       "minutesSd": 7.84,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.18,
+        "expectedMinutes": 25.57,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-14|v1|e2|ptsReb|401909981|6442",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kyrie Irving",
+        "providerAthleteId": "6442"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.83
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 32
+       },
+       "playRate": 0.9584,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.11,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.83,
+        "expectedMinutes": 27.11,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-14|v1|e2|ptsReb|401909981|4278078",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "P.J. Washington",
+        "providerAthleteId": "4278078"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.3
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 24,
+        "p90": 30
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.14,
+       "minutesSd": 7.5,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.3,
+        "expectedMinutes": 28.14,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-14|v1|e2|ptsReb|401909981|4576087",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Peyton Watson",
+        "providerAthleteId": "4576087"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.7
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.26,
+       "minutesSd": 8.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.7,
+        "expectedMinutes": 28.26,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-14|v1|e2|ptsReb|401909981|4683747",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylon Tyson",
+        "providerAthleteId": "4683747"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.67
+       },
+       "range": {
+        "p10": 6,
+        "p25": 10,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.17,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.67,
+        "expectedMinutes": 23.17,
+        "p90": 24
+       }
+      }
+     ],
+     "eligibleCount": 8,
+     "shownCount": 8,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 3,
+       "AVAILABILITY_OUT": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 7,
+       "TEAM_POOL_FALLBACK_RATES": 7,
+       "MISSING_DISTRIBUTION": 7,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "2995706",
+        "name": "Mario Hezonja",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3138160",
+        "name": "Caleb Martin",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3934723",
+        "name": "Thomas Bryant",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066757",
+        "name": "Sam Merrill",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4278049",
+        "name": "Daniel Gafford",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4278594",
+        "name": "Naji Marshall",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432107",
+        "name": "Marcus Sasser",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432158",
+        "name": "Evan Mobley",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432582",
+        "name": "Max Christie",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4593125",
+        "name": "Santi Aldama",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683688",
+        "name": "Dereck Lively II",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701208",
+        "name": "Moussa Cisse",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701233",
+        "name": "Craig Porter Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702134",
+        "name": "Norchad Omier",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4873153",
+        "name": "Morez Johnson Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4896372",
+        "name": "Walter Clayton Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4997530",
+        "name": "Khalifa Diop",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5023693",
+        "name": "Tyrese Proctor",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041951",
+        "name": "Meleek Thomas",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105806",
+        "name": "Jett Howard",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106040",
+        "name": "Tobi Lawal",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106261",
+        "name": "Ernest Udeh Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106268",
+        "name": "Nae'Qwan Tomlin",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5148538",
+        "name": "Tarik Biberovic",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5177362",
+        "name": "Riley Minix",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211175",
+        "name": "Zaccharie Risacher",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5279129",
+        "name": "Sergio de Larrea",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsAst": {
+     "category": "ptsAst",
+     "label": "P+A",
+     "stat": "ptsAst",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-14|v1|e2|ptsAst|401909981|3908809",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Mitchell",
+        "providerAthleteId": "3908809"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 30,
+        "mean": 30.21
+       },
+       "range": {
+        "p10": 19,
+        "p25": 23,
+        "p75": 36,
+        "p90": 43
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.56,
+       "minutesSd": 7.03,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 30.21,
+        "expectedMinutes": 33.56,
+        "p90": 43
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-14|v1|e2|ptsAst|401909981|3992",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "James Harden",
+        "providerAthleteId": "3992"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 26,
+        "mean": 26.88
+       },
+       "range": {
+        "p10": 16,
+        "p25": 21,
+        "p75": 32,
+        "p90": 39
+       },
+       "playRate": 0.9739,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 34.03,
+       "minutesSd": 6.94,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 26.88,
+        "expectedMinutes": 34.03,
+        "p90": 39
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-14|v1|e2|ptsAst|401909981|5041939",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Cooper Flagg",
+        "providerAthleteId": "5041939"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 24,
+        "mean": 24.77
+       },
+       "range": {
+        "p10": 13,
+        "p25": 18,
+        "p75": 31,
+        "p90": 37
+       },
+       "playRate": 0.9751,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.72,
+       "minutesSd": 7.91,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 24.77,
+        "expectedMinutes": 29.72,
+        "p90": 37
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-14|v1|e2|ptsAst|401909981|6442",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Kyrie Irving",
+        "providerAthleteId": "6442"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 20,
+        "mean": 21.2
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 32
+       },
+       "playRate": 0.9584,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.11,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.2,
+        "expectedMinutes": 27.11,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-14|v1|e2|ptsAst|401909981|4576087",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Peyton Watson",
+        "providerAthleteId": "4576087"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.23
+       },
+       "range": {
+        "p10": 6,
+        "p25": 10,
+        "p75": 20,
+        "p90": 25
+       },
+       "playRate": 0.976,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.26,
+       "minutesSd": 8.46,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.23,
+        "expectedMinutes": 28.26,
+        "p90": 25
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-14|v1|e2|ptsAst|401909981|4066328",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jarrett Allen",
+        "providerAthleteId": "4066328"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 14,
+        "mean": 15.03
+       },
+       "range": {
+        "p10": 6,
+        "p25": 10,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9764,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 25.57,
+       "minutesSd": 7.84,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.03,
+        "expectedMinutes": 25.57,
+        "p90": 24
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-14|v1|e2|ptsAst|401909981|4278078",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "P.J. Washington",
+        "providerAthleteId": "4278078"
+       },
+       "team": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "opponent": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "homeAway": "away",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.58
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9741,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.14,
+       "minutesSd": 7.5,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.58,
+        "expectedMinutes": 28.14,
+        "p90": 24
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-14|v1|e2|ptsAst|401909981|4683747",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jaylon Tyson",
+        "providerAthleteId": "4683747"
+       },
+       "team": {
+        "name": "Cleveland Cavaliers",
+        "abbr": "CLE",
+        "espnAbbr": "CLE",
+        "providerTeamId": "5"
+       },
+       "opponent": {
+        "name": "Dallas Mavericks",
+        "abbr": "DAL",
+        "espnAbbr": "DAL",
+        "providerTeamId": "6"
+       },
+       "homeAway": "home",
+       "eventId": "401909981",
+       "tipoffUtc": "2026-11-15T00:30Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.51
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 16,
+        "p90": 21
+       },
+       "playRate": 0.9763,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 23.17,
+       "minutesSd": 7.08,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-14T16:59:53Z",
+        "generatedAt": "2026-11-14T16:59:53Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "9418133a54f8e9160869aa779035e79fa65616f8aa8822c66eea723bdf996174",
+        "gamePayloadSha256": "77903a73db5e11e6998bc255a912281a360b4277bc3f3a86f5252868e6a5562b"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.51,
+        "expectedMinutes": 23.17,
+        "p90": 21
+       }
+      }
+     ],
+     "eligibleCount": 8,
+     "shownCount": 8,
+     "withheld": {
+      "count": 27,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 3,
+       "AVAILABILITY_OUT": 5,
+       "INSUFFICIENT_HISTORY": 2,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_PLAY_RATE": 13,
+       "LOW_EXPECTED_MINUTES": 16,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 7,
+       "TEAM_POOL_FALLBACK_RATES": 7,
+       "MISSING_DISTRIBUTION": 7,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_UNVERIFIED": 2
+      },
+      "players": [
+       {
+        "providerAthleteId": "2995706",
+        "name": "Mario Hezonja",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "3138160",
+        "name": "Caleb Martin",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3934723",
+        "name": "Thomas Bryant",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4066757",
+        "name": "Sam Merrill",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4278049",
+        "name": "Daniel Gafford",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4278594",
+        "name": "Naji Marshall",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432107",
+        "name": "Marcus Sasser",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432158",
+        "name": "Evan Mobley",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432582",
+        "name": "Max Christie",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4593125",
+        "name": "Santi Aldama",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4683688",
+        "name": "Dereck Lively II",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4701208",
+        "name": "Moussa Cisse",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4701233",
+        "name": "Craig Porter Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4702134",
+        "name": "Norchad Omier",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4873153",
+        "name": "Morez Johnson Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "INJURY_DESIGNATION",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4896372",
+        "name": "Walter Clayton Jr.",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4997530",
+        "name": "Khalifa Diop",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5023693",
+        "name": "Tyrese Proctor",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5041951",
+        "name": "Meleek Thomas",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5105806",
+        "name": "Jett Howard",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106040",
+        "name": "Tobi Lawal",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5106261",
+        "name": "Ernest Udeh Jr.",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5106268",
+        "name": "Nae'Qwan Tomlin",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5148538",
+        "name": "Tarik Biberovic",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5177362",
+        "name": "Riley Minix",
+        "team": "CLE",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5211175",
+        "name": "Zaccharie Risacher",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "5279129",
+        "name": "Sergio de Larrea",
+        "team": "DAL",
+        "eventId": "401909981",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebAst": {
+     "category": "rebAst",
+     "label": "R+A",
+     "stat": null,
+     "marketBasis": "NOT_MODELLED",
+     "basisText": "not modelled — no family simulates it jointly, and adding marginal projections is not its distribution",
+     "components": [
+      "reb",
+      "ast"
+     ],
+     "state": "NOT_MODELLED",
+     "rankingMetric": null,
+     "rows": [],
+     "eligibleCount": 0,
+     "shownCount": 0,
+     "withheld": {
+      "count": 0,
+      "byPrimaryReason": {},
+      "byReason": {},
+      "players": []
+     },
+     "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
+    }
+   }
   }
  ]
 }
