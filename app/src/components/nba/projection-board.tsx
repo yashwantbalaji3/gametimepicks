@@ -171,8 +171,8 @@ export default function ProjectionBoard({ board, stats, groups, matchups, teams,
           ))}
         </div>
       ) : null}
-      <form className={`grid gap-2 grid-cols-1 sm:grid-cols-2 ${hasPositions ? "lg:grid-cols-5" : "lg:grid-cols-4"} min-w-0`} role="search" aria-label="Filter the player board" onSubmit={(e) => e.preventDefault()}>
-        <label className={FIELD} htmlFor={`${uid}-m`} style={{ color: "var(--vault-text-mute)" }}>
+      <form className={`grid gap-2 grid-cols-2 ${hasPositions ? "lg:grid-cols-5" : "lg:grid-cols-4"} min-w-0`} role="search" aria-label="Filter the player board" onSubmit={(e) => e.preventDefault()}>
+        <label className={`${FIELD} col-span-2 sm:col-span-1`} htmlFor={`${uid}-m`} style={{ color: "var(--vault-text-mute)" }}>
           Matchup
           <select id={`${uid}-m`} aria-label="Filter by game" className={INPUT} style={INPUT_STYLE} value={matchup} onChange={(e) => { setMatchup(e.target.value); setTeam(""); }}>
             <option value="">All games</option>
