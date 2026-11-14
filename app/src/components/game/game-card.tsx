@@ -46,7 +46,7 @@ export type GameCardModel = {
 
 function Side({ s }: { s: GameCardSide }) {
   return (
-    <div className="flex min-w-0 flex-col items-center gap-2 text-center">
+    <div className="gtp-ev-side flex min-w-0 flex-col items-center gap-2 text-center">
       {s.logo ? <TeamLogo team={s.logo.team} sport={s.logo.sport as never} size="lg" highlight={s.favoured} ariaLabel="" /> : (
         <span aria-hidden className="inline-flex items-center justify-center rounded-full shrink-0 text-[15px] font-semibold"
           style={{ width: 52, height: 52, background: "var(--vault-wash-soft)", border: `1px solid ${s.favoured ? "var(--vault-accent)" : "var(--vault-border)"}`, color: "var(--vault-text)" }}>
@@ -68,6 +68,9 @@ function Act({ a }: { a: GameCardAction }) {
     <Link href={a.href} className={`gtp-gc-link${a.tone === "result" ? " is-result" : ""}`}>{a.label} →{a.srLabel ? <span className="sr-only"> {a.srLabel}</span> : null}</Link>
   );
 }
+
+/** Both names are abbreviations (NFL "BUF", NBA "OKC"): on a phone the crest and the name sit on one line (globals.css). */
+export const shortSides = (sides: GameCardSide[]) => sides.every((x) => x.name.trim().length <= 4);
 
 const Fact = ({ f }: { f: GameCardFact }) => <>{f.state ? <><GameStateTag state={f.state} />{" "}</> : null}{f.text}{f.aside ? <> · {f.aside}</> : null}</>;
 
@@ -123,7 +126,7 @@ export default function GameCard({ model: m, density = "card", extra = null }: {
         {m.statusLabel ? <span className="gtp-ev-status rounded-full px-2 py-0.5 text-[10.5px] font-semibold uppercase tracking-[0.08em]">{m.statusLabel}</span> : null}
       </div>
       {m.sides?.length === 2 ? (
-        <div className="grid grid-cols-[1fr_auto_1fr] items-start gap-2" aria-label={m.matchup}>
+        <div className="gtp-ev-sides grid grid-cols-[1fr_auto_1fr] items-start gap-2" data-short={shortSides(m.sides) ? "" : undefined} aria-label={m.matchup}>
           <Side s={m.sides[0]} />
           <span className="pt-5 text-[12px] font-medium gtp-c-mute">{m.separator ?? "vs"}</span>
           <Side s={m.sides[1]} />
