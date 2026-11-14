@@ -30,6 +30,7 @@ import { indexBoxscores, leagueMeans, buildSideProfile, PROFILE_VERSION as V1_PR
 import { scoreQuantileBlock } from "./distribution-scores.mjs";
 import { simulateGameV03, NBA_SIM_V03_MODEL_VERSION } from "./game-sim-v03.mjs";
 import { gatePoolV03, indexRoleHistory, MINUTES_MODEL_V03_VERSION, POOL_V03_VERSION, BASES as V03_BASES } from "./minutes-model-v03.mjs";
+import { gatePoolV04, indexRoleHistoryV04, MINUTES_MODEL_V04_VERSION, POOL_V04_VERSION } from "./minutes-model-v04.mjs";
 
 export const FORECAST_ARTIFACT = "nba-experimental-forecasts";
 /**
@@ -76,9 +77,16 @@ export const FAMILIES = Object.freeze({
  * checks, the receipt guard, the box-score fetch dirs) would otherwise start owing, grading or fetching for a family
  * the founder has not armed. `armed: false` makes the builder refuse to write into any forecasts/ directory
  * (unarmedWriteRefusal; a replay goes to --out). Arming is a founder decision recorded in the preregistration looks
- * log and moves the family into FAMILIES (v0.3 was armed this way on 2026-10-22). Empty today.
+ * log and moves the family into FAMILIES (v0.3 was armed this way on 2026-10-22).
+ *
+ * v0.4 (proposed 2026-10-22, NOT ARMED; docs/nba/NBA_PROJECTION_COVERAGE_GAP_2026-10-22.md) is v0.3 with one rule added:
+ * a returner whose S−1 has fewer than MIN_GAMES_FOR_RATES regular-season appearances takes his role prior from the most
+ * recent of S−2…S−MAX_PRIOR_LAG that has them (minutes-model-v04.mjs). Same gate, Elo, engine and cutoff as v0.3. Until
+ * the founder arms it, its only use is a replay written with --out outside any forecasts/ directory.
  */
-export const CANDIDATE_FAMILIES = Object.freeze({});
+export const CANDIDATE_FAMILIES = Object.freeze({
+  "v0.4": Object.freeze({ family: "v0.4", poolRule: "roster-gated", dataRule: "corpus-v1+boxscores-2026-27", role: "CANDIDATE_SHADOW", modelVersion: "nba-experimental-v0.4-lagged-role-prior", dir: "experimental-v0.4", minutesRule: "v0.4-lagged-role-prior", alignsWith: "v0.1", armed: false }),
+});
 
 /**
  * The builder's write guard for an UNARMED candidate (spec.armed === false). Pure. Returns a refusal string or null.
@@ -241,13 +249,15 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
   const rosterGated = spec.poolRule === "roster-gated";
   const engineV1 = spec.engine === "v1";
   // v0.3 candidate: a different minutes layer behind the same roster gate (one role index per population per artifact).
-  const minutesV03 = spec.minutesRule === "v0.3-role-prior";
+  // v0.4 candidate (not armed): v0.3's minutes layer and engine over the lagged-prior index (minutes-model-v04.mjs).
+  const minutesV04 = spec.minutesRule === "v0.4-lagged-role-prior";
+  const minutesV03 = spec.minutesRule === "v0.3-role-prior" || minutesV04;
   const v03Index = new Map();
   const v03IndexFor = (population) => {
-    if (!v03Index.has(population)) v03Index.set(population, indexRoleHistory(boxscores, { asOfDateUtc: now, population }));
+    if (!v03Index.has(population)) v03Index.set(population, (minutesV04 ? indexRoleHistoryV04 : indexRoleHistory)(boxscores, { asOfDateUtc: now, population }));
     return v03Index.get(population);
   };
-  const poolVersion = minutesV03 ? POOL_V03_VERSION : ROSTER_GATED_POOL_VERSION;
+  const poolVersion = minutesV04 ? POOL_V04_VERSION : minutesV03 ? POOL_V03_VERSION : ROSTER_GATED_POOL_VERSION;
   // v1 reads the same as-of box scores (one index per artifact) and league means per population, lazily.
   let v1Index = null;
   const v1League = new Map();
@@ -301,7 +311,9 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
       if (rating.basis === "default-no-history") noteTeam(population === "preseason" ? manifest.teamsWithoutPreseasonHistory : manifest.teamsWithoutRegularHistory, `${name} (${s?.providerTeamId})`);
       let minutes, pool = null;
       if (rosterGated) {
-        const gated = minutesV03
+        const gated = minutesV04
+          ? gatePoolV04({ rosters, providerTeamId: s?.providerTeamId, boxscores, asOfDateUtc: now, injuries, population, roleIndex: v03IndexFor(population) })
+          : minutesV03
           ? gatePoolV03({ rosters, providerTeamId: s?.providerTeamId, boxscores, asOfDateUtc: now, injuries, population, roleIndex: v03IndexFor(population) })
           : gatePool({ rosters, providerTeamId: s?.providerTeamId, boxscores, asOfDateUtc: now, injuries, population, teamMinutesCache });
         if (gated.state === "REFUSED") return { refused: gated.reason, name, providerTeamId: String(s?.providerTeamId), gate: gated.gate };
@@ -393,7 +405,7 @@ export function buildForecastArtifact({ date, now, scheduleRows, corpusRows, box
     neverReadBy: "app/src/app/** (public routes) — internal research only; sport-capability-registry keeps NBA HISTORICAL_ONLY",
     modelVersion: spec.modelVersion,
     ...(rosterGated ? { family: spec.family, poolRule: spec.poolRule, poolVersion, simEngineVersion: engineV1 ? NBA_SIM_V1_MODEL_VERSION : minutesV03 ? NBA_SIM_V03_MODEL_VERSION : NBA_SIM_MODEL_VERSION } : {}),
-    ...(minutesV03 ? { minutesModelVersion: MINUTES_MODEL_V03_VERSION, ...(spec.alignsWith ? { alignsWith: spec.alignsWith } : {}) } : {}),
+    ...(minutesV03 ? { minutesModelVersion: minutesV04 ? MINUTES_MODEL_V04_VERSION : MINUTES_MODEL_V03_VERSION, ...(spec.alignsWith ? { alignsWith: spec.alignsWith } : {}) } : {}),
     ...(engineV1 ? { profileVersion: V1_PROFILE_VERSION } : {}),
     ...(spec.dataRule !== "corpus-v1" ? { dataRule: spec.dataRule, role: spec.role } : {}),
     generatedAt: now,
