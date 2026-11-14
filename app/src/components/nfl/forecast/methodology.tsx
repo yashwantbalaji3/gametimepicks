@@ -23,7 +23,7 @@ export default function Methodology({ view, status, started, calibration }: { vi
       <details className="nf-details" style={{ marginTop: 8 }}>
         <summary>Sources, versions, timestamps and evaluation status</summary>
         <div className="nf-scroll" role="region" aria-label="Which model produced which number" tabIndex={0}>
-          <table className="nf-table">
+          <table className="nf-table nf-table-sources">
             <thead><tr><th scope="col">Number</th><th scope="col">Model</th><th scope="col">Version / run</th><th scope="col">Produced</th></tr></thead>
             <tbody>
               <tr><td>Win chance, projected score, margin, total</td><td>Game Time Forecast</td><td className="nf-num">{r.modelId}{r.inputHash ? ` · input ${r.inputHash}` : ""}</td><td className="nf-num">{ts(r.generatedAt)}</td></tr>
