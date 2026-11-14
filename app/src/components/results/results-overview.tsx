@@ -227,9 +227,17 @@ export default function ResultsOverview({ populations, products, seedToday, init
         <div className="rounded-xl p-4" style={{ border: "1px dashed var(--vault-border)" }}>
           <h3 className="m-0 mb-1 font-mono text-[11px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)" }}>Research / paused · graded, not public picks</h3>
           <p className="m-0 mb-3 text-[12.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>Graded for transparency and model development. None of these was a published pick when the game started, so none is counted in the public records above.</p>
-          <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {research.map((p) => <PopulationCard key={p.id} p={p} w={w} today={today} />)}
-          </ul>
+          {/* The block, its label and its "not counted above" sentence stay on the page; the cards fold. These records are
+              secondary to the public ones, and open they ran ~760px of a phone screen above the day-by-day list. Folded
+              content stays in the document (find-in-page opens it; the public cards above name these counts). */}
+          <details className="gtp-overview-fold" data-results-fold="research">
+            <summary style={{ cursor: "pointer", minHeight: 44, lineHeight: "44px", fontSize: 13, fontWeight: 600, color: "var(--vault-text)" }}>
+              Show {research.length === 1 ? "this research record" : `these ${research.length} research records`}
+            </summary>
+            <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {research.map((p) => <PopulationCard key={p.id} p={p} w={w} today={today} />)}
+            </ul>
+          </details>
         </div>
       ) : null}
 
@@ -237,9 +245,17 @@ export default function ResultsOverview({ populations, products, seedToday, init
         <div className="rounded-xl p-4" style={{ border: "1px dashed var(--vault-border)" }}>
           <h3 className="m-0 mb-1 font-mono text-[11px] uppercase tracking-[0.14em]" style={{ color: "var(--vault-text-mute)" }}>Publication status unknown (legacy)</h3>
           <p className="m-0 mb-3 text-[12.5px] leading-snug" style={{ color: "var(--vault-text-mute)" }}>Graded, but the evidence cannot show whether these were public picks when the game started. They stay on the record, counted in neither block above.</p>
-          <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 gap-3">
-            {unknown.map((p) => <PopulationCard key={p.id} p={p} w={w} today={today} />)}
-          </ul>
+          {/* The block, its label and its "not counted above" sentence stay on the page; the cards fold. These records are
+              secondary to the public ones, and open they ran ~480px of a phone screen above the day-by-day list. Folded
+              content stays in the document (find-in-page opens it; the public cards above name these counts). */}
+          <details className="gtp-overview-fold" data-results-fold="unknown">
+            <summary style={{ cursor: "pointer", minHeight: 44, lineHeight: "44px", fontSize: 13, fontWeight: 600, color: "var(--vault-text)" }}>
+              Show {unknown.length === 1 ? "this legacy record" : `these ${unknown.length} legacy records`}
+            </summary>
+            <ul className="m-0 p-0 list-none grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {unknown.map((p) => <PopulationCard key={p.id} p={p} w={w} today={today} />)}
+            </ul>
+          </details>
         </div>
       ) : null}
 
