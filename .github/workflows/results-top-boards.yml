@@ -36,11 +36,17 @@ jobs:
       - uses: actions/setup-node@v5
         with:
           node-version: "20"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      # the freeze records each event's official snapshot id (nflOfficialOfRecord imports a .ts module): tsx, from app/
+      - name: Install app dependencies (tsx)
+        working-directory: app
+        run: npm ci
       - name: Freeze any day whose first kickoff is inside the next 24h
         working-directory: app
         run: |
           set -euo pipefail
-          node scripts/results/freeze-daily-top-boards.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          npx tsx scripts/results/freeze-daily-top-boards.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
       - name: Append withdrawals for frozen rows (pre-kickoff evidence only; the receipt is never touched)
         working-directory: app
         run: |

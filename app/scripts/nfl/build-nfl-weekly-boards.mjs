@@ -25,13 +25,15 @@
  *    from the owner rather than asserted.)
  */
 import fs from "node:fs";
+import { spawnSync } from "node:child_process";
 import { opponentIn } from "../../src/lib/sports/nfl/matchup.mjs";
 import path from "node:path";
 
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
-import { rankFamily, familyStateAcross, poolWithheldTeams } from "../../src/lib/sports/nfl/board-ranking.mjs";
+import { UNFEATURED_LABEL, exclusionCounts, rankFamily, familyStateAcross, poolWithheldTeams, unfeaturedRows } from "../../src/lib/sports/nfl/board-ranking.mjs";
 import { buildTopBoards } from "../../src/lib/sports/nfl/top-boards.mjs";
 import { forwardEvidenceFor } from "../../src/lib/products/engine-v2/family-gate.mjs";
+import { boardProvenance, provenanceUnavailable, sha256 } from "../../src/lib/sports/nfl/board-provenance.mjs";
 
 const APP = process.cwd();
 const BOARD_DIR = path.join(APP, "public/data/nfl/player-board");
@@ -96,6 +98,24 @@ const boards = fs
     const w = weekOf.get(String(b.providerEventId));
     return w && w.seasonType === period.seasonType && w.week === period.week;
   });
+
+/*
+ * PROVENANCE (row G): what the top boards were built from — each event's official forecast of record snapshot id
+ * (CANON-01 nflOfficialOfRecord, asked of a tsx helper because the selector imports a .ts module and this builder runs
+ * under plain node) and the sha256 of the per-game board bytes the ranking read, folded into one chain hash. A helper
+ * failure is recorded as UNAVAILABLE (the boards still publish; nothing is invented).
+ */
+function weekProvenance(weekBoards) {
+  const ids = weekBoards.map((b) => String(b.providerEventId));
+  const res = spawnSync("npx", ["tsx", "scripts/nfl/official-snapshot-ids.mjs", "--events", ids.join(",")], { cwd: APP, encoding: "utf8", maxBuffer: 1 << 24 });
+  let official = null;
+  try { official = res.status === 0 ? JSON.parse(res.stdout) : null; } catch { official = null; }
+  if (!official) return provenanceUnavailable(`official snapshot ids could not be resolved (${(res.stderr || res.error?.message || "no output").split("\n")[0].slice(0, 160)})`);
+  return boardProvenance(weekBoards.map((b) => ({
+    eventId: b.providerEventId, official: official[String(b.providerEventId)] ?? null,
+    boardSha256: sha256(fs.readFileSync(path.join(BOARD_DIR, `${b.providerEventId}.json`))), boardGeneratedAt: b.generatedAt ?? null,
+  })));
+}
 
 // Scope: the whole week pregame, or what remains once kickoffs pass.
 const upcoming = boards.filter((b) => Date.parse(b.kickoffUtc) > Date.parse(NOW));
@@ -203,7 +223,9 @@ const out = {
       ? { version: scoped.find((b) => b.families?.[spec.family]?.conservation).families[spec.family].conservation.version, teamsReconciled: reconciled.length, teams: reconciled }
       : undefined;
     return { ...spec, state: "PUBLISHED", basis: fam.basis, ...(conservation ? { conservation } : {}), rows: rankRows(spec.family, spec.metric, spec.topN) };
-  }).map((b) => (b.rows ? { ...b, excludedForAvailability: excludedByBoard[b.family] ?? [] } : b)),
+  // eligibility@1 (row G): exclusions by reason only (no names in a public file); listed-questionable players who would
+  // have placed are shown un-featured with the label
+  }).map((b) => (b.rows ? { ...b, excludedForAvailability: exclusionCounts(excludedByBoard[b.family]), unfeatured: unfeaturedRows(excludedByBoard[b.family], b.rows, b.topN).map((x) => ({ playerId: x.playerId, name: x.name, team: x.team, providerEventId: x.providerEventId, value: x.value, label: UNFEATURED_LABEL, reason: x.reason })) } : b)),
   disclaimer: boards[0]?.disclaimer ?? null,
   /*
    * FOUNDER TOP BOARDS (2026-10-29) — ADDITIVE. Five Top-5 boards (passing, rushing, receiving yards, receptions,
@@ -214,6 +236,7 @@ const out = {
   topBoards: buildTopBoards({
     weekBoards: boards, now: NOW, slotFor: (...a) => propPrices.slotFor(...a),
     forwardFor: (family, modelVersion) => forwardEvidenceFor({ family, modelVersion, forwardReceipt }),
+    provenance: weekProvenance(boards),
   }),
 };
 
