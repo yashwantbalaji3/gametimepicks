@@ -115,6 +115,9 @@ def normalize_schedule_games(date: str, games: list[dict]) -> list[dict]:
                 "gamePk": g.get("gamePk"),
                 "gameDate": g.get("gameDate"),
                 "date": date,
+                # MLB-001: StatsAPI's own game type (R regular season; F/D/L/W postseason rounds). The full-game
+                # engine plays extra innings by the official rule set for it (no automatic runner in the postseason).
+                "gameType": g.get("gameType"),
                 "venue": (g.get("venue") or {}).get("name"),
                 "status": (g.get("status") or {}).get("detailedState", "Unknown"),
                 "awayTeamId": away_team.get("id"),

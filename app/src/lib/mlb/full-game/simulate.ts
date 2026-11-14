@@ -99,6 +99,43 @@ function buildGameStory(g: {
   return story;
 }
 
+/**
+ * A game that cannot reach a legal result within the bounded discard budget (corrected rules only) is refused —
+ * unavailable, with the reason — rather than forced to finish. Practically unreachable for real lineups; pinned by
+ * a fixture whose offense can never score.
+ */
+function refusedUnresolved(
+  base: Record<string, unknown>,
+  discarded: number,
+  engine: EngineParams,
+  input: GameInput,
+  why: "UNRESOLVED_AT_CAP" | "RULESET_UNRESOLVED",
+): FullGameSimGame {
+  const game = {
+    ...base,
+    status: "unavailable",
+    runCount: 0,
+    winProbability: null,
+    runs: null,
+    totalRuns: null,
+    runDifferential: null,
+    runLine: [],
+    teamTotals: null,
+    finalScores: [],
+    extraInningsProbability: null,
+    players: null,
+    engineRules: { id: engine.rules?.id ?? "unknown", ruleset: input.ruleset ?? null, rulesetBasis: input.rulesetBasis ?? "UNRESOLVED", discardedIncomplete: discarded },
+    gameStory: [
+      why === "RULESET_UNRESOLVED"
+        ? "The simulation could not tell whether this is a regular-season or postseason game, and extra innings are played differently in each, so no forecast is published rather than one under a guessed rule set."
+        : `The simulation could not reach a legal final for this game: ${discarded} simulated games were still tied at the inning cap, so no forecast is published rather than one with an invented ending.`,
+    ],
+    artifactHash: "",
+  } as unknown as FullGameSimGame;
+  game.artifactHash = stableHash({ ...game, artifactHash: undefined });
+  return game;
+}
+
 /** Simulate one game N complete times and aggregate into the public full-game artifact object. */
 export function simulateFullGame(input: GameInput, opts: SimulateOptions): FullGameSimGame {
   const base = {
@@ -179,12 +216,31 @@ export function simulateFullGame(input: GameInput, opts: SimulateOptions): FullG
     acc.bf += l.battersFaced; acc.k += l.strikeouts; acc.h += l.hitsAllowed; acc.r += l.runsAllowed; acc.outs += l.outsRecorded;
   };
 
-  for (let i = 0; i < n; i += 1) {
-    const r = simulateGame(input, rng, opts.engine ?? DEFAULT_ENGINE_PARAMS);
-    awayRuns[i] = r.awayRuns;
-    homeRuns[i] = r.homeRuns;
-    totalRuns[i] = r.awayRuns + r.homeRuns;
-    runDiff[i] = r.homeRuns - r.awayRuns;
+  /*
+   * MLB-001 (founder decision 6): under the corrected rules a game still tied at the inning cap is NOT a legal
+   * result. It is discarded and a fresh game drawn from the same deterministic stream, and the count is reported.
+   * The loop is bounded: if discards ever exceed the run count, the game is refused (unavailable) rather than
+   * forced to finish — no fabricated run, no unbounded simulation. Legacy rules never discard (hash-identical).
+   */
+  const engine = opts.engine ?? DEFAULT_ENGINE_PARAMS;
+  // Rules that differ by season phase need the phase: an unresolved ruleset is refused, never assumed (fail closed).
+  if (engine.rules?.extrasAutomaticRunner === "REGULAR_SEASON_ONLY" && input.ruleset == null) {
+    return refusedUnresolved(base, 0, engine, input, "RULESET_UNRESOLVED");
+  }
+  let discardedIncomplete = 0;
+  for (let i = 0; i < n; ) {
+    const r = simulateGame(input, rng, engine);
+    if (r.incomplete) {
+      discardedIncomplete += 1;
+      if (discardedIncomplete > n) return refusedUnresolved(base, discardedIncomplete, engine, input, "UNRESOLVED_AT_CAP");
+      continue;
+    }
+    i += 1;
+    const k = i - 1;
+    awayRuns[k] = r.awayRuns;
+    homeRuns[k] = r.homeRuns;
+    totalRuns[k] = r.awayRuns + r.homeRuns;
+    runDiff[k] = r.homeRuns - r.awayRuns;
     if (r.homeRuns > r.awayRuns) homeWins += 1;
     if (r.extra) extraGames += 1;
     const key = `${r.awayRuns}-${r.homeRuns}`;
@@ -284,6 +340,11 @@ export function simulateFullGame(input: GameInput, opts: SimulateOptions): FullG
       batters: [...batLine(input.awayLineup, sums.awayBat), ...batLine(input.homeLineup, sums.homeBat)],
       pitchers: [...pitLine(input.awayStarter, sums.awayPit), ...pitLine(input.homeStarter, sums.homePit)],
     },
+    /* Only under non-legacy rules: which rules the engine played, and what it had to discard. A published v2 artifact
+       carries no such field, so its hash reproduces byte for byte. */
+    ...(engine.rules && engine.rules.id !== "mlb-rules-legacy-v2"
+      ? { engineRules: { id: engine.rules.id, ruleset: input.ruleset ?? null, rulesetBasis: input.rulesetBasis ?? "UNRESOLVED", discardedIncomplete } }
+      : {}),
     gameStory: buildGameStory({
       away: input.awayTeam,
       home: input.homeTeam,
