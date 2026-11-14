@@ -57,6 +57,7 @@ export const OFFICIAL_MODEL_PLAIN = Object.freeze({ game: "Elo team rating", pla
 export const UNAVAILABLE_REASON_TEXT: Readonly<Record<string, string>> = Object.freeze({
   RULED_OUT: "ruled out on the pre-tip injury report",
   BELOW_PUBLISH_CUT: "expected to play too few minutes for a published projection",
+  MINUTES_NOT_PLAUSIBLE: "the model's expected minutes for this game are not reliable enough to publish",
   ROOKIE: "a rookie with no NBA minutes in the data yet",
   INSUFFICIENT_HISTORY: "not enough recent NBA minutes to project (for example, a returning player)",
   NO_EXPECTED_MINUTES: "no expected minutes in the pregame record",
