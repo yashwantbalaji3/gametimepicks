@@ -70,7 +70,7 @@ function Act({ a }: { a: GameCardAction }) {
 }
 
 /** Both names are abbreviations (NFL "BUF", NBA "OKC"): on a phone the crest and the name sit on one line (globals.css). */
-export const shortSides = (sides: GameCardSide[]) => sides.every((x) => x.name.trim().length <= 4);
+export const shortSides = (sides: GameCardSide[]) => sides.every((x) => { const n = x.name.trim().length; return n > 0 && n <= 4; });
 
 const Fact = ({ f }: { f: GameCardFact }) => <>{f.state ? <><GameStateTag state={f.state} />{" "}</> : null}{f.text}{f.aside ? <> · {f.aside}</> : null}</>;
 

@@ -27,7 +27,7 @@ test("the density rules apply to phones only", () => {
 });
 
 test("the one-line sides are opt-in by name length, never for full team names", () => {
-  assert.match(card, /export const shortSides = \(sides: GameCardSide\[\]\) => sides\.every\(\(x\) => x\.name\.trim\(\)\.length <= 4\);/);
+  assert.ok(card.includes('export const shortSides = (sides: GameCardSide[]) => sides.every((x) => { const n = x.name.trim().length; return n > 0 && n <= 4; });'));
   assert.match(card, /className="gtp-ev-sides [^"]*" data-short=\{shortSides\(m\.sides\) \? "" : undefined\} aria-label=\{m\.matchup\}/);
   assert.match(card, /className="gtp-ev-side flex min-w-0 flex-col/);
 });
