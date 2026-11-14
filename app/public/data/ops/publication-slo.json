@@ -1,7 +1,7 @@
 {
   "kind": "publication-slo",
   "date": "2026-11-14",
-  "platformState": "INCIDENT",
+  "platformState": "MISSED_COVERAGE",
   "sports": {
     "mlb": {
       "state": "NO_EVENT",
@@ -27,16 +27,22 @@
       "missed": []
     },
     "ufc": {
-      "state": "INCIDENT",
-      "reason": "1 event(s) have no forecast and the earliest one's deadline (2026-11-14T20:30:00.000Z, 90 min before its start) has passed",
-      "deadlineUtc": "2026-11-14T20:30:00.000Z",
+      "state": "MISSED_COVERAGE",
+      "reason": "1 of 13 event(s) started with no pre-event forecast; nothing is still pending",
+      "deadlineUtc": null,
       "counts": {
         "scheduled": 13,
         "published": 12,
-        "missedCoverage": 0,
-        "awaiting": 1
+        "missedCoverage": 1,
+        "awaiting": 0
       },
-      "missed": []
+      "missed": [
+        {
+          "id": "401922645",
+          "label": "Macy Chiasson vs Bia Mesquita",
+          "startUtc": "2026-11-14T22:00Z"
+        }
+      ]
     },
     "epl": {
       "state": "PUBLISHED",
@@ -50,7 +56,7 @@
       }
     }
   },
-  "checkedAt": "2026-11-14T21:39:09.840Z",
+  "checkedAt": "2026-11-14T22:12:21.706Z",
   "scheduleSource": "mlb-statsapi",
   "leadMinutes": 90,
   "state": "NO_EVENT",
