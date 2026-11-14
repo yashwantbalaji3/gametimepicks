@@ -224,7 +224,7 @@ export function representativeIndices(batch, homeFavoured) {
  * Build the receipt. `generatedAt` is the only clock and is excluded from `artifactHash`. `idSuffix` (the shadow build's
  * schema-upgrade tag) is appended to the id as a FOURTH segment, so `id.split(":")[2]` stays the input hash.
  */
-export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt, inputs, postseason = false, idSuffix = null }) {
+export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors, calibration, prep, batch, baseSeed, inputHash, generatedAt, inputs, postseason = false, eligibility = null, playerAvailability = null, idSuffix = null }) {
   const n = batch.runs;
   let hw = 0;
   let aw = 0;
@@ -336,6 +336,10 @@ export function buildNflSimulationReceipt({ event, compiled, paramsRef, anchors,
     modelVersion: anchors.modelVersion,
     inputSnapshotIds: inputs,
     availabilitySnapshotId: inputs.availability ?? null,
+    // eligibility@1 behind the personnel (sim-v2/personnel-eligibility.mjs): the stamp-free snapshot and each simulated
+    // player's state, so a reader never features a questionable or unverified player; absent on older receipts
+    ...(eligibility ? { eligibilitySnapshot: eligibility } : {}),
+    ...(playerAvailability ? { playerAvailability } : {}),
     marketReceiptId: null,
     marketUse: "NOT_AN_INPUT — no betting-market number is read by this engine",
     seedStrategy: "per-run mulberry32 seeded by splitmix(baseSeed, runIndex); baseSeed = fnv1a64(engine|eventId|inputHash)",
