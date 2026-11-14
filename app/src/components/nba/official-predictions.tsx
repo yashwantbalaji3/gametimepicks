@@ -81,7 +81,8 @@ const r1 = (v: number | null | undefined) => (typeof v === "number" && Number.is
    /nba/projections, the Top Boards, the /nba lane cards and the graphics export print (the lane's 1-dp number as
    written, e.g. "5" and "29.1"; "—" when not published), inlined because that module is the Top Boards' alone
    (lane-top-boards.test import pin). This table used toFixed(1) ("5.0"), the one surface that did. */
-const fmt = (v: number | null | undefined) => { const x = r1(v); return x == null ? "—" : String(x); }; // == laneDisplay(r1(v)), pinned in theater-default-canonical.test
+// == laneDisplay(r1(v)), pinned in theater-default-canonical.test; an eligibility-hidden cell ("", lane-eligibility.mjs HIDDEN_CELL) is empty
+const fmt = (v: number | string | null | undefined) => { if (v === "") return ""; const x = r1(v as number | null | undefined); return x == null ? "—" : String(x); };
 /** The Default view's one cell formatter (lane 1-dp rounding, printed as the lane prints it, "—" when not published). */
 export const officialStatText = fmt;
 const et = (iso: string | null) =>
