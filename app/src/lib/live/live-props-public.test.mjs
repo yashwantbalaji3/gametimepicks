@@ -37,8 +37,11 @@ test("every other runtime-assembled /data/ path still refuses", () => {
      social/nba/v1/, PUBLIC_DERIVED from the same lane + record the NBA pages render. Its note is in prune-internal-routes.mjs
      and its guards (mirrors the lanes, no price fields, ships through the prune) in lib/social/nba-social*.test.mjs. It
      ships only if the founder approves PR #1278. */
-  assert.deepEqual(dirs.sort(), ["ask/v1/", "compare/v1/", "lab/v1/", "nfl/live-props/", "nfl/reconciliation/", "social/nba/v1/"],
-    "exactly six prefixes are tolerated; a seventh needs its own decision and its own note");
+  /* Results V2 pilot: the seventh — results/v2/, the Results Day files (PUBLIC_DERIVED and PUBLIC_EXPERIMENTAL), fetched per
+     sport and date by the /results/day shell. Its note is in prune-internal-routes.mjs and its guards (no price, no book, no
+     NBA range, every WIN/LOSS backed by a frozen reference) in lib/results/v2/results-day.test.mjs. */
+  assert.deepEqual(dirs.sort(), ["ask/v1/", "compare/v1/", "lab/v1/", "nfl/live-props/", "nfl/reconciliation/", "results/v2/", "social/nba/v1/"],
+    "exactly seven prefixes are tolerated; an eighth needs its own decision and its own note");
 });
 
 test("what we are publishing is what we said we are publishing", () => {
