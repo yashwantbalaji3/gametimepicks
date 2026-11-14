@@ -21,7 +21,7 @@ import path from "node:path";
 
 import { identityFromFixture } from "./epl-identity.ts";
 import { buildEplClubIndex } from "./epl-clubs.ts";
-import { ESPN_SCHEDULE_FILE, confirmFixtureKickoffs } from "../sports/epl/kickoff-truth.mjs";
+import { ESPN_SCHEDULE_FILE, confirmFixtureKickoffs, normalizeUtc, pairOf, PAIR_JOIN_WINDOW_DAYS } from "../sports/epl/kickoff-truth.mjs";
 import { gradeEplLeg } from "../sports/epl/settlement-contract.mjs";
 
 const RESULTS_PATH = () => path.join(process.cwd(), "public", "data", "soccer", "epl", "results", "latest.json");
@@ -38,6 +38,7 @@ function newestFixtureCapture() {
     return JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR(), files[files.length - 1]), "utf8"));
   } catch { return null; }
 }
+
 
 export function loadCurrentEplResults({ nowIso, artifact: artifactOverride, fixtures: fixturesOverride, espnSchedule: espnScheduleOverride, freshWindowHours = 36 } = {}) {
   // `artifact: null` means "none exists" (tests, unconfigured); only UNDEFINED falls to disk.
@@ -76,6 +77,17 @@ export function loadCurrentEplResults({ nowIso, artifact: artifactOverride, fixt
     }
   }
 
+  /* STABLE-KEY FALLBACK (2026-11-12, MW10 grading break): the canonical id embeds the kickoff minute, and the only fixture
+     capture (openfootball, 2026-10-24) carries placeholder 15:00Z kickoffs, so a match ESPN played at another time (Everton
+     v Coventry: real Fri 20:00Z) has a different canonical id on the result than on the fixture and the forecast. A
+     result that misses the canonical index joins instead on the CLUB PAIR — the identity's pair segment (the two clubs;
+     the pair meets twice a season, months apart) — when exactly one fixture with that pair kicks off within
+     PAIR_JOIN_WINDOW_DAYS of the result AND names the same home club (the goals are the result's home/away, so an
+     orientation mismatch would swap them: refused). Several, none, or a reversed fixture still quarantine. */
+  let pairIndex = null;
+  const byPair = new Map();
+  for (const f of fixtures?.rows ?? []) { const k = pairOf(f.eventId); if (k) byPair.set(k, [...(byPair.get(k) ?? []), f]); }
+
   const quarantined = [];
   const results = [];
   const consumedFixtures = new Set();
@@ -83,13 +95,24 @@ export function loadCurrentEplResults({ nowIso, artifact: artifactOverride, fixt
     const out = identityFromFixture({ homeClub: r.home, awayClub: r.away, kickoffIso: r.dateUtc }, nowIso);
     if (!("identity" in out)) { quarantined.push({ providerEventId: r.providerEventId, reason: `identity: ${out.rejection.code} — a result that cannot resolve does not settle anything` }); continue; }
     const canonical = out.identity.eventId;
-    const fixture = fixtureByCanonical.get(canonical);
+    let fixture = fixtureByCanonical.get(canonical);
+    let joinedBy = "CANONICAL";
+    if (!fixture) {
+      const clubs = pairIndex ?? (pairIndex = buildEplClubIndex());
+      const same = (a, b) => { const x = clubs.resolve(a)?.canonical, y = clubs.resolve(b)?.canonical; return x != null && x === y; };
+      const near = (byPair.get(pairOf(canonical)) ?? []).filter((f) => Math.abs(Date.parse(f.kickoffIso) - Date.parse(normalizeUtc(r.dateUtc))) <= PAIR_JOIN_WINDOW_DAYS * 86_400_000 && same(f.homeClub, r.home) && same(f.awayClub, r.away));
+      if (near.length === 1) { fixture = near[0]; joinedBy = "CLUB_PAIR_WINDOW"; }
+    }
     if (!fixture) { quarantined.push({ providerEventId: r.providerEventId, canonical, reason: "no scheduled fixture with this canonical identity — unjoined results never settle" }); continue; }
-    if (consumedFixtures.has(canonical)) { quarantined.push({ providerEventId: r.providerEventId, canonical, reason: "fixture already consumed — a result settles exactly once" }); continue; }
-    consumedFixtures.add(canonical);
+    if (consumedFixtures.has(fixture.eventId) || consumedFixtures.has(canonical)) { quarantined.push({ providerEventId: r.providerEventId, canonical, reason: "fixture already consumed — a result settles exactly once" }); continue; }
+    consumedFixtures.add(canonical); consumedFixtures.add(fixture.eventId);
     if (!Number.isInteger(r.ftHome) || !Number.isInteger(r.ftAway)) { quarantined.push({ providerEventId: r.providerEventId, canonical, reason: "completed status without integer goals — the StatsAPI lesson, quarantined" }); continue; }
     results.push({
       canonicalEventId: canonical,
+      /* the fixture's own id (the one forecasts were published under) and how the result reached it */
+      fixtureEventId: fixture.provisionalEventId ?? fixture.eventId,
+      joinedBy,
+      kickoffUtc: normalizeUtc(r.dateUtc),
       providerEventId: r.providerEventId,
       matchweek: fixture.matchweek ?? null,
       home: fixture.homeClub, away: fixture.awayClub,

@@ -40,6 +40,15 @@ export const normalizeUtc = (iso) => new Date(Date.parse(iso)).toISOString().rep
  *   `rebuildId` returns the canonical eventId for the fixture at its CONFIRMED kickoff (the id encodes the kickoff minute)
  * @returns {{ confirmed: object[], unverified: object[], scheduleState: "FRESH"|"STALE"|"MISSING" }}
  */
+/** Days either side of a kickoff within which two records with the same club pair are the same match (a move inside a
+ *  matchweek window or a short reschedule; the pair's other meeting is months away). A longer move refuses to join. */
+export const PAIR_JOIN_WINDOW_DAYS = 14;
+/** The club-pair segment of a canonical `soccer:epl:<a-v-b>:<kickoff>` id (participants are sorted, so it is unordered). */
+export const pairOf = (eventId) => String(eventId ?? "").split(":")[2] ?? null;
+/** Same match by the stable key: same club pair, kickoffs within PAIR_JOIN_WINDOW_DAYS. */
+export const samePairNear = (idA, isoA, idB, isoB) => pairOf(idA) != null && pairOf(idA) === pairOf(idB)
+  && Math.abs(Date.parse(isoA) - Date.parse(isoB)) <= PAIR_JOIN_WINDOW_DAYS * 86_400_000;
+
 export function confirmFixtureKickoffs(fixtures, schedule, { resolve, rebuildId, nowIso, maxAgeHours = SCHEDULE_MAX_AGE_HOURS }) {
   const age = schedule ? (Date.parse(nowIso) - Date.parse(schedule.capturedAt ?? "")) / 3_600_000 : NaN;
   const scheduleState = !schedule ? "MISSING" : Number.isFinite(age) && age >= 0 && age <= maxAgeHours ? "FRESH" : "STALE";

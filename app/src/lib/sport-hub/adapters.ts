@@ -10,6 +10,7 @@ import { buildAllGameDetails, urlSport } from "@/lib/game-detail";
 import type { PublicGameDetail } from "@/lib/game-detail";
 import { loadEplForecasts, loadEplForecastArchive } from "@/lib/sports/epl/forecast-view";
 import { eplUpcoming } from "@/lib/sports/upcoming/adapters.mjs";
+import { samePairNear } from "@/lib/sports/epl/kickoff-truth.mjs";
 import type { EplForecastRow } from "@/lib/sports/epl/forecast-view";
 import fs from "node:fs";
 import path from "node:path";
@@ -430,7 +431,7 @@ export function eplHub(nowIso: string): SportHubModel {
     .filter((w): w is number => w != null)
     .sort((a, b) => a - b)[0] ?? null;
   const selectedWeek = liveWeek ?? nextScheduledWeek;
-  const reconciliation = { unidentifiedScheduleRows: 0, laterPeriodRows: 0 };
+  const reconciliation = { unidentifiedScheduleRows: 0, laterPeriodRows: 0, placeholderDuplicates: 0 };
   for (const ev of upcomingEvents) {
     const id = String(ev.eventId ?? "");
     if (!id) {
@@ -441,6 +442,9 @@ export function eplHub(nowIso: string): SportHubModel {
     }
     if (covered.has(id)) continue;
     const kickoff = ev.scheduledStartUtc ?? null;
+    /* The same match under a placeholder kickoff (2026-11-12: the openfootball capture's 15:00Z slots vs the forecasts'
+       ESPN-confirmed ids) — same club pair, kickoffs within the join window — is covered, never a second row. */
+    if (kickoff && rows.some((r) => samePairNear(r.id, String(r.startUtc ?? ""), id, kickoff))) { reconciliation.placeholderDuplicates += 1; continue; }
     if (!kickoff || Date.parse(kickoff) <= nowMs) continue;   // forthcoming only
     if (selectedWeek != null && ev.matchweek !== selectedWeek) {
       reconciliation.laterPeriodRows += 1;                    // belongs to #schedule, not this period

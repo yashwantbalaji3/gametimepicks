@@ -202,10 +202,17 @@ const noForecastIds = [];
 for (const r of bridged.results) {
   const eventId = r.canonicalEventId;
   if (!eventId) continue;
-  if (alreadyGraded.has(eventId)) { skipped.alreadyGraded += 1; continue; }
+  /* The forecast was published under the FIXTURE's id; the result may carry ESPN's confirmed kickoff in its own id
+     (placeholder 15:00Z fixtures, MW10). The bridge links the two through the fixture record (epl-current-results.mjs),
+     so a forecast is found by either id, and the ledger keeps the id it was published under. */
+  const publishedId = forecastByEvent.has(eventId) ? eventId : r.fixtureEventId ?? eventId;
+  if (alreadyGraded.has(eventId) || alreadyGraded.has(publishedId)) { skipped.alreadyGraded += 1; continue; }
 
-  const fc = forecastByEvent.get(eventId);
-  if (!fc) { skipped.noForecast += 1; noForecastIds.push(eventId); continue; }
+  const fc = forecastByEvent.get(publishedId);
+  if (!fc) { skipped.noForecast += 1; noForecastIds.push(publishedId); continue; }
+  /* Rule 3 against the REAL kickoff: a placeholder kickoff later than the real one must not let a forecast made after
+     the match started pass (Everton v Coventry: real Fri 20:00Z, placeholder Sat 15:00Z). */
+  if (Number.isFinite(Date.parse(r.kickoffUtc ?? "")) && !(fc.generatedAt < Date.parse(r.kickoffUtc))) { skipped.postKickoff = (skipped.postKickoff ?? 0) + 1; continue; }
 
   /* The bridge has already applied the FULL_TIME contract; this reads its verdict, never re-derives it. */
   const status = r.settlementResult?.status ?? "NOT_STARTED";
@@ -229,9 +236,11 @@ for (const r of bridged.results) {
 
   graded.push({
     schemaVersion: 1,
-    eventId,
+    eventId: publishedId,
+    ...(publishedId !== eventId ? { resultEventId: eventId, joinedBy: r.joinedBy ?? null } : {}),
     matchup: fc.row.matchup,
-    kickoffUtc: fc.row.kickoffUtc,
+    kickoffUtc: r.kickoffUtc ?? fc.row.kickoffUtc,
+    ...(r.kickoffUtc && r.kickoffUtc !== fc.row.kickoffUtc ? { forecastKickoffUtc: fc.row.kickoffUtc } : {}),
     /* Provenance of the prediction being scored — file and stamp, so a row can be re-derived. */
     forecastGeneratedAt: fc.row.generatedAtOverride ?? new Date(fc.generatedAt).toISOString(),
     forecastSource: fc.sourceFile,
