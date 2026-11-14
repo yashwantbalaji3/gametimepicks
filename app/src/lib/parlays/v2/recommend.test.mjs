@@ -3,6 +3,7 @@
  */
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import fs from "node:fs";
 import path from "node:path";
 
 import { recommendTiers, evaluateCard, compareCards, REASONS, TIER_STATUS } from "./recommend.mjs";
@@ -21,8 +22,10 @@ const codes = (t) => t.reasons.map((r) => r.code);
 
 /* ── the seam ────────────────────────────────────────────────────────────────────────────────────────────── */
 
-test("operator seam fails CLOSED while PR #1130 is not merged — every label, eligible or not, is unverified", () => {
-  assert.equal(OPERATOR_SEAM.state, "AWAITING_PR_1130");
+test("operator seam stays CLOSED until it is deliberately connected — every label, eligible or not, is unverified", () => {
+  assert.equal(OPERATOR_SEAM.state, "NOT_CONNECTED");
+  assert.equal(OPERATOR_SEAM.source, null, "no allowlist is wired in");
+  assert.ok(fs.existsSync(path.join(process.cwd(), "src/lib/sports/odds/eligible-operators.mjs")), "the allowlist is on main, so the state must not say it is awaited");
   for (const l of ["DraftKings", "draftkings", "FanDuel", "BetOnline.ag", "bovada", "", null, undefined, 7]) assert.equal(isVerifiedOperator(l), false, String(l));
 });
 
@@ -78,7 +81,7 @@ test("with the production seam (no injection) the same valid card is refused: pr
   assert.equal(high.status, TIER_STATUS.NO_QUALIFYING_PARLAY);
   assert.ok(codes(high).includes("OPERATOR_NOT_VERIFIED"));
   assert.ok(codes(high).includes("OPERATOR_SEAM_CLOSED"));
-  assert.equal(res.operatorSeam.state, "AWAITING_PR_1130");
+  assert.equal(res.operatorSeam.state, "NOT_CONNECTED");
 });
 
 /* ── every NO_QUALIFYING reason ──────────────────────────────────────────────────────────────────────────── */

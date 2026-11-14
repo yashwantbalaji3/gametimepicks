@@ -28,7 +28,7 @@
  *   price       present, inside LEG_BOUNDS, capture time known, ≤ 12 h old, captured before start, matches its board
  *   market      not suspended / closed; not a demoted market-context family (coverage required — fails closed)
  *   participant not out / questionable / doubtful / injured / inactive / scratched
- *   book        a verified operator (./operators.mjs — fails closed until PR #1130; injectable)
+ *   book        a verified operator (./operators.mjs — fails closed until connected; injectable)
  *
  * WHICH MAY COMBINE (checkCombination)
  *   every leg eligible · ≥ 2 legs · no two legs from one event (D5) · no contradictory sides (the same subject on
@@ -180,7 +180,7 @@ export function candidatesFromPublished({ mlb = null, ladders = {} } = {}) {
  * @typedef {object} CandidateCtx
  * @property {string} now                                        ISO instant
  * @property {object|null} coverage                              committed coverage projection (null ⇒ fail closed)
- * @property {(label: unknown) => boolean} [isVerifiedOperator]  defaults to the seam (closed until #1130)
+ * @property {(label: unknown) => boolean} [isVerifiedOperator]  defaults to the seam (closed until connected)
  * @property {(league: string) => boolean} [canEnterLeague]      defaults to canEnterPredictionProducts
  */
 

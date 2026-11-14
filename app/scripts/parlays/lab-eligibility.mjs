@@ -28,6 +28,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { SETTLEABLE_SPORTS } from "../../src/lib/parlays/multi-sport.mjs";
 import { PRICE_MAX_AGE_DAYS } from "../../src/lib/parlays/card-leg-eligibility.mjs";
+import { P171_LEDGER_RELPATH, ceilingExhausted, parseAuthorizationReceipt } from "../../src/lib/sports/odds/p171-authorization.mjs";
 
 const readJson = (p) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
 const daysBetween = (a, b) => Math.abs(Date.parse(a) - Date.parse(b)) / 86_400_000;
@@ -47,6 +48,12 @@ const etDayLabel = (iso) => new Date(iso).toLocaleDateString("en-US", { timeZone
  * today" boxes, which is worse than staying closed. Four games is the floor for two real cards.
  */
 const MIN_GAMES = 4;
+
+/** The receipt capture-nfl-odds runs under on nfl-event-window, and the cheapest paid call it plans (3 markets × 1 region). */
+const NFL_RECEIPT_RELPATH = "docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md";
+const NFL_CHEAPEST_PAID_CREDITS = 3;
+/** Follows a stale-capture reason when no new capture is coming. The budget state itself is internal and is never printed. */
+const CAPTURE_HALTED = "prices are not being captured right now, so this does not clear on its own";
 
 /**
  * Each sport declares only WHERE its evidence lives. Whether it is live is measured, never set.
@@ -94,6 +101,20 @@ const SOURCES = {
         return Number.isFinite(k) && k > Date.parse(now);
       });
       return { at: d?.capturedAt ?? d?.generatedAt ?? null, games: new Set(upcoming.map((r) => r.canonicalEventId)).size };
+    },
+    /*
+     * A STALE CAPTURE IS NOT ALWAYS A GAP. When the receipt's ceiling cannot cover the cheapest paid call, capture-nfl-odds
+     * stops before any call and the last capture stands until the founder renews it, so "more than 3 days old" alone reads
+     * as transient when it is not. The same test the capture applies; anything unreadable claims nothing.
+     */
+    captureHalted: (root) => {
+      const repo = path.resolve(root, "..", "..", "..");
+      const ledger = readJson(path.join(repo, P171_LEDGER_RELPATH));
+      if (!ledger) return false;
+      try {
+        const authorization = parseAuthorizationReceipt(fs.readFileSync(path.join(repo, NFL_RECEIPT_RELPATH), "utf8"));
+        return ceilingExhausted({ authorization, ledger, cheapestPaidCredits: NFL_CHEAPEST_PAID_CREDITS }).exhausted;
+      } catch { return false; }
     },
     /*
      * A RESULTS FILE IS NOT A SETTLER.
@@ -267,7 +288,10 @@ export function labEligibility(root, date, now) {
      * every re-run, so the Results projection "restated" itself (r2 → r5 on 2026-10-15) for nothing but the clock.
      * The capture DATE and the rule are facts that stay true until a new capture lands.
      */
-    else if (ageDays > PRICE_MAX_AGE_DAYS) reasons.push(`the last price capture (${etDayLabel(prices.at)}) is more than ${PRICE_MAX_AGE_DAYS} days old`);
+    else if (ageDays > PRICE_MAX_AGE_DAYS) {
+      reasons.push(`the last price capture (${etDayLabel(prices.at)}) is more than ${PRICE_MAX_AGE_DAYS} days old`);
+      if (src.captureHalted?.(root)) reasons.push(CAPTURE_HALTED);
+    }
     /*
      * The SPECIFIC reason, when the source knows one. "No official settlement path has produced a
      * graded result yet" is the right sentence for a sport with no results on disk, and the wrong

@@ -1,7 +1,7 @@
 /**
  * TEST FIXTURES ONLY for Parlay Lab V2. The operator lists below are copied from PR #1130 (head 3f778eac45,
  * app/src/lib/sports/odds/eligible-operators.mjs) so the eligible path can be exercised by injection. They are NOT
- * a policy source — production reads ./operators.mjs, which fails closed until #1130 merges.
+ * a policy source — production reads ./operators.mjs, which fails closed until it is connected.
  */
 import { makeOperatorPredicate } from "../operators.mjs";
 
