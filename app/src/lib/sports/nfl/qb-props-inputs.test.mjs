@@ -55,7 +55,8 @@ test("approved (synthetic): reads every input, applies R5 from the forecast of r
   assert.equal(inp.entries.length, 2);
   assert.equal(inp.verified.size, 1, "only FINAL games are verified");
   assert.deepEqual(inp.inputs.r5, { source: "nflOfficialOfRecord", events: 2, withTeamInputs: 1 });
-  assert.equal(inp.eligibilityAt, null, "eligibility@1 is not on this branch");
+  assert.equal(inp.eligibilityAt, null, "no eligibility-at-freeze record on this synthetic root ⇒ no hook");
+  assert.equal(inp.inputs.eligibility, "PENDING_ELIGIBILITY_CONTRACT");
   const r = runGrade({ root, preregSha256: SHA, approvals: [SHA], approvedAt: { [SHA]: "2026-11-10T20:00:00Z" }, write: true });
   assert.equal(r.wrote, LEDGER_REL);
   const led = JSON.parse(fs.readFileSync(path.join(root, LEDGER_REL), "utf8"));
@@ -124,4 +125,19 @@ test("history file: per receipt of record, each projected QB's previous games be
   assert.deepEqual(readQbHistoryFor(root, "12"), doc.events["12"]);
   assert.deepEqual(readQbHistoryFor(root, "999"), {});
   assert.deepEqual(readQbHistoryFor("/nonexistent", "12"), {}, "unreadable ⇒ no history, never an error");
+});
+
+test("with the eligibility-at-freeze record: ELIGIBLE at freeze + R5 + after approval ⇒ CONFIRMATORY; a missing key stays PENDING", () => {
+  const root = synthRoot();
+  // game 11's receipt froze at 2026-11-16T12:00:00Z; only AAA's QB has a recorded resolution
+  put(root, "data/internal/research/nfl/qb-props/eligibility-at-freeze.json", {
+    schema: "gtp.nfl.qb-props-eligibility-at-freeze@1", contractVersion: "eligibility@1",
+    entries: { "2026-11-16T12:00:00Z|AAA|nfl-athlete-1": { eventId: "11", state: "ELIGIBLE", reasons: ["ROSTER_ACTIVE"], flags: [] } },
+  });
+  const inp = loadGradeInputs(root);
+  assert.equal(inp.inputs.eligibility.entries, 1);
+  assert.equal(inp.inputs.eligibility.source, "data/internal/research/nfl/qb-props/eligibility-at-freeze.json");
+  const r = runGrade({ root, preregSha256: SHA, approvals: [SHA], approvedAt: { [SHA]: "2026-11-10T20:00:00Z" } });
+  assert.deepEqual(r.ledger.rows.map((x) => [x.team, x.eligibility, x.confirmatory]), [["AAA", "ELIGIBLE", true], ["BBB", "PENDING_ELIGIBILITY_CONTRACT", false]]);
+  assert.equal(r.ledger.counts.confirmatoryQbGames, 1);
 });

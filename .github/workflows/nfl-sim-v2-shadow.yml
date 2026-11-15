@@ -44,6 +44,13 @@ jobs:
         run: |
           set -euo pipefail
           node app/scripts/nfl/build-nfl-sim-v2-shadow.mjs --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+      # QB props confirmatory filter (pre-registration v1.3): each new receipt's projected QBs resolved under eligibility@1
+      # against the injuries + roster captures that receipt pins. Runs here, while latest.json IS the pinned capture.
+      # Append-only, no wall-clock field; reads no outcome. A pin it cannot find is skipped (row stays PENDING).
+      - name: QB props eligibility at freeze (append-only)
+        run: |
+          set -euo pipefail
+          node app/scripts/nfl/build-qb-props-eligibility.mjs --write
       # the QB props scripts reach nflOfficialOfRecord (a .ts module with "@/" imports): tsx, from app/
       - name: Install app dependencies (tsx)
         working-directory: app
@@ -63,7 +70,7 @@ jobs:
           git add data/internal/research/nfl/sim-v2/shadow/
           # QB props: history.json is a BUILD_INPUT, so the derived files ride only with new receipts (no build of their own)
           if ! git diff --cached --quiet; then
-            git add data/internal/research/nfl/qb-props/forward-counts.json data/internal/research/nfl/qb-props/dashboard.json data/internal/research/nfl/qb-props/history.json
+            git add data/internal/research/nfl/qb-props/forward-counts.json data/internal/research/nfl/qb-props/dashboard.json data/internal/research/nfl/qb-props/history.json data/internal/research/nfl/qb-props/eligibility-at-freeze.json
           fi
           if git diff --cached --quiet; then
             echo "no new shadow receipt (inputs unchanged or no game inside 8 days)"
