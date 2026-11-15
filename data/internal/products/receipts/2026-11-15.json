@@ -3,7 +3,7 @@
  "artifact": "daily-product-receipt",
  "dataClass": "PRIVATE_OPERATING_RECORD",
  "date": "2026-11-15",
- "generatedAt": "2026-11-15T18:01:40Z",
+ "generatedAt": "2026-11-15T19:56:27Z",
  "states": [
   "NOT_RUN",
   "INPUTS_MISSING",
@@ -43,41 +43,24 @@
    "events": 77
   },
   "nflModelEligible": false,
-  "portfolioSource": "published mr-dub/daily-portfolio.json",
+  "portfolioSource": null,
   "nflNote": "NFL contributes NO legs: PUBLIC_EXPERIMENTAL — sportsbook prices are not a GameTimePicks pick"
  },
  "products": [
   {
    "product": "bank-builder",
    "label": "Bank Builder",
-   "state": "NO_PLAY",
-   "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage",
+   "state": "OFF_SEASON",
+   "reason": "MLB is out of season for 2026-11-15: MLB is out of season: the 2026 season is over — StatsAPI lists no game left to play on or after 2026-11-15. Bank Builder is not in the daily product universe until games return.",
    "candidatesEvaluated": 0,
-   "rejections": [
-    {
-     "lane": "A",
-     "step": 2,
-     "status": "awaiting",
-     "legsFound": 0,
-     "legsRequired": 2,
-     "reason": "MLB is out of season — the 2026 season is over — StatsAPI lists no game left to play on or after 2026-11-15"
-    },
-    {
-     "lane": "B",
-     "step": 1,
-     "status": "awaiting",
-     "legsFound": 0,
-     "legsRequired": 2,
-     "reason": "MLB is out of season — the 2026 season is over — StatsAPI lists no game left to play on or after 2026-11-15"
-    }
-   ],
+   "rejections": [],
    "card": null,
    "lifecycle": {
-    "state": "NO_PLAY",
+    "state": "OFF_SEASON",
     "policyVersion": "bank-builder@1",
     "evidence": {
      "policyVersion": "bank-builder@1",
-     "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage"
+     "reason": "MLB is out of season for 2026-11-15: MLB is out of season: the 2026 season is over — StatsAPI lists no game left to play on or after 2026-11-15. Bank Builder is not in the daily product universe until games return."
     },
     "transitions": [
      {
@@ -85,8 +68,8 @@
       "runId": "open:bank-builder:2026-11-15"
      },
      {
-      "to": "NO_PLAY",
-      "runId": "eval:2026-11-15:44343bdf2473"
+      "to": "OFF_SEASON",
+      "runId": "eval:2026-11-15:off-season"
      }
     ]
    }
@@ -94,34 +77,17 @@
   {
    "product": "moonshot",
    "label": "Moonshot",
-   "state": "NO_PLAY",
-   "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage",
+   "state": "OFF_SEASON",
+   "reason": "MLB is out of season for 2026-11-15: MLB is out of season: the 2026 season is over — StatsAPI lists no game left to play on or after 2026-11-15. Moonshot is not in the daily product universe until games return.",
    "candidatesEvaluated": 0,
-   "rejections": [
-    {
-     "lane": "A",
-     "step": 2,
-     "status": "awaiting",
-     "legsFound": 0,
-     "legsRequired": 2,
-     "reason": "MLB is out of season — the 2026 season is over — StatsAPI lists no game left to play on or after 2026-11-15"
-    },
-    {
-     "lane": "B",
-     "step": 1,
-     "status": "awaiting",
-     "legsFound": 0,
-     "legsRequired": 2,
-     "reason": "MLB is out of season — the 2026 season is over — StatsAPI lists no game left to play on or after 2026-11-15"
-    }
-   ],
+   "rejections": [],
    "card": null,
    "lifecycle": {
-    "state": "NO_PLAY",
+    "state": "OFF_SEASON",
     "policyVersion": "moonshot@2",
     "evidence": {
      "policyVersion": "moonshot@2",
-     "reason": "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage"
+     "reason": "MLB is out of season for 2026-11-15: MLB is out of season: the 2026 season is over — StatsAPI lists no game left to play on or after 2026-11-15. Moonshot is not in the daily product universe until games return."
     },
     "transitions": [
      {
@@ -129,8 +95,8 @@
       "runId": "open:moonshot:2026-11-15"
      },
      {
-      "to": "NO_PLAY",
-      "runId": "eval:2026-11-15:44343bdf2473"
+      "to": "OFF_SEASON",
+      "runId": "eval:2026-11-15:off-season"
      }
     ]
    }
@@ -195,7 +161,7 @@
    "product": "ufc-cards",
    "label": "UFC paper cards",
    "state": "NO_PLAY",
-   "reason": "no UFC event on 2026-11-15 — the ladder is published for 2026-11-14",
+   "reason": "no UFC event on 2026-11-15 — the ladder is published for 2026-11-21",
    "candidatesEvaluated": 0,
    "rejections": [],
    "card": null,
@@ -205,7 +171,7 @@
     "policyVersion": "ufc-cards@1",
     "evidence": {
      "policyVersion": "ufc-cards@1",
-     "reason": "no UFC event on 2026-11-15 — the ladder is published for 2026-11-14"
+     "reason": "no UFC event on 2026-11-15 — the ladder is published for 2026-11-21"
     },
     "transitions": [
      {
@@ -250,18 +216,18 @@
   {
    "product": "mlb-cards",
    "label": "MLB suggested cards",
-   "state": "NO_PLAY",
-   "reason": "no priced card in this tier on today's slate · no priced card in this tier on today's slate · no priced card in this tier on today's slate · no priced card in this tier on today's slate",
+   "state": "OFF_SEASON",
+   "reason": "MLB is out of season for 2026-11-15: MLB is out of season: the 2026 season is over — StatsAPI lists no game left to play on or after 2026-11-15",
    "candidatesEvaluated": 0,
    "rejections": [],
    "card": null,
    "ledgerOwned": true,
    "lifecycle": {
-    "state": "NO_PLAY",
+    "state": "OFF_SEASON",
     "policyVersion": "mlb-cards@1",
     "evidence": {
      "policyVersion": "mlb-cards@1",
-     "reason": "no priced card in this tier on today's slate · no priced card in this tier on today's slate · no priced card in this tier on today's slate · no priced card in this tier on today's slate"
+     "reason": "MLB is out of season for 2026-11-15: MLB is out of season: the 2026 season is over — StatsAPI lists no game left to play on or after 2026-11-15"
     },
     "transitions": [
      {
@@ -269,8 +235,8 @@
       "runId": "open:mlb-cards:2026-11-15"
      },
      {
-      "to": "NO_PLAY",
-      "runId": "eval:2026-11-15:44343bdf2473"
+      "to": "OFF_SEASON",
+      "runId": "eval:2026-11-15:off-season"
      }
     ]
    }
@@ -279,7 +245,7 @@
    "product": "multi-cards",
    "label": "Multi-sport paper cards",
    "state": "NO_PLAY",
-   "reason": "multi grid state NOT_ELIGIBLE — the stream opens only when two single-sport streams are live",
+   "reason": "NOT_ELIGIBLE",
    "candidatesEvaluated": 0,
    "rejections": [],
    "card": null,
@@ -289,7 +255,7 @@
     "policyVersion": "multi-cards@1",
     "evidence": {
      "policyVersion": "multi-cards@1",
-     "reason": "multi grid state NOT_ELIGIBLE — the stream opens only when two single-sport streams are live"
+     "reason": "NOT_ELIGIBLE"
     },
     "transitions": [
      {
