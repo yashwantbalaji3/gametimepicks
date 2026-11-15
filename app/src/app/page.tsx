@@ -34,6 +34,10 @@ import { buildBankBuilderProposal } from "@/lib/world-cup/bank-builder-proposal"
 
 import LandingHero from "@/components/home/landing-hero";
 import LiveNow from "@/components/live/live-now";
+import NflGameDayTicker from "@/components/home/nfl-game-day-ticker";
+import { nflTickerItems } from "@/lib/home/nfl-ticker.mjs";
+import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
+import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
 import LiveShortcut from "@/components/live/live-shortcut";
 import RecentResultsStrip from "@/components/home/recent-results-strip";
 import { corePaperSettlement, siteLatestResults } from "@/lib/results/settled-through-server";
@@ -346,8 +350,13 @@ export default async function HomePage() {
   // Real ET clock for the liveness banner (never the slate date). Stale/random event spotlights were
   // removed from the homepage in the simulation-first reset — the sim hub + liveness banner lead instead.
 
+  /* Founder 2026-11-15 P7: NFL game-day ticker — the same forecast union the NFL game page reads (one source). */
+  const readNfl = (rel: string) => { try { return JSON.parse(fs.readFileSync(path.join(dataRoot, rel), "utf8")); } catch { return null; } };
+  const nflTicker = nflTickerItems(unionFrozenForecasts(readNfl("nfl/forecasts/latest.json"), readNfl("nfl/forecasts/frozen-latest.json"), { resolve: nflPublicRecordResolver() })?.forecasts ?? [], buildAsOfIso());
+
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12 overflow-x-hidden flex flex-col gap-9">
+      <NflGameDayTicker items={nflTicker} />
       {/* 0 — Slate liveness: on a no-games day this frames the page honestly on the REAL ET clock
           (never presents the most-recent slate as live) and points at the next scheduled focus.
           Renders nothing on a genuinely live day. */}
