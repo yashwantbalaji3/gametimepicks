@@ -226,6 +226,9 @@ BUILD_INPUTS=(
     # /nfl/simulation/[eventId]. The per-slate job commits it only together with new shadow receipts, which are
     # already a BUILD_INPUT, so this entry adds no Production build of its own.
     ':(top)data/internal/research/nfl/qb-props/history.json'
+    # NFL player evidence (founder 2026-11-15): actual recent games beside each board projection on /nfl/game/[eventId].
+    # Written by the event-window job in the same commit as the player boards (already BUILD_INPUTs): no extra build.
+    ':(top)data/internal/research/nfl/player-evidence/latest.json'
     ':(top)data/internal/nfl/experimental-settlement/'
     ':(top)data/internal/nfl/winner-corrections/'
     ':(top)data/internal/nfl/side-decision-cutover.json'
