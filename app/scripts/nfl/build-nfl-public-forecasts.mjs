@@ -41,7 +41,7 @@ import { publishedMarginInterval } from "../../src/lib/sports/nfl/margin-interva
 import { selectFrozenReceipts, terminalEventIds } from "../../src/lib/sports/nfl/frozen-carry.mjs";
 import { SIDE_RULE, freezeSideDecision } from "../../src/lib/results/side-decision.mjs";
 import { NFL_SIDE_CUTOVER_FILE } from "../../src/lib/results/nfl-model-favored-io.mjs";
-import { teamInputCoherence } from "../../src/lib/sports/nfl/team-input-coherence.mjs";
+import { teamInputCoherence, primaryPasserFrom } from "../../src/lib/sports/nfl/team-input-coherence.mjs";
 import { indexDepthCharts, depthChartAsOf } from "../../src/lib/sports/nfl/depth-chart.mjs";
 import { pickNewestCapture } from "../../src/lib/sports/nfl/qb-starter-shadow.mjs";
 import { QB_CHART_MAX_AGE_MS } from "../../src/lib/sports/nfl/board-roster-integrity.mjs";
@@ -418,10 +418,23 @@ const qbDepthIndex = (() => {
   const picked = pickNewestCapture(caps);
   return picked ? indexDepthCharts(picked.doc) : null;
 })();
+const R5_PRIMARY_PASSER = process.env.GTP_NFL_R5_PRIMARY_PASSER === "1";
+let r5GamesCache = null, r5RosterCache = null;
+const r5Games = () => (r5GamesCache ??= read(path.join(ROOT, "data/internal/research/nfl/player-events-v1/2026.json"))?.games ?? []);
+const r5RosterTeam = () => {
+  if (!r5RosterCache) {
+    r5RosterCache = new Map();
+    for (const t of read(path.join(ROOT, "app/public/data/nfl/rosters/latest.json"))?.teams ?? []) for (const p of t.players ?? []) r5RosterCache.set(`nfl-athlete-${p.id}`, t.teamAbbr);
+  }
+  return r5RosterCache;
+};
 const teamInputsFor = (ev) => teamInputCoherence({
   participation: read(path.join(ROOT, "data/internal/nfl/participation", ev.dateUtc.slice(0, 10), `${ev.providerEventId}.json`)),
   teams: [ev.away.abbr, ev.home.abbr],
   qb1Of: (team) => (qbDepthIndex ? depthChartAsOf(qbDepthIndex, team, NOW, QB_CHART_MAX_AGE_MS) : null),
+  /* Version 2 (primary passer + departures), switch OFF by default: it changes which games publish as QB-blind, so it
+     is enabled only on the founder's authorization (GTP_NFL_R5_PRIMARY_PASSER=1). OFF ⇒ byte-identical to version 1. */
+  ...(R5_PRIMARY_PASSER ? { primaryPasserOf: (team) => primaryPasserFrom(r5Games(), team, NOW), currentTeamOf: (id) => r5RosterTeam().get(id) ?? null } : {}),
 });
 
 for (const ev of events) {
