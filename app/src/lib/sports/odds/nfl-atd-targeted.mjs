@@ -39,7 +39,19 @@ export const ATD_MARKET = "player_anytime_td";
 export const ATD_BOARD_FAMILY = "anytime_td";
 export const ATD_REGIONS = Object.freeze(["us"]);
 export const DEFAULT_FRESHNESS_MINUTES = 45;
-export const ATD_PUBLIC_RELPATH = "app/public/data/nfl/markets/anytime-td-latest.json";
+/*
+ * WHERE THE DISPLAY ROWS LIVE — NOT app/public (review of PR #1359, provider terms).
+ *
+ * The provider's terms allow display in a website and forbid "your own API, data feed, downloadable files". Anything
+ * under app/public/data is exported as a downloadable file. The site's sanctioned display path is the ENCRYPTED
+ * artifact (lib/odds/display-crypto.mjs, data/odds-display/nfl/lines/<event>.json.enc, written by
+ * scripts/nfl/publish-nfl-line-board.mjs from captures in the private directory OUTSIDE the repo, under
+ * GTP_ODDS_DISPLAY_KEY). That key is not a GitHub Actions secret and that publisher reads the private directory, so
+ * it cannot be driven from this workflow in this change. Until it is wired, the derived rows are written ONLY here,
+ * beside the private capture. ⚠ The repository is public: data/internal is not served by the site but IS readable on
+ * GitHub. This is a stop-gap, recorded as a limitation, not a display path.
+ */
+export const ATD_DISPLAY_RELPATH = "data/internal/research/odds/nfl/anytime-td-latest.json";
 export const ATD_PRIVATE_DIR_RELPATH = "data/internal/research/odds/nfl";
 export const NFL_REGULAR_KEY = "americanfootball_nfl";
 export const NFL_PRESEASON_KEY = "americanfootball_nfl_preseason";
@@ -199,8 +211,9 @@ export function normalizeAtdEventResponse({ body, registry, teamAbbrs, capturedA
   if (!Array.isArray(teamAbbrs) || teamAbbrs.length !== 2 || !teamAbbrs[0] || !teamAbbrs[1] || teamAbbrs[0] === teamAbbrs[1]) {
     return { rows: [], quarantined: [stamp({ reason: "both team rosters are required to resolve identity — nothing normalized" })], unresolvedIdentities: [], offeredMarkets: [], ignoredNoOutcomes: 0 };
   }
-  if (oddsEventId != null && body?.id != null && String(body.id) !== String(oddsEventId)) {
-    return { rows: [], quarantined: [stamp({ reason: `response is for provider event ${body.id}, not the requested ${oddsEventId} — wrong-event response quarantined whole` })], unresolvedIdentities: [], offeredMarkets: [], ignoredNoOutcomes: 0 };
+  if (oddsEventId != null && (body?.id == null || String(body.id) !== String(oddsEventId))) {
+    const why = body?.id == null ? `response carries no provider event id, so it cannot be shown to be ${oddsEventId}` : `response is for provider event ${body.id}, not the requested ${oddsEventId}`;
+    return { rows: [], quarantined: [stamp({ reason: `${why} — wrong-event response quarantined whole` })], unresolvedIdentities: [], offeredMarkets: [], ignoredNoOutcomes: 0, eventIdentityFailed: true };
   }
   for (const bk of body?.bookmakers ?? []) {
     for (const mkt of bk?.markets ?? []) {
@@ -274,7 +287,11 @@ export async function executeAtdRun({ plan, authorization, ledger, nowIso, get, 
   if (!plan?.ok) throw new Error("executeAtdRun: refused — plan did not pass");
   if (!authorization?.ok) throw new Error("executeAtdRun: refused — authorization did not pass");
   let L = ledger;
-  const append = (entry) => { L = recordRequest(L, entry); onLedger(L); return L.requests[L.requests.length - 1]; };
+  /* ⚠ fetch's headers.get() returns null for an absent header, and recordRequest reads Number(null) as 0 — so a charged
+     call WITHOUT usage headers would be booked as free. Absent/empty values are dropped first, so recordRequest's own
+     "unreadable header on a charged call costs 1" rule applies. */
+  const cleanHeaders = (h) => Object.fromEntries(Object.entries(h ?? {}).filter(([, v]) => v != null && String(v).trim() !== ""));
+  const append = (entry) => { L = recordRequest(L, { ...entry, headers: cleanHeaders(entry.headers) }); onLedger(L); return L.requests[L.requests.length - 1]; };
   const results = [];
   const skipped = [];
   let stoppedReason = null;
@@ -340,7 +357,10 @@ export async function executeAtdRun({ plan, authorization, ledger, nowIso, get, 
       regions: plan.regions,
       status: res.status,
       headers: res.headers ?? {},
-      charged: res.status === 200,
+      /* A 422 is the documented "not offered" answer: charged only if the provider's own header says so (else 0).
+         Every other status is charged — with its header when present, else recordRequest's 1 (unaccounted spend is
+         the failure mode, the same rule as the transport-failure path). */
+      charged: res.status !== 422,
       fingerprint,
       resultClass: res.status === 422 ? "NO_MARKET" : cls.class,
     });
@@ -353,35 +373,46 @@ export async function executeAtdRun({ plan, authorization, ledger, nowIso, get, 
     } else {
       const teamAbbrs = [t.homeAbbr, t.awayAbbr];
       const n = normalizeAtdEventResponse({ body: res.body, registry, teamAbbrs, capturedAt: nowIso, canonicalEventId: t.canonicalEventId, oddsEventId });
-      results.push({ ...base, state: n.offeredMarkets.includes(ATD_MARKET) ? "OFFERED" : "NOT_OFFERED", resultClass: "OK", ...n });
+      /* A response we could not attribute to this event is OUR failure, never "not offered". */
+      const state = n.eventIdentityFailed ? "IDENTITY_DEGRADED" : n.offeredMarkets.includes(ATD_MARKET) ? "OFFERED" : "NOT_OFFERED";
+      results.push({ ...base, state, resultClass: "OK", ...n });
     }
     if (!stoppedReason) {
       const rec = reconcileCallCost({ headers: res.headers, plannedWorstCase: perCall });
-      if (!rec.ok) stoppedReason = rec.reason;
+      // a header-less 422 is recorded as 0 and the run continues; a 422 whose header shows an overrun still stops
+      const headerless422 = res.status === 422 && rec.charged == null;
+      if (!rec.ok && !headerless422) stoppedReason = rec.reason;
     }
     if (stoppedReason) break;
   }
   return { ledger: L, results, skipped, join: { accounting: join.accounting, quarantined: join.quarantined.length }, spentThisRun, paidCalls, stoppedReason };
 }
 
-// ------------------------------------------------------------------------------------------------ 6. public derived file
+// ------------------------------------------------------------------------------------------------ 6. derived display file
 
-export const ATD_PUBLIC_POLICY = "DraftKings first, FanDuel second, then the eligible returned book with the most complete markets (ties by provider key). One book per player, always named. No averaging, no consensus, never chosen by price, never inferred from a model probability.";
+export const ATD_DISPLAY_POLICY = "DraftKings first, FanDuel second, then the eligible returned book with the most complete markets (ties by provider key). One book per player, always named. No averaging, no consensus, never chosen by price, never inferred from a model probability.";
 
 /**
- * Build the public derived file from this run's results, merged over the prior file. Pure.
+ * Build the derived display file (ATD_DISPLAY_RELPATH) from this run's results, merged over the prior file. Pure.
  *
  * LAST-KNOWN-GOOD: an event this run did not fetch keeps its own earlier block and capturedAt; a run whose results
  * are empty returns null (write nothing). A NEW answer for an event (including NOT_OFFERED) replaces its block.
+ *
+ * IDENTITY_DEGRADED: when the market WAS offered but our join produced no displayable row while outcomes were
+ * quarantined (every label unresolved, or the response could not be tied to the event), that is our failure, not the
+ * books'. The prior rows for that event are KEPT, each with its own capturedAt, and the event says IDENTITY_DEGRADED —
+ * never NOT_OFFERED.
+ *
  * markets/latest.json is never touched by this lane: its propMarkets.probedEventIds would imply the other four
  * prop families were measured NOT_OFFERED for these events.
  */
-export function buildAtdPublicFile({ prior, results, nowIso }) {
-  const fresh = (results ?? []).filter((r) => r && (r.state === "OFFERED" || r.state === "NOT_OFFERED"));
+export function buildAtdDisplayFile({ prior, results, nowIso }) {
+  const fresh = (results ?? []).filter((r) => r && (r.state === "OFFERED" || r.state === "NOT_OFFERED" || r.state === "IDENTITY_DEGRADED"));
   if (!fresh.length) return null;
   const events = new Map();
   for (const e of prior?.events ?? []) if (e?.canonicalEventId) events.set(e.canonicalEventId, e);
   for (const r of fresh) {
+    const priorEv = events.get(r.canonicalEventId) ?? null;
     const picks = selectPropPrices({ anytimeTd: { rows: r.rows ?? [] } });
     const rows = picks.map((p) => {
       const src = (r.rows ?? []).find((x) => x.playerId === p.playerId && x.bookmaker === p.sportsbook && x.canonicalEventId === p.canonicalEventId);
@@ -398,6 +429,25 @@ export function buildAtdPublicFile({ prior, results, nowIso }) {
       };
     }).filter((x) => x.canonicalEventId === r.canonicalEventId)
       .sort((a, b) => (a.playerId < b.playerId ? -1 : 1));
+    const degraded = r.state === "IDENTITY_DEGRADED" || (r.state === "OFFERED" && rows.length === 0 && (r.quarantined ?? []).length > 0);
+    if (degraded) {
+      const keptRows = (priorEv?.rows ?? []).filter((x) => x.canonicalEventId === r.canonicalEventId);
+      events.set(r.canonicalEventId, {
+        canonicalEventId: r.canonicalEventId,
+        providerEventId: r.providerEventId,
+        matchup: r.matchup,
+        kickoffUtc: r.kickoffUtc,
+        state: "IDENTITY_DEGRADED",
+        capturedAt: nowIso,
+        rowsCarriedFrom: keptRows.length ? priorEv.capturedAt ?? null : null,
+        requestedMarkets: [ATD_MARKET],
+        offeredMarkets: r.offeredMarkets ?? [],
+        unresolvedIdentities: r.unresolvedIdentities ?? [],
+        degradedReason: `market offered but no outcome could be attributed (${(r.quarantined ?? []).length} quarantined) — our join failure, not a measured absence`,
+        rows: keptRows,
+      });
+      continue;
+    }
     events.set(r.canonicalEventId, {
       canonicalEventId: r.canonicalEventId,
       providerEventId: r.providerEventId,
@@ -414,14 +464,15 @@ export function buildAtdPublicFile({ prior, results, nowIso }) {
   return {
     schemaVersion: 1,
     artifact: "nfl-anytime-td-prices",
-    dataClass: "MARKET_CAPTURE_PUBLIC",
+    /* Derived display rows, NOT a public artifact: never written under app/public (see ATD_DISPLAY_RELPATH). */
+    dataClass: "PRIVATE_RESEARCH",
     sport: "nfl",
     updatedAt: nowIso,
     requestedMarkets: [ATD_MARKET],
     source: { id: "odds_api", name: "The Odds API", license: "paid plan; prices are market facts displayed with attribution" },
     referenceBook: REFERENCE_BOOK,
     fallbackOrder: FALLBACK_ORDER,
-    policy: ATD_PUBLIC_POLICY,
+    policy: ATD_DISPLAY_POLICY,
     disclaimer: "Sportsbook anytime-touchdown prices captured pre-kickoff for comparison. Prices are market facts, not GameTimePicks predictions; no wager is suggested.",
     events: [...events.values()].sort((a, b) => String(a.kickoffUtc).localeCompare(String(b.kickoffUtc)) || (a.canonicalEventId < b.canonicalEventId ? -1 : 1)),
   };

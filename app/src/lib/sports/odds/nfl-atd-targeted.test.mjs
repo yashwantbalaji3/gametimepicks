@@ -11,7 +11,7 @@ import { fileURLToPath } from "node:url";
 
 import {
   ATD_MARKET, atdFingerprint, planTargetedAtd, readAtdAuthorization, reconcileCallCost,
-  normalizeAtdEventResponse, executeAtdRun, buildAtdPublicFile,
+  normalizeAtdEventResponse, executeAtdRun, buildAtdDisplayFile,
 } from "./nfl-atd-targeted.mjs";
 import { emptyLedger, recordRequest } from "./p171-authorization.mjs";
 import { buildPlayerRegistry } from "../nfl/player-identity.mjs";
@@ -24,6 +24,7 @@ const ROSTERS = fx("nfl-atd-rosters.json");
 const INDEX = fx("nfl-atd-events-index.json");
 const SF_DAL = fx("nfl-atd-event-odds-sf-dal.json");
 const NO_MARKET = fx("nfl-atd-event-odds-no-market.json");
+const IDENTITY_CASES = fx("nfl-atd-event-odds-identity-cases.json");
 const REGISTRY = buildPlayerRegistry([ROSTERS]);
 const NOW = "2026-11-15T18:30:00Z";
 const SFDAL = "401873063";
@@ -295,11 +296,11 @@ test("join: a target the provider does not list makes no call", async () => {
   assert.match(r.skipped.find((s) => s.canonicalEventId === `nfl-${PITCIN}`).reason, /lists no event/);
 });
 
-// ---------------------------------------------------------------- public file
-test("public: one named eligible book per player; offshore never displayed; prior events kept", async () => {
+// ---------------------------------------------------------------- display file
+test("display: one named eligible book per player; offshore never displayed; prior events kept", async () => {
   const r = await run({ get: stubProvider(standardRoutes()).get });
   const prior = { events: [{ canonicalEventId: "nfl-401873099", providerEventId: "401873099", kickoffUtc: "2026-11-17T01:15Z", state: "OFFERED", capturedAt: "2026-11-14T15:00:00Z", rows: [{ playerId: "nfl-athlete-1", book: "draftkings", price: 300, capturedAt: "2026-11-14T15:00:00Z" }] }] };
-  const pub = buildAtdPublicFile({ prior, results: r.results, nowIso: NOW });
+  const pub = buildAtdDisplayFile({ prior, results: r.results, nowIso: NOW });
   assert.deepEqual(pub.requestedMarkets, ["player_anytime_td"]);
   const sf = pub.events.find((e) => e.canonicalEventId === `nfl-${SFDAL}`);
   const by = Object.fromEntries(sf.rows.map((x) => [x.name, x]));
@@ -312,8 +313,8 @@ test("public: one named eligible book per player; offshore never displayed; prio
   assert.equal(kept.capturedAt, "2026-11-14T15:00:00Z", "an untargeted event keeps its own capturedAt");
   assert.equal(pub.events.find((e) => e.providerEventId === PITCIN).state, "NOT_OFFERED");
 });
-test("public: last-known-good — a run that fetched nothing writes nothing", () => {
-  assert.equal(buildAtdPublicFile({ prior: { events: [{ canonicalEventId: "x" }] }, results: [], nowIso: NOW }), null);
+test("display: last-known-good — a run that fetched nothing writes nothing", () => {
+  assert.equal(buildAtdDisplayFile({ prior: { events: [{ canonicalEventId: "x" }] }, results: [], nowIso: NOW }), null);
 });
 
 // ---------------------------------------------------------------- script (imported, never spawned)
@@ -378,7 +379,7 @@ test("script: refused receipt (no player_anytime_td) → zero calls", async () =
   assert.equal(touched, 0);
   fs.rmSync(root, { recursive: true, force: true });
 });
-test("script authorized (stubbed provider): writes capture + ledger + anytime-td-latest.json, NEVER markets/latest.json, no key in any file", async () => {
+test("script authorized (stubbed provider): writes capture + ledger + data/internal anytime-td-latest.json, NOTHING under app/, no key in any file", async () => {
   const KEY = "abcdefghijklmnop1234";
   const { root, app } = fixtureTree();
   const { fn, calls } = fakeFetch(standardRoutes());
@@ -386,21 +387,23 @@ test("script authorized (stubbed provider): writes capture + ledger + anytime-td
   assert.equal(code, 0);
   assert.equal(calls.length, 3);
   const files = listFiles(root);
-  assert.ok(files.includes("app/public/data/nfl/markets/anytime-td-latest.json"));
-  assert.ok(!files.includes("app/public/data/nfl/markets/latest.json"));
+  assert.ok(files.includes("data/internal/research/odds/nfl/anytime-td-latest.json"));
+  assert.deepEqual(files.filter((f) => f.startsWith("app/public/data/nfl/markets")), [], "nothing under app/public/data/nfl/markets — no downloadable price file");
+  const before0 = ["app/public/data/nfl/schedule/latest.json", "app/public/data/nfl/rosters/latest.json"];
+  assert.deepEqual(files.filter((f) => f.startsWith("app/") && f.endsWith(".json")).sort(), before0.sort(), "the run writes nothing under app/ at all");
   assert.ok(files.includes("data/internal/research/odds/nfl/p171-ledger.json"));
   assert.ok(files.includes("data/internal/research/odds/nfl/atd-targeted-20261115T1830.json"));
   for (const f of files.filter((x) => x.endsWith(".json"))) assert.ok(!fs.readFileSync(path.join(root, f), "utf8").includes(KEY), `${f} must not contain the key`);
-  const pubBlob = fs.readFileSync(path.join(app, "public/data/nfl/markets/anytime-td-latest.json"), "utf8");
-  for (const marker of ["PRIVATE_RESEARCH", "apiKey", "keyFingerprint", "cumulativeCredits", "bovada", "quarantined"]) assert.ok(!pubBlob.includes(marker), `public file must not carry "${marker}"`);
+  const pubBlob = fs.readFileSync(path.join(root, "data/internal/research/odds/nfl/anytime-td-latest.json"), "utf8");
+  for (const marker of ["apiKey", "keyFingerprint", "cumulativeCredits", "bovada", "quarantined"]) assert.ok(!pubBlob.includes(marker), `display file must not carry "${marker}"`);
   const ledger = JSON.parse(fs.readFileSync(path.join(root, "data/internal/research/odds/nfl/p171-ledger.json"), "utf8"));
   assert.equal(ledger.cumulativeCredits, 2);
   const cap = JSON.parse(fs.readFileSync(path.join(root, "data/internal/research/odds/nfl/atd-targeted-20261115T1830.json"), "utf8"));
   assert.equal(cap.keyFingerprint, "len20…1234");
   assert.ok(cap.events[0].rows.some((r) => r.bookmaker === "bovada"), "the private capture keeps every book");
 
-  // a second run inside the freshness window buys nothing and leaves the public file byte-identical
-  const pubPath = path.join(app, "public/data/nfl/markets/anytime-td-latest.json");
+  // a second run inside the freshness window buys nothing and leaves the display file byte-identical
+  const pubPath = path.join(root, "data/internal/research/odds/nfl/anytime-td-latest.json");
   const before = fs.readFileSync(pubPath, "utf8");
   const second = fakeFetch(standardRoutes());
   const code2 = await captureMain(["--now", "2026-11-15T18:40:00Z", "--events", `${SFDAL},${PITCIN}`, "--max-credits", "2", "--receipt", "docs/receipts/TEST.md", "--authorized", "--write"], { appDir: app, rootDir: root, env: { ODDS_API_KEY: KEY }, fetch: second.fn, ...quiet });
@@ -408,4 +411,71 @@ test("script authorized (stubbed provider): writes capture + ledger + anytime-td
   assert.equal(second.calls.length, 1, "only the free index");
   assert.equal(fs.readFileSync(pubPath, "utf8"), before, "last-known-good preserved");
   fs.rmSync(root, { recursive: true, force: true });
+});
+
+// ---------------------------------------------------------------- review fixes (PR #1359)
+test("identity: generational suffix both directions, initials and St. punctuation", () => {
+  const n = normalizeAtdEventResponse({ body: IDENTITY_CASES, registry: REGISTRY, teamAbbrs: ["DAL", "SF"], capturedAt: NOW, canonicalEventId: `nfl-${SFDAL}`, oddsEventId: "odds-sf-dal" });
+  const id = (label) => n.rows.find((r) => r.name === label)?.playerId ?? null;
+  assert.equal(id("Deebo Samuel"), "nfl-athlete-3126486", "book drops Sr. → roster Deebo Samuel Sr.");
+  assert.equal(id("Oronde Gadsden II"), "nfl-athlete-9000013", "book adds II → roster Oronde Gadsden");
+  assert.equal(id("James Cook"), "nfl-athlete-9000014", "book drops III → roster James Cook III");
+  assert.equal(id("AJ Green"), "nfl-athlete-9000011", "AJ ↔ A.J. normalize alike");
+  assert.equal(id("Amon-Ra St Brown"), "nfl-athlete-9000012", "St ↔ St. normalize alike");
+  assert.equal(id("Amon Ra St. Brown"), null, "a split hyphenated first name is a different key — fail closed, never fuzzy-matched");
+  assert.ok(n.quarantined.some((q) => q.name === "Amon Ra St. Brown" && /unresolved/.test(q.reason)));
+});
+test("identity: a response body without an id is quarantined whole and is IDENTITY_DEGRADED, never NOT_OFFERED", async () => {
+  const { id: _drop, ...noId } = SF_DAL;
+  const n = normalizeAtdEventResponse({ body: noId, registry: REGISTRY, teamAbbrs: ["DAL", "SF"], capturedAt: NOW, canonicalEventId: `nfl-${SFDAL}`, oddsEventId: "odds-sf-dal" });
+  assert.equal(n.rows.length, 0);
+  assert.match(n.quarantined[0].reason, /carries no provider event id/);
+  const r = await run({ get: stubProvider(standardRoutes({ status: 200, headers: headers(1), body: noId })).get });
+  assert.equal(r.results.find((x) => x.providerEventId === SFDAL).state, "IDENTITY_DEGRADED");
+});
+test("display: an all-quarantined refresh keeps the prior rows and marks IDENTITY_DEGRADED", async () => {
+  const first = await run({ get: stubProvider(standardRoutes()).get });
+  const prior = buildAtdDisplayFile({ prior: null, results: first.results, nowIso: NOW });
+  const priorRows = prior.events.find((e) => e.canonicalEventId === `nfl-${SFDAL}`).rows;
+  assert.ok(priorRows.length > 0);
+  const LATER = "2026-11-15T19:30:00Z";
+  const allBad = { ...SF_DAL, bookmakers: [{ key: "draftkings", last_update: LATER, markets: [{ key: "player_anytime_td", outcomes: [{ name: "Yes", description: "Ghost Player", price: 300 }, { name: "Yes", description: "Sam Same", price: 900 }] }] }] };
+  const second = await executeAtdRun({ plan: plan2(2, [SFDAL]), authorization: okAuth().authorization, ledger: emptyLedger("t"), nowIso: LATER, get: stubProvider(standardRoutes({ status: 200, headers: headers(1), body: allBad })).get, scheduleRows: SCHEDULE.rows, registry: REGISTRY });
+  const merged = buildAtdDisplayFile({ prior, results: second.results, nowIso: LATER });
+  const ev = merged.events.find((e) => e.canonicalEventId === `nfl-${SFDAL}`);
+  assert.equal(ev.state, "IDENTITY_DEGRADED");
+  assert.deepEqual(ev.rows, priorRows, "prior rows kept, each with its own capturedAt");
+  assert.equal(ev.rowsCarriedFrom, NOW);
+  assert.ok(ev.rows.every((x) => x.capturedAt === NOW));
+});
+test("ledger: a 5xx without usage headers is recorded as 1 credit (unaccounted spend) and stops the run", async () => {
+  const { get, calls } = stubProvider(standardRoutes({ status: 503, headers: headers(null), body: null }));
+  const r = await run({ get });
+  assert.equal(r.ledger.requests[1].creditsUsed, 1);
+  assert.equal(r.spentThisRun, 1);
+  assert.match(r.stoppedReason, /PROVIDER_INCIDENT/);
+  assert.ok(!calls.some((c) => c.includes("odds-pit-cin")));
+});
+test("ledger: a 4xx (401) without headers is recorded as 1 and stops", async () => {
+  const r = await run({ get: stubProvider(standardRoutes({ status: 401, headers: headers(null), body: null })).get });
+  assert.equal(r.ledger.requests[1].creditsUsed, 1);
+  assert.match(r.stoppedReason, /AUTHORIZATION_FAILED/);
+});
+test("422 without x-requests-last: NO_MARKET, 0 charged, the run continues to the next target", async () => {
+  const s = stubProvider(standardRoutes({ status: 422, headers: headers(null), body: { message: "INVALID_MARKET" } }));
+  const r = await run({ get: s.get });
+  assert.equal(r.stoppedReason, null);
+  const sf = r.results.find((x) => x.providerEventId === SFDAL);
+  assert.deepEqual([sf.state, sf.resultClass, sf.credits], ["NOT_OFFERED", "NO_MARKET", 0]);
+  assert.ok(s.calls.some((c) => c.includes("odds-pit-cin")), "next target still asked");
+  assert.equal(r.spentThisRun, 1);
+  // a 422 whose header shows an overrun still stops
+  const o = await run({ get: stubProvider(standardRoutes({ status: 422, headers: headers(3), body: null })).get });
+  assert.match(o.stoppedReason, /OVERRUN/);
+});
+test("a 200 without x-requests-last still stops the run (cost cannot be shown within plan)", async () => {
+  const s = stubProvider(standardRoutes({ status: 200, headers: headers(null), body: SF_DAL }));
+  const r = await run({ get: s.get });
+  assert.match(r.stoppedReason, /x-requests-last missing/);
+  assert.ok(!s.calls.some((c) => c.includes("odds-pit-cin")));
 });

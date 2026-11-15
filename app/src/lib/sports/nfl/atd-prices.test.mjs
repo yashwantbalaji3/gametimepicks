@@ -85,3 +85,45 @@ test("preflight: no price file at all → every candidate NO_CAPTURE and blocked
   assert.equal(pf.rows[0].price.state, "NO_CAPTURE");
   assert.equal(pf.allReady, false);
 });
+
+// ---------------------------------------------------------------- fail-closed clock / kickoff (review of PR #1359)
+const evWith = (over) => ({ events: [{ ...FILE.events[0], ...over }] });
+test("UNVERIFIABLE: an unparseable clock never yields PRICED", () => {
+  for (const nowIso of ["not-a-time", "", null, undefined]) {
+    assert.equal(atdPriceFor({ file: FILE, eventId: EV, playerId: "nfl-athlete-1", nowIso }).state, "UNVERIFIABLE", String(nowIso));
+  }
+  assert.equal(atdPriceFor({ file: FILE, eventId: EV, playerId: "nfl-athlete-1", nowIso: NOW, maxAgeHours: NaN }).state, "UNVERIFIABLE");
+});
+test("UNVERIFIABLE: no parseable kickoff anywhere; the board's kickoff rescues a file without one", () => {
+  const f = evWith({ kickoffUtc: null });
+  assert.equal(atdPriceFor({ file: f, eventId: EV, playerId: "nfl-athlete-1", nowIso: NOW }).state, "UNVERIFIABLE");
+  assert.equal(atdPriceFor({ file: f, eventId: EV, playerId: "nfl-athlete-1", nowIso: NOW, kickoffUtc: "garbage" }).state, "UNVERIFIABLE");
+  assert.equal(atdPriceFor({ file: f, eventId: EV, playerId: "nfl-athlete-1", nowIso: NOW, kickoffUtc: "2026-11-15T21:25Z" }).state, "PRICED");
+});
+test("STARTED uses the EARLIER of the file's and the board's kickoff (a moved-up game)", () => {
+  const r = atdPriceFor({ file: FILE, eventId: EV, playerId: "nfl-athlete-1", nowIso: NOW, kickoffUtc: "2026-11-15T18:15:00Z" });
+  assert.equal(r.state, "STARTED");
+  assert.equal(r.price, null);
+  assert.equal(atdPriceFor({ file: FILE, eventId: EV, playerId: "nfl-athlete-1", nowIso: NOW, kickoffUtc: "2026-11-16T03:00:00Z" }).state, "PRICED");
+});
+test("UNVERIFIABLE: capturedAt later than now, unparseable, or at/after kickoff", () => {
+  const row = (capturedAt) => evWith({ rows: [{ ...FILE.events[0].rows[0], capturedAt }] });
+  assert.equal(atdPriceFor({ file: row("2026-11-15T19:00:00Z"), eventId: EV, playerId: "nfl-athlete-1", nowIso: NOW }).state, "UNVERIFIABLE");
+  assert.equal(atdPriceFor({ file: row("nope"), eventId: EV, playerId: "nfl-athlete-1", nowIso: NOW }).state, "UNVERIFIABLE");
+  const late = row("2026-11-15T18:20:00Z");
+  assert.equal(atdPriceFor({ file: late, eventId: EV, playerId: "nfl-athlete-1", nowIso: NOW, kickoffUtc: "2026-11-15T18:20:00Z" }).state, "STARTED");
+  assert.equal(atdPriceFor({ file: late, eventId: EV, playerId: "nfl-athlete-1", nowIso: "2026-11-15T18:19:00Z", kickoffUtc: "2026-11-15T18:19:30Z" }).state, "UNVERIFIABLE");
+});
+test("IDENTITY_DEGRADED event: kept prior rows still price; a player without a row is IDENTITY_UNRESOLVED, never NOT_OFFERED", () => {
+  const f = evWith({ state: "IDENTITY_DEGRADED", unresolvedIdentities: [] });
+  assert.equal(atdPriceFor({ file: f, eventId: EV, playerId: "nfl-athlete-1", nowIso: NOW }).state, "PRICED");
+  assert.equal(atdPriceFor({ file: f, eventId: EV, playerId: "nfl-athlete-5", nowIso: NOW, playerName: "Unpriced Fullback" }).state, "IDENTITY_UNRESOLVED");
+});
+test("preflight passes the board's kickoff, so a board-earlier kickoff blocks as STARTED", () => {
+  const pf = atdPreflight({ file: FILE, board: { ...BOARD, kickoffUtc: "2026-11-15T18:00:00Z" }, eventId: EV, candidates: ["nfl-athlete-1"], nowIso: NOW });
+  assert.equal(pf.rows[0].price.state, "STARTED");
+  assert.equal(pf.rows[0].ready, false);
+  const bad = atdPreflight({ file: FILE, board: BOARD, eventId: EV, candidates: ["nfl-athlete-1"], nowIso: "bogus" });
+  assert.equal(bad.rows[0].price.state, "UNVERIFIABLE");
+  assert.equal(bad.allReady, false);
+});

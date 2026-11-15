@@ -13,8 +13,10 @@ name: nfl-atd-targeted
 #                               refuses (nothing spent) unless that receipt parses, is current, names
 #                               `player_anytime_td`, and leaves at least max_credits under its ceiling.
 #
-# Commits ONLY the private capture, the shared private ledger and app/public/data/nfl/markets/anytime-td-latest.json.
-# It never writes markets/latest.json. Shares the generated-artifacts concurrency group with nfl-event-window so the
+# Commits ONLY the private capture, the shared private ledger and the derived display rows
+# data/internal/research/odds/nfl/anytime-td-latest.json. Nothing under app/public (provider terms: no downloadable
+# price files; the repo is public, so data/internal is still readable on GitHub). It never writes markets/latest.json.
+# Shares the generated-artifacts concurrency group with nfl-event-window so the
 # two lanes never write the shared ledger at the same time.
 
 on:
@@ -109,7 +111,7 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           L=data/internal/research/odds/nfl/p171-ledger.json
-          P=app/public/data/nfl/markets/anytime-td-latest.json
+          P=data/internal/research/odds/nfl/anytime-td-latest.json
           if [ -f "$L" ]; then git add "$L"; fi
           if [ -f "$P" ]; then git add "$P"; fi
           for f in data/internal/research/odds/nfl/atd-targeted-*.json; do if [ -f "$f" ]; then git add "$f"; fi; done

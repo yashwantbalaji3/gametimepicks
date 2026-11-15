@@ -15,9 +15,11 @@
  * OUTPUTS (only with --write):
  *   private  data/internal/research/odds/nfl/atd-targeted-<stamp>.json   every book, quarantine, per-event detail
  *   private  data/internal/research/odds/nfl/p171-ledger.json            the shared cumulative ledger (per call)
- *   public   app/public/data/nfl/markets/anytime-td-latest.json          derived, one named book per player, merged
- *                                                                        last-known-good over the prior file
- *   markets/latest.json is NEVER written by this lane.
+ *   private  data/internal/research/odds/nfl/anytime-td-latest.json      derived display rows, one named book per
+ *                                                                        player, merged last-known-good over the prior file
+ *   NOTHING is written under app/public (provider terms forbid downloadable price files; the repo is public, so
+ *   data/internal is readable on GitHub — a stop-gap until the encrypted display path is wired). markets/latest.json
+ *   is NEVER written by this lane.
  *
  * Usage: node scripts/nfl/capture-nfl-atd-targeted.mjs --now <iso> --events <espnId,espnId> --max-credits <n>
  *        [--receipt <path>] [--authorized --write] [--refresh-minutes 45]
@@ -30,8 +32,8 @@ import { classifyOddsSecret } from "../../src/lib/sports/odds/snapshot-contract.
 import { emptyLedger, assertNoSecretLeak, P171_LEDGER_RELPATH } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { buildPlayerRegistry } from "../../src/lib/sports/nfl/player-identity.mjs";
 import {
-  ATD_MARKET, ATD_REGIONS, ATD_PUBLIC_RELPATH, ATD_PRIVATE_DIR_RELPATH, DEFAULT_FRESHNESS_MINUTES,
-  planTargetedAtd, readAtdAuthorization, executeAtdRun, buildAtdPublicFile,
+  ATD_MARKET, ATD_REGIONS, ATD_DISPLAY_RELPATH, ATD_PRIVATE_DIR_RELPATH, DEFAULT_FRESHNESS_MINUTES,
+  planTargetedAtd, readAtdAuthorization, executeAtdRun, buildAtdDisplayFile,
 } from "../../src/lib/sports/odds/nfl-atd-targeted.mjs";
 
 const DEFAULT_APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
@@ -163,11 +165,11 @@ export async function main(argv, deps = {}) {
   };
   if (run.paidCalls > 0 || run.results.length) writeGuarded(path.join(ROOT, ATD_PRIVATE_DIR_RELPATH, `atd-targeted-${stamp}.json`), snapshot);
 
-  const publicPath = path.join(ROOT, ATD_PUBLIC_RELPATH);
-  const prior = fs.existsSync(publicPath) ? readJson(publicPath) : null;
-  const pub = buildAtdPublicFile({ prior, results: run.results, nowIso: a.now });
-  if (pub) writeGuarded(publicPath, pub);
-  else log("PRESERVED_LAST_KNOWN_GOOD: this run fetched no anytime-TD answer — the public file stands untouched");
+  const displayPath = path.join(ROOT, ATD_DISPLAY_RELPATH);
+  const prior = fs.existsSync(displayPath) ? readJson(displayPath) : null;
+  const display = buildAtdDisplayFile({ prior, results: run.results, nowIso: a.now });
+  if (display) writeGuarded(displayPath, display);
+  else log("PRESERVED_LAST_KNOWN_GOOD: this run fetched no anytime-TD answer — the display file stands untouched");
 
   for (const r of run.results) log(`${r.matchup}: ${r.state} — ${r.rows.length} resolved book row(s), ${r.quarantined.length} quarantined, ${r.credits} credit(s)`);
   for (const s of run.skipped) log(`skipped ${s.canonicalEventId}: ${s.reason}`);
