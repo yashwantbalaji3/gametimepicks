@@ -1,15 +1,35 @@
 /**
- * Reader + preflight for the targeted anytime-TD display rows (data/internal/research/odds/nfl/anytime-td-latest.json —
- * never app/public: provider terms forbid downloadable price files; see ATD_DISPLAY_RELPATH in nfl-atd-targeted.mjs).
+ * Reader + preflight for the targeted anytime-TD display rows. Those rows hold prices, so they live ONLY in the private
+ * directory (<private>/odds/nfl/atd-<stamp>/anytime-td-display.json; founder decision on PR #1359: the repo is public
+ * and data/internal is not private) — this module never reads a repository file for a price.
  *
  * The point of the preflight is ORDER: before any graphic is rendered, every candidate's model probability, its
  * availability and its price state are on one table, so a missing price is seen before founder review — not
  * discovered on a finished image. The model probability is read from the player board untouched; a price is only
  * ever a captured sportsbook number with its book named. Nothing here infers one from the other.
  *
- * Pure: callers pass the parsed files. Zero network.
+ * Pure except latestAtdDisplayFile (fs, node-only; never imported by a page). Zero network.
  * Run: npx tsx --test src/lib/sports/nfl/atd-prices.test.mjs
  */
+import fs from "node:fs";
+import path from "node:path";
+
+const ATD_STAMP_DIR = /^atd-\d{8}T\d{6}$/;
+const ATD_DISPLAY_FILENAME = "anytime-td-display.json";
+
+/**
+ * The newest display file under <privateDir>/odds/nfl/atd-<stamp>/ (stamps sort lexically by time), or null.
+ * @returns {{ file: any, path: string, stamp: string } | null}
+ */
+export function latestAtdDisplayFile(privateDir) {
+  const base = path.join(String(privateDir ?? ""), "odds", "nfl");
+  if (!privateDir || !fs.existsSync(base)) return null;
+  const stamps = fs.readdirSync(base).filter((d) => ATD_STAMP_DIR.test(d) && fs.existsSync(path.join(base, d, ATD_DISPLAY_FILENAME))).sort();
+  const last = stamps.at(-1);
+  if (!last) return null;
+  const p = path.join(base, last, ATD_DISPLAY_FILENAME);
+  return { file: JSON.parse(fs.readFileSync(p, "utf8")), path: p, stamp: last };
+}
 
 export const ATD_PRICE_STATES = Object.freeze(["PRICED", "NO_CAPTURE", "NOT_OFFERED", "IDENTITY_UNRESOLVED", "STALE", "STARTED", "UNVERIFIABLE"]);
 export const DEFAULT_MAX_AGE_HOURS = 6;

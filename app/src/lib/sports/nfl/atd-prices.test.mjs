@@ -5,7 +5,11 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 
-import { atdPriceFor, atdPreflight, topAtdCandidates, formatPreflightTable } from "./atd-prices.mjs";
+import fs from "node:fs";
+import os from "node:os";
+import path from "node:path";
+import { atdPriceFor, atdPreflight, topAtdCandidates, formatPreflightTable, latestAtdDisplayFile } from "./atd-prices.mjs";
+import { runPreflight } from "../../../../scripts/nfl/atd-preflight.mjs";
 
 const NOW = "2026-11-15T18:30:00Z";
 const EV = "401873063";
@@ -126,4 +130,44 @@ test("preflight passes the board's kickoff, so a board-earlier kickoff blocks as
   const bad = atdPreflight({ file: FILE, board: BOARD, eventId: EV, candidates: ["nfl-athlete-1"], nowIso: "bogus" });
   assert.equal(bad.rows[0].price.state, "UNVERIFIABLE");
   assert.equal(bad.allReady, false);
+});
+
+// ---------------------------------------------------------------- private storage (founder decision on PR #1359)
+function privTree() {
+  const priv = fs.mkdtempSync(path.join(os.tmpdir(), "atd-prices-private-"));
+  const put = (stamp, file) => { const d = path.join(priv, "odds/nfl", stamp); fs.mkdirSync(d, { recursive: true }); fs.writeFileSync(path.join(d, "anytime-td-display.json"), JSON.stringify(file)); };
+  return { priv, put };
+}
+test("latestAtdDisplayFile: newest atd-<stamp> display under the private dir; other capture dirs ignored", () => {
+  const { priv, put } = privTree();
+  assert.equal(latestAtdDisplayFile(priv), null);
+  put("atd-20261115T120000", { events: [] });
+  put("atd-20261115T183000", FILE);
+  put("20261116T0100", { events: ["not ours"] });
+  fs.mkdirSync(path.join(priv, "odds/nfl/atd-20261116T000000"), { recursive: true }); // a run that wrote no display
+  const l = latestAtdDisplayFile(priv);
+  assert.equal(l.stamp, "atd-20261115T183000");
+  assert.equal(l.file.events.length, FILE.events.length);
+  assert.equal(latestAtdDisplayFile(null), null);
+  fs.rmSync(priv, { recursive: true, force: true });
+});
+test("preflight CLI reads prices from the PRIVATE directory only (zero network), and refuses one inside a git tree", () => {
+  const { priv, put } = privTree();
+  put("atd-20261115T183000", FILE);
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "atd-prices-repo-"));
+  const app = path.join(repo, "app"); // the repo root is app/.. — the private dir must be outside it
+  fs.mkdirSync(path.join(app, "public/data/nfl/player-board"), { recursive: true });
+  fs.writeFileSync(path.join(app, "public/data/nfl/player-board", `${EV}.json`), JSON.stringify(BOARD));
+  const out = [];
+  const code = runPreflight(["--event", EV, "--now", NOW, "--private-dir", priv], { appDir: app, log: (s) => out.push(s), err: (s) => out.push(s), env: {}, homeDir: app });
+  assert.equal(code, 3);
+  assert.match(out.join("\n"), /Fresh Back .* PRICED .* -150 .* draftkings/);
+  assert.match(out.join("\n"), /prices from private atd-20261115T183000/);
+  const git = fs.mkdtempSync(path.join(os.tmpdir(), "atd-prices-git-"));
+  fs.mkdirSync(path.join(git, ".git"));
+  const out2 = [];
+  runPreflight(["--event", EV, "--now", NOW, "--private-dir", path.join(git, "p")], { appDir: app, log: (s) => out2.push(s), err: (s) => out2.push(s), env: {}, homeDir: app });
+  assert.match(out2.join("\n"), /private directory refused .*git working tree/);
+  assert.match(out2.join("\n"), /NO_CAPTURE/);
+  for (const d of [priv, repo, git]) fs.rmSync(d, { recursive: true, force: true });
 });

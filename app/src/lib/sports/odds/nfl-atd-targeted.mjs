@@ -40,19 +40,32 @@ export const ATD_BOARD_FAMILY = "anytime_td";
 export const ATD_REGIONS = Object.freeze(["us"]);
 export const DEFAULT_FRESHNESS_MINUTES = 45;
 /*
- * WHERE THE DISPLAY ROWS LIVE — NOT app/public (review of PR #1359, provider terms).
- *
- * The provider's terms allow display in a website and forbid "your own API, data feed, downloadable files". Anything
- * under app/public/data is exported as a downloadable file. The site's sanctioned display path is the ENCRYPTED
- * artifact (lib/odds/display-crypto.mjs, data/odds-display/nfl/lines/<event>.json.enc, written by
- * scripts/nfl/publish-nfl-line-board.mjs from captures in the private directory OUTSIDE the repo, under
- * GTP_ODDS_DISPLAY_KEY). That key is not a GitHub Actions secret and that publisher reads the private directory, so
- * it cannot be driven from this workflow in this change. Until it is wired, the derived rows are written ONLY here,
- * beside the private capture. ⚠ The repository is public: data/internal is not served by the site but IS readable on
- * GitHub. This is a stop-gap, recorded as a limitation, not a display path.
+ * STORAGE MODEL (founder decision on PR #1359, 2026-11-15; and the 2026-10-22 storage decision behind
+ * lib/ops/private-data-dir.mjs). The repository is PUBLIC, so data/internal is NOT private: no raw response, no
+ * normalized capture and no display row of this lane may be committed. Everything with a price goes to the private
+ * directory (resolvePrivateDataDir: --private-dir / GTP_PRIVATE_DATA_DIR, refused inside the repo or ANY git working
+ * tree) under odds/nfl/atd-<stamp>/:
+ *   raw-events-index.json, raw-<oddsEventId>.json   the provider's bodies + usage headers (never the key)
+ *   capture-atd-<stamp>.json                         an `nfl-odds-capture` (propProbe.anytimeTd) — the shape
+ *                                                    nflOffersFromCapture reads, so scripts/nfl/publish-nfl-line-board.mjs
+ *                                                    can encrypt it into data/odds-display/nfl/lines/<event>.json.enc
+ *   anytime-td-display.json                          derived display rows, merged last-known-good over the newest
+ *                                                    earlier one (read by lib/sports/nfl/atd-prices.mjs + the preflight)
+ * The ONLY repo write is the shared credit ledger (credits, status, endpoint, time — no price, player, book or key).
  */
-export const ATD_DISPLAY_RELPATH = "data/internal/research/odds/nfl/anytime-td-latest.json";
-export const ATD_PRIVATE_DIR_RELPATH = "data/internal/research/odds/nfl";
+export const ATD_STAMP_PREFIX = "atd-";
+export const ATD_DISPLAY_FILENAME = "anytime-td-display.json";
+/** The provider's own balance is the machine truth for the SHARED plan (3,500 credits/week across every lane and sport).
+    A run refuses before any paid call if its worst case would leave less than this. */
+export const DEFAULT_MIN_PROVIDER_REMAINING = 500;
+/** "2026-11-15T18:30:00Z" → "20261115T183000" (seconds kept so two runs a minute apart never share a directory). */
+export const atdStampOf = (nowIso) => new Date(Date.parse(nowIso)).toISOString().replace(/[-:]/g, "").slice(0, 15);
+/** Relative layout under the private directory. Pure. */
+export function atdPrivateLayout(nowIso) {
+  const stamp = atdStampOf(nowIso);
+  const dir = `odds/nfl/${ATD_STAMP_PREFIX}${stamp}`;
+  return { stamp, dir, captureFile: `${dir}/capture-atd-${stamp}.json`, displayFile: `${dir}/${ATD_DISPLAY_FILENAME}`, indexFile: `${dir}/raw-events-index.json`, rawFile: (oddsEventId) => `${dir}/raw-${String(oddsEventId).replace(/[^A-Za-z0-9_-]/g, "_")}.json` };
+}
 export const NFL_REGULAR_KEY = "americanfootball_nfl";
 export const NFL_PRESEASON_KEY = "americanfootball_nfl_preseason";
 
@@ -283,7 +296,7 @@ export function normalizeAtdEventResponse({ body, registry, teamAbbrs, capturedA
  * overrun, or a provider failure other than 422 STOPS the whole run. A duplicate inside the freshness window is a
  * no-spend skip of that target. `onLedger` is called after EVERY ledger append so a crash can never lose a charge.
  */
-export async function executeAtdRun({ plan, authorization, ledger, nowIso, get, scheduleRows, registry, freshnessMinutes = DEFAULT_FRESHNESS_MINUTES, onLedger = () => {}, log = () => {} }) {
+export async function executeAtdRun({ plan, authorization, ledger, nowIso, get, scheduleRows, registry, freshnessMinutes = DEFAULT_FRESHNESS_MINUTES, minProviderRemaining = DEFAULT_MIN_PROVIDER_REMAINING, onLedger = () => {}, log = () => {} }) {
   if (!plan?.ok) throw new Error("executeAtdRun: refused — plan did not pass");
   if (!authorization?.ok) throw new Error("executeAtdRun: refused — authorization did not pass");
   let L = ledger;
@@ -291,7 +304,17 @@ export async function executeAtdRun({ plan, authorization, ledger, nowIso, get, 
      call WITHOUT usage headers would be booked as free. Absent/empty values are dropped first, so recordRequest's own
      "unreadable header on a charged call costs 1" rule applies. */
   const cleanHeaders = (h) => Object.fromEntries(Object.entries(h ?? {}).filter(([, v]) => v != null && String(v).trim() !== ""));
-  const append = (entry) => { L = recordRequest(L, { ...entry, headers: cleanHeaders(entry.headers) }); onLedger(L); return L.requests[L.requests.length - 1]; };
+  /* The committed ledger carries credits/status/endpoint/time only: `extra` is restricted to the opening balance. */
+  const append = (entry, extra = {}) => {
+    L = recordRequest(L, { ...entry, headers: cleanHeaders(entry.headers) });
+    const safe = Object.fromEntries(Object.entries(extra).filter(([k, v]) => k === "openingProviderRemaining" && Number.isFinite(v)));
+    if (Object.keys(safe).length) L = { ...L, requests: [...L.requests.slice(0, -1), { ...L.requests[L.requests.length - 1], ...safe }] };
+    onLedger(L);
+    return L.requests[L.requests.length - 1];
+  };
+  /* Raw provider responses, for the PRIVATE directory only (never the ledger, never the repo). */
+  const raw = [];
+  const keepRaw = (kind, endpoint, r, oddsEventId = null) => raw.push({ kind, endpoint, oddsEventId, status: r?.status ?? null, usageHeaders: cleanHeaders(r?.headers), body: r?.body ?? null });
   const results = [];
   const skipped = [];
   let stoppedReason = null;
@@ -303,15 +326,22 @@ export async function executeAtdRun({ plan, authorization, ledger, nowIso, get, 
   let ev;
   try { ev = await get(evPath); } catch (e) {
     append({ at: nowIso, purpose: "atd-targeted: free events index (transport failure)", endpoint: evPath, status: null, headers: {}, charged: false });
-    return { ledger: L, results, skipped, join: null, spentThisRun, paidCalls, stoppedReason: `events index transport failure (${e?.message ?? e}) — no paid call follows (no retries)` };
+    return { ledger: L, results, skipped, join: null, spentThisRun, paidCalls, stoppedReason: `events index transport failure (${e?.message ?? e}) — no paid call follows (no retries)`, raw, openingProviderRemaining: null };
   }
-  const evEntry = append({ at: nowIso, purpose: "atd-targeted: free events index", endpoint: evPath, events: Array.isArray(ev.body) ? ev.body.length : null, status: ev.status, headers: ev.headers ?? {}, charged: false });
+  keepRaw("events-index", evPath, ev);
+  const remRaw = cleanHeaders(ev.headers)["x-requests-remaining"];
+  const openingProviderRemaining = remRaw == null ? null : Number(remRaw);
+  const evEntry = append({ at: nowIso, purpose: "atd-targeted: free events index (opening provider balance)", endpoint: evPath, events: Array.isArray(ev.body) ? ev.body.length : null, status: ev.status, headers: ev.headers ?? {}, charged: false }, { openingProviderRemaining });
   spentThisRun += evEntry.creditsUsed;
-  if (evEntry.creditsUsed > 0) {
-    return { ledger: L, results, skipped, join: null, spentThisRun, paidCalls, stoppedReason: `OVERRUN: the free events index charged ${evEntry.creditsUsed} credit(s) — stopping before any paid call` };
-  }
-  if (ev.status !== 200 || !Array.isArray(ev.body)) {
-    return { ledger: L, results, skipped, join: null, spentThisRun, paidCalls, stoppedReason: `events index returned ${ev.status} — no paid call follows a failed preflight (no retries)` };
+  const early = (stoppedReason) => ({ ledger: L, results, skipped, join: null, spentThisRun, paidCalls, stoppedReason, raw, openingProviderRemaining });
+  if (evEntry.creditsUsed > 0) return early(`OVERRUN: the free events index charged ${evEntry.creditsUsed} credit(s) — stopping before any paid call`);
+  if (ev.status !== 200 || !Array.isArray(ev.body)) return early(`events index returned ${ev.status} — no paid call follows a failed preflight (no retries)`);
+  /* THE SHARED PROVIDER BUDGET. The receipt ceiling bounds THIS allowance; the plan itself (3,500/week shared by every
+     lane and sport) is bounded only by the provider's x-requests-remaining — the machine truth. No balance, or one the
+     worst case would take below the floor, refuses before the first paid call. */
+  if (!Number.isFinite(openingProviderRemaining)) return early("x-requests-remaining missing on the free events index — the shared provider balance cannot be shown to cover this run; no paid call");
+  if (openingProviderRemaining - plan.worstCase < minProviderRemaining) {
+    return early(`REFUSED: provider remaining ${openingProviderRemaining} − worst case ${plan.worstCase} < --min-provider-remaining ${minProviderRemaining} (shared plan balance) — no paid call`);
   }
 
   // 1. join every provider event against the WHOLE scheduled slate (so ambiguity is visible), then keep targets
@@ -347,6 +377,7 @@ export async function executeAtdRun({ plan, authorization, ledger, nowIso, get, 
       stoppedReason = `transport failure on ${t.matchup} (${e?.message ?? e}) — recorded as charged, no retry`;
       break;
     }
+    keepRaw("event-odds", `/sports/${plan.sportKey}/events/${oddsEventId}/odds`, res, oddsEventId);
     const cls = classifyProviderResult({ status: res.status, body: res.body });
     const entry = append({
       at: nowIso,
@@ -385,7 +416,52 @@ export async function executeAtdRun({ plan, authorization, ledger, nowIso, get, 
     }
     if (stoppedReason) break;
   }
-  return { ledger: L, results, skipped, join: { accounting: join.accounting, quarantined: join.quarantined.length }, spentThisRun, paidCalls, stoppedReason };
+  return { ledger: L, results, skipped, join: { accounting: join.accounting, quarantined: join.quarantined.length }, spentThisRun, paidCalls, stoppedReason, raw, openingProviderRemaining };
+}
+
+/**
+ * The PRIVATE normalized capture, in the `nfl-odds-capture` shape lib/sports/nfl/prop-line-adapter.mjs
+ * nflOffersFromCapture reads (propProbe.anytimeTd.rows: canonicalEventId, playerId, bookmaker, price, capturedAt) — so
+ * scripts/nfl/publish-nfl-line-board.mjs, which scans <private>/odds/nfl/<stamp>/capture-*.json, can encrypt these
+ * offers into data/odds-display/nfl/lines/<event>.json.enc without a change. Every book is kept (the publisher applies
+ * the eligible-operator rule itself). No key fingerprint. `requestedMarkets` is explicit and `lineProps` is empty, so
+ * nothing here can be read as a measured absence of the four other prop families.
+ */
+export function buildAtdPrivateCapture({ run, plan, nowIso, maxCredits }) {
+  const atdRows = run.results.flatMap((r) => (r.rows ?? []).map((x) => ({ canonicalEventId: x.canonicalEventId, playerId: x.playerId, name: x.name, teamAbbr: x.teamAbbr, bookmaker: x.bookmaker, price: x.price, capturedAt: x.capturedAt, sourceAsOf: x.sourceAsOf })));
+  const atdQ = run.results.flatMap((r) => r.quarantined ?? []);
+  const lastRemaining = run.ledger?.requests?.[run.ledger.requests.length - 1]?.providerRequestsRemaining;
+  return {
+    schemaVersion: 1,
+    artifact: "nfl-odds-capture",
+    lane: "atd-targeted",
+    dataClass: "PRIVATE_RESEARCH",
+    sport: "nfl",
+    capturedAt: nowIso,
+    requestId: `atd-${atdStampOf(nowIso)}`,
+    requestedMarkets: [ATD_MARKET],
+    regions: plan.regions,
+    maxCredits,
+    plannedWorstCase: plan.worstCase,
+    creditsUsed: run.spentThisRun,
+    paidCalls: run.paidCalls,
+    openingProviderRemaining: run.openingProviderRemaining ?? null,
+    creditsRemaining: Number.isFinite(lastRemaining) ? lastRemaining : null,
+    targets: plan.targets.map((t) => ({ providerEventId: t.providerEventId, canonicalEventId: t.canonicalEventId, matchup: t.matchup, kickoffUtc: t.startTimeUtc })),
+    join: run.join,
+    skipped: run.skipped,
+    stoppedReason: run.stoppedReason,
+    rows: [],
+    quarantined: [],
+    propProbe: {
+      state: run.results.length ? "PROBED" : "NO_MARKET",
+      lane: "atd-targeted",
+      requestedMarkets: [ATD_MARKET],
+      events: run.results.map((r) => ({ oddsEventId: r.oddsEventId, canonicalEventId: r.canonicalEventId, matchup: r.matchup, state: r.state, providerStatus: r.providerStatus, credits: r.credits, requestedMarkets: [ATD_MARKET], offeredMarkets: r.offeredMarkets ?? [], atdRows: (r.rows ?? []).length, unresolvedIdentities: r.unresolvedIdentities ?? [], ignoredNoOutcomes: r.ignoredNoOutcomes ?? 0 })),
+      anytimeTd: { rows: atdRows, quarantined: atdQ },
+      lineProps: { rows: [], quarantined: [] },
+    },
+  };
 }
 
 // ------------------------------------------------------------------------------------------------ 6. derived display file
@@ -393,7 +469,7 @@ export async function executeAtdRun({ plan, authorization, ledger, nowIso, get, 
 export const ATD_DISPLAY_POLICY = "DraftKings first, FanDuel second, then the eligible returned book with the most complete markets (ties by provider key). One book per player, always named. No averaging, no consensus, never chosen by price, never inferred from a model probability.";
 
 /**
- * Build the derived display file (ATD_DISPLAY_RELPATH) from this run's results, merged over the prior file. Pure.
+ * Build the derived display rows (PRIVATE: <private>/odds/nfl/atd-<stamp>/anytime-td-display.json) from this run's results, merged over the prior file. Pure.
  *
  * LAST-KNOWN-GOOD: an event this run did not fetch keeps its own earlier block and capturedAt; a run whose results
  * are empty returns null (write nothing). A NEW answer for an event (including NOT_OFFERED) replaces its block.
@@ -464,7 +540,7 @@ export function buildAtdDisplayFile({ prior, results, nowIso }) {
   return {
     schemaVersion: 1,
     artifact: "nfl-anytime-td-prices",
-    /* Derived display rows, NOT a public artifact: never written under app/public (see ATD_DISPLAY_RELPATH). */
+    /* Derived display rows with prices: PRIVATE directory only, never the repository (see STORAGE MODEL above). */
     dataClass: "PRIVATE_RESEARCH",
     sport: "nfl",
     updatedAt: nowIso,

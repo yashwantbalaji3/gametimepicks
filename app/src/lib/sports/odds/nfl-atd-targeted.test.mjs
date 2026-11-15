@@ -11,9 +11,15 @@ import { fileURLToPath } from "node:url";
 
 import {
   ATD_MARKET, atdFingerprint, planTargetedAtd, readAtdAuthorization, reconcileCallCost,
-  normalizeAtdEventResponse, executeAtdRun, buildAtdDisplayFile,
+  normalizeAtdEventResponse, executeAtdRun, buildAtdDisplayFile, buildAtdPrivateCapture,
 } from "./nfl-atd-targeted.mjs";
+import crypto from "node:crypto";
 import { emptyLedger, recordRequest } from "./p171-authorization.mjs";
+import { nflOffersFromCapture } from "../nfl/prop-line-adapter.mjs";
+import { buildNflLinePublication } from "../nfl/line-publication-build.mjs";
+import { nflLinesAad, validateNflLineArtifact } from "../nfl/public-line-records.mjs";
+import { encryptDisplayArtifact, decryptDisplayArtifact } from "../../odds/display-crypto.mjs";
+import { latestAtdDisplayFile } from "../nfl/atd-prices.mjs";
 import { buildPlayerRegistry } from "../nfl/player-identity.mjs";
 import { main as captureMain } from "../../../../scripts/nfl/capture-nfl-atd-targeted.mjs";
 
@@ -318,8 +324,9 @@ test("display: last-known-good — a run that fetched nothing writes nothing", (
 });
 
 // ---------------------------------------------------------------- script (imported, never spawned)
+const KEY = "abcdefghijklmnop1234"; // a shape-valid DUMMY, never a real key; no network is reachable from these tests
 function fixtureTree({ receiptText = receipt(), ledger = null } = {}) {
-  const root = fs.mkdtempSync(path.join(os.tmpdir(), "atd-targeted-"));
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "atd-targeted-repo-"));
   const app = path.join(root, "app");
   fs.mkdirSync(path.join(app, "public/data/nfl/schedule"), { recursive: true });
   fs.mkdirSync(path.join(app, "public/data/nfl/rosters"), { recursive: true });
@@ -328,9 +335,11 @@ function fixtureTree({ receiptText = receipt(), ledger = null } = {}) {
   fs.copyFileSync(path.join(FIX, "nfl-atd-rosters.json"), path.join(app, "public/data/nfl/rosters/latest.json"));
   fs.writeFileSync(path.join(root, "docs/receipts/TEST.md"), receiptText);
   if (ledger) { fs.mkdirSync(path.join(root, "data/internal/research/odds/nfl"), { recursive: true }); fs.writeFileSync(path.join(root, "data/internal/research/odds/nfl/p171-ledger.json"), JSON.stringify(ledger)); }
-  return { root, app };
+  const priv = fs.mkdtempSync(path.join(os.tmpdir(), "atd-targeted-private-"));
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), "atd-targeted-home-")); // so ~/gtp-private can never be the real one
+  return { root, app, priv, home, cleanup: () => { for (const d of [root, priv, home]) fs.rmSync(d, { recursive: true, force: true }); } };
 }
-const listFiles = (dir) => (fs.existsSync(dir) ? fs.readdirSync(dir, { recursive: true }).map(String).sort() : []);
+const listFiles = (dir) => (fs.existsSync(dir) ? fs.readdirSync(dir, { recursive: true }).map(String).filter((f) => fs.statSync(path.join(dir, f)).isFile()).sort() : []);
 const fakeFetch = (routes) => {
   const calls = [];
   const fn = async (url) => {
@@ -342,75 +351,171 @@ const fakeFetch = (routes) => {
   return { fn, calls };
 };
 const quiet = { log: () => {}, error: () => {} };
+const deps = (t, over = {}) => ({ appDir: t.app, rootDir: t.root, homeDir: t.home, env: { ODDS_API_KEY: KEY }, ...quiet, ...over });
+const paidArgs = (t, extra = []) => ["--now", NOW, "--events", `${SFDAL},${PITCIN}`, "--max-credits", "2", "--receipt", "docs/receipts/TEST.md", "--private-dir", t.priv, "--authorized", "--write", ...extra];
 
-test("script dry-run: ZERO fetch calls (fetch stubbed to throw) and nothing written", async () => {
-  const { root, app } = fixtureTree();
-  const before = listFiles(root);
+test("script dry-run: ZERO fetch calls (fetch stubbed to throw) and nothing written anywhere", async () => {
+  const t = fixtureTree();
+  const before = [listFiles(t.root), listFiles(t.priv)];
   const real = globalThis.fetch;
   let touched = 0;
   globalThis.fetch = async () => { touched += 1; throw new Error("network forbidden in dry run"); };
   try {
     const out = [];
-    const code = await captureMain(["--now", NOW, "--events", `${SFDAL},${PITCIN}`, "--max-credits", "2", "--receipt", "docs/receipts/TEST.md", "--write"], { appDir: app, rootDir: root, env: { ODDS_API_KEY: "abcdefghijklmnop1234" }, fetch: async () => { touched += 1; throw new Error("no"); }, log: (s) => out.push(s), error: (s) => out.push(s) });
+    const code = await captureMain(["--now", NOW, "--events", `${SFDAL},${PITCIN}`, "--max-credits", "2", "--receipt", "docs/receipts/TEST.md", "--private-dir", t.priv, "--write"], deps(t, { fetch: async () => { touched += 1; throw new Error("no"); }, log: (s) => out.push(s), error: (s) => out.push(s) }));
     assert.equal(code, 0);
     assert.equal(touched, 0);
-    assert.match(out.join("\n"), /DRY-RUN/);
-    assert.match(out.join("\n"), /worst case this run 2 of --max-credits 2/);
-    assert.match(out.join("\n"), /receipt .*OK — authorizes player_anytime_td/);
+    const text = out.join("\n");
+    assert.match(text, /DRY-RUN/);
+    assert.match(text, /worst case this run 2 of --max-credits 2/);
+    assert.match(text, /receipt .*OK — authorizes player_anytime_td/);
+    assert.match(text, /private directory \(--private-dir\): OK/);
+    assert.match(text, /≥ 500 \(shared 3,500\/week plan/);
   } finally { globalThis.fetch = real; }
-  assert.deepEqual(listFiles(root), before);
-  fs.rmSync(root, { recursive: true, force: true });
+  assert.deepEqual([listFiles(t.root), listFiles(t.priv)], before);
+  t.cleanup();
 });
-test("script: --authorized without --write, or without --receipt, refuses before any call", async () => {
-  const { root, app } = fixtureTree();
+test("script: --authorized without --write, without --receipt, or a bad budget refuses before any call", async () => {
+  const t = fixtureTree();
   let touched = 0;
-  const deps = { appDir: app, rootDir: root, env: { ODDS_API_KEY: "abcdefghijklmnop1234" }, fetch: async () => { touched += 1; throw new Error("no"); }, ...quiet };
-  assert.equal(await captureMain(["--now", NOW, "--events", SFDAL, "--max-credits", "1", "--receipt", "docs/receipts/TEST.md", "--authorized"], deps), 2);
-  assert.equal(await captureMain(["--now", NOW, "--events", SFDAL, "--max-credits", "1", "--authorized", "--write"], deps), 2);
-  assert.equal(await captureMain(["--now", NOW, "--events", SFDAL, "--max-credits", "0", "--receipt", "docs/receipts/TEST.md", "--authorized", "--write"], deps), 1);
+  const d = deps(t, { fetch: async () => { touched += 1; throw new Error("no"); } });
+  assert.equal(await captureMain(["--now", NOW, "--events", SFDAL, "--max-credits", "1", "--receipt", "docs/receipts/TEST.md", "--private-dir", t.priv, "--authorized"], d), 2);
+  assert.equal(await captureMain(["--now", NOW, "--events", SFDAL, "--max-credits", "1", "--private-dir", t.priv, "--authorized", "--write"], d), 2);
+  assert.equal(await captureMain(["--now", NOW, "--events", SFDAL, "--max-credits", "0", "--receipt", "docs/receipts/TEST.md", "--authorized", "--write"], d), 1);
   assert.equal(touched, 0);
-  fs.rmSync(root, { recursive: true, force: true });
+  t.cleanup();
 });
 test("script: refused receipt (no player_anytime_td) → zero calls", async () => {
-  const { root, app } = fixtureTree({ receiptText: receipt({ props: "`player_pass_yds`" }) });
+  const t = fixtureTree({ receiptText: receipt({ props: "`player_pass_yds`" }) });
   let touched = 0;
-  const code = await captureMain(["--now", NOW, "--events", SFDAL, "--max-credits", "1", "--receipt", "docs/receipts/TEST.md", "--authorized", "--write"], { appDir: app, rootDir: root, env: { ODDS_API_KEY: "abcdefghijklmnop1234" }, fetch: async () => { touched += 1; throw new Error("no"); }, ...quiet });
-  assert.equal(code, 2);
+  assert.equal(await captureMain(paidArgs(t), deps(t, { fetch: async () => { touched += 1; throw new Error("no"); } })), 2);
   assert.equal(touched, 0);
-  fs.rmSync(root, { recursive: true, force: true });
+  t.cleanup();
 });
-test("script authorized (stubbed provider): writes capture + ledger + data/internal anytime-td-latest.json, NOTHING under app/, no key in any file", async () => {
-  const KEY = "abcdefghijklmnop1234";
-  const { root, app } = fixtureTree();
+test("script: a private directory inside a git working tree (or the repo) is refused before any call", async () => {
+  const t = fixtureTree();
+  const gitTree = fs.mkdtempSync(path.join(os.tmpdir(), "atd-targeted-gittree-"));
+  fs.mkdirSync(path.join(gitTree, ".git"));
+  let touched = 0;
+  const d = deps(t, { fetch: async () => { touched += 1; throw new Error("no"); } });
+  const out = [];
+  const code = await captureMain(paidArgs(t).map((x) => (x === t.priv ? path.join(gitTree, "private") : x)), { ...d, error: (s) => out.push(s) });
+  assert.equal(code, 2);
+  assert.match(out.join("\n"), /inside a git working tree/);
+  assert.equal(await captureMain(paidArgs(t).map((x) => (x === t.priv ? path.join(t.root, "private") : x)), d), 2);
+  assert.equal(touched, 0);
+  assert.deepEqual(listFiles(path.join(gitTree)), []);
+  fs.rmSync(gitTree, { recursive: true, force: true });
+  t.cleanup();
+});
+test("script: no private directory configured at all → refused (no in-repo default)", async () => {
+  const t = fixtureTree();
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), "atd-targeted-gittree-home-"));
+  fs.mkdirSync(path.join(home, ".git")); // ~/gtp-private would sit inside a git tree
+  let touched = 0;
+  const args = paidArgs(t).filter((x, i, arr) => x !== "--private-dir" && arr[i - 1] !== "--private-dir");
+  assert.equal(await captureMain(args, deps(t, { homeDir: home, env: { ODDS_API_KEY: KEY }, fetch: async () => { touched += 1; throw new Error("no"); } })), 2);
+  assert.equal(touched, 0);
+  fs.rmSync(home, { recursive: true, force: true });
+  t.cleanup();
+});
+test("script: key from --key-env-file (mode 600, ODDS_API_KEY line only); mode 644 or a missing key refuses with zero calls", async () => {
+  const t = fixtureTree();
+  const envFile = path.join(t.home, ".env");
+  fs.writeFileSync(envFile, `OTHER=1\nODDS_API_KEY=${KEY}\n`, { mode: 0o644 });
+  fs.chmodSync(envFile, 0o644);
+  let touched = 0;
+  const noFetch = async () => { touched += 1; throw new Error("no"); };
+  const out = [];
+  assert.equal(await captureMain(paidArgs(t, ["--key-env-file", envFile]), deps(t, { env: {}, fetch: noFetch, error: (s) => out.push(s) })), 3);
+  assert.match(out.join("\n"), /must be 600/);
+  assert.ok(!out.join("\n").includes(KEY), "the key is never printed");
+  assert.equal(await captureMain(paidArgs(t), deps(t, { env: {}, fetch: noFetch })), 3, "no key anywhere");
+  assert.equal(touched, 0);
+  fs.chmodSync(envFile, 0o600);
   const { fn, calls } = fakeFetch(standardRoutes());
-  const code = await captureMain(["--now", NOW, "--events", `${SFDAL},${PITCIN}`, "--max-credits", "2", "--receipt", "docs/receipts/TEST.md", "--authorized", "--write"], { appDir: app, rootDir: root, env: { ODDS_API_KEY: KEY }, fetch: fn, ...quiet });
-  assert.equal(code, 0);
+  assert.equal(await captureMain(paidArgs(t, ["--key-env-file", envFile]), deps(t, { env: {}, fetch: fn })), 0);
   assert.equal(calls.length, 3);
-  const files = listFiles(root);
-  assert.ok(files.includes("data/internal/research/odds/nfl/anytime-td-latest.json"));
-  assert.deepEqual(files.filter((f) => f.startsWith("app/public/data/nfl/markets")), [], "nothing under app/public/data/nfl/markets — no downloadable price file");
-  const before0 = ["app/public/data/nfl/schedule/latest.json", "app/public/data/nfl/rosters/latest.json"];
-  assert.deepEqual(files.filter((f) => f.startsWith("app/") && f.endsWith(".json")).sort(), before0.sort(), "the run writes nothing under app/ at all");
-  assert.ok(files.includes("data/internal/research/odds/nfl/p171-ledger.json"));
-  assert.ok(files.includes("data/internal/research/odds/nfl/atd-targeted-20261115T1830.json"));
-  for (const f of files.filter((x) => x.endsWith(".json"))) assert.ok(!fs.readFileSync(path.join(root, f), "utf8").includes(KEY), `${f} must not contain the key`);
-  const pubBlob = fs.readFileSync(path.join(root, "data/internal/research/odds/nfl/anytime-td-latest.json"), "utf8");
-  for (const marker of ["apiKey", "keyFingerprint", "cumulativeCredits", "bovada", "quarantined"]) assert.ok(!pubBlob.includes(marker), `display file must not carry "${marker}"`);
-  const ledger = JSON.parse(fs.readFileSync(path.join(root, "data/internal/research/odds/nfl/p171-ledger.json"), "utf8"));
+  t.cleanup();
+});
+test("script: provider balance below the floor refuses before any paid call", async () => {
+  const t = fixtureTree();
+  const low = fakeFetch([[/\/events$/, { status: 200, headers: headers(0, 501), body: INDEX }], ...standardRoutes().slice(1)]);
+  assert.equal(await captureMain(paidArgs(t), deps(t, { fetch: low.fn })), 5);
+  assert.equal(low.calls.length, 1, "only the free index");
+  const ledger = JSON.parse(fs.readFileSync(path.join(t.root, "data/internal/research/odds/nfl/p171-ledger.json"), "utf8"));
+  assert.equal(ledger.requests[0].openingProviderRemaining, 501);
+  assert.equal(ledger.cumulativeCredits, 0);
+  const ok = fakeFetch([[/\/events$/, { status: 200, headers: headers(0, 501), body: INDEX }], ...standardRoutes().slice(1)]);
+  assert.equal(await captureMain(paidArgs(t, ["--min-provider-remaining", "499", "--refresh-minutes", "1"]), deps(t, { fetch: ok.fn })), 0);
+  assert.equal(ok.calls.length, 3);
+  t.cleanup();
+});
+test("script authorized (stubbed provider): the ONLY repo write is the ledger; capture, raw and display rows are private", async () => {
+  const t = fixtureTree();
+  const { fn, calls } = fakeFetch(standardRoutes());
+  assert.equal(await captureMain(paidArgs(t), deps(t, { fetch: fn })), 0);
+  assert.equal(calls.length, 3);
+  const repoFiles = listFiles(t.root);
+  assert.deepEqual(repoFiles.filter((f) => !f.startsWith("app/public/data/nfl/schedule/") && !f.startsWith("app/public/data/nfl/rosters/") && f !== "docs/receipts/TEST.md"), ["data/internal/research/odds/nfl/p171-ledger.json"], "nothing but the ledger lands in the repository");
+  const privFiles = listFiles(t.priv);
+  const dir = "odds/nfl/atd-20261115T183000";
+  assert.deepEqual(privFiles, [`${dir}/anytime-td-display.json`, `${dir}/capture-atd-20261115T183000.json`, `${dir}/raw-events-index.json`, `${dir}/raw-odds-pit-cin.json`, `${dir}/raw-odds-sf-dal.json`]);
+  for (const f of [...repoFiles.map((x) => path.join(t.root, x)), ...privFiles.map((x) => path.join(t.priv, x))]) {
+    const s = fs.readFileSync(f, "utf8");
+    assert.ok(!s.includes(KEY), `${f} must not contain the key`);
+    assert.ok(!/keyFingerprint|len20…/.test(s), `${f} must carry no key fingerprint`);
+  }
+  // THE COMMITTED LEDGER: credits, status, endpoint, time — no price, no player, no book, no key fingerprint
+  const ledgerText = fs.readFileSync(path.join(t.root, "data/internal/research/odds/nfl/p171-ledger.json"), "utf8");
+  const ledger = JSON.parse(ledgerText);
   assert.equal(ledger.cumulativeCredits, 2);
-  const cap = JSON.parse(fs.readFileSync(path.join(root, "data/internal/research/odds/nfl/atd-targeted-20261115T1830.json"), "utf8"));
-  assert.equal(cap.keyFingerprint, "len20…1234");
-  assert.ok(cap.events[0].rows.some((r) => r.bookmaker === "bovada"), "the private capture keeps every book");
-
-  // a second run inside the freshness window buys nothing and leaves the display file byte-identical
-  const pubPath = path.join(root, "data/internal/research/odds/nfl/anytime-td-latest.json");
-  const before = fs.readFileSync(pubPath, "utf8");
+  const allowed = new Set(["at", "purpose", "endpoint", "events", "markets", "regions", "status", "resultClass", "fingerprint", "creditsUsed", "providerRequestsUsed", "providerRequestsRemaining", "openingProviderRemaining"]);
+  for (const r of ledger.requests) for (const k of Object.keys(r)) assert.ok(allowed.has(k), `ledger field ${k} is not a credit/status/endpoint/time field`);
+  assert.doesNotMatch(ledgerText, /"price"|bookmaker|draftkings|fanduel|playerId|nfl-athlete|McCaffrey|-175|keyFingerprint/);
+  assert.equal(ledger.requests[0].openingProviderRemaining, 18000);
+  // the private capture is the publisher's input shape
+  const cap = JSON.parse(fs.readFileSync(path.join(t.priv, `${dir}/capture-atd-20261115T183000.json`), "utf8"));
+  assert.equal(cap.artifact, "nfl-odds-capture");
+  assert.equal(cap.sport, "nfl");
+  assert.ok(cap.propProbe.anytimeTd.rows.some((r) => r.bookmaker === "bovada"), "the private capture keeps every book");
+  assert.deepEqual(cap.propProbe.lineProps.rows, []);
+  // a second run inside the freshness window buys nothing and writes no new display (last-known-good)
   const second = fakeFetch(standardRoutes());
-  const code2 = await captureMain(["--now", "2026-11-15T18:40:00Z", "--events", `${SFDAL},${PITCIN}`, "--max-credits", "2", "--receipt", "docs/receipts/TEST.md", "--authorized", "--write"], { appDir: app, rootDir: root, env: { ODDS_API_KEY: KEY }, fetch: second.fn, ...quiet });
-  assert.equal(code2, 0);
+  assert.equal(await captureMain(paidArgs(t).map((x) => (x === NOW ? "2026-11-15T18:40:00Z" : x)), deps(t, { fetch: second.fn })), 0);
   assert.equal(second.calls.length, 1, "only the free index");
-  assert.equal(fs.readFileSync(pubPath, "utf8"), before, "last-known-good preserved");
-  fs.rmSync(root, { recursive: true, force: true });
+  assert.equal(latestAtdDisplayFile(t.priv).stamp, "atd-20261115T183000", "the earlier display stays the newest");
+  t.cleanup();
+});
+test("secure display: targeted capture → nflOffersFromCapture → buildNflLinePublication → encrypt/decrypt (TEST key) yields the anytime_td offer", async () => {
+  const r = await run({ get: stubProvider(standardRoutes()).get });
+  const cap = buildAtdPrivateCapture({ run: r, plan: plan2(), nowIso: NOW, maxCredits: 2 });
+  const offers = nflOffersFromCapture(cap);
+  assert.ok(offers.every((o) => o.market === "player_anytime_td"));
+  const board = {
+    providerEventId: SFDAL, matchup: "SF @ DAL", kickoffUtc: "2026-11-15T21:25Z",
+    families: { anytime_td: { state: "PUBLISHED" } },
+    players: [{ playerId: "nfl-athlete-3117251", name: "Christian McCaffrey", team: "SF", markets: { anytime_td: { probability: 0.72 } } }],
+  };
+  const res = buildNflLinePublication({ boards: [{ board, path: "app/public/data/nfl/player-board/401873063.json", sha256: "0".repeat(64) }], captureFiles: [{ name: "atd-20261115T183000/capture-atd-20261115T183000.json", sha256: "1".repeat(64), offers }], asOf: "2026-11-15T18:45:00Z", receiptText: receipt(), receiptRel: "docs/receipts/TEST.md" });
+  assert.equal(res.ok, true, (res.reasons ?? []).join("; "));
+  assert.equal(res.artifacts.length, 1);
+  const key = crypto.randomBytes(32); // a throwaway TEST key, generated here
+  const sealed = encryptDisplayArtifact(res.artifacts[0].text, key, nflLinesAad(SFDAL));
+  assert.doesNotMatch(sealed, /draftkings|-175|nfl-athlete/, "the envelope carries no plaintext");
+  const art = JSON.parse(decryptDisplayArtifact(sealed, key, nflLinesAad(SFDAL)));
+  assert.equal(validateNflLineArtifact(art, SFDAL).ok, true);
+  const row = art.rows.find((x) => x.playerId === "nfl-athlete-3117251" && x.market === "player_anytime_td");
+  assert.ok(row, "the anytime_td offer survives for the right player");
+  const src = cap.propProbe.anytimeTd.rows.find((x) => x.playerId === row.playerId && x.bookmaker === row.book);
+  assert.ok(["draftkings", "fanduel"].includes(row.book));
+  assert.equal(row.price, src.price, "the price is that book's own price");
+  assert.equal(row.capturedAt, NOW);
+  assert.equal(row.canonicalEventId, `nfl-${SFDAL}`);
+  assert.equal(decryptDisplayArtifact(sealed, crypto.randomBytes(32), nflLinesAad(SFDAL)), null, "another key reads nothing");
+  // the publisher's refusal rules still apply: a receipt without player_anytime_td refuses the slate offer
+  const refused = buildNflLinePublication({ boards: [{ board, path: "x", sha256: "0".repeat(64) }], captureFiles: [{ name: "c", sha256: "1", offers }], asOf: "2026-11-15T18:45:00Z", receiptText: receipt({ props: "`player_pass_yds`" }), receiptRel: "r" });
+  assert.equal(refused.ok, false);
 });
 
 // ---------------------------------------------------------------- review fixes (PR #1359)
@@ -478,4 +583,25 @@ test("a 200 without x-requests-last still stops the run (cost cannot be shown wi
   const r = await run({ get: s.get });
   assert.match(r.stoppedReason, /x-requests-last missing/);
   assert.ok(!s.calls.some((c) => c.includes("odds-pit-cin")));
+});
+
+test("provider balance: a missing x-requests-remaining on the free index refuses before any paid call", async () => {
+  const s = stubProvider([[/\/events$/, { status: 200, headers: { "x-requests-last": "0" }, body: INDEX }], ...standardRoutes().slice(1)]);
+  const r = await run({ get: s.get });
+  assert.equal(s.calls.length, 1);
+  assert.match(r.stoppedReason, /x-requests-remaining missing/);
+});
+test("provider balance: remaining − worst case below the floor refuses; the opening balance is in the ledger", async () => {
+  const s = stubProvider([[/\/events$/, { status: 200, headers: headers(0, 501), body: INDEX }], ...standardRoutes().slice(1)]);
+  const r = await executeAtdRun({ plan: plan2(), authorization: okAuth().authorization, ledger: emptyLedger("t"), nowIso: NOW, get: s.get, scheduleRows: SCHEDULE.rows, registry: REGISTRY, minProviderRemaining: 500 });
+  assert.equal(s.calls.length, 1);
+  assert.match(r.stoppedReason, /provider remaining 501 − worst case 2 < --min-provider-remaining 500/);
+  assert.equal(r.ledger.requests[0].openingProviderRemaining, 501);
+});
+test("private capture: no key fingerprint, explicit requested market, empty lineProps", async () => {
+  const r = await run({ get: stubProvider(standardRoutes()).get });
+  const cap = buildAtdPrivateCapture({ run: r, plan: plan2(), nowIso: NOW, maxCredits: 2 });
+  assert.ok(!JSON.stringify(cap).includes("keyFingerprint"));
+  assert.deepEqual(cap.propProbe.requestedMarkets, ["player_anytime_td"]);
+  assert.equal(cap.openingProviderRemaining, 18000);
 });
