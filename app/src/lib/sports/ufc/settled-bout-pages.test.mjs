@@ -157,10 +157,18 @@ const labelled = (text) => {
   return out;
 };
 
-test("hub, /cage-chaos and every bout page print the same number under the same round label, for every bout on the card", async () => {
+test("hub, /cage-chaos and every bout page print the same number under the same round label, for every bout on the card", async (t) => {
   const card = loadUfcCard();
   const read = (card?.bouts ?? []).filter((b) => b.prediction?.rounds);
-  if (!read.length) return; // between cards there is nothing to compare
+  // Between cards there is nothing to compare: report it as a skip, never as a silent pass.
+  if (!read.length) { t.skip("the committed card carries no bout with a round read"); return; }
+  // Once the ledger settles a card bout, /ufc/bout/<id>/ renders the SETTLED page (fix #3), which by design reprints no
+  // method/round read (the ledger froze the winner head only; see test 5). That page is held to the stronger rule
+  // instead — frozen view, zero labelled round figures — and the round-label consistency check runs on the hub,
+  // /cage-chaos and every bout page that still renders the live read. Keyed on the ledger, not on the slate.
+  const settledIds = new Set(ufcSettledBouts().map((s) => s.boutId));
+  let compared = 0;
+  let liveBoutPages = 0;
   const { default: UfcCard } = await import("../../../components/sports/ufc-card.tsx");
   const { default: CageChaos } = await import("../../../app/cage-chaos/page.tsx");
   const hub = renderToStaticMarkup(React.createElement(UfcCard, { card }));
@@ -173,9 +181,18 @@ test("hub, /cage-chaos and every bout page print the same number under the same 
   for (const b of read) {
     const r = ufcRoundRead(b.prediction.rounds);
     const truth = new Map(["goesTheDistance", "round1", "round2", "round3plus"].filter((k) => r[k]).map((k) => [r[k].label, r[k].pct]));
-    const bout = textOf(await renderBout(String(b.boutId)));
+    const boutHtml = await renderBout(String(b.boutId));
+    const bout = textOf(boutHtml);
+    const settled = settledIds.has(String(b.boutId));
+    if (settled) {
+      assert.match(boutHtml, /data-ufc-frozen-forecast/, `${b.boutId}: a ledger-settled card bout renders the settled page`);
+      assert.deepEqual(labelled(bout), [], `${b.red.name} vs ${b.blue.name}: the settled page reprints no labelled round figure`);
+    } else {
+      assert.doesNotMatch(boutHtml, /data-ufc-frozen-forecast/, `${b.boutId}: an unsettled card bout renders the live page`);
+      liveBoutPages += 1;
+    }
     const segs = {
-      bout: bout,
+      ...(settled ? {} : { bout }),
       // The hub and Cage Chaos are whole-card pages: read each bout's slice by its matchup.
       hub: sliceFor(textOf(hub), b),
       chaos: sliceFor(textOf(chaos), b),
@@ -185,14 +202,18 @@ test("hub, /cage-chaos and every bout page print the same number under the same 
       assert.ok(pairs.length > 0, `${b.red.name} vs ${b.blue.name}: ${surface} prints at least one labelled round figure`);
       for (const [label, value] of pairs) {
         assert.equal(value, truth.get(label), `${b.red.name} vs ${b.blue.name} · ${surface}: "${label}" must read ${truth.get(label)}, printed ${value}`);
+        compared += 1;
       }
     }
-    // Both headline quantities appear on the bout page and on Cage Chaos.
-    for (const t of [segs.bout, segs.chaos]) {
-      assert.ok(t.includes(r.goesTheDistance.text), `${b.boutId}: "${r.goesTheDistance.text}"`);
-      assert.ok(t.includes(r.likeliest.text), `${b.boutId}: "${r.likeliest.text}"`);
+    // Both headline quantities appear on Cage Chaos, and on the bout page while it renders the live read.
+    for (const text of [segs.bout, segs.chaos].filter((x) => x != null)) {
+      assert.ok(text.includes(r.goesTheDistance.text), `${b.boutId}: "${r.goesTheDistance.text}"`);
+      assert.ok(text.includes(r.likeliest.text), `${b.boutId}: "${r.likeliest.text}"`);
     }
   }
+  // Never vacuous: every card bout with a round read was checked on the hub and Cage Chaos, so figures were compared.
+  assert.ok(compared >= 2 * read.length, `labelled round figures were compared (${compared} across ${read.length} bouts)`);
+  t.diagnostic(`${read.length} card bouts compared on hub + /cage-chaos; ${liveBoutPages} live bout pages, ${read.length - liveBoutPages} settled`);
 });
 
 /** The text from this bout's matchup to the next "<red> vs <blue>" of another bout (or the end). */
