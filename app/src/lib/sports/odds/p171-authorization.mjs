@@ -453,6 +453,22 @@ export function usageHeaderNumber(v) {
 export const NOT_OFFERED_STATUS = 422;
 
 /**
+ * What ONE per-event prop-probe response means for a sweep. Pure.
+ *   ANSWER       a 200 — consume it (classifyProviderResult's class rides along: OK / NO_MARKET / QUARANTINED)
+ *   NOT_OFFERED  the documented 422 — typed evidence that the books do not offer these markets; never retried
+ *   STOP         anything else (transport failure, 401/403, 429, 5xx, an unmodelled status) — it says nothing about the
+ *                books and may have been charged, so the sweep stops and the event is left unreached; it is NEVER
+ *                recorded as markets NOT_OFFERED
+ */
+export function classifyProbeOutcome({ status, body = null, transportError = null }) {
+  if (transportError) return { outcome: "STOP", class: "TRANSPORT_ERROR", action: `transport failure (${transportError}) — the call may have been charged; booked at worst case, sweep stopped, not retried` };
+  if (status === NOT_OFFERED_STATUS) return { outcome: "NOT_OFFERED", class: "NOT_OFFERED", action: "the provider does not offer these markets for this event — typed evidence, never retried" };
+  const cls = classifyProviderResult({ status, body });
+  if (status === 200) return { outcome: "ANSWER", ...cls };
+  return { outcome: "STOP", ...cls };
+}
+
+/**
  * Append one provider response to the ledger. `headers` is a plain object of the usage headers
  * (x-requests-last / x-requests-used / x-requests-remaining).
  *
@@ -463,12 +479,9 @@ export const NOT_OFFERED_STATUS = 422;
  * call the caller declares free (`charged: false`, e.g. the documented-free index endpoints) and a 422 (the
  * not-offered answer, `NOT_OFFERED_STATUS`).
  *
- * RECONCILIATION. When this response reports both `x-requests-used` and `x-requests-last`, and the most recent earlier
- * entry that reported `x-requests-used` is followed only by headerless entries of which exactly one is estimated, the
- * provider's own counter bounds what that estimated call can have cost: (used now − cost now) − used then − the known
- * costs in between. The key is shared across sports, so that delta is an UPPER bound — the estimate is only ever
- * LOWERED to it (never raised), the entry keeps `creditsEstimated: true` history as `creditsReconciled`, and
- * `cumulativeCredits` moves by the same amount so the ceiling arithmetic stays the sum of `creditsUsed`.
+ * NO AUTOMATIC RECONCILIATION. An estimate stays at its worst case until a human reconciles it out of band
+ * (recordReconciledCharge). The provider's x-requests-used counter cannot attribute it: the counter resets with the
+ * billing cycle and the same ledger is written from more than one key (CI and local), so a delta can read low.
  */
 export function recordRequest(ledger, { at, purpose, endpoint, events = null, markets = null, regions = null, status, headers = {}, charged = true, fingerprint = null, resultClass = null, receiptId = null, worstCaseCredits = null }) {
   const h = headers ?? {};
@@ -477,7 +490,6 @@ export function recordRequest(ledger, { at, purpose, endpoint, events = null, ma
   const mayHaveCharged = charged && status !== NOT_OFFERED_STATUS;
   const estimated = lastCost == null && mayHaveCharged;
   const creditsUsed = lastCost ?? (estimated ? planned : 0);
-  const providerRequestsUsed = usageHeaderNumber(h["x-requests-used"]);
   const entry = {
     at,
     purpose,
@@ -491,43 +503,16 @@ export function recordRequest(ledger, { at, purpose, endpoint, events = null, ma
     creditsUsed,
     // Only an estimate carries the flag, so entries booked from a provider-reported cost are unchanged.
     ...(estimated ? { creditsEstimated: true } : {}),
-    providerRequestsUsed,
+    providerRequestsUsed: usageHeaderNumber(h["x-requests-used"]),
     providerRequestsRemaining: usageHeaderNumber(h["x-requests-remaining"]),
     // A receipt whose ceiling is scoped to its own ID (credits consumed UNDER that receipt) tags each call; others add nothing.
     ...(receiptId ? { receiptId } : {}),
   };
-  let requests = [...(ledger.requests ?? [])];
-  let cumulativeCredits = (ledger.cumulativeCredits ?? 0) + creditsUsed;
-  if (providerRequestsUsed != null && lastCost != null) {
-    const reconciled = reconcileEstimates(requests, { usedBefore: providerRequestsUsed - lastCost, at });
-    if (reconciled) { requests = reconciled.requests; cumulativeCredits += reconciled.adjustment; }
-  }
   return {
     ...ledger,
-    requests: [...requests, entry],
-    cumulativeCredits,
+    requests: [...(ledger.requests ?? []), entry],
+    cumulativeCredits: (ledger.cumulativeCredits ?? 0) + creditsUsed,
   };
-}
-
-/** See recordRequest · RECONCILIATION. Returns null when nothing can be lowered. Never mutates its input. */
-function reconcileEstimates(requests, { usedBefore, at }) {
-  let anchor = -1;
-  for (let i = requests.length - 1; i >= 0; i--) {
-    if (requests[i]?.provenance === "RECONCILED") return null; // an out-of-band repair sits in the gap: do not attribute
-    if (requests[i]?.providerRequestsUsed != null) { anchor = i; break; }
-  }
-  if (anchor < 0) return null;
-  const gap = requests.slice(anchor + 1);
-  const estimates = gap.map((r, k) => ({ r, k })).filter(({ r }) => r?.creditsEstimated === true);
-  if (estimates.length !== 1) return null;
-  const knownInGap = gap.reduce((n, r) => n + (r?.creditsEstimated === true ? 0 : Number(r?.creditsUsed) || 0), 0);
-  const bound = usedBefore - requests[anchor].providerRequestsUsed - knownInGap;
-  if (!Number.isFinite(bound) || bound < 0) return null; // counter went backwards (reset / different key): cannot attribute
-  const { r, k } = estimates[0];
-  if (bound >= r.creditsUsed) return null; // the counter cannot show the estimate was too high; it stands
-  const next = requests.slice();
-  next[anchor + 1 + k] = { ...r, creditsUsed: bound, creditsEstimated: false, creditsReconciled: { estimatedCredits: r.creditsUsed, providerBound: bound, at } };
-  return { requests: next, adjustment: bound - r.creditsUsed };
 }
 
 /**

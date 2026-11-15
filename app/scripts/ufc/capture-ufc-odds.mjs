@@ -165,7 +165,7 @@ if (!acquisition) {
 ledger = recordRequest(ledger, {
   at: NOW, purpose: `fight-week bulk h2h · ${card.event.name}`, endpoint: `/sports/${SPORT_KEY}/odds`,
   events: Array.isArray(body) ? body.length : null, markets: MARKETS, regions: REGIONS,
-  status, headers, charged: status === 200, fingerprint, resultClass: cls.class,
+  status, headers, charged: status === 200, worstCaseCredits: WORST_CASE_CREDITS, fingerprint, resultClass: cls.class,
 });
 fs.mkdirSync(path.dirname(LEDGER), { recursive: true });
 fs.writeFileSync(LEDGER, JSON.stringify(ledger, null, 1) + "\n");
