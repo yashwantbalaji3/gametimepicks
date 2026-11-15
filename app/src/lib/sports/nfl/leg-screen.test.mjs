@@ -1,0 +1,72 @@
+/**
+ * NFL leg screen + scenario builder — synthetic legs only.
+ * Run (from app/): npx tsx --test src/lib/sports/nfl/leg-screen.test.mjs
+ */
+import test from "node:test";
+import assert from "node:assert/strict";
+import { buildScenario, decimalOf, screenLegs } from "./leg-screen.mjs";
+
+const g = (i, rec) => ({ eventId: `p${i}`, week: 10 - i, date: "2026-10-01", team: "T", opponent: "O", homeAway: "H", state: "STAT_LINE", stats: { rec } });
+const log = (...recs) => recs.map((r, i) => g(i, r));
+const FAM = { player_receptions: { eligibleForOfficialProducts: true, gtpProbability: true }, player_rush_yds: { eligibleForOfficialProducts: false } };
+const cand = (id, event, team, recs, extra = {}) => ({ playerId: id, team, eventId: event, family: "player_receptions", side: "over", line: { line: 4.5, price: -150, sportsbook: "draftkings", capturedAt: "2026-11-15T12:00Z" }, eligibility: "ELIGIBLE", modelProbability: 0.62, log: log(...recs), ...extra });
+
+test("every refusal is named and counted; 3/5 is never used", () => {
+  const r = screenLegs([
+    cand("a", "e1", "A", [5, 6, 7, 5, 6], { line: null }),
+    cand("b", "e1", "B", [5, 6, 7, 5, 6], { line: { line: 4.5, price: null } }),
+    cand("c", "e1", "C", [5, 6, 7, 5, 6], { eligibility: "UNKNOWN" }),
+    cand("d", "e1", "D", [5, 6, 7, 5, 6], { family: "player_rush_yds" }),
+    cand("e", "e1", "E", [5, 6, 7, 5]),
+    cand("f", "e1", "F", [5, 6, 7, 1, 2]),
+    cand("g", "e1", "G", [5, 6, 1, 1, 2]),
+  ], { families: FAM });
+  assert.deepEqual(r.reasons, { NO_OBSERVED_LINE: 1, NO_OBSERVED_PRICE: 1, PLAYER_NOT_ELIGIBLE: 1, FAMILY_NOT_QUALIFIED: 1, SHORT_SAMPLE: 1, TIER_3_OF_5_NEVER_USED: 1, TREND_BELOW_4_OF_5: 1 });
+  assert.equal(r.passed.length, 0);
+});
+
+test("a game with no stat line in the window blocks the leg (no 5/5 on four real games)", () => {
+  const l = log(5, 6, 7, 5, 6); l[2] = { ...l[2], state: "NO_STAT_LINE", stats: undefined };
+  assert.deepEqual(screenLegs([cand("a", "e1", "A", [], { log: l })], { families: FAM }).reasons, { INCOMPLETE_HISTORY: 1 });
+});
+
+test("5/5 legs first; 4/5 only to fill; never adds legs past the goal", () => {
+  const { passed } = screenLegs([cand("x4", "e3", "X", [5, 6, 7, 1, 6]), cand("a5", "e1", "A", [5, 6, 7, 5, 6]), cand("b5", "e2", "B", [6, 6, 7, 5, 6])], { families: FAM });
+  assert.deepEqual(passed.map((l) => [l.playerId, l.tier]), [["a5", "5/5"], ["b5", "5/5"], ["x4", "4/5"]]);
+  const easy = buildScenario(passed, { stake: 100, goal: 250, minLegs: 2, maxLegs: 4 });
+  assert.equal(easy.state, "BUILT");
+  assert.deepEqual(easy.legs.map((l) => l.playerId), ["a5", "b5"], "goal 250 reached by two 5/5 legs ⇒ the 4/5 leg is not added");
+  assert.equal(easy.grossReturn, 277.78);
+  const far = buildScenario(passed, { stake: 100, goal: 5000, minLegs: 2, maxLegs: 4 });
+  assert.deepEqual(far.legs.map((l) => l.playerId), ["a5", "b5", "x4"]);
+  assert.equal(far.goalReached, false, "the goal is reported unmet — no extra legs are invented");
+  assert.ok(far.warnings.includes("INCLUDES_4_OF_5"));
+});
+
+test("joint probability: product only across different games; same-game legs ⇒ unavailable; unqualified ⇒ none", () => {
+  const { passed } = screenLegs([cand("a", "e1", "A", [5, 6, 7, 5, 6]), cand("b", "e2", "B", [5, 6, 7, 5, 6])], { families: FAM });
+  const s = buildScenario(passed, { stake: 50, goal: 100 });
+  assert.equal(s.joint.state, "INDEPENDENT_GAMES");
+  assert.equal(Math.round(s.joint.probability * 1e4), Math.round(0.62 * 0.62 * 1e4));
+  const same = screenLegs([cand("a", "e1", "A", [5, 6, 7, 5, 6]), cand("b", "e1", "B", [5, 6, 7, 5, 6])], { families: FAM }).passed;
+  const sg = buildScenario(same, { stake: 50, goal: 100 });
+  assert.equal(sg.joint.state, "JOINT_PROBABILITY_UNAVAILABLE");
+  assert.equal(sg.joint.probability, undefined);
+  const noProb = screenLegs([cand("a", "e1", "A", [5, 6, 7, 5, 6]), cand("b", "e2", "B", [5, 6, 7, 5, 6])], { families: { player_receptions: { eligibleForOfficialProducts: true, gtpProbability: false } } }).passed;
+  assert.equal(buildScenario(noProb, { stake: 50, goal: 100 }).joint.state, "NO_QUALIFIED_LEG_PROBABILITY");
+});
+
+test("risk limits: one leg per player, team and game concentration; too few legs ⇒ NO_QUALIFYING_BUILD", () => {
+  const { passed } = screenLegs([cand("a", "e1", "A", [5, 6, 7, 5, 6]), cand("a", "e1", "A", [5, 6, 7, 5, 6], { family: "player_receptions", line: { line: 3.5, price: -200, sportsbook: "draftkings" } }), cand("b", "e1", "A", [5, 6, 7, 5, 6])], { families: FAM });
+  const s = buildScenario(passed, { stake: 10, goal: 1000, minLegs: 2 });
+  assert.equal(s.state, "NO_QUALIFYING_BUILD");
+  assert.equal(s.reason, "TOO_FEW_LEGS_AFTER_RISK_LIMITS");
+  assert.deepEqual(s.skipped.map((x) => x.code).sort(), ["ONE_LEG_PER_PLAYER", "TEAM_CONCENTRATION"]);
+  assert.deepEqual(buildScenario([], { stake: 10, goal: 1000 }), { state: "NO_QUALIFYING_BUILD", reason: "NO_LEG_PASSED_THE_SCREEN", qualifyingLegs: 0, skipped: [] });
+});
+
+test("price arithmetic", () => {
+  assert.equal(decimalOf(150), 2.5);
+  assert.equal(Math.round(decimalOf(-150) * 1e4) / 1e4, 1.6667);
+  assert.equal(decimalOf(0), null);
+});
