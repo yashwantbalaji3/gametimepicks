@@ -22,6 +22,9 @@ import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs
 import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
+import { nflOfficialDefault } from "@/lib/simulation-theater/official-default.mjs";
+import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
+import { officialPassingRows } from "@/lib/sports/nfl/sim-v2/official-passing.mjs";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
 const entries = () => readShadowReceipts(REPO_ROOT);
@@ -44,6 +47,15 @@ function canonicalFor(eventId: string): CanonicalForecast | null {
     projectedAway: s.projectedScore.away, projectedHome: s.projectedScore.home,
     totalMedian: s.total?.median, modelId: f.model?.id ?? null, generatedAt: f.generatedAt ?? null,
   };
+}
+
+/**
+ * N14 (founder rule 2026-10-20 / 11-11): the report's quarterback passing rows are the OFFICIAL projection — the same
+ * accessor as the Theater Default view and the game page (nflOfficialDefault over loadForecastView) — never the
+ * simulation's own passing line. Only the derived rows (names, ids, official values, labels) reach the component.
+ */
+function officialPassingFor(rec: NonNullable<ReturnType<typeof simulationOfRecord>>, eventId: string) {
+  return officialPassingRows(rec.receipt, nflOfficialDefault(loadForecastView(path.join(process.cwd(), "public"), eventId)));
 }
 
 /**
@@ -118,7 +130,7 @@ export default function NflSimulationV2Page({ params }: { params: { eventId: str
       {/* P0-A (founder 2026-10-30): with the Theater flag ON the page opens on the Theater's Default view (the official
           projected game), above the simulation report; flag OFF this renders nothing and the page is unchanged */}
       <SimulationReplay rec={rec} />
-      <SimulationV2Report r={r} file={rec.file} canonical={canonicalFor(params.eventId)} gameHref={gameHref} />
+      <SimulationV2Report r={r} file={rec.file} canonical={canonicalFor(params.eventId)} gameHref={gameHref} passing={officialPassingFor(rec, params.eventId)} />
       <QbProps rec={rec} eventId={params.eventId} />
     </div>
   );

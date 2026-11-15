@@ -359,3 +359,78 @@ test("SOURCE: the Default views are server components fed no run, and no island 
     assert.doesNotMatch(read(rel), /from "[^"]*(NflOfficialDefault|official-default|official-predictions)[^"]*"/, `${rel} (client island) never imports the Default view`);
   }
 });
+
+/* ──────────────────────── NFL simulation page · quarterback passing (ledger N14) ──────────────────────── */
+
+/* Founder rule (2026-10-20, reaffirmed 11-11): one official forecast for a player everywhere; a what-if simulation never
+   presents a competing number. On production the /nfl/simulation/<id>/ report printed each QB's SIMULATED attempts,
+   completions, yards, TD and INT (Week 10: Burrow 228 vs the board's 271, Goff 222 vs 244, Maye 223 vs 242). For every
+   committed Week 10 game with a showable receipt of record, the rendered report's passing block must print, for each
+   QB, exactly the official board's passing yards (game page digits + Estimate label) and NO other number. */
+const WEEK10 = fs.readdirSync(path.join(DATA, "nfl/player-board"))
+  .filter((f) => /^\d+\.json$/.test(f))
+  .map((f) => readJson(path.join(DATA, "nfl/player-board", f)))
+  .filter((b) => b.seasonType === 2 && b.week === 10);
+
+test("NFL Week 10 simulation pages: every QB passing number == the official board value, or is absent (attempts/completions/TD/INT unpublished)", async () => {
+  const { default: SimulationV2Report } = await import("../../components/nfl/simulation-v2-report.tsx");
+  const { officialPassingRows } = await import("../sports/nfl/sim-v2/official-passing.mjs");
+  const { readShadowReceipts, simulationOfRecord } = await import("../sports/nfl/sim-v2/public-receipt.mjs");
+  const { loadForecastView } = await import("../sports/nfl/forecast-view-load.mjs");
+  const entries = readShadowReceipts(REPO);
+  assert.equal(WEEK10.length, 14, "14 committed Week 10 boards");
+  let games = 0; let qbs = 0; const seen = new Map();
+  for (const board of WEEK10) {
+    const id = String(board.providerEventId);
+    const rec = simulationOfRecord(entries, id);
+    if (!rec?.showable) continue; // no page is built for this game (dynamicParams=false → 404)
+    games += 1;
+    // exactly what the page passes (src/app/nfl/simulation/[eventId]/page.tsx officialPassingFor)
+    const passing = officialPassingRows(rec.receipt, nflOfficialDefault(loadForecastView(path.join(APP, "public"), id)));
+    const html = renderToStaticMarkup(React.createElement(SimulationV2Report, { r: rec.receipt, file: rec.file, canonical: null, gameHref: `/nfl/game/${id}/`, passing }));
+    const fam = board.families.player_pass_yds;
+    for (const team of [rec.receipt.away.abbr, rec.receipt.home.abbr]) {
+      const at = html.indexOf(`data-s2-official-passing="${team}"`);
+      assert.ok(at > 0, `${board.matchup} ${team}: the passing block is the official-projection block`);
+      const a = html.indexOf(">", at) + 1;
+      const block = html.slice(a, html.indexOf("<h3>", a));
+      const printed = new Map([...block.matchAll(/data-s2-qb="([^"]+)"[\s\S]*?<span data-s2-pass-yds="">([^<]*)<\/span>/g)].map((m) => [m[1], m[2]]));
+      // the official values, read straight from the committed board (game page: Math.round of the median)
+      const official = board.players.filter((p) => p.team === team && Number.isFinite(p.markets?.player_pass_yds?.median));
+      if (fam?.state === "ESTIMATE" || fam?.state === "PUBLISHED") {
+        assert.deepEqual([...printed.keys()].sort(), official.map((p) => p.playerId).sort(), `${board.matchup} ${team}: exactly the board's projected passers`);
+      } else assert.equal(printed.size, 0, `${board.matchup} ${team}: pass yds family ${fam?.state} → no number`);
+      for (const p of official) {
+        if (!printed.has(p.playerId)) continue;
+        const want = String(Math.round(p.markets.player_pass_yds.median));
+        sameCell(printed.get(p.playerId), want, p.markets.player_pass_yds.median, `${board.matchup} ${p.name}: simulation page == official board`);
+        assert.equal(printed.get(p.playerId), formatValue("yards", p.markets.player_pass_yds.median));
+        if (fam.state === "ESTIMATE") assert.ok(text(block).includes(`${want} · ${LABEL}`), `${board.matchup} ${p.name}: Estimate label beside the number`);
+        seen.set(p.name, want);
+        qbs += 1;
+      }
+      // no other number in the block: no simulated yards, attempts, completions, TDs or INTs, for any passer
+      const rest = text(block.replace(/<span data-s2-pass-yds="">[^<]*<\/span>/g, ""));
+      assert.doesNotMatch(rest, /\d/, `${board.matchup} ${team}: no number besides the official passing yards ("${rest}")`);
+      assert.doesNotMatch(block, /Attempts|Completions|TDs|INTs/, `${board.matchup} ${team}: unpublished QB markets have no column`);
+      // a simulated passer without an official projection is named, never given a number
+      for (const p of rec.receipt.playerStatDistributions ?? []) {
+        if (p.team !== team || p.playerId === "OTHER" || !(p.stats?.passYds?.p50 > 0) || printed.has(p.playerId)) continue;
+        assert.ok(text(block).includes(p.name), `${board.matchup} ${p.name}: listed as having no official projection`);
+      }
+    }
+  }
+  assert.ok(games >= 12 && qbs >= 20, `checked ${games} games, ${qbs} QBs`);
+  // the production examples of ledger N14 (games already kicked off, so their boards are final)
+  assert.equal(seen.get("Jared Goff"), "244");
+  assert.equal(seen.get("Drake Maye"), "242");
+});
+
+test("SOURCE: the simulation page feeds the report the official passing rows (Default view accessor), never the receipt's passing lines", () => {
+  const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
+  const page = read("src/app/nfl/simulation/[eventId]/page.tsx");
+  assert.match(page, /officialPassingRows\(rec\.receipt, nflOfficialDefault\(loadForecastView\(path\.join\(process\.cwd\(\), "public"\), eventId\)\)\)/);
+  assert.match(page, /<SimulationV2Report [^>]*passing=\{officialPassingFor\(rec, params\.eventId\)\}/);
+  const report = read("src/components/nfl/simulation-v2-report.tsx");
+  assert.doesNotMatch(report, /stats\.(passAtt|cmp|passTd|int|passYds)\b/, "the report prints no simulated passing statistic for a player");
+});

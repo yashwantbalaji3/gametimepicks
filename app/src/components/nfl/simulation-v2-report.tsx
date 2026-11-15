@@ -14,6 +14,7 @@ import Link from "next/link";
 import { formatUpdatedEt } from "@/lib/format";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
 import MoreDisclosure from "@/components/ui/more-disclosure";
+import { OFFICIAL_PASSING_NOTE, type officialPassingRows } from "@/lib/sports/nfl/sim-v2/official-passing.mjs";
 
 const CSS = `
 .s2 table{width:100%;border-collapse:collapse}
@@ -71,7 +72,9 @@ const TEAM_STATS: Array<[string, string]> = [["drives", "Drives"], ["plays", "Pl
 
 export interface CanonicalForecast { awayWin: number; homeWin: number; projectedAway: number; projectedHome: number; totalMedian: number; modelId: string | null; generatedAt: string | null }
 
-export default function SimulationV2Report({ r, canonical, gameHref }: { r: any; file: string; canonical: CanonicalForecast | null; gameHref: string }) {
+export type OfficialPassing = ReturnType<typeof officialPassingRows>;
+
+export default function SimulationV2Report({ r, canonical, gameHref, passing = null }: { r: any; file: string; canonical: CanonicalForecast | null; gameHref: string; passing?: OfficialPassing | null }) {
   const a = r.aggregate;
   const H = r.home.abbr;
   const A = r.away.abbr;
@@ -192,22 +195,38 @@ export default function SimulationV2Report({ r, canonical, gameHref }: { r: any;
       <section aria-labelledby="s2-players">
         <h2 id="s2-players">Players · median (80% range)</h2>
         <p className="f" style={{ margin: "4px 0 0" }}>
-          Player lines are slices of the same simulated games: in every run, receivers&apos; catches and yards add up to their passer&apos;s, and carries add up to the team&apos;s.
+          Rushing and receiving lines are slices of the same simulated games: in every run, receivers&apos; catches and yards add up to the team&apos;s simulated passing, and carries add up to the team&apos;s.
           Volume a named player does not get goes to &quot;Other&quot;, so nothing is forced onto a starter. Players ruled out before the simulation get no snaps.
         </p>
+        <p className="f" style={{ margin: "4px 0 0" }} data-s2-official-passing-note="">{OFFICIAL_PASSING_NOTE} <Link href={gameHref}>Game page</Link>.</p>
         {[A, H].map((team) => {
-          const qbs = byTeam(team, "passYds");
+          const pt = passing?.teams.find((x) => x.abbr === team) ?? null;
           const rush = byTeam(team, "rushYds").slice(0, 4);
           const rec = byTeam(team, "recYds").slice(0, 6);
           return (
             <div key={team}>
-              <h3>{team} passing</h3>
-              <Region label={`${team} simulated passing`}>
-                <table>
-                  <thead><tr><th scope="col">Player</th><th scope="col">Attempts</th><th scope="col">Completions</th><th scope="col">Yards</th><th scope="col">TDs (avg)</th><th scope="col">INTs (avg)</th></tr></thead>
-                  <tbody>{qbs.map((p: any) => <tr key={p.playerId}><td>{p.name} <span className="f">{p.position}</span></td><td className="k">{q(p.stats.passAtt)}</td><td className="k">{q(p.stats.cmp)}</td><td className="k">{q(p.stats.passYds)}</td><td className="k">{mean(p.stats.passTd)}</td><td className="k">{mean(p.stats.int)}</td></tr>)}</tbody>
-                </table>
-              </Region>
+              {/* N14 (founder rule 2026-10-20 / 11-11): a quarterback's passing number here is his OFFICIAL projection (the
+                  game page's value and label, via the Theater Default view); markets with no official projection —
+                  attempts, completions, passing TDs, interceptions — print no number. Never a simulated passing line. */}
+              <h3>{team} passing · official projection</h3>
+              <div data-s2-official-passing={team}>
+                {pt?.rows.length ? (
+                  <Region label={`${team} official passing projection`}>
+                    <table>
+                      <thead><tr><th scope="col">Player</th><th scope="col">Passing yards</th></tr></thead>
+                      <tbody>{pt.rows.map((p) => (
+                        <tr key={p.playerId} data-s2-qb={p.playerId}>
+                          <td>{p.name} {p.position ? <span className="f">{p.position}</span> : null}</td>
+                          <td className="k"><span data-s2-pass-yds="">{p.passYds.text}</span>{p.passYds.estimate ? <span className="f"> · {p.passYds.estimate}</span> : null}</td>
+                        </tr>
+                      ))}</tbody>
+                    </table>
+                  </Region>
+                ) : (
+                  <p className="f" style={{ margin: "4px 0 0" }}>No official passing projection for {team}.</p>
+                )}
+                {pt?.unprojected.length ? <p className="f" style={{ margin: "4px 0 0" }}>No official projection: {pt.unprojected.map((p) => p.name).join(", ")}.</p> : null}
+              </div>
               <h3>{team} rushing</h3>
               <Region label={`${team} simulated rushing`}>
                 <table>
