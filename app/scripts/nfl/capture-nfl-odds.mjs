@@ -191,8 +191,19 @@ const secretState = classifyOddsSecret(process.env);
 if (secretState.state !== "PRESENT") { console.error(`${secretState.state}: ${secretState.reason} — no key, no call`); process.exit(3); }
 const KEY = process.env.ODDS_API_KEY.trim();
 
+/*
+ * Absent usage headers come back from headers.get() as null; recordRequest reads null as UNKNOWN (never as 0), so a
+ * charged call without them is booked at its planned worst case and flagged creditsEstimated. A transport failure
+ * (timeout, reset) may still have reached the provider and been charged, so it returns status null instead of
+ * throwing past the ledger write; callers book it the same conservative way.
+ */
 const get = async (pathAndQuery) => {
-  const res = await fetch(`${BASE}${pathAndQuery}${pathAndQuery.includes("?") ? "&" : "?"}apiKey=${KEY}`, { signal: AbortSignal.timeout(25_000), headers: { accept: "application/json" } });
+  let res;
+  try {
+    res = await fetch(`${BASE}${pathAndQuery}${pathAndQuery.includes("?") ? "&" : "?"}apiKey=${KEY}`, { signal: AbortSignal.timeout(25_000), headers: { accept: "application/json" } });
+  } catch (e) {
+    return { status: null, headers: {}, body: null, transportError: e?.name ?? "Error" };
+  }
   const headers = { "x-requests-last": res.headers.get("x-requests-last"), "x-requests-used": res.headers.get("x-requests-used"), "x-requests-remaining": res.headers.get("x-requests-remaining") };
   let body = null;
   try { body = await res.json(); } catch { body = null; }
@@ -240,11 +251,12 @@ for (const plan of livePlan) {
   const fingerprint = `bulk:${plan.key}:${TEAM_MARKETS.join(",")}:${REGIONS.join(",")}`;
   const dup = isDuplicateRequest(ledger, { fingerprint, nowIso: NOW, freshnessMinutes: REFRESH_MINUTES });
   if (dup.duplicate) { console.log(`${plan.label}: ${dup.reason} — keeping the existing capture`); continue; }
-  const gateBulk = assertCallAllowed({ authorization, ledger, worstCaseCredits: TEAM_MARKETS.length * REGIONS.length, purpose: `bulk team markets (${plan.label})` });
+  const bulkWorstCase = TEAM_MARKETS.length * REGIONS.length;
+  const gateBulk = assertCallAllowed({ authorization, ledger, worstCaseCredits: bulkWorstCase, purpose: `bulk team markets (${plan.label})` });
   if (!gateBulk.ok) { console.error(gateBulk.errors.join("; ")); fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1)); process.exit(5); }
   const bulkRes = await get(`/sports/${plan.key}/odds?regions=${REGIONS.join(",")}&markets=${TEAM_MARKETS.join(",")}&oddsFormat=american`);
-  const cls = classifyProviderResult(bulkRes);
-  ledger = recordRequest(ledger, { at: NOW, purpose: `bulk team ML/spread/total (${plan.label})`, endpoint: `/sports/${plan.key}/odds`, events: Array.isArray(bulkRes.body) ? bulkRes.body.length : null, markets: TEAM_MARKETS, regions: REGIONS, status: bulkRes.status, headers: bulkRes.headers, charged: true, fingerprint, resultClass: cls.class });
+  const cls = bulkRes.transportError ? { class: "TRANSPORT_ERROR", action: `transport failure (${bulkRes.transportError}) — the call may have been charged; booked at worst case, not retried` } : classifyProviderResult(bulkRes);
+  ledger = recordRequest(ledger, { at: NOW, purpose: `bulk team ML/spread/total (${plan.label})`, endpoint: `/sports/${plan.key}/odds`, events: Array.isArray(bulkRes.body) ? bulkRes.body.length : null, markets: TEAM_MARKETS, regions: REGIONS, status: bulkRes.status, headers: bulkRes.headers, charged: true, worstCaseCredits: bulkWorstCase, fingerprint, resultClass: cls.class });
   if (cls.class !== "OK") {
     fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1));
     // last-known-good is preserved by construction: a failed run writes NO public artifact, so
@@ -312,7 +324,8 @@ if (PROBE) {
     propProbe = { state: "NO_TARGET", reason: "no joined pre-start event to probe" };
   } else {
    for (const target of targets) {
-    const gateProbe = assertCallAllowed({ authorization, ledger, worstCaseCredits: PROP_PROBE_MARKETS.length * REGIONS.length, purpose: "player-prop probe" });
+    const probeWorstCase = PROP_PROBE_MARKETS.length * REGIONS.length;
+    const gateProbe = assertCallAllowed({ authorization, ledger, worstCaseCredits: probeWorstCase, purpose: "player-prop probe" });
     if (!gateProbe.ok) {
       /* Stop the WHOLE sweep at the first refusal — continuing would spend the rest of the slate
          against a ceiling the gate has already declined. */
@@ -321,7 +334,11 @@ if (PROBE) {
     }
     {
       const probeRes = await get(`/sports/${target.sportKey}/events/${target.providerEventId}/odds?regions=${REGIONS.join(",")}&markets=${PROP_PROBE_MARKETS.join(",")}&oddsFormat=american`);
-      ledger = recordRequest(ledger, { at: NOW, purpose: `player-prop probe on ${target.away} @ ${target.home}`, endpoint: `/sports/${target.sportKey}/events/${target.providerEventId}/odds`, events: 1, markets: PROP_PROBE_MARKETS, regions: REGIONS, status: probeRes.status, headers: probeRes.headers, charged: probeRes.status === 200 });
+      ledger = recordRequest(ledger, { at: NOW, purpose: `player-prop probe on ${target.away} @ ${target.home}`, endpoint: `/sports/${target.sportKey}/events/${target.providerEventId}/odds`, events: 1, markets: PROP_PROBE_MARKETS, regions: REGIONS, status: probeRes.status, headers: probeRes.headers,
+        /* Every answer except the documented 422 "market not offered" may have consumed credits (5xx, 401, 429, a
+           transport failure, a 200 without usage headers): without a provider-reported cost it is booked at this
+           call's worst case, flagged creditsEstimated. recordRequest books a headerless 422 at 0 itself. */
+        charged: true, worstCaseCredits: probeWorstCase });
       if (probeRes.status !== 200) {
         /*
          * ⚠ A REFUSED EVENT IS STILL A PROBED EVENT, AND IT MUST SURVIVE THE SWEEP.
