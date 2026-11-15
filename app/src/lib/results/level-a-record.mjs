@@ -118,5 +118,40 @@ export function levelARecord(suggestions, grades) {
      page states the newest entry and grade it holds rather than implying it is live. */
   const newest = (xs) => xs.filter((x) => Number.isFinite(Date.parse(String(x ?? "")))).sort().at(-1) ?? null;
   const asOf = { recordedAt: newest((suggestions ?? []).map((e) => e.servedFrom ?? e.shownAt ?? e.recordedAt)), gradedAt: newest((grades ?? []).map((g) => g.gradedAt)) };
-  return { byGroup, totals, entries, orphanGrades, minDecidedForRate: MIN_DECIDED_FOR_RATE, asOf };
+  return { byGroup, totals, entries, orphanGrades, minDecidedForRate: MIN_DECIDED_FOR_RATE, asOf, windows: recordWindows(entries) };
+}
+
+/** The windows the record is shown by (founder 2026-11-15, P5). Days are ET product days. */
+export const RECORD_WINDOWS = Object.freeze([
+  { key: "day", label: "Newest product day", days: 1 },
+  { key: "3d", label: "Last 3 product days", days: 3 },
+  { key: "7d", label: "Last 7 product days", days: 7 },
+  { key: "all", label: "Since recording began", days: null },
+]);
+
+const dayMinus = (day, n) => { const t = Date.parse(`${day}T12:00:00Z`); return new Date(t - n * 86400e3).toISOString().slice(0, 10); };
+
+/**
+ * PURE. Counts per window, anchored on the record's NEWEST product day — not the wall clock: the page is static and a
+ * clock-anchored "today" would silently go stale between builds. Same rules as the groups: pending and void are never
+ * losses, decided = won + lost. `rateShown` follows the same minimum, but the results page prints NO pooled rate for a
+ * window: a window pools single picks and multi-leg cards, which are different bets. Rates stay per suggestion type.
+ */
+export function recordWindows(entries) {
+  const days = (entries ?? []).map((e) => e.productDay).filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(String(d))).sort();
+  const through = days.at(-1) ?? null;
+  return RECORD_WINDOWS.map((w) => {
+    const from = through == null ? null : w.days == null ? days[0] : dayMinus(through, w.days - 1);
+    const c = zero();
+    for (const e of entries ?? []) {
+      if (through == null || e.productDay < from || e.productDay > through) continue;
+      c.recorded += 1;
+      if (e.status === "WON") { c.won += 1; c.graded += 1; }
+      else if (e.status === "LOST") { c.lost += 1; c.graded += 1; }
+      else if (e.status === "VOID") { c.void += 1; c.graded += 1; }
+      else c.pending += 1;
+    }
+    const decided = c.won + c.lost;
+    return { ...w, from, through, ...c, decided, rateShown: decided >= MIN_DECIDED_FOR_RATE };
+  });
 }

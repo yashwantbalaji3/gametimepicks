@@ -150,6 +150,29 @@ export default function ModelSuggestionsRecord({ view }: { view: View }) {
               </tbody>
             </table>
           </div>
+          {view.windows?.length ? (
+            <div className="overflow-x-auto" role="region" aria-label="Model suggestions by time window" tabIndex={0}>
+              <table className="w-full text-[12.5px] border-collapse" style={{ minWidth: 520 }} data-windows>
+                <caption className="sr-only">All model suggestions by time window, through the newest product day. Counts only: the window pools single picks and multi-leg cards, so no pooled rate is shown; rates are per suggestion type above.</caption>
+                <thead>
+                  <tr style={{ color: "var(--vault-text-mute)" }}>
+                    <th scope="col" className="text-left font-medium py-1.5 pr-2">Window (all suggestion types)</th>
+                    <th scope="col" className={th}>Recorded</th><th scope="col" className={th}>Won</th><th scope="col" className={th}>Lost</th>
+                    <th scope="col" className={th}>Void</th><th scope="col" className={th}>Pending</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {view.windows.map((w) => (
+                    <tr key={w.key} style={{ borderTop: "1px solid var(--vault-border)", color: "var(--vault-text)" }} data-window={w.key}>
+                      <th scope="row" className="text-left font-normal py-1.5 pr-2">{w.label}{w.from && w.through ? <span style={{ color: "var(--vault-text-mute)" }}> · {w.from === w.through ? etDayLabel(w.through) : `${etDayLabel(w.from)} – ${etDayLabel(w.through)}`}</span> : null}</th>
+                      <td className="text-right py-1.5 px-1.5">{w.recorded}</td><td className="text-right py-1.5 px-1.5">{w.won}</td><td className="text-right py-1.5 px-1.5">{w.lost}</td>
+                      <td className="text-right py-1.5 px-1.5">{w.void}</td><td className="text-right py-1.5 px-1.5">{w.pending}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : null}
           <p className="m-0 text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }} data-as-of>
             As of this page&apos;s last update: newest suggestion {etTime(view.asOf.recordedAt) ?? "—"}; newest grade {view.asOf.gradedAt ? etTime(view.asOf.gradedAt) : "none yet — the first grades land with the nightly settle"}.
           </p>
