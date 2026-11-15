@@ -7,14 +7,17 @@
  * individual defensive stats are not in the receipt, so they are absent here rather than filled in.
  *
  * Kept SEPARATE from the canonical Game Time Forecast and its Projected Scorecard (which stay "expected statistical
- * summaries · not one simulated game"). The canonical forecast, when shown, sits in its own labelled card.
+ * summaries · not one simulated game"). N14 (founder rule 2026-10-20 / 11-11, one official forecast everywhere): the
+ * page's game headline and every player number are the OFFICIAL forecast (props `game` and `lines`, derived on the
+ * server by lib/sports/nfl/sim-v2/official-player-lines.mjs); every simulated figure sits inside the one visibly titled
+ * "Hypothetical simulation — not the forecast" block, which restates no win chance, score, total or margin.
  * No sportsbook number is read or shown: the engine takes none as an input.
  */
 import Link from "next/link";
 import { formatUpdatedEt } from "@/lib/format";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
 import MoreDisclosure from "@/components/ui/more-disclosure";
-import { OFFICIAL_PLAYER_NOTE, STARTER_UNCONFIRMED, type officialPlayerLines } from "@/lib/sports/nfl/sim-v2/official-player-lines.mjs";
+import { OFFICIAL_PLAYER_NOTE, STARTER_UNCONFIRMED, type officialPlayerLines, type officialGameLine } from "@/lib/sports/nfl/sim-v2/official-player-lines.mjs";
 
 const CSS = `
 .s2 table{width:100%;border-collapse:collapse}
@@ -52,26 +55,10 @@ function Region({ label, children }: { label: string; children: React.ReactNode 
   return <div className="scroll" role="region" aria-label={label} tabIndex={0}>{children}</div>;
 }
 
-function Bars({ hist, width, median, label }: { hist: any[]; width: number; median: number; label: string }) {
-  const m = new Map<number, number>();
-  for (const h of hist ?? []) { const b = Math.floor(h.value / width) * width; m.set(b, (m.get(b) ?? 0) + h.probability); }
-  const bs = [...m.entries()].sort((a, b) => a[0] - b[0]);
-  const max = Math.max(...bs.map(([, p]) => p), 0.0001);
-  return (
-    <figure style={{ margin: 0 }}>
-      <div className="bars" role="img" aria-label={`${label}: distribution over all simulated games, median ${median}`}>
-        {bs.map(([b, p]) => <div key={b} className={`bar${median >= b && median < b + width ? " mid" : ""}`} style={{ height: `${(p / max) * 100}%` }} title={`${b} to ${b + width - 1}: ${(p * 100).toFixed(1)}%`} />)}
-      </div>
-      <figcaption className="f">{label}. Bars group {width} points; the solid bar holds the median ({median}). Range shown {bs[0]?.[0]} to {bs[bs.length - 1]?.[0]}.</figcaption>
-    </figure>
-  );
-}
-
 /* N14: no simulated passing or rushing rows — beside a one-passer team's official passing yards they would read as a
    competing player number. Only game-flow counts with no official player family remain. */
 const TEAM_STATS: Array<[string, string]> = [["drives", "Drives"], ["plays", "Plays"], ["sacks", "Sacks taken"], ["fgMade", "Field goals made"]];
 
-export interface CanonicalForecast { awayWin: number; homeWin: number; projectedAway: number; projectedHome: number; totalMedian: number; modelId: string | null; generatedAt: string | null }
 
 export type OfficialPlayerLines = ReturnType<typeof officialPlayerLines>;
 type OfficialRow = OfficialPlayerLines["touchdowns"][number];
@@ -97,7 +84,9 @@ function OfficialTable({ label, cols, rows, team = false }: { label: string; col
   );
 }
 
-export default function SimulationV2Report({ r, canonical, gameHref, lines = null }: { r: any; file: string; canonical: CanonicalForecast | null; gameHref: string; lines?: OfficialPlayerLines | null }) {
+export type OfficialGameLine = NonNullable<ReturnType<typeof officialGameLine>>;
+
+export default function SimulationV2Report({ r, gameHref, lines = null, game = null }: { r: any; file: string; gameHref: string; lines?: OfficialPlayerLines | null; game?: OfficialGameLine | null }) {
   const a = r.aggregate;
   const H = r.home.abbr;
   const A = r.away.abbr;
@@ -107,7 +96,6 @@ export default function SimulationV2Report({ r, canonical, gameHref, lines = nul
   const by7 = sumWhere(mh, (v) => Math.abs(v) === 7);
   const kickoff = new Date(r.eventStart);
   // margin is home minus away; say it as who leads, the same way everywhere on the page
-  const lead = (m: number) => (m > 0 ? `${H} by ${m}` : m < 0 ? `${A} by ${-m}` : "Even");
   /* Overnight W8 (2026-10-28): ET, like every other time on the site (it printed "2026-10-25 12:46 UTC"). */
   const stamp = (iso: string) => formatUpdatedEt(iso);
 
@@ -122,7 +110,7 @@ export default function SimulationV2Report({ r, canonical, gameHref, lines = nul
         <p className="tag" style={{ margin: 0 }}>{PUBLIC_TERMS.GAME_SIMULATION} · Simulation V2 · how to read this page</p>
         <p style={{ margin: "6px 0 0", fontSize: 13.5, color: "var(--vault-text)" }}>
           Each run is one internally consistent possible game: drives, plays, player stats and points all add up inside that run.
-          The game and team numbers below summarise all {r.runCount.toLocaleString("en-US")} simulated games. Player numbers are not simulated: each is that player&apos;s official projection.
+          The official numbers come first and are exactly the game page&apos;s. Everything inside the &quot;Hypothetical simulation&quot; block further down summarises the {r.runCount.toLocaleString("en-US")} simulated games and is not the forecast.
         </p>
         <p className="m" style={{ margin: "6px 0 0", fontSize: 12.5 }}>
           This is a {PUBLIC_TERMS.GAME_SIMULATION} from a separate engine, not the {PUBLIC_TERMS.OFFICIAL_FORECAST}. It is not independent of it: each team&apos;s scoring level is
@@ -132,81 +120,22 @@ export default function SimulationV2Report({ r, canonical, gameHref, lines = nul
         </p>
       </div>
 
-      {canonical ? (
-        <div className="card canon">
-          <p className="tag" style={{ margin: 0 }}>{PUBLIC_TERMS.OFFICIAL_FORECAST} · Game Time Forecast · separate from this simulation</p>
-          <p style={{ margin: "6px 0 0", fontSize: 13, fontFamily: "var(--font-mono,ui-monospace,monospace)", overflowWrap: "anywhere" }}>
-            {A} {canonical.projectedAway} — {canonical.projectedHome} {H} · win chance {A} {pct(canonical.awayWin)} · {H} {pct(canonical.homeWin)} · total {canonical.totalMedian}
-          </p>
-          <p className="f" style={{ margin: "4px 0 0" }}>A different engine, anchored to the Game Time Forecast&apos;s expected total and margin. <Link href={gameHref}>Open the Game Time Forecast</Link>.</p>
-        </div>
-      ) : null}
-
-      <section aria-labelledby="s2-outcome">
-        <h2 id="s2-outcome">Game outcome · Simulation V2</h2>
-        <div className="grid">
-          <div className="tile"><b>{pct(a.winProbability.away)}</b><span>{A} win in the simulated games</span></div>
-          <div className="tile"><b>{pct(a.winProbability.home)}</b><span>{H} win in the simulated games</span></div>
-          <div className="tile"><b>{pct(a.winProbability.tie)}</b><span>tie after overtime</span></div>
-          <div className="tile"><b>{pct(a.overtimeProbability)}</b><span>game goes to overtime</span></div>
-          <div className="tile"><b>{A} {a.score.away.p50} – {a.score.home.p50} {H}</b><span>median score · averages {a.score.away.mean} – {a.score.home.mean}</span></div>
-          <div className="tile"><b>{a.total.p50}</b><span>median total · 80% of games {a.total.p10}–{a.total.p90}</span></div>
-          <div className="tile"><b>{lead(a.margin.p50)}</b><span>median margin · 80% range: {lead(a.margin.p10)} to {lead(a.margin.p90)}</span></div>
-          <div className="tile"><b>{pct(oneScore)}</b><span>one-score game (decided by 8 or fewer)</span></div>
-          <div className="tile"><b>{pct(by3)} · {pct(by7)}</b><span>decided by exactly 3 · by exactly 7</span></div>
-        </div>
-      </section>
-
-      <section aria-labelledby="s2-dist">
-        <h2 id="s2-dist">Score distribution</h2>
-        <div className="grid" style={{ gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))" }}>
-          <Bars hist={a.marginHistogram} width={3} median={a.margin.p50} label={`Final margin: ${H} points minus ${A} points (below 0 means ${A} won)`} />
-          <Bars hist={a.totalHistogram} width={4} median={a.total.p50} label="Final total points" />
-        </div>
-        <h3>Each team&apos;s score</h3>
-        <Region label="Team score ranges">
-          <table>
-            <thead><tr><th scope="col">Team</th><th scope="col">Low (10th)</th><th scope="col">Median</th><th scope="col">High (90th)</th><th scope="col">Average</th></tr></thead>
-            <tbody>{[[A, a.score.away], [H, a.score.home]].map(([t, d]: any) => (
-              <tr key={t}><td>{t}</td><td className="k">{d.p10}</td><td className="k">{d.p50}</td><td className="k">{d.p90}</td><td className="k">{d.mean}</td></tr>
-            ))}</tbody>
-          </table>
-        </Region>
-      </section>
-
-      <section aria-labelledby="s2-periods">
-        <h2 id="s2-periods">Quarters and halves</h2>
-        <p className="f" style={{ margin: "4px 0 0" }}>From the same simulated games, so the quarters add up to each game&apos;s final. Overtime is shown above.</p>
-        <Region label="Scoring by quarter and half">
-          <table>
-            <thead><tr><th scope="col">Period</th><th scope="col">{A} median (80%)</th><th scope="col">{H} median (80%)</th><th scope="col">Both teams (80%)</th><th scope="col">{A} wins it</th><th scope="col">{H} wins it</th><th scope="col">Level</th></tr></thead>
-            <tbody>{(r.periodAggregates ?? []).map((p: any) => (
-              <tr key={p.period}><td className="k">{p.period === "H1" ? "1st half" : p.period === "H2" ? "2nd half" : p.period}</td><td className="k">{q(p.away)}</td><td className="k">{q(p.home)}</td><td className="k">{q(p.total)}</td><td className="k">{pct(p.awayWins)}</td><td className="k">{pct(p.homeWins)}</td><td className="k">{pct(p.level)}</td></tr>
-            ))}</tbody>
-          </table>
-        </Region>
-      </section>
-
-      <section aria-labelledby="s2-team">
-        <h2 id="s2-team">Simulated team box · hypothetical, not the forecast · median (80% range)</h2>
-        <Region label="Simulated team statistics">
-          <table>
-            <thead><tr><th scope="col">Stat</th><th scope="col">{A}</th><th scope="col">{H}</th></tr></thead>
-            <tbody>{TEAM_STATS.filter(([k]) => r.teamStatDistributions?.home?.[k]).map(([k, label]) => (
-              <tr key={k}><td>{label}</td><td className="k">{q(r.teamStatDistributions.away[k])}</td><td className="k">{q(r.teamStatDistributions.home[k])}</td></tr>
-            ))}</tbody>
-          </table>
-        </Region>
-        <h3>Touchdowns per team</h3>
-        <Region label="Team touchdown counts">
-          <table>
-            <thead><tr><th scope="col">Touchdowns</th>{[0, 1, 2, 3, 4, 5].map((n) => <th key={n} scope="col">{n === 5 ? "5+" : n}</th>)}</tr></thead>
-            <tbody>{([[A, "away"], [H, "home"]] as const).map(([t, side]) => {
-              const h = r.scoringEventDistributions?.teamTdCount?.[side] ?? [];
-              return <tr key={t}><td>{t}</td>{[0, 1, 2, 3, 4].map((n) => <td key={n} className="k">{pct(sumWhere(h, (v) => v === n))}</td>)}<td className="k">{pct(sumWhere(h, (v) => v >= 5))}</td></tr>;
-            })}</tbody>
-          </table>
-        </Region>
+      {/* N14 (founder rule 2026-10-20 / 11-11): the game-level headline is the OFFICIAL forecast — the forecast view's
+          record, the accessor /nfl/game/<id> renders its hero from, with the hero's formatting (officialGameLine). The
+          simulation's own win chance, score, total and margin are not printed anywhere on this page. */}
+      <section aria-labelledby="s2-official" className="card canon" data-s2-official-game="">
+        <p className="tag" style={{ margin: 0 }}>{PUBLIC_TERMS.OFFICIAL_FORECAST} · Game Time Forecast · separate from this simulation</p>
+        <h2 id="s2-official" style={{ marginTop: 6 }}>Official forecast · the same as the game page</h2>
+        {game ? (
+          <div className="grid">
+            <div className="tile"><b data-s2-g="winAway">{game.winChance.away.text}</b><span>{game.away.abbr} win chance</span></div>
+            <div className="tile"><b data-s2-g="winHome">{game.winChance.home.text}</b><span>{game.home.abbr} win chance</span></div>
+            {game.projectedScore ? <div className="tile"><b>{game.away.abbr} <span data-s2-g="scoreAway">{game.projectedScore.away}</span> – <span data-s2-g="scoreHome">{game.projectedScore.home}</span> {game.home.abbr}</b><span>projected score · the middle of the outcomes</span></div> : null}
+            {game.margin ? <div className="tile"><b data-s2-g="margin">{game.margin.text}</b><span>expected margin · 8 in 10 outcomes between <span data-s2-g="marginRange">{game.margin.range}</span></span></div> : null}
+            {game.total ? <div className="tile"><b data-s2-g="total">{game.total.median}</b><span>expected total · 8 in 10 outcomes between <span data-s2-g="totalP10">{game.total.p10}</span> and <span data-s2-g="totalP90">{game.total.p90}</span></span></div> : null}
+          </div>
+        ) : <p className="f" style={{ margin: "6px 0 0" }}>No official forecast is available for this game.</p>}
+        <p className="f" style={{ margin: "6px 0 0" }}>{game ? <>{game.favourite.name} <span data-s2-g="favourite">{game.favourite.text}</span> to win. </> : null}<Link href={gameHref}>Open the Game Time Forecast</Link>.</p>
       </section>
 
       {/* N14 (founder rule 2026-10-20 / 11-11): every player number below is that player's OFFICIAL projection — the game
@@ -254,10 +183,61 @@ export default function SimulationV2Report({ r, canonical, gameHref, lines = nul
         </div>
       </section>
 
-      <section aria-labelledby="s2-rep">
-        <h2 id="s2-rep">Representative simulated games</h2>
+      {/* N14: every simulated game-level figure lives inside this one visibly titled block, apart from the official numbers
+          above. It restates no competing headline: no simulated win chance, median score, total or margin. */}
+      <div data-s2-hypothetical="" className="card exp" style={{ marginTop: 32 }}>
+        <section aria-labelledby="s2-hypo" style={{ marginTop: 0 }}>
+          <h2 id="s2-hypo">Hypothetical simulation — not the forecast</h2>
+          <p className="f" style={{ margin: "4px 0 0" }}>
+            Shapes of the {r.runCount.toLocaleString("en-US")} simulated games from a separate engine. Not the {PUBLIC_TERMS.OFFICIAL_FORECAST}: for who wins, the score, the margin and the total, use the official numbers above.
+          </p>
+          <div className="grid">
+            <div className="tile"><b>{pct(a.overtimeProbability)}</b><span>simulated games that go to overtime</span></div>
+            <div className="tile"><b>{pct(a.winProbability.tie)}</b><span>simulated games tied after overtime</span></div>
+            <div className="tile"><b>{pct(oneScore)}</b><span>simulated one-score games (decided by 8 or fewer)</span></div>
+            <div className="tile"><b>{pct(by3)} · {pct(by7)}</b><span>simulated games decided by exactly 3 · by exactly 7</span></div>
+          </div>
+        </section>
+        <section aria-labelledby="s2-periods">
+        <h3 id="s2-periods">Quarters and halves · simulated</h3>
+        <p className="f" style={{ margin: "4px 0 0" }}>From the same simulated games, so the quarters add up to each simulated game&apos;s final.</p>
+        <Region label="Scoring by quarter and half">
+          <table>
+            <thead><tr><th scope="col">Period</th><th scope="col">{A} median (80%)</th><th scope="col">{H} median (80%)</th><th scope="col">Both teams (80%)</th><th scope="col">{A} wins it</th><th scope="col">{H} wins it</th><th scope="col">Level</th></tr></thead>
+            <tbody>{(r.periodAggregates ?? []).map((p: any) => (
+              <tr key={p.period}><td className="k">{p.period === "H1" ? "1st half" : p.period === "H2" ? "2nd half" : p.period}</td><td className="k">{q(p.away)}</td><td className="k">{q(p.home)}</td><td className="k">{q(p.total)}</td><td className="k">{pct(p.awayWins)}</td><td className="k">{pct(p.homeWins)}</td><td className="k">{pct(p.level)}</td></tr>
+            ))}</tbody>
+          </table>
+        </Region>
+      </section>
+
+        <section aria-labelledby="s2-team">
+        <h3 id="s2-team">Simulated team box · hypothetical, not the forecast · median (80% range)</h3>
+        <Region label="Simulated team statistics">
+          <table>
+            <thead><tr><th scope="col">Stat</th><th scope="col">{A}</th><th scope="col">{H}</th></tr></thead>
+            <tbody>{TEAM_STATS.filter(([k]) => r.teamStatDistributions?.home?.[k]).map(([k, label]) => (
+              <tr key={k}><td>{label}</td><td className="k">{q(r.teamStatDistributions.away[k])}</td><td className="k">{q(r.teamStatDistributions.home[k])}</td></tr>
+            ))}</tbody>
+          </table>
+        </Region>
+        <h3>Touchdowns per team · simulated</h3>
+        <Region label="Team touchdown counts">
+          <table>
+            <thead><tr><th scope="col">Touchdowns</th>{[0, 1, 2, 3, 4, 5].map((n) => <th key={n} scope="col">{n === 5 ? "5+" : n}</th>)}</tr></thead>
+            <tbody>{([[A, "away"], [H, "home"]] as const).map(([t, side]) => {
+              const h = r.scoringEventDistributions?.teamTdCount?.[side] ?? [];
+              return <tr key={t}><td>{t}</td>{[0, 1, 2, 3, 4].map((n) => <td key={n} className="k">{pct(sumWhere(h, (v) => v === n))}</td>)}<td className="k">{pct(sumWhere(h, (v) => v >= 5))}</td></tr>;
+            })}</tbody>
+          </table>
+        </Region>
+      </section>
+
+        <section aria-labelledby="s2-rep">
+        <h3 id="s2-rep">Representative simulated games</h3>
         <p className="f" style={{ margin: "4px 0 0" }}>Real runs from this batch, picked by a fixed rule and replayed exactly. Each is one possible game, not the forecast.</p>
-        {(r.representativeRuns ?? []).slice(0, 3).map((g: any) => (
+        {/* the MEDIAN_LIKE run restates a central score that competes with the official projected score: not shown */}
+        {(r.representativeRuns ?? []).filter((g: any) => g.kind !== "MEDIAN_LIKE").slice(0, 3).map((g: any) => (
           <details key={g.kind} style={{ borderTop: "1px solid var(--vault-border)" }}>
             <summary>
               <span className="tag">Representative simulation — not the forecast</span>{" "}
@@ -276,6 +256,8 @@ export default function SimulationV2Report({ r, canonical, gameHref, lines = nul
         ))}
       </section>
 
+      </div>
+
       {/* Overnight W8 (2026-10-28): engine version ("2.0.0-shadow"), seed algorithm and receipt id are audit detail —
           RELOCATED, verbatim, into the page's one collapsed "Technical details". The not-modelled list and the paper-only
           line stay visible below it. */}
@@ -290,7 +272,7 @@ export default function SimulationV2Report({ r, canonical, gameHref, lines = nul
               <tr><th scope="row">Runs</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.runCount.toLocaleString("en-US")} · incoherent runs {r.validation.failedRuns} of {r.validation.sampleCount.toLocaleString("en-US")}</td></tr>
               <tr><th scope="row">Generated</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{stamp(r.generatedAt)} · before kickoff {stamp(kickoff.toISOString())}</td></tr>
               <tr><th scope="row">Seed</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.baseSeed} · {r.seedStrategy}</td></tr>
-              <tr><th scope="row">Team strength</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.calibration?.anchors?.source} · calibrated means {H} {r.calibration?.calibratedMean?.[0]} / {A} {r.calibration?.calibratedMean?.[1]}</td></tr>
+              <tr><th scope="row">Team strength</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.calibration?.anchors?.source} · each team&apos;s scoring level set from the Game Time Forecast&apos;s expected total and margin</td></tr>
               <tr><th scope="row">Availability</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }} title={r.availabilitySnapshotId}>{readableSnapshotId(r.availabilitySnapshotId)}</td></tr>
               <tr><th scope="row">Market</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{String(r.marketUse ?? "").startsWith("NOT_AN_INPUT") ? "Not used as an input" : r.marketUse}</td></tr>
               <tr><th scope="row">Receipt</th><td className="k" style={{ whiteSpace: "normal", overflowWrap: "anywhere" }}>{r.simulationReceiptId}</td></tr>

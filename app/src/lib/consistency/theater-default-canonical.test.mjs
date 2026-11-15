@@ -385,9 +385,15 @@ const sliceSection = (html, id) => {
   return html.slice(at, html.indexOf("</section>", at));
 };
 
-test("NFL Week 10 simulation pages: every player number == the official board value for that family, or is absent; no simulated team passing/rushing", async () => {
+test("NFL Week 10 simulation pages: every game-level and player number == the official forecast / board value, or is absent; simulated figures only in the hypothetical block", async () => {
   const { default: SimulationV2Report } = await import("../../components/nfl/simulation-v2-report.tsx");
-  const { officialPlayerLines, STARTER_UNCONFIRMED } = await import("../sports/nfl/sim-v2/official-player-lines.mjs");
+  const { officialPlayerLines, officialGameLine, STARTER_UNCONFIRMED } = await import("../sports/nfl/sim-v2/official-player-lines.mjs");
+  const { unionFrozenForecasts } = await import("../sports/nfl/public-forecast-union.mjs");
+  const { nflPublicRecordResolver } = await import("../sports/nfl/public-record.mjs");
+  const { default: GameHero } = await import("../../components/nfl/forecast/game-hero.tsx");
+  // the game page's own forecast source (src/app/nfl/game/[eventId]/page.tsx forecastArtifact → f.forecastSummary)
+  const union = unionFrozenForecasts(readJson(path.join(DATA, "nfl/forecasts/latest.json")), readJson(path.join(DATA, "nfl/forecasts/frozen-latest.json")), { resolve: nflPublicRecordResolver(REPO) });
+  let gameNumbers = 0;
   const { readShadowReceipts, simulationOfRecord } = await import("../sports/nfl/sim-v2/public-receipt.mjs");
   const { loadForecastView } = await import("../sports/nfl/forecast-view-load.mjs");
   const entries = readShadowReceipts(REPO);
@@ -401,7 +407,45 @@ test("NFL Week 10 simulation pages: every player number == the official board va
     const view = loadForecastView(path.join(APP, "public"), id);
     // exactly what the page passes (src/app/nfl/simulation/[eventId]/page.tsx officialLinesFor)
     const lines = officialPlayerLines(rec.receipt, nflOfficialDefault(view));
-    const html = renderToStaticMarkup(React.createElement(SimulationV2Report, { r: rec.receipt, file: rec.file, canonical: null, gameHref: `/nfl/game/${id}/`, lines }));
+    const game = officialGameLine(view);
+    const html = renderToStaticMarkup(React.createElement(SimulationV2Report, { r: rec.receipt, file: rec.file, gameHref: `/nfl/game/${id}/`, lines, game }));
+
+    /* GAME LEVEL: every official game number == the game page's forecast summary, printed with the game hero's digits */
+    const f = union.forecasts.find((x) => String(x.providerEventId) === id);
+    assert.ok(f, `${board.matchup}: on the game page`);
+    const s = f.forecastSummary;
+    const hero = text(renderToStaticMarkup(React.createElement(GameHero, { away: f.away, home: f.home, kickoffLabel: "x", venue: f.venue, record: { ...view.record, winProbability: s.winProbability, projectedScore: s.projectedScore, margin: s.margin, total: s.total }, likeliest: null, started: false })));
+    const off = sliceSection(html, "s2-official");
+    const g = Object.fromEntries([...off.matchAll(/data-s2-g="([^"]+)">([^<]*)</g)].map((m) => [m[1], unescape(m[2])]));
+    const want = {
+      winAway: `${(s.winProbability.away * 100).toFixed(1)}%`, winHome: `${(s.winProbability.home * 100).toFixed(1)}%`,
+      scoreAway: String(s.projectedScore.away), scoreHome: String(s.projectedScore.home),
+      margin: `${f.home.abbr} ${s.margin.median > 0 ? "+" : ""}${s.margin.median}`,
+      marginRange: `${s.margin.p10 > 0 ? "+" : ""}${s.margin.p10} and ${s.margin.p90 > 0 ? "+" : ""}${s.margin.p90}`,
+      total: String(s.total.median), totalP10: String(s.total.p10), totalP90: String(s.total.p90),
+      favourite: `${((view.record.favourite === f.home.abbr ? s.winProbability.home : s.winProbability.away) * 100).toFixed(1)}%`,
+    };
+    assert.deepEqual(g, want, `${board.matchup}: official game tiles == the game page's forecast`);
+    for (const [k, v] of Object.entries(want)) {
+      if (k === "marginRange") assert.ok(hero.includes(`between ${v}`), `${board.matchup} ${k}: "${v}" as the game hero prints it`);
+      else if (k.startsWith("score")) continue;
+      else assert.ok(hero.includes(v), `${board.matchup} ${k}: "${v}" as the game hero prints it`);
+      gameNumbers += 1;
+    }
+    assert.ok(hero.includes(`${want.favourite} to win`), `${board.matchup}: projected winner as the hero prints it`);
+    assert.ok(hero.includes(`${s.projectedScore.away} – ${s.projectedScore.home}`), `${board.matchup}: projected score as the hero prints it`);
+    // no other number in the official game section (the hero's "8 in 10" wording aside)
+    const offRest = text(off.replace(/<span data-s2-g="[^"]*">[^<]*<\/span>|<b data-s2-g="[^"]*">[^<]*<\/b>/g, "")).replace(/8 in 10/g, "").split(f.away.name).join("").split(f.home.name).join("");
+    assert.doesNotMatch(offRest, /\d/, `${board.matchup}: official section prints only official numbers ("${offRest}")`);
+    // the hypothetical block: visible heading, after (apart from) the official numbers, no competing headline
+    const hAt = html.indexOf('data-s2-hypothetical=""');
+    assert.ok(hAt > html.indexOf('aria-labelledby="s2-td"') && hAt > html.indexOf('aria-labelledby="s2-official"'), `${board.matchup}: the hypothetical block sits after every official number`);
+    const hypo = text(html.slice(html.indexOf(">", hAt) + 1, html.indexOf('aria-labelledby="s2-prov"')));
+    assert.match(hypo, /^[^\d]*Hypothetical simulation — not the forecast/, `${board.matchup}: the block opens on its visible heading`);
+    assert.doesNotMatch(hypo, /win chance|median score|median total|median margin|projected|median like/i, `${board.matchup}: no competing headline in the block`);
+    const a = rec.receipt.aggregate;
+    assert.ok(!text(html).includes(`${rec.receipt.away.abbr} ${a.score.away.p50} – ${a.score.home.p50} ${rec.receipt.home.abbr}`) || (a.score.away.p50 === s.projectedScore.away && a.score.home.p50 === s.projectedScore.home), `${board.matchup}: the simulated median score is not printed`);
+    if (id === "401873064") assert.deepEqual([g.winAway, g.winHome, g.scoreAway, g.scoreHome, g.margin, g.total], ["41.9%", "55.1%", "23", "25", "CIN +1", "48"], "PIT @ CIN official headline");
     const sections = [sliceSection(html, "s2-players"), sliceSection(html, "s2-td")];
     for (const sec of sections) {
       for (const m of sec.matchAll(/<span data-s2-v="([^"|]+)\|([^"]+)">([^<]*)<\/span>(<span class="f"> · ([^<]*)<\/span>)?/g)) {
@@ -430,7 +474,7 @@ test("NFL Week 10 simulation pages: every player number == the official board va
     assert.doesNotMatch(text(sliceSection(html, "s2-team")), /Pass attempts|Completions|Passing yards|Passing TDs|Interceptions|Rush attempts|Rushing yards|Rushing TDs/, `${board.matchup}: team box`);
     assert.match(text(sliceSection(html, "s2-team")), /Simulated team box · hypothetical, not the forecast/);
   }
-  assert.ok(games >= 12 && numbers >= 200, `checked ${games} games, ${numbers} numbers`);
+  assert.ok(games >= 12 && numbers >= 200 && gameNumbers >= 7 * games, `checked ${games} games, ${numbers} player numbers, ${gameNumbers} game numbers`);
   assert.deepEqual([...fams].sort(), ["anytimeTd", "passingYards", "receivingYards", "receptions", "rushingYards"], "every official family is exercised");
   // the production examples of ledger N14. Burrow's PIT @ CIN board (generated 2026-11-15T21:10:52Z) is the committed
   // pre-kickoff board; if a later pre-kickoff refresh moves it, update the pin from the board, never the reverse.
@@ -442,8 +486,11 @@ test("NFL Week 10 simulation pages: every player number == the official board va
 test("SOURCE: the simulation page feeds the report the official player lines (Default view accessor), and the report reads no simulated player stat", () => {
   const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8").replace(/\s+/g, "");
   const page = read("src/app/nfl/simulation/[eventId]/page.tsx");
-  assert.match(page, /officialPlayerLines\(rec\.receipt,nflOfficialDefault\(loadForecastView\(/, "rows from the Default view accessor");
-  assert.match(page, /<SimulationV2Report[^>]*lines=\{officialLinesFor\(/, "the report is handed those rows");
+  assert.match(page, /constview=loadForecastView\(/, "one forecast view (the game page's accessor)");
+  assert.match(page, /officialPlayerLines\(rec\.receipt,nflOfficialDefault\(view\)\)/, "player rows from the Default view");
+  assert.match(page, /game:officialGameLine\(view\)/, "game headline from the same view's record");
+  assert.match(page, /<SimulationV2Report[^>]*\{\.\.\.officialFor\(rec,params\.eventId\)\}/, "the report is handed both");
   const report = read("src/components/nfl/simulation-v2-report.tsx");
   assert.doesNotMatch(report, /playerStatDistributions|firstTdScorer|teamFirstTd|\.anytimeTd\b(?!")/, "the report reads no simulated player line");
+  assert.doesNotMatch(report, /a\.winProbability\.(home|away)|a\.score\b|a\.total\b|a\.margin\b|calibratedMean|totalHistogram/, "the report prints no simulated win chance, score, total or margin");
 });

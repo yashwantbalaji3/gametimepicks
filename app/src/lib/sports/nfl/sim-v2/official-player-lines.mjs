@@ -18,6 +18,7 @@
  * no simulated player number is ever copied into the output.
  */
 import { formatValue } from "../forecast-view.mjs";
+import { nflWinPct } from "../win-chance-text.mjs";
 
 export const OFFICIAL_PLAYER_LINES_VERSION = "nfl-sim-official-player-lines@1";
 /** Official families the report prints, per table (keys of forecast-view.mjs PLAYER_FAMILIES). */
@@ -69,4 +70,34 @@ export function officialPlayerLines(receipt, official) {
   });
   const touchdowns = table(all.flatMap((t) => t.rows), TABLE_FAMILIES.touchdowns, "anytimeTd");
   return { version: OFFICIAL_PLAYER_LINES_VERSION, available: Boolean(official), teams, touchdowns };
+}
+
+/** The game hero's formatters (components/nfl/forecast/game-hero.tsx): win chance, signed margin. */
+const signed = (x) => (x > 0 ? `+${x}` : `${x}`);
+const finite = (...xs) => xs.every((x) => typeof x === "number" && Number.isFinite(x));
+
+/**
+ * The official game-level line (win chance, projected score, expected margin and total with their 80% ranges) from the
+ * forecast view's record — the accessor /nfl/game/<id> renders its hero from — with the hero's own formatting.
+ * A figure the record does not carry is null (absent on the page), never filled from the simulation.
+ * @param {any} view forecast-view.mjs gameView output (loadForecastView) — null → null
+ */
+export function officialGameLine(view) {
+  const r = view?.record;
+  if (!r?.winProbability || !finite(r.winProbability.away, r.winProbability.home)) return null;
+  const away = { abbr: view.away.abbr, name: view.away.name };
+  const home = { abbr: view.home.abbr, name: view.home.name };
+  // the record's own favourite (the hero's "projected winner"); the larger win chance only if it names none
+  const favIsHome = r.favourite ? r.favourite === home.abbr : r.winProbability.home >= r.winProbability.away;
+  const ps = r.projectedScore; const m = r.margin; const t = r.total;
+  return {
+    eventId: String(view.providerEventId),
+    away, home,
+    winChance: { away: { p: r.winProbability.away, text: nflWinPct(r.winProbability.away) }, home: { p: r.winProbability.home, text: nflWinPct(r.winProbability.home) } },
+    favourite: { abbr: (favIsHome ? home : away).abbr, name: (favIsHome ? home : away).name, text: nflWinPct(favIsHome ? r.winProbability.home : r.winProbability.away) },
+    projectedScore: ps && finite(ps.away, ps.home) ? { away: ps.away, home: ps.home } : null,
+    margin: m && finite(m.median, m.p10, m.p90) ? { median: m.median, p10: m.p10, p90: m.p90, text: `${home.abbr} ${signed(m.median)}`, range: `${signed(m.p10)} and ${signed(m.p90)}` } : null,
+    total: t && finite(t.median, t.p10, t.p90) ? { median: t.median, p10: t.p10, p90: t.p90 } : null,
+    generatedAt: r.generatedAt ?? view.generatedAt ?? null,
+  };
 }
