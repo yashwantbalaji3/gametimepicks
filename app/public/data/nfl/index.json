@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-15T19:15:17Z",
+ "generatedAt": "2026-11-15T19:23:40Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -22,7 +22,7 @@
   "forecastsUpcoming": 5,
   "forecastsStarted": 9,
   "marketEvents": 14,
-  "settled": 1
+  "settled": 2
  },
  "nextKickoffUtc": "2026-11-15T21:05Z",
  "nextMatchup": "SEA @ LV",
@@ -33,17 +33,17 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-15T17:43:38Z",
+  "generatedAt": "2026-11-15T19:15:17Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 137,
-  "decisive": 136,
-  "winnerAccuracy": 0.6103,
-  "marginMAE": 10.0219,
-  "totalMAE": 11.146,
-  "marginInterval80Coverage": 0.7956,
-  "totalInterval80Coverage": 0.8175,
+  "settledForecasts": 138,
+  "decisive": 137,
+  "winnerAccuracy": 0.6131,
+  "marginMAE": 10.1232,
+  "totalMAE": 11.0942,
+  "marginInterval80Coverage": 0.7899,
+  "totalInterval80Coverage": 0.8188,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,13 +57,13 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 137,
-    "decisive": 136,
-    "winnerAccuracy": 0.6103,
-    "marginMAE": 10.0219,
-    "totalMAE": 11.146,
-    "marginInterval80Coverage": 0.7956,
-    "totalInterval80Coverage": 0.8175
+    "settledForecasts": 138,
+    "decisive": 137,
+    "winnerAccuracy": 0.6131,
+    "marginMAE": 10.1232,
+    "totalMAE": 11.0942,
+    "marginInterval80Coverage": 0.7899,
+    "totalInterval80Coverage": 0.8188
    }
   },
   "unknownSeasonTypeRows": 0,
@@ -329,10 +329,10 @@
     "name": "New England Patriots"
    },
    "kickoffUtc": "2026-11-15T14:30Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 25,
