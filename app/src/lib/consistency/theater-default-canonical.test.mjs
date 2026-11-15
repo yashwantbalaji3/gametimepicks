@@ -360,77 +360,90 @@ test("SOURCE: the Default views are server components fed no run, and no island 
   }
 });
 
-/* ──────────────────────── NFL simulation page · quarterback passing (ledger N14) ──────────────────────── */
+/* ──────────────────────── NFL simulation page · every player number is official (ledger N14) ──────────────────────── */
 
 /* Founder rule (2026-10-20, reaffirmed 11-11): one official forecast for a player everywhere; a what-if simulation never
-   presents a competing number. On production the /nfl/simulation/<id>/ report printed each QB's SIMULATED attempts,
-   completions, yards, TD and INT (Week 10: Burrow 228 vs the board's 271, Goff 222 vs 244, Maye 223 vs 242). For every
-   committed Week 10 game with a showable receipt of record, the rendered report's passing block must print, for each
-   QB, exactly the official board's passing yards (game page digits + Estimate label) and NO other number. */
+   presents a competing number. On production the /nfl/simulation/<id>/ report printed SIMULATED player lines (Week 10:
+   Burrow 228 pass yds vs the board's 271, Goff 222 vs 244, Maye 223 vs 242) plus simulated rushing, receiving and
+   touchdown-scorer tables and team passing/rushing totals. For every committed Week 10 game with a showable receipt of
+   record, every number in the rendered report's player sections must be the official board value for that player and
+   family (game page digits + Estimate label), or be absent; the team box carries no passing/rushing statistic. */
 const WEEK10 = fs.readdirSync(path.join(DATA, "nfl/player-board"))
   .filter((f) => /^\d+\.json$/.test(f))
   .map((f) => readJson(path.join(DATA, "nfl/player-board", f)))
   .filter((b) => b.seasonType === 2 && b.week === 10);
 
-test("NFL Week 10 simulation pages: every QB passing number == the official board value, or is absent (attempts/completions/TD/INT unpublished)", async () => {
+/** The board's own value for (player, family): median for yards/receptions, probability for anytime TD. */
+const boardValue = (board, playerId, fam) => {
+  const m = board.players.find((p) => p.playerId === playerId)?.markets?.[MARKET_KEY[fam]];
+  const v = KIND[fam] === "probability" ? m?.probability : m?.median;
+  return Number.isFinite(v) ? v : null;
+};
+const sliceSection = (html, id) => {
+  const at = html.indexOf(`<section aria-labelledby="${id}"`);
+  assert.ok(at >= 0, `section ${id}`);
+  return html.slice(at, html.indexOf("</section>", at));
+};
+
+test("NFL Week 10 simulation pages: every player number == the official board value for that family, or is absent; no simulated team passing/rushing", async () => {
   const { default: SimulationV2Report } = await import("../../components/nfl/simulation-v2-report.tsx");
-  const { officialPassingRows } = await import("../sports/nfl/sim-v2/official-passing.mjs");
+  const { officialPlayerLines, STARTER_UNCONFIRMED } = await import("../sports/nfl/sim-v2/official-player-lines.mjs");
   const { readShadowReceipts, simulationOfRecord } = await import("../sports/nfl/sim-v2/public-receipt.mjs");
   const { loadForecastView } = await import("../sports/nfl/forecast-view-load.mjs");
   const entries = readShadowReceipts(REPO);
   assert.equal(WEEK10.length, 14, "14 committed Week 10 boards");
-  let games = 0; let qbs = 0; const seen = new Map();
+  let games = 0; let numbers = 0; const fams = new Set(); const pass = new Map();
   for (const board of WEEK10) {
     const id = String(board.providerEventId);
     const rec = simulationOfRecord(entries, id);
     if (!rec?.showable) continue; // no page is built for this game (dynamicParams=false → 404)
     games += 1;
-    // exactly what the page passes (src/app/nfl/simulation/[eventId]/page.tsx officialPassingFor)
-    const passing = officialPassingRows(rec.receipt, nflOfficialDefault(loadForecastView(path.join(APP, "public"), id)));
-    const html = renderToStaticMarkup(React.createElement(SimulationV2Report, { r: rec.receipt, file: rec.file, canonical: null, gameHref: `/nfl/game/${id}/`, passing }));
-    const fam = board.families.player_pass_yds;
-    for (const team of [rec.receipt.away.abbr, rec.receipt.home.abbr]) {
-      const at = html.indexOf(`data-s2-official-passing="${team}"`);
-      assert.ok(at > 0, `${board.matchup} ${team}: the passing block is the official-projection block`);
-      const a = html.indexOf(">", at) + 1;
-      const block = html.slice(a, html.indexOf("<h3>", a));
-      const printed = new Map([...block.matchAll(/data-s2-qb="([^"]+)"[\s\S]*?<span data-s2-pass-yds="">([^<]*)<\/span>/g)].map((m) => [m[1], m[2]]));
-      // the official values, read straight from the committed board (game page: Math.round of the median)
-      const official = board.players.filter((p) => p.team === team && Number.isFinite(p.markets?.player_pass_yds?.median));
-      if (fam?.state === "ESTIMATE" || fam?.state === "PUBLISHED") {
-        assert.deepEqual([...printed.keys()].sort(), official.map((p) => p.playerId).sort(), `${board.matchup} ${team}: exactly the board's projected passers`);
-      } else assert.equal(printed.size, 0, `${board.matchup} ${team}: pass yds family ${fam?.state} → no number`);
-      for (const p of official) {
-        if (!printed.has(p.playerId)) continue;
-        const want = String(Math.round(p.markets.player_pass_yds.median));
-        sameCell(printed.get(p.playerId), want, p.markets.player_pass_yds.median, `${board.matchup} ${p.name}: simulation page == official board`);
-        assert.equal(printed.get(p.playerId), formatValue("yards", p.markets.player_pass_yds.median));
-        if (fam.state === "ESTIMATE") assert.ok(text(block).includes(`${want} · ${LABEL}`), `${board.matchup} ${p.name}: Estimate label beside the number`);
-        seen.set(p.name, want);
-        qbs += 1;
+    const view = loadForecastView(path.join(APP, "public"), id);
+    // exactly what the page passes (src/app/nfl/simulation/[eventId]/page.tsx officialLinesFor)
+    const lines = officialPlayerLines(rec.receipt, nflOfficialDefault(view));
+    const html = renderToStaticMarkup(React.createElement(SimulationV2Report, { r: rec.receipt, file: rec.file, canonical: null, gameHref: `/nfl/game/${id}/`, lines }));
+    const sections = [sliceSection(html, "s2-players"), sliceSection(html, "s2-td")];
+    for (const sec of sections) {
+      for (const m of sec.matchAll(/<span data-s2-v="([^"|]+)\|([^"]+)">([^<]*)<\/span>(<span class="f"> · ([^<]*)<\/span>)?/g)) {
+        const [, playerId, fam, printed, , label] = m;
+        const v = boardValue(board, playerId, fam);
+        assert.ok(v != null, `${board.matchup} ${playerId} ${fam}: printed "${printed}" but the board has no value`);
+        sameCell(printed, formatValue(KIND[fam], v), v, `${board.matchup} ${playerId} ${fam}: simulation page == official board`);
+        const state = board.families[MARKET_KEY[fam]]?.state;
+        assert.ok(state === "ESTIMATE" || state === "PUBLISHED", `${board.matchup} ${fam}: family ${state} is never printed`);
+        assert.equal(label ?? null, state === "ESTIMATE" ? LABEL : null, `${board.matchup} ${playerId} ${fam}: Estimate label iff ESTIMATE`);
+        if (fam === "passingYards") pass.set(board.players.find((p) => p.playerId === playerId).name, printed);
+        fams.add(fam); numbers += 1;
       }
-      // no other number in the block: no simulated yards, attempts, completions, TDs or INTs, for any passer
-      const rest = text(block.replace(/<span data-s2-pass-yds="">[^<]*<\/span>/g, ""));
-      assert.doesNotMatch(rest, /\d/, `${board.matchup} ${team}: no number besides the official passing yards ("${rest}")`);
-      assert.doesNotMatch(block, /Attempts|Completions|TDs|INTs/, `${board.matchup} ${team}: unpublished QB markets have no column`);
-      // a simulated passer without an official projection is named, never given a number
-      for (const p of rec.receipt.playerStatDistributions ?? []) {
-        if (p.team !== team || p.playerId === "OTHER" || !(p.stats?.passYds?.p50 > 0) || printed.has(p.playerId)) continue;
-        assert.ok(text(block).includes(p.name), `${board.matchup} ${p.name}: listed as having no official projection`);
-      }
+      // no other number anywhere in the player sections: no simulated line, count, average or percentage
+      const rest = text(sec.replace(/<span data-s2-v="[^"]*">[^<]*<\/span>/g, "").replace(/<[^>]+>/g, " "));
+      assert.doesNotMatch(rest, /\d/, `${board.matchup}: no number besides official values ("${rest.match(/.{0,40}\d.{0,40}/)?.[0]}")`);
     }
+    // completeness: every official passer and every official anytime-TD row is printed (rush/rec tables are top-N)
+    for (const t of [view.away, view.home]) {
+      const passers = view.players.filter((p) => p.team === t.abbr && p.families.passingYards);
+      for (const p of passers) assert.ok(html.includes(`data-s2-v="${p.playerId}|passingYards"`), `${board.matchup} ${p.name}: official passer printed`);
+      if (!passers.length) assert.ok(text(sections[0]).includes(`${STARTER_UNCONFIRMED} for ${t.abbr}`), `${board.matchup} ${t.abbr}: starter not confirmed, no simulated QB named`);
+    }
+    for (const p of view.players.filter((x) => x.families.anytimeTd)) assert.ok(html.includes(`data-s2-v="${p.playerId}|anytimeTd"`), `${board.matchup} ${p.name}: official anytime TD printed`);
+    // the team box: game-flow counts only, no simulated passing / rushing statistic
+    assert.doesNotMatch(text(sliceSection(html, "s2-team")), /Pass attempts|Completions|Passing yards|Passing TDs|Interceptions|Rush attempts|Rushing yards|Rushing TDs/, `${board.matchup}: team box`);
+    assert.match(text(sliceSection(html, "s2-team")), /Simulated team box · hypothetical, not the forecast/);
   }
-  assert.ok(games >= 12 && qbs >= 20, `checked ${games} games, ${qbs} QBs`);
-  // the production examples of ledger N14 (games already kicked off, so their boards are final)
-  assert.equal(seen.get("Jared Goff"), "244");
-  assert.equal(seen.get("Drake Maye"), "242");
+  assert.ok(games >= 12 && numbers >= 200, `checked ${games} games, ${numbers} numbers`);
+  assert.deepEqual([...fams].sort(), ["anytimeTd", "passingYards", "receivingYards", "receptions", "rushingYards"], "every official family is exercised");
+  // the production examples of ledger N14. Burrow's PIT @ CIN board (generated 2026-11-15T21:10:52Z) is the committed
+  // pre-kickoff board; if a later pre-kickoff refresh moves it, update the pin from the board, never the reverse.
+  assert.equal(pass.get("Jared Goff"), "244");
+  assert.equal(pass.get("Drake Maye"), "242");
+  assert.equal(pass.get("Joe Burrow"), "271");
 });
 
-test("SOURCE: the simulation page feeds the report the official passing rows (Default view accessor), never the receipt's passing lines", () => {
-  const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
+test("SOURCE: the simulation page feeds the report the official player lines (Default view accessor), and the report reads no simulated player stat", () => {
+  const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8").replace(/\s+/g, "");
   const page = read("src/app/nfl/simulation/[eventId]/page.tsx");
-  assert.match(page, /officialPassingRows\(rec\.receipt, nflOfficialDefault\(loadForecastView\(path\.join\(process\.cwd\(\), "public"\), eventId\)\)\)/);
-  assert.match(page, /<SimulationV2Report [^>]*passing=\{officialPassingFor\(rec, params\.eventId\)\}/);
+  assert.match(page, /officialPlayerLines\(rec\.receipt,nflOfficialDefault\(loadForecastView\(/, "rows from the Default view accessor");
+  assert.match(page, /<SimulationV2Report[^>]*lines=\{officialLinesFor\(/, "the report is handed those rows");
   const report = read("src/components/nfl/simulation-v2-report.tsx");
-  assert.doesNotMatch(report, /stats\.(passAtt|cmp|passTd|int|passYds)\b/, "the report prints no simulated passing statistic for a player");
+  assert.doesNotMatch(report, /playerStatDistributions|firstTdScorer|teamFirstTd|\.anytimeTd\b(?!")/, "the report reads no simulated player line");
 });

@@ -24,7 +24,7 @@ import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
 import { nflOfficialDefault } from "@/lib/simulation-theater/official-default.mjs";
 import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
-import { officialPassingRows } from "@/lib/sports/nfl/sim-v2/official-passing.mjs";
+import { officialPlayerLines } from "@/lib/sports/nfl/sim-v2/official-player-lines.mjs";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
 const entries = () => readShadowReceipts(REPO_ROOT);
@@ -50,12 +50,12 @@ function canonicalFor(eventId: string): CanonicalForecast | null {
 }
 
 /**
- * N14 (founder rule 2026-10-20 / 11-11): the report's quarterback passing rows are the OFFICIAL projection — the same
+ * N14 (founder rule 2026-10-20 / 11-11): every player number on the report is the OFFICIAL projection — the same
  * accessor as the Theater Default view and the game page (nflOfficialDefault over loadForecastView) — never the
- * simulation's own passing line. Only the derived rows (names, ids, official values, labels) reach the component.
+ * simulation's own player line. Only the derived rows (names, ids, official values, labels) reach the component.
  */
-function officialPassingFor(rec: NonNullable<ReturnType<typeof simulationOfRecord>>, eventId: string) {
-  return officialPassingRows(rec.receipt, nflOfficialDefault(loadForecastView(path.join(process.cwd(), "public"), eventId)));
+function officialLinesFor(rec: NonNullable<ReturnType<typeof simulationOfRecord>>, eventId: string) {
+  return officialPlayerLines(rec.receipt, nflOfficialDefault(loadForecastView(path.join(process.cwd(), "public"), eventId)));
 }
 
 /**
@@ -105,7 +105,7 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
   const r = rec.receipt;
   return withRouteMetadata(`/nfl/simulation/${params.eventId}/`, {
     title: `${r.away.abbr} @ ${r.home.abbr} — ${PUBLIC_TERMS.GAME_SIMULATION} (Simulation V2) · GameTime Picks`,
-    description: `${r.runCount.toLocaleString("en-US")} coherent simulated games of ${r.away.name} at ${r.home.name}: outcomes, quarters, team and player lines, touchdown scorers. A ${PUBLIC_TERMS.GAME_SIMULATION} from a separate engine, not the ${PUBLIC_TERMS.OFFICIAL_FORECAST}; educational and paper-only.`,
+    description: `${r.runCount.toLocaleString("en-US")} coherent simulated games of ${r.away.name} at ${r.home.name}: outcomes, quarters and team scoring, with each player's official projection (not a simulated line). A ${PUBLIC_TERMS.GAME_SIMULATION} from a separate engine, not the ${PUBLIC_TERMS.OFFICIAL_FORECAST}; educational and paper-only.`,
   });
 }
 
@@ -130,7 +130,7 @@ export default function NflSimulationV2Page({ params }: { params: { eventId: str
       {/* P0-A (founder 2026-10-30): with the Theater flag ON the page opens on the Theater's Default view (the official
           projected game), above the simulation report; flag OFF this renders nothing and the page is unchanged */}
       <SimulationReplay rec={rec} />
-      <SimulationV2Report r={r} file={rec.file} canonical={canonicalFor(params.eventId)} gameHref={gameHref} passing={officialPassingFor(rec, params.eventId)} />
+      <SimulationV2Report r={r} file={rec.file} canonical={canonicalFor(params.eventId)} gameHref={gameHref} lines={officialLinesFor(rec, params.eventId)} />
       <QbProps rec={rec} eventId={params.eventId} />
     </div>
   );
