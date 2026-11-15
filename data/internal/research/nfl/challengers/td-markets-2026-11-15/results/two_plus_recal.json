@@ -1,0 +1,79 @@
+{
+ "definitions": "Diagnostic: is the Poisson SHAPE wrong, or is the anytime probability it is built on over-confident at the top?\n\nPOISSON_RECAL: p' = walk-forward bin recalibration of P_anytime (observed anytime rate in the same 0.05 bin over all\nearlier seasons, add-20 smoothing toward the bin's mean p); then P(2+) = 1 - e^-mu' (1 + mu'), mu' = -ln(1 - p').\nHistorical: scored 2015-2025. 2026: recalibration fit on 2014-2025 only. Compared with BUCKET (04_two_plus.py).\nUsage: python3 -I 07_poisson_on_recalibrated_anytime.py <resultsDir>\n",
+ "historical_2015_2025": {
+  "POISSON": {
+   "n": 49377,
+   "logLoss": 0.1511474019165432,
+   "brier": 0.03659920490348446,
+   "predOverObs": 1.116320098593264
+  },
+  "POISSON_RECAL": {
+   "n": 49377,
+   "logLoss": 0.1497236021114869,
+   "brier": 0.03604458767390132,
+   "predOverObs": 0.9027189088200918
+  },
+  "BUCKET": {
+   "n": 49377,
+   "logLoss": 0.1496467585796161,
+   "brier": 0.036073307932737886,
+   "predOverObs": 0.9914670789517199
+  },
+  "paired_POISSON_RECAL_vs_BUCKET": {
+   "games": 3028,
+   "n": 49377,
+   "dLogLoss": 7.684353188627384e-05,
+   "ci95": [
+    -0.00027429215833861477,
+    0.00046193270820263696
+   ]
+  },
+  "paired_POISSON_RECAL_vs_POISSON": {
+   "games": 3028,
+   "n": 49377,
+   "dLogLoss": -0.0014237998050470884,
+   "ci95": [
+    -0.00208797524084588,
+    -0.0007258951211892153
+   ]
+  }
+ },
+ "forward2026_official": {
+  "POISSON": {
+   "n": 1950,
+   "logLoss": 0.15229508635667757,
+   "brier": 0.03731432184381245,
+   "predOverObs": 1.13395117739578
+  },
+  "POISSON_RECAL": {
+   "n": 1950,
+   "logLoss": 0.14995039287993833,
+   "brier": 0.03641901172779297,
+   "predOverObs": 0.9099159967671139
+  },
+  "BUCKET": {
+   "n": 1950,
+   "logLoss": 0.1491947858300572,
+   "brier": 0.03639501140657113,
+   "predOverObs": 0.9826084574011598
+  },
+  "paired_POISSON_RECAL_vs_BUCKET": {
+   "games": 120,
+   "n": 1950,
+   "dLogLoss": 0.0007556070498762807,
+   "ci95": [
+    -0.0005843639867468088,
+    0.0021896225490334667
+   ]
+  },
+  "paired_POISSON_RECAL_vs_POISSON": {
+   "games": 120,
+   "n": 1950,
+   "dLogLoss": -0.002344693476741638,
+   "ci95": [
+    -0.005527860629433047,
+    0.0008928638161781949
+   ]
+  }
+ }
+}

@@ -1,0 +1,1005 @@
+{
+ "definitions": "Two-plus touchdowns: score candidates historically (2015-2025 walk-forward) and on the 2026 blind forward rows.\n\nCandidates\n  POISSON  P(2+) = 1 - e^-mu (1 + mu),  mu = -ln(1 - P_anytime). This IS the official opportunityTd model's own\n           distribution (it publishes P = 1 - exp(-mu) for a Poisson player TD count). Equivalent to the team-K\n           Poisson + binomial-thinning chain, since a thinned Poisson is Poisson(lambda * share).\n  SIMV2    sim-v2 receipt-of-record twoPlusTd as published.\nBaselines (no Poisson assumption; fit only on seasons strictly before the scored season)\n  BUCKET     empirical P(2+ | P_anytime bin), add-20 smoothing toward the training pooled ratio P(2+)/P(1+) * p\n  BUCKETPOS  same by P_anytime bin x position (QB/RB/WR/TE/FB)\nUsage: python3 -I 04_two_plus.py <resultsDir>\n",
+ "historical": {
+  "population": "P301 opportunityTd walk-forward replay rows (players with share gate who PLAYED), seasons 2015-2025; outcome = rushTd+recTd+otherTd >= 2 (nflverse)",
+  "rowsByCandidate": {
+   "POISSON": {
+    "n": 49377,
+    "logLoss": 0.1511474019165432,
+    "brier": 0.03659920490348446,
+    "meanPred": 0.04345276605496999,
+    "obsRate": 0.038925005569394655,
+    "predOverObs": 1.116320098593264
+   },
+   "BUCKET": {
+    "n": 49377,
+    "logLoss": 0.1496467585796161,
+    "brier": 0.036073307932737886,
+    "meanPred": 0.03859286157006714,
+    "obsRate": 0.038925005569394655,
+    "predOverObs": 0.9914670789517197
+   },
+   "BUCKETPOS": {
+    "n": 49377,
+    "logLoss": 0.15022129073574952,
+    "brier": 0.03610095419772829,
+    "meanPred": 0.03868656387596741,
+    "obsRate": 0.038925005569394655,
+    "predOverObs": 0.9938743311673479
+   }
+  },
+  "paired": {
+   "POISSON_vs_BUCKET": {
+    "games": 3028,
+    "n": 49377,
+    "dLogLoss": 0.0015006433369333645,
+    "dLogLoss95": [
+     0.0007959895329636099,
+     0.0021923041485699523
+    ],
+    "dBrier": 0.0005258969707458672,
+    "dBrier95": [
+     0.0003187701250872792,
+     0.0007192608406282125
+    ]
+   },
+   "POISSON_vs_BUCKETPOS": {
+    "games": 3028,
+    "n": 49377,
+    "dLogLoss": 0.0009261111807998392,
+    "dLogLoss95": [
+     0.00016477796118874333,
+     0.0016832949268379771
+    ],
+    "dBrier": 0.0004982507057532181,
+    "dBrier95": [
+     0.0002860806849037987,
+     0.0006897504040269253
+    ]
+   }
+  },
+  "reliability": {
+   "POISSON": [
+    {
+     "bin": [
+      0,
+      0.01
+     ],
+     "n": 14956,
+     "meanPred": 0.0052,
+     "obs": 0.0089
+    },
+    {
+     "bin": [
+      0.01,
+      0.02
+     ],
+     "n": 8673,
+     "meanPred": 0.0145,
+     "obs": 0.0186
+    },
+    {
+     "bin": [
+      0.02,
+      0.04
+     ],
+     "n": 9519,
+     "meanPred": 0.0289,
+     "obs": 0.0317
+    },
+    {
+     "bin": [
+      0.04,
+      0.07
+     ],
+     "n": 7081,
+     "meanPred": 0.053,
+     "obs": 0.0525
+    },
+    {
+     "bin": [
+      0.07,
+      0.1
+     ],
+     "n": 3534,
+     "meanPred": 0.0835,
+     "obs": 0.0758
+    },
+    {
+     "bin": [
+      0.1,
+      0.15
+     ],
+     "n": 2769,
+     "meanPred": 0.1209,
+     "obs": 0.0939
+    },
+    {
+     "bin": [
+      0.15,
+      0.2
+     ],
+     "n": 1377,
+     "meanPred": 0.1726,
+     "obs": 0.1191
+    },
+    {
+     "bin": [
+      0.2,
+      0.3
+     ],
+     "n": 961,
+     "meanPred": 0.2398,
+     "obs": 0.1686
+    },
+    {
+     "bin": [
+      0.3,
+      1
+     ],
+     "n": 507,
+     "meanPred": 0.3808,
+     "obs": 0.1972
+    }
+   ],
+   "BUCKET": [
+    {
+     "bin": [
+      0,
+      0.01
+     ],
+     "n": 7717,
+     "meanPred": 0.0058,
+     "obs": 0.0067
+    },
+    {
+     "bin": [
+      0.01,
+      0.02
+     ],
+     "n": 14744,
+     "meanPred": 0.015,
+     "obs": 0.0164
+    },
+    {
+     "bin": [
+      0.02,
+      0.04
+     ],
+     "n": 8531,
+     "meanPred": 0.0246,
+     "obs": 0.0256
+    },
+    {
+     "bin": [
+      0.04,
+      0.07
+     ],
+     "n": 10056,
+     "meanPred": 0.0541,
+     "obs": 0.0518
+    },
+    {
+     "bin": [
+      0.07,
+      0.1
+     ],
+     "n": 4777,
+     "meanPred": 0.0862,
+     "obs": 0.0871
+    },
+    {
+     "bin": [
+      0.1,
+      0.15
+     ],
+     "n": 2690,
+     "meanPred": 0.1188,
+     "obs": 0.1201
+    },
+    {
+     "bin": [
+      0.15,
+      0.2
+     ],
+     "n": 862,
+     "meanPred": 0.1776,
+     "obs": 0.174
+    }
+   ],
+   "BUCKETPOS": [
+    {
+     "bin": [
+      0,
+      0.01
+     ],
+     "n": 8480,
+     "meanPred": 0.0059,
+     "obs": 0.0085
+    },
+    {
+     "bin": [
+      0.01,
+      0.02
+     ],
+     "n": 12520,
+     "meanPred": 0.0146,
+     "obs": 0.0154
+    },
+    {
+     "bin": [
+      0.02,
+      0.04
+     ],
+     "n": 10839,
+     "meanPred": 0.0263,
+     "obs": 0.0269
+    },
+    {
+     "bin": [
+      0.04,
+      0.07
+     ],
+     "n": 9385,
+     "meanPred": 0.0545,
+     "obs": 0.0541
+    },
+    {
+     "bin": [
+      0.07,
+      0.1
+     ],
+     "n": 4498,
+     "meanPred": 0.0858,
+     "obs": 0.0831
+    },
+    {
+     "bin": [
+      0.1,
+      0.15
+     ],
+     "n": 2740,
+     "meanPred": 0.1208,
+     "obs": 0.1146
+    },
+    {
+     "bin": [
+      0.15,
+      0.2
+     ],
+     "n": 915,
+     "meanPred": 0.18,
+     "obs": 0.1847
+    }
+   ]
+  },
+  "byPosition": {
+   "QB": {
+    "POISSON": {
+     "n": 5776,
+     "logLoss": 0.0823861651475153,
+     "brier": 0.01783346811989243,
+     "meanPred": 0.013947237541858747,
+     "obsRate": 0.019044321329639888,
+     "predOverObs": 0.7323567640161466
+    },
+    "BUCKETPOS": {
+     "n": 5776,
+     "logLoss": 0.0833627653045882,
+     "brier": 0.017862648635660748,
+     "meanPred": 0.013742934061264655,
+     "obsRate": 0.019044321329639888,
+     "predOverObs": 0.7216289739805877
+    }
+   },
+   "RB": {
+    "POISSON": {
+     "n": 14264,
+     "logLoss": 0.21521612729831938,
+     "brier": 0.05712307443773973,
+     "meanPred": 0.07685727423427223,
+     "obsRate": 0.0620443073471677,
+     "predOverObs": 1.2387482030256036
+    },
+    "BUCKETPOS": {
+     "n": 14264,
+     "logLoss": 0.21237262892488876,
+     "brier": 0.05572339577103111,
+     "meanPred": 0.060523889741212374,
+     "obsRate": 0.0620443073471677,
+     "predOverObs": 0.9754946477611901
+    }
+   },
+   "WR": {
+    "POISSON": {
+     "n": 20316,
+     "logLoss": 0.14325551970592115,
+     "brier": 0.0330547719699503,
+     "meanPred": 0.03735304191976332,
+     "obsRate": 0.03455404607206143,
+     "predOverObs": 1.0810034182933212
+    },
+    "BUCKETPOS": {
+     "n": 20316,
+     "logLoss": 0.14253565263949589,
+     "brier": 0.03283018864560053,
+     "meanPred": 0.036068635836724615,
+     "obsRate": 0.03455404607206143,
+     "predOverObs": 1.043832486693586
+    }
+   },
+   "TE": {
+    "POISSON": {
+     "n": 8726,
+     "logLoss": 0.11354638287658186,
+     "brier": 0.024620711149263452,
+     "meanPred": 0.023750462167880012,
+     "obsRate": 0.02544121017648407,
+     "predOverObs": 0.9335429408870315
+    },
+    "BUCKETPOS": {
+     "n": 8726,
+     "logLoss": 0.1139247146678507,
+     "brier": 0.024589632480032975,
+     "meanPred": 0.026386021898462987,
+     "obsRate": 0.02544121017648407,
+     "predOverObs": 1.0371370589458921
+    }
+   }
+  },
+  "anytimeCheck": {
+   "n": 49377,
+   "logLoss": 0.49984047698795464,
+   "brier": 0.16265851368787804,
+   "meanPred": 0.2326538368066129,
+   "obsRate": 0.22492253478340118,
+   "predOverObs": 1.0343731766612754
+  },
+  "conditional2given1": [
+   {
+    "pBin": [
+     0,
+     0.05
+    ],
+    "n": 704,
+    "obs2given1": 0.0217,
+    "poisson2given1": 0.0219
+   },
+   {
+    "pBin": [
+     0.05,
+     0.1
+    ],
+    "n": 7013,
+    "obs2given1": 0.0782,
+    "poisson2given1": 0.0421
+   },
+   {
+    "pBin": [
+     0.1,
+     0.15
+    ],
+    "n": 9295,
+    "obs2given1": 0.0987,
+    "poisson2given1": 0.0659
+   },
+   {
+    "pBin": [
+     0.15,
+     0.2
+    ],
+    "n": 7600,
+    "obs2given1": 0.1163,
+    "poisson2given1": 0.0934
+   },
+   {
+    "pBin": [
+     0.2,
+     0.25
+    ],
+    "n": 6380,
+    "obs2given1": 0.1237,
+    "poisson2given1": 0.1223
+   },
+   {
+    "pBin": [
+     0.25,
+     0.3
+    ],
+    "n": 5282,
+    "obs2given1": 0.1659,
+    "poisson2given1": 0.1523
+   },
+   {
+    "pBin": [
+     0.3,
+     0.35
+    ],
+    "n": 3954,
+    "obs2given1": 0.1813,
+    "poisson2given1": 0.1834
+   },
+   {
+    "pBin": [
+     0.35,
+     0.4
+    ],
+    "n": 2964,
+    "obs2given1": 0.2207,
+    "poisson2given1": 0.2164
+   },
+   {
+    "pBin": [
+     0.4,
+     0.45
+    ],
+    "n": 2079,
+    "obs2given1": 0.2351,
+    "poisson2given1": 0.2509
+   },
+   {
+    "pBin": [
+     0.45,
+     0.5
+    ],
+    "n": 1394,
+    "obs2given1": 0.2305,
+    "poisson2given1": 0.2868
+   },
+   {
+    "pBin": [
+     0.5,
+     0.6
+    ],
+    "n": 1712,
+    "obs2given1": 0.2762,
+    "poisson2given1": 0.3425
+   },
+   {
+    "pBin": [
+     0.6,
+     1
+    ],
+    "n": 1000,
+    "obs2given1": 0.3489,
+    "poisson2given1": 0.4743
+   }
+  ]
+ },
+ "forward2026_official": {
+  "population": "P300/P301 blind forward anytime_td rows, 2026 weeks 2-9, state SCORED (played); outcome count = rushTd+recTd (ESPN), at least the graded binary",
+  "rowsByCandidate": {
+   "POISSON": {
+    "n": 1950,
+    "logLoss": 0.15229508635667757,
+    "brier": 0.03731432184381245,
+    "meanPred": 0.045358047095831196,
+    "obsRate": 0.04,
+    "predOverObs": 1.13395117739578
+   },
+   "BUCKET": {
+    "n": 1950,
+    "logLoss": 0.1491947858300572,
+    "brier": 0.03639501140657113,
+    "meanPred": 0.03930433829604639,
+    "obsRate": 0.04,
+    "predOverObs": 0.9826084574011598
+   },
+   "BUCKETPOS": {
+    "n": 1950,
+    "logLoss": 0.1484016828406543,
+    "brier": 0.03623966076590321,
+    "meanPred": 0.03913199320248906,
+    "obsRate": 0.04,
+    "predOverObs": 0.9782998300622264
+   }
+  },
+  "paired": {
+   "POISSON_vs_BUCKET": {
+    "games": 120,
+    "n": 1950,
+    "dLogLoss": 0.0031003005266179193,
+    "dLogLoss95": [
+     -0.00041419254572968726,
+     0.006603228242691238
+    ],
+    "dBrier": 0.0009193104372414981,
+    "dBrier95": [
+     -0.00025360721679312445,
+     0.002018768516352109
+    ]
+   },
+   "POISSON_vs_BUCKETPOS": {
+    "games": 120,
+    "n": 1950,
+    "dLogLoss": 0.0038934035160242664,
+    "dLogLoss95": [
+     0.0003573020864085399,
+     0.007338247923373881
+    ],
+    "dBrier": 0.0010746610779092415,
+    "dBrier95": [
+     -5.529324481697277e-05,
+     0.002144544176786329
+    ]
+   }
+  },
+  "reliability": {
+   "POISSON": [
+    {
+     "bin": [
+      0,
+      0.01
+     ],
+     "n": 573,
+     "meanPred": 0.0055,
+     "obs": 0.014
+    },
+    {
+     "bin": [
+      0.01,
+      0.02
+     ],
+     "n": 388,
+     "meanPred": 0.0147,
+     "obs": 0.0206
+    },
+    {
+     "bin": [
+      0.02,
+      0.04
+     ],
+     "n": 391,
+     "meanPred": 0.029,
+     "obs": 0.0205
+    },
+    {
+     "bin": [
+      0.04,
+      0.07
+     ],
+     "n": 241,
+     "meanPred": 0.0526,
+     "obs": 0.0415
+    },
+    {
+     "bin": [
+      0.07,
+      0.1
+     ],
+     "n": 129,
+     "meanPred": 0.0837,
+     "obs": 0.1085
+    },
+    {
+     "bin": [
+      0.1,
+      0.15
+     ],
+     "n": 113,
+     "meanPred": 0.1199,
+     "obs": 0.0619
+    },
+    {
+     "bin": [
+      0.15,
+      0.2
+     ],
+     "n": 32,
+     "meanPred": 0.1703,
+     "obs": 0.2188
+    },
+    {
+     "bin": [
+      0.2,
+      0.3
+     ],
+     "n": 45,
+     "meanPred": 0.2449,
+     "obs": 0.1556
+    },
+    {
+     "bin": [
+      0.3,
+      1
+     ],
+     "n": 38,
+     "meanPred": 0.3897,
+     "obs": 0.2368
+    }
+   ],
+   "BUCKET": [
+    {
+     "bin": [
+      0,
+      0.01
+     ],
+     "n": 267,
+     "meanPred": 0.0065,
+     "obs": 0.0
+    },
+    {
+     "bin": [
+      0.01,
+      0.02
+     ],
+     "n": 404,
+     "meanPred": 0.0128,
+     "obs": 0.0248
+    },
+    {
+     "bin": [
+      0.02,
+      0.04
+     ],
+     "n": 589,
+     "meanPred": 0.0238,
+     "obs": 0.0204
+    },
+    {
+     "bin": [
+      0.04,
+      0.07
+     ],
+     "n": 333,
+     "meanPred": 0.0495,
+     "obs": 0.036
+    },
+    {
+     "bin": [
+      0.07,
+      0.1
+     ],
+     "n": 244,
+     "meanPred": 0.0852,
+     "obs": 0.0861
+    },
+    {
+     "bin": [
+      0.1,
+      0.15
+     ],
+     "n": 46,
+     "meanPred": 0.1303,
+     "obs": 0.1957
+    },
+    {
+     "bin": [
+      0.15,
+      0.2
+     ],
+     "n": 67,
+     "meanPred": 0.186,
+     "obs": 0.209
+    }
+   ],
+   "BUCKETPOS": [
+    {
+     "bin": [
+      0,
+      0.01
+     ],
+     "n": 236,
+     "meanPred": 0.006,
+     "obs": 0.0
+    },
+    {
+     "bin": [
+      0.01,
+      0.02
+     ],
+     "n": 555,
+     "meanPred": 0.0138,
+     "obs": 0.018
+    },
+    {
+     "bin": [
+      0.02,
+      0.04
+     ],
+     "n": 469,
+     "meanPred": 0.0254,
+     "obs": 0.0256
+    },
+    {
+     "bin": [
+      0.04,
+      0.07
+     ],
+     "n": 343,
+     "meanPred": 0.0491,
+     "obs": 0.0379
+    },
+    {
+     "bin": [
+      0.07,
+      0.1
+     ],
+     "n": 234,
+     "meanPred": 0.085,
+     "obs": 0.0812
+    },
+    {
+     "bin": [
+      0.1,
+      0.15
+     ],
+     "n": 49,
+     "meanPred": 0.1288,
+     "obs": 0.1837
+    },
+    {
+     "bin": [
+      0.15,
+      0.2
+     ],
+     "n": 64,
+     "meanPred": 0.1914,
+     "obs": 0.2344
+    }
+   ]
+  },
+  "anytimeCheck": {
+   "n": 1950,
+   "logLoss": 0.49694354368415394,
+   "brier": 0.16102476557948683,
+   "meanPred": 0.2339776410256408,
+   "obsRate": 0.22666666666666666,
+   "predOverObs": 1.032254298642533
+  },
+  "games": 120
+ },
+ "forward2026_simv2": {
+  "population": "sim-v2 receipts of record (latest generatedAt < eventStart), every listed player with >0 offensive snaps; outcome rushTd+recTd (ESPN player-events)",
+  "games": 73,
+  "consistencyTwoPlusLeAnytime": {
+   "rows": 1624,
+   "violations": 0
+  },
+  "SIMV2": {
+   "n": 1624,
+   "logLoss": 0.10965000553154232,
+   "brier": 0.025996644722928636,
+   "meanPred": 0.023836536945812847,
+   "obsRate": 0.02832512315270936,
+   "predOverObs": 0.8415333913043491
+  },
+  "reliability_SIMV2": [
+   {
+    "bin": [
+     0,
+     0.01
+    ],
+    "n": 863,
+    "meanPred": 0.003,
+    "obs": 0.007
+   },
+   {
+    "bin": [
+     0.01,
+     0.02
+    ],
+    "n": 239,
+    "meanPred": 0.0146,
+    "obs": 0.0126
+   },
+   {
+    "bin": [
+     0.02,
+     0.04
+    ],
+    "n": 255,
+    "meanPred": 0.0286,
+    "obs": 0.0431
+   },
+   {
+    "bin": [
+     0.04,
+     0.07
+    ],
+    "n": 128,
+    "meanPred": 0.0531,
+    "obs": 0.0547
+   },
+   {
+    "bin": [
+     0.07,
+     0.1
+    ],
+    "n": 47,
+    "meanPred": 0.0828,
+    "obs": 0.1064
+   },
+   {
+    "bin": [
+     0.1,
+     0.15
+    ],
+    "n": 49,
+    "meanPred": 0.1216,
+    "obs": 0.102
+   },
+   {
+    "bin": [
+     0.15,
+     0.2
+    ],
+    "n": 25,
+    "meanPred": 0.1749,
+    "obs": 0.2
+   },
+   {
+    "bin": [
+     0.2,
+     0.3
+    ],
+    "n": 15,
+    "meanPred": 0.227,
+    "obs": 0.2
+   },
+   {
+    "bin": [
+     0.3,
+     1
+    ],
+    "n": 3,
+    "meanPred": 0.3218,
+    "obs": 0.3333
+   }
+  ],
+  "SIMV2_anytime": {
+   "n": 1624,
+   "logLoss": 0.4028015763125282,
+   "brier": 0.12798553160098572,
+   "meanPred": 0.1676555424876849,
+   "obsRate": 0.18226600985221675,
+   "predOverObs": 0.9198398682432443
+  },
+  "POISSON_of_simAnytime": {
+   "n": 1624,
+   "logLoss": 0.10935656186913689,
+   "brier": 0.02604629500152498,
+   "meanPred": 0.026476494597697256,
+   "obsRate": 0.02832512315270936,
+   "predOverObs": 0.9347353744926161
+  },
+  "BUCKET_of_simAnytime": {
+   "n": 1624,
+   "logLoss": 0.10912951359005145,
+   "brier": 0.026062091572964043,
+   "meanPred": 0.025635404660841868,
+   "obsRate": 0.02832512315270936,
+   "predOverObs": 0.905041242808852
+  },
+  "paired_SIMV2_vs_BUCKET_of_simAnytime": {
+   "games": 73,
+   "n": 1624,
+   "dLogLoss": 0.0005204919414913046,
+   "dLogLoss95": [
+    -0.0025486237808099,
+    0.0036601777097465325
+   ],
+   "dBrier": -6.544685003596989e-05,
+   "dBrier95": [
+    -0.0005464974679047503,
+    0.00035606303534820515
+   ]
+  }
+ },
+ "forward2026_intersection": {
+  "rows": 1154,
+  "games": 73,
+  "anytime": {
+   "meanOfficial": 0.23679887348353523,
+   "meanSimv2": 0.21733154246100575,
+   "meanAbsDiff": 0.05167218370883875,
+   "pearson": 0.8730771804072872,
+   "official": {
+    "n": 1154,
+    "logLoss": 0.5109191568243344,
+    "brier": 0.16713624023396892,
+    "meanPred": 0.23679887348353523,
+    "obsRate": 0.24263431542461006,
+    "predOverObs": 0.9759496428571416
+   },
+   "simv2": {
+    "n": 1154,
+    "logLoss": 0.5086286058298565,
+    "brier": 0.1668534471923741,
+    "meanPred": 0.21733154246100575,
+    "obsRate": 0.24263431542461006,
+    "predOverObs": 0.8957164285714309
+   },
+   "paired_simv2_vs_official": {
+    "games": 73,
+    "n": 1154,
+    "dLogLoss": -0.002290550994478184,
+    "dLogLoss95": [
+     -0.011457497565506803,
+     0.007118961290345248
+    ],
+    "dBrier": -0.00028279304159445264,
+    "dBrier95": [
+     -0.0040097801219512175,
+     0.0032658005370844014
+    ]
+   }
+  },
+  "twoPlus": {
+   "SIMV2": {
+    "n": 1154,
+    "logLoss": 0.1490023588350435,
+    "brier": 0.03572339174176869,
+    "meanPred": 0.033042721837088423,
+    "obsRate": 0.0389948006932409,
+    "predOverObs": 0.8473622444444454
+   },
+   "POISSON_official": {
+    "n": 1154,
+    "logLoss": 0.154691119321665,
+    "brier": 0.03794426497217978,
+    "meanPred": 0.04705086756292377,
+    "obsRate": 0.0389948006932409,
+    "predOverObs": 1.2065933592803118
+   },
+   "BUCKET": {
+    "n": 1154,
+    "logLoss": 0.1494331396947854,
+    "brier": 0.03606572957275778,
+    "meanPred": 0.04003663170600853,
+    "obsRate": 0.0389948006932409,
+    "predOverObs": 1.0267171775274189
+   },
+   "BUCKETPOS": {
+    "n": 1154,
+    "logLoss": 0.1489856792992692,
+    "brier": 0.03599233882136716,
+    "meanPred": 0.03990129314035096,
+    "obsRate": 0.0389948006932409,
+    "predOverObs": 1.0232464951992222
+   },
+   "paired_SIMV2_vs_BUCKET": {
+    "games": 73,
+    "n": 1154,
+    "dLogLoss": -0.0004307808597415259,
+    "dLogLoss95": [
+     -0.006247051248177039,
+     0.005661098009208305
+    ],
+    "dBrier": -0.0003423378309893394,
+    "dBrier95": [
+     -0.001186212531856181,
+     0.0005175793833082402
+    ]
+   },
+   "paired_POISSON_vs_BUCKET": {
+    "games": 73,
+    "n": 1154,
+    "dLogLoss": 0.005257979626879767,
+    "dLogLoss95": [
+     0.0008187248392429215,
+     0.009580200176123195
+    ],
+    "dBrier": 0.0018785353994218337,
+    "dBrier95": [
+     0.00030928503525829364,
+     0.0034395887131375494
+    ]
+   },
+   "paired_SIMV2_vs_POISSON": {
+    "games": 73,
+    "n": 1154,
+    "dLogLoss": -0.005688760486621293,
+    "dLogLoss95": [
+     -0.01227411359731036,
+     0.0009601863221909409
+    ],
+    "dBrier": -0.002220873230411173,
+    "dBrier95": [
+     -0.003920381907184861,
+     -0.000567283402478433
+    ]
+   }
+  }
+ }
+}
