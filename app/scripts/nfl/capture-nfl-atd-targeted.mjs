@@ -48,6 +48,8 @@ import { latestAtdDisplayFile } from "../../src/lib/sports/nfl/atd-prices.mjs";
 const DEFAULT_APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const BASE = "https://api.the-odds-api.com/v4";
 export const DEFAULT_VERDICT_RECEIPT = "docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md";
+/** A paid run's --now must be within this of the machine clock (it then runs on the machine clock). */
+export const NOW_TOLERANCE_MS = 5 * 60_000;
 
 /** Parse argv. Pure. */
 export function parseArgs(argv) {
@@ -88,19 +90,37 @@ export async function main(argv, deps = {}) {
   const a = parseArgs(argv);
 
   if (!a.now || !Number.isFinite(Date.parse(a.now))) { err("REFUSED: --now <ISO> required"); return 1; }
+  /*
+   * THE PAID PATH RUNS ON THE REAL CLOCK (re-review of PR #1359). --now feeds receipt expiry, the not-started check,
+   * every capturedAt and the ledger `at`; a backdated --now after kickoff would accept an expired receipt and buy LIVE
+   * prices stamped as pre-kickoff, which would then pass the publisher's pre-kickoff / 12 h rules. So with --authorized
+   * --now must agree with the machine clock within NOW_TOLERANCE_MS, and from there on every instant is the real clock.
+   * A dry run (no network, no write) may keep any --now for planning.
+   */
+  const clock = deps.clock ?? (() => Date.now());
+  let NOW = a.now;
+  if (a.authorized) {
+    const realMs = clock();
+    const skew = Date.parse(a.now) - realMs;
+    if (!Number.isFinite(realMs) || Math.abs(skew) > NOW_TOLERANCE_MS) {
+      err(`REFUSED: --now ${a.now} is ${Number.isFinite(skew) ? `${Math.round(skew / 1000)} s` : "unknown"} from the real clock (${Number.isFinite(realMs) ? new Date(realMs).toISOString() : "?"}); a paid run allows at most ${NOW_TOLERANCE_MS / 60000} min — expiry, kickoff and capture stamps come from the real clock. Nothing was spent.`);
+      return 2;
+    }
+    NOW = new Date(realMs).toISOString().replace(/\.\d{3}Z$/, "Z");
+  }
   if (!a.eventsRaw) { err("REFUSED: --events <espnId,espnId> required — this lane never chooses events"); return 1; }
   if (!(Number.isInteger(a.maxCredits) && a.maxCredits >= 1)) { err("REFUSED: --max-credits <integer ≥ 1> required"); return 1; }
   if (!(Number.isInteger(a.minProviderRemaining) && a.minProviderRemaining >= 0)) { err("REFUSED: --min-provider-remaining must be an integer ≥ 0"); return 1; }
   if (!(a.refreshMinutes > 0)) { err("REFUSED: --refresh-minutes must be positive"); return 1; }
 
   const schedule = readJson(path.join(APP, "public/data/nfl/schedule/latest.json"));
-  const plan = planTargetedAtd({ scheduleRows: schedule.rows, eventIds: a.events, nowIso: a.now, maxCredits: a.maxCredits, regions: [...ATD_REGIONS] });
+  const plan = planTargetedAtd({ scheduleRows: schedule.rows, eventIds: a.events, nowIso: NOW, maxCredits: a.maxCredits, regions: [...ATD_REGIONS] });
 
   const ledgerPath = path.join(ROOT, P171_LEDGER_RELPATH);
   let ledger = fs.existsSync(ledgerPath) ? readJson(ledgerPath) : emptyLedger(a.receipt ?? DEFAULT_VERDICT_RECEIPT);
   const verdictReceipt = a.receipt ?? DEFAULT_VERDICT_RECEIPT;
   const receiptText = fs.existsSync(resolveRoot(verdictReceipt)) ? fs.readFileSync(resolveRoot(verdictReceipt), "utf8") : null;
-  const auth = readAtdAuthorization({ receiptText, nowIso: a.now, ledger, maxCredits: a.maxCredits });
+  const auth = readAtdAuthorization({ receiptText, nowIso: NOW, ledger, maxCredits: a.maxCredits });
   // the publisher's own default chain: --private-dir, then GTP_PRIVATE_DATA_DIR, then ~/gtp-private
   const priv = resolvePrivateDataDir({ cliDir: a.privateDir ?? (env[PRIVATE_DIR_ENV]?.trim() || path.join(HOME, "gtp-private")), env, repoRoot: ROOT });
 
@@ -155,12 +175,13 @@ export async function main(argv, deps = {}) {
     plan,
     authorization: auth.authorization,
     ledger,
-    nowIso: a.now,
+    nowIso: NOW,
     get,
     scheduleRows: schedule.rows.filter((r) => r.statusRaw === "STATUS_SCHEDULED"),
     registry,
     freshnessMinutes: a.refreshMinutes,
     minProviderRemaining: a.minProviderRemaining,
+    clock, // a game that kicks off while the run is in progress is refused per call
     onLedger: (l) => writeGuarded(ledgerPath, l), // every charge reaches disk before the next call
     log,
   });
@@ -168,12 +189,12 @@ export async function main(argv, deps = {}) {
   writeGuarded(ledgerPath, ledger);
 
   // PRIVATE outputs only
-  const L = atdPrivateLayout(a.now);
+  const L = atdPrivateLayout(NOW);
   const at = (rel) => path.join(priv.dir, rel);
   for (const r of run.raw ?? []) writeGuarded(at(r.kind === "events-index" ? L.indexFile : L.rawFile(r.oddsEventId)), r);
-  if (run.paidCalls > 0 || run.results.length) writeGuarded(at(L.captureFile), buildAtdPrivateCapture({ run, plan, nowIso: a.now, maxCredits: a.maxCredits }));
+  if (run.paidCalls > 0 || run.results.length) writeGuarded(at(L.captureFile), buildAtdPrivateCapture({ run, plan, nowIso: NOW, maxCredits: a.maxCredits }));
   const prior = latestAtdDisplayFile(priv.dir);
-  const display = buildAtdDisplayFile({ prior: prior?.file ?? null, results: run.results, nowIso: a.now });
+  const display = buildAtdDisplayFile({ prior: prior?.file ?? null, results: run.results, nowIso: NOW });
   if (display) writeGuarded(at(L.displayFile), display);
   else log("PRESERVED_LAST_KNOWN_GOOD: this run fetched no anytime-TD answer — the newest private display file stands untouched");
 

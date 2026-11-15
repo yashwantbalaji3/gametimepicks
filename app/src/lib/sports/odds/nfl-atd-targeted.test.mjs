@@ -351,7 +351,7 @@ const fakeFetch = (routes) => {
   return { fn, calls };
 };
 const quiet = { log: () => {}, error: () => {} };
-const deps = (t, over = {}) => ({ appDir: t.app, rootDir: t.root, homeDir: t.home, env: { ODDS_API_KEY: KEY }, ...quiet, ...over });
+const deps = (t, over = {}) => ({ appDir: t.app, rootDir: t.root, homeDir: t.home, env: { ODDS_API_KEY: KEY }, clock: () => Date.parse(NOW), ...quiet, ...over });
 const paidArgs = (t, extra = []) => ["--now", NOW, "--events", `${SFDAL},${PITCIN}`, "--max-credits", "2", "--receipt", "docs/receipts/TEST.md", "--private-dir", t.priv, "--authorized", "--write", ...extra];
 
 test("script dry-run: ZERO fetch calls (fetch stubbed to throw) and nothing written anywhere", async () => {
@@ -482,7 +482,7 @@ test("script authorized (stubbed provider): the ONLY repo write is the ledger; c
   assert.deepEqual(cap.propProbe.lineProps.rows, []);
   // a second run inside the freshness window buys nothing and writes no new display (last-known-good)
   const second = fakeFetch(standardRoutes());
-  assert.equal(await captureMain(paidArgs(t).map((x) => (x === NOW ? "2026-11-15T18:40:00Z" : x)), deps(t, { fetch: second.fn })), 0);
+  assert.equal(await captureMain(paidArgs(t).map((x) => (x === NOW ? "2026-11-15T18:40:00Z" : x)), deps(t, { fetch: second.fn, clock: () => Date.parse("2026-11-15T18:40:00Z") })), 0);
   assert.equal(second.calls.length, 1, "only the free index");
   assert.equal(latestAtdDisplayFile(t.priv).stamp, "atd-20261115T183000", "the earlier display stays the newest");
   t.cleanup();
@@ -604,4 +604,55 @@ test("private capture: no key fingerprint, explicit requested market, empty line
   assert.ok(!JSON.stringify(cap).includes("keyFingerprint"));
   assert.deepEqual(cap.propProbe.requestedMarkets, ["player_anytime_td"]);
   assert.equal(cap.openingProviderRemaining, 18000);
+});
+
+// ---------------------------------------------------------------- real clock on the paid path (re-review of PR #1359)
+test("paid run: a BACKDATED --now (real clock after kickoff) is refused with zero calls", async () => {
+  const t = fixtureTree();
+  let touched = 0;
+  const out = [];
+  // the operator claims 18:30 Z, but the machine clock says the SF @ DAL game (21:25 Z) has kicked off
+  const code = await captureMain(paidArgs(t), deps(t, { clock: () => Date.parse("2026-11-15T21:40:00Z"), fetch: async () => { touched += 1; throw new Error("no"); }, error: (s) => out.push(s) }));
+  assert.equal(code, 2);
+  assert.equal(touched, 0);
+  assert.match(out.join("\n"), /from the real clock .* at most 5 min/);
+  assert.deepEqual(listFiles(t.priv), []);
+  assert.ok(!fs.existsSync(path.join(t.root, "data/internal/research/odds/nfl/p171-ledger.json")), "no ledger write either");
+  t.cleanup();
+});
+test("paid run: a FUTURE-dated --now is refused with zero calls", async () => {
+  const t = fixtureTree();
+  let touched = 0;
+  assert.equal(await captureMain(paidArgs(t), deps(t, { clock: () => Date.parse("2026-11-15T18:24:00Z"), fetch: async () => { touched += 1; throw new Error("no"); } })), 2);
+  assert.equal(touched, 0);
+  t.cleanup();
+});
+test("paid run: --now within 5 min is accepted, and every instant written is the REAL clock, not --now", async () => {
+  const t = fixtureTree();
+  const REAL = "2026-11-15T18:33:20Z"; // 3 min 20 s after --now
+  const { fn, calls } = fakeFetch(standardRoutes());
+  assert.equal(await captureMain(paidArgs(t), deps(t, { clock: () => Date.parse(REAL), fetch: fn })), 0);
+  assert.equal(calls.length, 3);
+  const ledger = JSON.parse(fs.readFileSync(path.join(t.root, "data/internal/research/odds/nfl/p171-ledger.json"), "utf8"));
+  assert.ok(ledger.requests.every((r) => r.at === REAL), "ledger `at` is the real clock");
+  const dir = "odds/nfl/atd-20261115T183320";
+  const cap = JSON.parse(fs.readFileSync(path.join(t.priv, `${dir}/capture-atd-20261115T183320.json`), "utf8"));
+  assert.equal(cap.capturedAt, REAL);
+  assert.ok(cap.propProbe.anytimeTd.rows.every((r) => r.capturedAt === REAL), "capturedAt is the real clock");
+  t.cleanup();
+});
+test("paid run: a game that kicks off while the run is in progress is refused per call (real clock)", async () => {
+  let ms = Date.parse(NOW);
+  const s = stubProvider(standardRoutes());
+  const get = async (p) => { const r = await s.get(p); if (p.includes("odds-sf-dal/odds")) ms = Date.parse("2026-11-16T01:21:00Z"); return r; };
+  const r = await executeAtdRun({ plan: plan2(), authorization: okAuth().authorization, ledger: emptyLedger("t"), nowIso: NOW, get, scheduleRows: SCHEDULE.rows, registry: REGISTRY, clock: () => ms });
+  assert.ok(!s.calls.some((c) => c.includes("odds-pit-cin")), "no call once PIT @ CIN has kicked off");
+  assert.match(r.skipped.find((x) => x.canonicalEventId === `nfl-${PITCIN}`).reason, /STARTED/);
+});
+test("dry run may keep any --now (planning only, no clock check)", async () => {
+  const t = fixtureTree();
+  let touched = 0;
+  assert.equal(await captureMain(["--now", NOW, "--events", SFDAL, "--max-credits", "1", "--receipt", "docs/receipts/TEST.md", "--private-dir", t.priv], deps(t, { clock: () => Date.parse("2027-01-01T00:00:00Z"), fetch: async () => { touched += 1; throw new Error("no"); } })), 0);
+  assert.equal(touched, 0);
+  t.cleanup();
 });

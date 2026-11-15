@@ -296,13 +296,15 @@ export function normalizeAtdEventResponse({ body, registry, teamAbbrs, capturedA
  * overrun, or a provider failure other than 422 STOPS the whole run. A duplicate inside the freshness window is a
  * no-spend skip of that target. `onLedger` is called after EVERY ledger append so a crash can never lose a charge.
  */
-export async function executeAtdRun({ plan, authorization, ledger, nowIso, get, scheduleRows, registry, freshnessMinutes = DEFAULT_FRESHNESS_MINUTES, minProviderRemaining = DEFAULT_MIN_PROVIDER_REMAINING, onLedger = () => {}, log = () => {} }) {
+export async function executeAtdRun({ plan, authorization, ledger, nowIso, get, scheduleRows, registry, freshnessMinutes = DEFAULT_FRESHNESS_MINUTES, minProviderRemaining = DEFAULT_MIN_PROVIDER_REMAINING, onLedger = () => {}, log = () => {}, clock = null }) {
   if (!plan?.ok) throw new Error("executeAtdRun: refused — plan did not pass");
   if (!authorization?.ok) throw new Error("executeAtdRun: refused — authorization did not pass");
   let L = ledger;
-  /* ⚠ fetch's headers.get() returns null for an absent header, and recordRequest reads Number(null) as 0 — so a charged
-     call WITHOUT usage headers would be booked as free. Absent/empty values are dropped first, so recordRequest's own
-     "unreadable header on a charged call costs 1" rule applies. */
+  /* ⚠ fetch's headers.get() returns null for an absent header, and recordRequest (before PR #1360) read Number(null) as
+     0 — so a charged call WITHOUT usage headers would be booked as free. Absent/empty values are dropped first, so
+     recordRequest's own "unreadable header on a charged call costs 1" rule applies. This stays correct after the shared
+     recordRequest fix in PR #1360 lands: both paths then reach the same rule and book the same 1 credit, once — the
+     header is dropped here and never counted a second time there. */
   const cleanHeaders = (h) => Object.fromEntries(Object.entries(h ?? {}).filter(([, v]) => v != null && String(v).trim() !== ""));
   /* The committed ledger carries credits/status/endpoint/time only: `extra` is restricted to the opening balance. */
   const append = (entry, extra = {}) => {
@@ -359,6 +361,10 @@ export async function executeAtdRun({ plan, authorization, ledger, nowIso, get, 
       continue;
     }
     const oddsEventId = joins[0].providerEventId;
+    /* The plan's not-started check ran at the run's start; a game that kicked off since is refused here, on the real
+       clock when one is given (the paid script always passes it). */
+    const callMs = typeof clock === "function" ? clock() : Date.parse(nowIso);
+    if (!(callMs < Date.parse(t.startTimeUtc))) { skipped.push({ canonicalEventId: t.canonicalEventId, reason: `STARTED: kickoff ${t.startTimeUtc} has passed — no call` }); continue; }
     const fingerprint = atdFingerprint(oddsEventId, plan.regions);
     const dup = isDuplicateRequest(L, { fingerprint, nowIso, freshnessMinutes });
     if (dup.duplicate) { skipped.push({ canonicalEventId: t.canonicalEventId, oddsEventId, reason: `DUPLICATE: ${dup.reason}` }); log(`${t.matchup}: ${dup.reason}`); continue; }
