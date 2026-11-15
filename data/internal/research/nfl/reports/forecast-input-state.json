@@ -2,123 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-15T21:10:52Z",
+  "generatedAt": "2026-11-15T23:21:19Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 3,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 3,
+    "upcomingEvents": 2,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
     "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873063",
-      "matchup": "SF @ DAL",
-      "kickoffUtc": "2026-11-15T21:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "a19a53c8592ecf55",
-        "simulations": 10000,
-        "generatedAt": "2026-11-15T21:10:52Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-15T21:10:52Z",
-        "participationInputHash": "d5ee3e3b93f693fa",
-        "excludedCount": 10,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Tyler Goodson",
-            "team": "DAL",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Malik Davis",
-            "team": "DAL",
-            "state": "roster day-to-day",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Jake Ferguson",
-            "team": "DAL",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Jonathan Mingo",
-            "team": "DAL",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Isaac Guerendo",
-            "team": "SF",
-            "state": "roster day-to-day",
-            "families": [
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Mike Evans",
-            "team": "SF",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Ricky Pearsall",
-            "team": "SF",
-            "state": "roster day-to-day",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Jake Tonges",
-            "team": "SF",
-            "state": "roster day-to-day",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Brandon Aiyuk",
-            "team": "SF",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Brandin Cooks",
-            "team": "SF",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873064",
@@ -129,13 +23,13 @@
         "version": 2,
         "inputHash": "7cee8a0376ff78a3",
         "simulations": 10000,
-        "generatedAt": "2026-11-15T21:10:52Z"
+        "generatedAt": "2026-11-15T23:21:19Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-15T21:10:52Z",
-        "participationInputHash": "4f0ed7a3f2eabd1d",
+        "snapshotAsOf": "2026-11-15T23:21:19Z",
+        "participationInputHash": "61f3b466ac25d140",
         "excludedCount": 8,
         "materialExclusions": [],
         "excluded": [
@@ -217,13 +111,13 @@
         "version": 2,
         "inputHash": "46e40666a89c1960",
         "simulations": 10000,
-        "generatedAt": "2026-11-15T21:10:52Z"
+        "generatedAt": "2026-11-15T23:21:19Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-15T21:10:52Z",
-        "participationInputHash": "a8cb2e2ef5a91b19",
+        "snapshotAsOf": "2026-11-15T23:21:19Z",
+        "participationInputHash": "06bb32c40bd23939",
         "excludedCount": 10,
         "materialExclusions": [
           {
@@ -250,7 +144,7 @@
             "name": "Trey Lance",
             "team": "LAC",
             "state": "roster day-to-day",
-            "statedAt": "2026-11-15T21:10:52Z",
+            "statedAt": "2026-11-15T23:21:19Z",
             "families": [
               "passAttempts",
               "rushAttempts"
