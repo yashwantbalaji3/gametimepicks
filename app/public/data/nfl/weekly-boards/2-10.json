@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "nfl-weekly-boards",
   "dataClass": "PUBLIC",
-  "generatedAt": "2026-11-15T12:46:36Z",
+  "generatedAt": "2026-11-15T13:36:29Z",
   "period": {
     "seasonType": 2,
     "week": 10
@@ -90,34 +90,6 @@
         }
       ],
       "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-4374302",
-          "name": "Amon-Ra St. Brown",
-          "team": "DET",
-          "providerEventId": "401873053",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4569173",
-          "name": "Rhamondre Stevenson",
-          "team": "NE",
-          "providerEventId": "401873053",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4047646",
-          "name": "A.J. Brown",
-          "team": "NE",
-          "providerEventId": "401873053",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4912274",
-          "name": "Sione Vaki",
-          "team": "DET",
-          "providerEventId": "401873053",
-          "reason": "QUESTIONABLE"
-        },
         {
           "playerId": "nfl-athlete-4569618",
           "name": "Garrett Wilson",
@@ -263,8 +235,13 @@
       "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1495 graded player-games).",
       "conservation": {
         "version": "nfl-share-conservation-v1",
-        "teamsReconciled": 3,
+        "teamsReconciled": 4,
         "teams": [
+          {
+            "team": "NE",
+            "factor": 0.8784,
+            "originalSum": 1.1384
+          },
           {
             "team": "BUF",
             "factor": 0.984,
@@ -290,6 +267,20 @@
           "opponent": "SF",
           "providerEventId": "401873063",
           "kickoffUtc": "2026-11-15T21:25Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 7,
+          "p10": 3,
+          "median": 7,
+          "p90": 14,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4374302",
+          "name": "Amon-Ra St. Brown",
+          "team": "DET",
+          "opponent": "NE",
+          "providerEventId": "401873053",
+          "kickoffUtc": "2026-11-15T14:30Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
           "value": 7,
           "p10": 3,
@@ -408,44 +399,9 @@
           "median": 5,
           "p90": 10,
           "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4248528",
-          "name": "Christian Watson",
-          "team": "GB",
-          "opponent": "MIN",
-          "providerEventId": "401873060",
-          "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 5,
-          "p10": 2,
-          "median": 5,
-          "p90": 10,
-          "pricingState": "NOT_PROBED"
         }
       ],
       "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-4374302",
-          "name": "Amon-Ra St. Brown",
-          "team": "DET",
-          "providerEventId": "401873053",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4569173",
-          "name": "Rhamondre Stevenson",
-          "team": "NE",
-          "providerEventId": "401873053",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4047646",
-          "name": "A.J. Brown",
-          "team": "NE",
-          "providerEventId": "401873053",
-          "reason": "QUESTIONABLE"
-        },
         {
           "playerId": "nfl-athlete-4569618",
           "name": "Garrett Wilson",
@@ -720,20 +676,6 @@
       ],
       "excludedForAvailability": [
         {
-          "playerId": "nfl-athlete-4569173",
-          "name": "Rhamondre Stevenson",
-          "team": "NE",
-          "providerEventId": "401873053",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4912274",
-          "name": "Sione Vaki",
-          "team": "DET",
-          "providerEventId": "401873053",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-4239996",
           "name": "Travis Etienne Jr.",
           "team": "NO",
@@ -791,6 +733,20 @@
           "p10": 26,
           "median": 76,
           "p90": 149,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4374302",
+          "name": "Amon-Ra St. Brown",
+          "team": "DET",
+          "opponent": "NE",
+          "providerEventId": "401873053",
+          "kickoffUtc": "2026-11-15T14:30Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 72.24,
+          "p10": 27,
+          "median": 72,
+          "p90": 133,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -890,51 +846,9 @@
           "median": 49,
           "p90": 111,
           "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4685472",
-          "name": "Tetairoa McMillan",
-          "team": "CAR",
-          "opponent": "NO",
-          "providerEventId": "401873055",
-          "kickoffUtc": "2026-11-15T18:00Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 48.1,
-          "p10": 11,
-          "median": 48,
-          "p90": 105,
-          "pricingState": "NOT_PROBED"
         }
       ],
       "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-4374302",
-          "name": "Amon-Ra St. Brown",
-          "team": "DET",
-          "providerEventId": "401873053",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4569173",
-          "name": "Rhamondre Stevenson",
-          "team": "NE",
-          "providerEventId": "401873053",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4047646",
-          "name": "A.J. Brown",
-          "team": "NE",
-          "providerEventId": "401873053",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4039505",
-          "name": "Reggie Gilliam",
-          "team": "NE",
-          "providerEventId": "401873053",
-          "reason": "QUESTIONABLE"
-        },
         {
           "playerId": "nfl-athlete-4569618",
           "name": "Garrett Wilson",
@@ -1405,7 +1319,7 @@
               "p90": 121.92
             }
           ],
-          "availabilityExcluded": 5
+          "availabilityExcluded": 3
         },
         {
           "id": "top5_reception_yds",
@@ -1450,6 +1364,21 @@
             },
             {
               "rank": 3,
+              "playerId": "nfl-athlete-4374302",
+              "name": "Amon-Ra St. Brown",
+              "team": "DET",
+              "opponent": "NE",
+              "providerEventId": "401873053",
+              "kickoffUtc": "2026-11-15T14:30Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 72.24,
+              "p10": 26.68,
+              "p90": 133.44,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 4,
               "playerId": "nfl-athlete-4429615",
               "name": "Zay Flowers",
               "team": "BAL",
@@ -1464,7 +1393,7 @@
               "pricingState": "NOT_PROBED"
             },
             {
-              "rank": 4,
+              "rank": 5,
               "playerId": "nfl-athlete-4426502",
               "name": "Drake London",
               "team": "ATL",
@@ -1477,24 +1406,9 @@
               "p10": 16.9,
               "p90": 125.42,
               "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 5,
-              "playerId": "nfl-athlete-4362628",
-              "name": "Ja'Marr Chase",
-              "team": "CIN",
-              "opponent": "PIT",
-              "providerEventId": "401873064",
-              "kickoffUtc": "2026-11-16T01:20Z",
-              "etDate": "2026-11-15",
-              "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 58.43,
-              "p10": 18.39,
-              "p90": 118.62,
-              "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 20
+          "availabilityExcluded": 16
         },
         {
           "id": "top5_receptions",
@@ -1524,6 +1438,21 @@
             },
             {
               "rank": 2,
+              "playerId": "nfl-athlete-4374302",
+              "name": "Amon-Ra St. Brown",
+              "team": "DET",
+              "opponent": "NE",
+              "providerEventId": "401873053",
+              "kickoffUtc": "2026-11-15T14:30Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 7,
+              "p10": 3,
+              "p90": 14,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 3,
               "playerId": "nfl-athlete-4361307",
               "name": "Trey McBride",
               "team": "ARI",
@@ -1538,7 +1467,7 @@
               "pricingState": "NOT_PROBED"
             },
             {
-              "rank": 3,
+              "rank": 4,
               "playerId": "nfl-athlete-4362628",
               "name": "Ja'Marr Chase",
               "team": "CIN",
@@ -1553,7 +1482,7 @@
               "pricingState": "NOT_PROBED"
             },
             {
-              "rank": 4,
+              "rank": 5,
               "playerId": "nfl-athlete-4430878",
               "name": "Jaxon Smith-Njigba",
               "team": "SEA",
@@ -1566,24 +1495,9 @@
               "p10": 2.7693,
               "p90": 12.9235,
               "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 5,
-              "playerId": "nfl-athlete-4361370",
-              "name": "Chris Olave",
-              "team": "NO",
-              "opponent": "CAR",
-              "providerEventId": "401873055",
-              "kickoffUtc": "2026-11-15T18:00Z",
-              "etDate": "2026-11-15",
-              "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 6,
-              "p10": 2,
-              "p90": 12,
-              "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 20
+          "availabilityExcluded": 17
         },
         {
           "id": "top5_anytime_td",
@@ -1662,7 +1576,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 23
+          "availabilityExcluded": 19
         }
       ]
     },
@@ -1863,7 +1777,7 @@
                 "p90": 121.92
               }
             ],
-            "availabilityExcluded": 5
+            "availabilityExcluded": 3
           },
           {
             "id": "top5_reception_yds",
@@ -1908,6 +1822,21 @@
               },
               {
                 "rank": 3,
+                "playerId": "nfl-athlete-4374302",
+                "name": "Amon-Ra St. Brown",
+                "team": "DET",
+                "opponent": "NE",
+                "providerEventId": "401873053",
+                "kickoffUtc": "2026-11-15T14:30Z",
+                "etDate": "2026-11-15",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 72.24,
+                "p10": 26.68,
+                "p90": 133.44,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 4,
                 "playerId": "nfl-athlete-4426502",
                 "name": "Drake London",
                 "team": "ATL",
@@ -1922,7 +1851,7 @@
                 "pricingState": "NOT_PROBED"
               },
               {
-                "rank": 4,
+                "rank": 5,
                 "playerId": "nfl-athlete-4362628",
                 "name": "Ja'Marr Chase",
                 "team": "CIN",
@@ -1935,24 +1864,9 @@
                 "p10": 18.39,
                 "p90": 118.62,
                 "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-4432665",
-                "name": "Brock Bowers",
-                "team": "LV",
-                "opponent": "SEA",
-                "providerEventId": "401873062",
-                "kickoffUtc": "2026-11-15T21:05Z",
-                "etDate": "2026-11-15",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 56.86,
-                "p10": 17.22,
-                "p90": 121.31,
-                "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 18
+            "availabilityExcluded": 14
           },
           {
             "id": "top5_receptions",
@@ -1982,6 +1896,21 @@
               },
               {
                 "rank": 2,
+                "playerId": "nfl-athlete-4374302",
+                "name": "Amon-Ra St. Brown",
+                "team": "DET",
+                "opponent": "NE",
+                "providerEventId": "401873053",
+                "kickoffUtc": "2026-11-15T14:30Z",
+                "etDate": "2026-11-15",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 7,
+                "p10": 3,
+                "p90": 14,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 3,
                 "playerId": "nfl-athlete-4361307",
                 "name": "Trey McBride",
                 "team": "ARI",
@@ -1996,7 +1925,7 @@
                 "pricingState": "NOT_PROBED"
               },
               {
-                "rank": 3,
+                "rank": 4,
                 "playerId": "nfl-athlete-4362628",
                 "name": "Ja'Marr Chase",
                 "team": "CIN",
@@ -2011,7 +1940,7 @@
                 "pricingState": "NOT_PROBED"
               },
               {
-                "rank": 4,
+                "rank": 5,
                 "playerId": "nfl-athlete-4430878",
                 "name": "Jaxon Smith-Njigba",
                 "team": "SEA",
@@ -2024,24 +1953,9 @@
                 "p10": 2.7693,
                 "p90": 12.9235,
                 "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-4361370",
-                "name": "Chris Olave",
-                "team": "NO",
-                "opponent": "CAR",
-                "providerEventId": "401873055",
-                "kickoffUtc": "2026-11-15T18:00Z",
-                "etDate": "2026-11-15",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 6,
-                "p10": 2,
-                "p90": 12,
-                "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 18
+            "availabilityExcluded": 15
           },
           {
             "id": "top5_anytime_td",
@@ -2120,7 +2034,7 @@
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 21
+            "availabilityExcluded": 17
           }
         ]
       },
@@ -2712,7 +2626,7 @@
               "p90": 121.92
             }
           ],
-          "availabilityExcluded": 5
+          "availabilityExcluded": 3
         },
         {
           "id": "top5_reception_yds",
@@ -2757,6 +2671,21 @@
             },
             {
               "rank": 3,
+              "playerId": "nfl-athlete-4374302",
+              "name": "Amon-Ra St. Brown",
+              "team": "DET",
+              "opponent": "NE",
+              "providerEventId": "401873053",
+              "kickoffUtc": "2026-11-15T14:30Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 72.24,
+              "p10": 26.68,
+              "p90": 133.44,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 4,
               "playerId": "nfl-athlete-4429615",
               "name": "Zay Flowers",
               "team": "BAL",
@@ -2771,7 +2700,7 @@
               "pricingState": "NOT_PROBED"
             },
             {
-              "rank": 4,
+              "rank": 5,
               "playerId": "nfl-athlete-4426502",
               "name": "Drake London",
               "team": "ATL",
@@ -2784,24 +2713,9 @@
               "p10": 16.9,
               "p90": 125.42,
               "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 5,
-              "playerId": "nfl-athlete-4362628",
-              "name": "Ja'Marr Chase",
-              "team": "CIN",
-              "opponent": "PIT",
-              "providerEventId": "401873064",
-              "kickoffUtc": "2026-11-16T01:20Z",
-              "etDate": "2026-11-15",
-              "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 58.43,
-              "p10": 18.39,
-              "p90": 118.62,
-              "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 20
+          "availabilityExcluded": 16
         },
         {
           "id": "top5_receptions",
@@ -2831,6 +2745,21 @@
             },
             {
               "rank": 2,
+              "playerId": "nfl-athlete-4374302",
+              "name": "Amon-Ra St. Brown",
+              "team": "DET",
+              "opponent": "NE",
+              "providerEventId": "401873053",
+              "kickoffUtc": "2026-11-15T14:30Z",
+              "etDate": "2026-11-15",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 7,
+              "p10": 3,
+              "p90": 14,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 3,
               "playerId": "nfl-athlete-4361307",
               "name": "Trey McBride",
               "team": "ARI",
@@ -2845,7 +2774,7 @@
               "pricingState": "NOT_PROBED"
             },
             {
-              "rank": 3,
+              "rank": 4,
               "playerId": "nfl-athlete-4362628",
               "name": "Ja'Marr Chase",
               "team": "CIN",
@@ -2860,7 +2789,7 @@
               "pricingState": "NOT_PROBED"
             },
             {
-              "rank": 4,
+              "rank": 5,
               "playerId": "nfl-athlete-4430878",
               "name": "Jaxon Smith-Njigba",
               "team": "SEA",
@@ -2873,24 +2802,9 @@
               "p10": 2.7693,
               "p90": 12.9235,
               "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 5,
-              "playerId": "nfl-athlete-4361370",
-              "name": "Chris Olave",
-              "team": "NO",
-              "opponent": "CAR",
-              "providerEventId": "401873055",
-              "kickoffUtc": "2026-11-15T18:00Z",
-              "etDate": "2026-11-15",
-              "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 6,
-              "p10": 2,
-              "p90": 12,
-              "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 20
+          "availabilityExcluded": 17
         },
         {
           "id": "top5_anytime_td",
@@ -2969,7 +2883,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 23
+          "availabilityExcluded": 19
         }
       ]
     }
