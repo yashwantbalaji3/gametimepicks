@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation",
   "dataClass": "PRIVATE_RESEARCH",
-  "generatedAt": "2026-11-15T13:36:29Z",
+  "generatedAt": "2026-11-15T16:04:55Z",
   "slateDate": "2026-11-15",
-  "eventCount": 13,
+  "eventCount": 12,
   "engineVersion": "nfl-regular-season-public-v1@v2",
   "config": {
     "lambda": 0.25,
@@ -22,11 +22,11 @@
       "observedVariationIsNoise": false,
       "teamSignalState": "APPLIED",
       "tStatistic": -0.5746,
-      "distinctValues": 13,
+      "distinctValues": 12,
       "spread": 0.537444,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "win probability spans 13.11%-66.85% across 13 events, so the engine is consuming team-specific evidence"
+      "reading": "win probability spans 13.11%-66.85% across 12 events, so the engine is consuming team-specific evidence"
     },
     {
       "head": "total",
@@ -40,37 +40,10 @@
       "spread": 14,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "published totals span 39-53 across 13 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
+      "reading": "published totals span 39-53 across 12 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
     }
   ],
   "events": [
-    {
-      "canonicalEventId": "nfl-401873053",
-      "matchup": "NE @ DET",
-      "kickoffUtc": "2026-11-15T14:30Z",
-      "inputHash": "5860790451cca223",
-      "engineVersion": "nfl-regular-season-public-v1@v2",
-      "expected": {
-        "marginMean": 1,
-        "marginMedian": 1,
-        "totalMedian": 49,
-        "totalHead": "matchup-totals-v3-play-efficiency",
-        "winProbHome": 0.5212244504045181,
-        "winProbIsRounded": false,
-        "projected": {
-          "home": 25,
-          "away": 24,
-          "convention": "scores-derived-from-total-and-margin-v1"
-        }
-      },
-      "intervals": {
-        "marginP10": -15,
-        "marginP90": 18,
-        "totalP10": 32,
-        "totalP90": 66
-      },
-      "receiptGeneratedAt": "2026-11-15T00:48:17Z"
-    },
     {
       "canonicalEventId": "nfl-401873058",
       "matchup": "KC @ ATL",
