@@ -1,0 +1,149 @@
+name: nfl-atd-targeted
+
+# TARGETED NFL ANYTIME-TD CAPTURE — explicitly named games, `player_anytime_td` only, region `us` only.
+#
+# Why this exists: the only other NFL odds path (nfl-event-window → capture-nfl-odds.mjs) always buys the 3-credit
+# bulk team call first and probes FIVE prop keys per event (5 credits each), choosing events earliest-first. Pricing
+# anytime TD for two named Sunday games through it cost ~23 credits where 2 were authorized. This lane asks the free
+# events index, then ONE /events/{id}/odds call per named game: worst case 1 credit each (markets × regions).
+#
+# DISPATCH ONLY. No schedule: every run is a human decision with an explicit game list and an explicit credit cap.
+#   dry_run = true (default)  → the script runs WITHOUT --authorized: zero network calls, the key is never passed.
+#   dry_run = false           → the paid step: --authorized --write against the committed NFL odds receipt. The script
+#                               refuses (nothing spent) unless that receipt parses, is current, names
+#                               `player_anytime_td`, and leaves at least max_credits under its ceiling.
+#
+# Commits ONLY the private capture, the shared private ledger and app/public/data/nfl/markets/anytime-td-latest.json.
+# It never writes markets/latest.json. Shares the generated-artifacts concurrency group with nfl-event-window so the
+# two lanes never write the shared ledger at the same time.
+
+on:
+  workflow_dispatch:
+    inputs:
+      events:
+        description: "Comma-separated ESPN event ids (providerEventId), e.g. 401873063,401873064"
+        required: true
+      max_credits:
+        description: "Hard credit cap for this run (integer ≥ 1); the run refuses if the worst case exceeds it"
+        required: true
+        default: "2"
+      dry_run:
+        description: "Dry run: zero network calls, nothing spent"
+        type: boolean
+        required: false
+        default: true
+
+concurrency:
+  group: gtp-generated-artifacts
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  actions: write   # only to disable THIS workflow if a paid run's ledger cannot reach main (credit-ceiling guard)
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      RECEIPT: docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+
+      - name: Validate inputs
+        id: inputs
+        env:
+          EVENTS: ${{ inputs.events }}
+          MAX_CREDITS: ${{ inputs.max_credits }}
+        run: |
+          set -euo pipefail
+          [[ "$EVENTS" =~ ^[0-9]+(,[0-9]+)*$ ]] || { echo "REFUSED: events must be comma-separated ESPN ids (got '$EVENTS')"; exit 2; }
+          [[ "$MAX_CREDITS" =~ ^[1-9][0-9]*$ ]] || { echo "REFUSED: max_credits must be an integer ≥ 1 (got '$MAX_CREDITS')"; exit 2; }
+          echo "now=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_OUTPUT"
+
+      - name: Dry run (zero network, nothing spent)
+        if: ${{ inputs.dry_run }}
+        working-directory: app
+        env:
+          NOW: ${{ steps.inputs.outputs.now }}
+          EVENTS: ${{ inputs.events }}
+          MAX_CREDITS: ${{ inputs.max_credits }}
+        run: |
+          set -euo pipefail
+          node scripts/nfl/capture-nfl-atd-targeted.mjs --now "$NOW" --events "$EVENTS" --max-credits "$MAX_CREDITS" --receipt "$RECEIPT"
+
+      - name: Authorized targeted capture (the only credit-bearing step)
+        id: paid
+        if: ${{ !inputs.dry_run }}
+        working-directory: app
+        env:
+          ODDS_API_KEY: ${{ secrets.ODDS_API_KEY }}
+          NOW: ${{ steps.inputs.outputs.now }}
+          EVENTS: ${{ inputs.events }}
+          MAX_CREDITS: ${{ inputs.max_credits }}
+        run: |
+          set -euo pipefail
+          node scripts/nfl/capture-nfl-atd-targeted.mjs \
+            --now "$NOW" \
+            --events "$EVENTS" \
+            --max-credits "$MAX_CREDITS" \
+            --authorized \
+            --receipt "$RECEIPT" \
+            --write
+
+      # Runs after the paid step whatever it returned: a run STOPPED mid-way (exit 5) has still written the ledger for
+      # every call it made, and that ledger must reach main before any later run reads the ceiling.
+      - name: Commit the capture, the ledger and the anytime-TD file only
+        if: ${{ always() && !inputs.dry_run }}
+        env:
+          NOW: ${{ steps.inputs.outputs.now }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          L=data/internal/research/odds/nfl/p171-ledger.json
+          P=app/public/data/nfl/markets/anytime-td-latest.json
+          if [ -f "$L" ]; then git add "$L"; fi
+          if [ -f "$P" ]; then git add "$P"; fi
+          for f in data/internal/research/odds/nfl/atd-targeted-*.json; do if [ -f "$f" ]; then git add "$f"; fi; done
+          if git diff --cached --quiet; then echo "nothing changed — no commit"; exit 0; fi
+          git commit -q -m "auto: nfl targeted anytime-TD capture $NOW [skip ci]"
+          for ATTEMPT in 1 2 3; do
+            git fetch -q origin main
+            # GENERATED_PATHS is a single space: NOTHING auto-resolves. The ledger must never be resolved to one side.
+            if GENERATED_PATHS=" " LOG_PREFIX="nfl-atd-targeted publish" bash scripts/ci/rebase-onto-main.sh && git push origin HEAD:main; then
+              echo "pushed on attempt $ATTEMPT"; exit 0
+            fi
+            echo "::warning::push lost a race (attempt $ATTEMPT) — rebasing again"
+            sleep $((ATTEMPT * 10))
+          done
+          # CREDIT-CEILING GUARD: a paid call whose ledger cannot reach main is invisible to the next run's ceiling check.
+          echo "::error::ledger could not be pushed; disabling nfl-atd-targeted.yml so no further paid run can happen"
+          git bundle create unpublished-commits.bundle origin/main..HEAD || true
+          gh workflow disable nfl-atd-targeted.yml --repo "$GITHUB_REPOSITORY" || echo "::error::could not self-disable this workflow"
+          exit 1
+
+      - name: Upload unpublished commits
+        if: ${{ failure() && !inputs.dry_run }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: nfl-atd-targeted-unpublished-${{ github.run_id }}
+          path: unpublished-commits.bundle
+          if-no-files-found: ignore
+          retention-days: 30
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          OPS_WEBHOOK_URL: ${{ secrets.OPS_WEBHOOK_URL }}
+          PHASE: nfl-atd-targeted
+        run: |
+          set -euo pipefail
+          EXIT_STATUS="${EXIT_STATUS:-1}" bash scripts/ops_alert.sh
