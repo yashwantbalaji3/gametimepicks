@@ -1,0 +1,157 @@
+{
+  "schemaVersion": 1,
+  "phase": "holdout",
+  "window": [
+    2024,
+    2025
+  ],
+  "population": "FBS-FBS",
+  "engine": "ncaaf-worlds@1",
+  "worldsPerEvent": 10000,
+  "bankNeighbours": 400,
+  "inputs": {
+    "scoreChampion": {
+      "id": "C2",
+      "lambda": 2,
+      "H": 240
+    },
+    "winnerChampion": {
+      "id": "C1",
+      "K": 30,
+      "HFA": 40,
+      "c": 0.8,
+      "dFcs": 200
+    },
+    "corpusManifestSha256": "cc3ee9e3fe9ccabc8e1f3ef2d0886e565462b62cfb3c9503fbac829f82407873",
+    "overtimeTableSha256": "8eaf5e94be61b0a8ca8256e045f3a8a7de0c8ebd2c9dc917c385aee497518e99"
+  },
+  "games": 1606,
+  "simulated": 1606,
+  "refused": {},
+  "coherence": {
+    "incoherentWorlds": 0,
+    "note": "simulateEvent throws on any incoherent world; reaching this line means 0"
+  },
+  "receiptsSha256": "dd66839320619a19bafb97c610d77653e35c3555fb343b686e36f9145f2bb2b4",
+  "winner": {
+    "worlds": {
+      "logLoss": 0.5639179519577101,
+      "brier": 0.19267259283935212,
+      "ece": 0.053682565379825645
+    },
+    "c2Analytic": {
+      "logLoss": 0.5609895029728479,
+      "ece": 0.05604250818154659
+    },
+    "c1Elo": {
+      "logLoss": 0.5642165784196344,
+      "ece": 0.03985882389956792
+    },
+    "absDiffWorldVsC1": {
+      "mean": 0.08617473209940146,
+      "p90": 0.18889504594376488
+    }
+  },
+  "margin": {
+    "crpsWorlds": 9.270280751313823,
+    "crpsC2Normal": 9.203667102283951,
+    "coverage80": 0.821917808219178,
+    "bias": 1.0375867372353675
+  },
+  "total": {
+    "crpsWorlds": 9.084230861699877,
+    "crpsC2Normal": 9.14205094783513,
+    "coverage80": 0.823785803237858,
+    "bias": 0.04378113325031128
+  },
+  "structure": {
+    "overtimeRate": {
+      "predicted": 0.02955684931506845,
+      "actual": 0.050435865504358655
+    },
+    "absMargin3": {
+      "predicted": 0.056150809464507984,
+      "actual": 0.10024906600249066
+    },
+    "absMargin7": {
+      "predicted": 0.061598443337484474,
+      "actual": 0.0821917808219178
+    },
+    "absMargin10": {
+      "predicted": 0.045255043586550435,
+      "actual": 0.050435865504358655
+    },
+    "absMargin14": {
+      "predicted": 0.04675211706102125,
+      "actual": 0.039850560398505604
+    },
+    "oneScore": {
+      "predicted": 0.2971999999999999,
+      "actual": 0.350560398505604
+    },
+    "blowout28plus": {
+      "predicted": 0.1773968866749687,
+      "actual": 0.18929016189290163
+    },
+    "total0to6": {
+      "predicted": 0.0006229763387297581,
+      "actual": 0
+    },
+    "total7to13": {
+      "predicted": 0.005811394769613943,
+      "actual": 0.00311332503113325
+    },
+    "total14to20": {
+      "predicted": 0.017703673723536748,
+      "actual": 0.00933997509339975
+    },
+    "total21to27": {
+      "predicted": 0.046224470734744644,
+      "actual": 0.036737235367372355
+    },
+    "total28to34": {
+      "predicted": 0.07987951432129521,
+      "actual": 0.08281444582814446
+    },
+    "total35to41": {
+      "predicted": 0.12283748443337487,
+      "actual": 0.12640099626400997
+    },
+    "total42to48": {
+      "predicted": 0.1450062889165626,
+      "actual": 0.16687422166874222
+    },
+    "total49to55": {
+      "predicted": 0.15779769613947695,
+      "actual": 0.1643835616438356
+    },
+    "total56to62": {
+      "predicted": 0.13880398505603958,
+      "actual": 0.14819427148194272
+    },
+    "total63to69": {
+      "predicted": 0.11298480697384798,
+      "actual": 0.10336239103362391
+    },
+    "total70to76": {
+      "predicted": 0.0766569115815691,
+      "actual": 0.06537982565379825
+    },
+    "total77to83": {
+      "predicted": 0.04814738480697381,
+      "actual": 0.0460772104607721
+    },
+    "total84to90": {
+      "predicted": 0.025775653798256536,
+      "actual": 0.0273972602739726
+    },
+    "total91to97": {
+      "predicted": 0.012921295143212948,
+      "actual": 0.011830635118306352
+    },
+    "total98to104": {
+      "predicted": 0.005480136986301376,
+      "actual": 0.00560398505603985
+    }
+  }
+}
