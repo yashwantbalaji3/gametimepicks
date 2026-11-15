@@ -76,15 +76,19 @@ destination is built only when `NEXT_PUBLIC_SUPABASE_URL` is present, so a build
 never offers a link to a page that could not work. No further code from me is needed to switch it on —
 the page is at `/account` either way if you want to look at it first.
 
-**For AI slip reading**, two more — both server-only, both with **no** `NEXT_PUBLIC_` prefix:
+**For AI slip reading**, three more — all server-only, all with **no** `NEXT_PUBLIC_` prefix:
 
 ```
+SLIP_READ_ENABLED          = true   (the kill switch: anything else, or unset, keeps slip reading OFF)
 ANTHROPIC_API_KEY          = <a key from console.anthropic.com>
 SUPABASE_SERVICE_ROLE_KEY  = <the service_role key from step 1>
 ```
 
-The endpoint refuses to run without all three of `ANTHROPIC_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY` and
-`NEXT_PUBLIC_SUPABASE_URL` — it answers 503 and says which are missing, rather than half-working.
+Slip reading is a paid call with no in-app spend cap, so it stays off until `SLIP_READ_ENABLED` is explicitly on
+(launch program 2026-10-28); keys alone never switch it on. The endpoint also refuses without all three of
+`ANTHROPIC_API_KEY`, `SUPABASE_SERVICE_ROLE_KEY` and `NEXT_PUBLIC_SUPABASE_URL` — it answers 503 (the public reason names
+no variable; the server log records which are missing), rather than half-working. A changed variable takes effect on
+the next deployment.
 Accounts, sign-in and hand-entered slips all work without these two; only reading a screenshot needs
 them.
 

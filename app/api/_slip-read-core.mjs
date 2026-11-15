@@ -35,12 +35,24 @@ export function pathBelongsTo(path, userId) {
 }
 
 /**
+ * THE KILL SWITCH (launch program 2026-10-28, audit of paid paths): slip reading calls a paid model with no rate limit or
+ * spend cap, so it is OFF unless SLIP_READ_ENABLED is explicitly on — adding the Supabase service key alone must never
+ * switch on an uncapped paid path. Accepted on-values: 1 / true / on / yes (any case). Everything else is off.
+ */
+export function slipReadEnabled(env = {}) {
+  return ["1", "true", "on", "yes"].includes(String(env.SLIP_READ_ENABLED ?? "").trim().toLowerCase());
+}
+
+/**
  * @param {{ env?: object, authorization?: string, body?: object }} input
  * @returns {{ status: number, reason: string, proceed: boolean }}
  */
 export function decideSlipRead({ env = {}, authorization, body = {} } = {}) {
+  if (!slipReadEnabled(env)) return { status: 503, proceed: false, reason: "slip reading is not available right now — enter the slip by hand and nothing is lost", switchedOff: true };
   const missing = missingConfig(env);
-  if (missing.length) return { status: 503, proceed: false, reason: `slip reading is not configured (${missing.join(", ")})` };
+  // The public reason never names configuration (variable names are not secrets, but they map the deployment);
+  // `missing` stays on the decision for tests and the server log.
+  if (missing.length) return { status: 503, proceed: false, reason: "slip reading is not available right now — enter the slip by hand and nothing is lost", missing };
 
   const token = typeof authorization === "string" && authorization.startsWith("Bearer ")
     ? authorization.slice(7).trim() : "";
@@ -65,8 +77,8 @@ export function auditLine(decision, { userId, path } = {}) {
     slipRead: decision.proceed ? "reading" : "refused",
     status: decision.status,
     reason: decision.reason,
-    // The path already contains the user id; nothing else identifying is recorded.
-    path: typeof path === "string" ? path : null,
+    // The path's folder IS the user id: log it shortened like `user`, never in full (it was the full UUID).
+    path: typeof path === "string" ? path.replace(/^([^/]{8})[^/]*\//, "$1…/") : null,
     user: typeof userId === "string" ? `${userId.slice(0, 8)}…` : null,
   });
 }

@@ -52,6 +52,8 @@ export default async function handler(req, res) {
     const image = Buffer.from(await object.arrayBuffer()).toString("base64");
 
     const answer = await fetch(ANTHROPIC, {
+      // A paid call never hangs the function (launch program 2026-10-28): 30 s, as Ask's provider calls.
+      signal: AbortSignal.timeout(30_000),
       method: "POST",
       headers: { "content-type": "application/json", "x-api-key": process.env.ANTHROPIC_API_KEY, "anthropic-version": "2023-06-01" },
       body: JSON.stringify({
