@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-15T23:21:19Z",
+ "generatedAt": "2026-11-15T23:42:21Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -22,7 +22,7 @@
   "forecastsUpcoming": 2,
   "forecastsStarted": 12,
   "marketEvents": 14,
-  "settled": 2
+  "settled": 4
  },
  "nextKickoffUtc": "2026-11-16T01:20Z",
  "nextMatchup": "PIT @ CIN",
@@ -33,17 +33,17 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-15T21:10:52Z",
+  "generatedAt": "2026-11-15T23:21:19Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 138,
-  "decisive": 137,
-  "winnerAccuracy": 0.6131,
-  "marginMAE": 10.1232,
-  "totalMAE": 11.0942,
-  "marginInterval80Coverage": 0.7899,
-  "totalInterval80Coverage": 0.8188,
+  "settledForecasts": 140,
+  "decisive": 139,
+  "winnerAccuracy": 0.6115,
+  "marginMAE": 10.1857,
+  "totalMAE": 10.9857,
+  "marginInterval80Coverage": 0.7857,
+  "totalInterval80Coverage": 0.8214,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,13 +57,13 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 138,
-    "decisive": 137,
-    "winnerAccuracy": 0.6131,
-    "marginMAE": 10.1232,
-    "totalMAE": 11.0942,
-    "marginInterval80Coverage": 0.7899,
-    "totalInterval80Coverage": 0.8188
+    "settledForecasts": 140,
+    "decisive": 139,
+    "winnerAccuracy": 0.6115,
+    "marginMAE": 10.1857,
+    "totalMAE": 10.9857,
+    "marginInterval80Coverage": 0.7857,
+    "totalInterval80Coverage": 0.8214
    }
   },
   "unknownSeasonTypeRows": 0,
@@ -247,10 +247,10 @@
     "name": "Buffalo Bills"
    },
    "kickoffUtc": "2026-11-15T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 19,
@@ -493,10 +493,10 @@
     "name": "Minnesota Vikings"
    },
    "kickoffUtc": "2026-11-15T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 20,
