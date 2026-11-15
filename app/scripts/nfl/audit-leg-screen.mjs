@@ -7,27 +7,21 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { FAMILY_STAT } from "../../src/lib/sports/nfl/player-evidence.mjs";
+import { familiesFrom, legCandidates } from "../../src/lib/sports/nfl/leg-candidates.mjs";
 import { readEvidenceFor } from "../../src/lib/sports/nfl/player-evidence-file.mjs";
 import { AMOUNTS, GOAL_CAP, buildScenario, screenLegs } from "../../src/lib/sports/nfl/leg-screen.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
-const fe = JSON.parse(fs.readFileSync(path.join(ROOT, "app/public/data/nfl/family-eligibility.json"), "utf8"));
-const families = Object.fromEntries((Array.isArray(fe.families) ? fe.families : Object.values(fe.families)).map((f) => [f.family, f]));
+const families = familiesFrom(JSON.parse(fs.readFileSync(path.join(ROOT, "app/public/data/nfl/family-eligibility.json"), "utf8")));
 const dir = path.join(ROOT, "app/public/data/nfl/player-board");
-const cands = [];
+const boards = [], evidenceByEvent = {};
 for (const f of fs.readdirSync(dir).filter((x) => /^\d+\.json$/.test(x))) {
   const b = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
   const ev = readEvidenceFor(ROOT, b.providerEventId);
   if (!Object.keys(ev).length) continue;
-  for (const p of b.players ?? []) for (const [fam, m] of Object.entries(p.markets ?? {})) {
-    if (!FAMILY_STAT[fam]) continue;
-    const line = m.market?.line != null ? { line: m.market.line, price: m.market.overOdds ?? m.market.yesOdds ?? null, sportsbook: m.market.sportsbook, capturedAt: m.market.capturedAt } : null;
-    for (const side of fam === "anytime_td" ? ["over"] : ["over", "under"]) {
-      cands.push({ playerId: p.playerId, name: p.name, team: p.team, eventId: String(b.providerEventId), family: fam, side, line: side === "under" && line ? { ...line, price: m.market.underOdds ?? null } : line, eligibility: p.eligibility?.state ?? null, modelProbability: m.probability ?? null, log: ev[p.playerId] ?? [] });
-    }
-  }
+  boards.push(b); evidenceByEvent[String(b.providerEventId)] = ev;
 }
+const cands = legCandidates({ boards, evidenceByEvent });
 const r = screenLegs(cands, { families });
 const scen = {};
 for (const [product, amounts] of Object.entries(AMOUNTS)) for (const stake of amounts) { const s = buildScenario(r.passed, { stake, goal: GOAL_CAP[product] }); scen[`${product}:${stake}`] = s.state === "BUILT" ? `BUILT ${s.legs.length} legs ×${s.multiple}` : `${s.state} (${s.reason})`; }
