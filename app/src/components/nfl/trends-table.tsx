@@ -50,7 +50,7 @@ export default function NflTrendsTable({ rows }: { rows: TrendRow[] }) {
   const isTd = market === "anytime_td";
   return (
     <div>
-      <style>{CSS}</style>
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="nt-f" role="group" aria-label="Filters">
         <label>Game<select value={game} onChange={(e) => setGame(e.target.value)}><option value="">All games</option>{games.map(([id, m]) => <option key={id} value={id}>{m}</option>)}</select></label>
         <label>Team<select value={team} onChange={(e) => setTeam(e.target.value)}><option value="">All teams</option>{teams.map((t) => <option key={t}>{t}</option>)}</select></label>
