@@ -34,6 +34,15 @@ test("game log: most recent first, before kickoff only, NO_STAT_LINE kept, pre-j
   assert.deepEqual([log[0].opponent, log[0].homeAway, log[0].score], ["FFF", "A", "17-20"]);
 });
 
+test("own-event guard: the forecast game is excluded even when its date reads as before kickoff", () => {
+  // a corrupted date on game 9 (the game being forecast) would put it before kickoff; the id guard still drops it
+  const bad = GAMES.map((g) => (g.providerEventId === "9" ? { ...g, dateUtc: "2026-11-02T17:00Z" } : g));
+  assert.equal(gameLog(bad, P, "NEW", KICK)[0].eventId, "9", "without the guard the bad date leaks the game in");
+  assert.ok(!gameLog(bad, P, "NEW", KICK, 10, { eventId: "9" }).some((e) => e.eventId === "9"));
+  const file = buildEvidenceFile({ boards: [{ providerEventId: "9", kickoffUtc: KICK, players: [{ playerId: P, team: "NEW" }] }], games: bad, sourceHash: "h" });
+  assert.ok(!file.events["9"].players[P].some((e) => e.eventId === "9"), "the evidence file passes the board's own id");
+});
+
 test("values: missing stat line is null, never zero; anytime TD reads rush or receiving TD", () => {
   const log = gameLog(GAMES, P, "NEW", KICK);
   assert.equal(valueOf(log[2], "player_receptions"), null);

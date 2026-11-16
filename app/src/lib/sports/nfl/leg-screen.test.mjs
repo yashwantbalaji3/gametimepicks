@@ -9,7 +9,8 @@ import { buildScenario, decimalOf, screenLegs } from "./leg-screen.mjs";
 const g = (i, rec) => ({ eventId: `p${i}`, week: 10 - i, date: "2026-10-01", team: "T", opponent: "O", homeAway: "H", state: "STAT_LINE", stats: { rec } });
 const log = (...recs) => recs.map((r, i) => g(i, r));
 const FAM = { player_receptions: { eligibleForOfficialProducts: true, gtpProbability: true }, player_rush_yds: { eligibleForOfficialProducts: false } };
-const cand = (id, event, team, recs, extra = {}) => ({ playerId: id, team, eventId: event, family: "player_receptions", side: "over", line: { line: 4.5, price: -150, sportsbook: "draftkings", capturedAt: "2026-11-15T12:00Z" }, eligibility: "ELIGIBLE", modelProbability: 0.62, log: log(...recs), ...extra });
+const BOOKS = ["draftkings", "fanduel"];
+const cand = (id, event, team, recs, extra = {}) => ({ playerId: id, team, eventId: event, kickoffUtc: "2026-11-16T18:00Z", family: "player_receptions", side: "over", line: { line: 4.5, price: -150, sportsbook: "draftkings", capturedAt: "2026-11-15T12:00Z" }, eligibility: "ELIGIBLE", modelProbability: 0.62, log: log(...recs), ...extra });
 
 test("every refusal is named and counted; 3/5 is never used", () => {
   const r = screenLegs([
@@ -20,18 +21,18 @@ test("every refusal is named and counted; 3/5 is never used", () => {
     cand("e", "e1", "E", [5, 6, 7, 5]),
     cand("f", "e1", "F", [5, 6, 7, 1, 2]),
     cand("g", "e1", "G", [5, 6, 1, 1, 2]),
-  ], { families: FAM });
+  ], { families: FAM, eligibleBooks: BOOKS });
   assert.deepEqual(r.reasons, { NO_OBSERVED_LINE: 1, NO_OBSERVED_PRICE: 1, PLAYER_NOT_ELIGIBLE: 1, FAMILY_NOT_QUALIFIED: 1, SHORT_SAMPLE: 1, TIER_3_OF_5_NEVER_USED: 1, TREND_BELOW_4_OF_5: 1 });
   assert.equal(r.passed.length, 0);
 });
 
 test("a game with no stat line in the window blocks the leg (no 5/5 on four real games)", () => {
   const l = log(5, 6, 7, 5, 6); l[2] = { ...l[2], state: "NO_STAT_LINE", stats: undefined };
-  assert.deepEqual(screenLegs([cand("a", "e1", "A", [], { log: l })], { families: FAM }).reasons, { INCOMPLETE_HISTORY: 1 });
+  assert.deepEqual(screenLegs([cand("a", "e1", "A", [], { log: l })], { families: FAM, eligibleBooks: BOOKS }).reasons, { INCOMPLETE_HISTORY: 1 });
 });
 
 test("5/5 legs first; 4/5 only to fill; never adds legs past the goal", () => {
-  const { passed } = screenLegs([cand("x4", "e3", "X", [5, 6, 7, 1, 6]), cand("a5", "e1", "A", [5, 6, 7, 5, 6]), cand("b5", "e2", "B", [6, 6, 7, 5, 6])], { families: FAM });
+  const { passed } = screenLegs([cand("x4", "e3", "X", [5, 6, 7, 1, 6]), cand("a5", "e1", "A", [5, 6, 7, 5, 6]), cand("b5", "e2", "B", [6, 6, 7, 5, 6])], { families: FAM, eligibleBooks: BOOKS });
   assert.deepEqual(passed.map((l) => [l.playerId, l.tier]), [["a5", "5/5"], ["b5", "5/5"], ["x4", "4/5"]]);
   const easy = buildScenario(passed, { stake: 100, goal: 250, minLegs: 2, maxLegs: 4 });
   assert.equal(easy.state, "BUILT");
@@ -44,25 +45,41 @@ test("5/5 legs first; 4/5 only to fill; never adds legs past the goal", () => {
 });
 
 test("joint probability: product only across different games; same-game legs ⇒ unavailable; unqualified ⇒ none", () => {
-  const { passed } = screenLegs([cand("a", "e1", "A", [5, 6, 7, 5, 6]), cand("b", "e2", "B", [5, 6, 7, 5, 6])], { families: FAM });
+  const { passed } = screenLegs([cand("a", "e1", "A", [5, 6, 7, 5, 6]), cand("b", "e2", "B", [5, 6, 7, 5, 6])], { families: FAM, eligibleBooks: BOOKS });
   const s = buildScenario(passed, { stake: 50, goal: 100 });
   assert.equal(s.joint.state, "INDEPENDENT_GAMES");
   assert.equal(Math.round(s.joint.probability * 1e4), Math.round(0.62 * 0.62 * 1e4));
-  const same = screenLegs([cand("a", "e1", "A", [5, 6, 7, 5, 6]), cand("b", "e1", "B", [5, 6, 7, 5, 6])], { families: FAM }).passed;
+  const same = screenLegs([cand("a", "e1", "A", [5, 6, 7, 5, 6]), cand("b", "e1", "B", [5, 6, 7, 5, 6])], { families: FAM, eligibleBooks: BOOKS }).passed;
   const sg = buildScenario(same, { stake: 50, goal: 100 });
   assert.equal(sg.joint.state, "JOINT_PROBABILITY_UNAVAILABLE");
   assert.equal(sg.joint.probability, undefined);
-  const noProb = screenLegs([cand("a", "e1", "A", [5, 6, 7, 5, 6]), cand("b", "e2", "B", [5, 6, 7, 5, 6])], { families: { player_receptions: { eligibleForOfficialProducts: true, gtpProbability: false } } }).passed;
+  const noProb = screenLegs([cand("a", "e1", "A", [5, 6, 7, 5, 6]), cand("b", "e2", "B", [5, 6, 7, 5, 6])], { families: { player_receptions: { eligibleForOfficialProducts: true, gtpProbability: false } }, eligibleBooks: BOOKS }).passed;
   assert.equal(buildScenario(noProb, { stake: 50, goal: 100 }).joint.state, "NO_QUALIFIED_LEG_PROBABILITY");
 });
 
 test("risk limits: one leg per player, team and game concentration; too few legs ⇒ NO_QUALIFYING_BUILD", () => {
-  const { passed } = screenLegs([cand("a", "e1", "A", [5, 6, 7, 5, 6]), cand("a", "e1", "A", [5, 6, 7, 5, 6], { family: "player_receptions", line: { line: 3.5, price: -200, sportsbook: "draftkings" } }), cand("b", "e1", "A", [5, 6, 7, 5, 6])], { families: FAM });
+  const { passed } = screenLegs([cand("a", "e1", "A", [5, 6, 7, 5, 6]), cand("a", "e1", "A", [5, 6, 7, 5, 6], { family: "player_receptions", line: { line: 3.5, price: -200, sportsbook: "draftkings", capturedAt: "2026-11-15T12:00Z" } }), cand("b", "e1", "A", [5, 6, 7, 5, 6])], { families: FAM, eligibleBooks: BOOKS });
   const s = buildScenario(passed, { stake: 10, goal: 1000, minLegs: 2 });
   assert.equal(s.state, "NO_QUALIFYING_BUILD");
   assert.equal(s.reason, "TOO_FEW_LEGS_AFTER_RISK_LIMITS");
   assert.deepEqual(s.skipped.map((x) => x.code).sort(), ["ONE_LEG_PER_PLAYER", "TEAM_CONCENTRATION"]);
   assert.deepEqual(buildScenario([], { stake: 10, goal: 1000 }), { state: "NO_QUALIFYING_BUILD", reason: "NO_LEG_PASSED_THE_SCREEN", qualifyingLegs: 0, skipped: [] });
+});
+
+test("fail closed: no allowlist ⇒ no leg; an ineligible book, a line captured at/after kickoff or without an instant ⇒ refused", () => {
+  const ok = cand("a", "e1", "A", [5, 6, 7, 5, 6]);
+  assert.deepEqual(screenLegs([ok], { families: FAM }).reasons, { NO_ELIGIBLE_BOOK_LIST: 1 }, "eligibleBooks omitted");
+  assert.deepEqual(screenLegs([ok], { families: FAM, eligibleBooks: null }).reasons, { NO_ELIGIBLE_BOOK_LIST: 1 });
+  assert.equal(screenLegs([ok], { families: FAM, eligibleBooks: BOOKS }).passed.length, 1);
+  const r = screenLegs([
+    cand("b", "e1", "B", [5, 6, 7, 5, 6], { line: { line: 4.5, price: -150, sportsbook: "betonlineag", capturedAt: "2026-11-15T12:00Z" } }),
+    cand("c", "e1", "C", [5, 6, 7, 5, 6], { line: { line: 4.5, price: -150, sportsbook: "draftkings", capturedAt: "2026-11-16T18:00Z" } }),
+    cand("d", "e1", "D", [5, 6, 7, 5, 6], { line: { line: 4.5, price: -150, sportsbook: "draftkings", capturedAt: "2026-11-16T19:00Z" } }),
+    cand("e", "e1", "E", [5, 6, 7, 5, 6], { line: { line: 4.5, price: -150, sportsbook: "draftkings" } }),
+    cand("f", "e1", "F", [5, 6, 7, 5, 6], { kickoffUtc: undefined }),
+  ], { families: FAM, eligibleBooks: BOOKS });
+  assert.deepEqual(r.reasons, { INELIGIBLE_BOOK: 1, LINE_NOT_CAPTURED_BEFORE_KICKOFF: 4 });
+  assert.equal(screenLegs([cand("g", "e1", "G", [5, 6, 7, 5, 6], { line: { line: 4.5, price: -150, sportsbook: "DraftKings", capturedAt: "2026-11-15T12:00Z" } })], { families: FAM, eligibleBooks: BOOKS }).passed.length, 1, "a display title matches its key");
 });
 
 test("price arithmetic", () => {

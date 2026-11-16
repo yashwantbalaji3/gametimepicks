@@ -21,23 +21,33 @@ import { lineRecord, trendTier } from "./player-evidence.mjs";
 export const AMOUNTS = Object.freeze({ bankBuilder: [50, 100, 250, 500], moonshot: [10, 20, 25, 50] });
 export const GOAL_CAP = Object.freeze({ bankBuilder: 5000, moonshot: 1000 });
 
+/** Book identity for the allowlist: lowercase letters and digits only ("ESPN BET" ≡ "espnbet"). Non-string ⇒ null. */
+const bookKey = (b) => (typeof b === "string" ? b.toLowerCase().replace(/[^a-z0-9]/g, "") || null : null);
+
 export const decimalOf = (american) => (american > 0 ? 1 + american / 100 : american < 0 ? 1 + 100 / -american : null);
 
 /**
- * @param {Array<{ playerId: string, name?: string, team: string, eventId: string, family: string, side?: "over"|"under",
+ * @param {Array<{ playerId: string, name?: string, team: string, eventId: string, kickoffUtc?: string, family: string, side?: "over"|"under",
  *   line?: { line: number, price?: number|null, sportsbook?: string, capturedAt?: string } | null,
  *   eligibility?: string, modelProbability?: number|null, log: any[] }>} candidates
- * @param {{ families: Record<string, { eligibleForOfficialProducts?: boolean, gtpProbability?: boolean }>, eligibleBooks?: string[] }} ctx
+ * @param {{ families: Record<string, { eligibleForOfficialProducts?: boolean, gtpProbability?: boolean }>, eligibleBooks?: string[] | null }} ctx
+ *   `eligibleBooks` is REQUIRED in practice: without an allowlist every candidate is refused (NO_ELIGIBLE_BOOK_LIST).
  */
 export function screenLegs(candidates, { families, eligibleBooks = null }) {
   const passed = [], rejected = [];
   const reasons = {};
   const reject = (c, code) => { reasons[code] = (reasons[code] ?? 0) + 1; rejected.push({ playerId: c.playerId, family: c.family, eventId: c.eventId, code }); };
+  /* fail closed: no allowlist means no leg (never "every book is fine") */
+  const allowed = Array.isArray(eligibleBooks) ? new Set(eligibleBooks.map(bookKey).filter(Boolean)) : null;
   for (const c of candidates) {
     const side = c.side ?? "over";
+    if (!allowed) { reject(c, "NO_ELIGIBLE_BOOK_LIST"); continue; }
     if (!c.line || !Number.isFinite(c.line.line)) { reject(c, "NO_OBSERVED_LINE"); continue; }
     if (c.line.price == null || decimalOf(c.line.price) == null) { reject(c, "NO_OBSERVED_PRICE"); continue; }
-    if (eligibleBooks && !eligibleBooks.includes(c.line.sportsbook)) { reject(c, "INELIGIBLE_BOOK"); continue; }
+    if (!allowed.has(bookKey(c.line.sportsbook))) { reject(c, "INELIGIBLE_BOOK"); continue; }
+    /* rule 1: captured BEFORE kickoff — a missing or unreadable instant on either side fails closed */
+    const cap = Date.parse(c.line.capturedAt ?? ""), kick = Date.parse(c.kickoffUtc ?? "");
+    if (!Number.isFinite(cap) || !Number.isFinite(kick) || !(cap < kick)) { reject(c, "LINE_NOT_CAPTURED_BEFORE_KICKOFF"); continue; }
     if (c.eligibility !== "ELIGIBLE") { reject(c, "PLAYER_NOT_ELIGIBLE"); continue; }
     if (!families?.[c.family]?.eligibleForOfficialProducts) { reject(c, "FAMILY_NOT_QUALIFIED"); continue; }
     const rec = lineRecord(c.log, c.family, 5, { line: c.line, side });
