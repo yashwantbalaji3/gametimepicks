@@ -127,7 +127,8 @@ export default function ModelSuggestionsRecord({ view }: { view: View }) {
         <p className="m-0 text-[13px]" style={{ color: "var(--vault-text-mute)" }}>No suggestion has been recorded yet.</p>
       ) : (
         <>
-          <div className="overflow-x-auto" role="region" aria-label="Model suggestions by policy and tier" tabIndex={0}>
+          {/* One named, focusable scroll region holds both tables (policy/tier, then time window); each keeps its caption. */}
+          <div className="overflow-x-auto" role="region" aria-label={view.windows?.length ? "Model suggestions by policy and tier, and by time window" : "Model suggestions by policy and tier"} tabIndex={0}>
             <table className="w-full text-[12.5px] border-collapse" style={{ minWidth: 520 }}>
               <caption className="sr-only">Model suggestions by policy and tier</caption>
               <thead>
@@ -149,10 +150,8 @@ export default function ModelSuggestionsRecord({ view }: { view: View }) {
                 ))}
               </tbody>
             </table>
-          </div>
           {view.windows?.length ? (
-            <div className="overflow-x-auto" role="region" aria-label="Model suggestions by time window" tabIndex={0}>
-              <table className="w-full text-[12.5px] border-collapse" style={{ minWidth: 520 }} data-windows>
+              <table className="w-full text-[12.5px] border-collapse" style={{ minWidth: 520, marginTop: 12 }} data-windows>
                 <caption className="sr-only">All model suggestions by time window, through the newest product day. Counts only: the window pools single picks and multi-leg cards, so no pooled rate is shown; rates are per suggestion type above.</caption>
                 <thead>
                   <tr style={{ color: "var(--vault-text-mute)" }}>
@@ -171,8 +170,8 @@ export default function ModelSuggestionsRecord({ view }: { view: View }) {
                   ))}
                 </tbody>
               </table>
-            </div>
           ) : null}
+          </div>
           <p className="m-0 text-[12px] leading-snug" style={{ color: "var(--vault-text-mute)" }} data-as-of>
             As of this page&apos;s last update: newest suggestion {etTime(view.asOf.recordedAt) ?? "—"}; newest grade {view.asOf.gradedAt ? etTime(view.asOf.gradedAt) : "none yet — the first grades land with the nightly settle"}.
           </p>
