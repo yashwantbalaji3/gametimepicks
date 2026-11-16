@@ -15,6 +15,7 @@ import { OBSERVED_LINE_STATES, buildTrendRows, upcomingBoards } from "@/lib/spor
 import { sanitizePlayerBoard } from "@/lib/sports/odds/public-offer-sanitizer.mjs";
 import { readEvidenceFor } from "@/lib/sports/nfl/player-evidence-file.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
+import { buildAsOfIso } from "@/lib/build-asof";
 
 export const metadata = withRouteMetadata("/nfl/trends/", {
   title: "NFL player trends: last 5 games vs the official projection · GameTime Picks",
@@ -23,7 +24,7 @@ export const metadata = withRouteMetadata("/nfl/trends/", {
 
 function load(): { rows: TrendRow[]; linesCaptured: number; played: number } {
   /* the build instant: a game at or before it has kicked off and is not this week's board (history stays on its page) */
-  const now = new Date().toISOString();
+  const now = buildAsOfIso(); // the export's one build instant (lib/build-asof.ts), shared with every other page
   const dir = path.join(process.cwd(), "public/data/nfl/player-board");
   const root = path.join(process.cwd(), "..");
   const boards = [];

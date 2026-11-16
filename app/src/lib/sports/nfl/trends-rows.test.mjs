@@ -67,6 +67,10 @@ test("A · fixture board with one eligible and one ineligible offer: the eligibl
   const { default: Table } = await import("../../../components/nfl/trends-table.tsx");
   const html = renderToStaticMarkup(React.createElement(Table, { rows }));
   assert.match(html, /4\/5 over<div class="nt-g">vs 55\.5 at draftkings, captured Nov 15, 6:00 AM ET<\/div>/);
+  const { BOOK_AVAILABILITY_NOTE } = await import("../odds/eligible-operators.mjs");
+  assert.ok(html.includes(BOOK_AVAILABILITY_NOTE), "a printed book name carries the availability note");
+  const bare = renderToStaticMarkup(React.createElement(Table, { rows: buildTrendRows({ boards: [board], evidenceByEvent: evidence, now: NOW }) }));
+  assert.ok(!bare.includes(BOOK_AVAILABILITY_NOTE), "no book printed ⇒ no note needed");
   // a hit rate never renders without its caption
   for (const r of rows) if (r.badge) assert.ok(r.line, `${r.playerId} ${r.family}: badge without a line caption`);
 });

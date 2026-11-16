@@ -5,6 +5,7 @@
  */
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
+import { BOOK_AVAILABILITY_NOTE } from "@/lib/sports/odds/eligible-operators.mjs";
 
 export type TrendRow = {
   eventId: string; kickoffUtc: string; matchup: string; opponent: string; playerId: string; name: string; team: string; eligibility: string | null;
@@ -48,6 +49,8 @@ export default function NflTrendsTable({ rows }: { rows: TrendRow[] }) {
     return sort === "kickoff" ? out : [...out].sort(SORTS[sort].fn);
   }, [rows, game, team, market, full, sort]);
   const isTd = market === "anytime_td";
+  /* a row whose line caption names a sportsbook is on screen ⇒ the required availability disclosure prints with it */
+  const namesBook = shown.some((r) => r.line);
   return (
     <div>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
@@ -81,6 +84,7 @@ export default function NflTrendsTable({ rows }: { rows: TrendRow[] }) {
           </tbody>
         </table>
       </div>
+      {namesBook ? <p className="nt-g" data-book-availability-note style={{ marginTop: 6 }}>{BOOK_AVAILABILITY_NOTE}</p> : null}
     </div>
   );
 }
