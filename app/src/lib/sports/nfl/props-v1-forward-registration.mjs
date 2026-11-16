@@ -131,7 +131,10 @@ export function fingerprintDrift(frozenFiles, actual) {
  * pinned commit is an ancestor of the grading commit AND is the commit that first added the protocol — so a squash
  * or rebase merge (which would silently re-register later and move firstWeek) fails loudly instead.
  */
-export const PINNED_REGISTRATIONS = Object.freeze({});
+export const PINNED_REGISTRATIONS = Object.freeze({
+  // series s2 — registered 2026-11-16T01:13:49Z (s1 was superseded before its first week and is never pinned)
+  "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s2.json": "3f8ff69abb665cd2048562b59e29eb10d282dd3f",
+});
 
 /**
  * `added` = git log --diff-filter=A order (newest first) as [{commit, committedAt}]; `isAncestor(commit)` → bool.
