@@ -1,0 +1,69 @@
+{
+ "note": "SYNTHETIC test fixture for props-v1-forward-registration.test.mjs. Invented event ids (9xxxx), commits and numbers; not a receipt, never graded as evidence.",
+ "registration": { "commit": "fixture-registration-commit", "committedAt": "2026-11-15T23:00:00Z" },
+ "asOfReady": "2026-12-01T12:00:00Z",
+ "asOfPending": "2026-11-21T00:00:00Z",
+ "captures": [
+  { "name": "capture-a.json", "generatedAt": "2026-11-10T12:00:00Z", "rows": [
+   { "providerEventId": "91001", "shortName": "AAA @ BBB", "dateUtc": "2026-11-13T01:15Z", "seasonType": 2, "week": 10 },
+   { "providerEventId": "91002", "shortName": "CCC @ DDD", "dateUtc": "2026-11-17T01:15Z", "seasonType": 2, "week": 10 },
+   { "providerEventId": "91101", "shortName": "EEE @ FFF", "dateUtc": "2026-11-22T18:00Z", "seasonType": 2, "week": 11 }
+  ] },
+  { "name": "capture-b.json", "generatedAt": "2026-11-16T12:00:00Z", "rows": [
+   { "providerEventId": "91101", "shortName": "EEE @ FFF", "dateUtc": "2026-11-20T01:15Z", "seasonType": 2, "week": 11 },
+   { "providerEventId": "91102", "shortName": "GGG @ HHH", "dateUtc": "2026-11-22T18:00Z", "seasonType": 2, "week": 11 },
+   { "providerEventId": "91103", "shortName": "III @ JJJ", "dateUtc": "2026-11-22T21:25Z", "seasonType": 2, "week": 11 },
+   { "providerEventId": "91104", "shortName": "KKK @ LLL", "dateUtc": "2026-11-23T01:20Z", "seasonType": 2, "week": 11 },
+   { "providerEventId": "91105", "shortName": "MMM @ NNN", "dateUtc": "2026-11-24T01:15Z", "seasonType": 2, "week": 11 },
+   { "providerEventId": "91201", "shortName": "AAA @ CCC", "dateUtc": "2026-11-27T01:15Z", "seasonType": 2, "week": 12 },
+   { "providerEventId": "92001", "shortName": "PRE @ SEA", "dateUtc": "2027-08-10T23:00Z", "seasonType": 1, "week": 1 },
+   { "providerEventId": "92002", "shortName": "NXT @ SEA", "dateUtc": "2027-09-10T00:20Z", "seasonType": 2, "week": 1 },
+   { "providerEventId": "92003", "shortName": "NXT @ LAR", "dateUtc": "2027-11-20T01:15Z", "seasonType": 2, "week": 11 }
+  ] }
+ ],
+ "weeks": {
+  "11": { "events": [
+   { "eventId": "91101", "kickoffUtc": "2026-11-20T01:15Z", "matchup": "EEE @ FFF", "inSchedule": true, "hasBoard": true, "final": true, "gameId": "2026_11_EEE_FFF", "sheetMissing": [],
+     "history": [
+      { "commit": "c-91101-postgame", "committedAt": "2026-11-20T04:00:00Z", "doc": { "generatedAt": "2026-11-20T03:59:00Z", "families": { "player_reception_yds": { "state": "PUBLISHED", "basis": "props-v1 evaluation: n=3575, all promotion bars pass" } } } },
+      { "commit": "c-91101-pregame", "committedAt": "2026-11-19T20:00:00Z", "roleSharesSha256": "fixture-role-shares-sha", "boardBuilderSha256": "fixture-board-builder-sha", "doc": { "generatedAt": "2026-11-19T19:59:00Z", "families": { "player_reception_yds": { "state": "PUBLISHED", "basis": "props-v1 evaluation: n=3575, all promotion bars pass" } } } }
+     ],
+     "rows": [
+      ["91101", "2026_11_EEE_FFF", "nfl-athlete-1001", "Receiver One", "EEE", "ACTIVE", 61.2, 18.0, 36.5, 55.0, 80.1, 108.4, "SCORED", 72, 58.25, 58.25, 54.1, 0.43, 0.25, 0.5, true],
+      ["91101", "2026_11_EEE_FFF", "nfl-athlete-1002", "Receiver Two", "FFF", "ACTIVE", 34.8, 4.0, 15.2, 30.1, 48.9, 70.3, "SCORED", 12, 29.5, 29.5, 31.0, 0.51, 0.5, 0.75, true],
+      ["91101", "2026_11_EEE_FFF", "nfl-athlete-1003", "Tight End Three", "FFF", "ACTIVE", 22.1, 0.0, 8.3, 18.2, 31.7, 47.9, "VOID_NO_OFFENSE_SNAPS", null, 12.0, null, 15.5, null, null, null, true]
+     ] },
+   { "eventId": "91102", "kickoffUtc": "2026-11-22T18:00Z", "matchup": "GGG @ HHH", "inSchedule": true, "hasBoard": true, "final": true, "gameId": "2026_11_GGG_HHH", "sheetMissing": [],
+     "history": [
+      { "commit": "c-91102-late", "committedAt": "2026-11-22T18:00:00Z", "doc": { "generatedAt": "2026-11-22T17:55:00Z", "families": { "player_reception_yds": { "state": "PUBLISHED", "basis": "props-v1 evaluation: n=3575, all promotion bars pass" } } } },
+      { "commit": "c-91102-generated-late", "committedAt": "2026-11-22T17:00:00Z", "doc": { "generatedAt": "2026-11-22T18:05:00Z", "families": { "player_reception_yds": { "state": "PUBLISHED", "basis": "props-v1 evaluation: n=3575, all promotion bars pass" } } } }
+     ] },
+   { "eventId": "91103", "kickoffUtc": "2026-11-22T21:25Z", "matchup": "III @ JJJ", "inSchedule": true, "hasBoard": true, "final": true, "gameId": "2026_11_III_JJJ", "sheetMissing": [],
+     "history": [
+      { "commit": "c-91103-pregame", "committedAt": "2026-11-22T15:00:00Z", "doc": { "generatedAt": "2026-11-22T14:58:00Z", "families": { "player_reception_yds": { "state": "PUBLISHED", "basis": "share-level forward", "model": "nfl-player-share-level-v1" } } } }
+     ] },
+   { "eventId": "91104", "kickoffUtc": "2026-11-23T01:20Z", "matchup": "KKK @ LLL", "inSchedule": true, "hasBoard": false, "final": true, "gameId": "2026_11_KKK_LLL", "sheetMissing": [], "history": [] },
+   { "eventId": "91105", "kickoffUtc": "2026-11-24T01:15Z", "matchup": "MMM @ NNN", "inSchedule": true, "hasBoard": true, "final": true, "gameId": "2026_11_MMM_NNN", "sheetMissing": [],
+     "history": [
+      { "commit": "c-91105-pregame", "committedAt": "2026-11-23T20:00:00Z", "pipelineVersion": "pv1-0000000000000000", "identityMismatches": ["app/src/lib/sports/nfl/player-props-v1.mjs"], "doc": { "generatedAt": "2026-11-23T19:58:00Z", "families": { "player_reception_yds": { "state": "PUBLISHED", "basis": "props-v1 evaluation: n=3575, all promotion bars pass" } } } }
+     ] },
+   { "eventId": "91199", "kickoffUtc": "2026-11-23T18:00Z", "matchup": "OOO @ PPP", "inSchedule": false, "hasBoard": true, "final": true, "gameId": "2026_11_OOO_PPP", "sheetMissing": [],
+     "history": [
+      { "commit": "c-91199-pregame", "committedAt": "2026-11-23T15:00:00Z", "doc": { "generatedAt": "2026-11-23T14:59:00Z", "families": { "player_reception_yds": { "state": "ESTIMATE", "reason": "fixture estimate", "basis": "props-v1 evaluation: n=3575, all promotion bars pass" } } } }
+     ],
+     "rows": [
+      ["91199", "2026_11_OOO_PPP", "nfl-athlete-1004", "Receiver Four", "OOO", "ACTIVE", 48.0, 10.2, 25.0, 44.4, 66.0, 90.5, "SCORED", 101, 40.0, 40.0, 45.2, 0.53, 0.5, 0.75, true]
+     ] }
+  ] },
+  "12": { "events": [
+   { "eventId": "91201", "kickoffUtc": "2026-11-27T01:15Z", "matchup": "AAA @ CCC", "inSchedule": true, "hasBoard": true, "final": true, "gameId": "2026_12_AAA_CCC", "sheetMissing": [],
+     "history": [
+      { "commit": "c-91201-pregame", "committedAt": "2026-11-26T20:00:00Z", "doc": { "generatedAt": "2026-11-26T19:59:00Z", "families": { "player_reception_yds": { "state": "PUBLISHED", "basis": "props-v1 evaluation: n=3575, all promotion bars pass" } } } }
+     ],
+     "rows": [
+      ["91201", "2026_12_AAA_CCC", "nfl-athlete-1001", "Receiver One", "AAA", "ACTIVE", 60.0, 17.0, 35.0, 54.0, 79.0, 106.0, "SCORED", 0, 63.0, 63.0, 55.0, 0.38, 0.25, 0.5, true],
+      ["91201", "2026_12_AAA_CCC", "nfl-athlete-1005", "Back Five", "CCC", "ACTIVE", 15.0, 0.0, 4.0, 11.0, 21.0, 35.0, "VOID_ZERO_OPPORTUNITY", null, 9.0, null, 8.0, null, null, null, false]
+     ] }
+  ] }
+ }
+}
