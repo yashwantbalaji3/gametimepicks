@@ -2,105 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-16T01:19:06Z",
+  "generatedAt": "2026-11-16T19:34:29Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 2,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
+    "upcomingEvents": 1,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 1,
     "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873064",
-      "matchup": "PIT @ CIN",
-      "kickoffUtc": "2026-11-16T01:20Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "7cee8a0376ff78a3",
-        "simulations": 10000,
-        "generatedAt": "2026-11-16T00:26:20Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-16T01:19:06Z",
-        "participationInputHash": "75f975ecec220328",
-        "excludedCount": 8,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Kendall Milton",
-            "team": "CIN",
-            "state": "roster practice-squad",
-            "families": [
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Ke'Shawn Williams",
-            "team": "CIN",
-            "state": "roster practice-squad",
-            "families": [
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Erick All Jr.",
-            "team": "CIN",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Andrei Iosivas",
-            "team": "CIN",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Tanner Hudson",
-            "team": "CIN",
-            "state": "roster day-to-day",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Roman Wilson",
-            "team": "PIT",
-            "state": "roster day-to-day",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Michael Pittman Jr.",
-            "team": "PIT",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Brandon Johnson",
-            "team": "PIT",
-            "state": "roster practice-squad",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873065",
@@ -109,15 +21,15 @@
       "forecastSnapshot": {
         "model": "nfl-regular-season-public-v1",
         "version": 2,
-        "inputHash": "46e40666a89c1960",
+        "inputHash": "59ab2eb0ffc65516",
         "simulations": 10000,
-        "generatedAt": "2026-11-16T00:26:20Z"
+        "generatedAt": "2026-11-16T19:34:29Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-16T01:19:06Z",
-        "participationInputHash": "2bfeee8e87300a8c",
+        "snapshotAsOf": "2026-11-16T19:34:29Z",
+        "participationInputHash": "a25fbe0609275304",
         "excludedCount": 10,
         "materialExclusions": [
           {
@@ -144,7 +56,7 @@
             "name": "Trey Lance",
             "team": "LAC",
             "state": "roster day-to-day",
-            "statedAt": "2026-11-16T01:19:06Z",
+            "statedAt": "2026-11-16T19:34:29Z",
             "families": [
               "passAttempts",
               "rushAttempts"
