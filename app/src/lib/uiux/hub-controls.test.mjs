@@ -14,6 +14,8 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import { pregameScope } from "../sports/nfl/top-boards.mjs";
+import { topBoardTabs } from "../sports/nfl/forecast-view.mjs";
 
 const OUT = path.join(process.cwd(), "out");
 const ui = (html) => html.replace(/<script[\s\S]*?<\/script>/gi, "");
@@ -45,8 +47,20 @@ test("BUILT · the NFL hub's ranked boards can be filtered", { skip: !exists("nf
     return;
   }
   assert.ok(liveAt(builtAt), "a boards section renders only while a game is still to kick off");
-  const teams = new Set((wbDoc.topBoards.weekly.boards ?? []).flatMap((b) => (b.rows ?? []).map((r) => r.team))).size;
+  /* 2026-11-16 (CI ~03:00Z, after Sunday night kicked off, Monday night still to come): counting every club in the
+     artifact's raw weekly rows asked for 6 chips while the page rendered none — the page renders the weekly boards
+     through pregameScope (top-boards.mjs), which withholds every board that ranked a started game (PREGAME_SCOPE_STALE,
+     rows: []), and FamilyTabs builds one chip per club in the lists topBoardTabs hands it. So the expected clubs come
+     from those same owners. The page reads its clock during `next build`, after build-info stamps builtAt; pregameScope
+     only ever drops boards as time passes, so the clubs still on the boards 45 minutes later (the same render window
+     as above) are a floor every rendered export must meet. */
+  const weeklyAt = (iso) => pregameScope(wbDoc.topBoards.weekly, iso, (id) => kick.get(id) || null);
+  const clubsAt = (iso) => { const s = weeklyAt(iso); return s ? new Set(Object.values(topBoardTabs(s).lists).flat().map((r) => r.player.team)) : new Set(); };
+  const clubs = clubsAt(new Date(Date.parse(builtAt) + 45 * 60_000).toISOString());
+  const teams = clubs.size;
   assert.ok(buttons >= 1 + teams, `the NFL hub renders ${buttons} controls for ${teams} clubs on its ranked boards — every club needs a way in`);
+  // The count alone is met by the family tabs; name each club's own chip.
+  for (const club of clubs) assert.match(main, new RegExp(`<button\\b[^>]*>${club}</button>`), `${club} has rows on the hub's boards and no filter chip`);
   assert.match(main, /All teams/, "a team filter is offered");
   assert.match(main, /type="search"/, "…and a player search beside it");
 });
