@@ -14,6 +14,7 @@
 import React from "react";
 import { FAMILY_STAT, lineRecord, summary, valueOf } from "@/lib/sports/nfl/player-evidence.mjs";
 import { NO_RATE_TEXT, lineCaption, lineView } from "@/lib/sports/nfl/evidence-line.mjs";
+import { BOOK_AVAILABILITY_NOTE } from "@/lib/sports/odds/eligible-operators.mjs";
 
 export type EvidenceEntry = { eventId: string; week: number; date: string; team: string; opponent: string | null; homeAway: "H" | "A"; state: "STAT_LINE" | "NO_STAT_LINE"; stats?: Record<string, number> };
 /** One row the game page shows for (player, family) — evidence-projections.mjs. */
@@ -102,6 +103,8 @@ function FamilyEvidence({ log, family, m, chart, kickoffUtc }: { log: EvidenceEn
           : r5.state === "COMPLETE"
             ? `Last 5 vs today's line ${lineCaption(lv)}: over in ${r5.badge}${r5.pushes ? `, ${r5.pushes} push` : ""}. A past streak is history, not a probability.`
             : `Last 5 vs today's line ${lineCaption(lv)}: ${r5.hits ?? 0} over of ${(r5.games ?? 0) - (r5.missing ?? 0)} recorded games — not a full 5-game record (${r5.state === "SHORT_SAMPLE" ? "fewer than 5 games" : "a game with no stat line"}).`}
+        {/* an OBSERVED line names its sportsbook ⇒ the required availability disclosure rides on the same line */}
+        {lv.state === "OBSERVED" ? <> <span data-book-availability-note>{BOOK_AVAILABILITY_NOTE}</span></> : null}
       </div>
     </div>
   );
