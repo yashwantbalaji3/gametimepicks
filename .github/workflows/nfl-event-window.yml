@@ -452,6 +452,14 @@ jobs:
           # P245: the public player board — promotion-gated extraction of the eligible families
           # (rush yards + calibrated anytime TD) from the current-event research artifacts.
           node scripts/nfl/build-nfl-player-board.mjs --now "${{ steps.window.outputs.now }}"
+          # Founder 2026-11-15 P2: the actual recent games behind every board projection (history only, no model input).
+          # HISTORY NEVER BLOCKS FORECASTS: a failure here keeps the previous evidence file, the forecasts and boards still
+          # commit and publish, and the failure is LOUD — an ::error:: now, an alert line, and the run ends failed in
+          # "Fail the run on deferred alerts" after publishing.
+          if ! node scripts/nfl/build-nfl-player-evidence.mjs --write; then
+            echo "::error::NFL player-evidence build failed — the previous evidence file stays; forecasts and boards still publish; this run will end failed"
+            echo "nfl-player-evidence: build-nfl-player-evidence.mjs exited non-zero" >> "$RUNNER_TEMP/nfl-deferred-alerts.txt"
+          fi
           # Session 4 §50: the roster health check re-audits every upcoming board against the canonical
           # owners (rosters, injuries contract, role evidence, current-season usage). The builder fixes
           # by construction; this proves it. LOUD, NOT FATAL: a generator that refuses takes every board
@@ -640,7 +648,7 @@ jobs:
           # P295: the nflverse season capture the v3 totals head folded is committed with the forecasts built from it.
           # Session 4: the 2026 player-event partition and the role-share pool folded from it are committed
           # with the boards built from them (role-shares-v1/ was missing, so the committed pool stayed stale).
-          git add data/internal/research/odds/nfl/ data/internal/research/nfl/reports/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json data/internal/research/injuries/nfl/ data/internal/research/nfl/replay/ data/internal/research/nfl/player-events-v1/2026.json data/internal/research/nfl/role-shares-v1/ data/internal/research/nfl/depth-charts/
+          git add data/internal/research/odds/nfl/ data/internal/research/nfl/reports/ data/internal/nfl/ app/public/data/nfl/ app/public/data/admin/nfl-lane.json data/internal/research/injuries/nfl/ data/internal/research/nfl/replay/ data/internal/research/nfl/player-events-v1/2026.json data/internal/research/nfl/player-evidence/ data/internal/research/nfl/role-shares-v1/ data/internal/research/nfl/depth-charts/
           # transaction facts (eligibility contract, founder decision 4): own add — a missing path must never empty the add above
           if [ -d data/internal/research/transactions ]; then git add data/internal/research/transactions/; fi
           if git diff --cached --quiet; then
@@ -826,6 +834,20 @@ jobs:
           done
           echo "::error::could not push after 3 attempts"
           exit 1
+
+      # Deferred alerts: steps whose failure must not block publishing (e.g. the player-evidence history build) append a
+      # line to $RUNNER_TEMP/nfl-deferred-alerts.txt. After the publish, any line here fails the run, so "Notify on
+      # failure" fires and the failure is never a green run.
+      - name: Fail the run on deferred alerts
+        if: ${{ always() }}
+        run: |
+          set -euo pipefail
+          ALERTS="$RUNNER_TEMP/nfl-deferred-alerts.txt"
+          if [ -s "$ALERTS" ]; then
+            while IFS= read -r line; do echo "::error::deferred alert: $line"; done < "$ALERTS"
+            exit 1
+          fi
+          echo "no deferred alerts"
 
       # OPS-001 · NEVER SILENTLY LOST. If the publish failed, this run's commits (window, settlement receipts, write-once
       # WM2 runs) still exist only on this runner. Bundle them as an artifact so they can be inspected and replayed by

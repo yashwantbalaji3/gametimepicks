@@ -91,7 +91,11 @@ export function qbHistory(games, playerId, kickoff, n = HISTORY_GAMES) {
   for (const g of games.filter((x) => ms(x.dateUtc) != null && ms(x.dateUtc) < k).sort((a, b) => ms(b.dateUtc) - ms(a.dateUtc))) {
     const p = g.players?.find((x) => x.playerId === playerId && (x.passAtt ?? 0) >= 1);
     if (!p) continue;
-    const opp = g.home?.abbr === p.teamAbbr ? g.away?.abbr : g.home?.abbr;
+    /* player-events-v1 stores home/away as abbreviation strings (older fixtures: { abbr }); reading only `.abbr` left
+       every real opponent null. */
+    const ab = (x) => { const a = typeof x === "string" ? x : x?.abbr; return a === "LA" ? "LAR" : a === "WAS" ? "WSH" : a ?? null; }; /* nflverse sides → ESPN codes the player rows use */
+    const H = ab(g.home), A = ab(g.away);
+    const opp = H === p.teamAbbr ? A : H;
     out.push({ season: g.season, week: g.week, date: String(g.dateUtc).slice(0, 10), opponent: opp ?? null, passCmp: p.passCmp, passAtt: p.passAtt, passYds: p.passYds, passTd: p.passTd, passInt: p.passInt });
     if (out.length === n) break;
   }
