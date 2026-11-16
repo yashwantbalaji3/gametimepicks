@@ -84,7 +84,7 @@ test("OPEN, real artifact: each leg is the game page section's line, price, book
       }
       assert.deepEqual(r.reasons, {
         PROJECTION_NOT_OFFICIAL: 6, // athlete-3 passing + rushing yards, athlete-4 rushing yards (estimates) × 2 sides
-        NO_OBSERVED_LINE: 4, // athlete-1 and athlete-3 anytime TD (yes/no: never a line); athlete-4 receiving yards × 2
+        NO_OBSERVED_LINE: 2, // athlete-4 receiving yards × 2 (anytime TD is never a candidate: no row for it at all)
         PUSH_IN_RECORD: 2, // athlete-2 receptions, both sides
         LINE_NOT_COMPARED: 2, // athlete-2 receiving yards (stale), both sides
         LINE_NOT_CAPTURED_BEFORE_KICKOFF: 2, // athlete-4 receptions, both sides
@@ -96,7 +96,8 @@ test("OPEN, real artifact: each leg is the game page section's line, price, book
       assert.equal(why["nfl-athlete-2|player_reception_yds"], "LINE_NOT_COMPARED", "the 20 h-old line: stale in the section");
       assert.equal(why["nfl-athlete-4|player_receptions"], "LINE_NOT_CAPTURED_BEFORE_KICKOFF");
       assert.equal(why["nfl-athlete-4|player_reception_yds"], "NO_OBSERVED_LINE", "only an ineligible book captured it ⇒ not in the artifact");
-      assert.equal(why["nfl-athlete-1|anytime_td"], "NO_OBSERVED_LINE", "a yes/no price is never a line");
+      assert.equal(why["nfl-athlete-1|anytime_td"], undefined, "anytime TD is not a builder leg: no candidate, no refusal");
+      assert.ok(!cands.some((c) => c.family === "anytime_td"));
       assert.equal(why["nfl-athlete-3|player_pass_yds"], "PROJECTION_NOT_OFFICIAL");
 
       // the card prints the section's caption, the row's price, and the availability note beside the book
@@ -129,3 +130,15 @@ test("CLOSED (committed data, no key): the builder page carries no line, price, 
 
 /** what a closed builder page must never print (shared with builder-rendered.test.mjs) */
 const BUILDER_CLOSED_FORBIDDEN = /sportsbook|\bline\b|\blines\b|price|\bbook\b|\d\/5|\b[45] (?:for|of) 5\b|tier|data-scenario|data-leg|data-book-availability-note|hit rate|payout|parlay/i;
+
+test("copy: eligibility is 'not ruled out on the injury report', never 'confirmed to play'; anytime TD's exclusion is stated", async () => {
+  const page = fs.readFileSync(path.join(process.cwd(), "src/app/nfl/builder/page.tsx"), "utf8");
+  const card = fs.readFileSync(path.join(process.cwd(), "src/components/products/scenario-builder.tsx"), "utf8");
+  for (const src of [page, card]) assert.doesNotMatch(src, /confirmed (to play|eligible)/);
+  assert.match(page, /not ruled out on the\s+injury report/);
+  assert.match(page, /Anytime touchdown is not used: it has no over\/under line\./);
+  const html = renderToStaticMarkup(React.createElement(SB, { product: "bankBuilder", legs: [], candidates: 4, refusedBy: { PLAYER_NOT_ELIGIBLE: 4 }, asOf: "slate" }));
+  assert.match(html, /a player not ruled out on the injury report/);
+  assert.match(html, /4<\/td><td>player ruled out on the injury report, or status not verified/);
+  assert.doesNotMatch(html, /confirmed (to play|eligible)/);
+});

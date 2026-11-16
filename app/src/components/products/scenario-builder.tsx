@@ -33,7 +33,7 @@ const REASON: Record<string, string> = {
   INELIGIBLE_BOOK: "price from a book outside the eligible list",
   LINE_NOT_CAPTURED_BEFORE_KICKOFF: "line not captured before kickoff",
   NO_ELIGIBLE_BOOK_LIST: "no eligible-book list to check the price against",
-  PLAYER_NOT_ELIGIBLE: "player not confirmed eligible to play",
+  PLAYER_NOT_ELIGIBLE: "player ruled out on the injury report, or status not verified",
   FAMILY_NOT_QUALIFIED: "market not yet qualified for products",
   SHORT_SAMPLE: "fewer than 5 games on record",
   INCOMPLETE_HISTORY: "a recent game with no stat line",
@@ -127,7 +127,7 @@ export default function ScenarioBuilder({ product, legs, candidates, refusedBy, 
       ) : (
         <div className="sb-card" data-scenario-state="NO_QUALIFYING_BUILD">
           <b style={{ color: "var(--vault-text)" }}>No qualifying {cfg.title} build{asOf ? ` for this slate` : ""}.</b>
-          <p className="sb-mute">We only use legs that went 5 of 5 (or 4 of 5, to fill) against a real, captured line, for a player confirmed to play, in a market qualified for products. Of {candidates.toLocaleString("en-US")} candidate legs, {legs.length} passed{removed.size ? ` (${removed.size} removed by you)` : ""}.</p>
+          <p className="sb-mute">We only use legs that went 5 of 5 (or 4 of 5, to fill) against a real, captured line, for a player not ruled out on the injury report, in a market qualified for products. Of {candidates.toLocaleString("en-US")} candidate legs, {legs.length} passed{removed.size ? ` (${removed.size} removed by you)` : ""}.</p>
           {Object.keys(refusedBy).length ? (
             <table aria-label="Why candidate legs were not used"><tbody>
               {Object.entries(refusedBy).sort((a, b) => b[1] - a[1]).map(([k, n]) => <tr key={k}><td>{n.toLocaleString("en-US")}</td><td>{REASON[k] ?? k}</td></tr>)}

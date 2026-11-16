@@ -114,3 +114,14 @@ test("order: 5/5 before 4/5; within a tier by kickoff, then playerId", () => {
   const s = buildScenario(passed, { stake: 10, goal: 1000, minLegs: 2, maxLegs: 3, maxPerTeam: 1 });
   assert.deepEqual(s.legs.map((l) => l.playerId), ["m5", "z5", "a5"], "the scenario takes them in that order");
 });
+
+test("price: only a valid American price for the side (|price| ≥ 100, finite integer); else NO_OBSERVED_PRICE", () => {
+  const bad = [50, -50, -99, 1.91, 0, NaN, Infinity, 99.5, null, undefined, "-120"];
+  const r = screenLegs(bad.map((price, i) => cand(`x${i}`, "e1", `T${i}`, [5, 6, 7, 5, 6], { line: { line: 4.5, price, sportsbook: "draftkings", capturedAt: "2026-11-15T12:00Z" } })), { families: FAM, isEligibleBook: isEligibleProvider });
+  assert.deepEqual(r.reasons, { NO_OBSERVED_PRICE: bad.length });
+  const ok = screenLegs([-120, 150, -100, 100].map((price, i) => cand(`o${i}`, `e${i}`, `T${i}`, [5, 6, 7, 5, 6], { line: { line: 4.5, price, sportsbook: "draftkings", capturedAt: "2026-11-15T12:00Z" } })), { families: FAM, isEligibleBook: isEligibleProvider }).passed;
+  assert.equal(ok.length, 4);
+  assert.equal(Math.round(ok.find((l) => l.line.price === -120).decimal * 1e4) / 1e4, 1.8333);
+  assert.equal(ok.find((l) => l.line.price === 150).decimal, 2.5);
+  assert.equal(Math.round(decimalOf(-120) * 1e4) / 1e4, 1.8333);
+});

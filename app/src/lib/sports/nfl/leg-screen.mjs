@@ -4,7 +4,7 @@
  *
  * A leg passes only when ALL of these hold (each failure is a named reason, counted, never silent):
  *   0. the projection is the game page's OFFICIAL one (PUBLISHED family, not an estimate)   (PROJECTION_NOT_OFFICIAL)
- *   1. OBSERVED line + price from an eligible book, captured before kickoff — the line the game page's line section
+ *   1. OBSERVED line + a valid American price (|price| ≥ 100) for the side, from an eligible book, captured before kickoff — the line the game page's line section
  *      shows (leg-candidates.mjs)                                                 (no line ⇒ NO_OBSERVED_LINE; a line
  *      the section does not compare ⇒ LINE_NOT_COMPARED)
  *   2. the player is ELIGIBLE under eligibility@1                                   (UNKNOWN/INELIGIBLE refused)
@@ -22,6 +22,7 @@
  *   - legs are never added to reach a payout target: fewer legs, or NO_QUALIFYING_BUILD
  */
 import { lineRecord, trendTier } from "./player-evidence.mjs";
+import { isAmerican } from "./american-price.mjs";
 
 export const AMOUNTS = Object.freeze({ bankBuilder: [50, 100, 250, 500], moonshot: [10, 20, 25, 50] });
 export const GOAL_CAP = Object.freeze({ bankBuilder: 5000, moonshot: 1000 });
@@ -50,7 +51,8 @@ export function screenLegs(candidates, { families, isEligibleBook = null }) {
     if (!allowed) { reject(c, "NO_ELIGIBLE_BOOK_LIST"); continue; }
     if (c.official !== true) { reject(c, "PROJECTION_NOT_OFFICIAL"); continue; }
     if (!c.line || !Number.isFinite(c.line.line)) { reject(c, LINE_REASON[c.lineState] ?? "NO_OBSERVED_LINE"); continue; }
-    if (c.line.price == null || decimalOf(c.line.price) == null) { reject(c, "NO_OBSERVED_PRICE"); continue; }
+    /* the side's price must be a valid American price (the adapter's rule): +50, −99, 1.91, 0, NaN are not prices */
+    if (!isAmerican(c.line.price) || decimalOf(c.line.price) == null) { reject(c, "NO_OBSERVED_PRICE"); continue; }
     if (allowed(c.line.sportsbook) !== true) { reject(c, "INELIGIBLE_BOOK"); continue; }
     /* rule 1: captured BEFORE kickoff — a missing or unreadable instant on either side fails closed */
     const cap = Date.parse(c.line.capturedAt ?? ""), kick = Date.parse(c.kickoffUtc ?? "");

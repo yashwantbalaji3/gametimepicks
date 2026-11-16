@@ -40,8 +40,8 @@ export default function NflBuilderPage() {
         {openGames ? (
           <p style={{ fontSize: 14, color: "var(--vault-text-mute)", margin: 0, maxWidth: 720 }}>
             Pick a starting amount and a goal. A leg is used only if it has a real sportsbook line captured before kickoff (the line each game page
-            shows), went 5 for 5 against that line in the player&apos;s last five complete games (4 for 5 only to fill), the player is confirmed to play,
-            the projection is official, and the market is qualified for products. A 5 for 5 is a ranking from history, not a probability or a guarantee.{" "}
+            shows), went 5 for 5 against that line in the player&apos;s last five complete games (4 for 5 only to fill), the player is not ruled out on the
+            injury report, the projection is official, and the market is qualified for products. Anytime touchdown is not used: it has no over/under line. A 5 for 5 is a ranking from history, not a probability or a guarantee.{" "}
             {openGames} of {slate} upcoming games checked.
           </p>
         ) : (

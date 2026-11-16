@@ -11,7 +11,8 @@
  * PROJECTION — `official` is true only when the board family is PUBLISHED AND the game page shows an official
  * (non-estimate) projection for the player in it (`projectionsByEvent[eventId]` = evidenceProjections(gameTabs(view)),
  * the page's own accessor).
- * Only games that have not kicked off at `now` (the build instant) supply candidates.
+ * Only games that have not kicked off at `now` (the build instant) supply candidates. Over/under families only:
+ * anytime touchdown is never a candidate (no line, so no refusal row either).
  */
 import { FAMILY_STAT } from "./player-evidence.mjs";
 
@@ -34,15 +35,16 @@ export function legCandidates({ boards, evidenceByEvent, now, linesByEvent = {},
     const ev = evidenceByEvent[id] ?? {};
     const proj = projectionsByEvent?.[id] ?? {};
     for (const p of b.players ?? []) for (const fam of Object.keys(p.markets ?? {})) {
-      if (!FAMILY_STAT[fam]) continue;
+      /* anytime TD is not a builder leg: a yes/no price is not a line, and a 5-game record over a line does not apply */
+      if (!FAMILY_STAT[fam] || fam === "anytime_td") continue;
       const pr = proj[p.playerId]?.[fam] ?? null;
       const official = b.families?.[fam]?.state === "PUBLISHED" && pr != null && !pr.estimate;
       const lv = lines[`${p.playerId}|${fam}`] ?? null;
-      for (const side of fam === "anytime_td" ? ["over"] : ["over", "under"]) {
+      for (const side of ["over", "under"]) {
         const line = lv?.state === "OBSERVED"
           ? { line: lv.line, lineText: lv.lineText, price: (side === "under" ? lv.underPrice : lv.overPrice) ?? null, sportsbook: lv.book, label: lv.sportsbook, capturedAt: lv.capturedAt, captured: lv.captured }
           : null;
-        out.push({ playerId: p.playerId, name: p.name ?? null, team: p.team, eventId: id, kickoffUtc: b.kickoffUtc ?? null, family: fam, side, official, line, lineState: lv?.state ?? "NO_LINE", eligibility: p.eligibility?.state ?? null, modelProbability: fam === "anytime_td" ? p.markets[fam]?.probability ?? null : null, log: ev[p.playerId] ?? [] });
+        out.push({ playerId: p.playerId, name: p.name ?? null, team: p.team, eventId: id, kickoffUtc: b.kickoffUtc ?? null, family: fam, side, official, line, lineState: lv?.state ?? "NO_LINE", eligibility: p.eligibility?.state ?? null, modelProbability: null, log: ev[p.playerId] ?? [] });
       }
     }
   }

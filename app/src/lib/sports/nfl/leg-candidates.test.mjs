@@ -70,3 +70,13 @@ test("official projection only: an ESTIMATE family, an estimate row or no page r
   ];
   for (const c of cases) assert.deepEqual(screenLegs(c, { families: FAM, isEligibleBook: isEligibleProvider }).reasons, { PROJECTION_NOT_OFFICIAL: 2 });
 });
+
+test("anytime TD is never a candidate (a yes/no price is not a line): no leg, no refusal row", () => {
+  const now = "2026-11-15T13:00:00Z";
+  const td = { ...PLAYED, families: { ...PLAYED.families, anytime_td: { state: "PUBLISHED" } }, players: PLAYED.players.map((p) => ({ ...p, markets: { ...p.markets, anytime_td: { probability: 0.4 } } })) };
+  const c = legCandidates({ boards: [td], evidenceByEvent, now, linesByEvent: linesAt([td], now), projectionsByEvent: { 101: { "nfl-athlete-101": { player_receptions: { value: 5, estimate: null }, anytime_td: { value: 0.4, estimate: null } } } } });
+  assert.ok(c.length > 0, "the receptions candidates are there (non-vacuous)");
+  assert.deepEqual([...new Set(c.map((x) => x.family))], ["player_receptions"]);
+  const r = screenLegs(c, { families: { ...FAM, anytime_td: { eligibleForOfficialProducts: true } }, isEligibleBook: isEligibleProvider });
+  assert.ok(!r.rejected.some((x) => x.family === "anytime_td") && !r.passed.some((x) => x.family === "anytime_td"), "no TD leg and no TD refusal");
+});
