@@ -68,7 +68,7 @@ export default function ScenarioBuilder({ product, legs, candidates, refusedBy, 
   const pickStake = (v: number) => { setStake(v); if (goal <= v) setGoal(Math.min(cap, Math.max(v * 2, goal))); };
   return (
     <section className="sb" aria-labelledby={`sb-${product}`} data-scenario-product={product}>
-      <style>{CSS}</style>
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div><h3 id={`sb-${product}`}>{cfg.title} scenario</h3><p className="sb-mute">{cfg.blurb} Amounts are hypothetical inputs, not advice and not a promise of any return.</p></div>
       <div className="sb-row" role="group" aria-label="Starting amount">
         {amounts.map((a) => <button key={a} type="button" className="sb-chip" aria-pressed={stake === a} onClick={() => pickStake(a)}>{usd(a)}</button>)}
@@ -104,10 +104,10 @@ export default function ScenarioBuilder({ product, legs, candidates, refusedBy, 
       ) : (
         <div className="sb-card" data-scenario-state="NO_QUALIFYING_BUILD">
           <b style={{ color: "var(--vault-text)" }}>No qualifying {cfg.title} build{asOf ? ` for this slate` : ""}.</b>
-          <p className="sb-mute">We only use legs that went 5 of 5 (or 4 of 5, to fill) against a real, captured line, for a player confirmed to play, in a market qualified for products. Of {candidates.toLocaleString()} candidate legs, {legs.length} passed{removed.size ? ` (${removed.size} removed by you)` : ""}.</p>
+          <p className="sb-mute">We only use legs that went 5 of 5 (or 4 of 5, to fill) against a real, captured line, for a player confirmed to play, in a market qualified for products. Of {candidates.toLocaleString("en-US")} candidate legs, {legs.length} passed{removed.size ? ` (${removed.size} removed by you)` : ""}.</p>
           {Object.keys(refusedBy).length ? (
             <table aria-label="Why candidate legs were not used"><tbody>
-              {Object.entries(refusedBy).sort((a, b) => b[1] - a[1]).map(([k, n]) => <tr key={k}><td>{n.toLocaleString()}</td><td>{REASON[k] ?? k}</td></tr>)}
+              {Object.entries(refusedBy).sort((a, b) => b[1] - a[1]).map(([k, n]) => <tr key={k}><td>{n.toLocaleString("en-US")}</td><td>{REASON[k] ?? k}</td></tr>)}
             </tbody></table>
           ) : null}
           {removed.size ? <button type="button" className="sb-x" onClick={() => setRemoved(new Set())}>Restore removed legs</button> : null}

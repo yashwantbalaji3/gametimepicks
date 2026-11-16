@@ -5,7 +5,10 @@
  */
 import fs from "node:fs";
 import path from "node:path";
-import { EVIDENCE_REL, EVIDENCE_SCHEMA } from "./player-evidence.mjs";
+import { EVIDENCE_SCHEMA } from "./player-evidence.mjs";
+
+/** Repo-relative path of the evidence file. Server-only: kept out of player-evidence.mjs, which client code reaches. */
+export const EVIDENCE_REL = "data/internal/research/nfl/player-evidence/latest.json";
 
 let cache = null;
 export function readEvidenceFor(root, eventId) {
