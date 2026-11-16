@@ -104,7 +104,7 @@ export default function NflPlayerEvidencePanel({ players, evidence, sourceNote }
   if (!rows.length) return null;
   return (
     <div data-testid="nfl-player-evidence">
-      <style>{EV_CSS}</style>
+      <style dangerouslySetInnerHTML={{ __html: EV_CSS }} />
       <p className="ev-intro">
         Each player&apos;s actual games before this kickoff, beside the official projection. The chart (for the player's main market) shows real results (– means no stat line: did not play or recorded no stat); the dashed line and shaded band are the model&apos;s median and 80% range, not a sportsbook line. {sourceNote}
       </p>
