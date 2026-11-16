@@ -1,7 +1,7 @@
 /**
  * NFL leg candidates for the scenario builder — PURE. Every (player, projected family, side) on the given boards becomes
  * a candidate carrying ONLY observed market data (the board's captured line and price; none ⇒ line null) and the
- * player's evidence log. Shared by the /nfl/builder page and scripts/nfl/audit-leg-screen.mjs so both count the same.
+ * player's evidence log, and the game's kickoff (the screen refuses a line not captured before it). Shared by the /nfl/builder page and scripts/nfl/audit-leg-screen.mjs so both count the same.
  */
 import { FAMILY_STAT } from "./player-evidence.mjs";
 
@@ -15,7 +15,7 @@ export function legCandidates({ boards, evidenceByEvent }) {
       const base = mk?.line != null ? { line: mk.line, sportsbook: mk.sportsbook, capturedAt: mk.capturedAt } : null;
       for (const side of fam === "anytime_td" ? ["over"] : ["over", "under"]) {
         const price = side === "under" ? mk?.underOdds ?? null : mk?.overOdds ?? mk?.yesOdds ?? null;
-        out.push({ playerId: p.playerId, name: p.name ?? null, team: p.team, eventId: String(b.providerEventId), family: fam, side, line: base ? { ...base, price } : null, eligibility: p.eligibility?.state ?? null, modelProbability: fam === "anytime_td" ? m.probability ?? null : null, log: ev[p.playerId] ?? [] });
+        out.push({ playerId: p.playerId, name: p.name ?? null, team: p.team, eventId: String(b.providerEventId), kickoffUtc: b.kickoffUtc ?? null, family: fam, side, line: base ? { ...base, price } : null, eligibility: p.eligibility?.state ?? null, modelProbability: fam === "anytime_td" ? m.probability ?? null : null, log: ev[p.playerId] ?? [] });
       }
     }
   }

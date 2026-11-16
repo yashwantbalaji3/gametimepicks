@@ -24,6 +24,8 @@ const REASON: Record<string, string> = {
   NO_OBSERVED_LINE: "no sportsbook line captured before kickoff",
   NO_OBSERVED_PRICE: "a line but no price",
   INELIGIBLE_BOOK: "price from a book outside the eligible list",
+  LINE_NOT_CAPTURED_BEFORE_KICKOFF: "line not captured before kickoff",
+  NO_ELIGIBLE_BOOK_LIST: "no eligible-book list to check the price against",
   PLAYER_NOT_ELIGIBLE: "player not confirmed eligible to play",
   FAMILY_NOT_QUALIFIED: "market not yet qualified for products",
   SHORT_SAMPLE: "fewer than 5 games on record",
