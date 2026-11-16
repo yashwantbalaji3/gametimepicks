@@ -6,7 +6,13 @@
 import React from "react";
 import { useKickedOff } from "@/components/live/kickoff-aware";
 
-const fmt = (iso: string) => new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit" }).format(new Date(iso)) + " ET";
+// Built from formatToParts VALUES with ASCII joins (same rule as lib/et-stamp.mjs): Intl's own format() joiner and
+// its space before "PM" differ across engines, which would be a hydration mismatch on this server-rendered card.
+const ET_WEEKDAY_TIME = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", weekday: "short", hour: "numeric", minute: "2-digit", hour12: true });
+const fmt = (iso: string) => {
+  const p = Object.fromEntries(ET_WEEKDAY_TIME.formatToParts(new Date(iso)).map((x) => [x.type, x.value]));
+  return `${p.weekday} ${p.hour}:${p.minute} ${String(p.dayPeriod ?? "").toUpperCase()} ET`;
+};
 
 export default function TickerKickoff({ kickoffUtc, startedAtBuild }: { kickoffUtc: string; startedAtBuild: boolean }) {
   const started = useKickedOff(kickoffUtc, startedAtBuild);
