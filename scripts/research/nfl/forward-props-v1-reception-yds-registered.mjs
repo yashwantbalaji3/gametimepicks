@@ -21,6 +21,7 @@ import crypto from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { fileURLToPath } from "node:url";
 import { familyNumerator, teamGameTotals, decayedShare } from "../../../app/src/lib/sports/nfl/role-shares.mjs";
+import { prefetchBlobs } from "./git-blob-prefetch.mjs";
 import { SHARE_LEVEL_MODEL_ID } from "../../../app/src/lib/sports/nfl/share-level-board.mjs";
 import {
   MARKET, readPropsV1PromotionBars, readShareLevelForwardBars, pOverFromQuantiles, stableJson,
@@ -63,6 +64,15 @@ let regCommit; let regAt;
 try {
   ({ commit: regCommit, committedAt: regAt } = resolveRegistration({ protocolPath: PROTOCOL_PATH, added, pinnedCommit: PINNED_REGISTRATIONS[PROTOCOL_PATH], isAncestor }));
 } catch (e) { refuse(e.message); }
+/* Partial clones (blob:none, as this job's checkout): fetch each phase's blobs in one round trip; git still
+   lazy-fetches anything missed. Phase 1: registration-time sources and the fingerprint at registration and at REV. */
+{
+  const regPaths = [PROTOCOL_PATH, "data/internal/research/nfl/reports/player-props-v1-evaluation.json", "app/scripts/nfl/evaluate-nfl-player-props.mjs",
+    "data/internal/research/nfl/reports/player-props-share-level-preregistration.json"];
+  const p0 = JSON.parse(show(REV, PROTOCOL_PATH));
+  const frozen = (p0.model?.frozenFiles ?? []).map((f) => f.path);
+  prefetchBlobs(ROOT, [...[...regPaths, ...frozen].map((x) => `${regCommit}:${x}`), ...frozen.map((x) => `${REV}:${x}`)]);
+}
 const protocolText = show(REV, PROTOCOL_PATH);
 if (show(regCommit, PROTOCOL_PATH) !== protocolText) refuse(`${PROTOCOL_PATH} changed after its registration commit ${regCommit} — amendments need a new protocol`);
 const protocol = JSON.parse(protocolText);
@@ -109,6 +119,13 @@ const FIT = {
 };
 if (Object.values(FIT).some((v) => !Number.isFinite(v))) refuse("frozen fit lacks fit.volume.pass.a0 / fit.league");
 const summaryProtocol = { ...protocol, bars: { propsV1Promotion: V1, shareLevelLevel: { levelBand: B.shareLevelLevel.levelBand, source: B.shareLevelLevel.source } } };
+
+// Phase 2: every input read at REV (schedule captures, settlement inputs, current boards, the retrospective).
+prefetchBlobs(ROOT, [
+  ...git("ls-tree", "--name-only", `${REV}:${SCHEDULE_DIR}`).split("\n").filter(Boolean).map((f) => `${SCHEDULE_DIR}/${f}`),
+  ...git("ls-tree", "--name-only", `${REV}:${BOARD_DIR}`).split("\n").filter((f) => /^\d+\.json$/.test(f)).map((f) => `${BOARD_DIR}/${f}`),
+  ...Object.values(SRC), RETRO_PATH,
+].map((x) => `${REV}:${x}`));
 
 // ── schedule, first week ──────────────────────────────────────────────────────────────────────────────────
 const captureFiles = git("ls-tree", "--name-only", `${REV}:${SCHEDULE_DIR}`).split("\n").filter((f) => /^(capture-.*|latest)\.json$/.test(f)).sort();
@@ -159,6 +176,28 @@ const pipelineAt = (commit) => {
   };
 };
 
+const revisionCache = new Map();
+const revisionsOf = (p) => {
+  if (!revisionCache.has(p)) revisionCache.set(p, git("log", "--format=%H %cI", REV, "--", p).split("\n").filter(Boolean).map((l) => { const [commit, committedAt] = l.split(" "); return { commit, committedAt }; }));
+  return revisionCache.get(p);
+};
+/** Phase 3 (per week): the newest pre-kickoff revision of each started board, and the pipeline files at it. */
+function prefetchWeek(evs) {
+  const specs = [];
+  for (const e of evs) {
+    const board = boardAt(e.eventId);
+    if (!board) continue;
+    const kickoff = Math.min(...[e.kickoffUtc, board.kickoffUtc].map(kms).filter(Number.isFinite));
+    if (!(kickoff < Date.parse(AS_OF))) continue;
+    const p = `${BOARD_DIR}/${e.eventId}.json`;
+    const first = revisionsOf(p).find((r) => Date.parse(r.committedAt) < kickoff);
+    if (!first) continue;
+    specs.push(`${first.commit}:${p}`, ...model.frozenFiles.map((f) => `${first.commit}:${f.path}`),
+      `${first.commit}:data/internal/research/nfl/role-shares-v1/current.json`, `${first.commit}:app/scripts/nfl/build-nfl-player-board.mjs`);
+  }
+  prefetchBlobs(ROOT, specs);
+}
+
 /** Everything classifyEvent needs for one event; rows are attached later for GRADED events. */
 function eventFacts(sched, boardOnly) {
   const board = boardAt(sched.eventId);
@@ -166,7 +205,7 @@ function eventFacts(sched, boardOnly) {
   const ev = { eventId: sched.eventId, matchup: board?.matchup ?? sched.matchup, kickoffUtc, inSchedule: !boardOnly, hasBoard: Boolean(board), revision: null, final: false, sheetMissing: [], servedRows: 0 };
   if (!(kms(kickoffUtc) < Date.parse(AS_OF)) || !board) return ev;
   const p = `${BOARD_DIR}/${sched.eventId}.json`;
-  const revisions = git("log", "--format=%H %cI", REV, "--", p).split("\n").filter(Boolean).map((l) => { const [commit, committedAt] = l.split(" "); return { commit, committedAt }; });
+  const revisions = revisionsOf(p);
   const chosen = lastPreKickoffRevision(revisions, kickoffUtc, (commit) => JSON.parse(show(commit, p)));
   if (!chosen) return ev;
   const family = chosen.doc.families?.[MARKET] ?? null;
@@ -204,6 +243,7 @@ function gradeWeek(w) {
   const boardOnly = [...boardIds].filter((id) => !scheduled.has(id)).map(boardAt)
     .filter((b) => b?.seasonType === 2 && b.week === w.week && String(b.kickoffUtc ?? "").startsWith(String(SEASON)) && !schedule.has(String(b.providerEventId)))
     .map((b) => ({ eventId: String(b.providerEventId), kickoffUtc: b.kickoffUtc, matchup: b.matchup }));
+  prefetchWeek([...w.events, ...boardOnly]);
   const events = [...w.events.map((e) => eventFacts(e, false)), ...boardOnly.map((e) => eventFacts(e, true))];
   const graded = events.filter((ev) => classifyEvent(ev, { asOf: AS_OF, model, series }) === EVENT_CODE.GRADED);
   const baselines = walkForwardBaselines({ games, served: new Map(graded.map((ev) => [ev.eventId, ev.doc])), bars: V1, fit: FIT, season: SEASON, shares: { familyNumerator, teamGameTotals, decayedShare } });
