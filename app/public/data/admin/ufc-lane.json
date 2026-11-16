@@ -2,43 +2,43 @@
   "schemaVersion": 1,
   "artifact": "ufc-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-11-14T21:08:43Z",
+  "generatedAt": "2026-11-15T19:22:06Z",
   "nextCard": {
-    "name": "UFC 334: Gane vs. Hokit",
-    "slateDate": "2026-11-14",
-    "bouts": 13,
-    "hoursAway": 0.85
+    "name": "UFC Fight Night: Procházka vs. Stirling",
+    "slateDate": "2026-11-21",
+    "bouts": 11,
+    "hoursAway": 139.63
   },
   "freshness": {
     "card": {
       "state": "READ",
-      "stampedAt": "2026-11-14T21:08:07Z",
+      "stampedAt": "2026-11-15T19:21:17Z",
       "ageHours": 0.01
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-11-14T21:08:15Z",
-      "ageHours": 0.01
+      "ageHours": 22.23
     },
     "ladder": {
       "state": "READ",
-      "stampedAt": "2026-11-14T21:08:41Z",
+      "stampedAt": "2026-11-15T19:22:03Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-11-14T14:53:34+00:00",
-      "ageHours": 6.25
+      "stampedAt": "2026-11-15T15:29:42+00:00",
+      "ageHours": 3.87
     },
     "settled": {
       "state": "READ",
       "stampedAt": "2026-06-15T13:55:00Z",
-      "ageHours": 3655.23
+      "ageHours": 3677.45
     }
   },
   "cards": {
     "state": "NO_CARDS_FOR_THIS_CARD",
-    "date": "2026-11-14",
+    "date": "2026-11-21",
     "carded": 0,
     "skipped": [],
     "ladderState": "CAPABILITY_GATED",
@@ -58,17 +58,17 @@
   },
   "productLane": {
     "live": false,
-    "blocked": "not cleared to publish model cards — the capability registry lists UFC as SCAFFOLD_ONLY, which may not show forward-looking model output: Formally downgraded 2026-07-23: the moneyline is a de-vigged market price with a capped nudge (no independent signal), and zero bouts are cleanly backtestable because there is no point-in-time pregame odds capture."
+    "blocked": "not cleared to publish model cards — the capability registry lists UFC as SCAFFOLD_ONLY, which may not show forward-looking model output: Formally downgraded 2026-07-23: the moneyline is a de-vigged market price with a capped nudge (no independent signal), and zero bouts are cleanly backtestable because there is no point-in-time pregame odds capture.; only 0 priced games — the ladder needs 4"
   },
   "population": {
     "state": "POPULATION_EXACT",
-    "generatedAt": "2026-11-14T21:08:13Z",
+    "generatedAt": "2026-11-15T19:21:26Z",
     "counts": {
-      "expected": 13,
-      "captured": 13,
-      "read": 13,
+      "expected": 11,
+      "captured": 11,
+      "read": 11,
       "unmodelled": 0,
-      "priced": 12,
+      "priced": 0,
       "missing": 0,
       "phantom": 0
     }
@@ -76,18 +76,18 @@
   "modelVsMarket": {
     "state": "RECONCILED",
     "cumulative": {
-      "n": 107,
+      "n": 118,
       "model": {
-        "logLoss": 0.704745,
-        "brier": 0.245421,
-        "accuracy": 0.616822
+        "logLoss": 0.702958,
+        "brier": 0.245298,
+        "accuracy": 0.618644
       },
       "market": {
-        "logLoss": 0.637555,
-        "brier": 0.224922
+        "logLoss": 0.641064,
+        "brier": 0.225205
       }
     },
-    "gradedTotal": 108,
+    "gradedTotal": 120,
     "reconciliation": [
       {
         "slateDate": "2026-08-22",
@@ -200,9 +200,9 @@
       {
         "slateDate": "2026-11-14",
         "frozen": 12,
-        "graded": 0,
-        "void": 0,
-        "pending": 12,
+        "graded": 11,
+        "void": 1,
+        "pending": 0,
         "withdrawn": 0,
         "reconciles": true
       }
@@ -237,7 +237,7 @@
     {
       "id": "product-lane-closed",
       "state": "REALITY_GATED",
-      "detail": "the Lab gate has closed this lane: not cleared to publish model cards — the capability registry lists UFC as SCAFFOLD_ONLY, which may not show forward-looking model output: Formally downgraded 2026-07-23: the moneyline is a de-vigged market price with a capped nudge (no independent signal), and zero bouts are cleanly backtestable because there is no point-in-time pregame odds capture.. It reopens by itself when the evidence returns."
+      "detail": "the Lab gate has closed this lane: not cleared to publish model cards — the capability registry lists UFC as SCAFFOLD_ONLY, which may not show forward-looking model output: Formally downgraded 2026-07-23: the moneyline is a de-vigged market price with a capped nudge (no independent signal), and zero bouts are cleanly backtestable because there is no point-in-time pregame odds capture.; only 0 priced games — the ladder needs 4. It reopens by itself when the evidence returns."
     }
   ]
 }

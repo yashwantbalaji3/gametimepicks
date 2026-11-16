@@ -94,10 +94,13 @@ test("NFL box score: official run = projected + official expectations; every wha
   }
 });
 
-test("NFL distribution panel: the official forecast first; the engine batch's win shares are labelled 'not the forecast'", { skip: NFL_OK ? false : "no NFL record in this checkout" }, () => {
-  const t = visible(html(React.createElement(DistributionPanel, { manifest: m, sample: defaultSample(m) })));
+test("NFL distribution panel: the official forecast first; no engine-batch win share or score histogram (N14)", { skip: NFL_OK ? false : "no NFL record in this checkout" }, () => {
+  const h = html(React.createElement(DistributionPanel, { manifest: m, sample: defaultSample(m) }));
+  const t = visible(h);
   assert.ok(t.indexOf(L.OFFICIAL_FORECAST_TITLE) >= 0 && t.indexOf(L.OFFICIAL_FORECAST_TITLE) < t.indexOf("Drive-engine batch"));
-  assert.match(t, /won \(engine batch, not the forecast\)/);
+  assert.doesNotMatch(t, /won \(|% of runs/, "no engine win share");
+  assert.doesNotMatch(h, /st-hist/, "no total / margin histogram");
+  assert.match(t, /hypothetical, not the forecast/);
 });
 
 test("no official forecast: the card says so, the comparison invents nothing, and every chip is a what-if", () => {

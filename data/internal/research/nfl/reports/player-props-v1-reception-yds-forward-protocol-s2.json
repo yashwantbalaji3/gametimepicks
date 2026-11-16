@@ -1,0 +1,233 @@
+{
+ "status": "SUPERSEDED_BEFORE_FIRST_WEEK",
+ "supersededBy": "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s3.json",
+ "supersededReason": "Series s2 (registered 2026-11-16T01:13:49Z, commit 3f8ff69abb) missed two inputs that move a served receiving-yards number: (1) strength-state.mjs — the engine reads strengthState.ratingFor (player-props-v1.mjs:150) → margin → own pass volume via fit.volume.pass.a1 → targets → receiving yards, so its claim that strength only feeds the team stream was false; (2) the per-event block of run-nfl-event-window.mjs (strength cut and season regression, abbr→name mapping, totals merge, runs: min(RUNS, 5000)) and the arg / NOW / DATE / finals / currentShares / propsFit / verdict-path declarations. A reviewer changed the run cap, regressToSeason and HOME_ADVANTAGE and the s2 version did not move. Nothing had counted (first week 11 not started). Superseded before its first week.",
+ "schemaVersion": 1,
+ "artifact": "props-v1-reception-yds-forward-protocol",
+ "dataClass": "PRIVATE_RESEARCH",
+ "ledgerRow": "N8",
+ "market": "player_reception_yds",
+ "season": 2026,
+ "purpose": "Preregistered forward test of the receiving-yards model the public player board actually serves: the props-v1 opportunity-efficiency engine, labelled PUBLISHED on its 2025 retrospective (data/internal/research/nfl/reports/player-props-v1-evaluation.json, n=3575) and served as the fallback because the share-level model breached its own forward test. Modelled on data/internal/research/nfl/reports/player-props-share-level-forward-protocol.json. This file adds no model constant, bar, threshold or decision rule: every bar below is copied verbatim from a committed source cited by path and sha256.",
+ "registration": {
+  "instant": "The git committer time of the commit that ADDS this file. A file cannot carry its own commit, so that commit is pinned in CODE (app/src/lib/sports/nfl/props-v1-forward-registration.mjs PINNED_REGISTRATIONS) by a follow-up commit. The grader refuses unless the pinned commit is an ancestor of the grading commit and is the commit that first added this file: a squash or rebase merge fails loudly instead of silently re-registering later (which would move firstWeek).",
+  "immutability": "The grader reads this file at its registration commit and at the grading commit and refuses to grade if the two differ. Any amendment needs a new protocol file with its own registration, and founder approval."
+ },
+ "model": {
+  "engineId": "nfl-player-props-v1-opportunity-efficiency",
+  "servedModelId": "props-v1",
+  "servedModelRule": "The model a served family names is the board's own record, read by the product gate's rule (app/src/lib/products/engine-v2/nfl-boards.mjs modelVersionFor): an explicit `model` field, else the <id>-v<n> that opens its basis. The board builder (app/scripts/nfl/build-nfl-player-board.mjs) writes basis 'props-v1 evaluation: n=<n>, all promotion bars pass' for this engine.",
+  "shareLevelModelId": "nfl-player-share-level-v1",
+  "frozenFiles": [
+   {
+    "path": "app/src/lib/sports/nfl/player-props-v1.mjs",
+    "kind": "file",
+    "sha256": "a5866bc0f39dfb526d851cf52b2ae0b6101d98b4bb9d74b7136c5715f3d6bcc8",
+    "role": "engine (NFL_PLAYER_PROPS_ID), whole file"
+   },
+   {
+    "path": "app/src/lib/sports/research/replay-runner.mjs",
+    "kind": "symbol",
+    "symbol": "fnv1a",
+    "sha256": "9692a506962440c33471072b8af889f3b9710344923b831818b7ef7853e746ed",
+    "role": "engine import (seed hash)"
+   },
+   {
+    "path": "app/src/lib/sports/nfl/game-sim.mjs",
+    "kind": "symbol",
+    "symbol": "mulberry32",
+    "sha256": "7282cfe19df97cfe743d41176d9d981cacb857045ccf0f7994d46b0ae46cf45f",
+    "role": "engine import (rng)"
+   },
+   {
+    "path": "app/src/lib/sports/nfl/game-sim.mjs",
+    "kind": "symbol",
+    "symbol": "snapScore",
+    "sha256": "53c95aa2b0127e72ef2c32e467f31876cc75e25e34d9166506c23f8efee82bcc",
+    "role": "engine import"
+   },
+   {
+    "path": "app/src/lib/sports/nfl/game-sim.mjs",
+    "kind": "symbol",
+    "symbol": "PRESEASON_VARIANT",
+    "sha256": "098590a78e4016ba9ff4651f1b08b8b4265570c7d5cadf3c4775172ab5d1d16b",
+    "role": "engine import"
+   },
+   {
+    "path": "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+    "kind": "jsonKey",
+    "symbol": "fit",
+    "sha256": "13899f98522e4681c1d01dd911bdbc5a3241db80b649a54dfd4c3ae18b9aec75",
+    "role": "fit block read by loadPlayerPropsFit (volume, dispersion, league, gamesim, rates)"
+   },
+   {
+    "path": "app/src/lib/sports/nfl/totals-rating.mjs",
+    "kind": "file",
+    "sha256": "d5de429764cce9533b06cf05d1c90f5c166845ef0d1f3c2b21098d40e3ad7ef5",
+    "role": "matchup totals head: sets the per-event muTotal/sigmaTotal the engine draws (run-nfl-event-window.mjs evPropsFit → player-props-v1 gamesim)"
+   },
+   {
+    "path": "data/internal/research/nfl/reports/matchup-totals-evaluation.json",
+    "kind": "file",
+    "sha256": "f39cd383381ecd6fa2dbb53612acae6ca91b345f4b6ea9e526e62f0ceface5a5",
+    "role": "totals receipt (verdict ELIGIBLE) that switches matchup totals on and feeds totalsStateAt"
+   },
+   {
+    "path": "data/internal/research/nfl/reports/props-integration-verdict.json",
+    "kind": "file",
+    "sha256": "44ee79447285afe9e84ae6f843cf84e5107bb0c7c821492b3ea0e2d78498e660",
+    "role": "integration verdict (ACCEPTED) that switches matchup totals on for player props"
+   },
+   {
+    "path": "app/scripts/nfl/build-nfl-role-shares.mjs",
+    "kind": "file",
+    "sha256": "5ff75636d5cfb956accbe6f8cbfa8d34edb288cb5a042da1b00374550809032a",
+    "role": "served role-share builder, incl. the 2026-10-01 target-share renormalisation (lines 284-285) the 2025 evaluator does not apply — registered AS SERVED"
+   },
+   {
+    "path": "app/src/lib/sports/nfl/role-shares.mjs",
+    "kind": "file",
+    "sha256": "0551c3f7815d1d98a32526f6116c6b06731120e1de5e318638d12d72956f2d8c",
+    "role": "role-share estimator used by the builder"
+   },
+   {
+    "path": "app/scripts/nfl/run-nfl-event-window.mjs",
+    "kind": "symbol",
+    "symbol": "THRESH",
+    "sha256": "fca06d6a3360747e23fb9fc8fea3adb3169dcfb362e29bac12d704351728d6df",
+    "role": "orchestrator: role thresholds for composeRoleRates"
+   },
+   {
+    "path": "app/scripts/nfl/run-nfl-event-window.mjs",
+    "kind": "symbol",
+    "symbol": "composeRoleRates",
+    "sha256": "eb36146383f6957cbd4d9165998dcc46980ed9a7eed3f36518437749b024e8c6",
+    "role": "orchestrator: role-share artifact → engine roleRates"
+   },
+   {
+    "path": "app/scripts/nfl/run-nfl-event-window.mjs",
+    "kind": "symbol",
+    "symbol": "RUNS",
+    "sha256": "44b23f3cd4f82777f17865b4d18bacec179c5c6a5020b06916bb62001e6f0cf2",
+    "role": "orchestrator: simulation count (engine runs min(RUNS, 5000))"
+   },
+   {
+    "path": "app/scripts/nfl/run-nfl-event-window.mjs",
+    "kind": "symbol",
+    "symbol": "integrationAdopted",
+    "sha256": "d7f6c53bdac16704a4ea758bbac8b6b3e520752000f50d08370f896dc4cf28a5",
+    "role": "orchestrator: reads the integration verdict"
+   },
+   {
+    "path": "app/scripts/nfl/run-nfl-event-window.mjs",
+    "kind": "symbol",
+    "symbol": "totalsReceipt",
+    "sha256": "2f9bd273fba6f8bc9f3f940ef71e46d0883fff07ecb39481a9f69b152833696d",
+    "role": "orchestrator: reads the totals receipt"
+   },
+   {
+    "path": "app/scripts/nfl/run-nfl-event-window.mjs",
+    "kind": "symbol",
+    "symbol": "useMatchupTotals",
+    "sha256": "1a5597bccddf3dc4803a7a1dfad242409dd5af5a1871d5f7754e5204833a55bd",
+    "role": "orchestrator: matchup totals on/off"
+   }
+  ],
+  "identityRule": "Fingerprint scope = what moves a served receiving-yards number, traced from run-nfl-event-window.mjs (role rates, matchup totals, runs) → simulatePlayerProps → board copy: the engine file; the helper declarations it imports, hashed by their own source (kind symbol); the fit block of the evaluation receipt (kind jsonKey); the three matchup-totals files; the role-share builder and estimator; the orchestrator declarations that compose role rates, choose totals and set runs. Per event the components are hashed AT THE BOARD REVISION COMMIT (git log on the board path returns the event-window job's own commit, whose tree is the generating tree plus its outputs; a push-retry merge commit is TREESAME to it for the board path and is not returned). pipelineVersionOf(components) must equal series.pipelineVersion for the event to count; any other version is OTHER_PIPELINE_VERSION and is never pooled here. Deliberately NOT in scope (reviewed): strength-state.mjs and the rest of game-sim.mjs (simulateNflGame / strengthStateAt only feed the team stream through inputs the engine re-derives; their 2026-10-08 and 2026-10-25 edits changed no receiving-yards number), artifact-modes.mjs, the evaluator script and the evaluation file outside its fit block.",
+  "attributedNotFrozen": "Recorded per event, not part of the version: the sha256 of data/internal/research/nfl/role-shares-v1/current.json (the weekly role-share ARTIFACT the board was built from) and of app/scripts/nfl/build-nfl-player-board.mjs (row gating and labels) at the revision commit. Other per-event inputs (rosters, injuries, totals) are inputs, not identity."
+ },
+ "series": {
+  "id": "s2",
+  "pipelineVersion": "pv1-5f20718dfb624753",
+  "rule": "Series s2 of the props-v1 receiving-yards forward test. Any change to a fingerprint component (for example a later parity fix that removes the role-share renormalisation) starts a NEW series: a new protocol file with its own pinned registration commit, its own computed firstWeek and its own output directory. Series are NEVER pooled. Every graded row records the pipelineVersion that produced it.",
+  "outputDir": "data/internal/research/nfl/replay/props-v1-reception-yds-forward/registered/s2"
+ },
+ "bars": {
+  "propsV1Promotion": {
+   "source": [
+    {
+     "path": "app/scripts/nfl/evaluate-nfl-player-props.mjs",
+     "sha256": "4f0060fd3b4d657216ae00502cecf0eaf2465b0761dbf8bcd19814e6acffd45e",
+     "what": "PROMOTION POLICY code (coverOk, calOk, enoughN, ECE bins and usable-bin minimum, line proxy, share params)"
+    },
+    {
+     "path": "data/internal/research/nfl/reports/player-props-v1-evaluation.json",
+     "sha256": "1a437278b22cd9b9b08ce116e61042d8c2837e146f0ce86569817f2a90091b84",
+     "what": "promotionPolicy[0] text, cross-checked against the code"
+    }
+   ],
+   "readBy": "app/src/lib/sports/nfl/props-v1-forward-receipt.mjs readPropsV1PromotionBars — the grader re-reads both sources at the registration commit and refuses if any value below differs",
+   "coverageBand": [
+    0.72,
+    0.88
+   ],
+   "shadowCoverageBand": [
+    0.68,
+    0.92
+   ],
+   "eceMax": 0.05,
+   "minimumN": 300,
+   "eceBins": 10,
+   "eceMinBinN": 50,
+   "lineProxyGames": 4,
+   "maePoint": "mean",
+   "shareParams": {
+    "halfLifeGames": 4,
+    "shrinkK": 0.5,
+    "boundaryDecay": 0.25
+   },
+   "barsJudged": "beatsRolling (MAE of the served mean < rolling-4 MAE), beatsShareVol (< share×volume MAE), coverOk (p10–p90 coverage inside coverageBand, inclusive), calOk (threshold ECE ≤ eceMax over bins holding ≥ eceMinBinN pairs)"
+  },
+  "shareLevelLevel": {
+   "source": {
+    "path": "data/internal/research/nfl/reports/player-props-share-level-preregistration.json",
+    "sha256": "546639e15d207efbe1d369589a82954285565f77650ae50aa1eb35a291426773",
+    "what": "frozen.bars.levelBand (read by readShareLevelForwardBars)"
+   },
+   "levelBand": [
+    0.92,
+    1.08
+   ],
+   "reportedSeparately": "The share-level forward level bar (mean forecast / mean actual) is reported beside the verdict and is NOT part of it: the props-v1 promotion bars have no level clause."
+  }
+ },
+ "pOver": {
+  "method": "quantile-interpolation-v1: piecewise-linear CDF through the five served quantiles (p10, p25, median, p75, p90), extended past the outer knots with the adjacent segment's slope, clamped to [0, 1] (props-v1-forward-receipt.mjs pOverFromQuantiles, exactly as PR 1363); step bounds recorded beside each value.",
+  "reconstructed": "The board serves NO P(over) for this family. The calibration bar therefore uses a RECONSTRUCTED probability: the interpolated P(over) at the RECONSTRUCTED rolling-4 line proxy (the evaluator's rule: mean of the player's last lineProxyGames games at his current team, only when he has exactly that many and the mean is > 0)."
+ },
+ "schedule": {
+  "source": "app/public/data/nfl/schedule/capture-*.json and latest.json at the grading commit (ESPN scoreboard captures). Union of every capture; the latest capture of each providerEventId wins (captures ordered by generatedAt).",
+  "regularSeason": "seasonType 2, cut at the next season's Week 1.",
+  "kickoff": "Per event, the earlier of the schedule's dateUtc and the board's own kickoffUtc at the grading commit (the stricter cut)."
+ },
+ "firstWeekRule": "firstWeek = the first regular-season week whose FIRST kickoff (schedule) is strictly after the registration instant. Computed by the grader from the committed schedule; never written as a literal. Weeks before firstWeek NEVER count toward the forward n, even games in them that kick off after registration.",
+ "counting": {
+  "revision": "For each event, the LAST revision of app/public/data/nfl/player-board/<eventId>.json in the grading commit's history whose git committer time AND own generatedAt are both strictly before kickoff. A revision committed or generated at/after kickoff is never read for grading. A git commit is not Vercel served-revision evidence (forecast-of-record Option B).",
+  "attribution": "Per event: family state, family basis, served model, engine id, board revision commit, its committer time, board generatedAt, and the frozen-file identity check.",
+  "settlement": "props-v1 participation-true contract, exactly as PR 1363 (props-v1-forward-receipt.mjs settleServedPlayer): on the committed ESPN stat sheet (data/internal/research/nfl/player-events-v1/2026.json) with a target or carry → SCORED at his receiving yards; on the sheet with neither → VOID; off the sheet with offensive snaps (data/internal/research/nfl/nflverse/participation-2026.jsonl) → SCORED at 0; otherwise VOID. Only SCORED rows score.",
+  "baselines": "rolling-4 and share×volume baselines and the line proxy: the props-v1 evaluator's walk-forward rule over the committed ESPN corpus 2023–2026, with the evaluation receipt's committed fit (props-v1-forward-receipt.mjs walkForwardBaselines). RECONSTRUCTED, labelled so.",
+  "denominator": "Every regular-season event of a counted week is GRADED or carries one exclusion code with its reason. The expected set is re-derived from the raw ESPN schedule captures (expectedScheduledIds), independently of the event list the receipt is built from; the receipt refuses unless its scheduled events are exactly that set. Boards whose own week is that week but which are absent from the schedule are added as board-only events.",
+  "exclusionCodes": [
+   "NO_BOARD",
+   "NO_PRE_KICKOFF_REVISION",
+   "FAMILY_ABSENT",
+   "SHARE_LEVEL_SERVED",
+   "NOT_PROPS_V1",
+   "OTHER_PIPELINE_VERSION",
+   "NO_SERVED_ROWS"
+  ],
+  "pendingCodes": "PENDING_KICKOFF, PENDING_NOT_FINAL, PENDING_NO_SNAP_SHEET hold the whole week back; the week is written once they clear. In the summary a started week waiting on kickoffs is IN_PROGRESS; a week whose games have all kicked off but which still has a non-final game (e.g. cancelled) or a missing snap sheet is HELD, listed with each blocking event and its reason. A HELD week stays HELD: any timeout or partial-week rule needs founder approval.",
+  "appendOnly": "One file per week (data/internal/research/nfl/replay/props-v1-reception-yds-forward/registered/<series>/<season>-wk<NN>.json), written once and never rewritten. A later correction to the corpus does not edit a written week.",
+  "deterministic": "Every input is read at the grading commit; outputs carry no wall-clock field.",
+  "isolation": "Each week is graded in isolation: an exception in one week is recorded in the summary (erroredWeeks) and the remaining weeks are still graded; the run then exits non-zero so the failure is visible."
+ },
+ "verdictRule": "n (SCORED player-games over counted weeks) below minimumN → ACCUMULATING (no verdict); every props-v1 promotion bar passes → FORWARD_HOLDING; otherwise FORWARD_BREACHED. Same rule as forward-player-props-share-level.mjs.",
+ "automation": ".github/workflows/nfl-props-forward-shadow.yml (the P300 shadow job) runs scripts/research/nfl/forward-props-v1-reception-yds-registered.mjs after its own grade and forecast steps and commits only data/internal/research/nfl/replay/props-v1-reception-yds-forward/registered/ (this series: registered/s2/).",
+ "retrospective": "Weeks before firstWeek stay in the AS-SERVED RETROSPECTIVE (PR 1363: data/internal/research/nfl/replay/props-v1-reception-yds-forward/receipt.json, weeks 1 and 4–9, n=1158). It is valid pregame-frozen data but was graded after the fact; it is NOT preregistered forward evidence and never enters the forward n.",
+ "consequence": "Research evidence only. The board's PUBLISHED label and every public number are unchanged by this protocol. app/public/data/nfl/family-eligibility.json reads the forward summary only when GTP_NFL_PROPS_V1_FORWARD_ELIGIBILITY=1 (default OFF); with it on, NO_FORWARD_TEST becomes the forward test's real state. Turning it on, and any label change, is a founder decision.",
+ "supersedes": {
+  "path": "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol.json",
+  "series": "s1",
+  "why": "Series s1 (registered 2026-11-16T00:58:10Z, commit 9fd523d6b4) fingerprinted the wrong served-pipeline scope: it missed the matchup-totals inputs that set the engine's per-event total (totals-rating.mjs, matchup-totals-evaluation.json, props-integration-verdict.json), and it hashed whole files that do not move a receiving-yards number (artifact-modes.mjs, all of game-sim.mjs and strength-state.mjs, the whole evaluator and evaluation file). Nothing had counted: s1's first week (11) had not kicked off. Superseded before its first week."
+ }
+}
