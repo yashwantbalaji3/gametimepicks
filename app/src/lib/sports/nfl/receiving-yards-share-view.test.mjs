@@ -370,4 +370,5 @@ test("(f) series identity: the served series keeps grading pre-fix boards and ne
   }
   assert.equal(R.classifyEvent(ev(postFix, FIX.series.pipelineVersion), ctx(FIX)), R.EVENT_CODE.GRADED);
   assert.equal(R.classifyEvent(ev(preFix, FIX.series.pipelineVersion), ctx(FIX)), R.EVENT_CODE.OTHER_PIPELINE_VERSION, "the fix series never counts an unlabelled board");
+  assert.match(R.PINNED_REGISTRATIONS[FIX_PROTOCOL_PATH] ?? "", /^[0-9a-f]{40}$/, "the fix series' registration commit is pinned in code");
 });

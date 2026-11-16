@@ -134,6 +134,9 @@ export function fingerprintDrift(frozenFiles, actual) {
 export const PINNED_REGISTRATIONS = Object.freeze({
   // series s2 — registered 2026-11-16T01:13:49Z (s1 was superseded before its first week and is never pinned)
   "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s2.json": "3f8ff69abb665cd2048562b59e29eb10d282dd3f",
+  // series s4 — the corrected receiving-yards pipeline (N8 parity fix), registered 2026-11-16T01:32:54Z in a DRAFT
+  // branch; re-register (new protocol commit) if it merges after its first week has started
+  "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s4.json": "1952a1023fa387b979c61c7ec4120b84254758e9",
 });
 
 /**
