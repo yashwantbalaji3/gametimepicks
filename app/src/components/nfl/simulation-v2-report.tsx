@@ -144,7 +144,8 @@ export default function SimulationV2Report({ r, gameHref, lines = null, game = n
       <section aria-labelledby="s2-players" data-s2-official-players="">
         <h2 id="s2-players">Players · official projection</h2>
         <p className="f" style={{ margin: "4px 0 0" }} data-s2-official-note="">{OFFICIAL_PLAYER_NOTE} <Link href={gameHref}>Game page</Link>.</p>
-        {[A, H].map((team) => {
+        {/* no forecast view (e.g. the week has rolled): the game page shows no player projection either, so neither does this */}
+        {!lines?.available ? <p className="f" style={{ margin: "6px 0 0" }} data-s2-no-official-players="">No official player projection is available for this game.</p> : [A, H].map((team) => {
           const t = lines?.teams.find((x) => x.abbr === team) ?? null;
           return (
             <div key={team}>

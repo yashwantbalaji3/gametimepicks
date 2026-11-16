@@ -19,22 +19,21 @@ import SimulationV2Report from "@/components/nfl/simulation-v2-report";
 import { readShadowReceipts, showableSimulationEvents, simulationOfRecord } from "@/lib/sports/nfl/sim-v2/public-receipt.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
-import { nflOfficialDefault } from "@/lib/simulation-theater/official-default.mjs";
-import { loadForecastView } from "@/lib/sports/nfl/forecast-view-load.mjs";
-import { officialGameLine, officialPlayerLines } from "@/lib/sports/nfl/sim-v2/official-player-lines.mjs";
+import { officialSimInputs } from "@/lib/sports/nfl/sim-v2/official-sim-inputs";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
 const entries = () => readShadowReceipts(REPO_ROOT);
 
 /**
- * N14 (founder rule 2026-10-20 / 11-11): every player number on the report is the OFFICIAL projection — the same
- * accessor as the Theater Default view and the game page (nflOfficialDefault over loadForecastView) — never the
- * simulation's own player line; the game headline is the same view's record (officialGameLine), never the simulation's.
- * Only the derived rows (names, ids, official values, labels) reach the component.
+ * N14 (founder rule 2026-10-20 / 11-11): every official number on the report comes from the game page's own sources
+ * (official-sim-inputs.ts): the game headline is the game hero's record over the forecast of record — the live union,
+ * or after the week rolls the ARCHIVED pre-kickoff revision the game page reads (archivedForecastFor) — and the player
+ * rows are the forecast view's (nflOfficialDefault over loadForecastView). Never the simulation's own numbers. Only the
+ * derived rows (names, ids, official values, labels) reach the component.
  */
 function officialFor(rec: NonNullable<ReturnType<typeof simulationOfRecord>>, eventId: string) {
-  const view = loadForecastView(path.join(process.cwd(), "public"), eventId);
-  return { lines: officialPlayerLines(rec.receipt, nflOfficialDefault(view)), game: officialGameLine(view) };
+  const { lines, game } = officialSimInputs(rec.receipt, eventId, { publicDir: path.join(process.cwd(), "public"), repoRoot: REPO_ROOT });
+  return { lines, game };
 }
 
 /**
@@ -84,7 +83,7 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
   const r = rec.receipt;
   return withRouteMetadata(`/nfl/simulation/${params.eventId}/`, {
     title: `${r.away.abbr} @ ${r.home.abbr} — ${PUBLIC_TERMS.GAME_SIMULATION} (Simulation V2) · GameTime Picks`,
-    description: `${r.runCount.toLocaleString("en-US")} coherent simulated games of ${r.away.name} at ${r.home.name}: outcomes, quarters and team scoring, with each player's official projection (not a simulated line). A ${PUBLIC_TERMS.GAME_SIMULATION} from a separate engine, not the ${PUBLIC_TERMS.OFFICIAL_FORECAST}; educational and paper-only.`,
+    description: `${r.away.name} at ${r.home.name}: the official forecast and each player's official projection, plus hypothetical simulation shapes from ${r.runCount.toLocaleString("en-US")} coherent simulated games (not the forecast). A ${PUBLIC_TERMS.GAME_SIMULATION} from a separate engine, not the ${PUBLIC_TERMS.OFFICIAL_FORECAST}; educational and paper-only.`,
   });
 }
 
