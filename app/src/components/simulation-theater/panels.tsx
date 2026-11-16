@@ -10,17 +10,6 @@ import {
 import { SCENE_POLICY } from "@/lib/simulation-theater/timeline.mjs";
 import { OfficialForecastCard } from "./RepresentativeParts";
 
-function Hist({ hist, mark, label }: { hist: { value: number; probability: number }[]; mark: number; label: string }) {
-  const max = Math.max(...hist.map((h) => h.probability), 1e-6);
-  return (
-    <div className="st-hist" role="img" aria-label={label}>
-      {hist.map((h) => (
-        <span key={h.value} className={h.value === mark ? "is-run" : undefined} style={{ height: `${Math.max(2, (h.probability / max) * 100)}%` }} />
-      ))}
-    </div>
-  );
-}
-
 export function DrivePanel({ sample, ev, teams, current, onSeekDrive }: {
   sample: TheaterSample; ev: TheaterEvent; teams: Teams; current: number; onSeekDrive: (i: number) => void;
 }) {
@@ -56,27 +45,18 @@ export function DrivePanel({ sample, ev, teams, current, onSeekDrive }: {
   );
 }
 
-export function DistributionPanel({ manifest, sample }: { manifest: TheaterManifest; sample: TheaterSample }) {
+export function DistributionPanel({ manifest }: { manifest: TheaterManifest; sample: TheaterSample }) {
   const teams = manifest.teams;
-  const fin = sample.finalScore!;
   const b = manifest.batch;
-  // The OFFICIAL forecast comes first (Cross-Product Prediction Consistency, 2026-10-20): the drive engine's batch below
-  // disagrees with it, so its win shares are labelled as the engine's own counts, never as the forecast.
+  // N14 (founder rule 2026-10-20 / 11-11: one official forecast; a what-if simulation never presents a competing number):
+  // the OFFICIAL forecast is the only game-level number here. The drive engine's own batch win shares and its total /
+  // margin histograms were removed from this panel; they disagreed with the forecast. The simulation page's
+  // "Hypothetical simulation — not the forecast" block holds the simulated game shapes.
   return (
     <>
       <OfficialForecastCard manifest={manifest} teams={teams} />
-      <p className="st-eyebrow" style={{ margin: "12px 0 0" }}>Drive-engine batch · {b.runCount.toLocaleString("en-US")} runs · this receipt · experimental engine · not the forecast</p>
-      <p style={{ margin: "10px 0 0" }}>Total points (this run: <b>{fin.home + fin.away}</b>, highlighted)</p>
-      <Hist hist={b.totalHistogram} mark={fin.home + fin.away} label={`Total points over ${b.runCount} runs; this run ${fin.home + fin.away}`} />
-      <p style={{ margin: "12px 0 0" }}>Home margin, {teams.home.abbr} minus {teams.away.abbr} (this run: <b>{fin.home - fin.away}</b>)</p>
-      <Hist hist={b.marginHistogram} mark={fin.home - fin.away} label={`Home margin over ${b.runCount} runs; this run ${fin.home - fin.away}`} />
-      {b.winProbability ? (
-        <dl className="st-kv">
-          <dt>{teams.home.abbr} won (engine batch, not the forecast)</dt><dd>{(b.winProbability.home * 100).toFixed(1)}% of runs</dd>
-          <dt>{teams.away.abbr} won (engine batch, not the forecast)</dt><dd>{(b.winProbability.away * 100).toFixed(1)}% of runs</dd>
-          <dt>Overtime</dt><dd>{b.overtimeProbability == null ? "—" : `${(b.overtimeProbability * 100).toFixed(1)}% of runs`}</dd>
-        </dl>
-      ) : null}
+      <p className="st-eyebrow" style={{ margin: "12px 0 0" }} data-st-batch-note="">Drive-engine batch · {b.runCount.toLocaleString("en-US")} runs · experimental engine · hypothetical, not the forecast</p>
+      <p className="st-note" style={{ margin: "8px 0 0" }}>This replay is one simulated scenario. The simulated game shapes (overtime, one-score games, quarters) are in the page&apos;s &ldquo;Hypothetical simulation — not the forecast&rdquo; section; the engine&apos;s own win shares and score distribution are not shown, because the official forecast above is the only win chance and projected score.</p>
     </>
   );
 }
