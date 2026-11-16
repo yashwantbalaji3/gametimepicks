@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-11-14T17:23:58.796Z",
+  "generatedAt": "2026-11-15T17:58:21.320Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -8,7 +8,7 @@
     "drawdown": 6400,
     "profit": 13965.4,
     "roiMultiple": 139.65,
-    "portfolioMd5": "3190450a986eaac07d47fb2243b28859"
+    "portfolioMd5": "5e43e6c74248042c154faaeebe89425e"
   },
   "moneyGate": {
     "crownMinusDrawdownEqualsBankroll": true,
@@ -16,13 +16,13 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-11-14",
-    "dailyPortfolioDate": "2026-11-14",
+    "date": "2026-11-15",
+    "dailyPortfolioDate": "2026-11-15",
     "activeBankroll": 14065.4,
     "openExposure": 0,
     "worldCupGames": 0,
     "mlbGames": 0,
-    "mlbSlate": "2026-11-14"
+    "mlbSlate": "2026-11-15"
   },
   "sportsbook": {
     "note": "Artifact-level freshness only — the market feed carries no row-level timestamps, so no per-market recency can be claimed.",
@@ -32,14 +32,14 @@
         "state": "STALE",
         "artifactDate": "2026-10-28",
         "generatedAt": "2026-10-28T09:32:41.507Z",
-        "ageDays": 17
+        "ageDays": 18
       },
       {
         "source": "mlb/player-props",
         "state": "STALE",
         "artifactDate": "2026-10-28",
         "generatedAt": "2026-10-28T09:32:42.405Z",
-        "ageDays": 17
+        "ageDays": 18
       }
     ]
   },
@@ -104,8 +104,8 @@
     },
     "forwardCoverage": {
       "present": true,
-      "date": "2026-11-14",
-      "generatedAt": "2026-11-14T17:06:35Z",
+      "date": "2026-11-15",
+      "generatedAt": "2026-11-15T17:41:24Z",
       "sports": [
         {
           "sport": "epl",
@@ -121,15 +121,17 @@
         },
         {
           "sport": "ufc",
-          "state": "DERIVED",
+          "state": "STARTED",
           "counts": {
-            "scheduled": 13,
-            "priced": 12,
-            "generated": 13,
+            "scheduled": 0,
+            "priced": 0,
+            "generated": 0,
             "frozen": 0,
             "started": 0
           },
-          "findings": []
+          "findings": [
+            "CARD_STARTED:UFC 334: Gane vs. Hokit started 2026-11-14T22:00Z — no longer forward coverage"
+          ]
         },
         {
           "sport": "nfl",
@@ -162,14 +164,14 @@
       ]
     },
     "dailyLifecycle": {
-      "receiptDate": "2026-11-14",
+      "receiptDate": "2026-11-15",
       "present": true,
-      "generatedAt": "2026-11-14T17:06:34Z",
+      "generatedAt": "2026-11-15T09:47:29Z",
       "watchdog": [
         {
           "product": "homer-nukes",
           "kind": "INCIDENT_OPEN",
-          "detail": "NOT_RUN: no Homer Nukes board exists for 2026-11-14"
+          "detail": "NOT_RUN: no Homer Nukes board exists for 2026-11-15"
         }
       ],
       "states": {
@@ -213,7 +215,7 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-11-14T17:23:58.122Z",
+    "lastRunAt": "2026-11-15T17:58:20.808Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
@@ -221,8 +223,8 @@
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
-    "etDate": "2026-11-14",
-    "etTime": "12:23",
+    "etDate": "2026-11-15",
+    "etTime": "12:58",
     "stages": [
       {
         "stage": "schedule",
@@ -302,8 +304,8 @@
   },
   "warnings": [
     "World Cup board is empty (dormant or needs a refresh).",
-    "Sportsbook source mlb/team-markets is STALE (17d old).",
-    "Sportsbook source mlb/player-props is STALE (17d old).",
+    "Sportsbook source mlb/team-markets is STALE (18d old).",
+    "Sportsbook source mlb/player-props is STALE (18d old).",
     "MLB board is empty (dormant or needs a refresh)."
   ],
   "dailyChecklist": [
@@ -332,9 +334,9 @@
     "date": "2026-07-07",
     "matches": 0
   },
-  "nextSettlementDate": "2026-11-14",
-  "nextRefreshDate": "2026-11-15",
-  "nextAction": "No active Bank Builder lane for 2026-11-14 — review the daily proposal and approve a card or confirm the no-play.",
+  "nextSettlementDate": "2026-11-15",
+  "nextRefreshDate": "2026-11-16",
+  "nextAction": "No active Bank Builder lane for 2026-11-15 — review the daily proposal and approve a card or confirm the no-play.",
   "gates": {
     "note": "Authoritative gates: verify-money-integrity.mjs · forensic-money-audit.mjs · health-check.mjs · smoke-test-production.mjs. This file reports a lightweight cross-check only."
   }
