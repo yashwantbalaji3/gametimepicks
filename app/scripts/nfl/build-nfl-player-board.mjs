@@ -49,6 +49,7 @@ import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets
 import { postKickoffInputs, refusalLine } from "../../src/lib/sports/nfl/input-stamps.mjs";
 import { createQbState, tierBProjection } from "../../src/lib/sports/nfl/qb-starter-projection.mjs";
 import zlib from "node:zlib";
+import { receivingYardsPipelineOf, RECYDS_QUALIFICATION } from "../../src/lib/sports/nfl/receiving-yards-share-view.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -379,15 +380,25 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     return true;
   };
 
+  /* N8 parity fix: receiving yards computed through the receiving-yards share view name their pipeline version on
+     the family and on every row; artifacts from before the fix carry none and their boards are unchanged. */
+  const recydsPipelines = [...new Set(Object.values(doc.research?.perTeam ?? {}).filter((tv) => tv.props?.state === "SIMULATED").map((tv) => receivingYardsPipelineOf(tv.props)))];
+  const recydsFamily = families.player_reception_yds;
+  if (recydsFamily && recydsFamily.state !== "WITHHELD" && !shareLevel?.markets.has("player_reception_yds") && recydsPipelines.some((v) => v != null)) {
+    recydsFamily.pipelineVersion = recydsPipelines.length === 1 ? recydsPipelines[0] : recydsPipelines.map((v) => v ?? "props-v1 (role-shares normalised)").sort().join(" | ");
+    recydsFamily.qualification = RECYDS_QUALIFICATION;
+  }
   for (const [abbr, tv] of Object.entries(doc.research?.perTeam ?? {})) {
     const props = tv.props;
     if (props?.state === "SIMULATED") {
+      const recydsPipeline = receivingYardsPipelineOf(props);
       for (const pl of props.players ?? []) {
         if (gate(pl.playerId, pl.name, abbr)) continue;
         const markets = {};
         for (const [m, dist] of Object.entries(pl.markets ?? {})) {
           if (!publishedMarkets.has(m) || shareLevel?.markets.has(m)) continue;
           markets[m] = { mean: dist.mean, p10: dist.p10, p25: dist.p25, median: dist.median, p75: dist.p75, p90: dist.p90 };
+          if (m === "player_reception_yds" && recydsPipeline) markets[m].pipelineVersion = recydsPipeline;
         }
         if (Object.keys(markets).length === 0) continue;
         players.push({ playerId: pl.playerId, name: pl.name, team: abbr, participation: pl.participation ?? "AVAILABLE_ROLE_UNCERTAIN", markets });

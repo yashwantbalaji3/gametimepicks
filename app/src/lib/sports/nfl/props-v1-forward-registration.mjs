@@ -237,6 +237,10 @@ export function classifyEvent(ev, { asOf, model, series }) {
   if (rev.servedModel === model.shareLevelModelId) return EVENT_CODE.SHARE_LEVEL_SERVED;
   if (rev.servedModel !== model.servedModelId) return EVENT_CODE.NOT_PROPS_V1;
   if (rev.pipelineVersion !== series.pipelineVersion) return EVENT_CODE.OTHER_PIPELINE_VERSION;
+  /* The board's own record of the receiving-yards pipeline (family.pipelineVersion, written since the N8 parity fix)
+     must equal the series' boardPipelineLabel (absent = a board that names none, i.e. every pre-fix board). A second,
+     independent identity check: a series never counts a board that says it was computed another way. */
+  if ((rev.family?.pipelineVersion ?? null) !== (series.boardPipelineLabel ?? null)) return EVENT_CODE.OTHER_PIPELINE_VERSION;
   if (!ev.final) return EVENT_CODE.PENDING_NOT_FINAL;
   if ((ev.sheetMissing ?? []).length) return EVENT_CODE.PENDING_NO_SNAP_SHEET;
   if (!(ev.servedRows > 0)) return EVENT_CODE.NO_SERVED_ROWS;

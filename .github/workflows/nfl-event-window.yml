@@ -233,6 +233,20 @@ jobs:
           set -euo pipefail
           node scripts/nfl/build-nfl-role-shares.mjs --now "${{ steps.window.outputs.now }}"
 
+      # N8 parity fix: the receiving-yards share view (raw target shares, before the role-share builder's roster-wide
+      # normalisation), proven team by team against the current.json written just above. Only the event window's
+      # player_reception_yds reads it; a failure here leaves no paired view, so receiving yards are WITHHELD, never
+      # served from the normalised shares.
+      - name: Build the receiving-yards share view
+        if: ${{ !cancelled() && steps.window.outputs.events != '0' }}
+        working-directory: app
+        run: |
+          set -euo pipefail
+          rm -f ../data/internal/research/nfl/role-shares-v1/receiving-yards-view.json
+          if ! node scripts/nfl/build-nfl-recyds-share-view.mjs; then
+            echo "::warning::receiving-yards share view not built — player_reception_yds is withheld this window"
+          fi
+
       # ---- Injury designations ----
       #
       # P250-GD3, found on game day: the injuries feed is captured ONLY by sport-schedules, on its
