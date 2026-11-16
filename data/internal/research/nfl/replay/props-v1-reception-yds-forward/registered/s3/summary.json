@@ -1,0 +1,70 @@
+{
+ "schemaVersion": 1,
+ "artifact": "props-v1-reception-yds-forward-summary",
+ "dataClass": "PRIVATE_RESEARCH",
+ "ledgerRow": "N8",
+ "market": "player_reception_yds",
+ "season": 2026,
+ "evidenceTier": "REGISTERED_FORWARD — only weeks whose first kickoff is after the registration commit; derived from the week receipts in this directory",
+ "protocol": {
+  "path": "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s3.json",
+  "sha256": "a9f40b3a47d955762721ff1a6816bb039c566704cab1c929b4b20d3dea68ca8d"
+ },
+ "registration": {
+  "commit": "dd7c00ea75b150650de7934fe3c0ee0bc7f06dc1",
+  "committedAt": "2026-11-15T20:28:14-05:00"
+ },
+ "firstWeek": 11,
+ "firstWeekFirstKickoffUtc": "2026-11-20T01:15Z",
+ "series": {
+  "id": "s3",
+  "pipelineVersion": "pv1-1978f43c73082e52"
+ },
+ "verdictRule": "n (SCORED player-games over counted weeks) below minimumN → ACCUMULATING (no verdict); every props-v1 promotion bar passes → FORWARD_HOLDING; otherwise FORWARD_BREACHED. Same rule as forward-player-props-share-level.mjs.",
+ "weeksCounted": [],
+ "pendingWeeks": [],
+ "heldWeeks": [],
+ "erroredWeeks": [],
+ "families": {
+  "player_reception_yds": {
+   "state": "ACCUMULATING",
+   "n": 0,
+   "needed": 300,
+   "metrics": null,
+   "bars": null,
+   "engine": "nfl-player-props-v1-opportunity-efficiency"
+  }
+ },
+ "shareLevelLevelBar": {
+  "reportedSeparately": "not part of the verdict — the props-v1 promotion bars have no level clause",
+  "levelBand": [
+   0.92,
+   1.08
+  ],
+  "source": {
+   "path": "data/internal/research/nfl/reports/player-props-share-level-preregistration.json",
+   "sha256": "546639e15d207efbe1d369589a82954285565f77650ae50aa1eb35a291426773",
+   "what": "frozen.bars.levelBand (read by readShareLevelForwardBars)"
+  },
+  "level": null,
+  "pass": null
+ },
+ "intervals": null,
+ "retrospective": {
+  "label": "AS_SERVED_RETROSPECTIVE — pregame-frozen boards graded after the fact (PR 1363); pre-registration weeks; NEVER counted toward the forward n",
+  "path": "data/internal/research/nfl/replay/props-v1-reception-yds-forward/receipt.json",
+  "sha256": "71022da94146f557f60184c667d587957704fe72923f0f4589bcb42c3422b1af",
+  "n": 1158,
+  "verdict": "FORWARD_BREACHED",
+  "weeks": [
+   1,
+   4,
+   5,
+   6,
+   7,
+   8,
+   9
+  ]
+ },
+ "consequence": "Research evidence only. The board's PUBLISHED label and every public number are unchanged; family eligibility reads this file only behind GTP_NFL_PROPS_V1_FORWARD_ELIGIBILITY (default OFF). A label change is a founder decision."
+}

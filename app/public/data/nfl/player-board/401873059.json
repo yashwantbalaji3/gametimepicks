@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-15T00:48:17Z",
- "sourceGeneratedAt": "2026-11-15T00:48:17Z",
+ "generatedAt": "2026-11-15T17:43:38Z",
+ "sourceGeneratedAt": "2026-11-15T17:43:38Z",
  "forecastInputHash": "64c0283f149ed2b0",
  "providerEventId": "401873059",
  "matchup": "MIA @ IND",
@@ -12,8 +12,8 @@
  "week": 10,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-15T00:48:17Z",
-  "roleEvidenceAt": "2026-11-15T00:48:17Z",
+  "injuriesCapturedAt": "2026-11-15T17:43:38Z",
+  "roleEvidenceAt": "2026-11-15T17:43:38Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -117,14 +117,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 45,
+  "absent": 42,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "MIA": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 1,
@@ -186,17 +186,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4869961",
-     "name": "Chris Bell",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
      "playerId": "nfl-athlete-4685307",
      "name": "Kevin Coleman Jr.",
      "state": "PROJECTED",
@@ -240,6 +229,12 @@
      "reason": "availability not confirmed: not on the active roster (practice squad or injury list)"
     },
     {
+     "playerId": "nfl-athlete-4869961",
+     "name": "Chris Bell",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4429435",
      "name": "Brady Cook",
      "state": "WITHHELD_ROLE_UNCERTAIN",
@@ -263,10 +258,10 @@
   "IND": {
    "counts": {
     "PROJECTED": 8,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "EXCLUDED_UNAVAILABLE": 4,
     "EXCLUDED_NO_CURRENT_ROLE": 2,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 1,
+    "NOT_MODELED_BY_FAMILY": 0,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
@@ -374,6 +369,12 @@
      "reason": "availability not confirmed: not on the active roster (practice squad or injury list)"
     },
     {
+     "playerId": "nfl-athlete-4683423",
+     "name": "Riley Leonard",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-15818",
      "name": "Keenan Allen",
      "state": "EXCLUDED_NO_CURRENT_ROLE",
@@ -384,19 +385,6 @@
      "name": "Josh Downs",
      "state": "EXCLUDED_NO_CURRENT_ROLE",
      "reason": "not on IND's current roster"
-    },
-    {
-     "playerId": "nfl-athlete-4683423",
-     "name": "Riley Leonard",
-     "state": "NOT_MODELED_BY_FAMILY",
-     "reason": "not IND's starting quarterback (Daniel Jones, depth chart QB1) — the team's passing projection belongs to the starter",
-     "notModeled": [
-      {
-       "family": "player_pass_yds",
-       "state": "NOT_MODELED_BY_FAMILY",
-       "reason": "not IND's starting quarterback (Daniel Jones, depth chart QB1) — the team's passing projection belongs to the starter"
-      }
-     ]
     }
    ]
   }
@@ -405,7 +393,7 @@
   "qbStarter": [
    {
     "team": "MIA",
-    "snapshotAt": "2026-11-14T14:04:32Z",
+    "snapshotAt": "2026-11-15T14:41:31Z",
     "skipped": [],
     "state": "WITHHELD_STARTER_NOT_CONFIRMED",
     "tier": "D_CONTEXTUAL_FALLBACK",
@@ -422,7 +410,7 @@
    },
    {
     "team": "IND",
-    "snapshotAt": "2026-11-14T14:04:32Z",
+    "snapshotAt": "2026-11-15T14:41:31Z",
     "skipped": [],
     "state": "APPLIED",
     "tier": "A_CLUB_HISTORY",
@@ -435,13 +423,7 @@
     "passers": [
      "nfl-athlete-3917792"
     ],
-    "removed": [
-     {
-      "playerId": "nfl-athlete-4683423",
-      "name": "Riley Leonard",
-      "reason": "not IND's starting quarterback (Daniel Jones, depth chart QB1) — the team's passing projection belongs to the starter"
-     }
-    ]
+    "removed": []
    }
   ],
   "pools": [
@@ -534,11 +516,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T20:21Z",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -582,11 +564,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -630,11 +612,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -670,17 +652,19 @@
    },
    "eligibility": {
     "state": "ELIGIBLE",
-    "reasons": [],
+    "reasons": [
+     "ROSTER_ACTIVE"
+    ],
     "contractVersion": "eligibility@1",
     "sources": {
      "injuries": {
-      "status": "Active",
-      "statedAt": "2026-11-09T03:29Z",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "status": null,
+      "statedAt": null,
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -722,11 +706,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T21:10Z",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -761,11 +745,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -807,11 +791,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-09T03:40Z",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -844,11 +828,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-10T01:08Z",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -890,11 +874,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T01:23Z",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -939,11 +923,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -976,60 +960,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T23:26Z",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
-     }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4869961",
-   "name": "Chris Bell",
-   "team": "MIA",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 20.386,
-     "p10": 0,
-     "p25": 2.77,
-     "median": 14.83,
-     "p75": 31.22,
-     "p90": 49.95,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 2.0838,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 5,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1233,
-     "pricingState": "NOT_PROBED"
-    }
-   },
-   "eligibility": {
-    "state": "ELIGIBLE",
-    "reasons": [],
-    "flags": [
-     "QUESTIONABLE"
-    ],
-    "contractVersion": "eligibility@1",
-    "sources": {
-     "injuries": {
-      "status": "Doubtful",
-      "statedAt": "2026-11-13T22:10Z",
-      "fetchedAt": "2026-11-15T00:48:17Z"
-     },
-     "roster": {
-      "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -1064,11 +999,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -1101,11 +1036,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T17:24Z",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -1147,11 +1082,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-11T00:16Z",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -1193,11 +1128,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-14T00:16Z",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }
@@ -1228,11 +1163,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-15T00:48:17Z"
+      "fetchedAt": "2026-11-15T17:43:38Z"
      }
     }
    }

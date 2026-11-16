@@ -85,17 +85,44 @@ export function grantedFamilyKeys(gates) {
  * top boards' readiness lines quote the same forward evidence.
  * @param {{ family: string, modelVersion: string|null|undefined, forwardReceipt: any }} o
  */
-export function forwardEvidenceFor({ family, modelVersion, forwardReceipt }) {
+export function forwardEvidenceFor({ family, modelVersion, forwardReceipt, propsV1Forward = null }) {
+  /* N8: the props-v1 receiving-yards forward test (its own registered protocol). Consulted ONLY when a caller
+     passes it — see propsV1ForwardEvidence (flag, default OFF). Absent ⇒ exactly the behaviour below. */
+  if (propsV1Forward && family === PROPS_V1_FORWARD_FAMILY && modelVersion === PROPS_V1_SERVED_MODEL) {
+    return propsV1Forward?.families?.[PROPS_V1_FORWARD_FAMILY] ?? null;
+  }
   const forwardKey = family === "anytime_td" ? "anytime_td" : `player_${String(family).replace(/^player_/, "")}`;
   return /share-level|opportunity/.test(String(modelVersion ?? "")) ? forwardReceipt?.families?.[forwardKey] ?? null : null;
 }
 
 /**
+ * N8 — the props-v1 receiving-yards REGISTERED forward test
+ * (data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol.json; summary at
+ * PROPS_V1_FORWARD_SUMMARY_PATH). Wiring it into the gate changes public output (NO_FORWARD_TEST →
+ * FORWARD_TEST_IN_PROGRESS today), so it sits behind PROPS_V1_FORWARD_ELIGIBILITY_FLAG, default OFF.
+ * Turning it on is a founder decision. With it on, the family's blocker is the forward test's real state:
+ * ACCUMULATING → MODEL_FORWARD_ACCUMULATING, FORWARD_BREACHED → MODEL_FORWARD_BREACHED.
+ * The path names ONE series (s3, the served pipeline as registered; s1 and s2 were superseded before their first week). A later pipeline version is a new series
+ * in its own directory; pointing the gate at it is a reviewed code change, never a data edit.
+ */
+export const PROPS_V1_FORWARD_ELIGIBILITY_FLAG = "GTP_NFL_PROPS_V1_FORWARD_ELIGIBILITY";
+export const PROPS_V1_FORWARD_FAMILY = "player_reception_yds";
+export const PROPS_V1_SERVED_MODEL = "props-v1";
+export const PROPS_V1_FORWARD_SUMMARY_PATH = "data/internal/research/nfl/replay/props-v1-reception-yds-forward/registered/s3/summary.json";
+
+/** The summary to hand the gate, or null when the flag is not exactly "1" (the default). `read()` loads the file. */
+export function propsV1ForwardEvidence({ env, read }) {
+  if (env?.[PROPS_V1_FORWARD_ELIGIBILITY_FLAG] !== "1") return null;
+  const doc = read();
+  return doc?.artifact === "props-v1-reception-yds-forward-summary" ? doc : null;
+}
+
+/**
  * The NFL families from the slate's own receipts plus the committed status / forward evidence.
- * @param {{ receipts: Array, forwardReceipt: object|null, familyState: Map }} o
+ * @param {{ receipts: Array, forwardReceipt: object|null, familyState: Map, propsV1Forward?: object|null }} o
  *   receipts = RecommendationReceiptV2 rows for NFL player boards on the slate.
  */
-export function deriveNflFamilyGates({ receipts, forwardReceipt, familyState, grants = FAMILY_PRODUCT_GRANTS }) {
+export function deriveNflFamilyGates({ receipts, forwardReceipt, familyState, grants = FAMILY_PRODUCT_GRANTS, propsV1Forward = null }) {
   const byFamily = new Map();
   for (const r of receipts ?? []) {
     if (r?.identity?.sport !== "nfl" || r?.legClass !== "PLAYER") continue;
@@ -111,7 +138,7 @@ export function deriveNflFamilyGates({ receipts, forwardReceipt, familyState, gr
   }
   return [...byFamily.entries()].sort(([a], [b]) => String(a).localeCompare(String(b))).map(([family, s]) => {
     const modelVersion = s.modelVersions.size === 1 ? [...s.modelVersions][0] : null;
-    const forward = forwardEvidenceFor({ family, modelVersion, forwardReceipt });
+    const forward = forwardEvidenceFor({ family, modelVersion, forwardReceipt, propsV1Forward });
     const slate = { candidates: s.candidates, modelProbability: s.modelProbability, roleConfirmed: s.roleConfirmed, priced: s.priced, settlementProven: s.settlementProven };
     return deriveFamilyGate({ sport: "nfl", family, publicationState: familyState?.get?.(family) ?? null, modelVersion, forward, slate, grants });
   });
