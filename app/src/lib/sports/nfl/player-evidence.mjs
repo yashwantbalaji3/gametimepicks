@@ -14,6 +14,7 @@
  *  - The basis is explicit: TODAY_LINE (each past game vs today's line) or OWN_LINE (each past game vs the line captured
  *    before THAT game). They are different claims and are never merged.
  */
+import { etDateOf } from "../../et-stamp.mjs";
 
 export const EVIDENCE_SCHEMA = "gtp.nfl.player-evidence@1";
 // The file's repo path lives in the server-only player-evidence-file.mjs: this module is client-reachable
@@ -65,7 +66,7 @@ export function gameLog(games, playerId, team, kickoff, n = WINDOW_MAX, { eventI
     const t = r?.teamAbbr ?? team;
     const home = H === t;
     const entry = {
-      eventId: String(g.providerEventId), season: g.season, week: g.week, date: String(g.dateUtc).slice(0, 10),
+      eventId: String(g.providerEventId), season: g.season, week: g.week, date: etDateOf(g.dateUtc), /* the ET calendar date of the kickoff (a night game after 00:00Z is the previous ET day) */
       team: t, opponent: home ? A : H, homeAway: home ? "H" : "A",
       score: g.ftHome != null && g.ftAway != null ? (home ? `${g.ftHome}-${g.ftAway}` : `${g.ftAway}-${g.ftHome}`) : null,
       state: r ? "STAT_LINE" : "NO_STAT_LINE",
