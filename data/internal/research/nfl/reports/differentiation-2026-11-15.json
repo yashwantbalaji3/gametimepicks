@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation",
   "dataClass": "PRIVATE_RESEARCH",
-  "generatedAt": "2026-11-15T21:10:52Z",
+  "generatedAt": "2026-11-15T23:42:21Z",
   "slateDate": "2026-11-15",
-  "eventCount": 3,
+  "eventCount": 2,
   "engineVersion": "nfl-regular-season-public-v1@v2",
   "config": {
     "lambda": 0.25,
@@ -22,11 +22,11 @@
       "observedVariationIsNoise": false,
       "teamSignalState": "APPLIED",
       "tStatistic": -0.5746,
-      "distinctValues": 3,
-      "spread": 0.36075,
+      "distinctValues": 2,
+      "spread": 0.117096,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "win probability spans 30.78%-66.85% across 3 events, so the engine is consuming team-specific evidence"
+      "reading": "win probability spans 55.14%-66.85% across 2 events, so the engine is consuming team-specific evidence"
     },
     {
       "head": "total",
@@ -36,41 +36,14 @@
       "driver": "matchup-totals-v3-play-efficiency — decayed per-team scoring plus play-by-play efficiency and pace, centred on the current league level, adopted on an ELIGIBLE preregistered receipt (historical replay, 5,878 held-out games 2000-2021: centred within a point in every era, lower error than the league-level baseline in every era and than v2 overall)",
       "eventSpecific": true,
       "observedVariationIsNoise": false,
-      "distinctValues": 3,
-      "spread": 11,
+      "distinctValues": 2,
+      "spread": 6,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "published totals span 42-53 across 3 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
+      "reading": "published totals span 42-48 across 2 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
     }
   ],
   "events": [
-    {
-      "canonicalEventId": "nfl-401873063",
-      "matchup": "SF @ DAL",
-      "kickoffUtc": "2026-11-15T21:25Z",
-      "inputHash": "a19a53c8592ecf55",
-      "engineVersion": "nfl-regular-season-public-v1@v2",
-      "expected": {
-        "marginMean": -4,
-        "marginMedian": -4,
-        "totalMedian": 53,
-        "totalHead": "matchup-totals-v3-play-efficiency",
-        "winProbHome": 0.3077811249814739,
-        "winProbIsRounded": false,
-        "projected": {
-          "home": 25,
-          "away": 28,
-          "convention": "scores-derived-from-total-and-margin-v1"
-        }
-      },
-      "intervals": {
-        "marginP10": -21,
-        "marginP90": 13,
-        "totalP10": 36,
-        "totalP90": 70
-      },
-      "receiptGeneratedAt": "2026-11-15T00:48:17Z"
-    },
     {
       "canonicalEventId": "nfl-401873064",
       "matchup": "PIT @ CIN",
