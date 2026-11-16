@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-16T00:36:00Z",
+ "generatedAt": "2026-11-16T00:47:32Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -22,7 +22,7 @@
   "forecastsUpcoming": 2,
   "forecastsStarted": 12,
   "marketEvents": 14,
-  "settled": 9
+  "settled": 11
  },
  "nextKickoffUtc": "2026-11-16T01:20Z",
  "nextMatchup": "PIT @ CIN",
@@ -33,17 +33,17 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-16T00:26:20Z",
+  "generatedAt": "2026-11-16T00:36:00Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 145,
-  "decisive": 144,
-  "winnerAccuracy": 0.6111,
-  "marginMAE": 10.0828,
-  "totalMAE": 10.8966,
-  "marginInterval80Coverage": 0.7862,
-  "totalInterval80Coverage": 0.8207,
+  "settledForecasts": 147,
+  "decisive": 146,
+  "winnerAccuracy": 0.6164,
+  "marginMAE": 10.102,
+  "totalMAE": 10.8844,
+  "marginInterval80Coverage": 0.7823,
+  "totalInterval80Coverage": 0.8231,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,13 +57,13 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 145,
-    "decisive": 144,
-    "winnerAccuracy": 0.6111,
-    "marginMAE": 10.0828,
-    "totalMAE": 10.8966,
-    "marginInterval80Coverage": 0.7862,
-    "totalInterval80Coverage": 0.8207
+    "settledForecasts": 147,
+    "decisive": 146,
+    "winnerAccuracy": 0.6164,
+    "marginMAE": 10.102,
+    "totalMAE": 10.8844,
+    "marginInterval80Coverage": 0.7823,
+    "totalInterval80Coverage": 0.8231
    }
   },
   "unknownSeasonTypeRows": 0,
@@ -534,10 +534,10 @@
     "name": "Los Angeles Rams"
    },
    "kickoffUtc": "2026-11-15T21:05Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 22,
@@ -575,10 +575,10 @@
     "name": "Seattle Seahawks"
    },
    "kickoffUtc": "2026-11-15T21:05Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 19,
