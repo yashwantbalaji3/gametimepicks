@@ -1,0 +1,3277 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-role-evidence",
+ "dataClass": "PRIVATE_RESEARCH",
+ "generatedAt": "2026-11-16T01:19:06Z",
+ "date": "2026-11-16",
+ "states": [
+  "ACTIVE_EXPECTED",
+  "ACTIVE_UNCERTAIN",
+  "QUESTIONABLE",
+  "OUT",
+  "NOT_ON_ROSTER",
+  "SOURCE_STALE",
+  "NOT_YET_PUBLISHED",
+  "UNSUPPORTED"
+ ],
+ "sources": {
+  "rosters": {
+   "id": "espn_site_api_nfl",
+   "establishes": "team membership and position",
+   "cannotEstablish": "whether the player dresses, or how much he plays",
+   "freshnessBoundH": 168,
+   "rights": "keyless public JSON, point-in-time, attributed, facts only"
+  },
+  "injuries": {
+   "id": "espn_injuries_nfl",
+   "establishes": "a published injury designation when one exists",
+   "cannotEstablish": "health in the absence of a designation — silence is not a clean bill",
+   "freshnessBoundH": 24,
+   "rights": "keyless public JSON, designations only; editorial prose is never stored"
+  },
+  "gameDayActives": {
+   "id": null,
+   "establishes": null,
+   "cannotEstablish": "everything — no authorized source carries the official inactive list",
+   "status": "UNSUPPORTED",
+   "nextObservationWindow": "~90 minutes before kickoff, if a rights-cleared source is ever added"
+  },
+  "snapScripting": {
+   "id": null,
+   "establishes": null,
+   "cannotEstablish": "preseason series/snap plans are not published by anyone",
+   "status": "UNSUPPORTED"
+  }
+ },
+ "freshness": {
+  "rosters": "FRESH",
+  "injuries": "FRESH"
+ },
+ "accounting": {
+  "eventsInWindow": 2,
+  "evented": 2,
+  "exact": true
+ },
+ "honesty": [
+  "a roster spot is not evidence of playing time, and absence from an injury report is not evidence of health",
+  "ACTIVE_EXPECTED is unreachable today by construction: no authorized source carries the official game-day inactive list",
+  "NOT_YET_PUBLISHED names a real future observation window; UNSUPPORTED means no source exists at all — they are different answers"
+ ],
+ "events": [
+  {
+   "providerEventId": "401873064",
+   "canonicalEventId": "nfl-401873064",
+   "matchup": "PIT @ CIN",
+   "kickoffUtc": "2026-11-16T01:20Z",
+   "seasonType": 2,
+   "familyVerdict": "ROLE_UNCERTAIN",
+   "verdictReason": "no event-bound active evidence is available from an authorized source",
+   "nextObservationWindow": "~90 minutes before 2026-11-16T01:20Z, if a rights-cleared actives source is added",
+   "teams": {
+    "CIN": {
+     "teamAbbr": "CIN",
+     "rosterSize": 75,
+     "counts": {
+      "ACTIVE_UNCERTAIN": 66,
+      "OUT": 9
+     },
+     "players": [
+      {
+       "playerId": "nfl-athlete-4879478",
+       "name": "Jacob Bayer",
+       "position": "C",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4429299",
+       "name": "Tahj Brooks",
+       "position": "RB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4362238",
+       "name": "Chase Brown",
+       "position": "RB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-08T19:20Z"
+      },
+      {
+       "playerId": "nfl-athlete-3116370",
+       "name": "Orlando Brown Jr.",
+       "position": "OT",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3915511",
+       "name": "Joe Burrow",
+       "position": "QB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-08T19:05Z"
+      },
+      {
+       "playerId": "nfl-athlete-4362628",
+       "name": "Ja'Marr Chase",
+       "position": "WR",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-08T19:11Z"
+      },
+      {
+       "playerId": "nfl-athlete-5085189",
+       "name": "Jack Endries",
+       "position": "TE",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4646773",
+       "name": "Dylan Fairchild",
+       "position": "G",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-12T21:31Z"
+      },
+      {
+       "playerId": "nfl-athlete-11252",
+       "name": "Joe Flacco",
+       "position": "QB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4362769",
+       "name": "Javon Foster",
+       "position": "OT",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3116164",
+       "name": "Mike Gesicki",
+       "position": "TE",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-09T03:01Z"
+      },
+      {
+       "playerId": "nfl-athlete-4700712",
+       "name": "Cam Grandy",
+       "position": "TE",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4239993",
+       "name": "Tee Higgins",
+       "position": "WR",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-08T19:15Z"
+      },
+      {
+       "playerId": "nfl-athlete-4429000",
+       "name": "Myles Hinton",
+       "position": "OT",
+       "team": "CIN",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-16T00:02Z"
+      },
+      {
+       "playerId": "nfl-athlete-2576188",
+       "name": "Ted Karras",
+       "position": "C",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4870866",
+       "name": "Connor Lew",
+       "position": "C",
+       "team": "CIN",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-15T23:53Z"
+      },
+      {
+       "playerId": "nfl-athlete-4384852",
+       "name": "Dohnte Meyers",
+       "position": "WR",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-11T00:43Z"
+      },
+      {
+       "playerId": "nfl-athlete-4431571",
+       "name": "Amarius Mims",
+       "position": "OT",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3116389",
+       "name": "Samaje Perine",
+       "position": "RB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-10T02:34Z"
+      },
+      {
+       "playerId": "nfl-athlete-3125082",
+       "name": "Dalton Risner",
+       "position": "G",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-15T23:57Z"
+      },
+      {
+       "playerId": "nfl-athlete-4429010",
+       "name": "Jalen Rivers",
+       "position": "G",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3127310",
+       "name": "Drew Sample",
+       "position": "TE",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4690070",
+       "name": "Mitchell Tinsley",
+       "position": "WR",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-02T18:48Z"
+      },
+      {
+       "playerId": "nfl-athlete-5092508",
+       "name": "Colbie Young",
+       "position": "WR",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-02T15:53Z"
+      },
+      {
+       "playerId": "nfl-athlete-3054840",
+       "name": "Jonathan Allen",
+       "position": "DT",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4567098",
+       "name": "Jordan Battle",
+       "position": "S",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-06T16:48Z"
+      },
+      {
+       "playerId": "nfl-athlete-3051746",
+       "name": "Oren Burks",
+       "position": "LB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4431519",
+       "name": "Barrett Carter",
+       "position": "LB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-12T02:56Z"
+      },
+      {
+       "playerId": "nfl-athlete-4247726",
+       "name": "Bryan Cook",
+       "position": "S",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-12T03:04Z"
+      },
+      {
+       "playerId": "nfl-athlete-4726127",
+       "name": "Tacario Davis",
+       "position": "CB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4401811",
+       "name": "Kyle Dugger",
+       "position": "S",
+       "team": "CIN",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-15T23:53Z"
+      },
+      {
+       "playerId": "nfl-athlete-3917797",
+       "name": "Joe Giles-Harris",
+       "position": "LB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3116748",
+       "name": "B.J. Hill",
+       "position": "DT",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4426422",
+       "name": "Dax Hill",
+       "position": "CB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4362502",
+       "name": "DJ Ivey",
+       "position": "CB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4432301",
+       "name": "Kris Jenkins Jr.",
+       "position": "DT",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4430065",
+       "name": "Cedric Johnson",
+       "position": "DE",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-08T13:15Z"
+      },
+      {
+       "playerId": "nfl-athlete-4429946",
+       "name": "PJ Jules",
+       "position": "S",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4427716",
+       "name": "Jack Kiser",
+       "position": "LB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4427729",
+       "name": "Demetrius Knight Jr.",
+       "position": "LB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4035483",
+       "name": "Dexter Lawrence II",
+       "position": "DT",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4575559",
+       "name": "Bralyn Lux",
+       "position": "CB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4240754",
+       "name": "Boye Mafe",
+       "position": "DE",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4428985",
+       "name": "Myles Murphy",
+       "position": "DE",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4365319",
+       "name": "Josh Newton",
+       "position": "CB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5081542",
+       "name": "Landon Robinson",
+       "position": "DT",
+       "team": "CIN",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-15T23:53Z"
+      },
+      {
+       "playerId": "nfl-athlete-4240612",
+       "name": "T.J. Slaton Jr.",
+       "position": "DT",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4685562",
+       "name": "Shemar Stewart",
+       "position": "DE",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4572036",
+       "name": "DJ Turner II",
+       "position": "CB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-13T00:49Z"
+      },
+      {
+       "playerId": "nfl-athlete-4240071",
+       "name": "Russ Yeast",
+       "position": "S",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4360234",
+       "name": "Evan McPherson",
+       "position": "PK",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-09T04:59Z"
+      },
+      {
+       "playerId": "nfl-athlete-4608820",
+       "name": "Ryan Rehkow",
+       "position": "P",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4572051",
+       "name": "William Wagner",
+       "position": "LS",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4427834",
+       "name": "Erick All Jr.",
+       "position": "TE",
+       "team": "CIN",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-10-28T19:05Z"
+      },
+      {
+       "playerId": "nfl-athlete-4570546",
+       "name": "Swayze Bozeman",
+       "position": "LB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3125356",
+       "name": "Jalen Davis",
+       "position": "CB",
+       "team": "CIN",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-11-12T21:30Z"
+      },
+      {
+       "playerId": "nfl-athlete-4710752",
+       "name": "Cashius Howell",
+       "position": "DE",
+       "team": "CIN",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-11-04T01:35Z"
+      },
+      {
+       "playerId": "nfl-athlete-3050481",
+       "name": "Tanner Hudson",
+       "position": "TE",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4368003",
+       "name": "Andrei Iosivas",
+       "position": "WR",
+       "team": "CIN",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-11-14T20:08Z"
+      },
+      {
+       "playerId": "nfl-athlete-4689117",
+       "name": "Brian Parker II",
+       "position": "OT",
+       "team": "CIN",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-11-12T22:57Z"
+      },
+      {
+       "playerId": "nfl-athlete-4240434",
+       "name": "Ja'Sir Taylor",
+       "position": "CB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4429291",
+       "name": "Beau Brade",
+       "position": "S",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4426513",
+       "name": "Trikweze Bridges",
+       "position": "CB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4430992",
+       "name": "Kentrel Bullock",
+       "position": "RB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4259592",
+       "name": "Sean Clifford",
+       "position": "QB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4426992",
+       "name": "Howard Cross III",
+       "position": "DT",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4426457",
+       "name": "Isaiah Foskey",
+       "position": "DE",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4361437",
+       "name": "Emany Johnson",
+       "position": "LB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4819215",
+       "name": "Josh Kattus",
+       "position": "TE",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4429012",
+       "name": "Kendall Milton",
+       "position": "RB",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4594444",
+       "name": "Jordan Moore",
+       "position": "WR",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4687509",
+       "name": "Caden Prieskorn",
+       "position": "TE",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4428304",
+       "name": "Garmon Randolph",
+       "position": "DE",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4718457",
+       "name": "Noah Thomas",
+       "position": "WR",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4570738",
+       "name": "Ke'Shawn Williams",
+       "position": "WR",
+       "team": "CIN",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      }
+     ],
+     "accounting": {
+      "input": 75,
+      "classified": 75,
+      "exact": true
+     }
+    },
+    "PIT": {
+     "teamAbbr": "PIT",
+     "rosterSize": 79,
+     "counts": {
+      "OUT": 7,
+      "ACTIVE_UNCERTAIN": 72
+     },
+     "players": [
+      {
+       "playerId": "nfl-athlete-4714771",
+       "name": "Drew Allar",
+       "position": "QB",
+       "team": "PIT",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-16T00:02Z"
+      },
+      {
+       "playerId": "nfl-athlete-4372056",
+       "name": "Spencer Anderson",
+       "position": "G",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4685261",
+       "name": "Germie Bernard",
+       "position": "WR",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-02T05:26Z"
+      },
+      {
+       "playerId": "nfl-athlete-4570898",
+       "name": "Dylan Cook",
+       "position": "OT",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4038815",
+       "name": "Rico Dowdle",
+       "position": "RB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-02T02:55Z"
+      },
+      {
+       "playerId": "nfl-athlete-4427170",
+       "name": "Troy Fautanu",
+       "position": "OT",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4429775",
+       "name": "Zach Frazier",
+       "position": "C",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4361411",
+       "name": "Pat Freiermuth",
+       "position": "TE",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-16T00:02Z"
+      },
+      {
+       "playerId": "nfl-athlete-5081508",
+       "name": "Eli Heidenreich",
+       "position": "RB",
+       "team": "PIT",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-16T00:02Z"
+      },
+      {
+       "playerId": "nfl-athlete-4241087",
+       "name": "Brock Hoffman",
+       "position": "C",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4037457",
+       "name": "Travis Homer",
+       "position": "RB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4429955",
+       "name": "Will Howard",
+       "position": "QB",
+       "team": "PIT",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-16T00:20Z"
+      },
+      {
+       "playerId": "nfl-athlete-5150136",
+       "name": "Max Iheanachor",
+       "position": "OT",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4035253",
+       "name": "Ryan McCollum",
+       "position": "C",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4368304",
+       "name": "Mason McCormick",
+       "position": "G",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4047650",
+       "name": "DK Metcalf",
+       "position": "WR",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-02T02:50Z"
+      },
+      {
+       "playerId": "nfl-athlete-4428119",
+       "name": "Lew Nichols",
+       "position": "RB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4693370",
+       "name": "Riley Nowakowski",
+       "position": "FB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-8439",
+       "name": "Aaron Rodgers",
+       "position": "QB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-02T02:43Z"
+      },
+      {
+       "playerId": "nfl-athlete-3116407",
+       "name": "Mason Rudolph",
+       "position": "QB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-10-25T12:26Z"
+      },
+      {
+       "playerId": "nfl-athlete-4035656",
+       "name": "Ben Skowronek",
+       "position": "WR",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-12T00:36Z"
+      },
+      {
+       "playerId": "nfl-athlete-4240577",
+       "name": "Brandon Smith",
+       "position": "WR",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-10-31T23:44Z"
+      },
+      {
+       "playerId": "nfl-athlete-2975674",
+       "name": "Robert Tonyan",
+       "position": "TE",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4569987",
+       "name": "Jaylen Warren",
+       "position": "RB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-01T23:27Z"
+      },
+      {
+       "playerId": "nfl-athlete-4430802",
+       "name": "Darnell Washington",
+       "position": "TE",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-02T03:38Z"
+      },
+      {
+       "playerId": "nfl-athlete-5081338",
+       "name": "Kaden Wetjen",
+       "position": "WR",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4426694",
+       "name": "Keeanu Benton",
+       "position": "DT",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4430947",
+       "name": "Yahya Black",
+       "position": "DE",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4570044",
+       "name": "Jaquan Brisker",
+       "position": "S",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4429490",
+       "name": "Carson Bruener",
+       "position": "LB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3873935",
+       "name": "Jamel Dean",
+       "position": "CB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4567979",
+       "name": "Brandin Echols",
+       "position": "CB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-12T01:50Z"
+      },
+      {
+       "playerId": "nfl-athlete-4685327",
+       "name": "Daylen Everette",
+       "position": "CB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4682980",
+       "name": "Derrick Harmon",
+       "position": "DT",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-16T00:15Z"
+      },
+      {
+       "playerId": "nfl-athlete-4429164",
+       "name": "Nick Herbig",
+       "position": "LB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-13977",
+       "name": "Cameron Heyward",
+       "position": "DT",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4037333",
+       "name": "Alex Highsmith",
+       "position": "LB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-10-30T18:33Z"
+      },
+      {
+       "playerId": "nfl-athlete-3116689",
+       "name": "Cole Holcomb",
+       "position": "LB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5084849",
+       "name": "Kevin Jobity Jr.",
+       "position": "DT",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3932886",
+       "name": "Sean Murphy-Bunting",
+       "position": "CB",
+       "team": "PIT",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-16T00:02Z"
+      },
+      {
+       "playerId": "nfl-athlete-4242207",
+       "name": "Patrick Queen",
+       "position": "LB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-10-28T01:33Z"
+      },
+      {
+       "playerId": "nfl-athlete-3045373",
+       "name": "Jalen Ramsey",
+       "position": "CB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-10-29T20:04Z"
+      },
+      {
+       "playerId": "nfl-athlete-4431533",
+       "name": "Gabriel Rubio",
+       "position": "DE",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4363034",
+       "name": "Asante Samuel Jr.",
+       "position": "CB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4431590",
+       "name": "Jack Sawyer",
+       "position": "LB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4692628",
+       "name": "Doneiko Slaughter",
+       "position": "CB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-12T01:50Z"
+      },
+      {
+       "playerId": "nfl-athlete-4820584",
+       "name": "Robert Spears-Jennings",
+       "position": "S",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3045282",
+       "name": "T.J. Watt",
+       "position": "LB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-10-23T15:41Z"
+      },
+      {
+       "playerId": "nfl-athlete-4361652",
+       "name": "Payton Wilson",
+       "position": "LB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-10-28T01:51Z"
+      },
+      {
+       "playerId": "nfl-athlete-17372",
+       "name": "Chris Boswell",
+       "position": "PK",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-03T02:06Z"
+      },
+      {
+       "playerId": "nfl-athlete-3051397",
+       "name": "Cameron Johnston",
+       "position": "P",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-2978524",
+       "name": "Christian Kuntz",
+       "position": "LS",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5192448",
+       "name": "Cole Burgess",
+       "position": "WR",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3932668",
+       "name": "Jack Driscoll",
+       "position": "OT",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4431258",
+       "name": "Gennings Dunker",
+       "position": "G",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3929846",
+       "name": "DeShon Elliott",
+       "position": "S",
+       "team": "PIT",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-15T23:46Z"
+      },
+      {
+       "playerId": "nfl-athlete-4429743",
+       "name": "Daequan Hardy",
+       "position": "CB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4694237",
+       "name": "Max Hurleman",
+       "position": "RB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3047495",
+       "name": "Sebastian Joseph-Day",
+       "position": "DT",
+       "team": "PIT",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-10-23T00:28Z"
+      },
+      {
+       "playerId": "nfl-athlete-4608004",
+       "name": "Donte Kent",
+       "position": "CB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4569474",
+       "name": "Logan Lee",
+       "position": "DT",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4035687",
+       "name": "Michael Pittman Jr.",
+       "position": "WR",
+       "team": "PIT",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-11-12T18:08Z"
+      },
+      {
+       "playerId": "nfl-athlete-4431492",
+       "name": "Roman Wilson",
+       "position": "WR",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4573443",
+       "name": "Kyler Baugh",
+       "position": "DT",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4426882",
+       "name": "Sebastian Castro",
+       "position": "S",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4360308",
+       "name": "KJ Henry",
+       "position": "LB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4242540",
+       "name": "Isaiah Hodgins",
+       "position": "WR",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4035198",
+       "name": "Brandon Johnson",
+       "position": "WR",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4373830",
+       "name": "Steven Jones",
+       "position": "G",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4248899",
+       "name": "Marte Mapu",
+       "position": "LB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4566198",
+       "name": "Lake McRee",
+       "position": "TE",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4426368",
+       "name": "Doug Nester",
+       "position": "G",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4240759",
+       "name": "Esezi Otomewo",
+       "position": "DT",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-2987743",
+       "name": "Elandon Roberts",
+       "position": "LB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4362858",
+       "name": "Darius Rush",
+       "position": "CB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3051738",
+       "name": "Marquez Valdes-Scantling",
+       "position": "WR",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4917486",
+       "name": "Car'lin Vigers",
+       "position": "CB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4372098",
+       "name": "Julius Welschof",
+       "position": "LB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4428909",
+       "name": "Jacoby Windmon",
+       "position": "LB",
+       "team": "PIT",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      }
+     ],
+     "accounting": {
+      "input": 79,
+      "classified": 79,
+      "exact": true
+     }
+    }
+   }
+  },
+  {
+   "providerEventId": "401873065",
+   "canonicalEventId": "nfl-401873065",
+   "matchup": "LAC @ BAL",
+   "kickoffUtc": "2026-11-17T01:15Z",
+   "seasonType": 2,
+   "familyVerdict": "ROLE_UNCERTAIN",
+   "verdictReason": "no event-bound active evidence is available from an authorized source",
+   "nextObservationWindow": "~90 minutes before 2026-11-17T01:15Z, if a rights-cleared actives source is added",
+   "teams": {
+    "BAL": {
+     "teamAbbr": "BAL",
+     "rosterSize": 80,
+     "counts": {
+      "ACTIVE_UNCERTAIN": 75,
+      "OUT": 5
+     },
+     "players": [
+      {
+       "playerId": "nfl-athlete-4690013",
+       "name": "Rasheen Ali",
+       "position": "RB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3116365",
+       "name": "Mark Andrews",
+       "position": "TE",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-06T05:28Z"
+      },
+      {
+       "playerId": "nfl-athlete-4360939",
+       "name": "Rashod Bateman",
+       "position": "WR",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-13T23:22Z"
+      },
+      {
+       "playerId": "nfl-athlete-2578570",
+       "name": "Jacoby Brissett",
+       "position": "QB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-09T20:30Z"
+      },
+      {
+       "playerId": "nfl-athlete-4876132",
+       "name": "Josh Cuevas",
+       "position": "TE",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-06T18:55Z"
+      },
+      {
+       "playerId": "nfl-athlete-4429582",
+       "name": "Joe Fagnano",
+       "position": "QB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-06T05:23Z"
+      },
+      {
+       "playerId": "nfl-athlete-4429615",
+       "name": "Zay Flowers",
+       "position": "WR",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-06T05:03Z"
+      },
+      {
+       "playerId": "nfl-athlete-4362845",
+       "name": "Jovaughn Gwyn",
+       "position": "G",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3043078",
+       "name": "Derrick Henry",
+       "position": "RB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-07T17:39Z"
+      },
+      {
+       "playerId": "nfl-athlete-4432260",
+       "name": "Matt Hibner",
+       "position": "TE",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-07T04:55Z"
+      },
+      {
+       "playerId": "nfl-athlete-4038441",
+       "name": "Justice Hill",
+       "position": "RB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-06T05:39Z"
+      },
+      {
+       "playerId": "nfl-athlete-4832793",
+       "name": "Olaivavega Ioane",
+       "position": "G",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-13T23:13Z"
+      },
+      {
+       "playerId": "nfl-athlete-4685736",
+       "name": "Emery Jones Jr.",
+       "position": "OT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-09T20:55Z"
+      },
+      {
+       "playerId": "nfl-athlete-4361178",
+       "name": "Cam Jurgens",
+       "position": "C",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4870847",
+       "name": "Ja'Kobi Lane",
+       "position": "WR",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-07T04:49Z"
+      },
+      {
+       "playerId": "nfl-athlete-4686768",
+       "name": "Gerad Lichtenhan",
+       "position": "OT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4036444",
+       "name": "Ryan Neuzil",
+       "position": "C",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-11T00:36Z"
+      },
+      {
+       "playerId": "nfl-athlete-3042738",
+       "name": "Ethan Pocic",
+       "position": "C",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4430876",
+       "name": "Roger Rosengarten",
+       "position": "OT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5088338",
+       "name": "Elijah Sarratt",
+       "position": "WR",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-09T20:55Z"
+      },
+      {
+       "playerId": "nfl-athlete-4035479",
+       "name": "John Simpson",
+       "position": "G",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4428512",
+       "name": "Kedon Slovis",
+       "position": "QB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-09T20:55Z"
+      },
+      {
+       "playerId": "nfl-athlete-2980153",
+       "name": "Ronnie Stanley",
+       "position": "OT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4769895",
+       "name": "Carson Vinson",
+       "position": "OT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4696882",
+       "name": "Devontez Walker",
+       "position": "WR",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-06T18:44Z"
+      },
+      {
+       "playerId": "nfl-athlete-4690143",
+       "name": "LaJohntay Wester",
+       "position": "WR",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3052101",
+       "name": "Chidobe Awuzie",
+       "position": "CB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4698244",
+       "name": "Teddye Buchanan",
+       "position": "LB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4908867",
+       "name": "Ethan Burke",
+       "position": "LB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-11284",
+       "name": "Calais Campbell",
+       "position": "DE",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4683188",
+       "name": "Mike Green",
+       "position": "LB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4575517",
+       "name": "Kyle Hamilton",
+       "position": "S",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-13T00:59Z"
+      },
+      {
+       "playerId": "nfl-athlete-3858276",
+       "name": "Jaylinn Hawkins",
+       "position": "S",
+       "team": "BAL",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-14T19:16Z"
+      },
+      {
+       "playerId": "nfl-athlete-3052743",
+       "name": "Trey Hendrickson",
+       "position": "LB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4565350",
+       "name": "Jay Higgins IV",
+       "position": "LB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3126356",
+       "name": "Marlon Humphrey",
+       "position": "CB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4426372",
+       "name": "Adisa Isaac",
+       "position": "LB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4878287",
+       "name": "Keondre Jackson",
+       "position": "S",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-15846",
+       "name": "John Jenkins",
+       "position": "DT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4362139",
+       "name": "Travis Jones",
+       "position": "DT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4035245",
+       "name": "Nnamdi Madubuike",
+       "position": "DT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4694334",
+       "name": "Keyon Martin",
+       "position": "CB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4565311",
+       "name": "Aeneas Peebles",
+       "position": "DT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-09T20:55Z"
+      },
+      {
+       "playerId": "nfl-athlete-4702918",
+       "name": "Chandler Rivers",
+       "position": "CB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4430831",
+       "name": "Trenton Simpson",
+       "position": "LB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3915189",
+       "name": "Roquan Smith",
+       "position": "LB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-08T04:40Z"
+      },
+      {
+       "playerId": "nfl-athlete-4685530",
+       "name": "Malaki Starks",
+       "position": "S",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-08T04:47Z"
+      },
+      {
+       "playerId": "nfl-athlete-4575483",
+       "name": "T.J. Tampa",
+       "position": "CB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4035463",
+       "name": "K'Von Wallace",
+       "position": "CB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3915837",
+       "name": "Broderick Washington Jr.",
+       "position": "DT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4601278",
+       "name": "Nate Wiggins",
+       "position": "CB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-13T00:53Z"
+      },
+      {
+       "playerId": "nfl-athlete-4839501",
+       "name": "Zion Young",
+       "position": "LB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5084956",
+       "name": "Ryan Eckley",
+       "position": "P",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3915184",
+       "name": "Nick Moore",
+       "position": "LS",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4243371",
+       "name": "Riley Patterson",
+       "position": "PK",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-12T17:15Z"
+      },
+      {
+       "playerId": "nfl-athlete-4035671",
+       "name": "Tyler Huntley",
+       "position": "QB",
+       "team": "BAL",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-11-05T21:20Z"
+      },
+      {
+       "playerId": "nfl-athlete-3916387",
+       "name": "Lamar Jackson",
+       "position": "QB",
+       "team": "BAL",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-11-13T14:48Z"
+      },
+      {
+       "playerId": "nfl-athlete-5083656",
+       "name": "Bilhal Kone",
+       "position": "CB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4697745",
+       "name": "Tyler Loop",
+       "position": "PK",
+       "team": "BAL",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-11-03T21:44Z"
+      },
+      {
+       "playerId": "nfl-athlete-3915470",
+       "name": "Danny Pinter",
+       "position": "C",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4685526",
+       "name": "Adam Randall",
+       "position": "RB",
+       "team": "BAL",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-11-14T23:40Z"
+      },
+      {
+       "playerId": "nfl-athlete-4433887",
+       "name": "Jahquez Robinson",
+       "position": "S",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4690179",
+       "name": "Tavius Robinson",
+       "position": "LB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3052897",
+       "name": "Durham Smythe",
+       "position": "TE",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4036419",
+       "name": "Skylar Thompson",
+       "position": "QB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4046707",
+       "name": "AJ Arcuri",
+       "position": "OT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4432661",
+       "name": "Rayshaun Benny",
+       "position": "DT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3701582",
+       "name": "Chuma Edoga",
+       "position": "OT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-2969961",
+       "name": "Rayshawn Jenkins",
+       "position": "S",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4569428",
+       "name": "Carl Jones",
+       "position": "LB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4877203",
+       "name": "Gage Larvadain",
+       "position": "WR",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4574716",
+       "name": "Harrison Mevis",
+       "position": "PK",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-2576581",
+       "name": "Chris Moore",
+       "position": "WR",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5211114",
+       "name": "David Olajiga",
+       "position": "DT",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3116175",
+       "name": "Amani Oruwariye",
+       "position": "CB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5084402",
+       "name": "Ty Pezza",
+       "position": "TE",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4433904",
+       "name": "Kaimon Rucker",
+       "position": "LB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4879972",
+       "name": "Lucas Scott",
+       "position": "FB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-2576399",
+       "name": "Nick Vannett",
+       "position": "TE",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5151144",
+       "name": "Lardarius Webb Jr.",
+       "position": "CB",
+       "team": "BAL",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      }
+     ],
+     "accounting": {
+      "input": 80,
+      "classified": 80,
+      "exact": true
+     }
+    },
+    "LAC": {
+     "teamAbbr": "LAC",
+     "rosterSize": 79,
+     "counts": {
+      "ACTIVE_UNCERTAIN": 68,
+      "QUESTIONABLE": 3,
+      "OUT": 8
+     },
+     "players": [
+      {
+       "playerId": "nfl-athlete-4683487",
+       "name": "Joe Alt",
+       "position": "OT",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4040842",
+       "name": "Kayode Awosika",
+       "position": "G",
+       "team": "LAC",
+       "state": "QUESTIONABLE",
+       "because": "published designation: Questionable",
+       "injuryStatus": "Questionable",
+       "injuryStatedAt": "2026-11-15T01:18Z"
+      },
+      {
+       "playerId": "nfl-athlete-4035788",
+       "name": "Tyler Biadasz",
+       "position": "C",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-2976117",
+       "name": "Daniel Brunskill",
+       "position": "C",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4876658",
+       "name": "Travis Burke",
+       "position": "OT",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4362477",
+       "name": "Derius Davis",
+       "position": "WR",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4595342",
+       "name": "Oronde Gadsden",
+       "position": "TE",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-11T00:14Z"
+      },
+      {
+       "playerId": "nfl-athlete-4685382",
+       "name": "Omarion Hampton",
+       "position": "RB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5082660",
+       "name": "Alex Harkey",
+       "position": "G",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-13T23:08Z"
+      },
+      {
+       "playerId": "nfl-athlete-4686612",
+       "name": "Tre' Harris",
+       "position": "WR",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-13T23:16Z"
+      },
+      {
+       "playerId": "nfl-athlete-4038941",
+       "name": "Justin Herbert",
+       "position": "QB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-12T23:34Z"
+      },
+      {
+       "playerId": "nfl-athlete-4429811",
+       "name": "Patrick Herbert",
+       "position": "TE",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4429025",
+       "name": "Quentin Johnston",
+       "position": "WR",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4241263",
+       "name": "Charlie Kolar",
+       "position": "TE",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-11T00:08Z"
+      },
+      {
+       "playerId": "nfl-athlete-4430870",
+       "name": "KeAndre Lambert-Smith",
+       "position": "WR",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-11T02:03Z"
+      },
+      {
+       "playerId": "nfl-athlete-4373684",
+       "name": "Scott Matlock",
+       "position": "FB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4612826",
+       "name": "Ladd McConkey",
+       "position": "WR",
+       "team": "LAC",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-15T19:52Z"
+      },
+      {
+       "playerId": "nfl-athlete-4596334",
+       "name": "Keaton Mitchell",
+       "position": "RB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-14T21:39Z"
+      },
+      {
+       "playerId": "nfl-athlete-4411189",
+       "name": "Trey Pipkins III",
+       "position": "OT",
+       "team": "LAC",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-11-15T01:22Z"
+      },
+      {
+       "playerId": "nfl-athlete-4682506",
+       "name": "Jake Slaughter",
+       "position": "C",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5082312",
+       "name": "Jacob Spomer",
+       "position": "C",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4051001",
+       "name": "Cole Strange",
+       "position": "G",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4433914",
+       "name": "Branson Taylor",
+       "position": "G",
+       "team": "LAC",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-15T01:24Z"
+      },
+      {
+       "playerId": "nfl-athlete-4682789",
+       "name": "Logan Taylor",
+       "position": "G",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4685553",
+       "name": "Brenen Thompson",
+       "position": "WR",
+       "team": "LAC",
+       "state": "QUESTIONABLE",
+       "because": "published designation: Doubtful",
+       "injuryStatus": "Doubtful",
+       "injuryStatedAt": "2026-11-14T21:28Z"
+      },
+      {
+       "playerId": "nfl-athlete-4429020",
+       "name": "DJ Uiagalelei",
+       "position": "QB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-09T03:04Z"
+      },
+      {
+       "playerId": "nfl-athlete-4430968",
+       "name": "Kimani Vidal",
+       "position": "RB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-11T00:29Z"
+      },
+      {
+       "playerId": "nfl-athlete-4426535",
+       "name": "Theo Wease Jr.",
+       "position": "WR",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-09T21:23Z"
+      },
+      {
+       "playerId": "nfl-athlete-4682818",
+       "name": "Nick Barrett",
+       "position": "DT",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5089178",
+       "name": "Jamaree Caldwell",
+       "position": "DT",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-2576702",
+       "name": "Bud Dupree",
+       "position": "LB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4038946",
+       "name": "Troy Dye",
+       "position": "LB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4567138",
+       "name": "Justin Eboigbe",
+       "position": "DT",
+       "team": "LAC",
+       "state": "QUESTIONABLE",
+       "because": "published designation: Questionable",
+       "injuryStatus": "Questionable",
+       "injuryStatedAt": "2026-11-14T23:58Z"
+      },
+      {
+       "playerId": "nfl-athlete-4427404",
+       "name": "Cam Hart",
+       "position": "CB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-14T01:12Z"
+      },
+      {
+       "playerId": "nfl-athlete-4241597",
+       "name": "Daiyan Henley",
+       "position": "LB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-12T15:16Z"
+      },
+      {
+       "playerId": "nfl-athlete-3843769",
+       "name": "Donte Jackson",
+       "position": "CB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-16195",
+       "name": "Tony Jefferson",
+       "position": "S",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4690171",
+       "name": "Deane Leonard",
+       "position": "CB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-15T01:08Z"
+      },
+      {
+       "playerId": "nfl-athlete-16710",
+       "name": "Khalil Mack",
+       "position": "LB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4429190",
+       "name": "Akheem Mesidor",
+       "position": "LB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4429018",
+       "name": "RJ Mickens",
+       "position": "S",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4243328",
+       "name": "Elijah Molden",
+       "position": "CB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4911489",
+       "name": "Caleb Murphy",
+       "position": "LB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4240528",
+       "name": "Del'Shawn Phillips",
+       "position": "LB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4838693",
+       "name": "Rodney Shelley",
+       "position": "CB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-14T21:30Z"
+      },
+      {
+       "playerId": "nfl-athlete-4950551",
+       "name": "Genesis Smith",
+       "position": "S",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4432571",
+       "name": "Tarheeb Still",
+       "position": "CB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4374269",
+       "name": "Teair Tart",
+       "position": "DT",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-2979860",
+       "name": "Dalvin Tomlinson",
+       "position": "DT",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4431442",
+       "name": "Tuli Tuipulotu",
+       "position": "LB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4431467",
+       "name": "Marlowe Wax",
+       "position": "LB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4574105",
+       "name": "Isas Waxter",
+       "position": "CB",
+       "team": "LAC",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-15T01:11Z"
+      },
+      {
+       "playerId": "nfl-athlete-4360745",
+       "name": "Kendall Williamson",
+       "position": "S",
+       "team": "LAC",
+       "state": "OUT",
+       "because": "published designation: Out",
+       "injuryStatus": "Out",
+       "injuryStatedAt": "2026-11-15T01:14Z"
+      },
+      {
+       "playerId": "nfl-athlete-4362081",
+       "name": "Cameron Dicker",
+       "position": "PK",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": "Active",
+       "injuryStatedAt": "2026-11-09T04:55Z"
+      },
+      {
+       "playerId": "nfl-athlete-15151",
+       "name": "Josh Harris",
+       "position": "LS",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3126368",
+       "name": "JK Scott",
+       "position": "P",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3917668",
+       "name": "Alec Ingold",
+       "position": "FB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3691739",
+       "name": "Derwin James Jr.",
+       "position": "S",
+       "team": "LAC",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-11-01T00:11Z"
+      },
+      {
+       "playerId": "nfl-athlete-4383351",
+       "name": "Trey Lance",
+       "position": "QB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3123076",
+       "name": "David Njoku",
+       "position": "TE",
+       "team": "LAC",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-11-14T21:37Z"
+      },
+      {
+       "playerId": "nfl-athlete-4248627",
+       "name": "Trevor Penning",
+       "position": "G",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-2579621",
+       "name": "Denzel Perryman",
+       "position": "LB",
+       "team": "LAC",
+       "state": "OUT",
+       "because": "published designation: Injured Reserve",
+       "injuryStatus": "Injured Reserve",
+       "injuryStatedAt": "2026-11-14T23:54Z"
+      },
+      {
+       "playerId": "nfl-athlete-4242283",
+       "name": "Rashawn Slater",
+       "position": "OT",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5084965",
+       "name": "Isaiah World",
+       "position": "OT",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4039164",
+       "name": "Myles Adams",
+       "position": "DE",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4372017",
+       "name": "Jalyn Armour-Davis",
+       "position": "CB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4685272",
+       "name": "Lander Barton",
+       "position": "LB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-3886812",
+       "name": "Jake Browning",
+       "position": "QB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4577333",
+       "name": "Andre Carter II",
+       "position": "LB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4685841",
+       "name": "Zion Childress",
+       "position": "CB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4431212",
+       "name": "Junior Colson",
+       "position": "LB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4567399",
+       "name": "Kaiir Elam",
+       "position": "CB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4433830",
+       "name": "Luke Grimm",
+       "position": "WR",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4878878",
+       "name": "Amar Johnson",
+       "position": "RB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4430114",
+       "name": "Josh Kaltenberger",
+       "position": "C",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4427695",
+       "name": "Kyu Blu Kelly",
+       "position": "CB",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-4875912",
+       "name": "Tejhaun Palmer",
+       "position": "WR",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5211218",
+       "name": "Laekin Vakalahi",
+       "position": "OT",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      },
+      {
+       "playerId": "nfl-athlete-5152226",
+       "name": "Terry Webb",
+       "position": "DT",
+       "team": "LAC",
+       "state": "ACTIVE_UNCERTAIN",
+       "because": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+       "injuryStatus": null,
+       "injuryStatedAt": null
+      }
+     ],
+     "accounting": {
+      "input": 79,
+      "classified": 79,
+      "exact": true
+     }
+    }
+   }
+  }
+ ]
+}

@@ -11,39 +11,29 @@
  * Statically generated from committed files at build time; nothing here is computed in the browser.
  */
 import type { Metadata } from "next";
-import fs from "node:fs";
 import path from "node:path";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
-import SimulationV2Report, { type CanonicalForecast } from "@/components/nfl/simulation-v2-report";
+import SimulationV2Report from "@/components/nfl/simulation-v2-report";
 import { readShadowReceipts, showableSimulationEvents, simulationOfRecord } from "@/lib/sports/nfl/sim-v2/public-receipt.mjs";
-import { unionFrozenForecasts } from "@/lib/sports/nfl/public-forecast-union.mjs";
-import { nflPublicRecordResolver } from "@/lib/sports/nfl/public-record.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { PUBLIC_TERMS } from "@/lib/public-registry";
+import { officialSimInputs } from "@/lib/sports/nfl/sim-v2/official-sim-inputs";
 
 const REPO_ROOT = path.resolve(process.cwd(), "..");
 const entries = () => readShadowReceipts(REPO_ROOT);
 
-const readPublic = (rel: string) => {
-  try { return JSON.parse(fs.readFileSync(path.join(process.cwd(), "public/data", rel), "utf8")); } catch { return null; }
-};
-
-function officialFor(eventId: string): any {
-  const art = unionFrozenForecasts(readPublic("nfl/forecasts/latest.json"), readPublic("nfl/forecasts/frozen-latest.json"), { resolve: nflPublicRecordResolver() });
-  return (art?.forecasts ?? []).find((x: any) => String(x.providerEventId) === eventId) ?? null;
-}
-
-function canonicalFor(eventId: string): CanonicalForecast | null {
-  const f = officialFor(eventId);
-  const s = f?.forecastSummary;
-  if (!s?.winProbability || !s?.projectedScore) return null;
-  return {
-    awayWin: s.winProbability.away, homeWin: s.winProbability.home,
-    projectedAway: s.projectedScore.away, projectedHome: s.projectedScore.home,
-    totalMedian: s.total?.median, modelId: f.model?.id ?? null, generatedAt: f.generatedAt ?? null,
-  };
+/**
+ * N14 (founder rule 2026-10-20 / 11-11): every official number on the report comes from the game page's own sources
+ * (official-sim-inputs.ts): the game headline is the game hero's record over the forecast of record — the live union,
+ * or after the week rolls the ARCHIVED pre-kickoff revision the game page reads (archivedForecastFor) — and the player
+ * rows are the forecast view's (nflOfficialDefault over loadForecastView). Never the simulation's own numbers. Only the
+ * derived rows (names, ids, official values, labels) reach the component.
+ */
+function officialFor(rec: NonNullable<ReturnType<typeof simulationOfRecord>>, eventId: string) {
+  const { lines, game } = officialSimInputs(rec.receipt, eventId, { publicDir: path.join(process.cwd(), "public"), repoRoot: REPO_ROOT });
+  return { lines, game };
 }
 
 /**
@@ -93,7 +83,7 @@ export function generateMetadata({ params }: { params: { eventId: string } }): M
   const r = rec.receipt;
   return withRouteMetadata(`/nfl/simulation/${params.eventId}/`, {
     title: `${r.away.abbr} @ ${r.home.abbr} — ${PUBLIC_TERMS.GAME_SIMULATION} (Simulation V2) · GameTime Picks`,
-    description: `${r.runCount.toLocaleString("en-US")} coherent simulated games of ${r.away.name} at ${r.home.name}: outcomes, quarters, team and player lines, touchdown scorers. A ${PUBLIC_TERMS.GAME_SIMULATION} from a separate engine, not the ${PUBLIC_TERMS.OFFICIAL_FORECAST}; educational and paper-only.`,
+    description: `${r.away.name} at ${r.home.name}: the official forecast and each player's official projection, plus hypothetical simulation shapes from ${r.runCount.toLocaleString("en-US")} coherent simulated games (not the forecast). A ${PUBLIC_TERMS.GAME_SIMULATION} from a separate engine, not the ${PUBLIC_TERMS.OFFICIAL_FORECAST}; educational and paper-only.`,
   });
 }
 
@@ -118,7 +108,7 @@ export default function NflSimulationV2Page({ params }: { params: { eventId: str
       {/* P0-A (founder 2026-10-30): with the Theater flag ON the page opens on the Theater's Default view (the official
           projected game), above the simulation report; flag OFF this renders nothing and the page is unchanged */}
       <SimulationReplay rec={rec} />
-      <SimulationV2Report r={r} file={rec.file} canonical={canonicalFor(params.eventId)} gameHref={gameHref} />
+      <SimulationV2Report r={r} file={rec.file} gameHref={gameHref} {...officialFor(rec, params.eventId)} />
       <QbProps rec={rec} eventId={params.eventId} />
     </div>
   );

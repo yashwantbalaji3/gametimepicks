@@ -359,3 +359,298 @@ test("SOURCE: the Default views are server components fed no run, and no island 
     assert.doesNotMatch(read(rel), /from "[^"]*(NflOfficialDefault|official-default|official-predictions)[^"]*"/, `${rel} (client island) never imports the Default view`);
   }
 });
+
+/* ──────────────────────── NFL simulation page · every player number is official (ledger N14) ──────────────────────── */
+
+/* Founder rule (2026-10-20, reaffirmed 11-11): one official forecast for a player everywhere; a what-if simulation never
+   presents a competing number. On production the /nfl/simulation/<id>/ report printed SIMULATED player lines (Week 10:
+   Burrow 228 pass yds vs the board's 271, Goff 222 vs 244, Maye 223 vs 242) plus simulated rushing, receiving and
+   touchdown-scorer tables and team passing/rushing totals. For every committed Week 10 game with a showable receipt of
+   record, every number in the rendered report's player sections must be the official board value for that player and
+   family (game page digits + Estimate label), or be absent; the team box carries no passing/rushing statistic. */
+const FX10 = path.join(APP, "src/lib/sports/nfl/__fixtures__/week10-sim-page");
+const FX10_PUBLIC = path.join(FX10, "public");
+const FX10_MANIFEST = readJson(path.join(FX10, "manifest.json"));
+const WEEK10 = fs.readdirSync(path.join(FX10_PUBLIC, "data/nfl/player-board"))
+  .filter((f) => /^\d+\.json$/.test(f)).sort()
+  .map((f) => readJson(path.join(FX10_PUBLIC, "data/nfl/player-board", f)));
+/** The fixture's receipt of record per game (content-addressed shadow files); null = no page is built. */
+const fx10Receipt = (id) => {
+  const file = FX10_MANIFEST.receipts[id];
+  return file ? { file, receipt: readJson(path.join(REPO, file)) } : null;
+};
+
+/** The board's own value for (player, family): median for yards/receptions, probability for anytime TD. */
+const boardValue = (board, playerId, fam) => {
+  const m = board.players.find((p) => p.playerId === playerId)?.markets?.[MARKET_KEY[fam]];
+  const v = KIND[fam] === "probability" ? m?.probability : m?.median;
+  return Number.isFinite(v) ? v : null;
+};
+const sliceSection = (html, id) => {
+  const at = html.indexOf(`<section aria-labelledby="${id}"`);
+  assert.ok(at >= 0, `section ${id}`);
+  return html.slice(at, html.indexOf("</section>", at));
+};
+const signedTxt = (x) => `${x > 0 ? "+" : ""}${x}`;
+
+/**
+ * The official game section of a rendered report == the game page's hero for the same forecast of record `f` (the
+ * hero rendered here with the game page's own record expression). Returns the tiles and the count of numbers checked.
+ */
+async function checkOfficialGame(html, f, view, label) {
+  const { default: GameHero } = await import("../../components/nfl/forecast/game-hero.tsx");
+  const s = f.forecastSummary;
+  // src/app/nfl/game/[eventId]/page.tsx: record={{ ...(view?.record ?? { favourite, generatedAt }), winProbability: s.winProbability, … }}
+  const record = { ...(view?.record ?? { favourite: s.winProbability.home >= s.winProbability.away ? f.home.abbr : f.away.abbr, generatedAt: f.generatedAt }), winProbability: s.winProbability, projectedScore: s.projectedScore, margin: s.margin, total: s.total };
+  const hero = text(renderToStaticMarkup(React.createElement(GameHero, { away: f.away, home: f.home, kickoffLabel: "x", venue: f.venue, record, likeliest: null, started: false })));
+  const off = sliceSection(html, "s2-official");
+  const g = Object.fromEntries([...off.matchAll(/data-s2-g="([^"]+)">([^<]*)</g)].map((m) => [m[1], unescape(m[2])]));
+  const want = {
+    winAway: `${(s.winProbability.away * 100).toFixed(1)}%`, winHome: `${(s.winProbability.home * 100).toFixed(1)}%`,
+    scoreAway: String(s.projectedScore.away), scoreHome: String(s.projectedScore.home),
+    margin: `${f.home.abbr} ${signedTxt(s.margin.median)}`,
+    marginRange: `${signedTxt(s.margin.p10)} and ${signedTxt(s.margin.p90)}`,
+    total: String(s.total.median), totalP10: String(s.total.p10), totalP90: String(s.total.p90),
+    favourite: `${((record.favourite === f.home.abbr ? s.winProbability.home : s.winProbability.away) * 100).toFixed(1)}%`,
+  };
+  assert.deepEqual(g, want, `${label}: official game tiles == the game page's forecast`);
+  let n = 0;
+  for (const [k, v] of Object.entries(want)) {
+    if (k === "marginRange") assert.ok(hero.includes(`between ${v}`), `${label} ${k}: "${v}" as the game hero prints it`);
+    else if (k.startsWith("score")) continue;
+    else assert.ok(hero.includes(v), `${label} ${k}: "${v}" as the game hero prints it`);
+    n += 1;
+  }
+  assert.ok(hero.includes(`${want.favourite} to win`), `${label}: projected winner as the hero prints it`);
+  assert.ok(hero.includes(`${s.projectedScore.away} – ${s.projectedScore.home}`), `${label}: projected score as the hero prints it`);
+  // no other number in the official game section (the hero's "8 in 10" wording aside)
+  const offRest = text(off.replace(/<span data-s2-g="[^"]*">[^<]*<\/span>|<b data-s2-g="[^"]*">[^<]*<\/b>/g, "")).replace(/8 in 10/g, "").split(f.away.name).join("").split(f.home.name).join("");
+  assert.doesNotMatch(offRest, /\d/, `${label}: official section prints only official numbers ("${offRest}")`);
+  return { g, n, hero };
+}
+
+/** The hypothetical block: visible heading, after every official number, no competing headline. */
+function checkHypothetical(html, receipt, s, label) {
+  const hAt = html.indexOf('data-s2-hypothetical=""');
+  assert.ok(hAt > html.indexOf('aria-labelledby="s2-td"') && hAt > html.indexOf('aria-labelledby="s2-official"'), `${label}: the hypothetical block sits after every official number`);
+  const hypo = text(html.slice(html.indexOf(">", hAt) + 1, html.indexOf('aria-labelledby="s2-prov"')));
+  assert.match(hypo, /^[^\d]*Hypothetical simulation — not the forecast/, `${label}: the block opens on its visible heading`);
+  assert.doesNotMatch(hypo, /win chance|median score|median total|median margin|projected|median like/i, `${label}: no competing headline in the block`);
+  const a = receipt.aggregate;
+  assert.ok(!text(html).includes(`${receipt.away.abbr} ${a.score.away.p50} – ${a.score.home.p50} ${receipt.home.abbr}`) || (a.score.away.p50 === s.projectedScore.away && a.score.home.p50 === s.projectedScore.home), `${label}: the simulated median score is not printed`);
+  assert.doesNotMatch(text(html), /engine batch|% of runs/i, `${label}: no simulated win share anywhere`);
+}
+
+/* N14 (ledger, founder rule 2026-10-20 / 11-11: one official forecast for a player everywhere; a what-if simulation never
+   presents a competing number). On production the /nfl/simulation/<id>/ report printed SIMULATED player lines (Week 10:
+   Burrow 228 pass yds vs the board's 271, Goff 222 vs 244, Maye 223 vs 242), simulated rushing, receiving and
+   touchdown-scorer tables, team passing/rushing totals and a simulated game headline. Driven by a FROZEN fixture
+   (__fixtures__/week10-sim-page: the 14 committed Week 10 boards + forecast rows and each game's receipt of record), so
+   a data commit or a pregame refresh of the live week never turns this red. For every game with a showable receipt,
+   every number in the official sections == the game page's value for the same forecast of record, or is absent. */
+test("NFL Week 10 simulation pages (frozen fixture): every game-level and player number == the official forecast / board value, or is absent; simulated figures only in the hypothetical block", async () => {
+  const { default: SimulationV2Report } = await import("../../components/nfl/simulation-v2-report.tsx");
+  const { STARTER_UNCONFIRMED } = await import("../sports/nfl/sim-v2/official-player-lines.mjs");
+  const { officialSimInputs } = await import("../sports/nfl/sim-v2/official-sim-inputs.ts");
+  const { unionFrozenForecasts } = await import("../sports/nfl/public-forecast-union.mjs");
+  const { nflPublicRecordResolver } = await import("../sports/nfl/public-record.mjs");
+  const { loadForecastView } = await import("../sports/nfl/forecast-view-load.mjs");
+  // the game page's own forecast source (forecastArtifact → f.forecastSummary), over the fixture
+  const fxData = path.join(FX10_PUBLIC, "data");
+  const union = unionFrozenForecasts(readJson(path.join(fxData, "nfl/forecasts/latest.json")), readJson(path.join(fxData, "nfl/forecasts/frozen-latest.json")), { resolve: nflPublicRecordResolver(REPO) });
+  assert.equal(WEEK10.length, 14, "14 Week 10 boards in the fixture");
+  let games = 0; let numbers = 0; let gameNumbers = 0; const fams = new Set(); const pass = new Map(); const pinned = {};
+  for (const board of WEEK10) {
+    const id = String(board.providerEventId);
+    const rec = fx10Receipt(id);
+    if (!rec) continue; // no page is built for this game (dynamicParams=false → 404)
+    games += 1;
+    const view = loadForecastView(FX10_PUBLIC, id, { repoRoot: REPO });
+    // exactly what the page passes (src/app/nfl/simulation/[eventId]/page.tsx officialFor → officialSimInputs)
+    const { lines, game, source } = officialSimInputs(rec.receipt, id, { publicDir: FX10_PUBLIC, repoRoot: REPO });
+    assert.equal(source, "live", `${board.matchup}: the live union holds the game`);
+    const html = renderToStaticMarkup(React.createElement(SimulationV2Report, { r: rec.receipt, file: rec.file, gameHref: `/nfl/game/${id}/`, lines, game }));
+
+    /* GAME LEVEL: every official game number == the game page's forecast summary, printed with the game hero's digits */
+    const f = union.forecasts.find((x) => String(x.providerEventId) === id);
+    assert.ok(f, `${board.matchup}: on the game page`);
+    const s = f.forecastSummary;
+    const { g, n } = await checkOfficialGame(html, f, view, board.matchup);
+    gameNumbers += n;
+    checkHypothetical(html, rec.receipt, s, board.matchup);
+    pinned[id] = [g.winAway, g.winHome, g.scoreAway, g.scoreHome, g.margin, g.total];
+    const sections = [sliceSection(html, "s2-players"), sliceSection(html, "s2-td")];
+    for (const sec of sections) {
+      for (const m of sec.matchAll(/<span data-s2-v="([^"|]+)\|([^"]+)">([^<]*)<\/span>(<span class="f"> · ([^<]*)<\/span>)?/g)) {
+        const [, playerId, fam, printed, , label] = m;
+        const v = boardValue(board, playerId, fam);
+        assert.ok(v != null, `${board.matchup} ${playerId} ${fam}: printed "${printed}" but the board has no value`);
+        sameCell(printed, formatValue(KIND[fam], v), v, `${board.matchup} ${playerId} ${fam}: simulation page == official board`);
+        const state = board.families[MARKET_KEY[fam]]?.state;
+        assert.ok(state === "ESTIMATE" || state === "PUBLISHED", `${board.matchup} ${fam}: family ${state} is never printed`);
+        assert.equal(label ?? null, state === "ESTIMATE" ? LABEL : null, `${board.matchup} ${playerId} ${fam}: Estimate label iff ESTIMATE`);
+        if (fam === "passingYards") pass.set(board.players.find((p) => p.playerId === playerId).name, printed);
+        fams.add(fam); numbers += 1;
+      }
+      // no other number anywhere in the player sections: no simulated line, count, average or percentage
+      const rest = text(sec.replace(/<span data-s2-v="[^"]*">[^<]*<\/span>/g, "").replace(/<[^>]+>/g, " "));
+      assert.doesNotMatch(rest, /\d/, `${board.matchup}: no number besides official values ("${rest.match(/.{0,40}\d.{0,40}/)?.[0]}")`);
+    }
+    // completeness: every official passer and every official anytime-TD row is printed (rush/rec tables are top-N)
+    for (const t of [view.away, view.home]) {
+      const passers = view.players.filter((p) => p.team === t.abbr && p.families.passingYards);
+      for (const p of passers) assert.ok(html.includes(`data-s2-v="${p.playerId}|passingYards"`), `${board.matchup} ${p.name}: official passer printed`);
+      if (!passers.length) assert.ok(text(sections[0]).includes(`${STARTER_UNCONFIRMED} for ${t.abbr}`), `${board.matchup} ${t.abbr}: starter not confirmed, no simulated QB named`);
+    }
+    for (const p of view.players.filter((x) => x.families.anytimeTd)) assert.ok(html.includes(`data-s2-v="${p.playerId}|anytimeTd"`), `${board.matchup} ${p.name}: official anytime TD printed`);
+    // the team box: game-flow counts only, no simulated passing / rushing statistic
+    assert.doesNotMatch(text(sliceSection(html, "s2-team")), /Pass attempts|Completions|Passing yards|Passing TDs|Interceptions|Rush attempts|Rushing yards|Rushing TDs/, `${board.matchup}: team box`);
+    assert.match(text(sliceSection(html, "s2-team")), /Simulated team box · hypothetical, not the forecast/);
+  }
+  assert.ok(games >= 12 && numbers >= 200 && gameNumbers >= 7 * games, `checked ${games} games, ${numbers} player numbers, ${gameNumbers} game numbers`);
+  assert.deepEqual([...fams].sort(), ["anytimeTd", "passingYards", "receivingYards", "receptions", "rushingYards"], "every official family is exercised");
+  // the production examples of ledger N14, pinned to the FROZEN fixture (it never follows the live week)
+  assert.equal(pass.get("Jared Goff"), "244");
+  assert.equal(pass.get("Drake Maye"), "242");
+  assert.equal(pass.get("Joe Burrow"), "271");
+  assert.deepEqual(pinned["401873064"], ["41.9%", "55.1%", "23", "25", "CIN +1", "48"], "PIT @ CIN official headline (fixture)");
+});
+
+/* N14 · WEEK ROLLOVER. After the week rolls, latest.json / frozen-latest.json carry the next week and /nfl/game/<id>/
+   reads the ARCHIVED pre-kickoff revision named by the graded record (archived-forecast.ts). The simulation page must
+   read the same record (never "No official forecast" beside a game page that shows one), and — like the game page,
+   which has no forecast view then — print no player projection. The rolled state is built from the frozen fixture in a
+   temp dir: next-week live files without these games, a graded Week 10 record, and each game's revision as a receipt. */
+test("NFL simulation pages after the week rolls: the headline is the game page's ARCHIVED forecast; no player number is invented", async () => {
+  const os = await import("node:os");
+  const { default: SimulationV2Report } = await import("../../components/nfl/simulation-v2-report.tsx");
+  const { officialSimInputs } = await import("../sports/nfl/sim-v2/official-sim-inputs.ts");
+  const { archivedForecastFor } = await import("../sports/nfl/archived-forecast.ts");
+  const { unionFrozenForecasts } = await import("../sports/nfl/public-forecast-union.mjs");
+  const fxData = path.join(FX10_PUBLIC, "data");
+  const week10 = unionFrozenForecasts(readJson(path.join(fxData, "nfl/forecasts/latest.json")), readJson(path.join(fxData, "nfl/forecasts/frozen-latest.json"))).forecasts;
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), "n14-rolled-"));
+  try {
+    const pub = path.join(tmp, "public"); const data = path.join(pub, "data"); const receiptsRoot = path.join(tmp, "forecast-receipts");
+    const w = (rel, doc) => { fs.mkdirSync(path.dirname(path.join(data, rel)), { recursive: true }); fs.writeFileSync(path.join(data, rel), JSON.stringify(doc)); };
+    w("nfl/forecasts/latest.json", { generatedAt: "2026-11-17T12:00:00Z", forecasts: [] }); // the next week: none of these games
+    w("nfl/reconciliation/index.json", { weeks: [{ key: "2-10", label: "Week 10" }] });
+    w("nfl/reconciliation/2-10.json", { games: week10.map((f) => ({ providerEventId: f.providerEventId, matchup: f.matchup, kickoffUtc: f.kickoffUtc, state: "FINAL", published: { generatedAt: f.generatedAt } })) });
+    for (const f of week10) {
+      fs.mkdirSync(path.join(receiptsRoot, "2026-11-15"), { recursive: true });
+      fs.writeFileSync(path.join(receiptsRoot, "2026-11-15", `${f.providerEventId}.json`), JSON.stringify(f));
+    }
+    let games = 0;
+    for (const board of WEEK10) {
+      const id = String(board.providerEventId);
+      const rec = fx10Receipt(id);
+      if (!rec) continue;
+      games += 1;
+      const archived = archivedForecastFor(data, id, { receiptsRoot });
+      assert.ok(archived, `${board.matchup}: the game page's archive holds the game`);
+      const { lines, game, source } = officialSimInputs(rec.receipt, id, { publicDir: pub, repoRoot: REPO, receiptsRoot });
+      assert.equal(source, "archive", `${board.matchup}: read from the archive`);
+      assert.ok(game, `${board.matchup}: the official headline is present (the game page shows the archived forecast)`);
+      assert.equal(lines.available, false, `${board.matchup}: no forecast view → no official player rows (as on the game page)`);
+      const html = renderToStaticMarkup(React.createElement(SimulationV2Report, { r: rec.receipt, file: rec.file, gameHref: `/nfl/game/${id}/`, lines, game }));
+      await checkOfficialGame(html, archived.forecast, null, `${board.matchup} archived`);
+      checkHypothetical(html, rec.receipt, archived.forecast.forecastSummary, `${board.matchup} archived`);
+      assert.doesNotMatch(html, /No official forecast is available/, `${board.matchup}: never "no official forecast" beside the archived game page`);
+      for (const sec of [sliceSection(html, "s2-players"), sliceSection(html, "s2-td")]) {
+        assert.doesNotMatch(text(sec), /\d/, `${board.matchup}: no player number after rollover`);
+      }
+      assert.match(text(sliceSection(html, "s2-players")), /No official player projection is available for this game/);
+    }
+    assert.ok(games >= 12, `checked ${games} rolled games`);
+  } finally {
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
+});
+
+/* N14 · THEATER FLAG ON (CI builds GTP_NFL_THEATER_PUBLIC=1). (a) The Theater's Distribution panel (the desktop tab and
+   phone sheet the island opens) for EVERY game of the frozen Week 10 fixture: it must load and print no simulated win
+   share or distribution, and its only percentages are the official win chances. Never passes having checked nothing. */
+test("NFL Theater Distribution panel (frozen Week 10 fixture): no simulated win share or histogram; only the official win chances", async () => {
+  const { nflGameForecastOfRecord } = await import("../sports/nfl/sim-v2/official-sim-inputs.ts");
+  const { publicTheaterLoad, defaultSample } = await import("../simulation-theater/public-theater.mjs");
+  const { nflTheaterOfficial } = await import("../simulation-theater/loader.mjs");
+  const { DistributionPanel } = await import("../../components/simulation-theater/panels.tsx");
+  let panels = 0;
+  for (const board of WEEK10) {
+    const id = String(board.providerEventId);
+    const rec = fx10Receipt(id);
+    if (!rec) continue;
+    const load = publicTheaterLoad({ eventId: id, file: rec.file, receipt: rec.receipt, showable: true, refusals: [] }, nflTheaterOfficial(REPO, id));
+    assert.ok(load.ok, `${board.matchup}: the Theater loads the fixture receipt (${load.error?.code ?? ""})`);
+    const h = renderToStaticMarkup(React.createElement(DistributionPanel, { manifest: load.manifest, sample: defaultSample(load.manifest) }));
+    const panel = text(h);
+    assert.match(panel, /Drive-engine batch · [\d,]+ runs/, `${board.matchup}: the panel rendered`);
+    assert.doesNotMatch(panel, /won \(|% of runs|this run:|Home margin, /, `${board.matchup}: the panel prints no simulated win share or distribution`);
+    assert.doesNotMatch(h, /st-hist/, `${board.matchup}: no total / margin histogram`);
+    // the official card's win chances (the game page's forecast of record, live or archived); none when there is none
+    const s = nflGameForecastOfRecord(id, { publicDir: path.join(APP, "public"), repoRoot: REPO })?.forecast?.forecastSummary;
+    const official = s ? [s.winProbability.away, s.winProbability.home].map((x) => `${(x * 100).toFixed(1)}%`) : [];
+    for (const p of [...panel.matchAll(/\d+\.\d%/g)].map((m) => m[0])) assert.ok(official.includes(p), `${board.matchup}: panel percentage ${p} is an official win chance`);
+    panels += 1;
+  }
+  assert.ok(panels >= 12, `checked ${panels} Distribution panels`);
+});
+
+/* (b) The WHOLE page rendered with the flag ON, for up to three games in the live union. Live data: between a week
+   rollover and the next week's receipts there is no such game, so the test is SKIPPED (reported), never a silent pass. */
+const LIVE_THEATER_IDS = await (async () => {
+  const { readShadowReceipts, simulationOfRecord } = await import("../sports/nfl/sim-v2/public-receipt.mjs");
+  const { nflGameForecastOfRecord } = await import("../sports/nfl/sim-v2/official-sim-inputs.ts");
+  const entries = readShadowReceipts(REPO);
+  return [...new Set(entries.map((e) => String(e.receipt?.eventId ?? "")))]
+    .filter((id) => simulationOfRecord(entries, id)?.showable && nflGameForecastOfRecord(id, { publicDir: path.join(APP, "public"), repoRoot: REPO })?.source === "live")
+    .slice(0, 3);
+})();
+test("NFL simulation page, Theater flag ON (live games): the whole page prints no simulated win share or histogram, and the official win chances", { skip: LIVE_THEATER_IDS.length === 0 && "no live-union game has a simulation page in this checkout (week rollover gap)" }, async () => {
+  const { nflGameForecastOfRecord } = await import("../sports/nfl/sim-v2/official-sim-inputs.ts");
+  const prev = process.env.GTP_NFL_THEATER_PUBLIC;
+  process.env.GTP_NFL_THEATER_PUBLIC = "1";
+  try {
+    const { default: Page } = await import("../../app/nfl/simulation/[eventId]/page.tsx");
+    // the page holds async server components (the replay section): resolve them as the server renderer does
+    const resolve = async (el) => {
+      if (Array.isArray(el)) return Promise.all(el.map(resolve));
+      if (!React.isValidElement(el)) return el;
+      if (typeof el.type === "function" && !(el.type.prototype && el.type.prototype.isReactComponent)) {
+        const out = el.type(el.props);
+        if (out && typeof out.then === "function") return resolve(await out);
+      }
+      const kids = el.props?.children;
+      return kids === undefined ? el : React.cloneElement(el, undefined, ...(Array.isArray(kids) ? await resolve(kids) : [await resolve(kids)]));
+    };
+    assert.ok(LIVE_THEATER_IDS.length >= 1);
+    for (const id of LIVE_THEATER_IDS) {
+      const html = renderToStaticMarkup(await resolve(Page({ params: { eventId: id } })));
+      assert.ok(html.includes('data-stp-labels=""'), `${id}: the Theater section is mounted with the flag ON`);
+      const h = text(html);
+      assert.doesNotMatch(h, /engine batch, not the forecast|% of runs/i, `${id}: no simulated win share on the page`);
+      assert.doesNotMatch(html, /class="st-hist"/, `${id}: no simulated score histogram on the page`);
+      const s = nflGameForecastOfRecord(id, { publicDir: path.join(APP, "public"), repoRoot: REPO }).forecast.forecastSummary;
+      for (const p of [s.winProbability.away, s.winProbability.home]) assert.ok(h.includes(`${(p * 100).toFixed(1)}%`), `${id}: official win chance on the page`);
+    }
+  } finally {
+    if (prev === undefined) delete process.env.GTP_NFL_THEATER_PUBLIC; else process.env.GTP_NFL_THEATER_PUBLIC = prev;
+  }
+});
+
+test("SOURCE: the simulation page feeds the report the game page's official sources, and neither the report nor the Theater panel reads a simulated headline", () => {
+  const read = (rel) => fs.readFileSync(path.join(APP, rel), "utf8").replace(/\s+/g, "");
+  const page = read("src/app/nfl/simulation/[eventId]/page.tsx");
+  assert.match(page, /officialSimInputs\(rec\.receipt,eventId,\{publicDir:path\.join\(process\.cwd\(\),"public"\)/, "the official inputs from the app's public data");
+  assert.match(page, /<SimulationV2Report[^>]*\{\.\.\.officialFor\(rec,params\.eventId\)\}/, "the report is handed both");
+  const inputs = read("src/lib/sports/nfl/sim-v2/official-sim-inputs.ts");
+  assert.match(inputs, /constview=loadForecastView\(/, "one forecast view (the game page's accessor)");
+  assert.match(inputs, /officialPlayerLines\(receipt,nflOfficialDefault\(view\)\)/, "player rows from the Default view");
+  assert.match(inputs, /archivedForecastFor\(/, "after rollover: the game page's archive");
+  assert.match(inputs, /winProbability:s\.winProbability,projectedScore:s\.projectedScore,margin:s\.margin,total:s\.total/, "the game hero's record expression");
+  const report = read("src/components/nfl/simulation-v2-report.tsx");
+  assert.doesNotMatch(report, /playerStatDistributions|firstTdScorer|teamFirstTd|\.anytimeTd\b(?!")/, "the report reads no simulated player line");
+  assert.doesNotMatch(report, /a\.winProbability\.(home|away)|a\.score\b|a\.total\b|a\.margin\b|calibratedMean|totalHistogram/, "the report prints no simulated win chance, score, total or margin");
+  const panels = read("src/components/simulation-theater/panels.tsx");
+  assert.doesNotMatch(panels, /b\.winProbability|batch\.winProbability|totalHistogram|marginHistogram/, "the Theater Distribution panel prints no engine win share or histogram");
+});
