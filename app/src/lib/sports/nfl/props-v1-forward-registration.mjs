@@ -133,7 +133,8 @@ export function fingerprintDrift(frozenFiles, actual) {
  */
 export const PINNED_REGISTRATIONS = Object.freeze({
   // s1 (9fd523d6b4) and s2 (3f8ff69abb) were superseded before their first week: never pinned, never graded.
-  // series s3 — pinned by the commit after its registration commit.
+  // series s3 — registered 2026-11-16T01:28:14Z
+  "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s3.json": "dd7c00ea75b150650de7934fe3c0ee0bc7f06dc1",
 });
 
 /**
