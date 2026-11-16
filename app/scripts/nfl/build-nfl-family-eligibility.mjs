@@ -16,7 +16,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { loadNflBoardCandidates, etDateOf } from "../../src/lib/products/engine-v2/nfl-boards.mjs";
 import { receiptFromNflBoardCandidate } from "../../src/lib/products/engine-v2/sources.mjs";
-import { deriveNflFamilyGates } from "../../src/lib/products/engine-v2/family-gate.mjs";
+import { deriveNflFamilyGates, propsV1ForwardEvidence, PROPS_V1_FORWARD_SUMMARY_PATH } from "../../src/lib/products/engine-v2/family-gate.mjs";
 import { sportState } from "../../src/lib/products/engine-v2/eligibility.mjs";
 import { LEG_BOUNDS } from "../../src/lib/products/eligible-leg/contract.mjs";
 import { buildPublicFamilyEligibility } from "../../src/lib/products/engine-v2/nfl-family-eligibility-public.mjs";
@@ -38,7 +38,13 @@ export function buildFamilyEligibility({ now = NOW, root = path.join(APP, "publi
   });
   const receipts = boards.candidates.map((c) => receiptFromNflBoardCandidate(c));
   const forwardReceipt = (() => { try { return JSON.parse(fs.readFileSync(path.join(repo, "data/internal/research/nfl/replay/player-props-share-level-forward/receipt.json"), "utf8")); } catch { return null; } })();
-  const gates = deriveNflFamilyGates({ receipts, forwardReceipt, familyState: boards.familyState });
+  /* N8: the props-v1 receiving-yards registered forward test — read only with GTP_NFL_PROPS_V1_FORWARD_ELIGIBILITY=1
+     (default OFF: output unchanged; turning it on is a founder decision). */
+  const propsV1Forward = propsV1ForwardEvidence({
+    env: process.env,
+    read: () => { try { return JSON.parse(fs.readFileSync(path.join(repo, PROPS_V1_FORWARD_SUMMARY_PATH), "utf8")); } catch { return null; } },
+  });
+  const gates = deriveNflFamilyGates({ receipts, forwardReceipt, familyState: boards.familyState, propsV1Forward });
   const dates = boards.boards.map((b) => etDateOf(String(b.kickoffUtc).replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"))).filter(Boolean).sort();
   const markets = (() => { try { return JSON.parse(fs.readFileSync(path.join(root, "nfl/markets/latest.json"), "utf8")); } catch { return null; } })();
   return buildPublicFamilyEligibility({
