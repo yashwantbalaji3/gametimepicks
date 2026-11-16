@@ -100,6 +100,21 @@ test("A · no capture instant, or one at/after kickoff ⇒ no hit rate; nothing 
   assert.match(partial, /line 4\.5 at draftkings, captured Nov 15, 12:00 PM ET: .*not a full 5-game record/);
 });
 
+test("A · a printed book name carries BOOK_AVAILABILITY_NOTE on the same line; no book printed ⇒ no note", async () => {
+  const { BOOK_AVAILABILITY_NOTE } = await import("../../lib/sports/odds/eligible-operators.mjs");
+  const html = render(pageProps(BOARD(offer("draftkings", 4.5)), { [A]: FULL }).props);
+  const rec = famBlock(html, A, "player_receptions");
+  assert.match(rec, /at draftkings, captured/);
+  const line = rec.slice(rec.indexOf('data-line-state="COMPLETE"'), rec.indexOf("</div>", rec.indexOf('data-line-state="COMPLETE"')));
+  assert.ok(line.includes(BOOK_AVAILABILITY_NOTE), `the note is on the hit-rate line itself: ${line}`);
+  assert.equal(html.split(BOOK_AVAILABILITY_NOTE).length - 1, 1, "one note per printed book line (the withheld rec-yds line names no book)");
+  for (const p of [pageProps(BOARD(null), { [A]: FULL }).props, pageProps(BOARD({ ...offer("draftkings", 4.5), capturedAt: null }), { [A]: FULL }).props]) {
+    const h = render(p);
+    assert.doesNotMatch(h, /at draftkings/);
+    assert.ok(!h.includes(BOOK_AVAILABILITY_NOTE), "no book printed ⇒ no note");
+  }
+});
+
 test("players without evidence, or with no supported family, render nothing", () => {
   const { props } = pageProps(BOARD(null), {});
   assert.equal(render(props), "");
