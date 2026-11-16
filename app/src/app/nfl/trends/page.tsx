@@ -11,7 +11,8 @@ import path from "node:path";
 import Link from "next/link";
 
 import NflTrendsTable, { type TrendRow } from "@/components/nfl/trends-table";
-import { buildTrendRows } from "@/lib/sports/nfl/trends-rows.mjs";
+import { OBSERVED_LINE_STATES, buildTrendRows, upcomingBoards } from "@/lib/sports/nfl/trends-rows.mjs";
+import { sanitizePlayerBoard } from "@/lib/sports/odds/public-offer-sanitizer.mjs";
 import { readEvidenceFor } from "@/lib/sports/nfl/player-evidence-file.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
@@ -20,7 +21,9 @@ export const metadata = withRouteMetadata("/nfl/trends/", {
   description: "Every player on this week's NFL boards: actual recent results beside the official model projection. History, not a pick.",
 });
 
-function load(): { rows: TrendRow[]; linesCaptured: number } {
+function load(): { rows: TrendRow[]; linesCaptured: number; played: number } {
+  /* the build instant: a game at or before it has kicked off and is not this week's board (history stays on its page) */
+  const now = new Date().toISOString();
   const dir = path.join(process.cwd(), "public/data/nfl/player-board");
   const root = path.join(process.cwd(), "..");
   const boards = [];
@@ -29,19 +32,20 @@ function load(): { rows: TrendRow[]; linesCaptured: number } {
   try { files = fs.readdirSync(dir).filter((f) => /^\d+\.json$/.test(f)); } catch { /* no boards ⇒ empty page */ }
   for (const f of files) {
     try {
-      const b = JSON.parse(fs.readFileSync(path.join(dir, f), "utf8"));
+      /* the SAME loader-boundary sanitiser as the game page: an ineligible operator's offer is withheld here too */
+      const b = sanitizePlayerBoard(JSON.parse(fs.readFileSync(path.join(dir, f), "utf8")));
       const ev = readEvidenceFor(root, b.providerEventId);
       if (!Object.keys(ev).length) continue; // only boards the evidence file covers (the upcoming slate)
       boards.push(b);
       evidenceByEvent[String(b.providerEventId)] = ev;
     } catch { /* unreadable board ⇒ skipped */ }
   }
-  const rows = buildTrendRows({ boards, evidenceByEvent }) as TrendRow[];
-  return { rows, linesCaptured: rows.filter((r) => r.lineState !== "NO_OBSERVED_LINE").length };
+  const rows = buildTrendRows({ boards, evidenceByEvent, now }) as TrendRow[];
+  return { rows, linesCaptured: rows.filter((r) => OBSERVED_LINE_STATES.includes(r.lineState)).length, played: boards.length - upcomingBoards(boards, now).length };
 }
 
 export default function NflTrendsPage() {
-  const { rows, linesCaptured } = load();
+  const { rows, linesCaptured, played } = load();
   const players = new Set(rows.map((r) => r.playerId)).size;
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12" style={{ maxWidth: 1100, margin: "0 auto" }}>
@@ -53,9 +57,9 @@ export default function NflTrendsPage() {
       </p>
       <p style={{ fontSize: 13, color: "var(--vault-text-faint)", margin: "0 0 16px", maxWidth: 760 }}>
         {linesCaptured
-          ? `${linesCaptured} rows have a sportsbook line captured before kickoff; only those show a record against the line.`
+          ? `${linesCaptured} rows have a sportsbook line captured before kickoff; only those show a record against the line, with the line, the sportsbook and when it was captured.`
           : "No sportsbook player lines were captured for this slate, so no hit rate against a line is shown. We never substitute a made-up line."}{" "}
-        Tap a player for every game, opponent and stat line. <Link href="/nfl/">All NFL forecasts →</Link>
+        {played ? `${played} game${played === 1 ? " has" : "s have"} already kicked off and ${played === 1 ? "is" : "are"} not listed; ${played === 1 ? "its" : "their"} history stays on ${played === 1 ? "its" : "each"} game page. ` : ""}Tap a player for every game, opponent and stat line. <Link href="/nfl/">All NFL forecasts →</Link>
       </p>
       {rows.length ? <NflTrendsTable rows={rows} /> : <p style={{ color: "var(--vault-text-mute)" }}>No upcoming NFL player boards right now. Trends return with the next slate&apos;s boards.</p>}
       <p style={{ fontSize: 11.5, color: "var(--vault-text-faint)", marginTop: 14 }}>Box scores: ESPN public game summaries, 2026 regular season. &quot;–&quot; = no stat line (did not play, or recorded no stat). <Link href="/responsible-use/">Responsible use</Link></p>

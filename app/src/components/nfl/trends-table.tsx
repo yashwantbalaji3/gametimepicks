@@ -9,7 +9,7 @@ import Link from "next/link";
 export type TrendRow = {
   eventId: string; kickoffUtc: string; matchup: string; opponent: string; playerId: string; name: string; team: string; eligibility: string | null;
   family: string; label: string; last5: (number | null)[]; games5: number; recorded5: number; noStatLine5: number; median5: number | null; median10: number | null; games10: number;
-  tdGames5: number | null; projection: number | null; probability: number | null; vsProjection: number | null; lineState: string; badge: string | null; tier: string | null;
+  tdGames5: number | null; projection: number | null; probability: number | null; vsProjection: number | null; lineState: string; line: string | null; badge: string | null; tier: string | null;
 };
 
 const SORTS = {
@@ -73,7 +73,9 @@ export default function NflTrendsTable({ rows }: { rows: TrendRow[] }) {
                 <td>{r.family === "anytime_td" ? "" : f1(r.median10)}</td>
                 <td>{r.family === "anytime_td" ? (r.probability != null ? `${(r.probability * 100).toFixed(0)}% to score` : "—") : f1(r.projection)}</td>
                 <td className={r.vsProjection != null && r.vsProjection > 0 ? "nt-up" : undefined}>{r.vsProjection == null ? "—" : `${r.vsProjection > 0 ? "+" : ""}${f1(r.vsProjection)}`}</td>
-                <td>{r.lineState === "NO_OBSERVED_LINE" ? <span className="nt-g">not captured</span> : r.badge ? `${r.badge} over` : <span className="nt-g">partial record</span>}</td>
+                <td>{r.line
+                  ? <>{r.badge ? `${r.badge} over` : <span className="nt-g">partial record</span>}<div className="nt-g">vs {r.line}</div></>
+                  : <span className="nt-g">{r.lineState === "WITHHELD" ? "withheld" : r.lineState === "NOT_BEFORE_KICKOFF" ? "no pre-kickoff capture" : "not captured"}</span>}</td>
               </tr>
             ))}
           </tbody>
