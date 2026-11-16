@@ -102,13 +102,13 @@ export function forwardEvidenceFor({ family, modelVersion, forwardReceipt, props
  * FORWARD_TEST_IN_PROGRESS today), so it sits behind PROPS_V1_FORWARD_ELIGIBILITY_FLAG, default OFF.
  * Turning it on is a founder decision. With it on, the family's blocker is the forward test's real state:
  * ACCUMULATING → MODEL_FORWARD_ACCUMULATING, FORWARD_BREACHED → MODEL_FORWARD_BREACHED.
- * The path names ONE series (s2, the served pipeline as registered; s1 was superseded before its first week). A later pipeline version is a new series
+ * The path names ONE series (s3, the served pipeline as registered; s1 and s2 were superseded before their first week). A later pipeline version is a new series
  * in its own directory; pointing the gate at it is a reviewed code change, never a data edit.
  */
 export const PROPS_V1_FORWARD_ELIGIBILITY_FLAG = "GTP_NFL_PROPS_V1_FORWARD_ELIGIBILITY";
 export const PROPS_V1_FORWARD_FAMILY = "player_reception_yds";
 export const PROPS_V1_SERVED_MODEL = "props-v1";
-export const PROPS_V1_FORWARD_SUMMARY_PATH = "data/internal/research/nfl/replay/props-v1-reception-yds-forward/registered/s2/summary.json";
+export const PROPS_V1_FORWARD_SUMMARY_PATH = "data/internal/research/nfl/replay/props-v1-reception-yds-forward/registered/s3/summary.json";
 
 /** The summary to hand the gate, or null when the flag is not exactly "1" (the default). `read()` loads the file. */
 export function propsV1ForwardEvidence({ env, read }) {

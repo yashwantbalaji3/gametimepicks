@@ -1,8 +1,8 @@
 /**
  * NFL props-v1 RECEIVING YARDS — REGISTERED FORWARD TEST (ledger N8). PURE: no I/O, no clock. PRIVATE_RESEARCH.
  *
- * Protocol of record: data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s2.json
- * (series s2; the s1 file is kept, SUPERSEDED_BEFORE_FIRST_WEEK). This module holds the counting rules the protocol
+ * Protocol of record: data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s3.json
+ * (series s3; the s1 and s2 files are kept, SUPERSEDED_BEFORE_FIRST_WEEK). This module holds the counting rules the protocol
  * states, so the weekly grader and its tests share one copy:
  *
  *   - registration instant  = git committer time of the commit that ADDED the protocol file, pinned in
@@ -132,8 +132,8 @@ export function fingerprintDrift(frozenFiles, actual) {
  * or rebase merge (which would silently re-register later and move firstWeek) fails loudly instead.
  */
 export const PINNED_REGISTRATIONS = Object.freeze({
-  // series s2 — registered 2026-11-16T01:13:49Z (s1 was superseded before its first week and is never pinned)
-  "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s2.json": "3f8ff69abb665cd2048562b59e29eb10d282dd3f",
+  // s1 (9fd523d6b4) and s2 (3f8ff69abb) were superseded before their first week: never pinned, never graded.
+  // series s3 — pinned by the commit after its registration commit.
 });
 
 /**
