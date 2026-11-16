@@ -435,12 +435,21 @@ test("(g) the run FAILS after publishing when any receiving-yards alert was reco
     fs.writeFileSync(path.join(T, "alerts.log"), text);
     assert.equal(run(path.join(T, "alerts.log")), 1);
     assert.match(fs.readFileSync(path.join(T, "env"), "utf8"), /^ERROR_LINE=receiving yards withheld or unproven this window/m);
+    /* APPENDS: a failed publish (or an ERROR_LINE already exported) keeps its context ahead of the recyds summary */
+    fs.writeFileSync(path.join(T, "env"), "");
+    try { execFileSync(process.execPath, [script, path.join(T, "alerts.log")], { env: { ...process.env, GITHUB_ENV: path.join(T, "env"), ERROR_LINE: "could not push after 3 attempts", RECYDS_PRIOR_CONTEXT: "job=failure publish=failure" }, stdio: "pipe" }); } catch { /* exit 1 expected */ }
+    const line = fs.readFileSync(path.join(T, "env"), "utf8");
+    assert.match(line, /^ERROR_LINE=could not push after 3 attempts \| earlier step\(s\) failed: job=failure, publish=failure \| receiving yards withheld or unproven this window/m);
+    const { combinedErrorLine } = await import("../../../../scripts/nfl/check-recyds-alerts.mjs");
+    assert.equal(combinedErrorLine({ prior: "", priorContext: "job=success publish=success", recyds: "R" }), "R");
+    assert.equal(combinedErrorLine({ prior: undefined, priorContext: "job=failure publish=skipped", recyds: "R" }), "earlier step(s) failed: job=failure | R");
   } finally { fs.rmSync(T, { recursive: true, force: true }); }
   /* the workflow: the log is opened first, the view failure records an alert, and the check runs after the publish
      step and before the failure notification, so the slate is published first and the failure webhook fires */
   const wf = readText(".github/workflows/nfl-event-window.yml");
   const at = (needle) => { const i = wf.indexOf(needle); assert.ok(i >= 0, needle); return i; };
   assert.ok(at("GTP_RECYDS_ALERTS=$RUNNER_TEMP/recyds-alerts.log") < at("name: Build the receiving-yards share view"));
+  assert.match(wf, /RECYDS_PRIOR_CONTEXT: "job=\$\{\{ job\.status \}\} publish=\$\{\{ steps\.publish\.outcome \}\}"/);
   assert.ok(wf.includes(`echo "RECYDS_VIEW_MISSING build-nfl-recyds-share-view.mjs failed`));
   assert.ok(at("name: Publish this run's commits") < at("name: Fail the run when receiving yards were withheld") && at("name: Fail the run when receiving yards were withheld") < at("name: Notify on failure"));
 });
@@ -503,7 +512,17 @@ const S_FIXTURE = (() => {
 const S_EVENT = { providerEventId: "fx-s", home: { abbr: "AAA" }, away: { abbr: "BBB" }, seasonType: 2 };
 const runS = (players, runs = 3000) => simulatePlayerProps({ event: S_EVENT, teamAbbr: "AAA", fit: loadPlayerPropsFit({ fs, path, cwd: APP }), strengthState: { ratingFor: () => 1500 }, roleRates: { players }, artifactDate: "2026-11-15", runs });
 
-test("(h) S > 1: the receiving-yards run equals the evaluator's path on the same inputs — exact engine output quantiles", () => {
+/* WHAT (h) PROVES, AND WHAT IT DOES NOT. Given identical inputs, the receiving-yards run is byte-equal to the evaluator's
+   allocation: same raw target shares, same families, same engine. In production the receiving yards are equal IN
+   DISTRIBUTION to the evaluator's allocation, not byte-equal, because three inputs that share the engine's single
+   random stream differ, and this PR deliberately leaves all three alone (they also drive other markets):
+   - pass/rush shares come from the normalised current.json, where the evaluator feeds raw shares
+     (evaluate-nfl-player-props.mjs:472-473);
+   - the seed date is the window's run date, not g.dateUtc;
+   - runs are min(RUNS, 5000), not 1000.
+   The evaluator side below re-implements candidatesFor. The evaluator is a script with top-level side effects and
+   exports nothing, so calling the real function would need an evaluator refactor; that is out of scope here. */
+test("(h) S > 1: receiving yards equal in distribution to the evaluator's allocation; exact on identical inputs (fixed seed)", () => {
   const { currentTeam, viewTeam, evaluatorPlayers } = S_FIXTURE;
   const shares = receivingYardsShares({ viewBlock: viewTeam.targets, threshold: THRESH.targetShare });
   assert.ok(shares.modelledRawSum > 1.2, `fixture precondition: modelled S = ${shares.modelledRawSum}`);
@@ -521,7 +540,7 @@ test("(h) S > 1: the receiving-yards run equals the evaluator's path on the same
   const ours = runS(PRE_FIX ? preFixPlayers : composed.roleRates.players);
   const theirs = runS(evaluatorPlayers);
   const q = (r) => Object.fromEntries(r.players.filter((p) => p.markets.player_reception_yds).map((p) => [p.playerId, p.markets.player_reception_yds]));
-  assert.deepEqual(q(ours), q(theirs), "player_reception_yds quantiles identical to the evaluator path (fixed seed)");
+  assert.deepEqual(q(ours), q(theirs), "on identical inputs, player_reception_yds quantiles equal the evaluator allocation's exactly (fixed seed)");
   assert.ok(Object.keys(q(ours)).length === 4);
   /* the accounting view is what the engine's Dirichlet produces in expectation, and stays coherent */
   assert.ok(Math.abs(shares.allocated - 1) < 1e-12 && shares.residual === 0);

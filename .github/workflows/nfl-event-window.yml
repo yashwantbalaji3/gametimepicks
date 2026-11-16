@@ -876,6 +876,9 @@ jobs:
       - name: Fail the run when receiving yards were withheld (after publishing)
         if: ${{ always() && !cancelled() }}
         working-directory: app
+        env:
+          # appended to ERROR_LINE (never overwritten): a failed publish or earlier step keeps its context in the alert
+          RECYDS_PRIOR_CONTEXT: "job=${{ job.status }} publish=${{ steps.publish.outcome }}"
         run: |
           set -euo pipefail
           node scripts/nfl/check-recyds-alerts.mjs "$GTP_RECYDS_ALERTS"
