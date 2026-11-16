@@ -37,7 +37,7 @@ const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
 const readText = (p) => fs.readFileSync(path.join(ROOT, p), "utf8");
 /* s1 froze whole files (incl. the orchestrator); s2 (the served series) freezes components — both are committed data. */
 const S1_PROTOCOL = JSON.parse(readText("data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol.json"));
-const FIX_PROTOCOL_PATH = "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s4.json";
+const FIX_PROTOCOL_PATH = "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s4-r2.json";
 const REPORTS = path.join(ROOT, "data/internal/research/nfl/reports");
 /** Every registered, still-active receiving-yards series other than the fix's own (the served one(s)). */
 const servedProtocols = () => fs.readdirSync(REPORTS).filter((f) => /^player-props-v1-reception-yds-forward-protocol.*\.json$/.test(f))
@@ -338,9 +338,37 @@ test("(e) pipeline version and qualification are explicit; refusal withholds the
   assert.equal(receivingYardsPipelineOf(refused), null);
   /* the board stamps the version on the family and on every receiving-yards row */
   const board = fs.readFileSync(path.join(APP, "scripts/nfl/build-nfl-player-board.mjs"), "utf8");
-  assert.match(board, /recydsFamily\.pipelineVersion = /);
-  assert.match(board, /recydsFamily\.qualification = RECYDS_QUALIFICATION/);
+  assert.match(board, /receivingYardsFamilyAnnotation\(\{ family: families\.player_reception_yds/);
   assert.match(board, /if \(m === "player_reception_yds" && recydsPipeline\) markets\[m\]\.pipelineVersion = recydsPipeline;/);
+});
+
+test("(g) withholding is loud: a refused team gets the standard withheld reason; no team left ⇒ family WITHHELD", async () => {
+  const { receivingYardsFamilyAnnotation, recydsWithheldReason } = await import("./receiving-yards-share-view.mjs");
+  const fam = () => ({ label: "Receiving yards", state: "PUBLISHED", basis: "props-v1 evaluation: n=3575, all promotion bars pass" });
+  const ok = { props: { state: "SIMULATED", receivingYards: { state: "SIMULATED", pipelineVersion: RECYDS_PIPELINE_VERSION } } };
+  const refused = { props: { state: "SIMULATED", receivingYards: { state: "REFUSED", pipelineVersion: RECYDS_PIPELINE_VERSION, reason: "receiving-yards share view missing — player_reception_yds withheld" } } };
+  /* pre-fix artifact: nothing changes */
+  assert.deepEqual(receivingYardsFamilyAnnotation({ family: fam(), perTeam: { AAA: { props: { state: "SIMULATED" } } } }), {});
+  /* both fine */
+  const a = receivingYardsFamilyAnnotation({ family: fam(), perTeam: { AAA: ok, BBB: ok } });
+  assert.equal(a.pipelineVersion, RECYDS_PIPELINE_VERSION); assert.equal(a.withheldTeams, undefined); assert.equal(a.state, undefined);
+  /* one refused: named, standard reason (the board UI rewrites a leading "withheld"), family still PUBLISHED */
+  const b = receivingYardsFamilyAnnotation({ family: fam(), perTeam: { AAA: ok, BBB: refused } });
+  assert.deepEqual(b.withheldTeams.map((w) => [w.team, w.reason]), [["BBB", recydsWithheldReason("BBB")]]);
+  assert.match(b.withheldTeams[0].reason, /^withheld for BBB: /);
+  assert.equal(b.state, undefined);
+  /* all refused: family WITHHELD with the reason — never PUBLISHED with no rows */
+  const c = receivingYardsFamilyAnnotation({ family: fam(), perTeam: { AAA: refused, BBB: refused } });
+  assert.equal(c.state, "WITHHELD"); assert.match(c.reason, /^withheld for AAA: .* · withheld for BBB: /);
+  assert.doesNotMatch(JSON.stringify(c), /data\/internal/);
+  /* existing withheldTeams entries are kept */
+  const d = receivingYardsFamilyAnnotation({ family: { ...fam(), withheldTeams: [{ team: "CCC", sum: 1.2, reason: "withheld for CCC: x" }] }, perTeam: { AAA: ok, BBB: refused } });
+  assert.deepEqual(d.withheldTeams.map((w) => w.team), ["CCC", "BBB"]);
+  /* the event window and both builders emit ::error:: lines the run log / annotations surface */
+  for (const [file, re] of [["scripts/nfl/run-nfl-event-window.mjs", /::error::RECYDS_WITHHELD/], ["scripts/nfl/build-nfl-player-board.mjs", /::error::player board .*RECYDS_WITHHELD/], ["scripts/nfl/build-nfl-recyds-share-view.mjs", /::error::RECYDS_VIEW_UNREPRODUCED/]]) {
+    assert.match(fs.readFileSync(path.join(APP, file), "utf8"), re, file);
+  }
+  assert.match(readText(".github/workflows/nfl-event-window.yml"), /::error::RECYDS_VIEW_MISSING/);
 });
 
 test("(f) series identity: the served series keeps grading pre-fix boards and never counts a post-fix board", async () => {

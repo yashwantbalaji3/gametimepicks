@@ -43,7 +43,7 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/research/nfl/forward-player-props-share-level.mjs --forecast --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-      # N8 — props-v1 receiving yards, REGISTERED forward test (player-props-v1-reception-yds-forward-protocol.json).
+      # N8 — props-v1 receiving yards, REGISTERED forward test (the current series protocol, player-props-v1-reception-yds-forward-protocol-s3.json; s1/s2 superseded).
       # Grades committed pre-kickoff board revisions of counted weeks; writes each finished week once (append-only)
       # plus a derived summary. Reads only committed files at HEAD; no network, no paid API.
       - name: Grade props-v1 receiving yards (registered forward test)
@@ -57,7 +57,7 @@ jobs:
         if: ${{ !cancelled() }}
         run: |
           set -euo pipefail
-          node scripts/research/nfl/forward-props-v1-reception-yds-registered.mjs --protocol data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s4.json
+          node scripts/research/nfl/forward-props-v1-reception-yds-registered.mjs --protocol data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s4-r2.json
       - name: Commit derived files
         if: ${{ !cancelled() }}
         run: |

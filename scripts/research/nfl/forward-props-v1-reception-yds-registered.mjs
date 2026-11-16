@@ -3,8 +3,8 @@
  * NFL props-v1 RECEIVING YARDS — REGISTERED FORWARD TEST, weekly enrollment (ledger N8). PRIVATE_RESEARCH.
  * Research only: writes nothing public, changes no board label, no eligibility state, no model, no frozen file.
  *
- * Protocol: --protocol (default data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s2.json;
- * s1 is SUPERSEDED_BEFORE_FIRST_WEEK and refused). Registration = the commit pinned in PINNED_REGISTRATIONS. Counting rules live
+ * Protocol: --protocol (default data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s3.json;
+ * s1 and s2 are SUPERSEDED_BEFORE_FIRST_WEEK and refused). Registration = the commit pinned in PINNED_REGISTRATIONS. Counting rules live
  * in app/src/lib/sports/nfl/props-v1-forward-registration.mjs; grading mechanics are the as-served retrospective's
  * (props-v1-forward-receipt.mjs, PR 1363) — one copy.
  *
@@ -40,7 +40,7 @@ const REV = git("rev-parse", "--verify", `${argOf("--rev", "HEAD")}^{commit}`).t
 const AS_OF = git("show", "-s", "--format=%cI", REV).trim();
 const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
 const show = (commit, p) => git("show", `${commit}:${p}`);
-const PROTOCOL_PATH = argOf("--protocol", "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s2.json");
+const PROTOCOL_PATH = argOf("--protocol", "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s3.json");
 const RETRO_PATH = "data/internal/research/nfl/replay/props-v1-reception-yds-forward/receipt.json";
 const BOARD_DIR = "app/public/data/nfl/player-board";
 const SCHEDULE_DIR = "app/public/data/nfl/schedule";

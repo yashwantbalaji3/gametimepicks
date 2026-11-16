@@ -29,7 +29,7 @@ import { buildActivePool } from "../../src/lib/sports/nfl/participation.mjs";
 import { buildPlayerRegistry } from "../../src/lib/sports/nfl/player-identity.mjs";
 import { simulateNflGame } from "../../src/lib/sports/nfl/game-sim.mjs";
 import { simulatePlayerProps, loadPlayerPropsFit } from "../../src/lib/sports/nfl/player-props-v1.mjs";
-// N8-recyds-view:begin — every N8 addition sits between these markers; with them removed this file is the s2-registered orchestrator
+// N8-recyds-view:begin — every N8 addition sits between these markers; none touches a served-series fingerprint declaration
 import { composeReceivingYardsRoleRates, mergeReceivingYards } from "../../src/lib/sports/nfl/receiving-yards-share-view.mjs";
 // N8-recyds-view:end
 import { buildScorerBoard, loadScoringBridgeMapping, loadTdCalibrationReceipt, flattenPoolShares } from "../../src/lib/sports/nfl/td-engine.mjs";
@@ -59,7 +59,7 @@ const finals = read(path.join(ROOT, "data/internal/research/nfl/corpus-v1.json")
 const modelReceipt = read(path.join(ROOT, "data/internal/research/nfl/reports/model-v1-evaluation.json"));
 const currentShares = read(path.join(ROOT, "data/internal/research/nfl/role-shares-v1/current.json"));
 // N8-recyds-view:begin
-/* N8 parity fix: the receiving-yards share view the role-share builder writes beside current.json, in the same run. */
+/* N8 parity fix: the receiving-yards share view build-nfl-recyds-share-view.mjs writes beside current.json, in the same run. */
 const recydsView = readMaybe(path.join(ROOT, "data/internal/research/nfl/role-shares-v1/receiving-yards-view.json"));
 const recydsViewReason = !recydsView
   ? "receiving-yards share view missing — player_reception_yds withheld"
@@ -189,38 +189,17 @@ function composeRoleRates(teamAbbr) {
   return players.length ? { players } : null;
 }
 
-// N8-recyds-view:begin
-/* N8 parity fix — RECEIVING YARDS ONLY. A second run of the same engine, same seed and fit, whose target shares come
-   from the receiving-yards share view (the evaluated allocation rule, receiving-yards-share-view.mjs). Only its
-   player_reception_yds replaces the shared run's; every other market (passing, rushing, receptions) is the shared
-   run's own object, unchanged. A missing or unpaired view withholds the market (never a silent fallback to the
-   normalised shares under the new pipeline's name). Mutates `props` in place (a fresh engine result). */
-function receivingYardsProps({ props, roleRates, teamAbbr, ev, evPropsFit, wrapped }) {
-  if (props.state !== "SIMULATED") return;
-  const recydsComposed = recydsViewPaired
-    ? composeReceivingYardsRoleRates({ base: roleRates, currentTeam: currentShares.teams[teamAbbr], viewTeam: recydsView.teams?.[teamAbbr], thresholds: THRESH })
-    : { state: "REFUSED", reason: recydsViewReason };
-  const recyds = recydsComposed.state === "READY"
-    ? simulatePlayerProps({ event: ev, teamAbbr, fit: evPropsFit, strengthState: wrapped, roleRates: recydsComposed.roleRates, artifactDate: DATE, runs: Math.min(RUNS, 5000) })
-    : null;
-  Object.assign(props, mergeReceivingYards({ base: props, composed: recydsComposed, recyds }));
-}
-// N8-recyds-view:end
-
-// ---------------------------------------------------------------- run the chain per event
-const outDir = path.join(ROOT, "data/internal/nfl/current", DATE);
-fs.mkdirSync(outDir, { recursive: true });
-const boards = [];
-const written = [];
-for (const ev of events) {
+/*
+ * Per-event simulation inputs and the per-team player-prop call, as named top-level functions (N8): the props-v1
+ * receiving-yards forward test fingerprints these declarations (forward-protocol-s3 frozenFiles), so any change to
+ * the strength cut, season regression, totals merge, abbr mapping or run cap starts a new series. Behaviour is
+ * exactly the inline code they replaced (byte-identical event artifacts and player boards, recorded in the PR).
+ */
+function eventSimInputs({ ev, strengthStateAt }) {
   const abbrToName = new Map([[ev.home.abbr, ev.home.name], [ev.away.abbr, ev.away.name]]);
-  const shadow = runNflShadow({ event: ev, nowIso: NOW, strengthRows: finals, fit, injuriesArtifact: injuries, oddsSnapshot });
-  const pool = buildActivePool({ event: ev, registry, injuriesArtifact: injuries, nowIso: NOW });
-
   // strength for the sims: name-keyed rows behind an abbr-aware wrapper. The target game's
   // season rides along (P240): a Week-1 game of a season no final has reached yet gets the
   // protocol's one-third boundary regression, exactly as the evaluated walk-forward applies it.
-  const { strengthStateAt } = await import("../../src/lib/sports/nfl/strength-state.mjs");
   const evDate = new Date(Date.parse(ev.dateUtc));
   const evSeason = evDate.getUTCMonth() >= 7 ? evDate.getUTCFullYear() : evDate.getUTCFullYear() - 1;
   const strength = strengthStateAt({ rows: finals.filter((r) => r.dateUtc < ev.dateUtc), cutoffIso: NOW, regressToSeason: evSeason });
@@ -233,15 +212,54 @@ for (const ev of events) {
   const evMu = evTotals?.state === "READY" ? { muTotal: evTotals.muFor(ev.home.name, ev.away.name), sigmaTotal: evTotals.sigma } : null;
   const evFit = evMu ? { ...fit, params: { ...fit.params, ...evMu } } : fit;
   const evPropsFit = evMu && propsFit ? { ...propsFit, gamesim: { ...propsFit.gamesim, ...evMu } } : propsFit;
+  return { wrapped, evFit, evPropsFit };
+}
+
+function eventTeamPlayerProps({ ev, teamAbbr, roleRates, evPropsFit, wrapped }) {
+  return roleRates
+    ? simulatePlayerProps({ event: ev, teamAbbr, fit: evPropsFit, strengthState: wrapped, roleRates, artifactDate: DATE, runs: Math.min(RUNS, 5000) })
+    : { state: "ABSTAIN", reason: "no corpus-backed role/rate evidence for this roster — mass belongs to OTHER, not to a guess" };
+}
+
+// N8-recyds-view:begin
+/* N8 parity fix — RECEIVING YARDS ONLY. A second run of the same engine, same seed and fit, whose target shares come
+   from the receiving-yards share view (the evaluated allocation rule, receiving-yards-share-view.mjs). Only its
+   player_reception_yds replaces the shared run's; every other market (passing, rushing, receptions) is the shared
+   run's own object, unchanged. Kept OUT of eventTeamPlayerProps (a served-series fingerprint declaration).
+   A missing, unpaired or unreproduced view withholds the market LOUDLY (::error:: line + typed reason on the
+   artifact, which the board turns into the family's withheldTeams entry) — never a silent fallback to the
+   normalised shares under the new pipeline's name. Mutates `props` in place (a fresh engine result). */
+function receivingYardsProps({ props, roleRates, teamAbbr, ev, evPropsFit, wrapped }) {
+  if (props.state !== "SIMULATED") return;
+  const recydsComposed = recydsViewPaired
+    ? composeReceivingYardsRoleRates({ base: roleRates, currentTeam: currentShares.teams[teamAbbr], viewTeam: recydsView.teams?.[teamAbbr], thresholds: THRESH })
+    : { state: "REFUSED", reason: recydsViewReason };
+  const recyds = recydsComposed.state === "READY"
+    ? simulatePlayerProps({ event: ev, teamAbbr, fit: evPropsFit, strengthState: wrapped, roleRates: recydsComposed.roleRates, artifactDate: DATE, runs: Math.min(RUNS, 5000) })
+    : null;
+  Object.assign(props, mergeReceivingYards({ base: props, composed: recydsComposed, recyds }));
+  if (props.receivingYards?.state !== "SIMULATED") console.log(`::error::RECYDS_WITHHELD ${ev.providerEventId} ${teamAbbr}: ${props.receivingYards?.reason}`);
+}
+// N8-recyds-view:end
+
+// ---------------------------------------------------------------- run the chain per event
+const outDir = path.join(ROOT, "data/internal/nfl/current", DATE);
+fs.mkdirSync(outDir, { recursive: true });
+const boards = [];
+const written = [];
+for (const ev of events) {
+  const shadow = runNflShadow({ event: ev, nowIso: NOW, strengthRows: finals, fit, injuriesArtifact: injuries, oddsSnapshot });
+  const pool = buildActivePool({ event: ev, registry, injuriesArtifact: injuries, nowIso: NOW });
+
+  const { strengthStateAt } = await import("../../src/lib/sports/nfl/strength-state.mjs");
+  const { wrapped, evFit, evPropsFit } = eventSimInputs({ ev, strengthStateAt });
   const gamesim = simulateNflGame({ fit: evFit, strengthState: wrapped, event: ev, artifactDate: DATE, runs: RUNS });
 
   const perTeam = {};
   for (const side of ["home", "away"]) {
     const teamAbbr = ev[side].abbr;
     const roleRates = composeRoleRates(teamAbbr);
-    const props = roleRates
-      ? simulatePlayerProps({ event: ev, teamAbbr, fit: evPropsFit, strengthState: wrapped, roleRates, artifactDate: DATE, runs: Math.min(RUNS, 5000) })
-      : { state: "ABSTAIN", reason: "no corpus-backed role/rate evidence for this roster — mass belongs to OTHER, not to a guess" };
+    const props = eventTeamPlayerProps({ ev, teamAbbr, roleRates, evPropsFit, wrapped });
     // N8-recyds-view:begin
     receivingYardsProps({ props, roleRates, teamAbbr, ev, evPropsFit, wrapped });
     // N8-recyds-view:end

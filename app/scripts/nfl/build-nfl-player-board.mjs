@@ -49,7 +49,7 @@ import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets
 import { postKickoffInputs, refusalLine } from "../../src/lib/sports/nfl/input-stamps.mjs";
 import { createQbState, tierBProjection } from "../../src/lib/sports/nfl/qb-starter-projection.mjs";
 import zlib from "node:zlib";
-import { receivingYardsPipelineOf, RECYDS_QUALIFICATION } from "../../src/lib/sports/nfl/receiving-yards-share-view.mjs";
+import { receivingYardsPipelineOf, receivingYardsFamilyAnnotation } from "../../src/lib/sports/nfl/receiving-yards-share-view.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -381,12 +381,12 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
   };
 
   /* N8 parity fix: receiving yards computed through the receiving-yards share view name their pipeline version on
-     the family and on every row; artifacts from before the fix carry none and their boards are unchanged. */
-  const recydsPipelines = [...new Set(Object.values(doc.research?.perTeam ?? {}).filter((tv) => tv.props?.state === "SIMULATED").map((tv) => receivingYardsPipelineOf(tv.props)))];
-  const recydsFamily = families.player_reception_yds;
-  if (recydsFamily && recydsFamily.state !== "WITHHELD" && !shareLevel?.markets.has("player_reception_yds") && recydsPipelines.some((v) => v != null)) {
-    recydsFamily.pipelineVersion = recydsPipelines.length === 1 ? recydsPipelines[0] : recydsPipelines.map((v) => v ?? "props-v1 (role-shares normalised)").sort().join(" | ");
-    recydsFamily.qualification = RECYDS_QUALIFICATION;
+     the family and on every row; artifacts from before the fix carry none and their boards are unchanged. A team
+     whose view was missing or unreproduced is NEVER a silent blank: it is named in withheldTeams with the standard
+     "withheld for <team>: …" reason, and a family with no team left is WITHHELD with that reason. */
+  if (families.player_reception_yds && !shareLevel?.markets.has("player_reception_yds")) {
+    Object.assign(families.player_reception_yds, receivingYardsFamilyAnnotation({ family: families.player_reception_yds, perTeam: doc.research?.perTeam }));
+    for (const w of families.player_reception_yds.withheldTeams ?? []) console.log(`::error::player board ${doc.matchup}: RECYDS_WITHHELD ${w.team} — ${w.reason}`);
   }
   for (const [abbr, tv] of Object.entries(doc.research?.perTeam ?? {})) {
     const props = tv.props;

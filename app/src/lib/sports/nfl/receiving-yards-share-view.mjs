@@ -262,6 +262,27 @@ export function mergeReceivingYards({ base, recyds, composed }) {
   return out;
 }
 
+/** The board's standard per-team withheld wording ("withheld for <team>: …"), for a team whose view run refused. */
+export const recydsWithheldReason = (team) => `withheld for ${team}: receiving yards could not be computed with the evaluated share rule this window (no paired receiving-yards share view) — shown again at the next window that has one`;
+
+/**
+ * Board side: the fields to merge onto the player_reception_yds family, from the event artifact's perTeam props.
+ * {} for an artifact from before the fix (no team carries a receivingYards block) — its board is unchanged.
+ * Otherwise: pipelineVersion + qualification, a withheldTeams entry (standard reason, never a blank) per refused
+ * team, and state WITHHELD with that reason when no team is left.
+ */
+export function receivingYardsFamilyAnnotation({ family, perTeam }) {
+  if (!family || family.state === "WITHHELD") return {};
+  const sims = Object.entries(perTeam ?? {}).filter(([, tv]) => tv?.props?.state === "SIMULATED");
+  const blocks = sims.filter(([, tv]) => tv.props.receivingYards);
+  if (!blocks.length) return {};
+  const out = { pipelineVersion: RECYDS_PIPELINE_VERSION, qualification: RECYDS_QUALIFICATION };
+  const refused = blocks.filter(([, tv]) => tv.props.receivingYards.state !== "SIMULATED").map(([team, tv]) => ({ team, sum: null, reason: recydsWithheldReason(team), detail: tv.props.receivingYards.reason ?? null }));
+  if (refused.length) out.withheldTeams = [...(family.withheldTeams ?? []), ...refused];
+  if (refused.length === sims.length) { out.state = "WITHHELD"; out.reason = refused.map((r) => r.reason).join(" · "); }
+  return out;
+}
+
 /** Board side: the pipeline version a props artifact's receiving yards were computed under (null = the s1 pipeline). */
 export function receivingYardsPipelineOf(props) {
   return props?.receivingYards?.state === "SIMULATED" ? props.receivingYards.pipelineVersion ?? null : null;

@@ -41,4 +41,4 @@ const view = viewFromCorpus({ current, historicalGames, currentGames: currentPar
 fs.writeFileSync(path.join(ROOT, "data/internal/research/nfl/role-shares-v1/receiving-yards-view.json"), JSON.stringify(view, null, 1));
 const normalised = Object.values(view.teams).filter((t) => t.targets.sharedArtifactNormalised).length;
 console.log(`recyds share view: ${Object.keys(view.teams).length} team(s) reproduced, ${normalised} normalised in current.json; unreproduced: ${view.unreproducedTeams.join(", ") || "none"}`);
-if (view.unreproducedTeams.length) console.log(`::warning::receiving-yards view could not reproduce current.json for ${view.unreproducedTeams.join(", ")} — their receiving yards are withheld`);
+if (view.unreproducedTeams.length) console.log(`::error::RECYDS_VIEW_UNREPRODUCED receiving-yards view could not reproduce current.json for ${view.unreproducedTeams.join(", ")} — their receiving yards are withheld`);

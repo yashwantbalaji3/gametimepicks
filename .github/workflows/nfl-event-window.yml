@@ -244,7 +244,7 @@ jobs:
           set -euo pipefail
           rm -f ../data/internal/research/nfl/role-shares-v1/receiving-yards-view.json
           if ! node scripts/nfl/build-nfl-recyds-share-view.mjs; then
-            echo "::warning::receiving-yards share view not built — player_reception_yds is withheld this window"
+            echo "::error::RECYDS_VIEW_MISSING receiving-yards share view not built — player_reception_yds is withheld this window"
           fi
 
       # ---- Injury designations ----

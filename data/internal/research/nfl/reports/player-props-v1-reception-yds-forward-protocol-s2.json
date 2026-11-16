@@ -1,4 +1,7 @@
 {
+ "status": "SUPERSEDED_BEFORE_FIRST_WEEK",
+ "supersededBy": "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s3.json",
+ "supersededReason": "Series s2 (registered 2026-11-16T01:13:49Z, commit 3f8ff69abb) missed two inputs that move a served receiving-yards number: (1) strength-state.mjs — the engine reads strengthState.ratingFor (player-props-v1.mjs:150) → margin → own pass volume via fit.volume.pass.a1 → targets → receiving yards, so its claim that strength only feeds the team stream was false; (2) the per-event block of run-nfl-event-window.mjs (strength cut and season regression, abbr→name mapping, totals merge, runs: min(RUNS, 5000)) and the arg / NOW / DATE / finals / currentShares / propsFit / verdict-path declarations. A reviewer changed the run cap, regressToSeason and HOME_ADVANTAGE and the s2 version did not move. Nothing had counted (first week 11 not started). Superseded before its first week.",
  "schemaVersion": 1,
  "artifact": "props-v1-reception-yds-forward-protocol",
  "dataClass": "PRIVATE_RESEARCH",

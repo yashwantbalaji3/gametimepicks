@@ -13,7 +13,7 @@ import { lastPreKickoffRevision, servedModelOf, readPropsV1PromotionBars, readSh
 import {
   scheduleFromCaptures, regularSeasonWeeks, firstWeekAfter, classifyEvent, EVENT_CODE, EXCLUSION_REASON,
   buildWeekReceipt, appendWeekReceipt, summarize, weekFileName, pointsFromRows, registeredPipelineVersion, ROW_COLUMNS,
-  expectedScheduledIds, resolveRegistration, fingerprintDrift, fingerprintComponent, componentId, extractTopLevelDeclaration, gradeWeeksIsolated, PINNED_REGISTRATIONS,
+  expectedScheduledIds, resolveRegistration, fingerprintDrift, fingerprintComponent, componentId, extractTopLevelDeclaration, gradeWeeksIsolated, PINNED_REGISTRATIONS, pipelineVersionOf,
 } from "./props-v1-forward-registration.mjs";
 import {
   deriveNflFamilyGates, propsV1ForwardEvidence, FAMILY_BLOCKER, PROPS_V1_FORWARD_ELIGIBILITY_FLAG,
@@ -23,7 +23,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..", "..", "..", "..", "..");
 const rd = (p) => fs.readFileSync(path.join(ROOT, p), "utf8");
 const FX = JSON.parse(fs.readFileSync(path.join(HERE, "__fixtures__/props-v1-forward-registration/weeks.json"), "utf8"));
-const PROTOCOL_PATH = "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s2.json";
+const PROTOCOL_PATH = "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s3.json";
 const PROTOCOL = JSON.parse(rd(PROTOCOL_PATH));
 const PROTOCOL_REF = { path: PROTOCOL_PATH, sha256: "fixture" };
 const REG = FX.registration;
@@ -237,7 +237,7 @@ test("N8 reg · registration is the PINNED commit, which must be the oldest add 
 
 test("N8 reg · the grader script refuses without its pinned registration in history", { timeout: 120_000 }, (t) => {
   const pinned = PINNED_REGISTRATIONS[PROTOCOL_PATH];
-  assert.ok(/^[0-9a-f]{40}$/.test(pinned ?? ""), "the s2 protocol has a pinned registration commit");
+  assert.ok(/^[0-9a-f]{40}$/.test(pinned ?? ""), "the s3 protocol has a pinned registration commit");
   const has = spawnSync("git", ["cat-file", "-e", `${pinned}^{commit}`], { cwd: ROOT });
   if (has.status !== 0) { t.skip("pinned registration commit is not in this clone's history (shallow clone) — not attempted"); return; }
   const dir = tmp();
@@ -246,9 +246,12 @@ test("N8 reg · the grader script refuses without its pinned registration in his
     const before = run("--rev", `${pinned}~1`);
     assert.notEqual(before.status, 0);
     assert.match(before.stderr, /REFUSED: .*(not an ancestor|never added)/);
-    const s1 = run("--protocol", "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol.json");
-    assert.notEqual(s1.status, 0);
-    assert.match(s1.stderr, /REFUSED: no pinned registration/);
+    for (const superseded of ["data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol.json", "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s2.json"]) {
+      const r = run("--protocol", superseded);
+      assert.notEqual(r.status, 0);
+      assert.match(r.stderr, /REFUSED: no pinned registration/);
+      assert.equal(JSON.parse(rd(superseded)).status, "SUPERSEDED_BEFORE_FIRST_WEEK");
+    }
     assert.deepEqual(fs.readdirSync(dir), [], "a refusal writes nothing");
   } finally { fs.rmSync(dir, { recursive: true, force: true }); }
 });
@@ -269,8 +272,37 @@ test("N8 reg · fingerprint drift is named component by component; unrelated edi
   assert.deepEqual(fingerprintDrift(pinnedSet, { "x.mjs#keep": "bb", "y.mjs": "aa" }), [`x.mjs#keep: pinned ${base}, found bb`]);
   // the registered set covers the totals inputs that set the engine's per-event total
   const ids = PROTOCOL.model.frozenFiles.map(componentId);
-  for (const id of ["app/src/lib/sports/nfl/totals-rating.mjs", "data/internal/research/nfl/reports/matchup-totals-evaluation.json", "data/internal/research/nfl/reports/props-integration-verdict.json", "data/internal/research/nfl/reports/player-props-v1-evaluation.json#fit", "app/scripts/nfl/run-nfl-event-window.mjs#composeRoleRates"]) assert.ok(ids.includes(id), id);
-  for (const id of ["app/src/lib/sports/research/artifact-modes.mjs", "app/src/lib/sports/nfl/strength-state.mjs", "app/src/lib/sports/nfl/game-sim.mjs", "app/scripts/nfl/evaluate-nfl-player-props.mjs"]) assert.ok(!ids.includes(id), `${id} is out of scope`);
+  for (const id of ["app/src/lib/sports/nfl/totals-rating.mjs", "data/internal/research/nfl/reports/matchup-totals-evaluation.json", "data/internal/research/nfl/reports/props-integration-verdict.json", "data/internal/research/nfl/reports/player-props-v1-evaluation.json#fit", "app/scripts/nfl/run-nfl-event-window.mjs#composeRoleRates", "app/src/lib/sports/nfl/strength-state.mjs", "app/scripts/nfl/run-nfl-event-window.mjs#eventSimInputs", "app/scripts/nfl/run-nfl-event-window.mjs#eventTeamPlayerProps"]) assert.ok(ids.includes(id), id);
+  for (const id of ["app/src/lib/sports/research/artifact-modes.mjs", "app/src/lib/sports/nfl/game-sim.mjs", "app/scripts/nfl/evaluate-nfl-player-props.mjs", "app/scripts/nfl/run-nfl-event-window.mjs"]) assert.ok(!ids.includes(id), `${id} is out of scope`);
+});
+
+test("N8 reg · mutating any newly fingerprinted input changes the pipeline version", () => {
+  const texts = new Map(PROTOCOL.model.frozenFiles.map((f) => [f.path, rd(f.path)]));
+  const versionOf = (over = {}) => pipelineVersionOfTexts((p) => over[p] ?? texts.get(p));
+  const pipelineVersionOfTexts = (read) => pipelineVersionOf(Object.fromEntries(PROTOCOL.model.frozenFiles.map((f) => [componentId(f), fingerprintComponent(f, read(f.path))])));
+  const base = versionOf();
+  const EW = "app/scripts/nfl/run-nfl-event-window.mjs";
+  const SS = "app/src/lib/sports/nfl/strength-state.mjs";
+  const mutations = [
+    [EW, "runs: Math.min(RUNS, 5000)", "runs: Math.min(RUNS, 2000)"],
+    [EW, "regressToSeason: evSeason", "regressToSeason: null"],
+    [EW, "cutoffIso: NOW, regressToSeason", "cutoffIso: ev.dateUtc, regressToSeason"],
+    [EW, "ratingFor: (t) => strength.ratingFor(abbrToName.get(t) ?? t)", "ratingFor: (t) => strength.ratingFor(t)"],
+    [EW, "gamesim: { ...propsFit.gamesim, ...evMu }", "gamesim: { ...propsFit.gamesim }"],
+    [EW, "const RUNS = Number(arg(\"--runs\", \"10000\"));", "const RUNS = Number(arg(\"--runs\", \"5000\"));"],
+    [EW, "data/internal/research/nfl/role-shares-v1/current.json", "data/internal/research/nfl/role-shares-v1/other.json"],
+    [EW, "data/internal/research/nfl/reports/props-integration-verdict.json", "data/internal/research/nfl/reports/other-verdict.json"],
+    [SS, "HOME_ADVANTAGE: 48", "HOME_ADVANTAGE: 78"],
+    [SS, "K: 20,", "K: 21,"],
+  ];
+  for (const [p, from, to] of mutations) {
+    assert.ok(texts.get(p).includes(from), `${p} still contains ${from}`);
+    assert.notEqual(versionOf({ [p]: texts.get(p).replace(from, to) }), base, `${from} → ${to} must change the version`);
+  }
+  // an edit outside the fingerprinted declarations (e.g. a log line in the loop) does not
+  const logLine = "written: ${written.length} current artifacts";
+  assert.ok(texts.get(EW).includes(logLine));
+  assert.equal(versionOf({ [EW]: texts.get(EW).replace(logLine, "wrote: ${written.length} current artifacts") }), base);
 });
 
 test("N8 reg · one week's exception is recorded and later weeks are still graded", () => {
