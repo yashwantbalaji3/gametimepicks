@@ -89,7 +89,7 @@ test("POSITIVE CONTROL: a child that never exits is KILLED and named, not waited
 
 /* ── 1 · WIRING: the phases the build actually runs through ───────────────────────────────────── */
 
-const EXPENSIVE_PHASES = ["next-build", "compare-assets", "lab-assets", "ask-projections", "ask-assets", "search-index", "forecast-record-assets", "prune-internal-routes"];
+const EXPENSIVE_PHASES = ["next-build", "compare-assets", "lab-assets", "ask-projections", "ask-assets", "search-index", "forecast-record-assets", "results-v2-assets", "prune-internal-routes"];
 
 test("WIRING · the real build script routes every expensive step through the phase runner", () => {
   const build = PKG.scripts.build;
@@ -103,8 +103,8 @@ test("WIRING · the real build script routes every expensive step through the ph
   // every `&&` link is still a gate: no step was turned into `;` or `|| true` while rewriting the chain
   assert.doesNotMatch(build, /\|\|\s*true/, "no step may be made unconditionally green");
   assert.doesNotMatch(build, /;\s*(node|next|npx)\s/, "steps stay chained with && so a failure still stops the build");
-  // Session 13 added forecast-record-assets (the Forecast Record CSVs): ten phases.
-  assert.equal(build.split("&&").length, 10, "ten phases, ten gated links");
+  // Session 13 added forecast-record-assets (the Forecast Record CSVs); Results V2 added results-v2-assets: eleven phases.
+  assert.equal(build.split("&&").length, 11, "eleven phases, eleven gated links");
 });
 
 test("WIRING · nothing in the build weakened the ignore-build gate or added a skip-ci escape", () => {

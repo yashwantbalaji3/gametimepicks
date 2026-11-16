@@ -115,7 +115,11 @@ const ALWAYS_PUBLIC_DATA = ["build-info.json", "search/index.json"];
    publication decision (founder request; ships only with PR #1278's approval): data class PUBLIC_DERIVED — built from the
    same public lane + record the NBA pages render, no prices, no picks; consumers fetch `/data/social/nba/v1/<date>.json`
    by date. Guards: lib/social/nba-social*.test.mjs, lib/live/live-props-public.test.mjs. */
-const ALWAYS_PUBLIC_DATA_DIRS = ["compare/v1/", "lab/v1/", "ask/v1/", "nfl/live-props/", "nfl/reconciliation/", "social/nba/v1/"];
+/* Results V2 pilot: results/v2/ — the Results Day files (gtp.results-day@1, data classes PUBLIC_DERIVED and
+   PUBLIC_EXPERIMENTAL): official prediction vs actual, no price, no book, no NBA range. The /results/day shell assembles
+   `/data/results/v2/<sport>/<date>.{json,csv}` from the date a reader picks. Emitted by emit-results-v2-assets.mjs, which
+   refuses an unsafe file. Guards: lib/results/v2/results-day.test.mjs, lib/live/live-props-public.test.mjs. */
+const ALWAYS_PUBLIC_DATA_DIRS = ["compare/v1/", "lab/v1/", "ask/v1/", "nfl/live-props/", "nfl/reconciliation/", "social/nba/v1/", "results/v2/"];
 const underPublicDir = (rel) => ALWAYS_PUBLIC_DATA_DIRS.some((d) => rel === d.slice(0, -1) || rel.startsWith(d));
 
 if (process.env.NEXT_PUBLIC_INTERNAL_ROUTES === "1") {
