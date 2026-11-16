@@ -190,3 +190,94 @@ export function clusteredIntervals(points, bars, opts = {}) {
 /** Four-decimal rounding for every non-integer number (the share-level receipt's convention). */
 export const r4 = (v) => (typeof v === "number" && !Number.isInteger(v) ? Number(v.toFixed(4)) : v);
 export const stableJson = (obj) => `${JSON.stringify(obj, (_k, v) => r4(v), 1)}\n`;
+
+// ── shared grading mechanics: one copy for the as-served retrospective and the registered forward test ─────────
+
+/** ESPN team abbreviations that nflverse spells differently. */
+export const ESPN_TO_NFLVERSE = Object.freeze({ WSH: "WAS", LAR: "LA" });
+const nflverseTeam = (t) => ESPN_TO_NFLVERSE[t] ?? t;
+
+/**
+ * The last revision of a board that was COMMITTED (git committer time) and GENERATED strictly before kickoff.
+ * `revisions` is git-log order (newest first) as [{commit, committedAt}]; `readDoc(commit)` loads that revision.
+ * A revision committed at/after kickoff is never read. Returns null when no revision qualifies.
+ */
+export function lastPreKickoffRevision(revisions, kickoffUtc, readDoc) {
+  const kickoff = Date.parse(kickoffUtc);
+  if (!Number.isFinite(kickoff)) throw new Error(`lastPreKickoffRevision: unreadable kickoff ${kickoffUtc}`);
+  for (const { commit, committedAt } of revisions ?? []) {
+    if (!(Date.parse(committedAt) < kickoff)) continue;
+    const doc = readDoc(commit);
+    if (!(Date.parse(doc?.generatedAt) < kickoff)) continue;
+    return { commit, committedAt, doc }; // newest first: the first qualifying revision is the last one before kickoff
+  }
+  return null;
+}
+
+/**
+ * Walk-forward rolling-4 / line-proxy / share×volume baselines (the props-v1 evaluator's rule) for every served
+ * receiving-yards row. `games` is the ESPN corpus in kickoff order; `served` maps eventId → served board doc. A
+ * player's state folds only games BEFORE the served event (the served event is read before it is folded).
+ * `shares` = role-shares.mjs {familyNumerator, teamGameTotals, decayedShare}.
+ */
+export function walkForwardBaselines({ games, served, bars, fit, season, shares }) {
+  const { familyNumerator, teamGameTotals, decayedShare } = shares;
+  const state = new Map();
+  const out = new Map(); // eventId|playerId → {rolling4, line, shareVol, stateAtTeam}
+  for (const g of games) {
+    const doc = served.get(String(g.providerEventId));
+    if (doc) {
+      for (const pl of doc.players ?? []) {
+        if (!pl.markets?.[MARKET]) continue;
+        const st = state.get(pl.playerId);
+        const atTeam = Boolean(st && st.team === pl.team);
+        const recent = atTeam ? st.recent : [];
+        const last4 = recent.slice(-4);
+        const rolling4 = last4.length ? last4.reduce((a, b) => a + b, 0) / last4.length : 0;
+        const proxy = last4.length === bars.lineProxyGames ? last4.reduce((a, b) => a + b, 0) / bars.lineProxyGames : null;
+        const obs = atTeam ? st.targets : [];
+        const share = obs.length ? decayedShare({ observations: obs, predictSeason: season, ...bars.shareParams }).share : 0;
+        out.set(`${g.providerEventId}|${pl.playerId}`, { rolling4, line: proxy != null && proxy > 0 ? proxy : null, shareVol: share * fit.passA0 * fit.catchRate * fit.ypr, stateAtTeam: atTeam });
+      }
+    }
+    for (const abbr of new Set((g.players ?? []).map((p) => p.teamAbbr))) {
+      const { totals, rows } = teamGameTotals(g, abbr);
+      for (const r of rows) {
+        let st = state.get(r.playerId);
+        if (!st || st.team !== r.teamAbbr) { st = { team: r.teamAbbr, targets: [], recent: [] }; state.set(r.playerId, st); }
+        if (totals.targets > 0) st.targets.push({ share: familyNumerator(r, "targets") / totals.targets, season: g.season });
+        if (r.recYds != null) st.recent.push(r.recYds);
+      }
+    }
+  }
+  return out;
+}
+
+/** Teams (served or playing) whose nflverse snap sheet for `gameId` is not committed yet. */
+export function snapSheetsMissing({ doc, game, gameId, sheetTeams }) {
+  const [awayAbbr, homeAbbr] = [game?.away, game?.home].map((t) => (t && t.length <= 3 ? t : null));
+  const teamsServed = [...new Set((doc?.players ?? []).map((pl) => pl.team))];
+  return [...new Set([...teamsServed, awayAbbr, homeAbbr].filter(Boolean))].filter((t) => !sheetTeams.has(`${gameId}|${nflverseTeam(t)}`));
+}
+
+/**
+ * Settle one served row (props-v1 participation-true contract): on the stat sheet with a target or carry → SCORED
+ * at his receiving yards; on the sheet with neither → VOID_ZERO_OPPORTUNITY; off the sheet with offensive snaps →
+ * SCORED at 0; off the sheet with no offensive snaps → VOID_NO_OFFENSE_SNAPS; his team has no sheet → EXCLUDED_NO_SHEET.
+ */
+export function settleServedPlayer({ pl, gameId, statRow, sheetTeams, offenseSnaps }) {
+  const espn = String(pl.playerId).replace(/^nfl-athlete-/, "");
+  const r = statRow.get(`${pl.playerId}|${pl.team}`);
+  if (r) return (r.targets ?? 0) > 0 || (r.rushAtt ?? 0) > 0 ? { state: "SCORED", actual: r.recYds ?? 0 } : { state: "VOID_ZERO_OPPORTUNITY", actual: null };
+  if (!sheetTeams.has(`${gameId}|${nflverseTeam(pl.team)}`)) return { state: "EXCLUDED_NO_SHEET", actual: null };
+  return offenseSnaps.has(`${gameId}|${espn}`) ? { state: "SCORED", actual: 0 } : { state: "VOID_NO_OFFENSE_SNAPS", actual: null };
+}
+
+/**
+ * The model a served family names — the board's own record, the same rule the product gate uses
+ * (engine-v2/nfl-boards.mjs modelVersionFor): an explicit `model`, else the `<id>-v<n>` that opens its basis.
+ */
+export function servedModelOf(family) {
+  if (family?.model) return family.model;
+  return /^([a-z0-9-]+-v\d+)\b/i.exec(String(family?.basis ?? ""))?.[1] ?? null;
+}

@@ -42,6 +42,7 @@ import { SHARE_LEVEL_MODEL_ID } from "../../../app/src/lib/sports/nfl/share-leve
 import {
   MARKET, PROPS_V1_FORWARD_RECEIPT_VERSION, readPropsV1PromotionBars, readShareLevelForwardBars, pOverFromQuantiles,
   pointMetrics, judgePropsV1, judgeShareLevel, clusteredIntervals, stableJson,
+  lastPreKickoffRevision, walkForwardBaselines, snapSheetsMissing, settleServedPlayer,
 } from "../../../app/src/lib/sports/nfl/props-v1-forward-receipt.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -112,7 +113,6 @@ for (const line of load("participation2026").split("\n")) {
   sheetTeams.add(`${r.gameId}|${r.team}`);
   if (r.espnId && (r.offenseSnaps ?? 0) > 0) offenseSnaps.add(`${r.gameId}|${r.espnId}`);
 }
-const ESPN_TO_NFLVERSE = { WSH: "WAS", LAR: "LA" };
 
 // ── the served boards: last revision committed (and generated) before kickoff ─────────────────────
 const boardFiles = git("ls-tree", "--name-only", `${REV}:${BOARD_DIR}`).split("\n").filter((f) => /^\d+\.json$/.test(f)).sort();
@@ -122,50 +122,17 @@ for (const f of boardFiles) {
   const p = `${BOARD_DIR}/${f}`;
   const current = readJsonAtRev(p);
   if (current.seasonType !== 2 || !String(current.kickoffUtc ?? "").startsWith(String(SEASON))) { exclusions.notRegularSeason2026.push(current.providerEventId ?? f); continue; }
-  const kickoff = Date.parse(current.kickoffUtc);
-  let chosen = null;
-  for (const line of git("log", "--format=%H %cI", REV, "--", p).split("\n").filter(Boolean)) {
-    const [commit, committedAt] = line.split(" ");
-    if (Date.parse(committedAt) >= kickoff) continue;
-    const doc = JSON.parse(git("show", `${commit}:${p}`));
-    if (!(Date.parse(doc.generatedAt) < kickoff)) continue;
-    chosen = { commit, committedAt, doc };
-    break; // git log is newest first: the first qualifying revision is the last one before kickoff
-  }
+  const revisions = git("log", "--format=%H %cI", REV, "--", p).split("\n").filter(Boolean).map((line) => { const [commit, committedAt] = line.split(" "); return { commit, committedAt }; });
+  const chosen = lastPreKickoffRevision(revisions, current.kickoffUtc, (commit) => JSON.parse(git("show", `${commit}:${p}`)));
   if (!chosen) { exclusions.noPreKickoffRevision.push(current.providerEventId); continue; }
   events.push({ eventId: String(current.providerEventId), ...chosen });
 }
 
 // ── walk-forward baselines (props-v1 evaluator rule) at each served event ─────────────────────────
-const servedEvents = new Map(events.map((e) => [e.eventId, e]));
-const state = new Map();
-const baselineAt = new Map(); // eventId|playerId → {rolling4, line, shareVol, stateAtTeam}
-for (const g of games) {
-  const served = servedEvents.get(String(g.providerEventId));
-  if (served) {
-    for (const pl of served.doc.players ?? []) {
-      if (!pl.markets?.[MARKET]) continue;
-      const st = state.get(pl.playerId);
-      const atTeam = Boolean(st && st.team === pl.team);
-      const recent = atTeam ? st.recent : [];
-      const r4 = recent.slice(-4);
-      const rolling4 = r4.length ? r4.reduce((a, b) => a + b, 0) / r4.length : 0;
-      const proxy = r4.length === V1.lineProxyGames ? r4.reduce((a, b) => a + b, 0) / V1.lineProxyGames : null;
-      const obs = atTeam ? st.targets : [];
-      const share = obs.length ? decayedShare({ observations: obs, predictSeason: SEASON, ...V1.shareParams }).share : 0;
-      baselineAt.set(`${served.eventId}|${pl.playerId}`, { rolling4, line: proxy != null && proxy > 0 ? proxy : null, shareVol: share * FIT.passA0 * FIT.catchRate * FIT.ypr, stateAtTeam: atTeam });
-    }
-  }
-  for (const abbr of new Set((g.players ?? []).map((p) => p.teamAbbr))) {
-    const { totals, rows } = teamGameTotals(g, abbr);
-    for (const r of rows) {
-      let st = state.get(r.playerId);
-      if (!st || st.team !== r.teamAbbr) { st = { team: r.teamAbbr, targets: [], recent: [] }; state.set(r.playerId, st); }
-      if (totals.targets > 0) st.targets.push({ share: familyNumerator(r, "targets") / totals.targets, season: g.season });
-      if (r.recYds != null) st.recent.push(r.recYds);
-    }
-  }
-}
+const baselineAt = walkForwardBaselines({
+  games, served: new Map(events.map((e) => [e.eventId, e.doc])), bars: V1, fit: FIT, season: SEASON,
+  shares: { familyNumerator, teamGameTotals, decayedShare },
+});
 
 // ── settle every served row ───────────────────────────────────────────────────────────────────────
 const COLUMNS = ["week", "eventId", "gameId", "kickoffUtc", "playerId", "name", "team", "participation", "mean", "p10", "p25", "median", "p75", "p90", "state", "actual", "rolling4", "line", "shareVol", "pOver", "pOverLo", "pOverHi", "baselineStateAtTeam"];
@@ -184,9 +151,7 @@ for (const e of [...events].sort((a, b) => (a.doc.kickoffUtc < b.doc.kickoffUtc 
   if (!g || !gameId) { exclusions.notFinal.push(e.eventId); ledger.excluded = "not final in the committed corpus"; continue; }
   /* A whole game waits for both snap sheets (the share-level grader's rule): grading only the stat-sheet players
      would drop every dressed-no-catch zero and bias the sample. */
-  const [awayAbbr, homeAbbr] = [g.away, g.home].map((t) => (t && t.length <= 3 ? t : null));
-  const teamsServed = [...new Set((e.doc.players ?? []).map((pl) => pl.team))];
-  const sheetMissing = [...new Set([...teamsServed, awayAbbr, homeAbbr].filter(Boolean))].filter((t) => !sheetTeams.has(`${gameId}|${ESPN_TO_NFLVERSE[t] ?? t}`));
+  const sheetMissing = snapSheetsMissing({ doc: e.doc, game: g, gameId, sheetTeams });
   if (sheetMissing.length) { exclusions.noSnapSheet.push(e.eventId); ledger.excluded = `no snap sheet yet (${sheetMissing.join(", ")})`; continue; }
   ledger.graded = true;
   ledger.gameId = gameId;
@@ -194,14 +159,7 @@ for (const e of [...events].sort((a, b) => (a.doc.kickoffUtc < b.doc.kickoffUtc 
   for (const pl of [...(e.doc.players ?? [])].sort((a, b) => (a.playerId < b.playerId ? -1 : a.playerId > b.playerId ? 1 : 0))) {
     const d = pl.markets?.[MARKET];
     if (!d) continue;
-    const espn = String(pl.playerId).replace(/^nfl-athlete-/, "");
-    const r = statRow.get(`${pl.playerId}|${pl.team}`);
-    let st;
-    let actual = null;
-    if (r) {
-      if ((r.targets ?? 0) > 0 || (r.rushAtt ?? 0) > 0) { st = "SCORED"; actual = r.recYds ?? 0; } else st = "VOID_ZERO_OPPORTUNITY";
-    } else if (!sheetTeams.has(`${gameId}|${ESPN_TO_NFLVERSE[pl.team] ?? pl.team}`)) st = "EXCLUDED_NO_SHEET";
-    else if (offenseSnaps.has(`${gameId}|${espn}`)) { st = "SCORED"; actual = 0; } else st = "VOID_NO_OFFENSE_SNAPS";
+    const { state: st, actual } = settleServedPlayer({ pl, gameId, statRow, sheetTeams, offenseSnaps });
     tally[st] += 1;
     const b = baselineAt.get(`${e.eventId}|${pl.playerId}`) ?? { rolling4: 0, line: null, shareVol: 0, stateAtTeam: false };
     const po = b.line != null ? pOverFromQuantiles(d, b.line) : null;
