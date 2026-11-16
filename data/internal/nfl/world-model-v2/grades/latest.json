@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-world-model-v2-grades",
  "dataClass": "PRIVATE_RESEARCH",
- "officialStatsGeneratedAt": "2026-11-16T00:47:32Z",
+ "officialStatsGeneratedAt": "2026-11-16T01:19:06Z",
  "games": [
   {
    "providerEventId": "401872980",
@@ -925,7 +925,7 @@
    "simulationId": "0c93bb8d7a534da0",
    "modelVersion": "2.2.0",
    "generatedAt": "2026-11-15T20:11:30Z",
-   "final": false,
+   "final": true,
    "rows": 40
   },
   {
@@ -953,55 +953,55 @@
  ],
  "summary": {
   "passingYards": {
-   "graded": 162,
-   "pending": 6,
+   "graded": 164,
+   "pending": 4,
    "noLine": 2,
-   "mae": 59.8062,
-   "bias": 6.3897,
-   "coverage80": 0.8025,
-   "coverage50": 0.4938,
-   "ladderBrier": 0.2024,
+   "mae": 60.5732,
+   "bias": 4.8733,
+   "coverage80": 0.7988,
+   "coverage50": 0.4878,
+   "ladderBrier": 0.2032,
    "versions": [
     "2.1.0",
     "2.2.0"
    ]
   },
   "rushingYards": {
-   "graded": 519,
-   "pending": 22,
-   "noLine": 91,
-   "mae": 19.4283,
-   "bias": -1.7171,
-   "coverage80": 0.8035,
-   "coverage50": 0.5202,
-   "ladderBrier": 0.1202,
+   "graded": 526,
+   "pending": 14,
+   "noLine": 92,
+   "mae": 19.466,
+   "bias": -1.8204,
+   "coverage80": 0.8042,
+   "coverage50": 0.5228,
+   "ladderBrier": 0.121,
    "versions": [
     "2.1.0",
     "2.2.0"
    ]
   },
   "receivingYards": {
-   "graded": 1216,
-   "pending": 49,
-   "noLine": 145,
-   "mae": 18.8652,
-   "bias": -1.8136,
-   "coverage80": 0.8643,
-   "coverage50": 0.6086,
-   "ladderBrier": 0.1149,
+   "graded": 1226,
+   "pending": 34,
+   "noLine": 150,
+   "mae": 19.0183,
+   "bias": -1.9925,
+   "coverage80": 0.8638,
+   "coverage50": 0.6085,
+   "ladderBrier": 0.1154,
    "versions": [
     "2.1.0",
     "2.2.0"
    ]
   },
   "receptions": {
-   "graded": 1216,
-   "pending": 49,
-   "noLine": 145,
-   "mae": 1.3939,
-   "bias": -0.1302,
-   "coverage80": 0.9334,
-   "coverage50": 0.7278,
+   "graded": 1226,
+   "pending": 34,
+   "noLine": 150,
+   "mae": 1.3956,
+   "bias": -0.1344,
+   "coverage80": 0.9331,
+   "coverage50": 0.7284,
    "ladderBrier": 0.1152,
    "versions": [
     "2.1.0",
@@ -116241,7 +116241,7 @@
      "100": 0.0035
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873063",
@@ -116268,7 +116268,7 @@
      "7": 0.0083
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873063",
@@ -116296,7 +116296,13 @@
      "100": 0.1758
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 74,
+   "absError": 19.700000000000003,
+   "error": -12.32,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.13908551166666666
   },
   {
    "providerEventId": "401873063",
@@ -116323,7 +116329,13 @@
      "7": 0.3129
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 6,
+   "absError": 1,
+   "error": -0.75,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.159562392
   },
   {
    "providerEventId": "401873063",
@@ -116351,7 +116363,13 @@
      "300": 0.1688
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 389,
+   "absError": 165.6,
+   "error": -161.06,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.35256792499999995
   },
   {
    "providerEventId": "401873063",
@@ -116379,7 +116397,13 @@
      "100": 0.0065
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 21,
+   "absError": 9.7,
+   "error": -2.710000000000001,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.017971171666666664
   },
   {
    "providerEventId": "401873063",
@@ -116407,7 +116431,13 @@
      "100": 0.0644
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 62,
+   "absError": 19.5,
+   "error": -14.43,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.193804685
   },
   {
    "providerEventId": "401873063",
@@ -116435,7 +116465,13 @@
      "100": 0.0566
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 161,
+   "absError": 127.2,
+   "error": -120.61,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.5274879633333334
   },
   {
    "providerEventId": "401873063",
@@ -116462,7 +116498,13 @@
      "7": 0.2136
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 4,
+   "absError": 0,
+   "error": 0.3799999999999999,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.121123062
   },
   {
    "providerEventId": "401873063",
@@ -116490,7 +116532,7 @@
      "100": 0.0038
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873063",
@@ -116517,7 +116559,7 @@
      "7": 0.0067
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873063",
@@ -116545,7 +116587,7 @@
      "100": 0.0007
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873063",
@@ -116572,7 +116614,7 @@
      "7": 0.0017
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873063",
@@ -116600,7 +116642,7 @@
      "100": 0
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873063",
@@ -116628,7 +116670,7 @@
      "100": 0.0381
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873063",
@@ -116655,7 +116697,7 @@
      "7": 0.0718
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873063",
@@ -116683,7 +116725,13 @@
      "100": 0.0315
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 49,
+   "absError": 34.6,
+   "error": -24.4,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.173818095
   },
   {
    "providerEventId": "401873063",
@@ -116710,7 +116758,13 @@
      "7": 0.0249
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 2,
+   "absError": 1,
+   "error": -0.21999999999999997,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.02208724
   },
   {
    "providerEventId": "401873063",
@@ -116738,7 +116792,13 @@
      "100": 0.0017
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 0,
+   "absError": 2.3,
+   "error": 9.11,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.002781516666666666
   },
   {
    "providerEventId": "401873063",
@@ -116766,7 +116826,13 @@
      "100": 0.0023
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 78,
+   "absError": 77.3,
+   "error": -69.02,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.7545307366666666
   },
   {
    "providerEventId": "401873063",
@@ -116794,7 +116860,13 @@
      "100": 0.0291
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 31,
+   "absError": 8.7,
+   "error": -1.3999999999999986,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.07248978166666666
   },
   {
    "providerEventId": "401873063",
@@ -116821,7 +116893,13 @@
      "7": 0.0867
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 3,
+   "absError": 1,
+   "error": -0.040000000000000036,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.08900383800000003
   },
   {
    "providerEventId": "401873063",
@@ -116849,7 +116927,13 @@
      "100": 0.0279
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 53,
+   "absError": 25.4,
+   "error": -19.259999999999998,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.21161823999999999
   },
   {
    "providerEventId": "401873063",
@@ -116877,7 +116961,13 @@
      "300": 0.3357
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 343,
+   "absError": 79.80000000000001,
+   "error": -74.85000000000002,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.18426531166666668
   },
   {
    "providerEventId": "401873063",
@@ -116905,7 +116995,13 @@
      "100": 0.0007
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 7,
+   "absError": 0.40000000000000036,
+   "error": 5.33,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.005729243333333334
   },
   {
    "providerEventId": "401873063",
@@ -116933,7 +117029,13 @@
      "100": 0.4435
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 72,
+   "absError": 20.400000000000006,
+   "error": 28.400000000000006,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.11863616666666665
   },
   {
    "providerEventId": "401873063",
@@ -116960,7 +117062,13 @@
      "7": 0.6208
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 7,
+   "absError": 1,
+   "error": 1.0600000000000005,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.052083767999999996
   },
   {
    "providerEventId": "401873063",
@@ -116988,7 +117096,13 @@
      "100": 0.0046
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 10,
+   "absError": 10,
+   "error": 1.33,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.006453753333333333
   },
   {
    "providerEventId": "401873063",
@@ -117015,7 +117129,13 @@
      "7": 0.0083
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 1,
+   "absError": 1,
+   "error": 0,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.004359948000000001
   },
   {
    "providerEventId": "401873063",
@@ -117043,7 +117163,13 @@
      "100": 0.0112
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 26,
+   "absError": 14.2,
+   "error": -6.239999999999998,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.08961071500000001
   },
   {
    "providerEventId": "401873063",
@@ -117070,7 +117196,13 @@
      "7": 0.0348
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 1,
+   "absError": 0,
+   "error": 0.9199999999999999,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.027251891999999993
   },
   {
    "providerEventId": "401873063",
@@ -117098,7 +117230,13 @@
      "100": 0.0684
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 71,
+   "absError": 39.6,
+   "error": -31.590000000000003,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.2727697333333334
   },
   {
    "providerEventId": "401873063",
@@ -117125,7 +117263,13 @@
      "7": 0.1148
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 6,
+   "absError": 3,
+   "error": -2.72,
+   "in80": true,
+   "in50": false,
+   "ladderBrier": 0.362241428
   },
   {
    "providerEventId": "401873063",
@@ -117153,7 +117297,13 @@
      "100": 0.3444
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 63,
+   "absError": 21.200000000000003,
+   "error": 24.64,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.09455697166666667
   },
   {
    "providerEventId": "401873063",
@@ -117181,7 +117331,13 @@
      "100": 0.0065
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 4,
+   "absError": 7.6,
+   "error": 14.18,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.018233256666666663
   },
   {
    "providerEventId": "401873063",
@@ -117208,7 +117364,13 @@
      "7": 0.0463
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 1,
+   "absError": 1,
+   "error": 1.15,
+   "in80": true,
+   "in50": true,
+   "ladderBrier": 0.037426798
   },
   {
    "providerEventId": "401873063",
@@ -117236,7 +117398,13 @@
      "100": 0.18
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 145,
+   "absError": 94.3,
+   "error": -84.9,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.3246992516666667
   },
   {
    "providerEventId": "401873063",
@@ -117263,7 +117431,13 @@
      "7": 0.2412
     }
    },
-   "state": "PENDING"
+   "state": "GRADED",
+   "actual": 11,
+   "absError": 7,
+   "error": -6.33,
+   "in80": false,
+   "in50": false,
+   "ladderBrier": 0.308671244
   },
   {
    "providerEventId": "401873063",
@@ -117291,7 +117465,7 @@
      "100": 0.0023
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873063",
@@ -117318,7 +117492,7 @@
      "7": 0.004
     }
    },
-   "state": "PENDING"
+   "state": "NO_LINE"
   },
   {
    "providerEventId": "401873064",
@@ -119695,6 +119869,6 @@
    "state": "PENDING"
   }
  ],
- "gradedAt": "2026-11-16T00:47:32Z",
- "contentSha256": "0e7c8600ef7bf951b39a46ddb888a39e68db2696b6c1a0b785660a4fad4a5c47"
+ "gradedAt": "2026-11-16T01:19:06Z",
+ "contentSha256": "3046bd211a25e71b1f28ca2635880b5ee0c4012020a1042408b421c020e823f9"
 }
