@@ -567,18 +567,47 @@ test("NFL simulation pages after the week rolls: the headline is the game page's
   }
 });
 
-/* N14 · THEATER FLAG ON (CI builds GTP_NFL_THEATER_PUBLIC=1). The whole simulation page, with the Simulation Theater
-   section mounted, prints no simulated win share or score distribution, and the Theater's Distribution panel (opened
-   from the island) shows only the official forecast's numbers. Live committed data, structural assertions only. */
-test("NFL simulation page, Theater flag ON: the whole page and the Theater's Distribution panel print no simulated win share or histogram", async () => {
-  const { readShadowReceipts, simulationOfRecord } = await import("../sports/nfl/sim-v2/public-receipt.mjs");
+/* N14 · THEATER FLAG ON (CI builds GTP_NFL_THEATER_PUBLIC=1). (a) The Theater's Distribution panel (the desktop tab and
+   phone sheet the island opens) for EVERY game of the frozen Week 10 fixture: it must load and print no simulated win
+   share or distribution, and its only percentages are the official win chances. Never passes having checked nothing. */
+test("NFL Theater Distribution panel (frozen Week 10 fixture): no simulated win share or histogram; only the official win chances", async () => {
   const { nflGameForecastOfRecord } = await import("../sports/nfl/sim-v2/official-sim-inputs.ts");
   const { publicTheaterLoad, defaultSample } = await import("../simulation-theater/public-theater.mjs");
   const { nflTheaterOfficial } = await import("../simulation-theater/loader.mjs");
   const { DistributionPanel } = await import("../../components/simulation-theater/panels.tsx");
+  let panels = 0;
+  for (const board of WEEK10) {
+    const id = String(board.providerEventId);
+    const rec = fx10Receipt(id);
+    if (!rec) continue;
+    const load = publicTheaterLoad({ eventId: id, file: rec.file, receipt: rec.receipt, showable: true, refusals: [] }, nflTheaterOfficial(REPO, id));
+    assert.ok(load.ok, `${board.matchup}: the Theater loads the fixture receipt (${load.error?.code ?? ""})`);
+    const h = renderToStaticMarkup(React.createElement(DistributionPanel, { manifest: load.manifest, sample: defaultSample(load.manifest) }));
+    const panel = text(h);
+    assert.match(panel, /Drive-engine batch · [\d,]+ runs/, `${board.matchup}: the panel rendered`);
+    assert.doesNotMatch(panel, /won \(|% of runs|this run:|Home margin, /, `${board.matchup}: the panel prints no simulated win share or distribution`);
+    assert.doesNotMatch(h, /st-hist/, `${board.matchup}: no total / margin histogram`);
+    // the official card's win chances (the game page's forecast of record, live or archived); none when there is none
+    const s = nflGameForecastOfRecord(id, { publicDir: path.join(APP, "public"), repoRoot: REPO })?.forecast?.forecastSummary;
+    const official = s ? [s.winProbability.away, s.winProbability.home].map((x) => `${(x * 100).toFixed(1)}%`) : [];
+    for (const p of [...panel.matchAll(/\d+\.\d%/g)].map((m) => m[0])) assert.ok(official.includes(p), `${board.matchup}: panel percentage ${p} is an official win chance`);
+    panels += 1;
+  }
+  assert.ok(panels >= 12, `checked ${panels} Distribution panels`);
+});
+
+/* (b) The WHOLE page rendered with the flag ON, for up to three games in the live union. Live data: between a week
+   rollover and the next week's receipts there is no such game, so the test is SKIPPED (reported), never a silent pass. */
+const LIVE_THEATER_IDS = await (async () => {
+  const { readShadowReceipts, simulationOfRecord } = await import("../sports/nfl/sim-v2/public-receipt.mjs");
+  const { nflGameForecastOfRecord } = await import("../sports/nfl/sim-v2/official-sim-inputs.ts");
   const entries = readShadowReceipts(REPO);
-  const ids = [...new Set(entries.map((e) => String(e.receipt?.eventId ?? "")))].filter((id) => simulationOfRecord(entries, id)?.showable && nflGameForecastOfRecord(id, { publicDir: path.join(APP, "public"), repoRoot: REPO })?.source === "live");
-  if (!ids.length) return; // nothing in the live union has a page
+  return [...new Set(entries.map((e) => String(e.receipt?.eventId ?? "")))]
+    .filter((id) => simulationOfRecord(entries, id)?.showable && nflGameForecastOfRecord(id, { publicDir: path.join(APP, "public"), repoRoot: REPO })?.source === "live")
+    .slice(0, 3);
+})();
+test("NFL simulation page, Theater flag ON (live games): the whole page prints no simulated win share or histogram, and the official win chances", { skip: LIVE_THEATER_IDS.length === 0 && "no live-union game has a simulation page in this checkout (week rollover gap)" }, async () => {
+  const { nflGameForecastOfRecord } = await import("../sports/nfl/sim-v2/official-sim-inputs.ts");
   const prev = process.env.GTP_NFL_THEATER_PUBLIC;
   process.env.GTP_NFL_THEATER_PUBLIC = "1";
   try {
@@ -594,28 +623,16 @@ test("NFL simulation page, Theater flag ON: the whole page and the Theater's Dis
       const kids = el.props?.children;
       return kids === undefined ? el : React.cloneElement(el, undefined, ...(Array.isArray(kids) ? await resolve(kids) : [await resolve(kids)]));
     };
-    let pages = 0;
-    for (const id of ids.slice(0, 3)) {
+    assert.ok(LIVE_THEATER_IDS.length >= 1);
+    for (const id of LIVE_THEATER_IDS) {
       const html = renderToStaticMarkup(await resolve(Page({ params: { eventId: id } })));
       assert.ok(html.includes('data-stp-labels=""'), `${id}: the Theater section is mounted with the flag ON`);
-      const f = nflGameForecastOfRecord(id, { publicDir: path.join(APP, "public"), repoRoot: REPO }).forecast;
       const h = text(html);
       assert.doesNotMatch(h, /engine batch, not the forecast|% of runs/i, `${id}: no simulated win share on the page`);
       assert.doesNotMatch(html, /class="st-hist"/, `${id}: no simulated score histogram on the page`);
-      const s = f.forecastSummary;
+      const s = nflGameForecastOfRecord(id, { publicDir: path.join(APP, "public"), repoRoot: REPO }).forecast.forecastSummary;
       for (const p of [s.winProbability.away, s.winProbability.home]) assert.ok(h.includes(`${(p * 100).toFixed(1)}%`), `${id}: official win chance on the page`);
-      // the Distribution panel the island opens (desktop tab / phone sheet)
-      const rec = simulationOfRecord(entries, id);
-      const load = publicTheaterLoad(rec, nflTheaterOfficial(REPO, id));
-      if (load.ok) {
-        const panel = text(renderToStaticMarkup(React.createElement(DistributionPanel, { manifest: load.manifest, sample: defaultSample(load.manifest) })));
-        assert.doesNotMatch(panel, /won \(|% of runs|this run:|Home margin, /, `${id}: the panel prints no simulated win share or distribution`);
-        const pct = [...panel.matchAll(/\d+\.\d%/g)].map((m) => m[0]);
-        for (const p of pct) assert.ok([s.winProbability.away, s.winProbability.home].map((x) => `${(x * 100).toFixed(1)}%`).includes(p), `${id}: panel percentage ${p} is the official win chance`);
-      }
-      pages += 1;
     }
-    assert.ok(pages >= 1);
   } finally {
     if (prev === undefined) delete process.env.GTP_NFL_THEATER_PUBLIC; else process.env.GTP_NFL_THEATER_PUBLIC = prev;
   }
