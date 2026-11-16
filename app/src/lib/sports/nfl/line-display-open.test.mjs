@@ -47,7 +47,7 @@ test("source: the three surfaces call THE rule; no NFL page or component compute
 
   const game = read("app/nfl/game/[eventId]/page.tsx");
   assert.match(game, /import \{ nflOpenLineRecords \} from "@\/lib\/sports\/nfl\/line-display-open\.mjs";/);
-  assert.match(game, /const lineRows = nflOpenLineRecords\(params\.eventId\);\n    const lines = lineRows \? nflEvidenceLines\(\{ board: playerBoard, rows: lineRows, asOf: new Date\(\)\.toISOString\(\) \}\) : null;/);
+  assert.match(game, /const lineRows = nflOpenLineRecords\(params\.eventId\);\n    const lines = lineRows \? nflEvidenceLines\(\{ board: playerBoard, rows: lineRows, asOf: buildAsOfIso\(\) \}\) : null;/);
   assert.match(game, /<NflPlayerEvidencePanel [^>]*lines=\{lines\} \/>/, "the panel gets the rule's rows, as the section selects them");
 
   const trends = read("app/nfl/trends/page.tsx");

@@ -61,6 +61,8 @@ export function buildTrendRows({ boards, evidenceByEvent, now, linesByEvent = {}
           /* null (line gate closed for this game) | NO_LINE | WITHHELD | NOT_BEFORE_KICKOFF, or (observed) COMPLETE | INCOMPLETE | SHORT_SAMPLE */
           lineState: !lv || !rec ? null : lv.state === "OBSERVED" ? rec.state : lv.state,
           line: lv ? lineCaption(lv) : null,
+          /* the caption's parts (trends-wire.mjs packs them separately; never rendered from here) */
+          lineParts: lv && lv.state === "OBSERVED" ? [lv.lineText ?? String(lv.line), lv.sportsbook, lv.captured] : null,
           badge: lv && rec && lv.state === "OBSERVED" ? rec.badge ?? null : null,
           tier: lv && rec && lv.state === "OBSERVED" ? trendTier(rec) : null,
           pushes: lv && rec && lv.state === "OBSERVED" ? rec.pushes ?? 0 : null,

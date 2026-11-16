@@ -4,6 +4,8 @@
  * or computes a number the server did not ship; filters and sorting are presentation only.
  * LINE GATE: a row with `lineState: null` is behind a closed line gate (trends-rows.mjs) and prints nothing about a line;
  * with no open row at all the Line column itself is not rendered.
+ * PAGE WEIGHT: the first INITIAL_ROWS matching rows render (server HTML included); "Show all N rows" renders the rest.
+ * The server HTML is then bounded by INITIAL_ROWS, not by the slate (components/nfl/trends-weight.test.mjs).
  */
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
@@ -22,6 +24,8 @@ const SORTS = {
   below: { label: "Recent results below projection", fn: (a: TrendRow, b: TrendRow) => (a.vsProjection ?? 1e9) - (b.vsProjection ?? 1e9) },
   median: { label: "Last-5 median", fn: (a: TrendRow, b: TrendRow) => (b.median5 ?? -1) - (a.median5 ?? -1) },
 } as const;
+/** rows rendered before "Show all" (a full 16-game default view is ~150 rows ≈ 47 KB of server HTML) */
+export const INITIAL_ROWS = 50;
 const f1 = (v: number | null) => (v == null ? "—" : Number.isInteger(v) ? String(v) : v.toFixed(1));
 const CSS = `
 .nt-f{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
@@ -36,6 +40,7 @@ const CSS = `
 .nt-t td:first-child a{color:var(--vault-text);font-weight:600}
 .nt-g{color:var(--vault-text-faint);font-size:11.5px}
 .nt-up{color:var(--vault-gold-bright)}
+.nt-more{margin-top:8px;min-height:44px;padding:6px 14px;background:var(--vault-bg);color:var(--vault-text);border:1px solid var(--vault-border);border-radius:8px;font-size:13px;cursor:pointer}
 `;
 
 /** `packed` (the page: trends-wire.mjs, the compact RSC payload) or `rows` (tests). */
@@ -49,13 +54,15 @@ export default function NflTrendsTable({ rows: given, packed }: { rows?: TrendRo
   const [market, setMarket] = useState("player_reception_yds");
   const [full, setFull] = useState("5");
   const [sort, setSort] = useState<keyof typeof SORTS>("kickoff");
+  const [all, setAll] = useState(false);
   const shown = useMemo(() => {
     const out = rows.filter((r) => (!game || r.eventId === game) && (!team || r.team === team) && (!market || r.family === market) && (full !== "5" || (r.games5 === 5 && r.noStatLine5 === 0)));
     return sort === "kickoff" ? out : [...out].sort(SORTS[sort].fn);
   }, [rows, game, team, market, full, sort]);
+  const visible = all ? shown : shown.slice(0, INITIAL_ROWS);
   const isTd = market === "anytime_td";
   /* a row whose line caption names a sportsbook is on screen ⇒ the required availability disclosure prints with it */
-  const namesBook = shown.some((r) => r.line);
+  const namesBook = visible.some((r) => r.line);
   /* any row behind an OPEN line gate ⇒ the Line column exists; none ⇒ no line column, no line wording */
   const lineCol = rows.some((r) => r.lineState != null);
   return (
@@ -74,7 +81,7 @@ export default function NflTrendsTable({ rows: given, packed }: { rows?: TrendRo
           <caption className="sr-only">Recent results and official projection by player</caption>
           <thead><tr><th>Player</th><th>Market</th><th>Last 5 (newest first)</th><th>L5 median</th><th>L10 median</th><th>Official projection</th><th>L5 − projection</th>{lineCol ? <th>Line</th> : null}</tr></thead>
           <tbody>
-            {shown.map((r) => (
+            {visible.map((r) => (
               <tr key={`${r.eventId}:${r.playerId}:${r.family}`} data-trend-row={r.playerId}>
                 <td><Link href={`/nfl/game/${r.eventId}/#recent-form`}>{r.name}</Link><div className="nt-g">{r.team} vs {r.opponent}{r.eligibility && r.eligibility !== "ELIGIBLE" ? ` · ${r.eligibility.toLowerCase()}` : ""}</div></td>
                 <td>{r.label}</td>
@@ -91,6 +98,7 @@ export default function NflTrendsTable({ rows: given, packed }: { rows?: TrendRo
           </tbody>
         </table>
       </div>
+      {visible.length < shown.length ? <button type="button" className="nt-more" onClick={() => setAll(true)}>Show all {shown.length} rows</button> : null}
       {namesBook ? <p className="nt-g" data-book-availability-note style={{ marginTop: 6 }}>{BOOK_AVAILABILITY_NOTE}</p> : null}
     </div>
   );

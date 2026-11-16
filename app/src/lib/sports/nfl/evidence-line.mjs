@@ -22,6 +22,7 @@
  */
 import { NFL_FAMILIES, NFL_PROP_LINE_ADAPTER, nflCompareToLine, nflPropLineInputs } from "./prop-line-adapter.mjs";
 import { lineText, quoteTimeEt } from "../../odds/prop-line-view.mjs";
+import { formatLineCaption } from "./trends-wire.mjs";
 
 const STATE_OF_REASON = Object.freeze({ NO_LINE: "NO_LINE", INELIGIBLE: "WITHHELD", CAPTURED_AFTER_KICKOFF: "NOT_BEFORE_KICKOFF" });
 
@@ -49,7 +50,7 @@ export function nflEvidenceLines({ board, rows, asOf }) {
 
 /** "55.5 at DraftKings, captured Nov 15, 12:00 PM ET" for an OBSERVED line view; null otherwise. */
 export function lineCaption(v) {
-  return v?.state === "OBSERVED" ? `${v.lineText ?? v.line} at ${v.sportsbook}, captured ${v.captured}` : null;
+  return v?.state === "OBSERVED" ? formatLineCaption(v.lineText ?? String(v.line), v.sportsbook, v.captured) : null;
 }
 
 /** The sentence a surface prints when no hit rate is shown, by state (OBSERVED ⇒ null). */
