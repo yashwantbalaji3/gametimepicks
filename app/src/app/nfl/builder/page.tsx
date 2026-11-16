@@ -59,7 +59,8 @@ export default function NflBuilderPage() {
       <ScenarioBuilder product="bankBuilder" legs={legs} candidates={candidates} refusedBy={refusedBy} asOf={slate ? "slate" : null} />
       <ScenarioBuilder product="moonshot" legs={legs} candidates={candidates} refusedBy={refusedBy} asOf={slate ? "slate" : null} />
       <p style={{ fontSize: 12.5, color: "var(--vault-text-faint)", margin: 0 }}>
-        See each player&apos;s games on <Link href="/nfl/trends/">NFL Trends</Link>. <Link href="/responsible-use/">Responsible use</Link>
+        {/* The "See each player's games on NFL Trends" link returns once /nfl/trends (PR #1355) is on main. */}
+        <Link href="/responsible-use/">Responsible use</Link>
       </p>
     </div>
   );
