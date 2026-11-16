@@ -112,13 +112,17 @@ function runBuilder() {
     const current = out("data/internal/research/nfl/role-shares-v1/current.json");
     const receipt = out("data/internal/research/nfl/reports/role-shares-v1.json");
     const viewBefore = out("data/internal/research/nfl/role-shares-v1/receiving-yards-view.json");
-    runNode(path.join(T, "app/scripts/nfl/build-nfl-recyds-share-view.mjs"), [], path.join(T, "app"));
+    if (!PRE_FIX) runNode(path.join(T, "app/scripts/nfl/build-nfl-recyds-share-view.mjs"), [], path.join(T, "app"));
     return {
       s1: { current, receipt, view: viewBefore },
       s2: { current: out("data/internal/research/nfl/role-shares-v1/current.json"), receipt: out("data/internal/research/nfl/reports/role-shares-v1.json"), view: out("data/internal/research/nfl/role-shares-v1/receiving-yards-view.json") },
     };
   } finally { fs.rmSync(T, { recursive: true, force: true }); }
 }
+/* FAIL-BEFORE MODE: N8_PIPELINE=base reproduces the pre-fix pipeline exactly as the base branch has it — no view
+   script exists, and the orchestrator's composeRoleRates (an unchanged served-series fingerprint declaration, test
+   (b)/(f)) feeds the engine current.json's shares. Tests (a) and (c) must FAIL in that mode and pass by default. */
+const PRE_FIX = process.env.N8_PIPELINE === "base";
 let built = null;
 /* s1 = what the served pipeline has (the builder's outputs alone); s2 = after the view script ran on the same tree. */
 const builds = () => (built ??= runBuilder());
@@ -158,7 +162,27 @@ function sharedRoleRates(current, team) {
   return { players };
 }
 
-test("(a) Σ listed > 1: s1 scales every receiver by 1/Σroster (the defect); s2 serves the evaluator's raw share", () => {
+/** The target shares the engine receives for receiving yards, on the pipeline under test. */
+function servedReceivingYardsRoleRates(team) {
+  const { s2 } = builds();
+  const cur = JSON.parse(s2.current);
+  if (PRE_FIX) return sharedRoleRates(cur, team);
+  const composed = composeReceivingYardsRoleRates({ base: sharedRoleRates(cur, team), currentTeam: cur.teams[team], viewTeam: JSON.parse(s2.view).teams[team], thresholds: THRESH });
+  assert.equal(composed.state, "READY");
+  return composed.roleRates;
+}
+
+test("(a) Σ listed > 1: the receiving-yards engine receives the evaluator's share for every modelled receiver", () => {
+  const cur = JSON.parse(builds().s2.current);
+  const served = servedReceivingYardsRoleRates("AAA");
+  for (const key of ["WR1", "WR2", "TE1", "RB1"]) {
+    const raw = Number(evaluatorShare(cur, key).toFixed(8));
+    const got = served.players.find((p) => p.playerId === `nfl-athlete-${AAA[key]}`)?.targetShare;
+    assert.equal(got, raw, `${key}: served ${got} vs evaluated ${raw} (ratio ${(raw / got).toFixed(4)})`);
+  }
+});
+
+test("(a) the defect, reproduced: the pre-fix path serves raw/Σroster; the share view restores the raw share", () => {
   const { s1, s2 } = builds();
   const cur = JSON.parse(s2.current);
   const view = JSON.parse(s2.view);
@@ -266,6 +290,16 @@ test("(b) no change when nothing was normalised: the view run reproduces the sha
 });
 
 test("(c) team coherence: Σ shares + residual = 1, Σ expected targets ≤ pass attempts, Σ allocated ≤ total every game", () => {
+  /* on the pipeline under test: the engine's modelled receivers carry the evaluated target mass (Σ raw × attempts),
+     never more than the attempts, and the rest is an explicit residual */
+  {
+    const cur = JSON.parse(builds().s2.current);
+    const served = servedReceivingYardsRoleRates("AAA").players.filter((p) => p.families.has("targets"));
+    const evaluatedMass = ["WR1", "WR2", "TE1", "RB1"].reduce((a, k) => a + Number(evaluatorShare(cur, k).toFixed(8)), 0);
+    const servedMass = served.reduce((a, p) => a + p.targetShare, 0);
+    assert.ok(servedMass <= 1 + 1e-12, "Σ modelled shares ≤ 1");
+    assert.ok(Math.abs(servedMass * 33.19 - evaluatedMass * 33.19) < 1e-6, `Σ expected targets ${(servedMass * 33.19).toFixed(3)} vs evaluated ${(evaluatedMass * 33.19).toFixed(3)} of 33.19 attempts (ratio ${(evaluatedMass / servedMass).toFixed(4)})`);
+  }
   const { s2 } = builds();
   const view = JSON.parse(s2.view);
   for (const team of ["AAA", "BBB"]) {
