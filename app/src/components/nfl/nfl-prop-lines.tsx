@@ -24,6 +24,8 @@ import { NFL_LINE_DISPLAY } from "@/lib/sports/nfl/line-display.mjs";
 import { NFL_FAMILIES, NFL_PROP_LINE_ADAPTER, nflPropLineInputs } from "@/lib/sports/nfl/prop-line-adapter.mjs";
 import { buildPropLineViews } from "@/lib/odds/prop-line-view.mjs";
 import { nflPublicLineRecords } from "@/lib/sports/nfl/public-line-records.mjs";
+import { nflOpenLineRecords } from "@/lib/sports/nfl/line-display-open.mjs";
+import { buildAsOfIso } from "@/lib/build-asof";
 import { displayAuthorization, publicDirectionGate } from "@/lib/odds/display-authorization.mjs";
 import { BOOK_AVAILABILITY_NOTE } from "@/lib/sports/odds/eligible-operators.mjs";
 
@@ -56,6 +58,9 @@ export default function NflPropLines({ board, offers = null, asOf, display = NFL
   const families = publishedNflFamilies(b);
   if (!families.length) return null;
   const at = asOf || new Date().toISOString();
+  /* direct callers only (tests, the private evidence render): the page reaches this component through withNflPropLines,
+     which hands in `offers` from THE rule (line-display-open.mjs). This read sits after the same `display.public` check,
+     so it is that rule; main's switch-off guard pins this literal call after the gate. */
   const rows = offers ?? (b.providerEventId ? nflPublicLineRecords(b.providerEventId) : null);
   // No readable artifact for this game (no key, another key, none published) → NOTHING (byte-identical to switch-off).
   if (!rows) return null;
@@ -72,11 +77,14 @@ export default function NflPropLines({ board, offers = null, asOf, display = NFL
  * an always-present <NflPropLines/> slot, even one rendering null, would shift the useId of every later sibling. With the
  * switch on and an artifact, `node` is followed by the section (handed the rows already read: one decrypt per page).
  */
-export function withNflPropLines(node: React.ReactNode, board: BoardLike | (() => BoardLike), display: { public: boolean } = NFL_LINE_DISPLAY): React.ReactNode {
+/* `asOf`: the comparison instant — the build's ONE instant (lib/build-asof.ts), the same one the game page's Recent form
+   panel and /nfl/trends select their lines at, so a line near the 12 h freshness edge is compared on all or none. */
+export function withNflPropLines(node: React.ReactNode, board: BoardLike | (() => BoardLike), display: { public: boolean } = NFL_LINE_DISPLAY, asOf: string = buildAsOfIso()): React.ReactNode {
   if (!display.public) return node;
   const b = typeof board === "function" ? board() : board;
   if (!b || !publishedNflFamilies(b).length || !b.providerEventId) return node;
-  const rows = nflPublicLineRecords(b.providerEventId);
+  /* THE rule (lib/sports/nfl/line-display-open.mjs): switch on AND a readable artifact; its rows, read once per game */
+  const rows = nflOpenLineRecords(b.providerEventId, display);
   if (!rows) return node;
-  return <>{node}<NflPropLines board={b} offers={rows} fromArtifact display={display} /></>;
+  return <>{node}<NflPropLines board={b} offers={rows} fromArtifact display={display} asOf={asOf} /></>;
 }

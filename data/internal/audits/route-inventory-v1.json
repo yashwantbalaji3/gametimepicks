@@ -501,6 +501,15 @@
    "built": "FAMILY (16 generated page(s))"
   },
   {
+   "route": "/nfl/trends",
+   "classification": "public",
+   "owner": "product",
+   "purpose": "NFL Trends first slice (founder directive 2026-11-15, P2): every player on the upcoming official player boards, each published market — actual last-5 results, last-5 / last-10 medians beside the official projection, filtered in the browser over build-time rows; a record against a sportsbook line only where one was captured before kickoff, never an invented line; history, not a pick",
+   "dataOwner": "public/data/nfl/player-board/<eventId>.json + data/internal/research/nfl/player-evidence/latest.json (build-time server reads via player-evidence-file.mjs)",
+   "freshness": "static at build; rows cover only boards the evidence file covers (the upcoming slate)",
+   "built": "UNVERIFIED (no export provided)"
+  },
+  {
    "route": "/nfl/week/[key]",
    "classification": "public",
    "owner": "product",
