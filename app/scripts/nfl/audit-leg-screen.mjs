@@ -10,7 +10,7 @@ import { fileURLToPath } from "node:url";
 import { familiesFrom, legCandidates } from "../../src/lib/sports/nfl/leg-candidates.mjs";
 import { readEvidenceFor } from "../../src/lib/sports/nfl/player-evidence-file.mjs";
 import { AMOUNTS, GOAL_CAP, buildScenario, screenLegs } from "../../src/lib/sports/nfl/leg-screen.mjs";
-import { ELIGIBLE_OPERATOR_KEYS } from "../../src/lib/sports/odds/eligible-operators.mjs";
+import { isEligibleProvider } from "../../src/lib/sports/odds/eligible-operators.mjs";
 import { sanitizePlayerBoard } from "../../src/lib/sports/odds/public-offer-sanitizer.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
@@ -23,8 +23,8 @@ for (const f of fs.readdirSync(dir).filter((x) => /^\d+\.json$/.test(x))) {
   if (!Object.keys(ev).length) continue;
   boards.push(b); evidenceByEvent[String(b.providerEventId)] = ev;
 }
-const cands = legCandidates({ boards, evidenceByEvent });
-const r = screenLegs(cands, { families, eligibleBooks: [...ELIGIBLE_OPERATOR_KEYS] });
+const cands = legCandidates({ boards, evidenceByEvent, now: new Date().toISOString() }); // read-only audit: the live clock
+const r = screenLegs(cands, { families, isEligibleBook: isEligibleProvider });
 const scen = {};
 for (const [product, amounts] of Object.entries(AMOUNTS)) for (const stake of amounts) { const s = buildScenario(r.passed, { stake, goal: GOAL_CAP[product] }); scen[`${product}:${stake}`] = s.state === "BUILT" ? `BUILT ${s.legs.length} legs ×${s.multiple}` : `${s.state} (${s.reason})`; }
 console.log(JSON.stringify({ candidates: cands.length, passed: r.passed.length, byTier: { "5/5": r.passed.filter((l) => l.tier === "5/5").length, "4/5": r.passed.filter((l) => l.tier === "4/5").length }, refusedBy: r.reasons, scenarios: scen }, null, 2));

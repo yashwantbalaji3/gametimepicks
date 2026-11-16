@@ -19,13 +19,18 @@ test("empty: exact refusal reasons, no amount-driven invention", () => {
   assert.doesNotMatch(html, /Illustrative gross return/);
 });
 
-test("built across games: gross return from prices, independence stated; any miss loses all", () => {
+test("built across games: gross return from prices, independence stated; any miss loses all", async () => {
   const html = renderToStaticMarkup(React.createElement(SB, { product: "bankBuilder", legs: [leg("a", "e1", "A", -150, "5/5", 0.6), leg("b", "e2", "B", -150, "5/5", 0.6)], candidates: 2, refusedBy: {}, asOf: "slate" }));
   assert.match(html, /data-scenario-state="BUILT"/);
   assert.match(html, /\$139</, "$50 × (5/3)² = $138.89, shown to the dollar above $100");
   assert.match(html, /Model chance all legs win: 36\.0%/);
   assert.match(html, /Any single losing leg loses the whole \$50\b/);
   assert.match(html, /history, not a probability/);
+  // every leg names its line, book and ET capture time; a printed book carries the availability disclosure
+  assert.equal((html.match(/4\.5 at draftkings, captured Nov 15, 7:00 AM ET/g) ?? []).length, 2);
+  assert.doesNotMatch(html, /captured \d\d:\d\dZ/, "no bare UTC clock time");
+  const { BOOK_AVAILABILITY_NOTE } = await import("../../lib/sports/odds/eligible-operators.mjs");
+  assert.ok(html.includes(BOOK_AVAILABILITY_NOTE), "book names print with BOOK_AVAILABILITY_NOTE");
 });
 
 test("same game: no combined chance; Moonshot copy names the long shot", () => {

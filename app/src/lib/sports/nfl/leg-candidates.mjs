@@ -5,9 +5,16 @@
  */
 import { FAMILY_STAT } from "./player-evidence.mjs";
 
-export function legCandidates({ boards, evidenceByEvent }) {
+/** Boards that have not kicked off at `now` (unreadable kickoff or now ⇒ excluded, fail closed). Same rule as Trends. */
+export function upcomingBoards(boards, now) {
+  const t = Date.parse(now ?? "");
+  return (boards ?? []).filter((b) => Number.isFinite(t) && Number.isFinite(Date.parse(b?.kickoffUtc ?? "")) && Date.parse(b.kickoffUtc) > t);
+}
+
+/** Only boards that have not kicked off at `now` (the build instant) supply candidates: a played game never supplies a leg. */
+export function legCandidates({ boards, evidenceByEvent, now }) {
   const out = [];
-  for (const b of boards) {
+  for (const b of upcomingBoards(boards, now)) {
     const ev = evidenceByEvent[String(b.providerEventId)] ?? {};
     for (const p of b.players ?? []) for (const [fam, m] of Object.entries(p.markets ?? {})) {
       if (!FAMILY_STAT[fam]) continue;

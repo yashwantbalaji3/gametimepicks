@@ -9,6 +9,8 @@
  */
 import React, { useMemo, useState } from "react";
 import { AMOUNTS, GOAL_CAP, buildScenario } from "@/lib/sports/nfl/leg-screen.mjs";
+import { etStamp } from "@/lib/et-stamp.mjs";
+import { BOOK_AVAILABILITY_NOTE } from "@/lib/sports/odds/eligible-operators.mjs";
 
 export type ScreenedLeg = {
   playerId: string; name: string | null; team: string; eventId: string; family: string; side: "over" | "under";
@@ -55,6 +57,11 @@ const CSS = `
 .sb td:first-child{text-align:right;font-variant-numeric:tabular-nums;color:var(--vault-text)}
 `;
 
+/** "4.5 at draftkings, captured Nov 15, 7:00 AM ET": the same caption shape as lib/sports/nfl/evidence-line.mjs, with the
+ *  shared ET stamp. A leg exists only when its capture preceded kickoff (leg-screen rule 1). */
+const legLine = (l: { line: number | null; sportsbook: string | null; capturedAt: string | null }) =>
+  `${l.line ?? "?"} at ${l.sportsbook ?? "?"}, captured ${etStamp(l.capturedAt) ?? "at an unknown time"}`;
+
 export default function ScenarioBuilder({ product, legs, candidates, refusedBy, asOf }: { product: Product; legs: ScreenedLeg[]; candidates: number; refusedBy: Record<string, number>; asOf: string | null }) {
   const cfg = PRODUCT[product];
   const amounts = AMOUNTS[product] as readonly number[];
@@ -96,11 +103,12 @@ export default function ScenarioBuilder({ product, legs, candidates, refusedBy, 
             const full = legs.find((x) => key(x) === `${l.playerId}|${l.family}|${l.side}`)!;
             return (
               <div className="sb-leg" key={`${l.playerId}|${l.family}|${l.side}`} data-leg={l.playerId}>
-                <div><b>{l.name ?? l.playerId}</b> <small>{l.team}</small><br />{l.side} {l.line} {FAMILY[l.family] ?? l.family} <small>· {am(l.price)} ({l.sportsbook}, captured {l.capturedAt?.slice(11, 16) ?? "?"}Z)</small><br /><small>Last 5 vs this line: {l.tier} (history, not a probability){l.probability != null ? ` · model ${(l.probability * 100).toFixed(0)}%` : " · no qualified model probability"}</small></div>
+                <div><b>{l.name ?? l.playerId}</b> <small>{l.team}</small><br />{l.side} {l.line} {FAMILY[l.family] ?? l.family} <small>· {am(l.price)} · {legLine(l)}</small><br /><small>Last 5 vs this line: {l.tier} (history, not a probability){l.probability != null ? ` · model ${(l.probability * 100).toFixed(0)}%` : " · no qualified model probability"}</small></div>
                 <button type="button" className="sb-x" onClick={() => setRemoved((r) => new Set(r).add(key(full)))} aria-label={`Remove ${l.name ?? l.playerId} and rebuild`}>Remove</button>
               </div>
             );
           })}
+          <p className="sb-mute" data-book-availability-note>{BOOK_AVAILABILITY_NOTE}</p>
           <p className="sb-mute">Any single losing leg loses the whole {usd(stake)}. A player who does not play voids or loses the leg depending on the book&apos;s rules.</p>
         </div>
       ) : (

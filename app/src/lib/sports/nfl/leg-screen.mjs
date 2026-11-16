@@ -21,30 +21,28 @@ import { lineRecord, trendTier } from "./player-evidence.mjs";
 export const AMOUNTS = Object.freeze({ bankBuilder: [50, 100, 250, 500], moonshot: [10, 20, 25, 50] });
 export const GOAL_CAP = Object.freeze({ bankBuilder: 5000, moonshot: 1000 });
 
-/** Book identity for the allowlist: lowercase letters and digits only ("ESPN BET" ≡ "espnbet"). Non-string ⇒ null. */
-const bookKey = (b) => (typeof b === "string" ? b.toLowerCase().replace(/[^a-z0-9]/g, "") || null : null);
-
 export const decimalOf = (american) => (american > 0 ? 1 + american / 100 : american < 0 ? 1 + 100 / -american : null);
 
 /**
  * @param {Array<{ playerId: string, name?: string, team: string, eventId: string, kickoffUtc?: string, family: string, side?: "over"|"under",
  *   line?: { line: number, price?: number|null, sportsbook?: string, capturedAt?: string } | null,
  *   eligibility?: string, modelProbability?: number|null, log: any[] }>} candidates
- * @param {{ families: Record<string, { eligibleForOfficialProducts?: boolean, gtpProbability?: boolean }>, eligibleBooks?: string[] | null }} ctx
- *   `eligibleBooks` is REQUIRED in practice: without an allowlist every candidate is refused (NO_ELIGIBLE_BOOK_LIST).
+ * @param {{ families: Record<string, { eligibleForOfficialProducts?: boolean, gtpProbability?: boolean }>, isEligibleBook?: ((sportsbook: any) => boolean) | null }} ctx
+ *   `isEligibleBook` is REQUIRED in practice and is the shared rule (eligible-operators.mjs isEligibleProvider): one
+ *   matching rule for every surface. Without it every candidate is refused (NO_ELIGIBLE_BOOK_LIST).
  */
-export function screenLegs(candidates, { families, eligibleBooks = null }) {
+export function screenLegs(candidates, { families, isEligibleBook = null }) {
   const passed = [], rejected = [];
   const reasons = {};
   const reject = (c, code) => { reasons[code] = (reasons[code] ?? 0) + 1; rejected.push({ playerId: c.playerId, family: c.family, eventId: c.eventId, code }); };
   /* fail closed: no allowlist means no leg (never "every book is fine") */
-  const allowed = Array.isArray(eligibleBooks) ? new Set(eligibleBooks.map(bookKey).filter(Boolean)) : null;
+  const allowed = typeof isEligibleBook === "function" ? isEligibleBook : null;
   for (const c of candidates) {
     const side = c.side ?? "over";
     if (!allowed) { reject(c, "NO_ELIGIBLE_BOOK_LIST"); continue; }
     if (!c.line || !Number.isFinite(c.line.line)) { reject(c, "NO_OBSERVED_LINE"); continue; }
     if (c.line.price == null || decimalOf(c.line.price) == null) { reject(c, "NO_OBSERVED_PRICE"); continue; }
-    if (!allowed.has(bookKey(c.line.sportsbook))) { reject(c, "INELIGIBLE_BOOK"); continue; }
+    if (allowed(c.line.sportsbook) !== true) { reject(c, "INELIGIBLE_BOOK"); continue; }
     /* rule 1: captured BEFORE kickoff — a missing or unreadable instant on either side fails closed */
     const cap = Date.parse(c.line.capturedAt ?? ""), kick = Date.parse(c.kickoffUtc ?? "");
     if (!Number.isFinite(cap) || !Number.isFinite(kick) || !(cap < kick)) { reject(c, "LINE_NOT_CAPTURED_BEFORE_KICKOFF"); continue; }

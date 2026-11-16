@@ -9,11 +9,12 @@ import path from "node:path";
 import Link from "next/link";
 
 import ScenarioBuilder, { type ScreenedLeg } from "@/components/products/scenario-builder";
-import { familiesFrom, legCandidates } from "@/lib/sports/nfl/leg-candidates.mjs";
+import { familiesFrom, legCandidates, upcomingBoards } from "@/lib/sports/nfl/leg-candidates.mjs";
 import { screenLegs } from "@/lib/sports/nfl/leg-screen.mjs";
 import { readEvidenceFor } from "@/lib/sports/nfl/player-evidence-file.mjs";
 import { sanitizePlayerBoard } from "@/lib/sports/odds/public-offer-sanitizer.mjs";
-import { ELIGIBLE_OPERATOR_KEYS } from "@/lib/sports/odds/eligible-operators.mjs";
+import { isEligibleProvider } from "@/lib/sports/odds/eligible-operators.mjs";
+import { buildAsOfIso } from "@/lib/build-asof";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 
 export const metadata = withRouteMetadata("/nfl/builder/", {
@@ -23,8 +24,8 @@ export const metadata = withRouteMetadata("/nfl/builder/", {
 });
 
 function load() {
-  /* the build instant: only games that have not kicked off can supply a scenario leg */
-  const nowMs = Date.now();
+  /* the export's one build instant (lib/build-asof.ts): only games that have not kicked off can supply a scenario leg */
+  const now = buildAsOfIso();
   const read = (p: string) => { try { return JSON.parse(fs.readFileSync(p, "utf8")); } catch { return null; } };
   const dir = path.join(process.cwd(), "public/data/nfl/player-board");
   const root = path.join(process.cwd(), "..");
@@ -36,17 +37,16 @@ function load() {
     /* the same loader-boundary sanitiser as the game page: an ineligible operator's offer is withheld, never a leg */
     const b = sanitizePlayerBoard(read(path.join(dir, f)));
     if (!b) continue;
-    if (!(Date.parse(b.kickoffUtc ?? "") > nowMs)) continue; // kicked off (or unreadable kickoff) ⇒ not a scenario game
     const ev = readEvidenceFor(root, b.providerEventId);
     if (!Object.keys(ev).length) continue;
     boards.push(b); evidenceByEvent[String(b.providerEventId)] = ev;
   }
   const families = familiesFrom(read(path.join(process.cwd(), "public/data/nfl/family-eligibility.json")));
-  const cands = legCandidates({ boards, evidenceByEvent });
-  const r = screenLegs(cands as any[], { families, eligibleBooks: [...ELIGIBLE_OPERATOR_KEYS] });
+  const cands = legCandidates({ boards, evidenceByEvent, now });
+  const r = screenLegs(cands as any[], { families, isEligibleBook: isEligibleProvider });
   /* ship only what the card prints: no game logs, no refused legs */
   const legs = r.passed.map((l: any) => ({ playerId: l.playerId, name: l.name, team: l.team, eventId: l.eventId, family: l.family, side: l.side, line: l.line, tier: l.tier, decimal: l.decimal, probability: l.probability })) as ScreenedLeg[];
-  return { legs, candidates: cands.length, refusedBy: r.reasons as Record<string, number>, slate: boards.length };
+  return { legs, candidates: cands.length, refusedBy: r.reasons as Record<string, number>, slate: upcomingBoards(boards, now).length };
 }
 
 export default function NflBuilderPage() {
