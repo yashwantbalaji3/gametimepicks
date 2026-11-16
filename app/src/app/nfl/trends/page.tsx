@@ -5,8 +5,8 @@
  *
  * Line-based records (5/5, 4/5 against an observed sportsbook line) appear only where a line was captured before
  * kickoff. When none was, the page says so instead of inventing a comparison line.
- * LINE GATE (per game, the game page's own rule): line content only for a game where NFL_LINE_DISPLAY.public AND a line
- * artifact is readable (nflPublicLineRecords). With no game open the page prints no line column and no line sentence.
+ * LINE GATE (per game): THE one rule, lib/sports/nfl/line-display-open.mjs nflLineDisplayOpen (switch on AND a readable
+ * line artifact for the game). With no game open the page prints no line column and no line sentence.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -18,18 +18,7 @@ import { sanitizePlayerBoard } from "@/lib/sports/odds/public-offer-sanitizer.mj
 import { readEvidenceFor } from "@/lib/sports/nfl/player-evidence-file.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { buildAsOfIso } from "@/lib/build-asof";
-import { NFL_LINE_DISPLAY } from "@/lib/sports/nfl/line-display.mjs";
-import { nflPublicLineRecords } from "@/lib/sports/nfl/public-line-records.mjs";
-
-/** The game page's line gate, per game (one artifact read per game per build). */
-function nflLineGate(display: { public: boolean } = NFL_LINE_DISPLAY) {
-  const seen = new Map<string, boolean>();
-  return (eventId: string) => {
-    if (!display.public) return false;
-    if (!seen.has(eventId)) seen.set(eventId, nflPublicLineRecords(eventId) != null);
-    return seen.get(eventId) === true;
-  };
-}
+import { nflLineDisplayOpen } from "@/lib/sports/nfl/line-display-open.mjs";
 
 export const metadata = withRouteMetadata("/nfl/trends/", {
   title: "NFL player trends: last 5 games vs the official projection · GameTime Picks",
@@ -55,7 +44,7 @@ function load(): { rows: TrendRow[]; linesCaptured: number; linesOpen: boolean; 
       evidenceByEvent[String(b.providerEventId)] = ev;
     } catch { /* unreadable board ⇒ skipped */ }
   }
-  const rows = buildTrendRows({ boards, evidenceByEvent, now, lineGate: nflLineGate() }) as TrendRow[];
+  const rows = buildTrendRows({ boards, evidenceByEvent, now, lineGate: (eventId: string) => nflLineDisplayOpen(eventId) }) as TrendRow[];
   return { rows, linesCaptured: rows.filter((r) => r.lineState != null && OBSERVED_LINE_STATES.includes(r.lineState)).length, linesOpen: rows.some((r) => r.lineState != null), played: boards.length - upcomingBoards(boards, now).length };
 }
 

@@ -86,8 +86,7 @@ import { withNflPropLines } from "@/components/nfl/nfl-prop-lines";
 import NflPlayerEvidencePanel from "@/components/nfl/player-evidence-panel";
 import { readEvidenceFor } from "@/lib/sports/nfl/player-evidence-file.mjs";
 import { evidenceProjections } from "@/lib/sports/nfl/evidence-projections.mjs";
-import { NFL_LINE_DISPLAY } from "@/lib/sports/nfl/line-display.mjs";
-import { nflPublicLineRecords } from "@/lib/sports/nfl/public-line-records.mjs";
+import { nflLineDisplayOpen } from "@/lib/sports/nfl/line-display-open.mjs";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -221,9 +220,9 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
     if (!playerBoard) return null;
     const evidence = readEvidenceFor(path.join(process.cwd(), ".."), params.eventId);
     if (!Object.keys(evidence).length) return null;
-    /* the panel's line content (line state, hit rate, book) follows THIS page's line gate — the same one withNflPropLines
-       applies: the switch on AND a readable line artifact for the game. Otherwise the panel is history only. */
-    const lineDisplay = { public: NFL_LINE_DISPLAY.public && nflPublicLineRecords(params.eventId) != null };
+    /* the panel's line content (line state, hit rate, book) follows THE one rule withNflPropLines applies too
+       (lib/sports/nfl/line-display-open.mjs: switch on AND a readable line artifact). Otherwise history only. */
+    const lineDisplay = { public: nflLineDisplayOpen(params.eventId) };
     return (
       <details id="recent-form" className="mt-3" style={{ border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px", scrollMarginTop: 72 }}>
         <summary style={{ cursor: "pointer", fontSize: 14, fontWeight: 600, color: "var(--vault-text)", minHeight: 44, display: "flex", alignItems: "center" }}>Recent form · actual last 5 and last 10 games</summary>

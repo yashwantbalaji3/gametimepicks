@@ -4,10 +4,11 @@
  * small bar chart, the sample and its gaps, and — only while the NFL line display is on — the observed-line state.
  *
  * LINE GATE: every line-related output (the line-state sentence, a hit rate, a line value, a sportsbook name,
- * BOOK_AVAILABILITY_NOTE) follows `display` (default NFL_LINE_DISPLAY, the NflPropLines pattern). While
- * `!display.public` the panel prints the game history, chart, projection band and sample/gap summaries ONLY: no
- * line content and no line wording at all (nfl-prop-lines-switch-off.test.mjs reads the rendered game page). The game
- * page passes the effective gate of its own line section — switch on AND a readable line artifact for the game.
+ * BOOK_AVAILABILITY_NOTE) follows `display`. While `!display.public` the panel prints the game history, chart,
+ * projection band and sample/gap summaries ONLY: no line content and no line wording at all
+ * (nfl-prop-lines-switch-off.test.mjs reads the rendered game page). The game page passes THE one rule for the game,
+ * lib/sports/nfl/line-display-open.mjs nflLineDisplayOpen (switch on AND a readable line artifact). The default is
+ * CLOSED: the switch alone is not the rule (the panel has no event id to finish it), so it is never approximated here.
  *
  * It never invents a comparison line: with no sportsbook line captured before kickoff it says so and shows no hit rate.
  * Every hit rate names the line value, the sportsbook and the capture time (ET) — lib/sports/nfl/evidence-line.mjs.
@@ -21,7 +22,6 @@ import React from "react";
 import { FAMILY_STAT, lineRecord, summary, valueOf } from "@/lib/sports/nfl/player-evidence.mjs";
 import { NO_RATE_TEXT, lineCaption, lineView } from "@/lib/sports/nfl/evidence-line.mjs";
 import { BOOK_AVAILABILITY_NOTE } from "@/lib/sports/odds/eligible-operators.mjs";
-import { NFL_LINE_DISPLAY } from "@/lib/sports/nfl/line-display.mjs";
 
 export type EvidenceEntry = { eventId: string; week: number; date: string; team: string; opponent: string | null; homeAway: "H" | "A"; state: "STAT_LINE" | "NO_STAT_LINE"; stats?: Record<string, number> };
 /** One row the game page shows for (player, family) — evidence-projections.mjs. */
@@ -33,6 +33,9 @@ const ORDER = ["player_pass_yds", "player_rush_yds", "player_reception_yds", "pl
 const fmt = (v: number | null | undefined, d = 0) => (v == null ? "—" : Number.isInteger(v) ? String(v) : v.toFixed(d));
 const shortDate = (iso: string) => { const [, m, d] = iso.split("-"); return `${Number(m)}/${Number(d)}`; };
 const r1 = (v: number) => Math.round(v * 10) / 10;
+
+/** Fail closed: the caller passes { public: nflLineDisplayOpen(eventId) } (line-display-open.mjs). */
+const LINES_CLOSED = Object.freeze({ public: false });
 
 export const EV_CSS = `
 .ev-intro{font-size:12.5px;color:var(--vault-text-mute);margin:0 0 8px}
@@ -118,7 +121,7 @@ function FamilyEvidence({ log, family, m, chart, kickoffUtc, lines }: { log: Evi
   );
 }
 
-export default function NflPlayerEvidencePanel({ players, evidence, projections, kickoffUtc, sourceNote, display = NFL_LINE_DISPLAY }: { players: EvidencePlayer[]; evidence: Record<string, EvidenceEntry[]>; projections: Record<string, Record<string, EvidenceProjection>>; kickoffUtc: string | null; sourceNote: string; display?: { public: boolean } }) {
+export default function NflPlayerEvidencePanel({ players, evidence, projections, kickoffUtc, sourceNote, display = LINES_CLOSED }: { players: EvidencePlayer[]; evidence: Record<string, EvidenceEntry[]>; projections: Record<string, Record<string, EvidenceProjection>>; kickoffUtc: string | null; sourceNote: string; display?: { public: boolean } }) {
   /* families shown: the page's projected families for the player; a board player the page projects in nothing keeps his
      board families, each marked "no official projection" (history only, never a hit rate from an unshown line) */
   const famsOf = (p: EvidencePlayer) => { const own = ORDER.filter((k) => projections[p.playerId]?.[k]); return own.length ? own : ORDER.filter((k) => p.markets?.[k]); };

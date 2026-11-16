@@ -146,6 +146,5 @@ test("the /nfl/trends page on committed data (no line key ⇒ every game closed)
   assert.doesNotMatch(html, FORBIDDEN);
   assert.doesNotMatch(html, /sportsbook|hit rate against a line|record against the line|made-up line|<th>Line<\/th>|data-book-availability-note/i);
   const src = (await import("node:fs")).readFileSync(new URL("../../../app/nfl/trends/page.tsx", import.meta.url), "utf8");
-  assert.match(src, /if \(!display\.public\) return false;\n    if \(!seen\.has\(eventId\)\) seen\.set\(eventId, nflPublicLineRecords\(eventId\) != null\);/, "the page's gate is the switch AND a readable artifact");
-  assert.match(src, /lineGate: nflLineGate\(\)/);
+  assert.match(src, /lineGate: \(eventId: string\) => nflLineDisplayOpen\(eventId\) \}\)/, "the page's per-game gate is THE rule (line-display-open.mjs)");
 });
