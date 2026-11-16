@@ -13,6 +13,8 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { loadEvidenceFile } from "../../lib/sports/nfl/player-evidence-file.mjs";
+import { NFL_LINE_DISPLAY } from "../../lib/sports/nfl/line-display.mjs";
+import { nflPublicLineRecords } from "../../lib/sports/nfl/public-line-records.mjs";
 
 const APP = process.cwd();
 const GAME_OUT = path.join(APP, "out", "nfl", "game");
@@ -33,4 +35,23 @@ test("🔴 BUILT · every covered NFL game page with a player board carries the 
   }
   assert.ok(checked.length > 0, "no covered event has a built page with a player board — the guard would be vacuous");
   assert.deepEqual(missing, [], `built game pages with evidence and a player board but no #recent-form: ${missing.join(", ")}`);
+});
+
+test("🔴 BUILT · the Recent form panel prints no line content where the page's line gate is closed (switch off or no readable artifact)", { skip: !fs.existsSync(GAME_OUT) && "no export at out/nfl/game" }, () => {
+  const { doc, problem } = loadEvidenceFile(path.join(APP, ".."));
+  assert.equal(problem, null);
+  const checked = [], leaks = [];
+  for (const eventId of Object.keys(doc.events ?? {})) {
+    const page = path.join(GAME_OUT, eventId, "index.html");
+    if (!fs.existsSync(page)) continue;
+    const html = fs.readFileSync(page, "utf8");
+    const i = html.indexOf('id="recent-form"');
+    if (i < 0) continue;
+    if (NFL_LINE_DISPLAY.public && nflPublicLineRecords(eventId, { appRoot: APP }) != null) continue; // gate open: lines may show
+    checked.push(eventId);
+    const panel = html.slice(i, html.indexOf("</details>", html.indexOf('data-testid="nfl-player-evidence"', i)) + 10);
+    if (/data-line-state|data-book-availability-note|sportsbook|today&#x27;s line|hit rate/i.test(panel)) leaks.push(eventId);
+  }
+  if (!checked.length) return; // every covered page has a readable artifact (an authorized build): nothing to check here
+  assert.deepEqual(leaks, [], `built Recent form panels with line content behind a closed line gate: ${leaks.join(", ")}`);
 });

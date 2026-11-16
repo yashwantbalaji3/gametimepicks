@@ -42,7 +42,9 @@ function pageProps(rawBoard, evidence) {
   const tabs = gameTabs(view);
   return { tabs, props: { players: board.players, evidence, projections: evidenceProjections(tabs), kickoffUtc: KICK, sourceNote: "src" } };
 }
-const render = (p) => renderToStaticMarkup(React.createElement(Panel, p));
+/* the line display switch, as NflPropLines takes it: ON for the line-state tests below, OFF for the switch-off test */
+const ON = { public: true }, OFF = { public: false };
+const render = (p, display = ON) => renderToStaticMarkup(React.createElement(Panel, { ...p, display }));
 const famBlock = (html, player, fam) => { const i = html.indexOf(`data-evidence-player="${player}"`); const j = html.indexOf(`data-evidence-family="${fam}"`, i); return j < 0 ? null : html.slice(j, html.indexOf("</div></div>", j) + 12); };
 
 test("B · the panel prints exactly the game page's rows: official values, Estimate for an estimate family, nothing official where the page has no row", () => {
@@ -119,4 +121,47 @@ test("players without evidence, or with no supported family, render nothing", ()
   const { props } = pageProps(BOARD(null), {});
   assert.equal(render(props), "");
   assert.equal(render({ ...props, players: [{ playerId: A, name: "x", team: "NEW", markets: { weird: {} } }], projections: {}, evidence: { [A]: LOG } }), "");
+});
+
+test("switch OFF · history, chart, projection band and summaries only: no line state, hit rate, line value, book or availability note", async () => {
+  const { BOOK_AVAILABILITY_NOTE } = await import("../../lib/sports/odds/eligible-operators.mjs");
+  const { NO_RATE_TEXT } = await import("../../lib/sports/nfl/evidence-line.mjs");
+  const boards = [BOARD(offer("draftkings", 4.5)), BOARD(null), BOARD({ ...offer("draftkings", 4.5), capturedAt: null })];
+  for (const raw of boards) {
+    for (const ev of [{ [A]: FULL, [B]: FULL, [C]: LOG }, { [A]: LOG }]) {
+      const { props } = pageProps(raw, ev);
+      const on = render(props, ON), off = render(props, OFF);
+      assert.match(on, /data-line-state=/, "non-vacuous: the same props DO print a line state with the switch on");
+      // the switch-off guard's pattern (nfl-prop-lines-switch-off.test.mjs), plus every line artefact the panel can print
+      assert.doesNotMatch(off, /data-prop-line|nfl-prop-lines|sportsbook line|Not an over\/under market|Official projection not published/);
+      assert.doesNotMatch(off, /data-line-state|data-book-availability-note|today&#x27;s line|over in|hit rate|sportsbook|withheld/i);
+      assert.doesNotMatch(off, /draftkings|betonline/i, "no book name");
+      assert.doesNotMatch(off, /\b(4\.5|45\.5|58\.5|28\.5)\b/, "no line value");
+      assert.ok(!off.includes(BOOK_AVAILABILITY_NOTE));
+      for (const t of Object.values(NO_RATE_TEXT)) assert.ok(!off.includes(t.replace(/'/g, "&#x27;")));
+      // what stays: the actual games, the chart and band, the projection and the descriptive summaries
+      assert.match(off, /data-evidence-player="nfl-athlete-9"/);
+      assert.match(off, /data-projection-state="OFFICIAL"/);
+      assert.match(off, /official projection /);
+      assert.match(off, /class="ev-svg"/);
+      assert.match(off, /class="ev-band"/);
+      assert.match(off, /class="ev-med"/);
+      assert.match(off, /Last 5 median /);
+      assert.match(off, /model&#x27;s median and 80% range\./);
+      assert.match(off, /<td>vs AAA<\/td>|vs AAA/);
+    }
+  }
+  const { props } = pageProps(BOARD(offer("draftkings", 4.5)), { [A]: LOG });
+  assert.match(render(props, OFF), /1 game with no stat line/);
+  assert.match(render(props, OFF), /no stat line<\/td>/);
+});
+
+test("the section note never calls the chart a sportsbook line, in either state", () => {
+  const { props } = pageProps(BOARD(offer("draftkings", 4.5)), { [A]: FULL });
+  for (const d of [ON, OFF]) {
+    const intro = render(props, d).match(/<p class="ev-intro">[\s\S]*?<\/p>/)?.[0];
+    assert.ok(intro, "the section note is rendered");
+    assert.match(intro, /dashed line and shaded band are the model&#x27;s median and 80% range\./);
+    assert.doesNotMatch(intro, /sportsbook|betting line|not a [a-z ]*line/i);
+  }
 });
