@@ -60,7 +60,20 @@ test("BUILT · the NFL hub's ranked boards can be filtered", { skip: !exists("nf
   const teams = clubs.size;
   assert.ok(buttons >= 1 + teams, `the NFL hub renders ${buttons} controls for ${teams} clubs on its ranked boards — every club needs a way in`);
   // The count alone is met by the family tabs; name each club's own chip.
-  for (const club of clubs) assert.match(main, new RegExp(`<button\\b[^>]*>${club}</button>`), `${club} has rows on the hub's boards and no filter chip`);
+  const chip = (club) => new RegExp(`<button\\b[^>]*>${club}</button>`);
+  for (const club of clubs) assert.match(main, chip(club), `${club} has rows on the hub's boards and no filter chip`);
+  /* HTML-only, independent of the clock: the floor above can undercount when a kickoff falls inside the render window,
+     so every club with a row actually rendered in a WEEKLY panel (panel-hub-boards-<family>, not -today-/-full-week-)
+     needs its own chip too. A row prints "<team> vs <opponent>" (player-row.tsx); React may split it with <!-- -->. */
+  const renderedClubs = new Set();
+  for (const m of main.matchAll(/id="panel-hub-boards-(?!today-|full-week-)[^"]*"/g)) {
+    const rest = main.slice(m.index + m[0].length);
+    const ends = [rest.search(/id="panel-/), rest.search(/<\/section>/)].filter((i) => i >= 0);
+    const panel = ends.length ? rest.slice(0, Math.min(...ends)) : rest;
+    const ol = panel.match(/<ol class="nf-rows">[\s\S]*?<\/ol>/);
+    for (const t of (ol?.[0] ?? "").matchAll(/([A-Z]{2,4})(?:<!-- -->)? vs (?:<!-- -->)?[A-Z]{2,4}/g)) renderedClubs.add(t[1]);
+  }
+  for (const club of renderedClubs) assert.match(main, chip(club), `${club} has a rendered row on the hub's weekly boards and no filter chip`);
   assert.match(main, /All teams/, "a team filter is offered");
   assert.match(main, /type="search"/, "…and a player search beside it");
 });
