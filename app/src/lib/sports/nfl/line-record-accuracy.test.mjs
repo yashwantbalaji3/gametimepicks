@@ -2,7 +2,8 @@
  * OPEN-STATE ACCURACY · a record against today's line, on /nfl/trends and in the Recent form panel, is computed for the
  * right player, the right family, against the exact threshold, over exactly the 5 most recent games before kickoff —
  * and its caption names that exact line, book and ET capture time. Synthetic games through the REAL chain:
- * raw games → buildEvidenceFile (gameLog) → buildTrendRows / panel, with a sanitised board.
+ * raw games → buildEvidenceFile (gameLog) → buildTrendRows / panel, with a sanitised board; the LINES come from
+ * artifact-shaped rows through nflEvidenceLines (the line section's own selection), never the board's offer slot.
  *
  * Threshold semantics (lineRecord, player-evidence.mjs): value > line ⇒ over (hit); value < line ⇒ miss;
  * value === line ⇒ PUSH (neither); a missing stat line ⇒ INCOMPLETE. badge = `${hits}/${window}` (a push stays in the
@@ -19,6 +20,7 @@ globalThis.React = React;
 import { buildEvidenceFile, lineRecord } from "./player-evidence.mjs";
 import { buildTrendRows } from "./trends-rows.mjs";
 import { sanitizePlayerBoard } from "../odds/public-offer-sanitizer.mjs";
+import { nflEvidenceLines } from "./evidence-line.mjs";
 
 const { default: Panel } = await import("../../../components/nfl/player-evidence-panel.tsx");
 const { default: Table } = await import("../../../components/nfl/trends-table.tsx");
@@ -49,7 +51,11 @@ const RAW_BOARD = {
   ],
 };
 const EVIDENCE = buildEvidenceFile({ boards: [{ providerEventId: EVENT, kickoffUtc: K, players: [{ playerId: P, team: "NEW" }, { playerId: Q, team: "OPP" }] }], games: GAMES, sourceHash: "h" }).events[EVENT].players;
-const OPEN = () => true;
+/* the section's comparison instant: 7.5 h after the capture, before kickoff (inside the 12 h freshness window) */
+const ASOF = "2026-11-22T06:00:00Z";
+/* the game's OPEN rows (artifact-shaped), one per offer the board fixture names */
+const ROWS = RAW_BOARD.players.flatMap((p) => Object.entries(p.markets).map(([k, m]) => ({ canonicalEventId: `nfl-${EVENT}`, playerId: p.playerId, market: k, book: m.market.sportsbook, line: m.market.line, overPrice: -110, underPrice: -110, capturedAt: m.market.capturedAt })));
+const linesFor = (raw, rows = ROWS) => nflEvidenceLines({ board: sanitizePlayerBoard(raw), rows, asOf: ASOF });
 
 test("the evidence window: P's 5 most recent games before kickoff, newest first — never the post-kickoff game, the forecast game or another player's line", () => {
   const log = EVIDENCE[P];
@@ -66,32 +72,38 @@ test("lineRecord threshold: value === line is a PUSH (not over, not under); badg
   assert.deepEqual([lineRecord(EVIDENCE[P], "player_receptions", 5, { line: { line: 4.99 } }).badge, lineRecord(EVIDENCE[P], "player_receptions", 5, { line: { line: 5.01 } }).badge], ["4/5", "3/5"]);
 });
 
-test("Trends (gate open): the right player × family × line, exact caption; a push shows in the record, never as a tier", () => {
-  const rows = buildTrendRows({ boards: [RAW_BOARD], evidenceByEvent: { [EVENT]: EVIDENCE }, now: NOW, lineGate: OPEN });
+test("Trends (lines open): the right player × family × line, exact caption; a push shows in the record, never as a tier", () => {
+  const rows = buildTrendRows({ boards: [RAW_BOARD], evidenceByEvent: { [EVENT]: EVIDENCE }, now: NOW, linesByEvent: { [EVENT]: linesFor(RAW_BOARD) } });
   const row = (id, fam) => rows.find((r) => r.playerId === id && r.family === fam);
   const pr = row(P, "player_receptions"), py = row(P, "player_reception_yds"), qr = row(Q, "player_receptions");
-  assert.deepEqual([pr.lineState, pr.badge, pr.tier, pr.line, pr.last5], ["COMPLETE", "3/5", null, `5 at draftkings, captured ${CAP_ET}`, [6, 5, 7, 3, 8]]);
-  assert.deepEqual([py.lineState, py.badge, py.tier, py.line, py.last5], ["COMPLETE", "4/5", "4/5", `50.5 at fanduel, captured ${CAP_ET}`, [60, 52, 55, 20, 70]]);
-  assert.deepEqual([qr.lineState, qr.badge, qr.tier, qr.line, qr.last5], ["COMPLETE", "0/5", null, `2.5 at draftkings, captured ${CAP_ET}`, [0, 0, 0, 0, 0]]);
+  assert.deepEqual([pr.lineState, pr.badge, pr.pushes, pr.tier, pr.line, pr.last5], ["COMPLETE", "3/5", 1, null, `5.0 at DraftKings, captured ${CAP_ET}`, [6, 5, 7, 3, 8]]);
+  assert.deepEqual([py.lineState, py.badge, py.pushes, py.tier, py.line, py.last5], ["COMPLETE", "4/5", 0, "4/5", `50.5 at FanDuel, captured ${CAP_ET}`, [60, 52, 55, 20, 70]]);
+  assert.deepEqual([qr.lineState, qr.badge, qr.pushes, qr.tier, qr.line, qr.last5], ["COMPLETE", "0/5", 0, null, `2.5 at DraftKings, captured ${CAP_ET}`, [0, 0, 0, 0, 0]]);
   const html = renderToStaticMarkup(React.createElement(Table, { rows }));
   const cell = (id) => { const i = html.indexOf(`data-trend-row="${id}"`); return html.slice(i, html.indexOf("</tr>", i)); };
   // the table's default market is receiving yards: P's row there carries P's yards record, line, book and time
   assert.match(cell(P), /60 · 52 · 55 · 20 · 70/);
-  assert.match(cell(P), /4\/5 over<div class="nt-g">vs 50\.5 at fanduel, captured Nov 21, 5:30 PM ET<\/div>/);
-  assert.doesNotMatch(cell(P), /draftkings|2\.5 at|vs 5 at/);
+  assert.match(cell(P), /4\/5 over<div class="nt-g">vs 50\.5 at FanDuel, captured Nov 21, 5:30 PM ET<\/div>/);
+  assert.doesNotMatch(cell(P), /draftkings|2\.5 at|vs 5\.0 at/i);
+  // a push in the shown market is printed, never folded into the over count: yards vs 55 ⇒ 60 over, 52 under, 55 PUSH,
+  // 20 under, 70 over ⇒ "2/5 over, 1 push" (the panel's wording)
+  const pushRows = ROWS.map((r) => (r.playerId === P && r.market === "player_reception_yds" ? { ...r, line: 55 } : r));
+  const rows55 = buildTrendRows({ boards: [RAW_BOARD], evidenceByEvent: { [EVENT]: EVIDENCE }, now: NOW, linesByEvent: { [EVENT]: linesFor(RAW_BOARD, pushRows) } });
+  const h55 = renderToStaticMarkup(React.createElement(Table, { rows: rows55 }));
+  const i = h55.indexOf(`data-trend-row="${P}"`), c55 = h55.slice(i, h55.indexOf("</tr>", i));
+  assert.match(c55, /2\/5 over, 1 push<div class="nt-g">vs 55\.0 at FanDuel, captured Nov 21, 5:30 PM ET<\/div>/);
 });
 
-test("Recent form panel (display open): the same records, the exact line, book and ET capture time, push counted", () => {
+test("Recent form panel (lines open): the same records, the exact line, book and ET capture time, push counted", () => {
   const board = sanitizePlayerBoard(RAW_BOARD);
-  const mk = (id, fam) => board.players.find((p) => p.playerId === id).markets[fam].market;
-  const proj = (value, market) => ({ value, p10: null, p90: null, kind: "count", text: String(value), range: null, estimate: null, market });
+  const proj = (value) => ({ value, p10: null, p90: null, kind: "count", text: String(value), range: null, estimate: null, market: null });
   const html = renderToStaticMarkup(React.createElement(Panel, {
-    players: board.players, evidence: EVIDENCE, kickoffUtc: K, sourceNote: "src", display: { public: true },
-    projections: { [P]: { player_receptions: proj(5.5, mk(P, "player_receptions")), player_reception_yds: proj(54, mk(P, "player_reception_yds")) }, [Q]: { player_receptions: proj(2, mk(Q, "player_receptions")) } },
+    players: board.players, evidence: EVIDENCE, kickoffUtc: K, sourceNote: "src", lines: linesFor(RAW_BOARD),
+    projections: { [P]: { player_receptions: proj(5.5), player_reception_yds: proj(54) }, [Q]: { player_receptions: proj(2) } },
   }));
   const block = (id, fam) => { const i = html.indexOf(`data-evidence-player="${id}"`); const j = html.indexOf(`data-evidence-family="${fam}"`, i); return html.slice(j, html.indexOf("</div></div>", j) + 12); };
-  assert.ok(block(P, "player_receptions").includes(`Last 5 vs today&#x27;s line 5 at draftkings, captured ${CAP_ET}: over in 3/5, 1 push.`), block(P, "player_receptions"));
-  assert.ok(block(P, "player_reception_yds").includes(`Last 5 vs today&#x27;s line 50.5 at fanduel, captured ${CAP_ET}: over in 4/5.`));
-  assert.ok(block(Q, "player_receptions").includes(`Last 5 vs today&#x27;s line 2.5 at draftkings, captured ${CAP_ET}: over in 0/5.`));
+  assert.ok(block(P, "player_receptions").includes(`Last 5 vs today&#x27;s line 5.0 at DraftKings, captured ${CAP_ET}: over in 3/5, 1 push.`), block(P, "player_receptions"));
+  assert.ok(block(P, "player_reception_yds").includes(`Last 5 vs today&#x27;s line 50.5 at FanDuel, captured ${CAP_ET}: over in 4/5.`));
+  assert.ok(block(Q, "player_receptions").includes(`Last 5 vs today&#x27;s line 2.5 at DraftKings, captured ${CAP_ET}: over in 0/5.`));
   assert.doesNotMatch(block(P, "player_receptions"), /2\.5 at|50\.5 at/, "no other player's or family's line");
 });

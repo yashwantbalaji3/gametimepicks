@@ -8,11 +8,12 @@
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
 import { BOOK_AVAILABILITY_NOTE } from "@/lib/sports/odds/eligible-operators.mjs";
+import { unpackTrendRows } from "@/lib/sports/nfl/trends-wire.mjs";
 
 export type TrendRow = {
-  eventId: string; kickoffUtc: string; matchup: string; opponent: string; playerId: string; name: string; team: string; eligibility: string | null;
-  family: string; label: string; last5: (number | null)[]; games5: number; recorded5: number; noStatLine5: number; median5: number | null; median10: number | null; games10: number;
-  tdGames5: number | null; projection: number | null; probability: number | null; vsProjection: number | null; lineState: string | null; line: string | null; badge: string | null; tier: string | null;
+  eventId: string; kickoffUtc?: string; matchup: string; opponent: string; playerId: string; name: string; team: string; eligibility: string | null;
+  family: string; label: string; last5: (number | null)[]; games5: number; recorded5: number; noStatLine5: number; median5: number | null; median10: number | null; games10?: number;
+  tdGames5: number | null; projection: number | null; probability: number | null; vsProjection: number | null; lineState: string | null; line: string | null; badge: string | null; tier?: string | null; pushes: number | null;
 };
 
 const SORTS = {
@@ -37,7 +38,9 @@ const CSS = `
 .nt-up{color:var(--vault-gold-bright)}
 `;
 
-export default function NflTrendsTable({ rows }: { rows: TrendRow[] }) {
+/** `packed` (the page: trends-wire.mjs, the compact RSC payload) or `rows` (tests). */
+export default function NflTrendsTable({ rows: given, packed }: { rows?: TrendRow[]; packed?: ReturnType<typeof import("@/lib/sports/nfl/trends-wire.mjs").packTrendRows> }) {
+  const rows = useMemo(() => given ?? (unpackTrendRows(packed as never) as TrendRow[]), [given, packed]);
   const games = useMemo(() => [...new Map(rows.map((r) => [r.eventId, r.matchup])).entries()], [rows]);
   const teams = useMemo(() => [...new Set(rows.map((r) => r.team))].sort(), [rows]);
   const markets = useMemo(() => [...new Map(rows.map((r) => [r.family, r.label])).entries()], [rows]);
@@ -81,8 +84,8 @@ export default function NflTrendsTable({ rows }: { rows: TrendRow[] }) {
                 <td>{r.family === "anytime_td" ? (r.probability != null ? `${(r.probability * 100).toFixed(0)}% to score` : "—") : f1(r.projection)}</td>
                 <td className={r.vsProjection != null && r.vsProjection > 0 ? "nt-up" : undefined}>{r.vsProjection == null ? "—" : `${r.vsProjection > 0 ? "+" : ""}${f1(r.vsProjection)}`}</td>
                 {!lineCol ? null : r.lineState == null ? <td>—</td> : <td>{r.line
-                  ? <>{r.badge ? `${r.badge} over` : <span className="nt-g">partial record</span>}<div className="nt-g">vs {r.line}</div></>
-                  : <span className="nt-g">{r.lineState === "WITHHELD" ? "withheld" : r.lineState === "NOT_BEFORE_KICKOFF" ? "no pre-kickoff capture" : "not captured"}</span>}</td>}
+                  ? <>{r.badge ? `${r.badge} over${r.pushes ? `, ${r.pushes} push${r.pushes > 1 ? "es" : ""}` : ""}` : <span className="nt-g">partial record</span>}<div className="nt-g">vs {r.line}</div></>
+                  : <span className="nt-g">{r.lineState === "WITHHELD" ? "withheld" : r.lineState === "NOT_BEFORE_KICKOFF" ? "no pre-kickoff capture" : r.lineState === "UNUSABLE" ? "not compared" : "not captured"}</span>}</td>}
               </tr>
             ))}
           </tbody>

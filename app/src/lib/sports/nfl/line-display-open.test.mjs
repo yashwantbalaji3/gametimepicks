@@ -1,7 +1,8 @@
 /**
  * THE ONE NFL LINE-DISPLAY RULE (line-display-open.mjs) — every surface uses it, and they agree.
  *   1. source: the game page's line section (withNflPropLines), the game page's Recent form panel and /nfl/trends each
- *      call nflLineDisplayOpen / nflOpenLineRecords; no NFL page or component reads nflPublicLineRecords or gates on
+ *      take their rows from nflOpenLineRecords (the panel and Trends then select per pair with nflEvidenceLines, the
+ *      section's own selection); no NFL page or component reads nflPublicLineRecords or gates on
  *      NFL_LINE_DISPLAY itself (the one pinned exception: NflPropLines's direct-caller fallback, after its own
  *      `display.public` check — main's switch-off guard pins that literal call);
  *   2. behaviour: for closed (switch off), no artifact (no key / no file) and open (switch on + readable artifact) the
@@ -23,6 +24,7 @@ import { nflLineDisplayOpen, nflOpenLineRecords } from "./line-display-open.mjs"
 import { NFL_LINES_DIR_ENV, NFL_LINES_SCHEMA, nflLinesAad } from "./public-line-records.mjs";
 import { encryptDisplayArtifact, ODDS_DISPLAY_KEY_ENV } from "../../odds/display-crypto.mjs";
 import { buildTrendRows } from "./trends-rows.mjs";
+import { nflEvidenceLines } from "./evidence-line.mjs";
 import { FX_BOARD, FX_EVENT } from "./__fixtures__/nfl-prop-line-synthetic.mjs";
 
 const APP = process.cwd();
@@ -44,13 +46,14 @@ test("source: the three surfaces call THE rule; no NFL page or component compute
   assert.ok(hookFile.indexOf("nflPublicLineRecords(b.providerEventId)") < hookFile.indexOf("export function withNflPropLines"), "…and it is in NflPropLines, not the page hook");
 
   const game = read("app/nfl/game/[eventId]/page.tsx");
-  assert.match(game, /import \{ nflLineDisplayOpen \} from "@\/lib\/sports\/nfl\/line-display-open\.mjs";/);
-  assert.match(game, /const lineDisplay = \{ public: nflLineDisplayOpen\(params\.eventId\) \};/);
-  assert.match(game, /<NflPlayerEvidencePanel [^>]*display=\{lineDisplay\} \/>/, "the panel gets the rule's answer");
+  assert.match(game, /import \{ nflOpenLineRecords \} from "@\/lib\/sports\/nfl\/line-display-open\.mjs";/);
+  assert.match(game, /const lineRows = nflOpenLineRecords\(params\.eventId\);\n    const lines = lineRows \? nflEvidenceLines\(\{ board: playerBoard, rows: lineRows, asOf: new Date\(\)\.toISOString\(\) \}\) : null;/);
+  assert.match(game, /<NflPlayerEvidencePanel [^>]*lines=\{lines\} \/>/, "the panel gets the rule's rows, as the section selects them");
 
   const trends = read("app/nfl/trends/page.tsx");
-  assert.match(trends, /import \{ nflLineDisplayOpen \} from "@\/lib\/sports\/nfl\/line-display-open\.mjs";/);
-  assert.match(trends, /buildTrendRows\(\{ boards, evidenceByEvent, now, lineGate: \(eventId: string\) => nflLineDisplayOpen\(eventId\) \}\)/);
+  assert.match(trends, /import \{ nflOpenLineRecords \} from "@\/lib\/sports\/nfl\/line-display-open\.mjs";/);
+  assert.match(trends, /const open = nflOpenLineRecords\(String\(b\.providerEventId\)\);/);
+  assert.match(trends, /buildTrendRows\(\{ boards, evidenceByEvent, now, linesByEvent \}\)/);
 
   for (const [rel, src] of [["app/nfl/game/[eventId]/page.tsx", game], ["app/nfl/trends/page.tsx", trends], ["components/nfl/player-evidence-panel.tsx", read("components/nfl/player-evidence-panel.tsx")], ["lib/sports/nfl/trends-rows.mjs", read("lib/sports/nfl/trends-rows.mjs")]]) {
     const code = src.replace(/\/\*[\s\S]*?\*\//g, "").replace(/^\s*\/\/.*$/gm, "");
@@ -93,13 +96,16 @@ const trendBoard = (eventId) => ({ providerEventId: eventId, matchup: "AAA @ BBB
 function surfaces(eventId, display) {
   const node = React.createElement("section", { id: "players" });
   const hook = withNflPropLines(node, { ...FX_BOARD, providerEventId: eventId }, display) !== node;
-  const rows = buildTrendRows({ boards: [trendBoard(eventId)], evidenceByEvent: { [eventId]: { [P]: LOG } }, now: "2026-11-16T00:00Z", lineGate: (id) => nflLineDisplayOpen(id, display) });
+  /* as each page asks: THE rule's rows, then the section's selection */
+  const open = nflOpenLineRecords(eventId, display);
+  const tb = trendBoard(eventId);
+  const rows = buildTrendRows({ boards: [tb], evidenceByEvent: { [eventId]: { [P]: LOG } }, now: "2026-11-16T00:00Z", linesByEvent: { [eventId]: open ? nflEvidenceLines({ board: tb, rows: open, asOf: "2026-11-16T00:00Z" }) : null } });
   assert.ok(rows.length > 0, "trends rows built");
   const trends = rows.some((r) => r.lineState != null);
   const html = renderToStaticMarkup(React.createElement(Panel, {
     players: [{ playerId: P, name: "Fixture One", team: "BBB" }], evidence: { [P]: LOG }, kickoffUtc: "2099-01-01T18:00Z", sourceNote: "src",
     projections: { [P]: { player_receptions: { value: 4, p10: 2, p90: 7, kind: "count", text: "4", range: "2–7", estimate: null, market: null } } },
-    display: { public: nflLineDisplayOpen(eventId, display) },
+    lines: open ? nflEvidenceLines({ board: tb, rows: open, asOf: "2026-11-16T00:00Z" }) : null,
   }));
   assert.match(html, /data-evidence-player=/, "panel rendered");
   const panel = /data-line-state=/.test(html);
