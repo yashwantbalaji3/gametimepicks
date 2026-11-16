@@ -2,12 +2,12 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-11-15T15:42:41Z",
+ "generatedAt": "2026-11-16T09:25:21Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 4,
-  "HOLDING": 12,
-  "WATCH": 2,
+  "HOLDING": 11,
+  "WATCH": 3,
   "BREACHED": 4
  },
  "rules": {
@@ -105,14 +105,14 @@
    "label": "NFL receptions 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "BREACHED",
-   "n": 1571,
+   "n": 1702,
    "judgement": {
     "state": "BREACHED",
-    "n": 1571,
+    "n": 1702,
     "needed": 150,
-    "rate": 0.902,
+    "rate": 0.9031,
     "target": 0.8,
-    "z": 10.1045,
+    "z": 10.6289,
     "direction": "ranges too wide"
    },
    "context": null,
@@ -122,7 +122,7 @@
     "checks": [
      {
       "measure": "coverage80",
-      "value": 0.7995,
+      "value": 0.8011,
       "bar": [
        0.72,
        0.88
@@ -134,20 +134,20 @@
      "ece",
      "level"
     ],
-    "n": 1571,
+    "n": 1702,
     "needed": 300,
     "model": "nfl-player-share-level-v1",
     "modelsOnGradedBoards": {
      "player-props-v1": 32,
-     "nfl-player-share-level-v1": 105
+     "nfl-player-share-level-v1": 116
     },
     "source": "data/internal/research/nfl/reports/player-props-share-level-preregistration.json#/frozenBars/perFamily/coverage80",
     "measures": {
-     "coverage80": 0.7995,
-     "coverageInclusive": 0.902,
-     "coverageMidP": 0.7995,
-     "onEndpoint": 322,
-     "n": 1571
+     "coverage80": 0.8011,
+     "coverageInclusive": 0.9031,
+     "coverageMidP": 0.8011,
+     "onEndpoint": 347,
+     "n": 1702
     }
    }
   },
@@ -180,6 +180,42 @@
     "modelsOnGradedBoards": null,
     "source": null,
     "measures": null
+   }
+  },
+  {
+   "id": "nfl_player_pass_yds",
+   "sport": "nfl",
+   "label": "NFL passing yards 80% range",
+   "baseline": "8 in 10 inside the published range",
+   "state": "WATCH",
+   "n": 274,
+   "judgement": {
+    "state": "WATCH",
+    "n": 274,
+    "needed": 150,
+    "rate": 0.854,
+    "target": 0.8,
+    "z": 2.2353,
+    "direction": "ranges too wide"
+   },
+   "context": null,
+   "source": "app/public/data/nfl/reconciliation/<week>.json",
+   "bar": {
+    "verdict": "NO_BAR",
+    "reason": "published as an ESTIMATE below its bar — there is no accepted bar to live up to; the generic 80% floor stays as a floor",
+    "model": null,
+    "modelsOnGradedBoards": {
+     "player-props-v1": 16,
+     "nfl-player-share-level-v1": 132
+    },
+    "source": null,
+    "measures": {
+     "coverage80": null,
+     "coverageInclusive": null,
+     "coverageMidP": null,
+     "onEndpoint": 0,
+     "n": 0
+    }
    }
   },
   {
@@ -337,14 +373,14 @@
    "label": "NFL touchdown chances",
    "baseline": "expected scorers = actual scorers",
    "state": "HOLDING",
-   "n": 2068,
+   "n": 2236,
    "judgement": {
     "state": "HOLDING",
-    "n": 2068,
+    "n": 2236,
     "needed": 150,
-    "expected": 489.2609,
-    "actual": 495,
-    "z": 0.3152,
+    "expected": 530.2682,
+    "actual": 534,
+    "z": 0.197,
     "direction": null
    },
    "context": null,
@@ -354,13 +390,13 @@
     "checks": [
      {
       "measure": "ece",
-      "value": 0.0245,
+      "value": 0.0239,
       "bar": "≤ 0.04",
       "pass": true
      },
      {
       "measure": "level",
-      "value": 0.9884,
+      "value": 0.993,
       "bar": [
        0.9,
        1.1
@@ -369,18 +405,18 @@
      }
     ],
     "notComputable": [],
-    "n": 2068,
+    "n": 2236,
     "needed": 1000,
     "model": null,
     "modelsOnGradedBoards": {
      "player-props-v1": 16,
-     "nfl-anytime-td-opportunity-v1": 121
+     "nfl-anytime-td-opportunity-v1": 132
     },
     "source": "data/internal/research/nfl/reports/anytime-td-forward-protocol.json#/frozen/eceMax",
     "measures": {
-     "ece": 0.0245,
-     "level": 0.9884,
-     "n": 2068
+     "ece": 0.0239,
+     "level": 0.993,
+     "n": 2236
     }
    }
   },
@@ -439,14 +475,14 @@
    "label": "NFL winning margin 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "HOLDING",
-   "n": 137,
+   "n": 148,
    "judgement": {
     "state": "HOLDING",
-    "n": 137,
+    "n": 148,
     "needed": 48,
-    "rate": 0.7956,
+    "rate": 0.7838,
     "target": 0.8,
-    "z": -0.1282,
+    "z": -0.4932,
     "direction": null
    },
    "context": null,
@@ -456,7 +492,7 @@
     "checks": [
      {
       "measure": "coverage80",
-      "value": 0.7956,
+      "value": 0.7838,
       "bar": [
        0.75,
        0.85
@@ -465,50 +501,14 @@
      }
     ],
     "notComputable": [],
-    "n": 137,
+    "n": 148,
     "needed": 64,
     "model": null,
     "modelsOnGradedBoards": null,
     "source": "data/internal/research/nfl/regular-season-evaluation-contract.json#/bars/marginHead/requirement",
     "measures": {
-     "coverage80": 0.7956,
-     "n": 137
-    }
-   }
-  },
-  {
-   "id": "nfl_player_pass_yds",
-   "sport": "nfl",
-   "label": "NFL passing yards 80% range",
-   "baseline": "8 in 10 inside the published range",
-   "state": "HOLDING",
-   "n": 256,
-   "judgement": {
-    "state": "HOLDING",
-    "n": 256,
-    "needed": 150,
-    "rate": 0.8477,
-    "target": 0.8,
-    "z": 1.9062,
-    "direction": null
-   },
-   "context": null,
-   "source": "app/public/data/nfl/reconciliation/<week>.json",
-   "bar": {
-    "verdict": "NO_BAR",
-    "reason": "published as an ESTIMATE below its bar — there is no accepted bar to live up to; the generic 80% floor stays as a floor",
-    "model": null,
-    "modelsOnGradedBoards": {
-     "player-props-v1": 16,
-     "nfl-player-share-level-v1": 121
-    },
-    "source": null,
-    "measures": {
-     "coverage80": null,
-     "coverageInclusive": null,
-     "coverageMidP": null,
-     "onEndpoint": 0,
-     "n": 0
+     "coverage80": 0.7838,
+     "n": 148
     }
    }
   },
@@ -518,14 +518,14 @@
    "label": "NFL receiving yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "HOLDING",
-   "n": 1498,
+   "n": 1620,
    "judgement": {
     "state": "HOLDING",
-    "n": 1498,
+    "n": 1620,
     "needed": 150,
     "rate": 0.8037,
     "target": 0.8,
-    "z": 0.3617,
+    "z": 0.3727,
     "direction": null
    },
    "context": null,
@@ -546,20 +546,20 @@
     "notComputable": [
      "ece"
     ],
-    "n": 1498,
+    "n": 1620,
     "needed": 300,
     "model": "player-props-v1",
     "modelsOnGradedBoards": {
-     "player-props-v1": 105,
+     "player-props-v1": 116,
      "nfl-player-share-level-v1": 32
     },
     "source": "data/internal/research/nfl/reports/player-props-v1-evaluation.json#/promotionPolicy/0",
     "measures": {
      "coverage80": 0.8037,
      "coverageInclusive": 0.8037,
-     "coverageMidP": 0.7533,
-     "onEndpoint": 151,
-     "n": 1498
+     "coverageMidP": 0.7549,
+     "onEndpoint": 158,
+     "n": 1620
     }
    }
   },
@@ -569,14 +569,14 @@
    "label": "NFL rushing yards 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "HOLDING",
-   "n": 822,
+   "n": 883,
    "judgement": {
     "state": "HOLDING",
-    "n": 822,
+    "n": 883,
     "needed": 150,
-    "rate": 0.8151,
+    "rate": 0.8131,
     "target": 0.8,
-    "z": 1.0812,
+    "z": 0.9759,
     "direction": null
    },
    "context": null,
@@ -601,7 +601,7 @@
     "needed": 300,
     "model": "player-props-v1",
     "modelsOnGradedBoards": {
-     "player-props-v1": 89,
+     "player-props-v1": 100,
      "nfl-player-share-level-v1": 48
     },
     "source": "data/internal/research/nfl/reports/player-props-v1-evaluation.json#/promotionPolicy/0",
@@ -620,14 +620,14 @@
    "label": "NFL total points 80% range",
    "baseline": "8 in 10 inside the published range",
    "state": "HOLDING",
-   "n": 137,
+   "n": 148,
    "judgement": {
     "state": "HOLDING",
-    "n": 137,
+    "n": 148,
     "needed": 48,
-    "rate": 0.8175,
+    "rate": 0.8176,
     "target": 0.8,
-    "z": 0.5126,
+    "z": 0.5343,
     "direction": null
    },
    "context": null,
@@ -637,7 +637,7 @@
     "checks": [
      {
       "measure": "coverage80",
-      "value": 0.8175,
+      "value": 0.8176,
       "bar": [
        0.75,
        0.85
@@ -646,14 +646,14 @@
      }
     ],
     "notComputable": [],
-    "n": 137,
+    "n": 148,
     "needed": 64,
     "model": null,
     "modelsOnGradedBoards": null,
     "source": "data/internal/research/nfl/regular-season-evaluation-contract.json#/bars/totalHead/requirement",
     "measures": {
-     "coverage80": 0.8175,
-     "n": 137
+     "coverage80": 0.8176,
+     "n": 148
     }
    }
   },
@@ -663,18 +663,18 @@
    "label": "NFL winner",
    "baseline": "coin flip (log loss 0.6931)",
    "state": "HOLDING",
-   "n": 136,
+   "n": 147,
    "judgement": {
     "state": "HOLDING",
-    "n": 136,
+    "n": 147,
     "needed": 48,
-    "meanDiff": -0.0543,
-    "lo95": -0.1009,
-    "hi95": -0.0052
+    "meanDiff": -0.0649,
+    "lo95": -0.1102,
+    "hi95": -0.0199
    },
    "context": {
-    "hits": 83,
-    "expectedHits": 85.3173
+    "hits": 91,
+    "expectedHits": 92.4126
    },
    "source": "app/public/data/nfl/reconciliation/<week>.json",
    "bar": {
@@ -792,6 +792,14 @@
   }
  ],
  "changes": [
+  {
+   "id": "nfl_player_pass_yds",
+   "sport": "nfl",
+   "label": "NFL passing yards 80% range",
+   "from": "HOLDING",
+   "to": "WATCH",
+   "at": "2026-11-16T09:25:21Z"
+  },
   {
    "id": "nfl_player_pass_yds",
    "sport": "nfl",
