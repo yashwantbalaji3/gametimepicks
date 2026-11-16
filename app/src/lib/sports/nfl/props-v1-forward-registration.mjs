@@ -135,6 +135,10 @@ export const PINNED_REGISTRATIONS = Object.freeze({
   // s1 (9fd523d6b4) and s2 (3f8ff69abb) were superseded before their first week: never pinned, never graded.
   // series s3 — registered 2026-11-16T01:28:14Z
   "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s3.json": "dd7c00ea75b150650de7934fe3c0ee0bc7f06dc1",
+  // series s4 — the corrected receiving-yards pipeline (N8 parity fix), registered 2026-11-16T01:41:15Z in a DRAFT
+  // branch on top of s3; its first registration (1952a1023f, protocol-s4.json) was superseded before its first week.
+  // Re-register (new protocol commit) if this merges after its first week has started.
+  "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s4-r2.json": "e967b256f6734f1977b308e54d4d596402b16d28",
 });
 
 /**
