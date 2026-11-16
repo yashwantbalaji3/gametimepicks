@@ -88,6 +88,7 @@ import { readEvidenceFor } from "@/lib/sports/nfl/player-evidence-file.mjs";
 import { evidenceProjections } from "@/lib/sports/nfl/evidence-projections.mjs";
 import { nflOpenLineRecords } from "@/lib/sports/nfl/line-display-open.mjs";
 import { nflEvidenceLines } from "@/lib/sports/nfl/evidence-line.mjs";
+import { buildAsOfIso } from "@/lib/build-asof";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -223,9 +224,10 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
     if (!Object.keys(evidence).length) return null;
     /* the panel's line content (line state, hit rate, book) comes from THE rule's rows (line-display-open.mjs: switch on
        AND a readable artifact) — the same rows withNflPropLines shows — selected exactly as the section selects them,
-       at the section's comparison instant (the build clock; NflPropLines' default asOf). Closed ⇒ history only. */
+       at the section's comparison instant (the build's one instant, buildAsOfIso — withNflPropLines' default asOf, and
+       /nfl/trends' too). Closed ⇒ history only. */
     const lineRows = nflOpenLineRecords(params.eventId);
-    const lines = lineRows ? nflEvidenceLines({ board: playerBoard, rows: lineRows, asOf: new Date().toISOString() }) : null;
+    const lines = lineRows ? nflEvidenceLines({ board: playerBoard, rows: lineRows, asOf: buildAsOfIso() }) : null;
     return (
       <details id="recent-form" className="mt-3" style={{ border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px", scrollMarginTop: 72 }}>
         <summary style={{ cursor: "pointer", fontSize: 14, fontWeight: 600, color: "var(--vault-text)", minHeight: 44, display: "flex", alignItems: "center" }}>Recent form · actual last 5 and last 10 games</summary>
