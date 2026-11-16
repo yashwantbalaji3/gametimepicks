@@ -5,9 +5,11 @@
  * LINE GATE: a row with `lineState: null` is behind a closed line gate (trends-rows.mjs) and prints nothing about a line;
  * with no open row at all the Line column itself is not rendered.
  * PAGE WEIGHT: the first INITIAL_ROWS matching rows render (server HTML included); "Show all N rows" renders the rest.
- * The server HTML is then bounded by INITIAL_ROWS, not by the slate (components/nfl/trends-weight.test.mjs).
+ * The server HTML is then bounded by INITIAL_ROWS, not by the slate (components/nfl/trends-weight.test.mjs). A reader
+ * without JavaScript sees the first INITIAL_ROWS rows (deliberate). While capped the live count says "Showing 50 of N
+ * rows"; "Show all" moves keyboard focus to the first newly shown row's player link (the button itself unmounts).
  */
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import { BOOK_AVAILABILITY_NOTE } from "@/lib/sports/odds/eligible-operators.mjs";
 import { unpackTrendRows } from "@/lib/sports/nfl/trends-wire.mjs";
@@ -26,6 +28,17 @@ const SORTS = {
 } as const;
 /** rows rendered before "Show all" (a full 16-game default view is ~150 rows ≈ 47 KB of server HTML) */
 export const INITIAL_ROWS = 50;
+/** Focus the player link of row `index` in `tbody` (after "Show all": the first newly shown row). */
+export function focusRow(tbody: { querySelectorAll: (s: string) => ArrayLike<{ querySelector: (s: string) => { focus: () => void } | null }> } | null, index: number): boolean {
+  const link = tbody?.querySelectorAll("tr")[index]?.querySelector("a") ?? null;
+  if (!link) return false;
+  link.focus();
+  return true;
+}
+/** The live row count: capped ⇒ "Showing 50 of 120 rows"; otherwise "120 rows". */
+export function countText(visible: number, total: number): string {
+  return visible < total ? `Showing ${visible} of ${total} rows` : `${total} row${total === 1 ? "" : "s"}`;
+}
 const f1 = (v: number | null) => (v == null ? "—" : Number.isInteger(v) ? String(v) : v.toFixed(1));
 const CSS = `
 .nt-f{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 10px}
@@ -55,6 +68,11 @@ export default function NflTrendsTable({ rows: given, packed }: { rows?: TrendRo
   const [full, setFull] = useState("5");
   const [sort, setSort] = useState<keyof typeof SORTS>("kickoff");
   const [all, setAll] = useState(false);
+  const tbody = useRef<HTMLTableSectionElement | null>(null);
+  const focusAfter = useRef<number | null>(null);
+  useEffect(() => {
+    if (all && focusAfter.current != null) { focusRow(tbody.current as never, focusAfter.current); focusAfter.current = null; }
+  }, [all]);
   const shown = useMemo(() => {
     const out = rows.filter((r) => (!game || r.eventId === game) && (!team || r.team === team) && (!market || r.family === market) && (full !== "5" || (r.games5 === 5 && r.noStatLine5 === 0)));
     return sort === "kickoff" ? out : [...out].sort(SORTS[sort].fn);
@@ -75,12 +93,12 @@ export default function NflTrendsTable({ rows: given, packed }: { rows?: TrendRo
         <label>Sample<select value={full} onChange={(e) => setFull(e.target.value)}><option value="5">5 complete games only</option><option value="any">Any sample</option></select></label>
         <label>Sort<select value={sort} onChange={(e) => setSort(e.target.value as keyof typeof SORTS)}>{Object.entries(SORTS).filter(([k]) => !(isTd && (k === "above" || k === "below"))).map(([k, v]) => <option key={k} value={k}>{v.label}</option>)}</select></label>
       </div>
-      <p className="nt-n" aria-live="polite">{shown.length} row{shown.length === 1 ? "" : "s"}</p>
+      <p className="nt-n" aria-live="polite">{countText(visible.length, shown.length)}</p>
       <div className="nt-s">
         <table className="nt-t">
           <caption className="sr-only">Recent results and official projection by player</caption>
           <thead><tr><th>Player</th><th>Market</th><th>Last 5 (newest first)</th><th>L5 median</th><th>L10 median</th><th>Official projection</th><th>L5 − projection</th>{lineCol ? <th>Line</th> : null}</tr></thead>
-          <tbody>
+          <tbody ref={tbody}>
             {visible.map((r) => (
               <tr key={`${r.eventId}:${r.playerId}:${r.family}`} data-trend-row={r.playerId}>
                 <td><Link href={`/nfl/game/${r.eventId}/#recent-form`}>{r.name}</Link><div className="nt-g">{r.team} vs {r.opponent}{r.eligibility && r.eligibility !== "ELIGIBLE" ? ` · ${r.eligibility.toLowerCase()}` : ""}</div></td>
@@ -98,7 +116,7 @@ export default function NflTrendsTable({ rows: given, packed }: { rows?: TrendRo
           </tbody>
         </table>
       </div>
-      {visible.length < shown.length ? <button type="button" className="nt-more" onClick={() => setAll(true)}>Show all {shown.length} rows</button> : null}
+      {visible.length < shown.length ? <button type="button" className="nt-more" onClick={() => { focusAfter.current = visible.length; setAll(true); }}>Show all {shown.length} rows</button> : null}
       {namesBook ? <p className="nt-g" data-book-availability-note style={{ marginTop: 6 }}>{BOOK_AVAILABILITY_NOTE}</p> : null}
     </div>
   );
