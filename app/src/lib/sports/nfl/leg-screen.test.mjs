@@ -10,7 +10,7 @@ import { isEligibleProvider } from "../odds/eligible-operators.mjs";
 const g = (i, rec) => ({ eventId: `p${i}`, week: 10 - i, date: "2026-10-01", team: "T", opponent: "O", homeAway: "H", state: "STAT_LINE", stats: { rec } });
 const log = (...recs) => recs.map((r, i) => g(i, r));
 const FAM = { player_receptions: { eligibleForOfficialProducts: true, gtpProbability: true }, player_rush_yds: { eligibleForOfficialProducts: false } };
-const cand = (id, event, team, recs, extra = {}) => ({ playerId: id, team, eventId: event, kickoffUtc: "2026-11-16T18:00Z", family: "player_receptions", side: "over", line: { line: 4.5, price: -150, sportsbook: "draftkings", capturedAt: "2026-11-15T12:00Z" }, eligibility: "ELIGIBLE", modelProbability: 0.62, log: log(...recs), ...extra });
+const cand = (id, event, team, recs, extra = {}) => ({ playerId: id, team, eventId: event, kickoffUtc: "2026-11-16T18:00Z", family: "player_receptions", side: "over", line: { line: 4.5, price: -150, sportsbook: "draftkings", capturedAt: "2026-11-15T12:00Z" }, eligibility: "ELIGIBLE", official: true, lineState: "OBSERVED", modelProbability: 0.62, log: log(...recs), ...extra });
 
 test("every refusal is named and counted; 3/5 is never used", () => {
   const r = screenLegs([
@@ -21,8 +21,15 @@ test("every refusal is named and counted; 3/5 is never used", () => {
     cand("e", "e1", "E", [5, 6, 7, 5]),
     cand("f", "e1", "F", [5, 6, 7, 1, 2]),
     cand("g", "e1", "G", [5, 6, 1, 1, 2]),
+    cand("h", "e1", "H", [5, 6, 7, 5, 6], { official: false }),
+    cand("i", "e1", "I", [5, 6, 7, 5, 6], { official: undefined }),
+    cand("j", "e1", "J", [5, 6, 7, 5, 6], { line: null, lineState: "UNUSABLE" }),
+    cand("k", "e1", "K", [5, 6, 7, 5, 6], { line: null, lineState: "WITHHELD" }),
+    cand("l", "e1", "L", [5, 6, 7, 5, 6], { line: null, lineState: "NOT_BEFORE_KICKOFF" }),
+    cand("m", "e1", "M", [5, 6, 4.5, 5, 6]),
   ], { families: FAM, isEligibleBook: isEligibleProvider });
-  assert.deepEqual(r.reasons, { NO_OBSERVED_LINE: 1, NO_OBSERVED_PRICE: 1, PLAYER_NOT_ELIGIBLE: 1, FAMILY_NOT_QUALIFIED: 1, SHORT_SAMPLE: 1, TIER_3_OF_5_NEVER_USED: 1, TREND_BELOW_4_OF_5: 1 });
+  assert.deepEqual(r.reasons, { NO_OBSERVED_LINE: 1, NO_OBSERVED_PRICE: 1, PLAYER_NOT_ELIGIBLE: 1, FAMILY_NOT_QUALIFIED: 1, SHORT_SAMPLE: 1, TIER_3_OF_5_NEVER_USED: 1, TREND_BELOW_4_OF_5: 1,
+    PROJECTION_NOT_OFFICIAL: 2, LINE_NOT_COMPARED: 1, INELIGIBLE_BOOK: 1, LINE_NOT_CAPTURED_BEFORE_KICKOFF: 1, PUSH_IN_RECORD: 1 });
   assert.equal(r.passed.length, 0);
 });
 
@@ -86,4 +93,24 @@ test("price arithmetic", () => {
   assert.equal(decimalOf(150), 2.5);
   assert.equal(Math.round(decimalOf(-150) * 1e4) / 1e4, 1.6667);
   assert.equal(decimalOf(0), null);
+});
+
+test("a push in the 5-game record is its own refusal, never 'below 4 of 5'; 4 over + 1 push is not a 4/5", () => {
+  const r = screenLegs([cand("p", "e1", "P", [5, 6, 7, 4.5, 6]), cand("q", "e1", "Q", [5, 6, 4.5, 4.5, 1])], { families: FAM, isEligibleBook: isEligibleProvider });
+  assert.deepEqual(r.reasons, { PUSH_IN_RECORD: 2 });
+  assert.equal(r.passed.length, 0);
+});
+
+test("order: 5/5 before 4/5; within a tier by kickoff, then playerId", () => {
+  const at = (h) => new Date(Date.parse("2026-11-16T18:00Z") + h * 3600_000).toISOString();
+  const { passed } = screenLegs([
+    cand("z5", "e9", "Z", [5, 6, 7, 5, 6], { kickoffUtc: at(0) }),
+    cand("a5", "e8", "A", [5, 6, 7, 5, 6], { kickoffUtc: at(3) }),
+    cand("m5", "e7", "M", [5, 6, 7, 5, 6], { kickoffUtc: at(0) }),
+    cand("b4", "e6", "B", [5, 6, 7, 1, 6], { kickoffUtc: at(-1) }),
+    cand("c4", "e5", "C", [5, 6, 7, 1, 6], { kickoffUtc: at(-2) }),
+  ].map((c) => ({ ...c, line: { ...c.line, capturedAt: "2026-11-16T10:00Z" } })), { families: FAM, isEligibleBook: isEligibleProvider });
+  assert.deepEqual(passed.map((l) => l.playerId), ["m5", "z5", "a5", "c4", "b4"], "5/5 by kickoff (ties by playerId), then 4/5 by kickoff");
+  const s = buildScenario(passed, { stake: 10, goal: 1000, minLegs: 2, maxLegs: 3, maxPerTeam: 1 });
+  assert.deepEqual(s.legs.map((l) => l.playerId), ["m5", "z5", "a5"], "the scenario takes them in that order");
 });

@@ -3,10 +3,15 @@
  * Bank Builder and Moonshot redesigns will call. PURE; no I/O, no wall-clock.
  *
  * A leg passes only when ALL of these hold (each failure is a named reason, counted, never silent):
- *   1. OBSERVED line + price from an eligible book, captured before kickoff        (no line ⇒ NO_OBSERVED_LINE)
+ *   0. the projection is the game page's OFFICIAL one (PUBLISHED family, not an estimate)   (PROJECTION_NOT_OFFICIAL)
+ *   1. OBSERVED line + price from an eligible book, captured before kickoff — the line the game page's line section
+ *      shows (leg-candidates.mjs)                                                 (no line ⇒ NO_OBSERVED_LINE; a line
+ *      the section does not compare ⇒ LINE_NOT_COMPARED)
  *   2. the player is ELIGIBLE under eligibility@1                                   (UNKNOWN/INELIGIBLE refused)
  *   3. the family is qualified for official products (family-eligibility.json)      (FAMILY_NOT_QUALIFIED)
- *   4. a COMPLETE 5-game record against TODAY's line on the chosen side: 5/5 first, 4/5 only to fill; 3/5 never
+ *   4. a COMPLETE 5-game record against TODAY's line on the chosen side: 5/5 first, 4/5 only to fill; 3/5 never; a
+ *      record with a push (a result equal to the line) has no tier (PUSH_IN_RECORD); 2 or fewer of 5 ⇒ TREND_BELOW_4_OF_5
+ * Order: 5/5 before 4/5; within a tier by kickoff, then playerId, then family.
  * A 5/5 streak is a historical screen, not a probability: the leg's probability is the qualified model's, or absent.
  *
  * Scenario rules:
@@ -20,6 +25,9 @@ import { lineRecord, trendTier } from "./player-evidence.mjs";
 
 export const AMOUNTS = Object.freeze({ bankBuilder: [50, 100, 250, 500], moonshot: [10, 20, 25, 50] });
 export const GOAL_CAP = Object.freeze({ bankBuilder: 5000, moonshot: 1000 });
+
+/** a non-OBSERVED line state (evidence-line.mjs) → the refusal code */
+const LINE_REASON = Object.freeze({ NO_LINE: "NO_OBSERVED_LINE", WITHHELD: "INELIGIBLE_BOOK", NOT_BEFORE_KICKOFF: "LINE_NOT_CAPTURED_BEFORE_KICKOFF", UNUSABLE: "LINE_NOT_COMPARED" });
 
 export const decimalOf = (american) => (american > 0 ? 1 + american / 100 : american < 0 ? 1 + 100 / -american : null);
 
@@ -40,7 +48,8 @@ export function screenLegs(candidates, { families, isEligibleBook = null }) {
   for (const c of candidates) {
     const side = c.side ?? "over";
     if (!allowed) { reject(c, "NO_ELIGIBLE_BOOK_LIST"); continue; }
-    if (!c.line || !Number.isFinite(c.line.line)) { reject(c, "NO_OBSERVED_LINE"); continue; }
+    if (c.official !== true) { reject(c, "PROJECTION_NOT_OFFICIAL"); continue; }
+    if (!c.line || !Number.isFinite(c.line.line)) { reject(c, LINE_REASON[c.lineState] ?? "NO_OBSERVED_LINE"); continue; }
     if (c.line.price == null || decimalOf(c.line.price) == null) { reject(c, "NO_OBSERVED_PRICE"); continue; }
     if (allowed(c.line.sportsbook) !== true) { reject(c, "INELIGIBLE_BOOK"); continue; }
     /* rule 1: captured BEFORE kickoff — a missing or unreadable instant on either side fails closed */
@@ -50,12 +59,14 @@ export function screenLegs(candidates, { families, isEligibleBook = null }) {
     if (!families?.[c.family]?.eligibleForOfficialProducts) { reject(c, "FAMILY_NOT_QUALIFIED"); continue; }
     const rec = lineRecord(c.log, c.family, 5, { line: c.line, side });
     if (rec.state !== "COMPLETE") { reject(c, rec.state === "SHORT_SAMPLE" ? "SHORT_SAMPLE" : "INCOMPLETE_HISTORY"); continue; }
+    if (rec.pushes > 0) { reject(c, "PUSH_IN_RECORD"); continue; }
     const tier = trendTier(rec);
     if (tier !== "5/5" && tier !== "4/5") { reject(c, tier === "3/5" ? "TIER_3_OF_5_NEVER_USED" : "TREND_BELOW_4_OF_5"); continue; }
     const prob = families[c.family].gtpProbability && Number.isFinite(c.modelProbability) ? c.modelProbability : null;
     passed.push({ ...c, side, tier, record: rec, decimal: decimalOf(c.line.price), probability: prob });
   }
-  const order = (a, b) => (a.tier === b.tier ? 0 : a.tier === "5/5" ? -1 : 1) || String(a.playerId).localeCompare(String(b.playerId)) || a.family.localeCompare(b.family);
+  const kick = (l) => { const t = Date.parse(l.kickoffUtc ?? ""); return Number.isFinite(t) ? t : Infinity; };
+  const order = (a, b) => (a.tier === b.tier ? 0 : a.tier === "5/5" ? -1 : 1) || (kick(a) - kick(b) || 0) || String(a.playerId).localeCompare(String(b.playerId)) || a.family.localeCompare(b.family) || String(a.side).localeCompare(String(b.side));
   return { passed: passed.sort(order), rejected, reasons };
 }
 
@@ -85,6 +96,6 @@ export function buildScenario(passed, { stake, goal, minLegs = 2, maxLegs = 4, m
   return { state: "BUILT", stake, goal, goalReached: payout >= goal, grossReturn: round2(payout), multiple: round2(payout / stake), legs: legs.map(ref), joint, skipped, warnings: [sameGame ? "SAME_GAME_LEGS" : null, legs.some((l) => l.tier === "4/5") ? "INCLUDES_4_OF_5" : null].filter(Boolean) };
 }
 
-const ref = (l) => ({ playerId: l.playerId, name: l.name ?? null, team: l.team, eventId: l.eventId, family: l.family, side: l.side, line: l.line?.line ?? null, price: l.line?.price ?? null, sportsbook: l.line?.sportsbook ?? null, capturedAt: l.line?.capturedAt ?? null, tier: l.tier ?? null, probability: l.probability ?? null });
+const ref = (l) => ({ playerId: l.playerId, name: l.name ?? null, team: l.team, eventId: l.eventId, kickoffUtc: l.kickoffUtc ?? null, family: l.family, side: l.side, line: l.line?.line ?? null, lineText: l.line?.lineText ?? null, price: l.line?.price ?? null, sportsbook: l.line?.sportsbook ?? null, bookLabel: l.line?.label ?? null, capturedAt: l.line?.capturedAt ?? null, captured: l.line?.captured ?? null, tier: l.tier ?? null, probability: l.probability ?? null });
 const payoutOf = (stake, legs) => stake * legs.reduce((d, l) => d * l.decimal, 1);
 const round2 = (v) => Math.round(v * 100) / 100;

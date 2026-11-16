@@ -71,7 +71,7 @@ export default function NflTrendsPage() {
         {!linesOpen ? null : <>{linesCaptured
           ? `${linesCaptured} rows have a sportsbook line captured before kickoff; only those show a record against the line, with the line, the sportsbook and when it was captured.`
           : "No sportsbook player lines were captured for this slate, so no hit rate against a line is shown. We never substitute a made-up line."}{" "}</>}
-        {played ? `${played} game${played === 1 ? " has" : "s have"} already kicked off and ${played === 1 ? "is" : "are"} not listed; ${played === 1 ? "its" : "their"} history stays on ${played === 1 ? "its" : "each"} game page. ` : ""}Tap a player for every game, opponent and stat line. <Link href="/nfl/">All NFL forecasts →</Link>
+        {played ? `${played} game${played === 1 ? " has" : "s have"} already kicked off and ${played === 1 ? "is" : "are"} not listed; ${played === 1 ? "its" : "their"} history stays on ${played === 1 ? "its" : "each"} game page. ` : ""}Tap a player for every game, opponent and stat line. <Link href="/nfl/">All NFL forecasts →</Link> · <Link href="/nfl/builder/">Scenario builder →</Link>
       </p>
       {rows.length ? <NflTrendsTable packed={packTrendRows(rows)} /> : <p style={{ color: "var(--vault-text-mute)" }}>No upcoming NFL player boards right now. Trends return with the next slate&apos;s boards.</p>}
       <p style={{ fontSize: 11.5, color: "var(--vault-text-faint)", marginTop: 14 }}>Box scores: ESPN public game summaries, 2026 regular season. &quot;–&quot; = no stat line (did not play, or recorded no stat). <Link href="/responsible-use/">Responsible use</Link></p>

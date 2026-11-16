@@ -1,7 +1,17 @@
 /**
- * NFL leg candidates for the scenario builder — PURE. Every (player, projected family, side) on the given boards becomes
- * a candidate carrying ONLY observed market data (the board's captured line and price; none ⇒ line null) and the
- * player's evidence log, and the game's kickoff (the screen refuses a line not captured before it). Shared by the /nfl/builder page and scripts/nfl/audit-leg-screen.mjs so both count the same.
+ * NFL leg candidates for the scenario builder — PURE. Shared by the /nfl/builder page and scripts/nfl/audit-leg-screen.mjs
+ * (through builder-inputs.mjs) so both count the same.
+ *
+ * LINES — the canonical rule only: `linesByEvent[eventId]` is nflEvidenceLines over THE rule's rows for that game
+ * (line-display-open.mjs nflOpenLineRecords: switch on AND a readable artifact), selected at the build instant exactly
+ * as the game page's line section selects them. A game whose rule is closed (null / absent) supplies NO candidate at
+ * all — no leg and no refusal row. The public board's offer slot is never read. A leg's line, price, book and capture
+ * time all come from the same chosen artifact row (the price is that row's own over / under price; none ⇒ null,
+ * never inferred).
+ * PROJECTION — `official` is true only when the board family is PUBLISHED AND the game page shows an official
+ * (non-estimate) projection for the player in it (`projectionsByEvent[eventId]` = evidenceProjections(gameTabs(view)),
+ * the page's own accessor).
+ * Only games that have not kicked off at `now` (the build instant) supply candidates.
  */
 import { FAMILY_STAT } from "./player-evidence.mjs";
 
@@ -11,18 +21,28 @@ export function upcomingBoards(boards, now) {
   return (boards ?? []).filter((b) => Number.isFinite(t) && Number.isFinite(Date.parse(b?.kickoffUtc ?? "")) && Date.parse(b.kickoffUtc) > t);
 }
 
-/** Only boards that have not kicked off at `now` (the build instant) supply candidates: a played game never supplies a leg. */
-export function legCandidates({ boards, evidenceByEvent, now }) {
+/**
+ * @param {{ boards: any[], evidenceByEvent: Record<string, any>, now?: string,
+ *   linesByEvent?: Record<string, Record<string, any> | null>, projectionsByEvent?: Record<string, Record<string, Record<string, any>>> }} input
+ */
+export function legCandidates({ boards, evidenceByEvent, now, linesByEvent = {}, projectionsByEvent = {} }) {
   const out = [];
   for (const b of upcomingBoards(boards, now)) {
-    const ev = evidenceByEvent[String(b.providerEventId)] ?? {};
-    for (const p of b.players ?? []) for (const [fam, m] of Object.entries(p.markets ?? {})) {
+    const id = String(b.providerEventId);
+    const lines = linesByEvent?.[id] ?? null;
+    if (!lines) continue; // the rule is closed for this game: nothing about it, not even a refusal
+    const ev = evidenceByEvent[id] ?? {};
+    const proj = projectionsByEvent?.[id] ?? {};
+    for (const p of b.players ?? []) for (const fam of Object.keys(p.markets ?? {})) {
       if (!FAMILY_STAT[fam]) continue;
-      const mk = m.market ?? null;
-      const base = mk?.line != null ? { line: mk.line, sportsbook: mk.sportsbook, capturedAt: mk.capturedAt } : null;
+      const pr = proj[p.playerId]?.[fam] ?? null;
+      const official = b.families?.[fam]?.state === "PUBLISHED" && pr != null && !pr.estimate;
+      const lv = lines[`${p.playerId}|${fam}`] ?? null;
       for (const side of fam === "anytime_td" ? ["over"] : ["over", "under"]) {
-        const price = side === "under" ? mk?.underOdds ?? null : mk?.overOdds ?? mk?.yesOdds ?? null;
-        out.push({ playerId: p.playerId, name: p.name ?? null, team: p.team, eventId: String(b.providerEventId), kickoffUtc: b.kickoffUtc ?? null, family: fam, side, line: base ? { ...base, price } : null, eligibility: p.eligibility?.state ?? null, modelProbability: fam === "anytime_td" ? m.probability ?? null : null, log: ev[p.playerId] ?? [] });
+        const line = lv?.state === "OBSERVED"
+          ? { line: lv.line, lineText: lv.lineText, price: (side === "under" ? lv.underPrice : lv.overPrice) ?? null, sportsbook: lv.book, label: lv.sportsbook, capturedAt: lv.capturedAt, captured: lv.captured }
+          : null;
+        out.push({ playerId: p.playerId, name: p.name ?? null, team: p.team, eventId: id, kickoffUtc: b.kickoffUtc ?? null, family: fam, side, official, line, lineState: lv?.state ?? "NO_LINE", eligibility: p.eligibility?.state ?? null, modelProbability: fam === "anytime_td" ? p.markets[fam]?.probability ?? null : null, log: ev[p.playerId] ?? [] });
       }
     }
   }

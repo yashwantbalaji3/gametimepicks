@@ -8,13 +8,15 @@
  * same-game legs; present a gross return as an expected result. Empty is a first-class state with the exact reasons.
  */
 import React, { useMemo, useState } from "react";
+import Link from "next/link";
 import { AMOUNTS, GOAL_CAP, buildScenario } from "@/lib/sports/nfl/leg-screen.mjs";
-import { etStamp } from "@/lib/et-stamp.mjs";
+import { formatLineCaption } from "@/lib/sports/nfl/trends-wire.mjs";
 import { BOOK_AVAILABILITY_NOTE } from "@/lib/sports/odds/eligible-operators.mjs";
 
 export type ScreenedLeg = {
-  playerId: string; name: string | null; team: string; eventId: string; family: string; side: "over" | "under";
-  line: { line: number; price: number; sportsbook: string; capturedAt: string }; tier: "5/5" | "4/5"; decimal: number; probability: number | null;
+  playerId: string; name: string | null; team: string; eventId: string; kickoffUtc?: string | null; family: string; side: "over" | "under";
+  /* the game page section's line: value + its printed text, the chosen row's price, book key + label, capture instant + ET text */
+  line: { line: number; lineText: string; price: number; sportsbook: string; label: string; capturedAt: string; captured: string }; tier: "5/5" | "4/5"; decimal: number; probability: number | null;
 };
 type Product = "bankBuilder" | "moonshot";
 
@@ -23,6 +25,9 @@ const PRODUCT = {
   moonshot: { title: "Moonshot", goalDefault: 250, minLegs: 2, maxLegs: 6, blurb: "Higher variance on purpose. A 100× scenario is a long shot that usually loses the whole stake." },
 } as const;
 const REASON: Record<string, string> = {
+  PROJECTION_NOT_OFFICIAL: "no official projection for this market (an estimate, or not published)",
+  LINE_NOT_COMPARED: "a captured line we do not compare against (too old, ambiguous or suspended)",
+  PUSH_IN_RECORD: "a result equal to the line in the last 5 (a push), so no 5-of-5 or 4-of-5 record",
   NO_OBSERVED_LINE: "no sportsbook line captured before kickoff",
   NO_OBSERVED_PRICE: "a line but no price",
   INELIGIBLE_BOOK: "price from a book outside the eligible list",
@@ -33,7 +38,7 @@ const REASON: Record<string, string> = {
   SHORT_SAMPLE: "fewer than 5 games on record",
   INCOMPLETE_HISTORY: "a recent game with no stat line",
   TIER_3_OF_5_NEVER_USED: "only 3 of 5 against the line (never used)",
-  TREND_BELOW_4_OF_5: "fewer than 3 of 5 against the line",
+  TREND_BELOW_4_OF_5: "2 or fewer of the last 5 against the line",
 };
 const FAMILY: Record<string, string> = { player_receptions: "receptions", player_reception_yds: "receiving yds", player_rush_yds: "rushing yds", player_pass_yds: "passing yds", anytime_td: "anytime TD" };
 const usd = (v: number) => { const d = Number.isInteger(v) || v >= 100 ? 0 : 2; return v.toLocaleString("en-US", { style: "currency", currency: "USD", minimumFractionDigits: d, maximumFractionDigits: d }); };
@@ -57,10 +62,18 @@ const CSS = `
 .sb td:first-child{text-align:right;font-variant-numeric:tabular-nums;color:var(--vault-text)}
 `;
 
-/** "4.5 at draftkings, captured Nov 15, 7:00 AM ET": the same caption shape as lib/sports/nfl/evidence-line.mjs, with the
- *  shared ET stamp. A leg exists only when its capture preceded kickoff (leg-screen rule 1). */
-const legLine = (l: { line: number | null; sportsbook: string | null; capturedAt: string | null }) =>
-  `${l.line ?? "?"} at ${l.sportsbook ?? "?"}, captured ${etStamp(l.capturedAt) ?? "at an unknown time"}`;
+/** "4.5 at DraftKings, captured Nov 15, 7:00 AM ET": THE caption (trends-wire.mjs formatLineCaption), from the parts the
+ *  game page's section printed (line text, book label, ET quote time). A leg exists only when its capture preceded
+ *  kickoff (leg-screen rule 1). */
+const legLine = (l: { lineText: string | null; bookLabel: string | null; captured: string | null }) => formatLineCaption(l.lineText ?? "?", l.bookLabel ?? "?", l.captured ?? "at an unknown time");
+
+/** The custom stake is always BELOW the goal: stake in [1, cap − 1]; a goal at or below the stake becomes 2× the stake
+ *  (capped), and a goal entry is held above the stake. */
+export function clampStakeGoal(stake: number, goal: number, cap: number): { stake: number; goal: number } {
+  const s = Math.max(1, Math.min(cap - 1, Math.round(stake)));
+  const g = Number.isFinite(goal) ? Math.min(cap, Math.round(goal)) : cap;
+  return { stake: s, goal: g > s ? g : Math.min(cap, Math.max(s * 2, s + 1)) };
+}
 
 export default function ScenarioBuilder({ product, legs, candidates, refusedBy, asOf }: { product: Product; legs: ScreenedLeg[]; candidates: number; refusedBy: Record<string, number>; asOf: string | null }) {
   const cfg = PRODUCT[product];
@@ -72,17 +85,17 @@ export default function ScenarioBuilder({ product, legs, candidates, refusedBy, 
   const key = (l: ScreenedLeg) => `${l.playerId}|${l.family}|${l.side}`;
   const pool = useMemo(() => legs.filter((l) => !removed.has(key(l))), [legs, removed]);
   const s = useMemo(() => buildScenario(pool, { stake, goal, minLegs: cfg.minLegs, maxLegs: cfg.maxLegs }) as any, [pool, stake, goal, cfg]);
-  const safeGoal = (v: number) => (Number.isFinite(v) ? Math.max(stake, Math.min(cap, Math.round(v))) : goal);
-  /* a goal at or below the stake is not a goal: raise it to 2× the stake (capped) whenever the stake passes it */
-  const pickStake = (v: number) => { setStake(v); if (goal <= v) setGoal(Math.min(cap, Math.max(v * 2, goal))); };
+  /* the stake stays below the goal (clampStakeGoal) */
+  const pickStake = (v: number) => { const c = clampStakeGoal(v, goal, cap); setStake(c.stake); setGoal(c.goal); };
+  const pickGoal = (v: number) => { if (!Number.isFinite(v)) return; const c = clampStakeGoal(stake, v, cap); setStake(c.stake); setGoal(c.goal); };
   return (
     <section className="sb" aria-labelledby={`sb-${product}`} data-scenario-product={product}>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div><h3 id={`sb-${product}`}>{cfg.title} scenario</h3><p className="sb-mute">{cfg.blurb} Amounts are hypothetical inputs, not advice and not a promise of any return.</p></div>
       <div className="sb-row" role="group" aria-label="Starting amount">
         {amounts.map((a) => <button key={a} type="button" className="sb-chip" aria-pressed={stake === a} onClick={() => pickStake(a)}>{usd(a)}</button>)}
-        <label className="sb-mute">Custom <input type="number" min={1} max={cap} inputMode="decimal" value={stake} onChange={(e) => { const v = Number(e.target.value); if (Number.isFinite(v) && v > 0) pickStake(Math.min(cap, v)); }} aria-label="Custom starting amount in dollars" /></label>
-        <label className="sb-mute">Goal (up to {usd(cap)}) <input type="number" min={1} max={cap} value={goal} onChange={(e) => setGoal(safeGoal(Number(e.target.value)))} aria-label="Hypothetical gross payout goal in dollars" /></label>
+        <label className="sb-mute">Custom <input type="number" min={1} max={cap - 1} inputMode="decimal" value={stake} onChange={(e) => { const v = Number(e.target.value); if (Number.isFinite(v) && v > 0) pickStake(v); }} aria-label="Custom starting amount in dollars" /></label>
+        <label className="sb-mute">Goal (up to {usd(cap)}) <input type="number" min={1} max={cap} value={goal} onChange={(e) => pickGoal(Number(e.target.value))} aria-label="Hypothetical gross payout goal in dollars" /></label>
       </div>
 
       {s.state === "BUILT" ? (
@@ -103,7 +116,7 @@ export default function ScenarioBuilder({ product, legs, candidates, refusedBy, 
             const full = legs.find((x) => key(x) === `${l.playerId}|${l.family}|${l.side}`)!;
             return (
               <div className="sb-leg" key={`${l.playerId}|${l.family}|${l.side}`} data-leg={l.playerId}>
-                <div><b>{l.name ?? l.playerId}</b> <small>{l.team}</small><br />{l.side} {l.line} {FAMILY[l.family] ?? l.family} <small>· {am(l.price)} · {legLine(l)}</small><br /><small>Last 5 vs this line: {l.tier} (history, not a probability){l.probability != null ? ` · model ${(l.probability * 100).toFixed(0)}%` : " · no qualified model probability"}</small></div>
+                <div><b>{l.name ?? l.playerId}</b> <small>{l.team}</small><br />{l.side} {l.lineText ?? l.line} {FAMILY[l.family] ?? l.family} <small>· {am(l.price)} · {legLine(l)}</small><br /><small>Last 5 vs this line: {l.tier} (a ranking from history, not a probability or a guarantee){l.probability != null ? ` · model ${(l.probability * 100).toFixed(0)}%` : " · no qualified model probability"} · <Link href={`/nfl/game/${l.eventId}/#recent-form`}>Recent form</Link></small></div>
                 <button type="button" className="sb-x" onClick={() => setRemoved((r) => new Set(r).add(key(full)))} aria-label={`Remove ${l.name ?? l.playerId} and rebuild`}>Remove</button>
               </div>
             );
