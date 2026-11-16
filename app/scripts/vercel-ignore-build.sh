@@ -229,6 +229,9 @@ BUILD_INPUTS=(
     # NFL player evidence (founder 2026-11-15): actual recent games beside each board projection on /nfl/game/[eventId].
     # Written by the event-window job in the same commit as the player boards (already BUILD_INPUTs): no extra build.
     ':(top)data/internal/research/nfl/player-evidence/latest.json'
+    # Its box-score corpus: player-evidence-file.mjs compares the evidence source.contentHash with it and warns at build
+    # time when the file is stale. Only the event-window job writes it, in the same commit as the boards: no extra build.
+    ':(top)data/internal/research/nfl/player-events-v1/2026.json'
     ':(top)data/internal/nfl/experimental-settlement/'
     ':(top)data/internal/nfl/winner-corrections/'
     ':(top)data/internal/nfl/side-decision-cutover.json'

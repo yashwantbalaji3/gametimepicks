@@ -85,6 +85,7 @@ import { loadNflPostgame } from "@/lib/sports/nfl/postgame-box-score";
 import { withNflPropLines } from "@/components/nfl/nfl-prop-lines";
 import NflPlayerEvidencePanel from "@/components/nfl/player-evidence-panel";
 import { readEvidenceFor } from "@/lib/sports/nfl/player-evidence-file.mjs";
+import { evidenceProjections } from "@/lib/sports/nfl/evidence-projections.mjs";
 
 type Forecast = {
   /** Written by the P178 significance gate: whether event-specific team evidence was applied. */
@@ -197,21 +198,6 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
     } catch { return null; }
   })();
 
-  /* Founder 2026-11-15 P2: the actual games behind each projection (history only; no line ⇒ no hit rate). Built once and
-     placed in BOTH player sections: a simulated game (every current game) renders #players, not the legacy #player-board
-     section, so a panel only in the legacy branch never reached a built page. */
-  const recentForm = (() => {
-    if (!playerBoard) return null;
-    const evidence = readEvidenceFor(path.join(process.cwd(), ".."), params.eventId);
-    if (!Object.keys(evidence).length) return null;
-    return (
-      <details id="recent-form" className="mt-3" style={{ border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px", scrollMarginTop: 72 }}>
-        <summary style={{ cursor: "pointer", fontSize: 14, fontWeight: 600, color: "var(--vault-text)", minHeight: 44, display: "flex", alignItems: "center" }}>Recent form · actual last 5 and last 10 games</summary>
-        <NflPlayerEvidencePanel players={playerBoard.players as never} evidence={evidence as never} sourceNote="Box scores: ESPN public game summaries, 2026 regular season." />
-      </details>
-    );
-  })();
-
   /* P251-F6: the lumpy half of the forecast — an event-based score simulation solved onto THIS
      forecast's own median margin and total, so the two cannot disagree about the centre. Absent
      when the solve did not converge for this game, in which case the section simply does not
@@ -225,6 +211,21 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
   const hasShape = !!shape?.finalScores?.length;
   /* Founder directive 2026-10-08: the ONE forecast view the hub boards read too (lib/sports/nfl/forecast-view.mjs). */
   const view: any = loadForecastView(path.join(process.cwd(), "public"), params.eventId);
+
+  /* Founder 2026-11-15 P2: the actual games behind each projection (history only; no line ⇒ no hit rate). Built once and
+     placed in BOTH player sections: a simulated game (every current game) renders #players, not the legacy #player-board
+     section, so a panel only in the legacy branch never reached a built page. */
+  const recentForm = (() => {
+    if (!playerBoard) return null;
+    const evidence = readEvidenceFor(path.join(process.cwd(), ".."), params.eventId);
+    if (!Object.keys(evidence).length) return null;
+    return (
+      <details id="recent-form" className="mt-3" style={{ border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px", scrollMarginTop: 72 }}>
+        <summary style={{ cursor: "pointer", fontSize: 14, fontWeight: 600, color: "var(--vault-text)", minHeight: 44, display: "flex", alignItems: "center" }}>Recent form · actual last 5 and last 10 games</summary>
+        <NflPlayerEvidencePanel players={playerBoard.players as never} evidence={evidence as never} projections={evidenceProjections(view ? gameTabs(view) : null)} kickoffUtc={f.kickoffUtc ?? null} sourceNote="Box scores: ESPN public game summaries, 2026 regular season." />
+      </details>
+    );
+  })();
 
   const idx = indexArtifact();
   const idxEvent = (idx?.events ?? []).find((e: { providerEventId: string }) => e.providerEventId === params.eventId);

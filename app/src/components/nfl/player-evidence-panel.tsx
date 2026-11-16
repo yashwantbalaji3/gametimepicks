@@ -4,16 +4,21 @@
  * small bar chart, the sample and its gaps, and the observed-line state.
  *
  * It never invents a comparison line: with no sportsbook line captured before kickoff it says so and shows no hit rate.
- * The projection band on the chart is the official model's 80% range — labelled as such, never as a line.
+ * Every hit rate names the line value, the sportsbook and the capture time (ET) — lib/sports/nfl/evidence-line.mjs.
+ * The projection beside the history is the game page's own row (gameTabs, via evidence-projections.mjs): "official
+ * projection" only for a PUBLISHED family, "estimate" for an ESTIMATE family, "no official projection" otherwise.
+ * The projection band on the chart is that row's 80% range — labelled as such, never as a line.
  * Collapsed by default (<details>), no client JavaScript. Styling is one class sheet (EV_CSS), not per-cell inline
  * styles: a full board is ~18 players × 10 games, and inline styles tripled the page payload.
  */
 import React from "react";
 import { FAMILY_STAT, lineRecord, summary, valueOf } from "@/lib/sports/nfl/player-evidence.mjs";
+import { NO_RATE_TEXT, lineCaption, lineView } from "@/lib/sports/nfl/evidence-line.mjs";
 
 export type EvidenceEntry = { eventId: string; week: number; date: string; team: string; opponent: string | null; homeAway: "H" | "A"; state: "STAT_LINE" | "NO_STAT_LINE"; stats?: Record<string, number> };
-type Market = { median?: number; p10?: number; p90?: number; probability?: number; market?: { line?: number; sportsbook?: string; capturedAt?: string } | null };
-export type EvidencePlayer = { playerId: string; name: string; team: string; participation?: string; markets: Record<string, Market> };
+/** One row the game page shows for (player, family) — evidence-projections.mjs. */
+export type EvidenceProjection = { value: number; p10: number | null; p90: number | null; kind: string; text: string; range: string | null; estimate: string | null; market: any };
+export type EvidencePlayer = { playerId: string; name: string; team: string; markets?: Record<string, unknown> };
 
 /** The order families are shown in; anytime TD last (its history is a yes/no). */
 const ORDER = ["player_pass_yds", "player_rush_yds", "player_reception_yds", "player_receptions", "anytime_td"];
@@ -70,48 +75,54 @@ function Bars({ log, family, band }: { log: EvidenceEntry[]; family: string; ban
   );
 }
 
-function FamilyEvidence({ log, family, m, chart }: { log: EvidenceEntry[]; family: string; m: Market; chart: boolean }) {
+function FamilyEvidence({ log, family, m, chart, kickoffUtc }: { log: EvidenceEntry[]; family: string; m: EvidenceProjection | null; chart: boolean; kickoffUtc: string | null }) {
   const f = FAMILY_STAT[family as keyof typeof FAMILY_STAT];
   const isTd = family === "anytime_td";
   const s5 = summary(log, family, 5), s10 = summary(log, family, 10);
-  const line = m.market?.line != null ? { line: m.market.line, sportsbook: m.market.sportsbook, capturedAt: m.market.capturedAt } : null;
-  const r5 = lineRecord(log, family, 5, { line });
-  const proj = isTd ? (m.probability != null ? `${Math.round(m.probability * 100)}% chance to score` : null) : m.median != null ? `${fmt(m.median, 1)} ${f.unit}${m.p10 != null && m.p90 != null ? ` (80% range ${fmt(m.p10)}–${fmt(m.p90)})` : ""}` : null;
+  /* the page's own (sanitised) offer slot; an estimate never carries one */
+  const lv = lineView(m?.market ?? null, kickoffUtc);
+  const r5 = lineRecord(log, family, 5, { line: lv.state === "OBSERVED" ? { line: lv.line, sportsbook: lv.sportsbook, capturedAt: lv.capturedAt } : null });
+  const proj = m ? `${m.text}${isTd ? " chance to score" : ` ${f.unit}`}${m.range && !isTd ? ` (80% range ${m.range})` : ""}` : null;
+  const projState = !m ? "NONE" : m.estimate ? "ESTIMATE" : "OFFICIAL";
   const tdGames = (s: ReturnType<typeof summary>) => s.values.filter((v: number | null) => v != null && v > 0).length;
   return (
-    <div className="ev-f" data-evidence-family={family}>
-      <div className="ev-fh">{f.label}{proj ? <span> · official projection {proj}</span> : null}</div>
+    <div className="ev-f" data-evidence-family={family} data-projection-state={projState}>
+      <div className="ev-fh">{f.label}<span> · {projState === "OFFICIAL" ? <>official projection {proj}</> : projState === "ESTIMATE" ? <>estimate {proj}, not an official projection</> : "no official projection"}</span></div>
       <div className="ev-sum">
         {isTd
           ? <>Scored in {tdGames(s5)} of last {s5.recorded} recorded games{s10.recorded > s5.recorded ? <> · {tdGames(s10)} of last {s10.recorded}</> : null}</>
           : <>Last 5 median {fmt(s5.median, 1)} · last {s10.games} median {fmt(s10.median, 1)} · range {fmt(s10.min)}–{fmt(s10.max)}</>}
         {s10.noStatLine ? <> · {s10.noStatLine} game{s10.noStatLine > 1 ? "s" : ""} with no stat line</> : null}
       </div>
-      {chart && !isTd ? <Bars log={log} family={family} band={{ p10: m.p10, p90: m.p90, median: m.median }} /> : null}
-      <div className="ev-line" data-line-state={r5.state}>
-        {r5.state === "NO_OBSERVED_LINE"
-          ? "No sportsbook line was captured for this market before kickoff, so no hit rate is shown."
+      {chart && !isTd ? <Bars log={log} family={family} band={m ? { p10: m.p10 ?? undefined, p90: m.p90 ?? undefined, median: m.value } : null} /> : null}
+      {m?.estimate ? <div className="ev-line">{m.estimate}</div> : null}
+      <div className="ev-line" data-line-state={lv.state === "OBSERVED" ? r5.state : lv.state}>
+        {lv.state !== "OBSERVED"
+          ? NO_RATE_TEXT[lv.state as keyof typeof NO_RATE_TEXT]
           : r5.state === "COMPLETE"
-            ? `Last 5 vs today's ${line!.line} (${line!.sportsbook ?? "sportsbook"}): over in ${r5.badge}${r5.pushes ? `, ${r5.pushes} push` : ""}. A past streak is history, not a probability.`
-            : `Last 5 vs today's ${line!.line}: ${r5.hits ?? 0} over of ${(r5.games ?? 0) - (r5.missing ?? 0)} recorded games — not a full 5-game record (${r5.state === "SHORT_SAMPLE" ? "fewer than 5 games" : "a game with no stat line"}).`}
+            ? `Last 5 vs today's line ${lineCaption(lv)}: over in ${r5.badge}${r5.pushes ? `, ${r5.pushes} push` : ""}. A past streak is history, not a probability.`
+            : `Last 5 vs today's line ${lineCaption(lv)}: ${r5.hits ?? 0} over of ${(r5.games ?? 0) - (r5.missing ?? 0)} recorded games — not a full 5-game record (${r5.state === "SHORT_SAMPLE" ? "fewer than 5 games" : "a game with no stat line"}).`}
       </div>
     </div>
   );
 }
 
-export default function NflPlayerEvidencePanel({ players, evidence, sourceNote }: { players: EvidencePlayer[]; evidence: Record<string, EvidenceEntry[]>; sourceNote: string }) {
-  const rows = players.filter((p) => evidence[p.playerId] && Object.keys(p.markets ?? {}).some((k) => ORDER.includes(k)));
+export default function NflPlayerEvidencePanel({ players, evidence, projections, kickoffUtc, sourceNote }: { players: EvidencePlayer[]; evidence: Record<string, EvidenceEntry[]>; projections: Record<string, Record<string, EvidenceProjection>>; kickoffUtc: string | null; sourceNote: string }) {
+  /* families shown: the page's projected families for the player; a board player the page projects in nothing keeps his
+     board families, each marked "no official projection" (history only, never a hit rate from an unshown line) */
+  const famsOf = (p: EvidencePlayer) => { const own = ORDER.filter((k) => projections[p.playerId]?.[k]); return own.length ? own : ORDER.filter((k) => p.markets?.[k]); };
+  const rows = players.filter((p) => evidence[p.playerId] && famsOf(p).length);
   if (!rows.length) return null;
   return (
     <div data-testid="nfl-player-evidence">
       <style dangerouslySetInnerHTML={{ __html: EV_CSS }} />
       <p className="ev-intro">
-        Each player&apos;s actual games before this kickoff, beside the official projection. The chart (for the player's main market) shows real results (– means no stat line: did not play or recorded no stat); the dashed line and shaded band are the model&apos;s median and 80% range, not a sportsbook line. {sourceNote}
+        Each player&apos;s actual games before this kickoff, beside this page&apos;s projection. The chart (for the player's main market) shows real results (– means no stat line: did not play or recorded no stat); the dashed line and shaded band are the model&apos;s median and 80% range, not a sportsbook line. {sourceNote}
       </p>
       <ul className="ev-list">
         {rows.map((p) => {
           const log = evidence[p.playerId];
-          const fams = ORDER.filter((k) => p.markets[k]);
+          const fams = famsOf(p);
           const lead = fams.find((k) => k !== "anytime_td") ?? fams[0];
           const recent = log.slice(0, 5).map((e) => valueOf(e, lead));
           /* columns by role: only the stat groups this player is projected in (TD column always) */
@@ -130,7 +141,7 @@ export default function NflPlayerEvidencePanel({ players, evidence, sourceNote }
                 </summary>
                 <div className="ev-body">
                   {log.length < 5 ? <p className="ev-small">Only {log.length} game{log.length === 1 ? "" : "s"} on record this season — a small sample.</p> : null}
-                  {fams.map((k) => <FamilyEvidence key={k} log={log} family={k} m={p.markets[k]} chart={k === lead} />)}
+                  {fams.map((k) => <FamilyEvidence key={k} log={log} family={k} m={projections[p.playerId]?.[k] ?? null} chart={k === lead} kickoffUtc={kickoffUtc} />)}
                   <div className="ev-scroll">
                     <table className="ev-t">
                       <caption className="sr-only">{p.name} game log, most recent first</caption>

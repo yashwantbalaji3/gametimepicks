@@ -46,10 +46,13 @@ const STAT_KEYS = ["targets", "rec", "recYds", "recTd", "rushAtt", "rushYds", "r
  * PURE. The player's last `n` games before `kickoff`, most recent first. A game is in the window when the player has a
  * stat line in it (any team), or when it is a game of `team` played after the player's first stat line for `team`
  * (then it is NO_STAT_LINE). Games of the current team before he joined it are not his games and are not counted.
+ * `eventId` (the forecast game) is excluded outright, whatever its date says.
  */
-export function gameLog(games, playerId, team, kickoff, n = WINDOW_MAX) {
+export function gameLog(games, playerId, team, kickoff, n = WINDOW_MAX, { eventId = null } = {}) {
   const k = ms(kickoff);
-  const before = games.filter((g) => ms(g.dateUtc) != null && ms(g.dateUtc) < k).sort((a, b) => ms(b.dateUtc) - ms(a.dateUtc));
+  /* own-event guard: the game being forecast is never its own history, even if a clock or kickoff field is wrong */
+  const own = eventId == null ? null : String(eventId);
+  const before = games.filter((g) => ms(g.dateUtc) != null && ms(g.dateUtc) < k && String(g.providerEventId) !== own).sort((a, b) => ms(b.dateUtc) - ms(a.dateUtc));
   const rowOf = (g) => g.players?.find((x) => x.playerId === playerId) ?? null;
   let joined = null;
   for (const g of before) { const r = rowOf(g); if (r && r.teamAbbr === team) joined = g.dateUtc; }
@@ -141,7 +144,7 @@ export function buildEvidenceFile({ boards, games, sourceHash }) {
   for (const b of [...boards].sort((a, c) => String(a.providerEventId).localeCompare(String(c.providerEventId)))) {
     const players = {};
     for (const p of [...(b.players ?? [])].sort((a, c) => a.playerId.localeCompare(c.playerId))) {
-      players[p.playerId] = gameLog(games, p.playerId, p.team, b.kickoffUtc, WINDOW_MAX);
+      players[p.playerId] = gameLog(games, p.playerId, p.team, b.kickoffUtc, WINDOW_MAX, { eventId: b.providerEventId });
     }
     events[String(b.providerEventId)] = { kickoffUtc: b.kickoffUtc, players };
   }
