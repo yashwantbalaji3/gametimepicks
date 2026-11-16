@@ -124,6 +124,13 @@ jobs:
       - name: Stamp the run start
         run: echo "RUN_STARTED=$(date -u +%Y-%m-%dT%H:%M:%SZ)" >> "$GITHUB_ENV"
 
+      # N8 parity fix: receiving-yards withholding conditions are collected here (one RECYDS_* line each) and turned
+      # into a FAILED run by the last check step below, after every other market's outputs are committed and pushed.
+      - name: Open the receiving-yards alert log
+        run: |
+          : > "$RUNNER_TEMP/recyds-alerts.log"
+          echo "GTP_RECYDS_ALERTS=$RUNNER_TEMP/recyds-alerts.log" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v5
@@ -245,6 +252,7 @@ jobs:
           rm -f ../data/internal/research/nfl/role-shares-v1/receiving-yards-view.json
           if ! node scripts/nfl/build-nfl-recyds-share-view.mjs; then
             echo "::error::RECYDS_VIEW_MISSING receiving-yards share view not built — player_reception_yds is withheld this window"
+            echo "RECYDS_VIEW_MISSING build-nfl-recyds-share-view.mjs failed — player_reception_yds is withheld this window" >> "$GTP_RECYDS_ALERTS"
           fi
 
       # ---- Injury designations ----
@@ -860,6 +868,17 @@ jobs:
             unpublished-commits.bundle
             unpublished-commits.txt
           retention-days: 30
+
+      # N8 parity fix — NEVER A SILENT WITHHOLD. Runs after the publish step, so the slate (every other market, and every
+      # team whose receiving yards did compute) is already on main; then any RECYDS_* line collected this run fails the
+      # job: the run conclusion is failure (cron-watchdog) and "Notify on failure" below posts ERROR_LINE to the ops
+      # webhook. The board itself names each withheld team with the standard "withheld for <team>" reason.
+      - name: Fail the run when receiving yards were withheld (after publishing)
+        if: ${{ always() && !cancelled() }}
+        working-directory: app
+        run: |
+          set -euo pipefail
+          node scripts/nfl/check-recyds-alerts.mjs "$GTP_RECYDS_ALERTS"
 
       # Was a hand-rolled curl posting its own payload straight to the webhook. It worked, but it
       # sat OUTSIDE docs/OPS_ALERTING_CONTRACT.md: no redaction pass, a different message shape, and

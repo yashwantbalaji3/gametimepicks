@@ -18,11 +18,13 @@
  *   rawShare_i   = the builder's decayed target share BEFORE its roster-wide normalisation (current roster, pregame);
  *   modelled     = { i : rawShare_i ≥ threshold }  (the evaluator's / event window's THRESH.targetShare);
  *   S            = Σ_{modelled} rawShare_i;
- *   share_i      = rawShare_i × (S > 1 ? 1/S : 1)  — explicit, so Σ share ≤ 1 holds BEFORE the engine sees it;
+ *   ENGINE INPUT = rawShare_i for every modelled receiver — byte-for-byte the evaluator's input (candidatesFor);
+ *   share_i      = rawShare_i × (S > 1 ? 1/S : 1)  — ACCOUNTING only: the engine's own expected share (its Dirichlet
+ *                  normalises by S, up to the 1e-3 OTHER floor), so Σ share ≤ 1;
  *   residual     = 1 − Σ_{modelled} share_i ≥ 0   — OTHER/UNALLOCATED, kept explicit.
  * Expected targets_i = share_i × E[pass attempts], so Σ expected targets = (1 − residual) × E[pass attempts] ≤
- * E[pass attempts] (per simulated game the engine's multinomial makes Σ allocated ≤ pass attempts by construction).
- * When S ≤ 1 (the usual case) the shares are exactly the evaluator's raw shares.
+ * E[pass attempts]; per simulated game the allocation (allocateOpportunities) never hands out more than the attempts,
+ * whatever the input shares sum to. Never pre-scale the engine input: same means, but ~S× the share variance.
  *
  * Every other consumer of role-shares-v1/current.json (anytime TD, receptions, rushing/passing props, sim-v2, the
  * end-zone vault, participation, lane status) keeps reading the normalised shared artifact, byte-identical.
@@ -160,7 +162,11 @@ export function receivingYardsShares({ viewBlock, threshold }) {
   const listed = viewBlock?.players ?? [];
   const modelledRawSum = listed.filter((p) => p.rawShare >= threshold).reduce((s, p) => s + p.rawShare, 0);
   const scale = modelledRawSum > 1 ? 1 / modelledRawSum : 1;
-  const players = listed.map((p) => ({ playerId: p.playerId, rawShare: p.rawShare, modelled: p.rawShare >= threshold, share: p.rawShare >= threshold ? p.rawShare * scale : 0 }));
+  /* share = the ACCOUNTING share (what each receiver's expected targets are); engineShare = what the engine is fed —
+     the RAW share, exactly as the evaluator feeds it. The engine's Dirichlet (κ·raw, OTHER = κ·max(0, 1 − S)) then
+     normalises by S itself with total concentration κ·S; pre-scaling by 1/S would keep the means but lower the
+     concentration to κ and widen every receiver's target-share spread by about S×. */
+  const players = listed.map((p) => ({ playerId: p.playerId, rawShare: p.rawShare, modelled: p.rawShare >= threshold, share: p.rawShare >= threshold ? p.rawShare * scale : 0, engineShare: p.rawShare >= threshold ? p.rawShare : 0 }));
   const allocated = players.reduce((s, p) => s + p.share, 0);
   const residual = Math.max(0, 1 - allocated);
   return { players, modelledRawSum, scale, allocated, residual, threshold };
@@ -205,7 +211,7 @@ export function composeReceivingYardsRoleRates({ base, currentTeam, viewTeam, th
     const carryShare = b ? b.carryShare : shareIn("rushAttempts", playerId);
     /* A non-modelled player's target share is never allocated (he has no targets family); it is kept on the same
        scale so `share` (the engine's sort key) is the shared artifact's whenever the view changes nothing. */
-    const targetShare = v ? (v.modelled ? v.share : v.rawShare * shares.scale) : 0;
+    const targetShare = v ? v.rawShare : 0; // the evaluator's input: raw for every listed player (only modelled ones are allocated)
     const families = new Set();
     if (qbShare >= thresholds.qbShare) families.add("passAttempts");
     if (carryShare >= thresholds.carryShare) families.add("rushAttempts");
@@ -244,7 +250,7 @@ export function mergeReceivingYards({ base, recyds, composed }) {
     out.players.push({ playerId: r.playerId, name: r.name, shareBasis: r.shareBasis, markets: { player_reception_yds: r.markets.player_reception_yds } });
   }
   const inputs = composed.roleRates.players.filter((p) => p.families.has("targets"))
-    .map((p) => ({ playerId: p.playerId, rawShare: composed.shares.players.find((s) => s.playerId === p.playerId)?.rawShare ?? null, share: Number(p.targetShare.toFixed(8)), catchRate: p.catchRate, ypr: p.ypr }))
+    .map((p) => ({ playerId: p.playerId, rawShare: composed.shares.players.find((s) => s.playerId === p.playerId)?.rawShare ?? null, share: Number((composed.shares.players.find((s) => s.playerId === p.playerId)?.share ?? 0).toFixed(8)), engineShare: Number(p.targetShare.toFixed(8)), catchRate: p.catchRate, ypr: p.ypr }))
     .sort((a, b) => b.share - a.share || (a.playerId < b.playerId ? -1 : 1));
   out.receivingYards = {
     state: "SIMULATED",
@@ -260,6 +266,26 @@ export function mergeReceivingYards({ base, recyds, composed }) {
     receivers: inputs,
   };
   return out;
+}
+
+/**
+ * ALERTING. Every receiving-yards withholding condition is one line `RECYDS_<CODE> <detail>` appended to the file
+ * named by GTP_RECYDS_ALERTS (set by the event-window workflow). The workflow's last data step reads the file with
+ * recydsAlertSummary and FAILS the run if any line is present — after every other market's outputs are committed
+ * and pushed — so the run conclusion is failure (cron-watchdog) and the standard failure webhook fires.
+ */
+export const RECYDS_ALERT_CODES = Object.freeze(["RECYDS_VIEW_MISSING", "RECYDS_VIEW_UNREPRODUCED", "RECYDS_WITHHELD"]);
+export const recydsAlertLine = (code, detail) => {
+  if (!RECYDS_ALERT_CODES.includes(code)) throw new Error(`unknown receiving-yards alert code ${code}`);
+  return `${code} ${String(detail ?? "").replace(/\s+/g, " ").trim()}`;
+};
+/** Parse an alert file's text → {count, byCode, lines, errorLine}; count 0 = nothing to alert. Unknown lines are ignored. */
+export function recydsAlertSummary(text) {
+  const re = new RegExp(`^(${RECYDS_ALERT_CODES.join("|")})\\b`);
+  const lines = String(text ?? "").split("\n").map((l) => l.trim()).filter((l) => re.test(l));
+  const byCode = Object.fromEntries(RECYDS_ALERT_CODES.map((c) => [c, lines.filter((l) => l.startsWith(`${c} `) || l === c).length]));
+  const parts = Object.entries(byCode).filter(([, n]) => n).map(([c, n]) => `${c}×${n}`);
+  return { count: lines.length, byCode, lines, errorLine: lines.length ? `receiving yards withheld or unproven this window (${parts.join(", ")}): ${lines.slice(0, 3).join(" | ")}${lines.length > 3 ? ` (+${lines.length - 3} more)` : ""}` : null };
 }
 
 /** The board's standard per-team withheld wording ("withheld for <team>: …"), for a team whose view run refused. */

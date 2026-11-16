@@ -49,7 +49,8 @@ import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets
 import { postKickoffInputs, refusalLine } from "../../src/lib/sports/nfl/input-stamps.mjs";
 import { createQbState, tierBProjection } from "../../src/lib/sports/nfl/qb-starter-projection.mjs";
 import zlib from "node:zlib";
-import { receivingYardsPipelineOf, receivingYardsFamilyAnnotation } from "../../src/lib/sports/nfl/receiving-yards-share-view.mjs";
+import { receivingYardsPipelineOf, receivingYardsFamilyAnnotation, recydsAlertLine } from "../../src/lib/sports/nfl/receiving-yards-share-view.mjs";
+const recydsAlert = (code, detail) => { const line = recydsAlertLine(code, detail); console.log(`::error::${line}`); if (process.env.GTP_RECYDS_ALERTS) fs.appendFileSync(process.env.GTP_RECYDS_ALERTS, line + "\n"); };
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -386,7 +387,7 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
      "withheld for <team>: …" reason, and a family with no team left is WITHHELD with that reason. */
   if (families.player_reception_yds && !shareLevel?.markets.has("player_reception_yds")) {
     Object.assign(families.player_reception_yds, receivingYardsFamilyAnnotation({ family: families.player_reception_yds, perTeam: doc.research?.perTeam }));
-    for (const w of families.player_reception_yds.withheldTeams ?? []) console.log(`::error::player board ${doc.matchup}: RECYDS_WITHHELD ${w.team} — ${w.reason}`);
+    for (const w of (families.player_reception_yds.withheldTeams ?? []).filter((x) => x.sum === null)) recydsAlert("RECYDS_WITHHELD", `player board ${doc.providerEventId} ${w.team}: ${w.detail ?? w.reason}`);
   }
   for (const [abbr, tv] of Object.entries(doc.research?.perTeam ?? {})) {
     const props = tv.props;

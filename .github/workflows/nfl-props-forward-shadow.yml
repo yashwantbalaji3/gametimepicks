@@ -57,7 +57,7 @@ jobs:
         if: ${{ !cancelled() }}
         run: |
           set -euo pipefail
-          node scripts/research/nfl/forward-props-v1-reception-yds-registered.mjs --protocol data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s4-r2.json
+          node scripts/research/nfl/forward-props-v1-reception-yds-registered.mjs --protocol data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s4-r3.json
       - name: Commit derived files
         if: ${{ !cancelled() }}
         run: |

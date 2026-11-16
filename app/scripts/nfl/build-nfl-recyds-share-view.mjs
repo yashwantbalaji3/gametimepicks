@@ -18,7 +18,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { SHARE_FAMILIES, familyNumerator, teamGameTotals, decayedShare } from "../../src/lib/sports/nfl/role-shares.mjs";
-import { viewFromCorpus } from "../../src/lib/sports/nfl/receiving-yards-share-view.mjs";
+import { viewFromCorpus, recydsAlertLine } from "../../src/lib/sports/nfl/receiving-yards-share-view.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -41,4 +41,5 @@ const view = viewFromCorpus({ current, historicalGames, currentGames: currentPar
 fs.writeFileSync(path.join(ROOT, "data/internal/research/nfl/role-shares-v1/receiving-yards-view.json"), JSON.stringify(view, null, 1));
 const normalised = Object.values(view.teams).filter((t) => t.targets.sharedArtifactNormalised).length;
 console.log(`recyds share view: ${Object.keys(view.teams).length} team(s) reproduced, ${normalised} normalised in current.json; unreproduced: ${view.unreproducedTeams.join(", ") || "none"}`);
-if (view.unreproducedTeams.length) console.log(`::error::RECYDS_VIEW_UNREPRODUCED receiving-yards view could not reproduce current.json for ${view.unreproducedTeams.join(", ")} — their receiving yards are withheld`);
+const recydsAlert = (code, detail) => { const line = recydsAlertLine(code, detail); console.log(`::error::${line}`); if (process.env.GTP_RECYDS_ALERTS) fs.appendFileSync(process.env.GTP_RECYDS_ALERTS, line + "\n"); };
+if (view.unreproducedTeams.length) recydsAlert("RECYDS_VIEW_UNREPRODUCED", `could not reproduce current.json for ${view.unreproducedTeams.join(", ")} — their receiving yards are withheld`);

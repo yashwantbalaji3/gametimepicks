@@ -1,6 +1,9 @@
 {
  "schemaVersion": 1,
  "artifact": "props-v1-reception-yds-forward-protocol",
+ "status": "SUPERSEDED_BEFORE_FIRST_WEEK",
+ "supersededBy": "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s4-r3.json",
+ "supersededReason": "independent review (dispersion fidelity): this registration pre-scaled the engine input by 1/S when the modelled receivers' raw shares sum above 1, which keeps means but lowers the Dirichlet concentration from κ·S to κ (≈S× the evaluator's target-share variance). Fixed to feed the evaluator's raw shares; re-registered before this one's first week. Never graded.",
  "dataClass": "PRIVATE_RESEARCH",
  "ledgerRow": "N8",
  "market": "player_reception_yds",

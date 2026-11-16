@@ -30,7 +30,7 @@ import { buildPlayerRegistry } from "../../src/lib/sports/nfl/player-identity.mj
 import { simulateNflGame } from "../../src/lib/sports/nfl/game-sim.mjs";
 import { simulatePlayerProps, loadPlayerPropsFit } from "../../src/lib/sports/nfl/player-props-v1.mjs";
 // N8-recyds-view:begin — every N8 addition sits between these markers; none touches a served-series fingerprint declaration
-import { composeReceivingYardsRoleRates, mergeReceivingYards } from "../../src/lib/sports/nfl/receiving-yards-share-view.mjs";
+import { composeReceivingYardsRoleRates, mergeReceivingYards, recydsAlertLine } from "../../src/lib/sports/nfl/receiving-yards-share-view.mjs";
 // N8-recyds-view:end
 import { buildScorerBoard, loadScoringBridgeMapping, loadTdCalibrationReceipt, flattenPoolShares } from "../../src/lib/sports/nfl/td-engine.mjs";
 import { buildVault, validateVaultLedgerAppend, appendVaultCorrection } from "../../src/lib/sports/nfl/end-zone-vault.mjs";
@@ -67,6 +67,7 @@ const recydsViewReason = !recydsView
     ? `receiving-yards share view is paired with role shares ${recydsView.pairedWith?.generatedAt}, not ${currentShares.generatedAt} — player_reception_yds withheld`
     : null;
 const recydsViewPaired = recydsViewReason == null;
+const recydsAlert = (code, detail) => { const line = recydsAlertLine(code, detail); console.log(`::error::${line}`); if (process.env.GTP_RECYDS_ALERTS) fs.appendFileSync(process.env.GTP_RECYDS_ALERTS, line + "\n"); };
 // N8-recyds-view:end
 const mapping = loadScoringBridgeMapping({ fs, path, cwd: APP });
 const calibration = loadTdCalibrationReceipt({ fs, path, cwd: APP });
@@ -238,7 +239,7 @@ function receivingYardsProps({ props, roleRates, teamAbbr, ev, evPropsFit, wrapp
     ? simulatePlayerProps({ event: ev, teamAbbr, fit: evPropsFit, strengthState: wrapped, roleRates: recydsComposed.roleRates, artifactDate: DATE, runs: Math.min(RUNS, 5000) })
     : null;
   Object.assign(props, mergeReceivingYards({ base: props, composed: recydsComposed, recyds }));
-  if (props.receivingYards?.state !== "SIMULATED") console.log(`::error::RECYDS_WITHHELD ${ev.providerEventId} ${teamAbbr}: ${props.receivingYards?.reason}`);
+  if (props.receivingYards?.state !== "SIMULATED") recydsAlert("RECYDS_WITHHELD", `${ev.providerEventId} ${teamAbbr}: ${props.receivingYards?.reason}`);
 }
 // N8-recyds-view:end
 

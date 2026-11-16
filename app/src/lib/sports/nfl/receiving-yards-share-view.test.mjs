@@ -37,7 +37,7 @@ const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
 const readText = (p) => fs.readFileSync(path.join(ROOT, p), "utf8");
 /* s1 froze whole files (incl. the orchestrator); s2 (the served series) freezes components — both are committed data. */
 const S1_PROTOCOL = JSON.parse(readText("data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol.json"));
-const FIX_PROTOCOL_PATH = "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s4-r2.json";
+const FIX_PROTOCOL_PATH = "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s4-r3.json";
 const REPORTS = path.join(ROOT, "data/internal/research/nfl/reports");
 /** Every registered, still-active receiving-yards series other than the fix's own (the served one(s)). */
 const servedProtocols = () => fs.readdirSync(REPORTS).filter((f) => /^player-props-v1-reception-yds-forward-protocol.*\.json$/.test(f))
@@ -123,6 +123,12 @@ function runBuilder() {
    script exists, and the orchestrator's composeRoleRates (an unchanged served-series fingerprint declaration, test
    (b)/(f)) feeds the engine current.json's shares. Tests (a) and (c) must FAIL in that mode and pass by default. */
 const PRE_FIX = process.env.N8_PIPELINE === "base";
+/* In pre-fix mode:
+   - FAIL-BEFORE (must fail on base, pass on head): (a) parity, (c) team coherence/mass, (h) exact evaluator equality.
+   - PASS ON BOTH (properties of the unchanged engine/lib): (a) Σ_modelled > 1 accounting, (h) pre-scaling is not
+     equivalent, (c) S > 1 per-game allocation.
+   - SKIPPED (they exercise the fix's own artifacts, which do not exist on base): every other test. */
+const FIX_ONLY = "exercises the fix's own view/annotation/protocol, absent on the base pipeline";
 let built = null;
 /* s1 = what the served pipeline has (the builder's outputs alone); s2 = after the view script ran on the same tree. */
 const builds = () => (built ??= runBuilder());
@@ -182,7 +188,7 @@ test("(a) Σ listed > 1: the receiving-yards engine receives the evaluator's sha
   }
 });
 
-test("(a) the defect, reproduced: the pre-fix path serves raw/Σroster; the share view restores the raw share", () => {
+test("(a) the defect, reproduced: the pre-fix path serves raw/Σroster; the share view restores the raw share", { skip: PRE_FIX && FIX_ONLY }, () => {
   const { s1, s2 } = builds();
   const cur = JSON.parse(s2.current);
   const view = JSON.parse(s2.view);
@@ -222,7 +228,7 @@ test("(a) modelled receivers above 1: scaled among themselves only — the engin
   assert.ok(Math.abs(t.residual - 0.5) < 1e-12);
 });
 
-test("(b) every other role-share consumer is byte-identical: shared artifacts, orchestrator, merge", () => {
+test("(b) every other role-share consumer is byte-identical: shared artifacts, orchestrator, merge", { skip: PRE_FIX && FIX_ONLY }, () => {
   /* the builder, estimator, engine and evaluator are untouched (the s1 protocol froze them as whole files) */
   for (const f of ["app/scripts/nfl/build-nfl-role-shares.mjs", "app/src/lib/sports/nfl/role-shares.mjs", "app/src/lib/sports/nfl/player-props-v1.mjs", "app/scripts/nfl/evaluate-nfl-player-props.mjs", "data/internal/research/nfl/reports/player-props-v1-evaluation.json"]) {
     assert.equal(sha(readText(f)), s1Sha(f), `${f} is unchanged`);
@@ -275,7 +281,7 @@ function mergeChecks() {
   assert.notDeepEqual(merged.players.find((p) => p.playerId === `nfl-athlete-${AAA.WR1}`).markets.player_reception_yds, shared.players.find((p) => p.playerId === `nfl-athlete-${AAA.WR1}`).markets.player_reception_yds, "receiving yards did change");
 }
 
-test("(b) no change when nothing was normalised: the view run reproduces the shared run byte-for-byte", () => {
+test("(b) no change when nothing was normalised: the view run reproduces the shared run byte-for-byte", { skip: PRE_FIX && FIX_ONLY }, () => {
   const fit = loadPlayerPropsFit({ fs, path, cwd: APP });
   const { s2 } = builds();
   const cur = JSON.parse(s2.current);
@@ -327,7 +333,7 @@ test("(c) team coherence: Σ shares + residual = 1, Σ expected targets ≤ pass
   for (const p of players) assert.ok(Math.abs(tally.get(p.playerId) / N - p.share * 35) < 0.35, `${p.playerId}: mean allocation ≈ share × attempts`);
 });
 
-test("(d) receiving yards ≈ targets × catch rate × yards per catch, under the run's own inputs", () => {
+test("(d) receiving yards ≈ targets × catch rate × yards per catch, under the run's own inputs", { skip: PRE_FIX && FIX_ONLY }, () => {
   const fit = loadPlayerPropsFit({ fs, path, cwd: APP });
   const { s2 } = builds();
   const cur = JSON.parse(s2.current);
@@ -352,7 +358,7 @@ test("(d) receiving yards ≈ targets × catch rate × yards per catch, under th
   }
 });
 
-test("(e) pipeline version and qualification are explicit; refusal withholds the market instead of falling back", () => {
+test("(e) pipeline version and qualification are explicit; refusal withholds the market instead of falling back", { skip: PRE_FIX && FIX_ONLY }, () => {
   assert.equal(RECYDS_PIPELINE_VERSION, "props-v1+recyds-share-view-v1");
   assert.equal(RECYDS_QUALIFICATION.evidence, "RETROSPECTIVE_ONLY");
   assert.match(RECYDS_QUALIFICATION.forwardValidation, /^NONE\b/);
@@ -376,7 +382,7 @@ test("(e) pipeline version and qualification are explicit; refusal withholds the
   assert.match(board, /if \(m === "player_reception_yds" && recydsPipeline\) markets\[m\]\.pipelineVersion = recydsPipeline;/);
 });
 
-test("(g) withholding is loud: a refused team gets the standard withheld reason; no team left ⇒ family WITHHELD", async () => {
+test("(g) withholding is loud: a refused team gets the standard withheld reason; no team left ⇒ family WITHHELD", { skip: PRE_FIX && FIX_ONLY }, async () => {
   const { receivingYardsFamilyAnnotation, recydsWithheldReason } = await import("./receiving-yards-share-view.mjs");
   const fam = () => ({ label: "Receiving yards", state: "PUBLISHED", basis: "props-v1 evaluation: n=3575, all promotion bars pass" });
   const ok = { props: { state: "SIMULATED", receivingYards: { state: "SIMULATED", pipelineVersion: RECYDS_PIPELINE_VERSION } } };
@@ -399,13 +405,47 @@ test("(g) withholding is loud: a refused team gets the standard withheld reason;
   const d = receivingYardsFamilyAnnotation({ family: { ...fam(), withheldTeams: [{ team: "CCC", sum: 1.2, reason: "withheld for CCC: x" }] }, perTeam: { AAA: ok, BBB: refused } });
   assert.deepEqual(d.withheldTeams.map((w) => w.team), ["CCC", "BBB"]);
   /* the event window and both builders emit ::error:: lines the run log / annotations surface */
-  for (const [file, re] of [["scripts/nfl/run-nfl-event-window.mjs", /::error::RECYDS_WITHHELD/], ["scripts/nfl/build-nfl-player-board.mjs", /::error::player board .*RECYDS_WITHHELD/], ["scripts/nfl/build-nfl-recyds-share-view.mjs", /::error::RECYDS_VIEW_UNREPRODUCED/]]) {
-    assert.match(fs.readFileSync(path.join(APP, file), "utf8"), re, file);
+  /* every withholding path records an alert line (file + ::error::) */
+  for (const [file, re] of [["scripts/nfl/run-nfl-event-window.mjs", /recydsAlert\("RECYDS_WITHHELD"/], ["scripts/nfl/build-nfl-player-board.mjs", /recydsAlert\("RECYDS_WITHHELD"/], ["scripts/nfl/build-nfl-recyds-share-view.mjs", /recydsAlert\("RECYDS_VIEW_UNREPRODUCED"/]]) {
+    const src = fs.readFileSync(path.join(APP, file), "utf8");
+    assert.match(src, re, file);
+    assert.match(src, /appendFileSync\(process\.env\.GTP_RECYDS_ALERTS/, `${file} appends to the alert log`);
   }
-  assert.match(readText(".github/workflows/nfl-event-window.yml"), /::error::RECYDS_VIEW_MISSING/);
 });
 
-test("(f) series identity: the served series keeps grading pre-fix boards and never counts a post-fix board", async () => {
+test("(g) the run FAILS after publishing when any receiving-yards alert was recorded; never otherwise", { skip: PRE_FIX && FIX_ONLY }, async () => {
+  const { recydsAlertSummary, recydsAlertLine, RECYDS_ALERT_CODES } = await import("./receiving-yards-share-view.mjs");
+  assert.equal(recydsAlertSummary("").count, 0);
+  assert.equal(recydsAlertSummary("unrelated line\n::error::something else\n").count, 0);
+  const text = [recydsAlertLine("RECYDS_WITHHELD", "401873065 BAL: view missing"), "noise", recydsAlertLine("RECYDS_VIEW_MISSING", "build failed"), recydsAlertLine("RECYDS_WITHHELD", "401873065 LAC: view missing")].join("\n");
+  const s = recydsAlertSummary(text);
+  assert.equal(s.count, 3);
+  assert.deepEqual(s.byCode, { RECYDS_VIEW_MISSING: 1, RECYDS_VIEW_UNREPRODUCED: 0, RECYDS_WITHHELD: 2 });
+  assert.match(s.errorLine, /RECYDS_VIEW_MISSING×1, RECYDS_WITHHELD×2/);
+  assert.throws(() => recydsAlertLine("RECYDS_TYPO", "x"));
+  assert.deepEqual([...RECYDS_ALERT_CODES].sort(), ["RECYDS_VIEW_MISSING", "RECYDS_VIEW_UNREPRODUCED", "RECYDS_WITHHELD"]);
+  /* the check script: exit 0 with no alerts, exit 1 (and ERROR_LINE exported) with any */
+  const T = fs.mkdtempSync(path.join(os.tmpdir(), "n8-alert-"));
+  try {
+    const script = path.join(APP, "scripts/nfl/check-recyds-alerts.mjs");
+    const run = (file) => { try { execFileSync(process.execPath, [script, file], { env: { ...process.env, GITHUB_ENV: path.join(T, "env") }, stdio: "pipe" }); return 0; } catch (e) { return e.status; } };
+    fs.writeFileSync(path.join(T, "empty.log"), "");
+    assert.equal(run(path.join(T, "empty.log")), 0);
+    assert.equal(run(path.join(T, "absent.log")), 0, "no file (no events this window) is not an alert");
+    fs.writeFileSync(path.join(T, "alerts.log"), text);
+    assert.equal(run(path.join(T, "alerts.log")), 1);
+    assert.match(fs.readFileSync(path.join(T, "env"), "utf8"), /^ERROR_LINE=receiving yards withheld or unproven this window/m);
+  } finally { fs.rmSync(T, { recursive: true, force: true }); }
+  /* the workflow: the log is opened first, the view failure records an alert, and the check runs after the publish
+     step and before the failure notification, so the slate is published first and the failure webhook fires */
+  const wf = readText(".github/workflows/nfl-event-window.yml");
+  const at = (needle) => { const i = wf.indexOf(needle); assert.ok(i >= 0, needle); return i; };
+  assert.ok(at("GTP_RECYDS_ALERTS=$RUNNER_TEMP/recyds-alerts.log") < at("name: Build the receiving-yards share view"));
+  assert.ok(wf.includes(`echo "RECYDS_VIEW_MISSING build-nfl-recyds-share-view.mjs failed`));
+  assert.ok(at("name: Publish this run's commits") < at("name: Fail the run when receiving yards were withheld") && at("name: Fail the run when receiving yards were withheld") < at("name: Notify on failure"));
+});
+
+test("(f) series identity: the served series keeps grading pre-fix boards and never counts a post-fix board", { skip: PRE_FIX && FIX_ONLY }, async () => {
   const R = await import("./props-v1-forward-registration.mjs");
   const at = (f) => { try { return fs.readFileSync(path.join(ROOT, f.path), "utf8"); } catch { return null; } };
   const tree = (protocol) => Object.fromEntries(protocol.model.frozenFiles.map((f) => [R.componentId(f), R.fingerprintComponent(f, at(f))]));
@@ -433,4 +473,80 @@ test("(f) series identity: the served series keeps grading pre-fix boards and ne
   assert.equal(R.classifyEvent(ev(postFix, FIX.series.pipelineVersion), ctx(FIX)), R.EVENT_CODE.GRADED);
   assert.equal(R.classifyEvent(ev(preFix, FIX.series.pipelineVersion), ctx(FIX)), R.EVENT_CODE.OTHER_PIPELINE_VERSION, "the fix series never counts an unlabelled board");
   assert.match(R.PINNED_REGISTRATIONS[FIX_PROTOCOL_PATH] ?? "", /^[0-9a-f]{40}$/, "the fix series' registration commit is pinned in code");
+});
+
+/* ── S > 1 dispersion fidelity: the engine must receive EXACTLY the evaluator's inputs ─────────────────────────── */
+const S_FIXTURE = (() => {
+  const raw = { qb: 0, rb: 0.14, w1: 0.42, w2: 0.36, te: 0.33, d1: 0.03, d2: 0.02 }; // modelled S = 1.25, roster 1.30
+  const rates = (id) => ({ playerId: id, compRate: id === "qb" ? 0.65 : 0.6, ypcmp: 11.5, intRate: 0.02, catchRate: { rb: 0.78, w1: 0.64, w2: 0.62, te: 0.7, d1: 0.6, d2: 0.6, qb: 0.6 }[id], ypr: { rb: 7.4, w1: 13.1, w2: 12.2, te: 10.4, d1: 9, d2: 9, qb: 9 }[id], ypc: id === "rb" ? 4.4 : 3 });
+  const listedSum = Object.values(raw).reduce((a, b) => a + b, 0);
+  const tgt = Object.entries(raw).filter(([, v]) => v >= 0.005).map(([id, v]) => ({ playerId: id, name: id, share: Number((v / listedSum).toFixed(8)), shareBasis: "fixture" }));
+  const currentTeam = {
+    passAttempts: { players: [{ playerId: "qb", name: "qb", share: 0.93, shareBasis: "fixture" }] },
+    rushAttempts: { players: [{ playerId: "rb", name: "rb", share: 0.58, shareBasis: "fixture" }, { playerId: "qb", name: "qb", share: 0.08, shareBasis: "fixture" }] },
+    targets: { players: tgt },
+    rates: { players: ["qb", "rb", "w1", "w2", "te", "d1", "d2"].map(rates) },
+  };
+  const viewTeam = { targets: viewBlockFromRaw(Object.entries(raw).filter(([, v]) => v >= 0.005).map(([playerId, share]) => ({ playerId, share }))) };
+  /* the evaluator's candidatesFor, on the same evidence: raw target shares, families by the same thresholds */
+  const evaluatorPlayers = ["qb", "rb", "w1", "w2", "te"].map((id) => {
+    const qbShare = id === "qb" ? 0.93 : 0, carryShare = id === "rb" ? 0.58 : id === "qb" ? 0.08 : 0, targetShare = raw[id];
+    const families = new Set();
+    if (qbShare >= THRESH.qbShare) families.add("passAttempts");
+    if (carryShare >= THRESH.carryShare) families.add("rushAttempts");
+    if (targetShare >= THRESH.targetShare) families.add("targets");
+    const r = rates(id);
+    return { playerId: id, name: id, shareBasis: "fixture", families, qbShare, carryShare, targetShare, share: Math.max(qbShare, carryShare, targetShare), compRate: r.compRate, ypcmp: r.ypcmp, intRate: r.intRate, catchRate: r.catchRate, ypr: r.ypr, ypc: r.ypc };
+  });
+  return { currentTeam, viewTeam, evaluatorPlayers };
+})();
+const S_EVENT = { providerEventId: "fx-s", home: { abbr: "AAA" }, away: { abbr: "BBB" }, seasonType: 2 };
+const runS = (players, runs = 3000) => simulatePlayerProps({ event: S_EVENT, teamAbbr: "AAA", fit: loadPlayerPropsFit({ fs, path, cwd: APP }), strengthState: { ratingFor: () => 1500 }, roleRates: { players }, artifactDate: "2026-11-15", runs });
+
+test("(h) S > 1: the receiving-yards run equals the evaluator's path on the same inputs — exact engine output quantiles", () => {
+  const { currentTeam, viewTeam, evaluatorPlayers } = S_FIXTURE;
+  const shares = receivingYardsShares({ viewBlock: viewTeam.targets, threshold: THRESH.targetShare });
+  assert.ok(shares.modelledRawSum > 1.2, `fixture precondition: modelled S = ${shares.modelledRawSum}`);
+  /* base = what the orchestrator composes from the normalised artifact; only the qb/rb rows matter for pass/rush */
+  const base = { players: evaluatorPlayers.filter((p) => p.playerId === "qb" || p.playerId === "rb").map((p) => ({ ...p, targetShare: currentTeam.targets.players.find((x) => x.playerId === p.playerId)?.share ?? 0 })) };
+  /* pre-fix pipeline: the orchestrator's composeRoleRates on the normalised artifact (raw / Σroster, families by it) */
+  const preFixPlayers = evaluatorPlayers.map((p) => {
+    const targetShare = currentTeam.targets.players.find((x) => x.playerId === p.playerId)?.share ?? 0;
+    const families = new Set([...p.families].filter((fam) => fam !== "targets"));
+    if (targetShare >= THRESH.targetShare) families.add("targets");
+    return { ...p, targetShare, families, share: Math.max(p.qbShare, p.carryShare, targetShare) };
+  });
+  const composed = composeReceivingYardsRoleRates({ base, currentTeam, viewTeam, thresholds: THRESH });
+  assert.equal(composed.state, "READY");
+  const ours = runS(PRE_FIX ? preFixPlayers : composed.roleRates.players);
+  const theirs = runS(evaluatorPlayers);
+  const q = (r) => Object.fromEntries(r.players.filter((p) => p.markets.player_reception_yds).map((p) => [p.playerId, p.markets.player_reception_yds]));
+  assert.deepEqual(q(ours), q(theirs), "player_reception_yds quantiles identical to the evaluator path (fixed seed)");
+  assert.ok(Object.keys(q(ours)).length === 4);
+  /* the accounting view is what the engine's Dirichlet produces in expectation, and stays coherent */
+  assert.ok(Math.abs(shares.allocated - 1) < 1e-12 && shares.residual === 0);
+});
+
+test("(h) S > 1: pre-scaling the engine input by 1/S (the earlier rule) is NOT equivalent — same means, wider spread", () => {
+  const { evaluatorPlayers } = S_FIXTURE;
+  const S = evaluatorPlayers.filter((p) => p.families.has("targets")).reduce((a, p) => a + p.targetShare, 0);
+  const scaled = evaluatorPlayers.map((p) => (p.families.has("targets") ? { ...p, targetShare: p.targetShare / S, share: Math.max(p.qbShare, p.carryShare, p.targetShare / S) } : p));
+  const a = runS(evaluatorPlayers, 6000), b = runS(scaled, 6000);
+  const w = (r, id) => r.players.find((p) => p.playerId === id).markets.player_reception_yds;
+  for (const id of ["w1", "w2", "te"]) {
+    assert.ok(Math.abs(w(a, id).mean - w(b, id).mean) / w(a, id).mean < 0.06, `${id}: means agree (${w(a, id).mean} vs ${w(b, id).mean})`);
+  }
+  const spread = (r) => ["w1", "w2", "te"].reduce((s, id) => s + (w(r, id).p90 - w(r, id).p10), 0);
+  assert.ok(spread(b) > spread(a), `pre-scaled input widens the p10–p90 spread (${spread(b).toFixed(1)} vs ${spread(a).toFixed(1)})`);
+});
+
+test("(c) S > 1 raw input: per simulated game the allocation never hands out more targets than attempts", () => {
+  const rng = mulberry32(7);
+  const players = [{ playerId: "w1", share: 0.42 }, { playerId: "w2", share: 0.36 }, { playerId: "te", share: 0.33 }, { playerId: "rb", share: 0.14 }]; // Σ 1.25
+  for (let i = 0; i < 5000; i += 1) {
+    const total = 20 + (i % 30);
+    const { allocated, other } = allocateOpportunities(rng, total, players);
+    const sum = [...allocated.values()].reduce((a, b) => a + b, 0);
+    assert.ok(sum <= total && other >= 0 && sum + other === total);
+  }
 });
