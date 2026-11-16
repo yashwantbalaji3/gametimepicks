@@ -62,6 +62,7 @@ export function loadForecastViews(publicDir, { repoRoot = path.resolve(publicDir
     .sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc) || a.providerEventId.localeCompare(b.providerEventId));
 }
 
-export function loadForecastView(publicDir, eventId) {
-  return loadForecastViews(publicDir).find((v) => v.providerEventId === String(eventId)) ?? null;
+/** @param {string} publicDir @param {string} eventId @param {{ repoRoot?: string }} [opts] as loadForecastViews */
+export function loadForecastView(publicDir, eventId, opts) {
+  return loadForecastViews(publicDir, opts).find((v) => v.providerEventId === String(eventId)) ?? null;
 }
