@@ -22,6 +22,21 @@ export function etDayLabel(dayOrIso) {
   return `${p.weekday}, ${p.month} ${p.day}`;
 }
 
+const ET_DATE = new Intl.DateTimeFormat("en-US", { timeZone: "America/New_York", year: "numeric", month: "2-digit", day: "2-digit" });
+
+/**
+ * "2026-11-05": the America/New_York calendar date of an instant (a Thursday 8:15 PM ET kickoff at 01:15Z the next UTC
+ * day is still Thursday), or null for a missing or unreadable instant. Built from formatToParts values (ICU-stable),
+ * the time zone rules (DST) are Intl's, never hand-rolled.
+ */
+export function etDateOf(iso) {
+  if (!iso) return null;
+  const t = Date.parse(iso);
+  if (!Number.isFinite(t)) return null;
+  const p = Object.fromEntries(ET_DATE.formatToParts(new Date(t)).map((x) => [x.type, x.value]));
+  return `${p.year}-${p.month}-${p.day}`;
+}
+
 /** "Sep 28, 5:10 PM ET", or null for a missing or unreadable instant (never a guess). */
 export function etStamp(iso) {
   if (!iso) return null;
