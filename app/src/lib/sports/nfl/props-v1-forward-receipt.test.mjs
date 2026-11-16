@@ -112,16 +112,19 @@ test("N8 · metrics, verdicts and clustered intervals are deterministic (same po
 });
 
 /*
- * delete → regenerate → byte-identical, against the COMMITTED receipt at the commit it records. Needs the historical
- * board blobs locally: on a blob-less partial clone (CI's filter: blob:none) git would lazy-fetch ~100 blobs, so the
- * test skips there and says why — it never passes by asserting nothing.
+ * delete → regenerate → byte-identical, against the COMMITTED receipt at the commit it records. Runs in a blob-less
+ * partial clone too (CI's filter: blob:none): the script batch-prefetches the historical blobs it reads
+ * (git-blob-prefetch.mjs) and git lazy-fetches anything else. The child must therefore NOT inherit
+ * GIT_NO_LAZY_FETCH — an earlier version of this test set it for a probe and passed it on, so every historical read
+ * failed with "bad object" in CI while the probe (a blob unchanged since Week 1, present at HEAD) said "local".
+ * Skips only when the recorded commit itself is absent (a shallow clone), and says so.
  */
 test("N8 · the committed receipt regenerates byte-for-byte from the commit it records", { timeout: 600_000 }, (t) => {
   const receipt = JSON.parse(rd(`${OUT}/receipt.json`));
-  const env = { ...process.env, GIT_NO_LAZY_FETCH: "1" };
-  const probe = receipt.events.ledger[0];
-  const has = spawnSync("git", ["cat-file", "-e", `${probe.revision}:app/public/data/nfl/player-board/${probe.eventId}.json`], { cwd: ROOT, env });
-  if (has.status !== 0) { t.skip("historical board blobs are not local (partial clone) — regeneration not attempted"); return; }
+  const env = { ...process.env };
+  delete env.GIT_NO_LAZY_FETCH;
+  const has = spawnSync("git", ["cat-file", "-e", `${receipt.builtFromCommit}^{commit}`], { cwd: ROOT, env });
+  if (has.status !== 0) { t.skip(`recorded commit ${receipt.builtFromCommit} is not in this clone's history (shallow clone) — regeneration not attempted`); return; }
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "n8-regen-"));
   try {
     execFileSync(process.execPath, [path.join(ROOT, SCRIPT), "--rev", receipt.builtFromCommit, "--out-dir", dir], { cwd: ROOT, env, stdio: "pipe" });

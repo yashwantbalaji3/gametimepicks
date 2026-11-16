@@ -43,6 +43,7 @@ import {
   MARKET, PROPS_V1_FORWARD_RECEIPT_VERSION, readPropsV1PromotionBars, readShareLevelForwardBars, pOverFromQuantiles,
   pointMetrics, judgePropsV1, judgeShareLevel, clusteredIntervals, stableJson,
 } from "../../../app/src/lib/sports/nfl/props-v1-forward-receipt.mjs";
+import { prefetchBlobs } from "./git-blob-prefetch.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 const rel = (p) => path.join(ROOT, p);
@@ -74,6 +75,9 @@ const readJsonAtRev = (p) => JSON.parse(atRev(p));
 const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
 const inputs = {};
 const load = (key) => { const text = atRev(SRC[key]); inputs[key] = { path: SRC[key], sha256: sha(text) }; return text; };
+const BOARD_FILES_AT_REV = git("ls-tree", "--name-only", `${REV}:app/public/data/nfl/player-board`).split("\n").filter((f) => /^\d+\.json$/.test(f)).sort();
+/* Partial clones (CI's blob:none): fetch every input blob at --rev in one round trip instead of one lazy fetch each. */
+prefetchBlobs(ROOT, [...Object.values(SRC), ...BOARD_FILES_AT_REV.map((f) => `app/public/data/nfl/player-board/${f}`)].map((p) => `${REV}:${p}`));
 
 // ── bars from their sources of truth ──────────────────────────────────────────────────────────────
 const evaluation = JSON.parse(load("evaluation"));
@@ -115,16 +119,29 @@ for (const line of load("participation2026").split("\n")) {
 const ESPN_TO_NFLVERSE = { WSH: "WAS", LAR: "LA" };
 
 // ── the served boards: last revision committed (and generated) before kickoff ─────────────────────
-const boardFiles = git("ls-tree", "--name-only", `${REV}:${BOARD_DIR}`).split("\n").filter((f) => /^\d+\.json$/.test(f)).sort();
+const boardFiles = BOARD_FILES_AT_REV;
 const events = [];
 const exclusions = { noPreKickoffRevision: [], notRegularSeason2026: [], notFinal: [], noSnapSheet: [], shareLevelServed: [], familyAbsent: [] };
+/* Pass 1 (history only, no blobs): each board's revision list; prefetch the newest pre-kickoff revision of each in
+   one batch — it is the chosen one unless its own generatedAt is late, and git lazy-fetches anything older. */
+const history = new Map();
+for (const f of boardFiles) {
+  const p = `${BOARD_DIR}/${f}`;
+  history.set(f, git("log", "--format=%H %cI", REV, "--", p).split("\n").filter(Boolean));
+}
+prefetchBlobs(ROOT, boardFiles.flatMap((f) => {
+  const current = readJsonAtRev(`${BOARD_DIR}/${f}`);
+  const kickoff = Date.parse(current.kickoffUtc);
+  const first = history.get(f).find((line) => Date.parse(line.split(" ")[1]) < kickoff);
+  return first ? [`${first.split(" ")[0]}:${BOARD_DIR}/${f}`] : [];
+}));
 for (const f of boardFiles) {
   const p = `${BOARD_DIR}/${f}`;
   const current = readJsonAtRev(p);
   if (current.seasonType !== 2 || !String(current.kickoffUtc ?? "").startsWith(String(SEASON))) { exclusions.notRegularSeason2026.push(current.providerEventId ?? f); continue; }
   const kickoff = Date.parse(current.kickoffUtc);
   let chosen = null;
-  for (const line of git("log", "--format=%H %cI", REV, "--", p).split("\n").filter(Boolean)) {
+  for (const line of history.get(f)) {
     const [commit, committedAt] = line.split(" ");
     if (Date.parse(committedAt) >= kickoff) continue;
     const doc = JSON.parse(git("show", `${commit}:${p}`));
