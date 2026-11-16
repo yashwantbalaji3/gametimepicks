@@ -16,7 +16,8 @@
  */
 
 export const EVIDENCE_SCHEMA = "gtp.nfl.player-evidence@1";
-export const EVIDENCE_REL = "data/internal/research/nfl/player-evidence/latest.json";
+// The file's repo path lives in the server-only player-evidence-file.mjs: this module is client-reachable
+// (scenario-builder → leg-screen), and no client bundle may name an internal path.
 export const WINDOW_MAX = 10;
 
 /** family → how its actual value is read from a compact stat line. */

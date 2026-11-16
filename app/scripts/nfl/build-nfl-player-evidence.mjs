@@ -9,7 +9,8 @@
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { EVIDENCE_REL, FAMILY_STAT, buildEvidenceFile, lineRecord, summary } from "../../src/lib/sports/nfl/player-evidence.mjs";
+import { FAMILY_STAT, buildEvidenceFile, lineRecord, summary } from "../../src/lib/sports/nfl/player-evidence.mjs";
+import { EVIDENCE_REL } from "../../src/lib/sports/nfl/player-evidence-file.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
 const SEASON = 2026;
