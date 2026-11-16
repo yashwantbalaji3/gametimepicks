@@ -3,18 +3,18 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-11-16T18:30:38Z",
+ "generatedAt": "2026-11-16T19:56:20Z",
  "sport": "nfl",
  "label": "NFL",
  "what": "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
  "caveat": "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
  "counts": {
-  "counted": 188,
-  "hits": 113,
+  "counted": 189,
+  "hits": 114,
   "misses": 75,
   "voided": 3,
   "shown": 60,
-  "total": 191
+  "total": 192
  },
  "hitRate": null,
  "recordBasis": "MIXED",
@@ -28,15 +28,30 @@
   },
   {
    "basis": "PUBLISHED",
-   "counted": 83,
-   "hits": 52,
+   "counted": 84,
+   "hits": 53,
    "misses": 31,
-   "hitRate": 0.6265
+   "hitRate": 0.631
   }
  ],
  "sampleState": "EMERGING",
- "sampleNote": "188 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
+ "sampleNote": "189 graded picks is still a small sample. A hit rate over this many outcomes has a wide enough margin of error to be consistent with almost any true accuracy.",
  "picks": [
+  {
+   "eventId": "nfl-401873064",
+   "when": "2026-11-15",
+   "eventName": null,
+   "subject": "PIT @ CIN",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "HOME",
+   "actual": "HOME",
+   "modelProbability": null,
+   "probabilityOfActual": 0.5483,
+   "marketProbabilityOfActual": null,
+   "hit": true
+  },
   {
    "eventId": "nfl-401873053",
    "when": "2026-11-15",
@@ -921,21 +936,6 @@
    "probabilityOfActual": 0.3903,
    "marketProbabilityOfActual": null,
    "hit": false
-  },
-  {
-   "eventId": "nfl-401872999",
-   "when": "2026-10-18",
-   "eventName": null,
-   "subject": "CHI @ ATL",
-   "market": "Winner",
-   "basis": "PUBLISHED",
-   "noPick": false,
-   "predicted": "AWAY",
-   "actual": "AWAY",
-   "modelProbability": null,
-   "probabilityOfActual": 0.5564,
-   "marketProbabilityOfActual": null,
-   "hit": true
   }
  ]
 }
