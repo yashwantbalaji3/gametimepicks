@@ -31,7 +31,7 @@ export default function NflGameDayTicker({ items }: { items: TickerItem[] }) {
   if (!items.length) return null;
   return (
     <nav className="gt-tk" aria-label="NFL games">
-      <style>{CSS}</style>
+      <style dangerouslySetInnerHTML={{ __html: CSS }} />
       <div className="gt-tk-h"><span>NFL · {items.length} game{items.length === 1 ? "" : "s"}</span><Link href="/nfl/">All NFL forecasts →</Link></div>
       <ul>
         {items.map((g) => (
