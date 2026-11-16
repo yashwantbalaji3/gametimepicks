@@ -1,10 +1,14 @@
 /**
  * NFL props-v1 RECEIVING YARDS — REGISTERED FORWARD TEST (ledger N8). PURE: no I/O, no clock. PRIVATE_RESEARCH.
  *
- * Protocol of record: data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol.json.
- * This module holds the counting rules the protocol states, so the weekly grader and its tests share one copy:
+ * Protocol of record: data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s2.json
+ * (series s2; the s1 file is kept, SUPERSEDED_BEFORE_FIRST_WEEK). This module holds the counting rules the protocol
+ * states, so the weekly grader and its tests share one copy:
  *
- *   - registration instant  = git committer time of the commit that ADDED the protocol file (the script reads it);
+ *   - registration instant  = git committer time of the commit that ADDED the protocol file, pinned in
+ *                             PINNED_REGISTRATIONS and proven an ancestor (resolveRegistration);
+ *   - pipeline version      = pipelineVersionOf the fingerprint components (whole files, single top-level
+ *                             declarations, one JSON key) hashed at each board revision commit;
  *   - firstWeek             = the first regular-season week whose FIRST kickoff is strictly after registration,
  *                             computed from the committed ESPN schedule captures (never a literal);
  *   - an event counts only through the last board revision COMMITTED and GENERATED strictly before kickoff, whose
@@ -35,6 +39,11 @@ export const EVENT_CODE = Object.freeze({
   PENDING_NOT_FINAL: "PENDING_NOT_FINAL",                 // not final in the committed ESPN corpus
   PENDING_NO_SNAP_SHEET: "PENDING_NO_SNAP_SHEET",         // final, but a team's nflverse snap sheet is not committed
 });
+export const PENDING_REASON = Object.freeze({
+  PENDING_KICKOFF: "kickoff not yet passed at the grading commit",
+  PENDING_NOT_FINAL: "kicked off but not final in the committed ESPN corpus (postponed / cancelled / not yet captured)",
+  PENDING_NO_SNAP_SHEET: "final, but a team's nflverse snap sheet is not committed",
+});
 export const EXCLUSION_REASON = Object.freeze({
   NO_BOARD: "no app/public/data/nfl/player-board/<eventId>.json at the grading commit",
   NO_PRE_KICKOFF_REVISION: "no board revision was both committed (git committer time) and generated before kickoff",
@@ -53,8 +62,113 @@ export function pipelineVersionOf(fileShas) {
   const lines = Object.keys(fileShas).sort().map((p) => `${p} ${fileShas[p]}`).join("\n");
   return `pv1-${crypto.createHash("sha256").update(lines).digest("hex").slice(0, 16)}`;
 }
-/** The version the protocol's own frozen file list defines (the script refuses if series.pipelineVersion differs). */
-export const registeredPipelineVersion = (protocol) => pipelineVersionOf(Object.fromEntries(protocol.model.frozenFiles.map((f) => [f.path, f.sha256])));
+/**
+ * A fingerprint component (protocol.model.frozenFiles entry): {path, kind, symbol?, sha256}.
+ *   kind "file"     — the whole file's bytes;
+ *   kind "symbol"   — one TOP-LEVEL declaration's source text (function or const) in a .mjs file;
+ *   kind "jsonKey"  — one top-level key of a JSON file, canonical JSON (sorted keys).
+ * Its id ("path" or "path#symbol") is what the pipeline version hashes.
+ */
+export const componentId = (f) => ((f.kind ?? "file") === "file" ? f.path : `${f.path}#${f.symbol}`);
+export const registeredPipelineVersion = (protocol) => pipelineVersionOf(Object.fromEntries(protocol.model.frozenFiles.map((f) => [componentId(f), f.sha256])));
+
+const sha256 = (s) => crypto.createHash("sha256").update(s).digest("hex");
+export function canonicalJson(v) {
+  if (Array.isArray(v)) return `[${v.map(canonicalJson).join(",")}]`;
+  if (v && typeof v === "object") return `{${Object.keys(v).sort().map((k) => `${JSON.stringify(k)}:${canonicalJson(v[k])}`).join(",")}}`;
+  return JSON.stringify(v);
+}
+
+/**
+ * The source text of ONE top-level declaration (`[export] [async] function NAME`, `[export] const|let NAME =`),
+ * from its first line to the end of the statement (bracket depth back to 0 and, for a const, its `;`). Strings,
+ * template literals and comments are skipped while counting. Returns null when NAME is not declared at top level.
+ */
+export function extractTopLevelDeclaration(source, name) {
+  const src = String(source ?? "");
+  const re = new RegExp(`^(?:export\\s+)?(?:(?:async\\s+)?function\\*?\\s+${name}\\s*\\(|(?:const|let|var)\\s+${name}\\s*=)`, "m");
+  const m = re.exec(src);
+  if (!m) return null;
+  const isFn = /function/.test(m[0]);
+  let depth = 0; let seenBody = false; let i = m.index;
+  for (; i < src.length; i++) {
+    const c = src[i]; const n = src[i + 1];
+    if (c === "/" && n === "/") { i = src.indexOf("\n", i); if (i < 0) i = src.length; continue; }
+    if (c === "/" && n === "*") { i = src.indexOf("*/", i + 2) + 1; continue; }
+    if (c === "\"" || c === "'" || c === "`") {
+      for (i++; i < src.length && src[i] !== c; i++) if (src[i] === "\\") i++;
+      continue;
+    }
+    if (c === "{" || c === "(" || c === "[") { depth++; if (c === "{") seenBody = true; continue; }
+    if (c === "}" || c === ")" || c === "]") {
+      depth--;
+      if (isFn && depth === 0 && c === "}" && seenBody) { i++; break; }
+      continue;
+    }
+    if (!isFn && depth === 0 && c === ";") { i++; break; }
+  }
+  return src.slice(m.index, i);
+}
+
+/** sha256 of one component given its file's text; "MISSING_SYMBOL" when the declaration or key is absent. */
+export function fingerprintComponent(f, text) {
+  const kind = f.kind ?? "file";
+  if (text == null) return "MISSING";
+  if (kind === "file") return sha256(text);
+  if (kind === "jsonKey") { const v = JSON.parse(text)?.[f.symbol]; return v === undefined ? "MISSING_SYMBOL" : sha256(canonicalJson(v)); }
+  if (kind === "symbol") { const d = extractTopLevelDeclaration(text, f.symbol); return d == null ? "MISSING_SYMBOL" : sha256(d); }
+  throw new Error(`unknown fingerprint kind ${kind}`);
+}
+
+/** Every component whose actual hash differs from the pinned one, as one readable line each (empty = no drift). */
+export function fingerprintDrift(frozenFiles, actual) {
+  return frozenFiles.filter((f) => actual[componentId(f)] !== f.sha256)
+    .map((f) => `${componentId(f)}: pinned ${f.sha256}, found ${actual[componentId(f)] ?? "MISSING"}`);
+}
+
+/**
+ * Registration commits pinned in CODE (a reviewed change), keyed by protocol path. The grader refuses unless the
+ * pinned commit is an ancestor of the grading commit AND is the commit that first added the protocol — so a squash
+ * or rebase merge (which would silently re-register later and move firstWeek) fails loudly instead.
+ */
+export const PINNED_REGISTRATIONS = Object.freeze({});
+
+/**
+ * `added` = git log --diff-filter=A order (newest first) as [{commit, committedAt}]; `isAncestor(commit)` → bool.
+ * Returns {commit, committedAt} or throws with the reason.
+ */
+export function resolveRegistration({ protocolPath, added, pinnedCommit, isAncestor }) {
+  if (!pinnedCommit) throw new Error(`no pinned registration commit for ${protocolPath} (PINNED_REGISTRATIONS) — refusing to infer one from history`);
+  if (!isAncestor(pinnedCommit)) throw new Error(`pinned registration ${pinnedCommit} for ${protocolPath} is not an ancestor of the grading commit (squash/rebase merge?) — refusing; the registration time cannot be proven`);
+  if (!added?.length) throw new Error(`${protocolPath} was never added in the grading commit's history`);
+  const oldest = added.at(-1);
+  if (oldest.commit !== pinnedCommit) throw new Error(`${protocolPath} was first added by ${oldest.commit}, not the pinned registration ${pinnedCommit} — refusing`);
+  return { commit: oldest.commit, committedAt: oldest.committedAt };
+}
+
+/** Run gradeOne(week) per week; an exception is recorded for that week and the loop continues. */
+export function gradeWeeksIsolated(weeks, gradeOne) {
+  const results = []; const errors = [];
+  for (const w of weeks) {
+    try { results.push({ week: w, result: gradeOne(w) }); } catch (e) { errors.push({ week: w, error: String(e?.message ?? e) }); }
+  }
+  return { results, errors };
+}
+
+/**
+ * The scheduled regular-season event ids of `week`, re-derived from the RAW captures (latest capture per event wins)
+ * — independent of the event list the receipt is built from, so the denominator check is not circular.
+ */
+export function expectedScheduledIds(captures, week, registeredAt) {
+  const latest = new Map();
+  for (const c of [...(captures ?? [])].sort((a, b) => byStr(String(a.generatedAt), String(b.generatedAt)) || byStr(String(a.name ?? ""), String(b.name ?? "")))) {
+    for (const r of c.rows ?? []) latest.set(String(r.providerEventId), r);
+  }
+  const reg = kickMs(registeredAt);
+  const rows = [...latest.values()].filter((r) => r.seasonType === 2);
+  const nextSeason = Math.min(Infinity, ...rows.filter((r) => r.week === 1 && kickMs(r.dateUtc) > reg).map((r) => kickMs(r.dateUtc)));
+  return rows.filter((r) => r.week === week && kickMs(r.dateUtc) < nextSeason).map((r) => String(r.providerEventId)).sort();
+}
 
 const kickMs = (iso) => Date.parse(String(iso ?? "").replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"));
 const byStr = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
@@ -146,18 +260,27 @@ export function pointsFromRows(rows, week, pipelineVersion) {
 }
 
 /**
- * One week's receipt, or {pending} when any event is not terminal yet. `events` are the week's events with their
- * classification inputs; GRADED events carry `rows` (ROW_COLUMNS order). Refuses a week before firstWeek.
+ * One week's receipt, or {pending, pendingEvents, state} when any event is not terminal yet (state IN_PROGRESS while a
+ * kickoff is still ahead, HELD once every game has kicked off). `events` are the week's events with their
+ * classification inputs; GRADED events carry `rows` (ROW_COLUMNS order). `expectedEventIds` is the week's scheduled
+ * set re-derived independently from the raw schedule captures (expectedScheduledIds): the receipt refuses unless its
+ * scheduled events are exactly that set. Refuses a week before firstWeek.
  */
-export function buildWeekReceipt({ week, firstWeek, firstKickoffUtc, events, asOf, protocol, protocolRef, registration, builtFromCommit, inputs }) {
+export function buildWeekReceipt({ week, firstWeek, firstKickoffUtc, events, expectedEventIds, asOf, protocol, protocolRef, registration, builtFromCommit, inputs }) {
   if (!(Number.isInteger(firstWeek) && week >= firstWeek)) throw new Error(`week ${week} is before the registered first week ${firstWeek}: it never counts`);
+  if (!Array.isArray(expectedEventIds)) throw new Error(`week ${week}: expectedEventIds (from the schedule captures) is required`);
   const model = protocol.model;
   const series = protocol.series;
   const ledger = [];
   const pending = {};
+  const pendingEvents = [];
   for (const ev of [...events].sort((a, b) => kickMs(a.kickoffUtc) - kickMs(b.kickoffUtc) || byStr(a.eventId, b.eventId))) {
     const code = classifyEvent(ev, { asOf, model, series });
-    if (isPending(code)) { pending[code] = (pending[code] ?? 0) + 1; continue; }
+    if (isPending(code)) {
+      pending[code] = (pending[code] ?? 0) + 1;
+      pendingEvents.push({ eventId: ev.eventId, matchup: ev.matchup ?? null, kickoffUtc: ev.kickoffUtc, code, reason: PENDING_REASON[code] + (code === EVENT_CODE.PENDING_NO_SNAP_SHEET && ev.sheetMissing?.length ? ` (${ev.sheetMissing.join(", ")})` : "") });
+      continue;
+    }
     const rev = ev.revision;
     ledger.push({
       eventId: ev.eventId, matchup: ev.matchup ?? null, kickoffUtc: ev.kickoffUtc, inSchedule: ev.inSchedule !== false, code,
@@ -177,7 +300,7 @@ export function buildWeekReceipt({ week, firstWeek, firstKickoffUtc, events, asO
       gameId: code === EVENT_CODE.GRADED ? ev.gameId : null,
     });
   }
-  if (Object.keys(pending).length) return { pending };
+  if (Object.keys(pending).length) return { pending, pendingEvents, state: pending.PENDING_KICKOFF ? "IN_PROGRESS" : "HELD" };
 
   const rows = [];
   for (const ev of [...events].filter((e) => ledger.find((l) => l.eventId === e.eventId)?.code === EVENT_CODE.GRADED).sort((a, b) => byStr(a.eventId, b.eventId))) {
@@ -196,7 +319,14 @@ export function buildWeekReceipt({ week, firstWeek, firstKickoffUtc, events, asO
     servedRows: rows.length,
     rowStates: rowTally,
   };
-  denominator.closes = denominator.events === denominator.scheduledEvents + denominator.boardOnlyEvents
+  const ledgerScheduled = ledger.filter((l) => l.inSchedule).map((l) => l.eventId).sort();
+  const expected = [...new Set(expectedEventIds.map(String))].sort();
+  denominator.expectedFromSchedule = expected.length;
+  denominator.missingFromLedger = expected.filter((id) => !ledgerScheduled.includes(id));
+  denominator.notInSchedule = ledgerScheduled.filter((id) => !expected.includes(id));
+  denominator.closes = denominator.missingFromLedger.length === 0 && denominator.notInSchedule.length === 0
+    && ledgerScheduled.length === expected.length
+    && denominator.events === denominator.scheduledEvents + denominator.boardOnlyEvents
     && denominator.graded + Object.values(denominator.excluded).reduce((s, n) => s + n, 0) === denominator.events
     && Object.values(rowTally).reduce((s, n) => s + n, 0) === rows.length;
   if (!denominator.closes) throw new Error(`week ${week}: denominator does not close ${JSON.stringify(denominator)}`);
@@ -244,7 +374,7 @@ export const weekFileName = (season, week) => `${season}-wk${String(week).padSta
  * The cumulative forward state from the written week receipts only (never from pre-registration weeks). The
  * `families` entry has the shape the product gate reads ({state, n, needed, metrics}).
  */
-export function summarize({ protocol, protocolRef, registration, firstWeek, firstWeekFirstKickoffUtc, weekReceipts, pendingWeeks, retrospective }) {
+export function summarize({ protocol, protocolRef, registration, firstWeek, firstWeekFirstKickoffUtc, weekReceipts, pendingWeeks = [], erroredWeeks = [], retrospective }) {
   const series = protocol.series;
   const counted = [...weekReceipts].filter((w) => w.week >= firstWeek).sort((a, b) => a.week - b.week);
   if (counted.length !== weekReceipts.length) throw new Error("a week before the registered first week was handed to the summary: it never counts");
@@ -272,6 +402,12 @@ export function summarize({ protocol, protocolRef, registration, firstWeek, firs
     verdictRule: protocol.verdictRule,
     weeksCounted: counted.map((w) => ({ week: w.week, file: weekFileName(protocol.season, w.week), n: pointsFromRows(w.rows, w.week, series.pipelineVersion).length, graded: w.denominator.graded, excluded: w.denominator.excluded })),
     pendingWeeks,
+    heldWeeks: pendingWeeks.filter((w) => w.state === "HELD").map((w) => ({
+      week: w.week, state: "HELD",
+      why: "every game has kicked off, but these events are not terminal; the week is not written and nothing in it counts until they clear. Any timeout or partial-week rule is a founder decision.",
+      events: (w.pendingEvents ?? []).filter((e) => e.code !== EVENT_CODE.PENDING_KICKOFF),
+    })),
+    erroredWeeks,
     families: {
       [MARKET]: { state: verdict.state, n: verdict.n, needed: bars.minimumN, metrics: verdict.metrics ?? null, bars: verdict.bars ?? null, engine: protocol.model.engineId },
     },

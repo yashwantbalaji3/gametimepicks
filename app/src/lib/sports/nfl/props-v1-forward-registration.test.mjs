@@ -8,10 +8,12 @@ import fs from "node:fs";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { spawnSync } from "node:child_process";
 import { lastPreKickoffRevision, servedModelOf, readPropsV1PromotionBars, readShareLevelForwardBars, stableJson } from "./props-v1-forward-receipt.mjs";
 import {
   scheduleFromCaptures, regularSeasonWeeks, firstWeekAfter, classifyEvent, EVENT_CODE, EXCLUSION_REASON,
   buildWeekReceipt, appendWeekReceipt, summarize, weekFileName, pointsFromRows, registeredPipelineVersion, ROW_COLUMNS,
+  expectedScheduledIds, resolveRegistration, fingerprintDrift, fingerprintComponent, componentId, extractTopLevelDeclaration, gradeWeeksIsolated, PINNED_REGISTRATIONS,
 } from "./props-v1-forward-registration.mjs";
 import {
   deriveNflFamilyGates, propsV1ForwardEvidence, FAMILY_BLOCKER, PROPS_V1_FORWARD_ELIGIBILITY_FLAG,
@@ -21,7 +23,7 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(HERE, "..", "..", "..", "..", "..");
 const rd = (p) => fs.readFileSync(path.join(ROOT, p), "utf8");
 const FX = JSON.parse(fs.readFileSync(path.join(HERE, "__fixtures__/props-v1-forward-registration/weeks.json"), "utf8"));
-const PROTOCOL_PATH = "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol.json";
+const PROTOCOL_PATH = "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s2.json";
 const PROTOCOL = JSON.parse(rd(PROTOCOL_PATH));
 const PROTOCOL_REF = { path: PROTOCOL_PATH, sha256: "fixture" };
 const REG = FX.registration;
@@ -48,7 +50,7 @@ const ctx = { asOf: FX.asOfReady, model: PROTOCOL.model, series: PROTOCOL.series
 const weekEvents = (w) => FX.weeks[w].events.map(facts);
 const build = (w, { asOf = FX.asOfReady, events = weekEvents(w), firstWeek = 11 } = {}) => buildWeekReceipt({
   week: w, firstWeek, firstKickoffUtc: events[0].kickoffUtc, events, asOf, protocol: PROTOCOL, protocolRef: PROTOCOL_REF,
-  registration: REG, builtFromCommit: "fixture-rev", inputs: { fixture: { path: "weeks.json", sha256: "fixture" } },
+  expectedEventIds: expectedScheduledIds(FX.captures, w, REG.committedAt), registration: REG, builtFromCommit: "fixture-rev", inputs: { fixture: { path: "weeks.json", sha256: "fixture" } },
 });
 const tmp = () => fs.mkdtempSync(path.join(os.tmpdir(), "n8-reg-"));
 
@@ -215,6 +217,89 @@ test("N8 reg · a served-pipeline version change starts another series and is ne
   assert.ok(r11.rows.length > 0 && r11.rows.every((row) => row[vi] === SERIES.pipelineVersion));
   // a row or a week of another version can never enter this series' numbers
   assert.throws(() => pointsFromRows([[...r11.rows[0].slice(0, -1), v2]], 11, SERIES.pipelineVersion), /never pooled/);
-  const s2Week = { ...build(12).receipt, series: { id: "s2", pipelineVersion: v2 } };
-  assert.throws(() => summarize({ protocol: PROTOCOL, protocolRef: PROTOCOL_REF, registration: REG, firstWeek: 11, firstWeekFirstKickoffUtc: "x", weekReceipts: [r11, s2Week], pendingWeeks: [], retrospective: null }), /never pooled/);
+  const nextSeriesWeek = { ...build(12).receipt, series: { id: "s3", pipelineVersion: v2 } };
+  assert.throws(() => summarize({ protocol: PROTOCOL, protocolRef: PROTOCOL_REF, registration: REG, firstWeek: 11, firstWeekFirstKickoffUtc: "x", weekReceipts: [r11, nextSeriesWeek], pendingWeeks: [], retrospective: null }), /never pooled/);
+});
+
+// ── grader-script mechanics (review round 1) ─────────────────────────────────────────────────────────────────
+
+test("N8 reg · registration is the PINNED commit, which must be the oldest add and an ancestor", () => {
+  const added = [{ commit: "c-newer-readd", committedAt: "2026-11-25T00:00:00Z" }, { commit: "c-first-add", committedAt: "2026-11-16T01:00:00Z" }];
+  const yes = () => true;
+  assert.deepEqual(resolveRegistration({ protocolPath: "p", added, pinnedCommit: "c-first-add", isAncestor: yes }), { commit: "c-first-add", committedAt: "2026-11-16T01:00:00Z" });
+  assert.throws(() => resolveRegistration({ protocolPath: "p", added, pinnedCommit: "c-newer-readd", isAncestor: yes }), /first added by c-first-add/);
+  assert.throws(() => resolveRegistration({ protocolPath: "p", added, pinnedCommit: "c-first-add", isAncestor: () => false }), /not an ancestor/);
+  assert.throws(() => resolveRegistration({ protocolPath: "p", added, pinnedCommit: undefined, isAncestor: yes }), /no pinned registration/);
+  // a squash merge after week 11's kickoff would re-add the file later: refused, never a silent firstWeek 12
+  const squashed = [{ commit: "c-squash", committedAt: "2026-11-21T00:00:00Z" }];
+  assert.throws(() => resolveRegistration({ protocolPath: "p", added: squashed, pinnedCommit: "c-first-add", isAncestor: (c) => c === "c-squash" }), /not an ancestor/);
+});
+
+test("N8 reg · the grader script refuses without its pinned registration in history", { timeout: 120_000 }, (t) => {
+  const pinned = PINNED_REGISTRATIONS[PROTOCOL_PATH];
+  assert.ok(/^[0-9a-f]{40}$/.test(pinned ?? ""), "the s2 protocol has a pinned registration commit");
+  const has = spawnSync("git", ["cat-file", "-e", `${pinned}^{commit}`], { cwd: ROOT });
+  if (has.status !== 0) { t.skip("pinned registration commit is not in this clone's history (shallow clone) — not attempted"); return; }
+  const dir = tmp();
+  try {
+    const run = (...args) => spawnSync("npx", ["tsx", path.join(ROOT, "scripts/research/nfl/forward-props-v1-reception-yds-registered.mjs"), "--out-dir", dir, ...args], { cwd: ROOT, encoding: "utf8" });
+    const before = run("--rev", `${pinned}~1`);
+    assert.notEqual(before.status, 0);
+    assert.match(before.stderr, /REFUSED: .*(not an ancestor|never added)/);
+    const s1 = run("--protocol", "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol.json");
+    assert.notEqual(s1.status, 0);
+    assert.match(s1.stderr, /REFUSED: no pinned registration/);
+    assert.deepEqual(fs.readdirSync(dir), [], "a refusal writes nothing");
+  } finally { fs.rmSync(dir, { recursive: true, force: true }); }
+});
+
+test("N8 reg · fingerprint drift is named component by component; unrelated edits do not drift", () => {
+  const src = "export function keep(a) {\n  return a + 1; // }\n}\nexport function other() { return \"}\"; }\nexport const K = Object.freeze({ a: [1, 2] });\n";
+  const f = { path: "x.mjs", kind: "symbol", symbol: "keep" };
+  const base = fingerprintComponent(f, src);
+  assert.equal(extractTopLevelDeclaration(src, "keep"), "export function keep(a) {\n  return a + 1; // }\n}");
+  assert.equal(extractTopLevelDeclaration(src, "K"), "export const K = Object.freeze({ a: [1, 2] });");
+  assert.equal(fingerprintComponent(f, src.replace("return \"}\"", "return 2")), base, "editing another function leaves this one's hash");
+  assert.notEqual(fingerprintComponent(f, src.replace("a + 1", "a + 2")), base);
+  assert.equal(fingerprintComponent({ ...f, symbol: "gone" }, src), "MISSING_SYMBOL");
+  const j = { path: "e.json", kind: "jsonKey", symbol: "fit" };
+  assert.equal(fingerprintComponent(j, "{\"fit\":{\"b\":1,\"a\":2},\"generatedAt\":\"x\"}"), fingerprintComponent(j, "{\"generatedAt\":\"y\",\"fit\":{\"a\":2,\"b\":1}}"), "only the fit block, key order irrelevant");
+  const pinnedSet = [{ ...f, sha256: base }, { path: "y.mjs", kind: "file", sha256: "aa" }];
+  assert.deepEqual(fingerprintDrift(pinnedSet, { "x.mjs#keep": base, "y.mjs": "aa" }), []);
+  assert.deepEqual(fingerprintDrift(pinnedSet, { "x.mjs#keep": "bb", "y.mjs": "aa" }), [`x.mjs#keep: pinned ${base}, found bb`]);
+  // the registered set covers the totals inputs that set the engine's per-event total
+  const ids = PROTOCOL.model.frozenFiles.map(componentId);
+  for (const id of ["app/src/lib/sports/nfl/totals-rating.mjs", "data/internal/research/nfl/reports/matchup-totals-evaluation.json", "data/internal/research/nfl/reports/props-integration-verdict.json", "data/internal/research/nfl/reports/player-props-v1-evaluation.json#fit", "app/scripts/nfl/run-nfl-event-window.mjs#composeRoleRates"]) assert.ok(ids.includes(id), id);
+  for (const id of ["app/src/lib/sports/research/artifact-modes.mjs", "app/src/lib/sports/nfl/strength-state.mjs", "app/src/lib/sports/nfl/game-sim.mjs", "app/scripts/nfl/evaluate-nfl-player-props.mjs"]) assert.ok(!ids.includes(id), `${id} is out of scope`);
+});
+
+test("N8 reg · one week's exception is recorded and later weeks are still graded", () => {
+  const { results, errors } = gradeWeeksIsolated([11, 12, 13], (w) => { if (w === 12) throw new Error("boom"); return `graded ${w}`; });
+  assert.deepEqual(results, [{ week: 11, result: "graded 11" }, { week: 13, result: "graded 13" }]);
+  assert.deepEqual(errors, [{ week: 12, error: "boom" }]);
+  const script = rd("scripts/research/nfl/forward-props-v1-reception-yds-registered.mjs");
+  assert.match(script, /gradeWeeksIsolated\(/, "the grader loops weeks through the isolating runner");
+  const s = summarize({ protocol: PROTOCOL, protocolRef: PROTOCOL_REF, registration: REG, firstWeek: 11, firstWeekFirstKickoffUtc: "x", weekReceipts: [build(11).receipt], pendingWeeks: [], erroredWeeks: errors, retrospective: null });
+  assert.deepEqual(s.erroredWeeks, errors);
+});
+
+test("N8 reg · the denominator is checked against the schedule captures, not the list being checked", () => {
+  assert.deepEqual(expectedScheduledIds(FX.captures, 11, REG.committedAt), ["91101", "91102", "91103", "91104", "91105"]);
+  const dropped = weekEvents(11).filter((e) => e.eventId !== "91104");
+  assert.throws(() => build(11, { events: dropped }), /denominator does not close/);
+  const extra = (w) => buildWeekReceipt({ week: w, firstWeek: 11, firstKickoffUtc: "x", events: weekEvents(w), expectedEventIds: [...expectedScheduledIds(FX.captures, w, REG.committedAt), "99999"], asOf: FX.asOfReady, protocol: PROTOCOL, protocolRef: PROTOCOL_REF, registration: REG, builtFromCommit: "r", inputs: {} });
+  assert.throws(() => extra(11), /"missingFromLedger":\["99999"\]/);
+  assert.equal(build(11).receipt.denominator.expectedFromSchedule, 5);
+});
+
+test("N8 reg · a cancelled game or missing snap sheet HOLDS the week, visibly, with its reason", () => {
+  const evs = weekEvents(11).map((e) => (e.eventId === "91101" ? { ...e, final: false } : e.eventId === "91199" ? { ...e, sheetMissing: ["OOO"] } : e));
+  const out = build(11, { events: evs });
+  assert.equal(out.state, "HELD");
+  const s = summarize({ protocol: PROTOCOL, protocolRef: PROTOCOL_REF, registration: REG, firstWeek: 11, firstWeekFirstKickoffUtc: "x", weekReceipts: [], pendingWeeks: [{ week: 11, state: out.state, pending: out.pending, pendingEvents: out.pendingEvents }], retrospective: null });
+  assert.equal(s.heldWeeks.length, 1);
+  assert.deepEqual(s.heldWeeks[0].events.map((e) => [e.eventId, e.code]), [["91101", "PENDING_NOT_FINAL"], ["91199", "PENDING_NO_SNAP_SHEET"]]);
+  assert.match(s.heldWeeks[0].events[1].reason, /snap sheet.*\(OOO\)/);
+  assert.match(s.heldWeeks[0].why, /founder decision/);
+  assert.equal(build(11, { asOf: FX.asOfPending }).state, "IN_PROGRESS", "a week still waiting on kickoffs is not HELD");
 });

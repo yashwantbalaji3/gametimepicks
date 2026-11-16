@@ -3,7 +3,8 @@
  * NFL props-v1 RECEIVING YARDS — REGISTERED FORWARD TEST, weekly enrollment (ledger N8). PRIVATE_RESEARCH.
  * Research only: writes nothing public, changes no board label, no eligibility state, no model, no frozen file.
  *
- * Protocol: data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol.json. Counting rules live
+ * Protocol: --protocol (default data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s2.json;
+ * s1 is SUPERSEDED_BEFORE_FIRST_WEEK and refused). Registration = the commit pinned in PINNED_REGISTRATIONS. Counting rules live
  * in app/src/lib/sports/nfl/props-v1-forward-registration.mjs; grading mechanics are the as-served retrospective's
  * (props-v1-forward-receipt.mjs, PR 1363) — one copy.
  *
@@ -28,6 +29,7 @@ import {
 import {
   scheduleFromCaptures, regularSeasonWeeks, firstWeekAfter, classifyEvent, isPending, EVENT_CODE,
   buildWeekReceipt, appendWeekReceipt, summarize, weekFileName, pipelineVersionOf, registeredPipelineVersion,
+  componentId, fingerprintComponent, fingerprintDrift, resolveRegistration, PINNED_REGISTRATIONS, gradeWeeksIsolated, expectedScheduledIds,
 } from "../../../app/src/lib/sports/nfl/props-v1-forward-registration.mjs";
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
@@ -38,7 +40,7 @@ const REV = git("rev-parse", "--verify", `${argOf("--rev", "HEAD")}^{commit}`).t
 const AS_OF = git("show", "-s", "--format=%cI", REV).trim();
 const sha = (s) => crypto.createHash("sha256").update(s).digest("hex");
 const show = (commit, p) => git("show", `${commit}:${p}`);
-const PROTOCOL_PATH = "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol.json";
+const PROTOCOL_PATH = argOf("--protocol", "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s2.json");
 const RETRO_PATH = "data/internal/research/nfl/replay/props-v1-reception-yds-forward/receipt.json";
 const BOARD_DIR = "app/public/data/nfl/player-board";
 const SCHEDULE_DIR = "app/public/data/nfl/schedule";
@@ -53,13 +55,18 @@ const SRC = {
 };
 const sameJson = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
-// ── registration: the commit that added the protocol, and the protocol unchanged since ───────────────────────
-const added = git("log", "--diff-filter=A", "--format=%H %cI", REV, "--", PROTOCOL_PATH).split("\n").filter(Boolean);
-if (!added.length) refuse(`${PROTOCOL_PATH} is not committed in ${REV}'s history — nothing is registered`);
-const [regCommit, regAt] = added.at(-1).split(" ");
+// ── registration: the PINNED commit (code), proven an ancestor and the first to add the protocol ─────────────
+const added = git("log", "--diff-filter=A", "--format=%H %cI", REV, "--", PROTOCOL_PATH).split("\n").filter(Boolean)
+  .map((l) => { const [commit, committedAt] = l.split(" "); return { commit, committedAt }; });
+const isAncestor = (c) => { try { execFileSync("git", ["merge-base", "--is-ancestor", c, REV], { cwd: ROOT, stdio: "ignore" }); return true; } catch { return false; } };
+let regCommit; let regAt;
+try {
+  ({ commit: regCommit, committedAt: regAt } = resolveRegistration({ protocolPath: PROTOCOL_PATH, added, pinnedCommit: PINNED_REGISTRATIONS[PROTOCOL_PATH], isAncestor }));
+} catch (e) { refuse(e.message); }
 const protocolText = show(REV, PROTOCOL_PATH);
 if (show(regCommit, PROTOCOL_PATH) !== protocolText) refuse(`${PROTOCOL_PATH} changed after its registration commit ${regCommit} — amendments need a new protocol`);
 const protocol = JSON.parse(protocolText);
+if (protocol.status) refuse(`${PROTOCOL_PATH} is ${protocol.status}${protocol.supersededBy ? ` by ${protocol.supersededBy}` : ""} — it is never graded`);
 const protocolRef = { path: PROTOCOL_PATH, sha256: sha(protocolText) };
 const registration = { commit: regCommit, committedAt: regAt };
 const model = protocol.model;
@@ -79,7 +86,23 @@ const parsedV1 = readPropsV1PromotionBars({ evaluatorSource: show(regCommit, "ap
 for (const k of Object.keys(parsedV1)) if (!sameJson(parsedV1[k], B.propsV1Promotion[k])) refuse(`protocol bar propsV1Promotion.${k} ${JSON.stringify(B.propsV1Promotion[k])} ≠ source ${JSON.stringify(parsedV1[k])}`);
 const parsedSl = readShareLevelForwardBars(JSON.parse(show(regCommit, B.shareLevelLevel.source.path)));
 if (!sameJson(parsedSl.levelBand, B.shareLevelLevel.levelBand)) refuse("protocol shareLevelLevel.levelBand ≠ preregistration frozen.bars.levelBand");
-for (const f of model.frozenFiles) if (sha(show(regCommit, f.path)) !== f.sha256) refuse(`frozen file ${f.path} at registration does not hash to ${f.sha256}`);
+/* The fingerprint at the registration commit must be exactly the pinned one (else the protocol misdescribes the
+   pipeline it registered). At the grading commit, drift is NOT a refusal — boards generated after it are simply
+   OTHER_PIPELINE_VERSION — but it is announced loudly, component by component. */
+const blobSha = new Map();
+const fileAt = (commit, p) => {
+  let blob;
+  try { blob = execFileSync("git", ["rev-parse", "--verify", "--quiet", `${commit}:${p}`], { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim(); } catch { return null; }
+  if (!blobSha.has(blob)) blobSha.set(blob, git("cat-file", "blob", blob));
+  return blobSha.get(blob);
+};
+const fingerprintAt = (commit) => Object.fromEntries(model.frozenFiles.map((f) => [componentId(f), fingerprintComponent(f, fileAt(commit, f.path))]));
+const regDrift = fingerprintDrift(model.frozenFiles, fingerprintAt(regCommit));
+if (regDrift.length) refuse(`the pinned fingerprint does not match the pipeline at registration ${regCommit}:\n  ${regDrift.join("\n  ")}`);
+const headDrift = fingerprintDrift(model.frozenFiles, fingerprintAt(REV));
+if (headDrift.length) {
+  console.log(`::warning::served pipeline at ${REV.slice(0, 10)} is no longer series ${series.id} (${series.pipelineVersion}); boards generated under it grade OTHER_PIPELINE_VERSION — register a new series:\n  ${headDrift.join("\n  ")}`);
+}
 const V1 = { ...B.propsV1Promotion };
 const FIT = {
   passA0: evaluationAtReg.fit?.volume?.pass?.a0, catchRate: evaluationAtReg.fit?.league?.catchRate, ypr: evaluationAtReg.fit?.league?.ypr,
@@ -124,20 +147,13 @@ const boardIds = new Set(git("ls-tree", "--name-only", `${REV}:${BOARD_DIR}`).sp
 const currentBoard = new Map();
 const boardAt = (id) => { if (!currentBoard.has(id)) currentBoard.set(id, boardIds.has(id) ? JSON.parse(show(REV, `${BOARD_DIR}/${id}.json`)) : null); return currentBoard.get(id); };
 const kms = (iso) => Date.parse(String(iso ?? "").replace(/T(\d\d):(\d\d)Z$/, "T$1:$2:00Z"));
-const blobSha = new Map();
-/** sha256 of a file at a commit ("MISSING" when absent), cached by blob id. */
-const shaAt = (commit, p) => {
-  let blob;
-  try { blob = execFileSync("git", ["rev-parse", "--verify", "--quiet", `${commit}:${p}`], { cwd: ROOT, encoding: "utf8", stdio: ["ignore", "pipe", "ignore"] }).trim(); } catch { return "MISSING"; }
-  if (!blobSha.has(blob)) blobSha.set(blob, sha(git("cat-file", "blob", blob)));
-  return blobSha.get(blob);
-};
-/** The served pipeline at a board revision commit: its version, the frozen files that differ, and attribution shas. */
+const shaAt = (commit, p) => { const t = fileAt(commit, p); return t == null ? "MISSING" : sha(t); };
+/** The served pipeline at a board revision commit: its version, the components that differ, and attribution shas. */
 const pipelineAt = (commit) => {
-  const shas = Object.fromEntries(model.frozenFiles.map((f) => [f.path, shaAt(commit, f.path)]));
+  const fp = fingerprintAt(commit);
   return {
-    pipelineVersion: pipelineVersionOf(shas),
-    identityMismatches: model.frozenFiles.filter((f) => shas[f.path] !== f.sha256).map((f) => f.path),
+    pipelineVersion: pipelineVersionOf(fp),
+    identityMismatches: model.frozenFiles.filter((f) => fp[componentId(f)] !== f.sha256).map(componentId),
     roleSharesSha256: shaAt(commit, "data/internal/research/nfl/role-shares-v1/current.json"),
     boardBuilderSha256: shaAt(commit, "app/scripts/nfl/build-nfl-player-board.mjs"),
   };
@@ -174,10 +190,16 @@ const SEASON = protocol.season;
 const written = new Set(fs.existsSync(OUT_DIR) ? fs.readdirSync(OUT_DIR) : []);
 const pendingWeeks = [];
 const log = [];
-for (const w of weeks.values()) {
-  if (firstWeek == null || w.week < firstWeek) continue; // pre-registration weeks never count
-  if (written.has(weekFileName(SEASON, w.week))) { log.push(`wk${w.week} already written`); continue; }
-  if (!(kms(w.firstKickoffUtc) < Date.parse(AS_OF))) continue; // not started: neither pending nor graded
+const toGrade = [...weeks.values()].filter((w) => {
+  if (firstWeek == null || w.week < firstWeek) return false; // pre-registration weeks never count
+  if (written.has(weekFileName(SEASON, w.week))) { log.push(`wk${w.week} already written`); return false; }
+  return kms(w.firstKickoffUtc) < Date.parse(AS_OF); // not started: neither pending nor graded
+});
+/* Each week in isolation: one week's exception is recorded and the next week is still graded. */
+const { errors: erroredWeeks } = gradeWeeksIsolated(toGrade.map((w) => w.week), (wk) => gradeWeek(weeks.get(wk)));
+for (const e of erroredWeeks) log.push(`wk${e.week} ERROR ${e.error}`);
+
+function gradeWeek(w) {
   const scheduled = new Set(w.events.map((e) => e.eventId));
   const boardOnly = [...boardIds].filter((id) => !scheduled.has(id)).map(boardAt)
     .filter((b) => b?.seasonType === 2 && b.week === w.week && String(b.kickoffUtc ?? "").startsWith(String(SEASON)) && !schedule.has(String(b.providerEventId)))
@@ -195,10 +217,18 @@ for (const w of weeks.values()) {
       return [ev.eventId, ev.gameId, pl.playerId, pl.name, pl.team, pl.participation ?? null, d.mean, d.p10, d.p25, d.median, d.p75, d.p90, state, actual, b.rolling4, b.line, b.shareVol, po?.p ?? null, po?.lo ?? null, po?.hi ?? null, b.stateAtTeam, ev.revision.pipelineVersion];
     });
   }
-  const out = buildWeekReceipt({ week: w.week, firstWeek, firstKickoffUtc: w.firstKickoffUtc, events, asOf: AS_OF, protocol: summaryProtocol, protocolRef, registration, builtFromCommit: REV, inputs: { ...inputs } });
-  if (out.pending) { pendingWeeks.push({ week: w.week, pending: out.pending }); log.push(`wk${w.week} pending ${JSON.stringify(out.pending)}`); continue; }
+  const out = buildWeekReceipt({
+    week: w.week, firstWeek, firstKickoffUtc: w.firstKickoffUtc, events, expectedEventIds: expectedScheduledIds(captures, w.week, regAt),
+    asOf: AS_OF, protocol: summaryProtocol, protocolRef, registration, builtFromCommit: REV, inputs: { ...inputs },
+  });
+  if (out.pending) {
+    pendingWeeks.push({ week: w.week, state: out.state, pending: out.pending, pendingEvents: out.pendingEvents });
+    log.push(`wk${w.week} ${out.state} ${JSON.stringify(out.pending)}`);
+    return out.state;
+  }
   const result = appendWeekReceipt({ fs, path, dir: OUT_DIR, week: w.week, season: SEASON, receipt: out.receipt });
   log.push(`wk${w.week} ${result} (n ${out.receipt.rows.filter((r) => r[12] === "SCORED").length}, ${out.receipt.denominator.graded}/${out.receipt.denominator.events} events graded)`);
+  return result;
 }
 
 // ── summary, from the week files alone ─────────────────────────────────────────────────────────────────────
@@ -207,7 +237,7 @@ const weekReceipts = (fs.existsSync(OUT_DIR) ? fs.readdirSync(OUT_DIR) : []).fil
 const retroText = (() => { try { return show(REV, RETRO_PATH); } catch { return null; } })();
 const retro = retroText ? JSON.parse(retroText) : null;
 const summary = summarize({
-  protocol: summaryProtocol, protocolRef, registration, firstWeek, firstWeekFirstKickoffUtc, weekReceipts, pendingWeeks,
+  protocol: summaryProtocol, protocolRef, registration, firstWeek, firstWeekFirstKickoffUtc, weekReceipts, pendingWeeks, erroredWeeks,
   retrospective: retro ? {
     label: "AS_SERVED_RETROSPECTIVE — pregame-frozen boards graded after the fact (PR 1363); pre-registration weeks; NEVER counted toward the forward n",
     path: RETRO_PATH, sha256: sha(retroText), n: retro.n, verdict: retro.verdict, weeks: (retro.perWeek ?? []).map((w) => w.week),
@@ -218,3 +248,5 @@ fs.writeFileSync(path.join(OUT_DIR, "summary.json"), stableJson(summary));
 const fam = summary.families[MARKET];
 console.log(`props-v1 ${MARKET} registered forward · series ${series.id} ${series.pipelineVersion} · registered ${regAt} (${regCommit.slice(0, 10)}) · first week ${firstWeek} (first kickoff ${firstWeekFirstKickoffUtc}) · ${fam.state} n ${fam.n}/${fam.needed}`);
 for (const l of log) console.log(`  ${l}`);
+for (const h of summary.heldWeeks) console.log(`::warning::wk${h.week} HELD: ${h.events.map((e) => `${e.eventId} ${e.code}`).join(", ")}`);
+if (erroredWeeks.length) { console.error(`${erroredWeeks.length} week(s) errored (recorded in summary.json; later weeks were still graded)`); process.exit(1); }
