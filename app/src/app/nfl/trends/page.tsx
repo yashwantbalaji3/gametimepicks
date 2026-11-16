@@ -5,6 +5,8 @@
  *
  * Line-based records (5/5, 4/5 against an observed sportsbook line) appear only where a line was captured before
  * kickoff. When none was, the page says so instead of inventing a comparison line.
+ * LINE GATE (per game, the game page's own rule): line content only for a game where NFL_LINE_DISPLAY.public AND a line
+ * artifact is readable (nflPublicLineRecords). With no game open the page prints no line column and no line sentence.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -16,13 +18,25 @@ import { sanitizePlayerBoard } from "@/lib/sports/odds/public-offer-sanitizer.mj
 import { readEvidenceFor } from "@/lib/sports/nfl/player-evidence-file.mjs";
 import { withRouteMetadata } from "@/lib/seo/route-metadata";
 import { buildAsOfIso } from "@/lib/build-asof";
+import { NFL_LINE_DISPLAY } from "@/lib/sports/nfl/line-display.mjs";
+import { nflPublicLineRecords } from "@/lib/sports/nfl/public-line-records.mjs";
+
+/** The game page's line gate, per game (one artifact read per game per build). */
+function nflLineGate(display: { public: boolean } = NFL_LINE_DISPLAY) {
+  const seen = new Map<string, boolean>();
+  return (eventId: string) => {
+    if (!display.public) return false;
+    if (!seen.has(eventId)) seen.set(eventId, nflPublicLineRecords(eventId) != null);
+    return seen.get(eventId) === true;
+  };
+}
 
 export const metadata = withRouteMetadata("/nfl/trends/", {
   title: "NFL player trends: last 5 games vs the official projection · GameTime Picks",
   description: "Every player on this week's NFL boards: actual recent results beside the official model projection. History, not a pick.",
 });
 
-function load(): { rows: TrendRow[]; linesCaptured: number; played: number } {
+function load(): { rows: TrendRow[]; linesCaptured: number; linesOpen: boolean; played: number } {
   /* the build instant: a game at or before it has kicked off and is not this week's board (history stays on its page) */
   const now = buildAsOfIso(); // the export's one build instant (lib/build-asof.ts), shared with every other page
   const dir = path.join(process.cwd(), "public/data/nfl/player-board");
@@ -41,12 +55,12 @@ function load(): { rows: TrendRow[]; linesCaptured: number; played: number } {
       evidenceByEvent[String(b.providerEventId)] = ev;
     } catch { /* unreadable board ⇒ skipped */ }
   }
-  const rows = buildTrendRows({ boards, evidenceByEvent, now }) as TrendRow[];
-  return { rows, linesCaptured: rows.filter((r) => OBSERVED_LINE_STATES.includes(r.lineState)).length, played: boards.length - upcomingBoards(boards, now).length };
+  const rows = buildTrendRows({ boards, evidenceByEvent, now, lineGate: nflLineGate() }) as TrendRow[];
+  return { rows, linesCaptured: rows.filter((r) => r.lineState != null && OBSERVED_LINE_STATES.includes(r.lineState)).length, linesOpen: rows.some((r) => r.lineState != null), played: boards.length - upcomingBoards(boards, now).length };
 }
 
 export default function NflTrendsPage() {
-  const { rows, linesCaptured, played } = load();
+  const { rows, linesCaptured, linesOpen, played } = load();
   const players = new Set(rows.map((r) => r.playerId)).size;
   return (
     <div className="vault-page-shell px-4 sm:px-8 py-8 sm:py-12" style={{ maxWidth: 1100, margin: "0 auto" }}>
@@ -57,9 +71,10 @@ export default function NflTrendsPage() {
         A gap between the two is history, not a pick. The model already weighs recent games, along with role and matchup.
       </p>
       <p style={{ fontSize: 13, color: "var(--vault-text-faint)", margin: "0 0 16px", maxWidth: 760 }}>
-        {linesCaptured
+        {/* line gate closed for every game ⇒ no sentence about lines at all (history only) */}
+        {!linesOpen ? null : <>{linesCaptured
           ? `${linesCaptured} rows have a sportsbook line captured before kickoff; only those show a record against the line, with the line, the sportsbook and when it was captured.`
-          : "No sportsbook player lines were captured for this slate, so no hit rate against a line is shown. We never substitute a made-up line."}{" "}
+          : "No sportsbook player lines were captured for this slate, so no hit rate against a line is shown. We never substitute a made-up line."}{" "}</>}
         {played ? `${played} game${played === 1 ? " has" : "s have"} already kicked off and ${played === 1 ? "is" : "are"} not listed; ${played === 1 ? "its" : "their"} history stays on ${played === 1 ? "its" : "each"} game page. ` : ""}Tap a player for every game, opponent and stat line. <Link href="/nfl/">All NFL forecasts →</Link>
       </p>
       {rows.length ? <NflTrendsTable rows={rows} /> : <p style={{ color: "var(--vault-text-mute)" }}>No upcoming NFL player boards right now. Trends return with the next slate&apos;s boards.</p>}

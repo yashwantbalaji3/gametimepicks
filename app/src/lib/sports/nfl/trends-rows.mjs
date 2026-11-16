@@ -10,6 +10,11 @@
  * UPCOMING ONLY: a game whose kickoff is at or before `now` (the build instant) is not this week's board, so it is not a
  * row here; its history stays on its own game page under the frozen/settled-page rules. Boards are sanitised here too
  * (public-offer-sanitizer.mjs), so an ineligible operator's line can never produce a record.
+ *
+ * LINE GATE (per game): `lineGate(eventId)` decides whether a game's rows may carry ANY line content. The page passes the
+ * game page's own rule — NFL_LINE_DISPLAY.public AND a readable line artifact for that game (nflPublicLineRecords).
+ * Default: closed (fail closed). A closed game's rows never read the offer slot: lineState / line / badge / tier are
+ * null, so nothing about a line, a book or a record reaches the row (and so the client payload).
  */
 import { FAMILY_STAT, lineRecord, summary, trendTier, valueOf } from "./player-evidence.mjs";
 import { lineCaption, lineView } from "./evidence-line.mjs";
@@ -23,12 +28,14 @@ export function upcomingBoards(boards, now) {
   return (boards ?? []).filter((b) => Number.isFinite(t) && Number.isFinite(Date.parse(b?.kickoffUtc ?? "")) && Date.parse(b.kickoffUtc) > t);
 }
 
-export function buildTrendRows({ boards, evidenceByEvent, now }) {
+/** @param {{ boards: any[], evidenceByEvent: Record<string, any>, now?: string, lineGate?: (eventId: string) => boolean }} a */
+export function buildTrendRows({ boards, evidenceByEvent, now, lineGate = () => false }) {
   const rows = [];
   for (const raw of upcomingBoards(boards, now)) {
     const b = sanitizePlayerBoard(raw);
     const ev = evidenceByEvent[String(b.providerEventId)] ?? {};
     const [away, home] = String(b.matchup ?? "").split(" @ ");
+    const lines = lineGate(String(b.providerEventId)) === true;
     for (const p of b.players ?? []) {
       const log = ev[p.playerId];
       if (!log) continue;
@@ -36,8 +43,8 @@ export function buildTrendRows({ boards, evidenceByEvent, now }) {
         const m = p.markets?.[fam];
         if (!m || b.families?.[fam]?.state !== "PUBLISHED") continue;
         const s5 = summary(log, fam, 5), s10 = summary(log, fam, 10);
-        const lv = lineView(m.market ?? null, b.kickoffUtc);
-        const rec = lineRecord(log, fam, 5, { line: lv.state === "OBSERVED" ? { line: lv.line, sportsbook: lv.sportsbook, capturedAt: lv.capturedAt } : null });
+        const lv = lines ? lineView(m.market ?? null, b.kickoffUtc) : null;
+        const rec = lv ? lineRecord(log, fam, 5, { line: lv.state === "OBSERVED" ? { line: lv.line, sportsbook: lv.sportsbook, capturedAt: lv.capturedAt } : null }) : null;
         const isTd = fam === "anytime_td";
         rows.push({
           eventId: String(b.providerEventId), kickoffUtc: b.kickoffUtc, matchup: b.matchup, opponent: p.team === home ? away : home,
@@ -49,11 +56,11 @@ export function buildTrendRows({ boards, evidenceByEvent, now }) {
           tdGames5: isTd ? s5.values.filter((v) => v != null && v > 0).length : null,
           projection: isTd ? null : m.median ?? null, probability: isTd ? m.probability ?? null : null,
           vsProjection: !isTd && s5.median != null && m.median != null && s5.recorded === 5 ? Math.round((s5.median - m.median) * 10) / 10 : null,
-          /* NO_LINE | WITHHELD | NOT_BEFORE_KICKOFF, or (observed) COMPLETE | INCOMPLETE | SHORT_SAMPLE */
-          lineState: lv.state === "OBSERVED" ? rec.state : lv.state,
-          line: lineCaption(lv),
-          badge: lv.state === "OBSERVED" ? rec.badge ?? null : null,
-          tier: lv.state === "OBSERVED" ? trendTier(rec) : null,
+          /* null (line gate closed for this game) | NO_LINE | WITHHELD | NOT_BEFORE_KICKOFF, or (observed) COMPLETE | INCOMPLETE | SHORT_SAMPLE */
+          lineState: !lv || !rec ? null : lv.state === "OBSERVED" ? rec.state : lv.state,
+          line: lv ? lineCaption(lv) : null,
+          badge: lv && rec && lv.state === "OBSERVED" ? rec.badge ?? null : null,
+          tier: lv && rec && lv.state === "OBSERVED" ? trendTier(rec) : null,
         });
       }
     }

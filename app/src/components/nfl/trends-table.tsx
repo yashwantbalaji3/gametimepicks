@@ -2,6 +2,8 @@
 /**
  * NFL TRENDS TABLE — client-side filters over the build-time rows (lib/sports/nfl/trends-rows.mjs). Nothing here fetches
  * or computes a number the server did not ship; filters and sorting are presentation only.
+ * LINE GATE: a row with `lineState: null` is behind a closed line gate (trends-rows.mjs) and prints nothing about a line;
+ * with no open row at all the Line column itself is not rendered.
  */
 import React, { useMemo, useState } from "react";
 import Link from "next/link";
@@ -10,7 +12,7 @@ import { BOOK_AVAILABILITY_NOTE } from "@/lib/sports/odds/eligible-operators.mjs
 export type TrendRow = {
   eventId: string; kickoffUtc: string; matchup: string; opponent: string; playerId: string; name: string; team: string; eligibility: string | null;
   family: string; label: string; last5: (number | null)[]; games5: number; recorded5: number; noStatLine5: number; median5: number | null; median10: number | null; games10: number;
-  tdGames5: number | null; projection: number | null; probability: number | null; vsProjection: number | null; lineState: string; line: string | null; badge: string | null; tier: string | null;
+  tdGames5: number | null; projection: number | null; probability: number | null; vsProjection: number | null; lineState: string | null; line: string | null; badge: string | null; tier: string | null;
 };
 
 const SORTS = {
@@ -51,6 +53,8 @@ export default function NflTrendsTable({ rows }: { rows: TrendRow[] }) {
   const isTd = market === "anytime_td";
   /* a row whose line caption names a sportsbook is on screen ⇒ the required availability disclosure prints with it */
   const namesBook = shown.some((r) => r.line);
+  /* any row behind an OPEN line gate ⇒ the Line column exists; none ⇒ no line column, no line wording */
+  const lineCol = rows.some((r) => r.lineState != null);
   return (
     <div>
       <style dangerouslySetInnerHTML={{ __html: CSS }} />
@@ -65,7 +69,7 @@ export default function NflTrendsTable({ rows }: { rows: TrendRow[] }) {
       <div className="nt-s">
         <table className="nt-t">
           <caption className="sr-only">Recent results and official projection by player</caption>
-          <thead><tr><th>Player</th><th>Market</th><th>Last 5 (newest first)</th><th>L5 median</th><th>L10 median</th><th>Official projection</th><th>L5 − projection</th><th>Line</th></tr></thead>
+          <thead><tr><th>Player</th><th>Market</th><th>Last 5 (newest first)</th><th>L5 median</th><th>L10 median</th><th>Official projection</th><th>L5 − projection</th>{lineCol ? <th>Line</th> : null}</tr></thead>
           <tbody>
             {shown.map((r) => (
               <tr key={`${r.eventId}:${r.playerId}:${r.family}`} data-trend-row={r.playerId}>
@@ -76,9 +80,9 @@ export default function NflTrendsTable({ rows }: { rows: TrendRow[] }) {
                 <td>{r.family === "anytime_td" ? "" : f1(r.median10)}</td>
                 <td>{r.family === "anytime_td" ? (r.probability != null ? `${(r.probability * 100).toFixed(0)}% to score` : "—") : f1(r.projection)}</td>
                 <td className={r.vsProjection != null && r.vsProjection > 0 ? "nt-up" : undefined}>{r.vsProjection == null ? "—" : `${r.vsProjection > 0 ? "+" : ""}${f1(r.vsProjection)}`}</td>
-                <td>{r.line
+                {!lineCol ? null : r.lineState == null ? <td>—</td> : <td>{r.line
                   ? <>{r.badge ? `${r.badge} over` : <span className="nt-g">partial record</span>}<div className="nt-g">vs {r.line}</div></>
-                  : <span className="nt-g">{r.lineState === "WITHHELD" ? "withheld" : r.lineState === "NOT_BEFORE_KICKOFF" ? "no pre-kickoff capture" : "not captured"}</span>}</td>
+                  : <span className="nt-g">{r.lineState === "WITHHELD" ? "withheld" : r.lineState === "NOT_BEFORE_KICKOFF" ? "no pre-kickoff capture" : "not captured"}</span>}</td>}
               </tr>
             ))}
           </tbody>
