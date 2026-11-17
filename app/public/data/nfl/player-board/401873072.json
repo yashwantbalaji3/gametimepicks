@@ -1,0 +1,1204 @@
+{
+ "schemaVersion": 1,
+ "artifact": "nfl-player-board",
+ "dataClass": "PUBLIC_DERIVED",
+ "generatedAt": "2026-11-17T03:26:26Z",
+ "sourceGeneratedAt": "2026-11-17T03:26:26Z",
+ "forecastInputHash": "be4fe2baaaf324e5",
+ "providerEventId": "401873072",
+ "matchup": "TB @ DET",
+ "kickoffUtc": "2026-11-22T18:00Z",
+ "seasonType": 2,
+ "week": 11,
+ "participationBasis": "Availability refreshes until kickoff.",
+ "availability": {
+  "injuriesCapturedAt": "2026-11-17T03:26:26Z",
+  "roleEvidenceAt": "2026-11-17T03:26:26Z",
+  "injuries": "FRESH",
+  "rosters": "FRESH"
+ },
+ "families": {
+  "player_pass_yds": {
+   "label": "Passing yards",
+   "state": "ESTIMATE",
+   "reason": "RESEARCH_ONLY — failed bar(s): beatsRolling, beatsShareVol, coverOk, calOk",
+   "caveat": "on held-out 2025 a simple rolling recent-form baseline predicted passing yards better than this model — read the line as a rough indication, not a validated forecast."
+  },
+  "player_rush_yds": {
+   "label": "Rushing yards",
+   "state": "ESTIMATE",
+   "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
+   "caveat": "its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable."
+  },
+  "player_reception_yds": {
+   "label": "Receiving yards",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
+  "player_receptions": {
+   "label": "Receptions",
+   "state": "PUBLISHED",
+   "basis": "props-v1 evaluation: n=3575, all promotion bars pass"
+  },
+  "player_pass_int": {
+   "label": "player_pass_int",
+   "state": "WITHHELD",
+   "reason": "RESEARCH_ONLY"
+  },
+  "anytime_td": {
+   "label": "Anytime touchdown",
+   "state": "PUBLISHED",
+   "basis": "anytime-td-v1 calibration: held-out 2025 n=3965, beats both baselines; DNP settles void, so probabilities condition on playing"
+  },
+  "ordered_td": {
+   "label": "First/last/2+ touchdown",
+   "state": "WITHHELD",
+   "reason": "DISABLED — no ordering model and no calibration receipt of their own; never derived from anytime probabilities"
+  }
+ },
+ "newArrivals": {},
+ "arrivalsShadowed": 0,
+ "departedFiltered": 0,
+ "practiceSquadFiltered": 0,
+ "practiceSquadFilteredPlayers": [],
+ "shareLevel": null,
+ "marketCoverage": {
+  "probed": false,
+  "priced": 0,
+  "absent": 49,
+  "referenceBook": "draftkings"
+ },
+ "coverage": {
+  "TB": {
+   "counts": {
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 0,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 0,
+    "NOT_MODELED_BY_FAMILY": 0,
+    "WITHHELD_POOL_OVER_ALLOCATED": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-3052587",
+     "name": "Baker Mayfield",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
+     "playerId": "nfl-athlete-4596448",
+     "name": "Bucky Irving",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4596472",
+     "name": "Jalon Daniels",
+     "state": "PROJECTED",
+     "families": [
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not TB's starting quarterback (Baker Mayfield, depth chart QB1) — the team's passing projection belongs to the starter"
+      }
+     ]
+    },
+    {
+     "playerId": "nfl-athlete-4567750",
+     "name": "Emeka Egbuka",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-3116165",
+     "name": "Chris Godwin Jr.",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4371733",
+     "name": "Kenny Gainwell",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4243331",
+     "name": "Cade Otton",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-5220680",
+     "name": "Ted Hurst III",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4608810",
+     "name": "Tez Johnson",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4430871",
+     "name": "Sean Tucker",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_rush_yds"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4240589",
+     "name": "Tristan Wirfs",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    }
+   ]
+  },
+  "DET": {
+   "counts": {
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 0,
+    "EXCLUDED_NO_CURRENT_ROLE": 0,
+    "WITHHELD_ROLE_UNCERTAIN": 0,
+    "NOT_MODELED_BY_FAMILY": 0,
+    "WITHHELD_POOL_OVER_ALLOCATED": 0
+   },
+   "players": [
+    {
+     "playerId": "nfl-athlete-3046779",
+     "name": "Jared Goff",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_pass_yds",
+      "player_rush_yds"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4429795",
+     "name": "Jahmyr Gibbs",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions",
+      "player_rush_yds"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4374302",
+     "name": "Amon-Ra St. Brown",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4426388",
+     "name": "Jameson Williams",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4430027",
+     "name": "Sam LaPorta",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-4912274",
+     "name": "Sione Vaki",
+     "state": "PROJECTED",
+     "families": [
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-5123663",
+     "name": "Isaac TeSlaa",
+     "state": "PROJECTED",
+     "families": [
+      "anytime_td",
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "ACTIVE_PROJECTED"
+    },
+    {
+     "playerId": "nfl-athlete-3044720",
+     "name": "Joshua Dobbs",
+     "state": "PROJECTED",
+     "families": [
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    }
+   ]
+  }
+ },
+ "integrity": {
+  "qbStarter": [
+   {
+    "team": "TB",
+    "snapshotAt": "2026-11-16T16:58:52Z",
+    "skipped": [],
+    "state": "APPLIED",
+    "tier": "A_CLUB_HISTORY",
+    "starter": {
+     "playerId": "nfl-athlete-3052587",
+     "name": "Baker Mayfield"
+    },
+    "source": "depth chart QB1",
+    "basis": "club share not carried by the forecast",
+    "passers": [
+     "nfl-athlete-3052587"
+    ],
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4596472",
+      "name": "Jalon Daniels",
+      "reason": "not TB's starting quarterback (Baker Mayfield, depth chart QB1) — the team's passing projection belongs to the starter"
+     }
+    ]
+   },
+   {
+    "team": "DET",
+    "snapshotAt": "2026-11-16T16:58:52Z",
+    "skipped": [],
+    "state": "APPLIED",
+    "tier": "A_CLUB_HISTORY",
+    "starter": {
+     "playerId": "nfl-athlete-3046779",
+     "name": "Jared Goff"
+    },
+    "source": "depth chart QB1",
+    "basis": "club share not carried by the forecast",
+    "passers": [
+     "nfl-athlete-3046779"
+    ],
+    "removed": []
+   }
+  ],
+  "pools": [],
+  "violations": 0
+ },
+ "players": [
+  {
+   "playerId": "nfl-athlete-4429795",
+   "name": "Jahmyr Gibbs",
+   "team": "DET",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 97.287,
+     "p10": 45.58,
+     "p25": 66.06,
+     "median": 92.28,
+     "p75": 123.31,
+     "p90": 154.39,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_reception_yds": {
+     "mean": 37.317,
+     "p10": 5.17,
+     "p25": 16.22,
+     "median": 31.91,
+     "p75": 52.73,
+     "p90": 74.89,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 3.748,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.68576,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-15T19:22Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4596448",
+   "name": "Bucky Irving",
+   "team": "TB",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 61.498,
+     "p10": 21.59,
+     "p25": 35.89,
+     "median": 56.29,
+     "p75": 81.93,
+     "p90": 108.1,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_reception_yds": {
+     "mean": 19.55,
+     "p10": 0,
+     "p25": 5.12,
+     "median": 15.11,
+     "p75": 28.96,
+     "p90": 44.68,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.296,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.505609,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T19:49Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4426388",
+   "name": "Jameson Williams",
+   "team": "DET",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 48.665,
+     "p10": 6.28,
+     "p25": 20.69,
+     "median": 41.38,
+     "p75": 68.79,
+     "p90": 100.16,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 3.485,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 6,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.44511,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-15T19:49Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4567750",
+   "name": "Emeka Egbuka",
+   "team": "TB",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 42.508,
+     "p10": 8.69,
+     "p25": 20.35,
+     "median": 37.87,
+     "p75": 59.47,
+     "p90": 82.56,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 4.196,
+     "p10": 1,
+     "p25": 2,
+     "median": 4,
+     "p75": 6,
+     "p90": 7,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.359304,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T05:20Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4374302",
+   "name": "Amon-Ra St. Brown",
+   "team": "DET",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 74.326,
+     "p10": 24.19,
+     "p25": 43.18,
+     "median": 68.32,
+     "p75": 99.58,
+     "p90": 132.58,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 6.333,
+     "p10": 3,
+     "p25": 4,
+     "median": 6,
+     "p75": 8,
+     "p90": 10,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.357022,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-15T19:42Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4430027",
+   "name": "Sam LaPorta",
+   "team": "DET",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 37.868,
+     "p10": 4.28,
+     "p25": 15.34,
+     "median": 32.17,
+     "p75": 53.81,
+     "p90": 79.35,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 3.326,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 6,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.24798,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-15T20:07Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-5123663",
+   "name": "Isaac TeSlaa",
+   "team": "DET",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 21.374,
+     "p10": 0,
+     "p25": 1.87,
+     "median": 15.4,
+     "p75": 32.49,
+     "p90": 52.35,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.683,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 2,
+     "p90": 4,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.214554,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-15T19:32Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4430871",
+   "name": "Sean Tucker",
+   "team": "TB",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 7.553,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.22,
+     "p75": 11.24,
+     "p90": 22.58,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.193327,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-10T05:51Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4240589",
+   "name": "Tristan Wirfs",
+   "team": "TB",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "anytime_td": {
+     "probability": 0.190893,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-07T03:18Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-5220680",
+   "name": "Ted Hurst III",
+   "team": "TB",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 27.447,
+     "p10": 0,
+     "p25": 7.49,
+     "median": 21.36,
+     "p75": 41.07,
+     "p90": 62.53,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.311,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.150943,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-11T03:00Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3046779",
+   "name": "Jared Goff",
+   "team": "DET",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 234.555,
+     "p10": 120.25,
+     "p25": 171.22,
+     "median": 232.33,
+     "p75": 293.37,
+     "p90": 353.52,
+     "tier": "A_CLUB_HISTORY",
+     "pricingState": "NOT_PROBED"
+    },
+    "player_rush_yds": {
+     "mean": 5.905,
+     "p10": 0,
+     "p25": 0,
+     "median": 2.02,
+     "p75": 8.67,
+     "p90": 17.44,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.141749,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-15T18:59Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3052587",
+   "name": "Baker Mayfield",
+   "team": "TB",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 144.839,
+     "p10": 33.45,
+     "p25": 80.97,
+     "median": 139.19,
+     "p75": 201.93,
+     "p90": 259.76,
+     "tier": "A_CLUB_HISTORY",
+     "pricingState": "NOT_PROBED"
+    },
+    "player_rush_yds": {
+     "mean": 9.249,
+     "p10": 0,
+     "p25": 0,
+     "median": 3.54,
+     "p75": 13.74,
+     "p90": 26.76,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.104675,
+     "participation": "QUESTIONABLE",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "flags": [
+     "QUESTIONABLE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Questionable",
+      "statedAt": "2026-11-15T16:19Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4608810",
+   "name": "Tez Johnson",
+   "team": "TB",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 23.615,
+     "p10": 0,
+     "p25": 1.28,
+     "median": 15.64,
+     "p75": 36.08,
+     "p90": 59.17,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 1.68,
+     "p10": 0,
+     "p25": 1,
+     "median": 1,
+     "p75": 2,
+     "p90": 4,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.099701,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-11T00:51Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4371733",
+   "name": "Kenny Gainwell",
+   "team": "TB",
+   "participation": "ACTIVE_PROJECTED",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 21.502,
+     "p10": 0.61,
+     "p25": 5.84,
+     "median": 16.04,
+     "p75": 31.45,
+     "p90": 49.96,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_reception_yds": {
+     "mean": 25.195,
+     "p10": 0,
+     "p25": 7.04,
+     "median": 19.94,
+     "p75": 37.04,
+     "p90": 57.18,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.452,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
+     "pricingState": "NOT_PROBED"
+    },
+    "anytime_td": {
+     "probability": 0.099554,
+     "participation": "ACTIVE_PROJECTED",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T05:23Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4912274",
+   "name": "Sione Vaki",
+   "team": "DET",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 15.496,
+     "p10": 0,
+     "p25": 1.95,
+     "median": 9.78,
+     "p75": 23.07,
+     "p90": 39.33,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-15T19:28Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4596472",
+   "name": "Jalon Daniels",
+   "team": "TB",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 13.656,
+     "p10": 0,
+     "p25": 0.97,
+     "median": 7.95,
+     "p75": 20.3,
+     "p90": 35.8,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [
+     "ROSTER_ACTIVE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": null,
+      "statedAt": null,
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3044720",
+   "name": "Joshua Dobbs",
+   "team": "DET",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 6.334,
+     "p10": 0,
+     "p25": 0,
+     "median": 1.57,
+     "p75": 8.74,
+     "p90": 18.89,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [
+     "ROSTER_ACTIVE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": null,
+      "statedAt": null,
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3116165",
+   "name": "Chris Godwin Jr.",
+   "team": "TB",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 44.275,
+     "p10": 9.26,
+     "p25": 21.27,
+     "median": 39.06,
+     "p75": 61.8,
+     "p90": 86.25,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 4.414,
+     "p10": 1,
+     "p25": 3,
+     "median": 4,
+     "p75": 6,
+     "p90": 8,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-09T05:30Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4243331",
+   "name": "Cade Otton",
+   "team": "TB",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 30.785,
+     "p10": 2.4,
+     "p25": 11.29,
+     "median": 25.14,
+     "p75": 44.83,
+     "p90": 66.3,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 3.067,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 4,
+     "p90": 6,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Active",
+      "statedAt": "2026-11-10T02:15Z",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-17T03:26:26Z"
+     }
+    }
+   }
+  }
+ ],
+ "disclaimer": "Model projections. Educational."
+}
