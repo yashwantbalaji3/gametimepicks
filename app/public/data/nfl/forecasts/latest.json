@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-forecasts",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-16T19:34:29Z",
- "date": "2026-11-16",
+ "generatedAt": "2026-11-17T00:01:20Z",
+ "date": "2026-11-17",
  "model": {
   "id": "nfl-regular-season-public-v1",
   "version": 2,
@@ -70,41 +70,41 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-16T19:34:29Z",
+   "generatedAt": "2026-11-17T00:01:20Z",
    "evidence": {
     "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-16T19:34:29Z",
+    "strengthCutoff": "2026-11-17T00:01:20Z",
     "strengthGamesFolded": 881,
     "regressedToSeason": null
    },
    "forecastSummary": {
     "projectedScore": {
-     "home": 25,
+     "home": 24,
      "away": 18,
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.67,
-     "away": 0.3017,
-     "tieMass": 0.0283,
-     "homeUnrounded": 0.6699794419907747,
+     "home": 0.6708,
+     "away": 0.3021,
+     "tieMass": 0.0271,
+     "homeUnrounded": 0.6708068324717761,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
-     "median": 6,
+     "median": 5,
      "p10": -11,
-     "p90": 22
+     "p90": 21
     },
     "total": {
-     "median": 43,
-     "p10": 25,
+     "median": 42,
+     "p10": 26,
      "p90": 60,
      "head": "matchup-totals-v3-play-efficiency"
     },
     "scoreRange": {
      "homeP10": 12,
      "homeP90": 36,
-     "awayP10": 6,
+     "awayP10": 7,
      "awayP90": 31
     },
     "distribution": {
@@ -122,7 +122,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-16T19:34:29Z",
+    "participationAsOf": "2026-11-17T00:01:20Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -139,7 +139,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-16T19:34:29Z"
+    "frozenAt": "2026-11-17T00:01:20Z"
    }
   }
  ],
