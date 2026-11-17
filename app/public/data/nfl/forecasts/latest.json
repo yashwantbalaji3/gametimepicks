@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-forecasts",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-17T03:26:26Z",
+ "generatedAt": "2026-11-17T18:30:08Z",
  "date": "2026-11-17",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -38,7 +38,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "1776ff564d07860d",
+    "inputHash": "143beb6a2ab04072",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -49,20 +49,20 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7425,
-     "foldedThrough": "2026-11-15",
+     "gamesFolded": 7426,
+     "foldedThrough": "2026-11-16",
      "sigma": 13.32677
     },
     "winHead": {
      "id": "nfl-win-elo-mov-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
-     "foldedThrough": "2026-11-15"
+     "gamesFolded": 7410,
+     "foldedThrough": "2026-11-16"
     },
     "marginHead": {
      "id": "nfl-margin-elo-hfa-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
+     "gamesFolded": 7410,
      "sigma": 13.03176
     }
    },
@@ -70,11 +70,11 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-17T03:26:26Z",
+   "generatedAt": "2026-11-17T18:30:08Z",
    "evidence": {
-    "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-17T03:26:26Z",
-    "strengthGamesFolded": 881,
+    "schedule": "2026-11-17T18:26:10Z",
+    "strengthCutoff": "2026-11-17T18:30:08Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
@@ -84,10 +84,10 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.6979,
-     "away": 0.2755,
-     "tieMass": 0.0266,
-     "homeUnrounded": 0.6978837030299958,
+     "home": 0.6972,
+     "away": 0.2753,
+     "tieMass": 0.0275,
+     "homeUnrounded": 0.6972384438017988,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -110,7 +110,7 @@
     "distribution": {
      "marginMean": 5.74,
      "marginSigma": 13.03,
-     "totalMean": 46.7054,
+     "totalMean": 46.7245,
      "totalSigma": 13.33,
      "source": "nfl-gamesim-v1-joint-normal"
     }
@@ -122,7 +122,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-17T03:26:26Z",
+    "participationAsOf": "2026-11-17T18:30:08Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -139,7 +139,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-17T03:26:26Z"
+    "frozenAt": "2026-11-17T18:30:08Z"
    }
   },
   {
@@ -163,7 +163,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "0276cebdb66962d0",
+    "inputHash": "bf52a7fc52765c3a",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -174,20 +174,20 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7425,
-     "foldedThrough": "2026-11-15",
+     "gamesFolded": 7426,
+     "foldedThrough": "2026-11-16",
      "sigma": 13.32677
     },
     "winHead": {
      "id": "nfl-win-elo-mov-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
-     "foldedThrough": "2026-11-15"
+     "gamesFolded": 7410,
+     "foldedThrough": "2026-11-16"
     },
     "marginHead": {
      "id": "nfl-margin-elo-hfa-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
+     "gamesFolded": 7410,
      "sigma": 13.03176
     }
    },
@@ -195,11 +195,11 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-17T03:26:26Z",
+   "generatedAt": "2026-11-17T18:30:08Z",
    "evidence": {
-    "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-17T03:26:26Z",
-    "strengthGamesFolded": 881,
+    "schedule": "2026-11-17T18:26:10Z",
+    "strengthCutoff": "2026-11-17T18:30:08Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
@@ -209,10 +209,10 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.8832,
-     "away": 0.0988,
-     "tieMass": 0.018,
-     "homeUnrounded": 0.883195360116857,
+     "home": 0.8838,
+     "away": 0.0989,
+     "tieMass": 0.0173,
+     "homeUnrounded": 0.8838249291108303,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -235,7 +235,7 @@
     "distribution": {
      "marginMean": 13.84,
      "marginSigma": 13.03,
-     "totalMean": 47.4165,
+     "totalMean": 47.3171,
      "totalSigma": 13.33,
      "source": "nfl-gamesim-v1-joint-normal"
     }
@@ -247,7 +247,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-17T03:26:26Z",
+    "participationAsOf": "2026-11-17T18:30:08Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -264,7 +264,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-17T03:26:26Z"
+    "frozenAt": "2026-11-17T18:30:08Z"
    }
   },
   {
@@ -288,7 +288,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "50c4e5f07aa64ca1",
+    "inputHash": "19566e0024c95b76",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -299,20 +299,20 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7425,
-     "foldedThrough": "2026-11-15",
+     "gamesFolded": 7426,
+     "foldedThrough": "2026-11-16",
      "sigma": 13.32677
     },
     "winHead": {
      "id": "nfl-win-elo-mov-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
-     "foldedThrough": "2026-11-15"
+     "gamesFolded": 7410,
+     "foldedThrough": "2026-11-16"
     },
     "marginHead": {
      "id": "nfl-margin-elo-hfa-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
+     "gamesFolded": 7410,
      "sigma": 13.03176
     }
    },
@@ -320,11 +320,11 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-17T03:26:26Z",
+   "generatedAt": "2026-11-17T18:30:08Z",
    "evidence": {
-    "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-17T03:26:26Z",
-    "strengthGamesFolded": 881,
+    "schedule": "2026-11-17T18:26:10Z",
+    "strengthCutoff": "2026-11-17T18:30:08Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
@@ -334,10 +334,10 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.7973,
-     "away": 0.1787,
-     "tieMass": 0.024,
-     "homeUnrounded": 0.7972508049119117,
+     "home": 0.7967,
+     "away": 0.1786,
+     "tieMass": 0.0247,
+     "homeUnrounded": 0.7966790061788807,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -360,7 +360,7 @@
     "distribution": {
      "marginMean": 9.36,
      "marginSigma": 13.03,
-     "totalMean": 46.6805,
+     "totalMean": 46.8195,
      "totalSigma": 13.33,
      "source": "nfl-gamesim-v1-joint-normal"
     }
@@ -372,7 +372,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-17T03:26:26Z",
+    "participationAsOf": "2026-11-17T18:30:08Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -389,7 +389,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-17T03:26:26Z"
+    "frozenAt": "2026-11-17T18:30:08Z"
    }
   },
   {
@@ -413,7 +413,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "f6af7266d140ab8f",
+    "inputHash": "46deae09258bdd8d",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -424,20 +424,20 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7425,
-     "foldedThrough": "2026-11-15",
+     "gamesFolded": 7426,
+     "foldedThrough": "2026-11-16",
      "sigma": 13.32677
     },
     "winHead": {
      "id": "nfl-win-elo-mov-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
-     "foldedThrough": "2026-11-15"
+     "gamesFolded": 7410,
+     "foldedThrough": "2026-11-16"
     },
     "marginHead": {
      "id": "nfl-margin-elo-hfa-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
+     "gamesFolded": 7410,
      "sigma": 13.03176
     }
    },
@@ -445,11 +445,11 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-17T03:26:26Z",
+   "generatedAt": "2026-11-17T18:30:08Z",
    "evidence": {
-    "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-17T03:26:26Z",
-    "strengthGamesFolded": 881,
+    "schedule": "2026-11-17T18:26:10Z",
+    "strengthCutoff": "2026-11-17T18:30:08Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
@@ -459,10 +459,10 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.7278,
-     "away": 0.2483,
-     "tieMass": 0.0239,
-     "homeUnrounded": 0.7278149115240664,
+     "home": 0.7286,
+     "away": 0.2486,
+     "tieMass": 0.0228,
+     "homeUnrounded": 0.7286351106867305,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -485,7 +485,7 @@
     "distribution": {
      "marginMean": 8.68,
      "marginSigma": 13.03,
-     "totalMean": 53.1457,
+     "totalMean": 52.8046,
      "totalSigma": 13.33,
      "source": "nfl-gamesim-v1-joint-normal"
     }
@@ -497,7 +497,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-17T03:26:26Z",
+    "participationAsOf": "2026-11-17T18:30:08Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -514,7 +514,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-17T03:26:26Z"
+    "frozenAt": "2026-11-17T18:30:08Z"
    }
   },
   {
@@ -538,7 +538,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "be4fe2baaaf324e5",
+    "inputHash": "b12eb1d8d70213c8",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -549,20 +549,20 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7425,
-     "foldedThrough": "2026-11-15",
+     "gamesFolded": 7426,
+     "foldedThrough": "2026-11-16",
      "sigma": 13.32677
     },
     "winHead": {
      "id": "nfl-win-elo-mov-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
-     "foldedThrough": "2026-11-15"
+     "gamesFolded": 7410,
+     "foldedThrough": "2026-11-16"
     },
     "marginHead": {
      "id": "nfl-margin-elo-hfa-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
+     "gamesFolded": 7410,
      "sigma": 13.03176
     }
    },
@@ -570,11 +570,11 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-17T03:26:26Z",
+   "generatedAt": "2026-11-17T18:30:08Z",
    "evidence": {
-    "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-17T03:26:26Z",
-    "strengthGamesFolded": 881,
+    "schedule": "2026-11-17T18:26:10Z",
+    "strengthCutoff": "2026-11-17T18:30:08Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
@@ -584,10 +584,10 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.7037,
-     "away": 0.2714,
-     "tieMass": 0.0249,
-     "homeUnrounded": 0.7037411402044597,
+     "home": 0.7043,
+     "away": 0.2716,
+     "tieMass": 0.0241,
+     "homeUnrounded": 0.7043185096149444,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -604,13 +604,13 @@
     "scoreRange": {
      "homeP10": 16,
      "homeP90": 40,
-     "awayP10": 7,
+     "awayP10": 8,
      "awayP90": 31
     },
     "distribution": {
      "marginMean": 8.78,
      "marginSigma": 13.03,
-     "totalMean": 47.1152,
+     "totalMean": 47.2605,
      "totalSigma": 13.33,
      "source": "nfl-gamesim-v1-joint-normal"
     }
@@ -622,7 +622,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-17T03:26:26Z",
+    "participationAsOf": "2026-11-17T18:30:08Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -639,7 +639,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-17T03:26:26Z"
+    "frozenAt": "2026-11-17T18:30:08Z"
    }
   },
   {
@@ -663,7 +663,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "53920caa7299d17e",
+    "inputHash": "68672e1771c9380c",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -674,20 +674,20 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7425,
-     "foldedThrough": "2026-11-15",
+     "gamesFolded": 7426,
+     "foldedThrough": "2026-11-16",
      "sigma": 13.32677
     },
     "winHead": {
      "id": "nfl-win-elo-mov-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
-     "foldedThrough": "2026-11-15"
+     "gamesFolded": 7410,
+     "foldedThrough": "2026-11-16"
     },
     "marginHead": {
      "id": "nfl-margin-elo-hfa-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
+     "gamesFolded": 7410,
      "sigma": 13.03176
     }
    },
@@ -695,11 +695,11 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-17T03:26:26Z",
+   "generatedAt": "2026-11-17T18:30:08Z",
    "evidence": {
-    "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-17T03:26:26Z",
-    "strengthGamesFolded": 881,
+    "schedule": "2026-11-17T18:26:10Z",
+    "strengthCutoff": "2026-11-17T18:30:08Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
@@ -709,10 +709,10 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.7928,
+     "home": 0.7923,
      "away": 0.1877,
-     "tieMass": 0.0195,
-     "homeUnrounded": 0.7927541540650331,
+     "tieMass": 0.02,
+     "homeUnrounded": 0.7923498939150764,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -735,7 +735,7 @@
     "distribution": {
      "marginMean": 10.44,
      "marginSigma": 13.03,
-     "totalMean": 45.4737,
+     "totalMean": 45.4209,
      "totalSigma": 13.33,
      "source": "nfl-gamesim-v1-joint-normal"
     }
@@ -747,7 +747,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-17T03:26:26Z",
+    "participationAsOf": "2026-11-17T18:30:08Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -764,7 +764,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-17T03:26:26Z"
+    "frozenAt": "2026-11-17T18:30:08Z"
    }
   },
   {
@@ -788,7 +788,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "417e07fa01075ad7",
+    "inputHash": "cb0b7f9641b5951c",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -799,20 +799,20 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7425,
-     "foldedThrough": "2026-11-15",
+     "gamesFolded": 7426,
+     "foldedThrough": "2026-11-16",
      "sigma": 13.32677
     },
     "winHead": {
      "id": "nfl-win-elo-mov-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
-     "foldedThrough": "2026-11-15"
+     "gamesFolded": 7410,
+     "foldedThrough": "2026-11-16"
     },
     "marginHead": {
      "id": "nfl-margin-elo-hfa-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
+     "gamesFolded": 7410,
      "sigma": 13.03176
     }
    },
@@ -820,11 +820,11 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-17T03:26:26Z",
+   "generatedAt": "2026-11-17T18:30:08Z",
    "evidence": {
-    "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-17T03:26:26Z",
-    "strengthGamesFolded": 881,
+    "schedule": "2026-11-17T18:26:10Z",
+    "strengthCutoff": "2026-11-17T18:30:08Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
@@ -835,9 +835,9 @@
     },
     "winProbability": {
      "home": 0.327,
-     "away": 0.6401,
-     "tieMass": 0.0329,
-     "homeUnrounded": 0.32696358350479227,
+     "away": 0.6402,
+     "tieMass": 0.0328,
+     "homeUnrounded": 0.3269973921681678,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -860,7 +860,7 @@
     "distribution": {
      "marginMean": -0.75,
      "marginSigma": 13.03,
-     "totalMean": 42.7415,
+     "totalMean": 42.7387,
      "totalSigma": 13.33,
      "source": "nfl-gamesim-v1-joint-normal"
     }
@@ -872,7 +872,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-17T03:26:26Z",
+    "participationAsOf": "2026-11-17T18:30:08Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -889,7 +889,7 @@
     "publishedSide": "AWAY",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-17T03:26:26Z"
+    "frozenAt": "2026-11-17T18:30:08Z"
    }
   },
   {
@@ -913,7 +913,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "79cdc82d95b050e8",
+    "inputHash": "c22e8e38659dac67",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -924,48 +924,50 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7425,
-     "foldedThrough": "2026-11-15",
+     "gamesFolded": 7426,
+     "foldedThrough": "2026-11-16",
      "sigma": 13.32677
     },
     "winHead": {
-     "id": "nfl-model-v1-elo-analytic",
-     "fallbackFrom": "nfl-win-elo-mov-v1",
-     "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
+     "id": "nfl-win-elo-mov-v1",
+     "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
+     "gamesFolded": 7410,
+     "foldedThrough": "2026-11-16"
     },
     "marginHead": {
-     "id": "nfl-model-v1-elo-analytic",
-     "fallbackFrom": "nfl-margin-elo-hfa-v1",
-     "fallbackReason": "the adopted win and margin heads favour different sides in this game, so the earlier single-rating pair is published to keep the win chance and the projected score consistent"
+     "id": "nfl-margin-elo-hfa-v1",
+     "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
+     "gamesFolded": 7410,
+     "sigma": 13.03176
     }
    },
    "teamSignal": {
     "state": "APPLIED",
-    "note": "Team strength moves this forecast: the Elo-logistic win head over a 881-game rating history is the head the committed evaluation measured on a held-out 2025 season (log loss 0.6478 against a coin's 0.6931, about 64% of winners). It has not been shown to beat the sportsbook market."
+    "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-17T03:26:26Z",
+   "generatedAt": "2026-11-17T18:30:08Z",
    "evidence": {
-    "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-17T03:26:26Z",
-    "strengthGamesFolded": 881,
+    "schedule": "2026-11-17T18:26:10Z",
+    "strengthCutoff": "2026-11-17T18:30:08Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
     "projectedScore": {
-     "home": 22,
-     "away": 24,
+     "home": 23,
+     "away": 23,
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.4709,
-     "away": 0.5016,
-     "tieMass": 0.0275,
-     "homeUnrounded": 0.4709224291542908,
-     "calibration": "From the replay-validated Elo-logistic head, published exactly as evaluated on a held-out 2025 season — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
+     "home": 0.5147,
+     "away": 0.4539,
+     "tieMass": 0.0314,
+     "homeUnrounded": 0.5147455002544051,
+     "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
-     "median": -1,
-     "p10": -18,
+     "median": 0,
+     "p10": -16,
      "p90": 17
     },
     "total": {
@@ -975,15 +977,15 @@
      "head": "matchup-totals-v3-play-efficiency"
     },
     "scoreRange": {
-     "homeP10": 10,
+     "homeP10": 11,
      "homeP90": 35,
      "awayP10": 11,
-     "awayP90": 36
+     "awayP90": 35
     },
     "distribution": {
-     "marginMean": -0.76,
-     "marginSigma": 13.7,
-     "totalMean": 46.247,
+     "marginMean": 0.27,
+     "marginSigma": 13.03,
+     "totalMean": 46.2664,
      "totalSigma": 13.33,
      "source": "nfl-gamesim-v1-joint-normal"
     }
@@ -995,7 +997,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-17T03:26:26Z",
+    "participationAsOf": "2026-11-17T18:30:08Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -1009,10 +1011,10 @@
    "disclaimer": "Educational and paper-only — not betting advice.",
    "sideDecision": {
     "schemaVersion": "side-decision@1",
-    "publishedSide": "AWAY",
+    "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-17T03:26:26Z"
+    "frozenAt": "2026-11-17T18:30:08Z"
    }
   },
   {
@@ -1036,7 +1038,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "23a11e55647e9dbf",
+    "inputHash": "3418419c84c75628",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -1047,20 +1049,20 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7425,
-     "foldedThrough": "2026-11-15",
+     "gamesFolded": 7426,
+     "foldedThrough": "2026-11-16",
      "sigma": 13.32677
     },
     "winHead": {
      "id": "nfl-win-elo-mov-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
-     "foldedThrough": "2026-11-15"
+     "gamesFolded": 7410,
+     "foldedThrough": "2026-11-16"
     },
     "marginHead": {
      "id": "nfl-margin-elo-hfa-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
+     "gamesFolded": 7410,
      "sigma": 13.03176
     }
    },
@@ -1068,11 +1070,11 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-17T03:26:26Z",
+   "generatedAt": "2026-11-17T18:30:08Z",
    "evidence": {
-    "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-17T03:26:26Z",
-    "strengthGamesFolded": 881,
+    "schedule": "2026-11-17T18:26:10Z",
+    "strengthCutoff": "2026-11-17T18:30:08Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
@@ -1082,16 +1084,16 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.598,
-     "away": 0.3723,
-     "tieMass": 0.0297,
-     "homeUnrounded": 0.5979696280636467,
+     "home": 0.6248,
+     "away": 0.3459,
+     "tieMass": 0.0293,
+     "homeUnrounded": 0.6247820847305324,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
-     "median": 6,
-     "p10": -11,
-     "p90": 22
+     "median": 7,
+     "p10": -10,
+     "p90": 23
     },
     "total": {
      "median": 43,
@@ -1101,14 +1103,14 @@
     },
     "scoreRange": {
      "homeP10": 13,
-     "homeP90": 36,
-     "awayP10": 7,
-     "awayP90": 31
+     "homeP90": 37,
+     "awayP10": 6,
+     "awayP90": 30
     },
     "distribution": {
-     "marginMean": 6.23,
+     "marginMean": 6.99,
      "marginSigma": 13.03,
-     "totalMean": 42.9849,
+     "totalMean": 43.0367,
      "totalSigma": 13.33,
      "source": "nfl-gamesim-v1-joint-normal"
     }
@@ -1120,7 +1122,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-17T03:26:26Z",
+    "participationAsOf": "2026-11-17T18:30:08Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -1137,7 +1139,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-17T03:26:26Z"
+    "frozenAt": "2026-11-17T18:30:08Z"
    }
   },
   {
@@ -1161,7 +1163,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "7aa6ebb05a36efc7",
+    "inputHash": "c8aca9b1e8a3c84b",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -1172,20 +1174,20 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7425,
-     "foldedThrough": "2026-11-15",
+     "gamesFolded": 7426,
+     "foldedThrough": "2026-11-16",
      "sigma": 13.32677
     },
     "winHead": {
      "id": "nfl-win-elo-mov-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
-     "foldedThrough": "2026-11-15"
+     "gamesFolded": 7410,
+     "foldedThrough": "2026-11-16"
     },
     "marginHead": {
      "id": "nfl-margin-elo-hfa-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
+     "gamesFolded": 7410,
      "sigma": 13.03176
     }
    },
@@ -1193,24 +1195,24 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-17T03:26:26Z",
+   "generatedAt": "2026-11-17T18:30:08Z",
    "evidence": {
-    "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-17T03:26:26Z",
-    "strengthGamesFolded": 881,
+    "schedule": "2026-11-17T18:26:10Z",
+    "strengthCutoff": "2026-11-17T18:30:08Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
     "projectedScore": {
      "home": 29,
-     "away": 16,
+     "away": 15,
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.8219,
-     "away": 0.1599,
-     "tieMass": 0.0182,
-     "homeUnrounded": 0.8219101048938317,
+     "home": 0.8224,
+     "away": 0.16,
+     "tieMass": 0.0176,
+     "homeUnrounded": 0.8224123925928908,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -1219,7 +1221,7 @@
      "p90": 29
     },
     "total": {
-     "median": 45,
+     "median": 44,
      "p10": 28,
      "p90": 61,
      "head": "matchup-totals-v3-play-efficiency"
@@ -1233,7 +1235,7 @@
     "distribution": {
      "marginMean": 12.92,
      "marginSigma": 13.03,
-     "totalMean": 44.2012,
+     "totalMean": 44.0711,
      "totalSigma": 13.33,
      "source": "nfl-gamesim-v1-joint-normal"
     }
@@ -1245,7 +1247,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-17T03:26:26Z",
+    "participationAsOf": "2026-11-17T18:30:08Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -1262,7 +1264,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-17T03:26:26Z"
+    "frozenAt": "2026-11-17T18:30:08Z"
    }
   },
   {
@@ -1286,7 +1288,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "acc93339170b059e",
+    "inputHash": "18155f2731561c9f",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -1297,20 +1299,20 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7425,
-     "foldedThrough": "2026-11-15",
+     "gamesFolded": 7426,
+     "foldedThrough": "2026-11-16",
      "sigma": 13.32677
     },
     "winHead": {
      "id": "nfl-win-elo-mov-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
-     "foldedThrough": "2026-11-15"
+     "gamesFolded": 7410,
+     "foldedThrough": "2026-11-16"
     },
     "marginHead": {
      "id": "nfl-margin-elo-hfa-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
+     "gamesFolded": 7410,
      "sigma": 13.03176
     }
    },
@@ -1318,11 +1320,11 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-17T03:26:26Z",
+   "generatedAt": "2026-11-17T18:30:08Z",
    "evidence": {
-    "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-17T03:26:26Z",
-    "strengthGamesFolded": 881,
+    "schedule": "2026-11-17T18:26:10Z",
+    "strengthCutoff": "2026-11-17T18:30:08Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
@@ -1358,7 +1360,7 @@
     "distribution": {
      "marginMean": -4.38,
      "marginSigma": 13.03,
-     "totalMean": 47.1241,
+     "totalMean": 47.1274,
      "totalSigma": 13.33,
      "source": "nfl-gamesim-v1-joint-normal"
     }
@@ -1370,7 +1372,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-17T03:26:26Z",
+    "participationAsOf": "2026-11-17T18:30:08Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -1387,7 +1389,7 @@
     "publishedSide": "AWAY",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-17T03:26:26Z"
+    "frozenAt": "2026-11-17T18:30:08Z"
    }
   },
   {
@@ -1411,7 +1413,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "773cbdcf4bbc9a41",
+    "inputHash": "47a1cca1773f35a3",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -1422,20 +1424,20 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7425,
-     "foldedThrough": "2026-11-15",
+     "gamesFolded": 7426,
+     "foldedThrough": "2026-11-16",
      "sigma": 13.32677
     },
     "winHead": {
      "id": "nfl-win-elo-mov-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
-     "foldedThrough": "2026-11-15"
+     "gamesFolded": 7410,
+     "foldedThrough": "2026-11-16"
     },
     "marginHead": {
      "id": "nfl-margin-elo-hfa-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
+     "gamesFolded": 7410,
      "sigma": 13.03176
     }
    },
@@ -1443,11 +1445,11 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-17T03:26:26Z",
+   "generatedAt": "2026-11-17T18:30:08Z",
    "evidence": {
-    "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-17T03:26:26Z",
-    "strengthGamesFolded": 881,
+    "schedule": "2026-11-17T18:26:10Z",
+    "strengthCutoff": "2026-11-17T18:30:08Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
@@ -1457,10 +1459,10 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.5172,
-     "away": 0.4558,
-     "tieMass": 0.027,
-     "homeUnrounded": 0.5172288363650077,
+     "home": 0.5162,
+     "away": 0.4549,
+     "tieMass": 0.0289,
+     "homeUnrounded": 0.5162188314430205,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
@@ -1470,20 +1472,20 @@
     },
     "total": {
      "median": 42,
-     "p10": 25,
+     "p10": 26,
      "p90": 59,
      "head": "matchup-totals-v3-play-efficiency"
     },
     "scoreRange": {
      "homeP10": 10,
-     "homeP90": 33,
+     "homeP90": 34,
      "awayP10": 9,
      "awayP90": 33
     },
     "distribution": {
      "marginMean": 1.14,
      "marginSigma": 13.03,
-     "totalMean": 42.0842,
+     "totalMean": 42.2344,
      "totalSigma": 13.33,
      "source": "nfl-gamesim-v1-joint-normal"
     }
@@ -1495,7 +1497,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-17T03:26:26Z",
+    "participationAsOf": "2026-11-17T18:30:08Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -1512,7 +1514,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-17T03:26:26Z"
+    "frozenAt": "2026-11-17T18:30:08Z"
    }
   },
   {
@@ -1536,7 +1538,7 @@
     "id": "nfl-regular-season-public-v1",
     "version": 2,
     "launchState": "PUBLIC_EXPERIMENTAL",
-    "inputHash": "620815ca48c1fb80",
+    "inputHash": "7978a0085dadc73d",
     "simulations": 10000,
     "derivedFrom": [
      "nfl-win-elo-mov-v1@v1",
@@ -1547,20 +1549,20 @@
     "totalsHead": {
      "id": "matchup-totals-v3-play-efficiency",
      "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
-     "gamesFolded": 7425,
-     "foldedThrough": "2026-11-15",
+     "gamesFolded": 7426,
+     "foldedThrough": "2026-11-16",
      "sigma": 13.32677
     },
     "winHead": {
      "id": "nfl-win-elo-mov-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
-     "foldedThrough": "2026-11-15"
+     "gamesFolded": 7410,
+     "foldedThrough": "2026-11-16"
     },
     "marginHead": {
      "id": "nfl-margin-elo-hfa-v1",
      "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
-     "gamesFolded": 7409,
+     "gamesFolded": 7410,
      "sigma": 13.03176
     }
    },
@@ -1568,11 +1570,11 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-17T03:26:26Z",
+   "generatedAt": "2026-11-17T18:30:08Z",
    "evidence": {
-    "schedule": "2026-11-16T19:30:55Z",
-    "strengthCutoff": "2026-11-17T03:26:26Z",
-    "strengthGamesFolded": 881,
+    "schedule": "2026-11-17T18:26:10Z",
+    "strengthCutoff": "2026-11-17T18:30:08Z",
+    "strengthGamesFolded": 882,
     "regressedToSeason": null
    },
    "forecastSummary": {
@@ -1596,7 +1598,7 @@
     "total": {
      "median": 51,
      "p10": 34,
-     "p90": 69,
+     "p90": 68,
      "head": "matchup-totals-v3-play-efficiency"
     },
     "scoreRange": {
@@ -1608,7 +1610,7 @@
     "distribution": {
      "marginMean": -1.54,
      "marginSigma": 13.03,
-     "totalMean": 51.4168,
+     "totalMean": 51.1211,
      "totalSigma": 13.33,
      "source": "nfl-gamesim-v1-joint-normal"
     }
@@ -1620,7 +1622,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-17T03:26:26Z",
+    "participationAsOf": "2026-11-17T18:30:08Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -1637,7 +1639,7 @@
     "publishedSide": "AWAY",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-17T03:26:26Z"
+    "frozenAt": "2026-11-17T18:30:08Z"
    }
   }
  ],
