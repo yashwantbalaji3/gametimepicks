@@ -1,0 +1,232 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "serie-a",
+ "season": "2026-27",
+ "date": "2026-11-18",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-11-18T18:25:49.000Z",
+ "runs": [
+  {
+   "at": "2026-11-18T18:25:49.000Z",
+   "added": 3
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Como|Cagliari",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401875056",
+   "providerEventId": "401875056",
+   "kickoffUtc": "2026-11-21T14:00:00.000Z",
+   "matchup": "Como v Cagliari",
+   "homeClub": "Como",
+   "awayClub": "Cagliari",
+   "historyNames": {
+    "home": "Como",
+    "away": "Cagliari"
+   },
+   "espnTeamIds": {
+    "home": "2572",
+    "away": "2925"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-18T18:25:49.000Z",
+   "probs": {
+    "home": 0.60768,
+    "draw": 0.228619,
+    "away": 0.163701
+   },
+   "over25": 0.489445,
+   "under25": 0.510555,
+   "expectedGoals": {
+    "home": 1.8121,
+    "away": 0.8193
+   },
+   "lambdas": {
+    "home": 1.8121,
+    "away": 0.8193
+   },
+   "rho": -0.013718,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 80,
+    "away": 118
+   },
+   "fit": {
+    "cutoffIso": "2026-11-18T18:25:49.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 10
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.650726,
+     "draw": 0.207626,
+     "away": 0.141648
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Lazio|Lecce",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874981",
+   "providerEventId": "401874981",
+   "kickoffUtc": "2026-11-21T14:00:00.000Z",
+   "matchup": "Lazio v Lecce",
+   "homeClub": "Lazio",
+   "awayClub": "Lecce",
+   "historyNames": {
+    "home": "Lazio",
+    "away": "Lecce"
+   },
+   "espnTeamIds": {
+    "home": "112",
+    "away": "113"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-18T18:25:49.000Z",
+   "probs": {
+    "home": 0.589794,
+    "draw": 0.258664,
+    "away": 0.151543
+   },
+   "over25": 0.369898,
+   "under25": 0.630102,
+   "expectedGoals": {
+    "home": 1.5359,
+    "away": 0.6365
+   },
+   "lambdas": {
+    "home": 1.5359,
+    "away": 0.6365
+   },
+   "rho": -0.013718,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 156,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-11-18T18:25:49.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 10
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.566391,
+     "draw": 0.258985,
+     "away": 0.174624
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Parma|Roma",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874967",
+   "providerEventId": "401874967",
+   "kickoffUtc": "2026-11-21T17:00:00.000Z",
+   "matchup": "Parma v AS Roma",
+   "homeClub": "Parma",
+   "awayClub": "AS Roma",
+   "historyNames": {
+    "home": "Parma",
+    "away": "Roma"
+   },
+   "espnTeamIds": {
+    "home": "115",
+    "away": "104"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-18T18:25:49.000Z",
+   "probs": {
+    "home": 0.151641,
+    "draw": 0.251027,
+    "away": 0.597332
+   },
+   "over25": 0.3931,
+   "under25": 0.6069,
+   "expectedGoals": {
+    "home": 0.6637,
+    "away": 1.5954
+   },
+   "lambdas": {
+    "home": 0.6637,
+    "away": 1.5954
+   },
+   "rho": -0.013718,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 80,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-11-18T18:25:49.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 10
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.236454,
+     "draw": 0.263547,
+     "away": 0.499999
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 3
+ }
+}
