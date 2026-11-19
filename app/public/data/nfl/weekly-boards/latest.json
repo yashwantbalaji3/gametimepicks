@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "nfl-weekly-boards",
   "dataClass": "PUBLIC",
-  "generatedAt": "2026-11-19T22:38:23Z",
+  "generatedAt": "2026-11-19T23:23:49Z",
   "period": {
     "seasonType": 2,
     "week": 11
@@ -101,6 +101,13 @@
           "playerId": "nfl-athlete-4567048",
           "name": "Kenneth Walker III",
           "team": "KC",
+          "providerEventId": "401873067",
+          "reason": "QUESTIONABLE"
+        },
+        {
+          "playerId": "nfl-athlete-4430841",
+          "name": "Carson Beck",
+          "team": "ARI",
           "providerEventId": "401873067",
           "reason": "QUESTIONABLE"
         },
@@ -273,13 +280,6 @@
           "reason": "ELIGIBILITY_SOURCES_DISAGREE"
         },
         {
-          "playerId": "nfl-athlete-4241478",
-          "name": "DeVonta Smith",
-          "team": "PHI",
-          "providerEventId": "401873076",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-4428850",
           "name": "Dontayvion Wicks",
           "team": "PHI",
@@ -319,7 +319,7 @@
       "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1680 graded player-games).",
       "conservation": {
         "version": "nfl-share-conservation-v1",
-        "teamsReconciled": 3,
+        "teamsReconciled": 4,
         "teams": [
           {
             "team": "BAL",
@@ -330,6 +330,11 @@
             "team": "TB",
             "factor": 0.9461,
             "originalSum": 1.057
+          },
+          {
+            "team": "PHI",
+            "factor": 0.7903,
+            "originalSum": 1.2653
           },
           {
             "team": "SF",
@@ -627,13 +632,6 @@
           "team": "DEN",
           "providerEventId": "401873075",
           "reason": "ELIGIBILITY_SOURCES_DISAGREE"
-        },
-        {
-          "playerId": "nfl-athlete-4241478",
-          "name": "DeVonta Smith",
-          "team": "PHI",
-          "providerEventId": "401873076",
-          "reason": "QUESTIONABLE"
         },
         {
           "playerId": "nfl-athlete-4428850",
@@ -1160,13 +1158,6 @@
           "reason": "ELIGIBILITY_SOURCES_DISAGREE"
         },
         {
-          "playerId": "nfl-athlete-4241478",
-          "name": "DeVonta Smith",
-          "team": "PHI",
-          "providerEventId": "401873076",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-4428850",
           "name": "Dontayvion Wicks",
           "team": "PHI",
@@ -1326,21 +1317,28 @@
           "pricingState": "NOT_PROBED"
         },
         {
-          "playerId": "nfl-athlete-4430841",
-          "name": "Carson Beck",
-          "team": "ARI",
-          "opponent": "KC",
-          "providerEventId": "401873067",
+          "playerId": "nfl-athlete-4685720",
+          "name": "Bryce Young",
+          "team": "CAR",
+          "opponent": "BAL",
+          "providerEventId": "401873068",
           "kickoffUtc": "2026-11-22T18:00Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 227.5501,
-          "p10": 130,
-          "median": 228,
-          "p90": 365,
+          "value": 226.3829,
+          "p10": 127,
+          "median": 226,
+          "p90": 368,
           "pricingState": "NOT_PROBED"
         }
       ],
       "excludedForAvailability": [
+        {
+          "playerId": "nfl-athlete-4430841",
+          "name": "Carson Beck",
+          "team": "ARI",
+          "providerEventId": "401873067",
+          "reason": "QUESTIONABLE"
+        },
         {
           "playerId": "nfl-athlete-3052587",
           "name": "Baker Mayfield",
@@ -1472,7 +1470,7 @@
               "p90": 400.4103
             }
           ],
-          "availabilityExcluded": 2
+          "availabilityExcluded": 3
         },
         {
           "id": "top5_rush_yds",
@@ -1649,7 +1647,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 24
+          "availabilityExcluded": 23
         },
         {
           "id": "top5_receptions",
@@ -1738,7 +1736,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 25
+          "availabilityExcluded": 24
         },
         {
           "id": "top5_anytime_td",
@@ -2333,7 +2331,7 @@
                 "p90": 406.3238
               }
             ],
-            "availabilityExcluded": 2
+            "availabilityExcluded": 3
           },
           {
             "id": "top5_rush_yds",
@@ -2510,7 +2508,7 @@
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 23
+            "availabilityExcluded": 22
           },
           {
             "id": "top5_receptions",
@@ -2599,7 +2597,7 @@
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 24
+            "availabilityExcluded": 23
           },
           {
             "id": "top5_anytime_td",
@@ -3196,7 +3194,7 @@
               "p90": 400.4103
             }
           ],
-          "availabilityExcluded": 2
+          "availabilityExcluded": 3
         },
         {
           "id": "top5_rush_yds",
@@ -3373,7 +3371,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 24
+          "availabilityExcluded": 23
         },
         {
           "id": "top5_receptions",
@@ -3462,7 +3460,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 25
+          "availabilityExcluded": 24
         },
         {
           "id": "top5_anytime_td",
