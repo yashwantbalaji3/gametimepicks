@@ -1,0 +1,163 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "bundesliga",
+ "season": "2026-27",
+ "date": "2026-11-19",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-11-19T18:42:46.000Z",
+ "runs": [
+  {
+   "at": "2026-11-19T18:42:46.000Z",
+   "added": 2
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Augsburg|Mainz",
+   "league": "bundesliga",
+   "season": "2026-27",
+   "eventId": "soccer:bundesliga:401884733",
+   "providerEventId": "401884733",
+   "kickoffUtc": "2026-11-22T14:30:00.000Z",
+   "matchup": "FC Augsburg v Mainz",
+   "homeClub": "FC Augsburg",
+   "awayClub": "Mainz",
+   "historyNames": {
+    "home": "Augsburg",
+    "away": "Mainz"
+   },
+   "espnTeamIds": {
+    "home": "3841",
+    "away": "2950"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-19T18:42:46.000Z",
+   "probs": {
+    "home": 0.375605,
+    "draw": 0.273706,
+    "away": 0.350689
+   },
+   "over25": 0.526337,
+   "under25": 0.473663,
+   "expectedGoals": {
+    "home": 1.4186,
+    "away": 1.3638
+   },
+   "lambdas": {
+    "home": 1.4186,
+    "away": 1.3638
+   },
+   "rho": -0.083877,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 140,
+    "away": 140
+   },
+   "fit": {
+    "cutoffIso": "2026-11-19T18:42:46.000Z",
+    "matchesFitted": 1260,
+    "lastFoldedUtc": "2026-09-20T17:30:00.000Z",
+    "sweeps": 20,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 9
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.316444,
+     "draw": 0.256706,
+     "away": 0.42685
+    },
+    "empirical": {
+     "home": 0.436263,
+     "draw": 0.250198,
+     "away": 0.313539
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Werder Bremen|Hamburg",
+   "league": "bundesliga",
+   "season": "2026-27",
+   "eventId": "soccer:bundesliga:401884730",
+   "providerEventId": "401884730",
+   "kickoffUtc": "2026-11-22T16:30:00.000Z",
+   "matchup": "Werder Bremen v Hamburg SV",
+   "homeClub": "Werder Bremen",
+   "awayClub": "Hamburg SV",
+   "historyNames": {
+    "home": "Werder Bremen",
+    "away": "Hamburg"
+   },
+   "espnTeamIds": {
+    "home": "137",
+    "away": "127"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-19T18:42:46.000Z",
+   "probs": {
+    "home": 0.498994,
+    "draw": 0.262983,
+    "away": 0.238022
+   },
+   "over25": 0.517523,
+   "under25": 0.482477,
+   "expectedGoals": {
+    "home": 1.6621,
+    "away": 1.0837
+   },
+   "lambdas": {
+    "home": 1.6621,
+    "away": 1.0837
+   },
+   "rho": -0.083877,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 140,
+    "away": 38
+   },
+   "fit": {
+    "cutoffIso": "2026-11-19T18:42:46.000Z",
+    "matchesFitted": 1260,
+    "lastFoldedUtc": "2026-09-20T17:30:00.000Z",
+    "sweeps": 20,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 9
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.551614,
+     "draw": 0.243993,
+     "away": 0.204393
+    },
+    "empirical": {
+     "home": 0.436263,
+     "draw": 0.250198,
+     "away": 0.313539
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 2
+ }
+}
