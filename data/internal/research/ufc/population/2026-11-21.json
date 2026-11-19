@@ -3,17 +3,17 @@
  "artifact": "ufc-card-population-receipt",
  "dataClass": "INTERNAL_RESEARCH",
  "public": false,
- "generatedAt": "2026-11-18T21:13:53Z",
+ "generatedAt": "2026-11-19T19:16:01Z",
  "version": 1,
  "event": {
   "providerEventId": "600061665",
   "name": "UFC Fight Night: Procházka vs. Stirling"
  },
  "counts": {
-  "expected": 11,
-  "captured": 11,
+  "expected": 12,
+  "captured": 12,
   "read": 11,
-  "unmodelled": 0,
+  "unmodelled": 1,
   "priced": 10,
   "missing": 0,
   "phantom": 0
@@ -163,6 +163,19 @@
    },
    "read": "READ",
    "unmodelledReason": null
+  },
+  {
+   "boutId": "401935762",
+   "providerBoutId": "401935762",
+   "inputs": {
+    "fighterHistory": "MISSING",
+    "marketPrice": "MISSING",
+    "weighIns": "UNSUPPORTED",
+    "injuriesOrReplacements": "UNSUPPORTED",
+    "reachStance": "UNSUPPORTED"
+   },
+   "read": "UNMODELLED",
+   "unmodelledReason": "Neither fighter has enough UFC history in our corpus to build a read from."
   }
  ],
  "populationExact": true
