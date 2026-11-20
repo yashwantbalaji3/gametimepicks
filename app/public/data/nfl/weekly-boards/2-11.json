@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "nfl-weekly-boards",
   "dataClass": "PUBLIC",
-  "generatedAt": "2026-11-20T17:48:17Z",
+  "generatedAt": "2026-11-20T20:52:48Z",
   "period": {
     "seasonType": 2,
     "week": 11
@@ -91,13 +91,6 @@
       ],
       "excludedForAvailability": [
         {
-          "playerId": "nfl-athlete-4567048",
-          "name": "Kenneth Walker III",
-          "team": "KC",
-          "providerEventId": "401873067",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-4430841",
           "name": "Carson Beck",
           "team": "ARI",
@@ -126,6 +119,13 @@
           "reason": "QUESTIONABLE"
         },
         {
+          "playerId": "nfl-athlete-4361050",
+          "name": "Isaiah Likely",
+          "team": "NYG",
+          "providerEventId": "401873069",
+          "reason": "QUESTIONABLE"
+        },
+        {
           "playerId": "nfl-athlete-4362619",
           "name": "Chris Rodriguez Jr.",
           "team": "JAX",
@@ -140,38 +140,10 @@
           "reason": "QUESTIONABLE"
         },
         {
-          "playerId": "nfl-athlete-4869645",
-          "name": "Caleb Douglas",
-          "team": "MIA",
-          "providerEventId": "401873070",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-4385690",
           "name": "Dalton Kincaid",
           "team": "BUF",
           "providerEventId": "401873070",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4869961",
-          "name": "Chris Bell",
-          "team": "MIA",
-          "providerEventId": "401873070",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4429501",
-          "name": "Ray Davis",
-          "team": "BUF",
-          "providerEventId": "401873070",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4880281",
-          "name": "Jordyn Tyson",
-          "team": "NO",
-          "providerEventId": "401873071",
           "reason": "QUESTIONABLE"
         },
         {
@@ -231,13 +203,6 @@
           "reason": "QUESTIONABLE"
         },
         {
-          "playerId": "nfl-athlete-15864",
-          "name": "Geno Smith",
-          "team": "NYJ",
-          "providerEventId": "401873074",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-4432665",
           "name": "Brock Bowers",
           "team": "LV",
@@ -273,13 +238,6 @@
           "reason": "QUESTIONABLE"
         },
         {
-          "playerId": "nfl-athlete-4036133",
-          "name": "T.J. Hockenson",
-          "team": "MIN",
-          "providerEventId": "401873077",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-4241464",
           "name": "Mac Jones",
           "team": "SF",
@@ -298,12 +256,17 @@
       "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1680 graded player-games).",
       "conservation": {
         "version": "nfl-share-conservation-v1",
-        "teamsReconciled": 4,
+        "teamsReconciled": 5,
         "teams": [
           {
             "team": "BAL",
             "factor": 0.993,
             "originalSum": 1.007
+          },
+          {
+            "team": "NO",
+            "factor": 0.864,
+            "originalSum": 1.1574
           },
           {
             "team": "TB",
@@ -366,6 +329,20 @@
           "pricingState": "NOT_PROBED"
         },
         {
+          "playerId": "nfl-athlete-4880281",
+          "name": "Jordyn Tyson",
+          "team": "NO",
+          "opponent": "CHI",
+          "providerEventId": "401873071",
+          "kickoffUtc": "2026-11-22T18:00Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 6.048,
+          "p10": 3,
+          "median": 6,
+          "p90": 11,
+          "pricingState": "NOT_PROBED"
+        },
+        {
           "playerId": "nfl-athlete-4374302",
           "name": "Amon-Ra St. Brown",
           "team": "DET",
@@ -394,40 +371,12 @@
           "pricingState": "NOT_PROBED"
         },
         {
-          "playerId": "nfl-athlete-4361050",
-          "name": "Isaiah Likely",
-          "team": "NYG",
-          "opponent": "JAX",
-          "providerEventId": "401873069",
-          "kickoffUtc": "2026-11-22T21:25Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 5,
-          "p10": 2,
-          "median": 5,
-          "p90": 11,
-          "pricingState": "NOT_PROBED"
-        },
-        {
           "playerId": "nfl-athlete-4262921",
           "name": "Justin Jefferson",
           "team": "MIN",
           "opponent": "SF",
           "providerEventId": "401873077",
           "kickoffUtc": "2026-11-23T01:20Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 5,
-          "p10": 2,
-          "median": 5,
-          "p90": 11,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4361370",
-          "name": "Chris Olave",
-          "team": "NO",
-          "opponent": "CHI",
-          "providerEventId": "401873071",
-          "kickoffUtc": "2026-11-22T18:00Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
           "value": 5,
           "p10": 2,
@@ -462,16 +411,23 @@
           "median": 5,
           "p90": 10,
           "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4685278",
+          "name": "Luther Burden III",
+          "team": "CHI",
+          "opponent": "NO",
+          "providerEventId": "401873071",
+          "kickoffUtc": "2026-11-22T18:00Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 5,
+          "p10": 2,
+          "median": 5,
+          "p90": 10,
+          "pricingState": "NOT_PROBED"
         }
       ],
       "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-4567048",
-          "name": "Kenneth Walker III",
-          "team": "KC",
-          "providerEventId": "401873067",
-          "reason": "QUESTIONABLE"
-        },
         {
           "playerId": "nfl-athlete-2576925",
           "name": "Darren Waller",
@@ -494,6 +450,13 @@
           "reason": "QUESTIONABLE"
         },
         {
+          "playerId": "nfl-athlete-4361050",
+          "name": "Isaiah Likely",
+          "team": "NYG",
+          "providerEventId": "401873069",
+          "reason": "QUESTIONABLE"
+        },
+        {
           "playerId": "nfl-athlete-3916433",
           "name": "Jakobi Meyers",
           "team": "JAX",
@@ -501,31 +464,10 @@
           "reason": "QUESTIONABLE"
         },
         {
-          "playerId": "nfl-athlete-4869645",
-          "name": "Caleb Douglas",
-          "team": "MIA",
-          "providerEventId": "401873070",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-4385690",
           "name": "Dalton Kincaid",
           "team": "BUF",
           "providerEventId": "401873070",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4869961",
-          "name": "Chris Bell",
-          "team": "MIA",
-          "providerEventId": "401873070",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4880281",
-          "name": "Jordyn Tyson",
-          "team": "NO",
-          "providerEventId": "401873071",
           "reason": "QUESTIONABLE"
         },
         {
@@ -602,13 +544,6 @@
           "playerId": "nfl-athlete-16737",
           "name": "Mike Evans",
           "team": "SF",
-          "providerEventId": "401873077",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4036133",
-          "name": "T.J. Hockenson",
-          "team": "MIN",
           "providerEventId": "401873077",
           "reason": "QUESTIONABLE"
         }
@@ -767,13 +702,6 @@
       ],
       "excludedForAvailability": [
         {
-          "playerId": "nfl-athlete-4567048",
-          "name": "Kenneth Walker III",
-          "team": "KC",
-          "providerEventId": "401873067",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-4882093",
           "name": "Bhayshul Tuten",
           "team": "JAX",
@@ -785,13 +713,6 @@
           "name": "Chris Rodriguez Jr.",
           "team": "JAX",
           "providerEventId": "401873069",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4429501",
-          "name": "Ray Davis",
-          "team": "BUF",
-          "providerEventId": "401873070",
           "reason": "QUESTIONABLE"
         },
         {
@@ -976,13 +897,6 @@
       ],
       "excludedForAvailability": [
         {
-          "playerId": "nfl-athlete-4567048",
-          "name": "Kenneth Walker III",
-          "team": "KC",
-          "providerEventId": "401873067",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-2576925",
           "name": "Darren Waller",
           "team": "CAR",
@@ -1004,6 +918,13 @@
           "reason": "QUESTIONABLE"
         },
         {
+          "playerId": "nfl-athlete-4361050",
+          "name": "Isaiah Likely",
+          "team": "NYG",
+          "providerEventId": "401873069",
+          "reason": "QUESTIONABLE"
+        },
+        {
           "playerId": "nfl-athlete-3916433",
           "name": "Jakobi Meyers",
           "team": "JAX",
@@ -1011,31 +932,10 @@
           "reason": "QUESTIONABLE"
         },
         {
-          "playerId": "nfl-athlete-4869645",
-          "name": "Caleb Douglas",
-          "team": "MIA",
-          "providerEventId": "401873070",
-          "reason": "QUESTIONABLE"
-        },
-        {
           "playerId": "nfl-athlete-4385690",
           "name": "Dalton Kincaid",
           "team": "BUF",
           "providerEventId": "401873070",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4869961",
-          "name": "Chris Bell",
-          "team": "MIA",
-          "providerEventId": "401873070",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4880281",
-          "name": "Jordyn Tyson",
-          "team": "NO",
-          "providerEventId": "401873071",
           "reason": "QUESTIONABLE"
         },
         {
@@ -1112,13 +1012,6 @@
           "playerId": "nfl-athlete-16737",
           "name": "Mike Evans",
           "team": "SF",
-          "providerEventId": "401873077",
-          "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-4036133",
-          "name": "T.J. Hockenson",
-          "team": "MIN",
           "providerEventId": "401873077",
           "reason": "QUESTIONABLE"
         }
@@ -1289,13 +1182,6 @@
           "team": "TB",
           "providerEventId": "401873072",
           "reason": "QUESTIONABLE"
-        },
-        {
-          "playerId": "nfl-athlete-15864",
-          "name": "Geno Smith",
-          "team": "NYJ",
-          "providerEventId": "401873074",
-          "reason": "QUESTIONABLE"
         }
       ]
     }
@@ -1413,7 +1299,7 @@
               "p90": 400.4103
             }
           ],
-          "availabilityExcluded": 3
+          "availabilityExcluded": 2
         },
         {
           "id": "top5_rush_yds",
@@ -1501,7 +1387,7 @@
               "p90": 109.47
             }
           ],
-          "availabilityExcluded": 8
+          "availabilityExcluded": 6
         },
         {
           "id": "top5_reception_yds",
@@ -1590,7 +1476,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 21
+          "availabilityExcluded": 17
         },
         {
           "id": "top5_receptions",
@@ -1650,6 +1536,21 @@
             },
             {
               "rank": 4,
+              "playerId": "nfl-athlete-4880281",
+              "name": "Jordyn Tyson",
+              "team": "NO",
+              "opponent": "CHI",
+              "providerEventId": "401873071",
+              "kickoffUtc": "2026-11-22T18:00Z",
+              "etDate": "2026-11-22",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 6.048,
+              "p10": 2.592,
+              "p90": 11.2321,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 5,
               "playerId": "nfl-athlete-4374302",
               "name": "Amon-Ra St. Brown",
               "team": "DET",
@@ -1662,24 +1563,9 @@
               "p10": 2,
               "p90": 13,
               "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 5,
-              "playerId": "nfl-athlete-4595348",
-              "name": "Malik Nabers",
-              "team": "NYG",
-              "opponent": "JAX",
-              "providerEventId": "401873069",
-              "kickoffUtc": "2026-11-22T21:25Z",
-              "etDate": "2026-11-22",
-              "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 6,
-              "p10": 2,
-              "p90": 11,
-              "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 21
+          "availabilityExcluded": 17
         },
         {
           "id": "top5_anytime_td",
@@ -1758,7 +1644,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 28
+          "availabilityExcluded": 22
         }
       ]
     },
@@ -1870,7 +1756,7 @@
                 "p90": 406.3238
               }
             ],
-            "availabilityExcluded": 3
+            "availabilityExcluded": 2
           },
           {
             "id": "top5_rush_yds",
@@ -1958,7 +1844,7 @@
                 "p90": 109.47
               }
             ],
-            "availabilityExcluded": 8
+            "availabilityExcluded": 6
           },
           {
             "id": "top5_reception_yds",
@@ -2047,7 +1933,7 @@
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 21
+            "availabilityExcluded": 17
           },
           {
             "id": "top5_receptions",
@@ -2092,6 +1978,21 @@
               },
               {
                 "rank": 3,
+                "playerId": "nfl-athlete-4880281",
+                "name": "Jordyn Tyson",
+                "team": "NO",
+                "opponent": "CHI",
+                "providerEventId": "401873071",
+                "kickoffUtc": "2026-11-22T18:00Z",
+                "etDate": "2026-11-22",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 6.048,
+                "p10": 2.592,
+                "p90": 11.2321,
+                "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 4,
                 "playerId": "nfl-athlete-4374302",
                 "name": "Amon-Ra St. Brown",
                 "team": "DET",
@@ -2106,7 +2007,7 @@
                 "pricingState": "NOT_PROBED"
               },
               {
-                "rank": 4,
+                "rank": 5,
                 "playerId": "nfl-athlete-4595348",
                 "name": "Malik Nabers",
                 "team": "NYG",
@@ -2119,24 +2020,9 @@
                 "p10": 2,
                 "p90": 11,
                 "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-4361050",
-                "name": "Isaiah Likely",
-                "team": "NYG",
-                "opponent": "JAX",
-                "providerEventId": "401873069",
-                "kickoffUtc": "2026-11-22T21:25Z",
-                "etDate": "2026-11-22",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 5,
-                "p10": 2,
-                "p90": 11,
-                "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 21
+            "availabilityExcluded": 17
           },
           {
             "id": "top5_anytime_td",
@@ -2215,7 +2101,7 @@
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 28
+            "availabilityExcluded": 22
           }
         ]
       },
@@ -2732,7 +2618,7 @@
               "p90": 400.4103
             }
           ],
-          "availabilityExcluded": 3
+          "availabilityExcluded": 2
         },
         {
           "id": "top5_rush_yds",
@@ -2820,7 +2706,7 @@
               "p90": 109.47
             }
           ],
-          "availabilityExcluded": 8
+          "availabilityExcluded": 6
         },
         {
           "id": "top5_reception_yds",
@@ -2909,7 +2795,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 21
+          "availabilityExcluded": 17
         },
         {
           "id": "top5_receptions",
@@ -2969,6 +2855,21 @@
             },
             {
               "rank": 4,
+              "playerId": "nfl-athlete-4880281",
+              "name": "Jordyn Tyson",
+              "team": "NO",
+              "opponent": "CHI",
+              "providerEventId": "401873071",
+              "kickoffUtc": "2026-11-22T18:00Z",
+              "etDate": "2026-11-22",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 6.048,
+              "p10": 2.592,
+              "p90": 11.2321,
+              "pricingState": "NOT_PROBED"
+            },
+            {
+              "rank": 5,
               "playerId": "nfl-athlete-4374302",
               "name": "Amon-Ra St. Brown",
               "team": "DET",
@@ -2981,24 +2882,9 @@
               "p10": 2,
               "p90": 13,
               "pricingState": "NOT_PROBED"
-            },
-            {
-              "rank": 5,
-              "playerId": "nfl-athlete-4595348",
-              "name": "Malik Nabers",
-              "team": "NYG",
-              "opponent": "JAX",
-              "providerEventId": "401873069",
-              "kickoffUtc": "2026-11-22T21:25Z",
-              "etDate": "2026-11-22",
-              "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 6,
-              "p10": 2,
-              "p90": 11,
-              "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 21
+          "availabilityExcluded": 17
         },
         {
           "id": "top5_anytime_td",
@@ -3077,7 +2963,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 28
+          "availabilityExcluded": 22
         }
       ]
     }
