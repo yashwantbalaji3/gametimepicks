@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "artifact": "nfl-weekly-boards",
   "dataClass": "PUBLIC",
-  "generatedAt": "2026-11-20T01:02:56Z",
+  "generatedAt": "2026-11-20T02:02:34Z",
   "period": {
     "seasonType": 2,
     "week": 11
   },
   "scope": {
     "kind": "FULL_WEEK",
-    "eventsIncluded": 13,
+    "eventsIncluded": 12,
     "eventsDroppedAfterKickoff": 0
   },
   "model": {
@@ -90,13 +90,6 @@
         }
       ],
       "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-4366031",
-          "name": "Tank Dell",
-          "team": "HOU",
-          "providerEventId": "401873066",
-          "reason": "ELIGIBILITY_SOURCES_DISAGREE"
-        },
         {
           "playerId": "nfl-athlete-4567048",
           "name": "Kenneth Walker III",
@@ -486,13 +479,6 @@
         }
       ],
       "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-4366031",
-          "name": "Tank Dell",
-          "team": "HOU",
-          "providerEventId": "401873066",
-          "reason": "ELIGIBILITY_SOURCES_DISAGREE"
-        },
         {
           "playerId": "nfl-athlete-4567048",
           "name": "Kenneth Walker III",
@@ -1018,13 +1004,6 @@
       ],
       "excludedForAvailability": [
         {
-          "playerId": "nfl-athlete-4366031",
-          "name": "Tank Dell",
-          "team": "HOU",
-          "providerEventId": "401873066",
-          "reason": "ELIGIBILITY_SOURCES_DISAGREE"
-        },
-        {
           "playerId": "nfl-athlete-4567048",
           "name": "Kenneth Walker III",
           "team": "KC",
@@ -1261,20 +1240,6 @@
           "pricingState": "NOT_PROBED"
         },
         {
-          "playerId": "nfl-athlete-4432577",
-          "name": "C.J. Stroud",
-          "team": "HOU",
-          "opponent": "IND",
-          "providerEventId": "401873066",
-          "kickoffUtc": "2026-11-20T01:15Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 243.296,
-          "p10": 136,
-          "median": 243,
-          "p90": 396,
-          "pricingState": "NOT_PROBED"
-        },
-        {
           "playerId": "nfl-athlete-4360310",
           "name": "Trevor Lawrence",
           "team": "JAX",
@@ -1329,6 +1294,20 @@
           "median": 226,
           "p90": 368,
           "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4360689",
+          "name": "Tyler Shough",
+          "team": "NO",
+          "opponent": "CHI",
+          "providerEventId": "401873071",
+          "kickoffUtc": "2026-11-22T18:00Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 218.1277,
+          "p10": 125,
+          "median": 218,
+          "p90": 348,
+          "pricingState": "NOT_PROBED"
         }
       ],
       "excludedForAvailability": [
@@ -1365,10 +1344,9 @@
     "weekly": {
       "scope": {
         "kind": "FULL_WEEK",
-        "eventsIncluded": 13,
+        "eventsIncluded": 12,
         "eventsDroppedAfterKickoff": 0,
         "events": [
-          "401873066",
           "401873067",
           "401873068",
           "401873070",
@@ -1647,7 +1625,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 23
+          "availabilityExcluded": 22
         },
         {
           "id": "top5_receptions",
@@ -1736,7 +1714,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 24
+          "availabilityExcluded": 23
         },
         {
           "id": "top5_anytime_td",
@@ -1815,415 +1793,11 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 31
+          "availabilityExcluded": 30
         }
       ]
     },
     "daily": [
-      {
-        "etDate": "2026-11-19",
-        "scope": {
-          "kind": "FULL_DAY",
-          "eventsIncluded": 1,
-          "eventsDroppedAfterKickoff": 0,
-          "events": [
-            "401873066"
-          ]
-        },
-        "boards": [
-          {
-            "id": "top5_pass_yds",
-            "family": "player_pass_yds",
-            "method": "median",
-            "title": "Top 5 · Passing yards",
-            "label": "Passing yards",
-            "source": "OFFICIAL_PLAYER_BOARD",
-            "topN": 5,
-            "state": "ESTIMATE",
-            "estimate": {
-              "label": "Estimate · calibration standard not yet met",
-              "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
-              "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance."
-            },
-            "rows": [
-              {
-                "rank": 1,
-                "playerId": "nfl-athlete-4432577",
-                "name": "C.J. Stroud",
-                "team": "HOU",
-                "opponent": "IND",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 243.296,
-                "p10": 136.0951,
-                "p90": 396.1948
-              },
-              {
-                "rank": 2,
-                "playerId": "nfl-athlete-3917792",
-                "name": "Daniel Jones",
-                "team": "IND",
-                "opponent": "HOU",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 178.6695,
-                "p10": 96.1178,
-                "p90": 299.0203
-              }
-            ],
-            "availabilityExcluded": 0
-          },
-          {
-            "id": "top5_rush_yds",
-            "family": "player_rush_yds",
-            "method": "median",
-            "title": "Top 5 · Rushing yards",
-            "label": "Rushing yards",
-            "source": "OFFICIAL_PLAYER_BOARD",
-            "topN": 5,
-            "state": "ESTIMATE",
-            "estimate": {
-              "label": "Estimate · calibration standard not yet met",
-              "reason": "SHADOW_ELIGIBLE — failed bar(s): calOk",
-              "caveat": "its uncertainty calibration failed the preregistered bar — the range shown may be mis-sized even where the middle is reasonable."
-            },
-            "rows": [
-              {
-                "rank": 1,
-                "playerId": "nfl-athlete-4242335",
-                "name": "Jonathan Taylor",
-                "team": "IND",
-                "opponent": "HOU",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 43.19,
-                "p10": 14.85,
-                "p90": 87.04
-              },
-              {
-                "rank": 2,
-                "playerId": "nfl-athlete-4035538",
-                "name": "David Montgomery",
-                "team": "HOU",
-                "opponent": "IND",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 18.31,
-                "p10": 3.27,
-                "p90": 45.5
-              },
-              {
-                "rank": 3,
-                "playerId": "nfl-athlete-4686468",
-                "name": "Seth McGowan",
-                "team": "IND",
-                "opponent": "HOU",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 16.29,
-                "p10": 0.7,
-                "p90": 51.24
-              },
-              {
-                "rank": 4,
-                "playerId": "nfl-athlete-4429939",
-                "name": "Jawhar Jordan",
-                "team": "HOU",
-                "opponent": "IND",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 12.86,
-                "p10": 0,
-                "p90": 45.78
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-4874509",
-                "name": "DJ Giddens",
-                "team": "IND",
-                "opponent": "HOU",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 10.58,
-                "p10": 0,
-                "p90": 40.55
-              }
-            ],
-            "availabilityExcluded": 0
-          },
-          {
-            "id": "top5_reception_yds",
-            "family": "player_reception_yds",
-            "method": "median",
-            "title": "Top 5 · Receiving yards",
-            "label": "Receiving yards",
-            "source": "OFFICIAL_PLAYER_BOARD",
-            "topN": 5,
-            "state": "PUBLISHED",
-            "basis": "props-v1 evaluation: n=3575, all promotion bars pass",
-            "rows": [
-              {
-                "rank": 1,
-                "playerId": "nfl-athlete-4258173",
-                "name": "Nico Collins",
-                "team": "HOU",
-                "opponent": "IND",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 37.05,
-                "p10": 6.16,
-                "p90": 89.26,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 2,
-                "playerId": "nfl-athlete-4431459",
-                "name": "Tyler Warren",
-                "team": "IND",
-                "opponent": "HOU",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 36.94,
-                "p10": 9.71,
-                "p90": 79.49,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 3,
-                "playerId": "nfl-athlete-4242335",
-                "name": "Jonathan Taylor",
-                "team": "IND",
-                "opponent": "HOU",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 25.02,
-                "p10": 2.42,
-                "p90": 63.5,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 4,
-                "playerId": "nfl-athlete-4686422",
-                "name": "Xavier Hutchinson",
-                "team": "HOU",
-                "opponent": "IND",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 20.65,
-                "p10": 0,
-                "p90": 59.78,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-3117256",
-                "name": "Dalton Schultz",
-                "team": "HOU",
-                "opponent": "IND",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 17.52,
-                "p10": 0,
-                "p90": 53.16,
-                "pricingState": "NOT_PROBED"
-              }
-            ],
-            "availabilityExcluded": 1
-          },
-          {
-            "id": "top5_receptions",
-            "family": "player_receptions",
-            "method": "median",
-            "title": "Top 5 · Receptions",
-            "label": "Receptions",
-            "source": "OFFICIAL_PLAYER_BOARD",
-            "topN": 5,
-            "state": "PUBLISHED",
-            "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1680 graded player-games).",
-            "rows": [
-              {
-                "rank": 1,
-                "playerId": "nfl-athlete-4258173",
-                "name": "Nico Collins",
-                "team": "HOU",
-                "opponent": "IND",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 5,
-                "p10": 2,
-                "p90": 10,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 2,
-                "playerId": "nfl-athlete-4431459",
-                "name": "Tyler Warren",
-                "team": "IND",
-                "opponent": "HOU",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 4,
-                "p10": 1,
-                "p90": 9,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 3,
-                "playerId": "nfl-athlete-4686422",
-                "name": "Xavier Hutchinson",
-                "team": "HOU",
-                "opponent": "IND",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 3,
-                "p10": 1,
-                "p90": 7,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 4,
-                "playerId": "nfl-athlete-3117256",
-                "name": "Dalton Schultz",
-                "team": "HOU",
-                "opponent": "IND",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 3,
-                "p10": 1,
-                "p90": 6,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-4242335",
-                "name": "Jonathan Taylor",
-                "team": "IND",
-                "opponent": "HOU",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 3,
-                "p10": 1,
-                "p90": 6,
-                "pricingState": "NOT_PROBED"
-              }
-            ],
-            "availabilityExcluded": 1
-          },
-          {
-            "id": "top5_anytime_td",
-            "family": "anytime_td",
-            "method": "probability",
-            "title": "Top 5 · Anytime touchdown",
-            "label": "Anytime touchdown",
-            "source": "OFFICIAL_PLAYER_BOARD",
-            "topN": 5,
-            "state": "PUBLISHED",
-            "basis": "Opportunity touchdown model: cleared every bar on a blind test of 2014–2021 (35,128 player-games never used to build it). Probabilities condition on playing — a player who does not play settles void. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (2183 graded player-games).",
-            "rows": [
-              {
-                "rank": 1,
-                "playerId": "nfl-athlete-4242335",
-                "name": "Jonathan Taylor",
-                "team": "IND",
-                "opponent": "HOU",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 0.5669,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 2,
-                "playerId": "nfl-athlete-4258173",
-                "name": "Nico Collins",
-                "team": "HOU",
-                "opponent": "IND",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 0.4578,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 3,
-                "playerId": "nfl-athlete-4686422",
-                "name": "Xavier Hutchinson",
-                "team": "HOU",
-                "opponent": "IND",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 0.3393,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 4,
-                "playerId": "nfl-athlete-4035538",
-                "name": "David Montgomery",
-                "team": "HOU",
-                "opponent": "IND",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 0.3077,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
-                "playerId": "nfl-athlete-4686468",
-                "name": "Seth McGowan",
-                "team": "IND",
-                "opponent": "HOU",
-                "providerEventId": "401873066",
-                "kickoffUtc": "2026-11-20T01:15Z",
-                "etDate": "2026-11-19",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 0.2541,
-                "pricingState": "NOT_PROBED"
-              }
-            ],
-            "availabilityExcluded": 1
-          }
-        ]
-      },
       {
         "etDate": "2026-11-22",
         "scope": {
@@ -3088,10 +2662,9 @@
     "fullWeek": {
       "scope": {
         "kind": "FULL_WEEK_WITH_COMPLETED",
-        "eventsIncluded": 13,
+        "eventsIncluded": 12,
         "eventsCompleted": 0,
         "events": [
-          "401873066",
           "401873067",
           "401873068",
           "401873070",
@@ -3371,7 +2944,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 23
+          "availabilityExcluded": 22
         },
         {
           "id": "top5_receptions",
@@ -3460,7 +3033,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 24
+          "availabilityExcluded": 23
         },
         {
           "id": "top5_anytime_td",
@@ -3539,7 +3112,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 31
+          "availabilityExcluded": 30
         }
       ]
     }

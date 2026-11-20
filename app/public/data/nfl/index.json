@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-20T01:02:56Z",
+ "generatedAt": "2026-11-20T02:02:34Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,23 +17,23 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 18,
+  "scheduledUpcoming": 17,
   "forecastsTotal": 13,
-  "forecastsUpcoming": 13,
-  "forecastsStarted": 0,
+  "forecastsUpcoming": 12,
+  "forecastsStarted": 1,
   "marketEvents": 14,
   "settled": 0
  },
- "nextKickoffUtc": "2026-11-20T01:15Z",
- "nextMatchup": "IND @ HOU",
- "nextForecastUtc": "2026-11-20T01:15Z",
- "nextForecastMatchup": "IND @ HOU",
+ "nextKickoffUtc": "2026-11-22T18:00Z",
+ "nextMatchup": "MIA @ BUF",
+ "nextForecastUtc": "2026-11-22T18:00Z",
+ "nextForecastMatchup": "MIA @ BUF",
  "marketCapturedAt": "2026-10-11T11:41:55Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-20T00:21:42Z",
+  "generatedAt": "2026-11-20T01:02:56Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -70,47 +70,6 @@
   "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: regular-season cohort; season types never share an aggregate."
  },
  "events": [
-  {
-   "providerEventId": "401873066",
-   "canonicalEventId": "nfl-401873066",
-   "matchup": "IND @ HOU",
-   "home": {
-    "abbr": "HOU",
-    "name": "Houston Texans"
-   },
-   "away": {
-    "abbr": "IND",
-    "name": "Indianapolis Colts"
-   },
-   "kickoffUtc": "2026-11-20T01:15Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 27,
-    "away": 20,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.6958,
-    "away": 0.2747
-   },
-   "total": {
-    "median": 47,
-    "p10": 30,
-    "p90": 64,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": false,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "a3e610112a89a242",
-    "generatedAt": "2026-11-20T00:03:47Z"
-   }
-  },
   {
    "providerEventId": "401873070",
    "canonicalEventId": "nfl-401873070",
@@ -149,7 +108,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "15f9ce2162a50e5e",
-    "generatedAt": "2026-11-20T00:03:47Z"
+    "generatedAt": "2026-11-20T02:02:34Z"
    }
   },
   {
@@ -190,7 +149,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "dcbfefc910c538f7",
-    "generatedAt": "2026-11-20T00:03:47Z"
+    "generatedAt": "2026-11-20T02:02:34Z"
    }
   },
   {
@@ -231,7 +190,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "6ffe9821a92721cb",
-    "generatedAt": "2026-11-20T00:03:47Z"
+    "generatedAt": "2026-11-20T02:02:34Z"
    }
   },
   {
@@ -272,7 +231,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "0470d9e3715560eb",
-    "generatedAt": "2026-11-20T00:03:47Z"
+    "generatedAt": "2026-11-20T02:02:34Z"
    }
   },
   {
@@ -313,7 +272,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "ffffdf078d351880",
-    "generatedAt": "2026-11-20T00:03:47Z"
+    "generatedAt": "2026-11-20T02:02:34Z"
    }
   },
   {
@@ -354,7 +313,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "7aa4fbea2ef3883b",
-    "generatedAt": "2026-11-20T00:03:47Z"
+    "generatedAt": "2026-11-20T02:02:34Z"
    }
   },
   {
@@ -395,7 +354,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "1a2c4a5f6e7c46ce",
-    "generatedAt": "2026-11-20T00:03:47Z"
+    "generatedAt": "2026-11-20T02:02:34Z"
    }
   },
   {
@@ -436,7 +395,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "0001aa8ba617234f",
-    "generatedAt": "2026-11-20T00:03:47Z"
+    "generatedAt": "2026-11-20T02:02:34Z"
    }
   },
   {
@@ -477,7 +436,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "4cc13a601b150145",
-    "generatedAt": "2026-11-20T00:03:47Z"
+    "generatedAt": "2026-11-20T02:02:34Z"
    }
   },
   {
@@ -518,7 +477,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "54b9041c13e5cc09",
-    "generatedAt": "2026-11-20T00:03:47Z"
+    "generatedAt": "2026-11-20T02:02:34Z"
    }
   },
   {
@@ -559,7 +518,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "3e18c6345c81062d",
-    "generatedAt": "2026-11-20T00:03:47Z"
+    "generatedAt": "2026-11-20T02:02:34Z"
    }
   },
   {
@@ -600,6 +559,47 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "af47256006debd0a",
+    "generatedAt": "2026-11-20T02:02:34Z"
+   }
+  },
+  {
+   "providerEventId": "401873066",
+   "canonicalEventId": "nfl-401873066",
+   "matchup": "IND @ HOU",
+   "home": {
+    "abbr": "HOU",
+    "name": "Houston Texans"
+   },
+   "away": {
+    "abbr": "IND",
+    "name": "Indianapolis Colts"
+   },
+   "kickoffUtc": "2026-11-20T01:15Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 27,
+    "away": 20,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.6958,
+    "away": 0.2747
+   },
+   "total": {
+    "median": 47,
+    "p10": 30,
+    "p90": 64,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "a3e610112a89a242",
     "generatedAt": "2026-11-20T00:03:47Z"
    }
   }
