@@ -4,19 +4,81 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-11-20",
- "generatedAt": "2026-11-20T02:02:34Z",
+ "generatedAt": "2026-11-20T17:48:17Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
- "events": [],
- "pending": [
+ "events": [
   {
    "canonicalEventId": "nfl-401873066",
+   "providerEventId": "401873066",
    "matchup": "IND @ HOU",
-   "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-11-20T01:15Z",
-   "observed": "no result row"
-  },
+   "seasonType": 2,
+   "week": 11,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-11-20/401873066.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "a3e610112a89a242",
+    "forecastGeneratedAt": "2026-11-20T00:03:47Z",
+    "revisionChain": [
+     {
+      "file": "401873066.json",
+      "generatedAt": "2026-11-20T00:03:47Z",
+      "inputHash": "a3e610112a89a242"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_scoreboard",
+    "resultObservedAt": "2026-11-20T17:43:45Z",
+    "settledAt": "2026-11-20T17:48:17Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 26,
+     "away": 3,
+     "margin": 23,
+     "total": 29,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "HOME",
+     "correct": true,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 6,
+     "actual": 23,
+     "absError": 17,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 47,
+     "actual": 29,
+     "absError": 18,
+     "insideInterval80": false
+    },
+    "score": {
+     "projected": {
+      "home": 27,
+      "away": 20,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 18
+    },
+    "probabilistic": {
+     "brier": 0.092538,
+     "logLoss": 0.362693
+    }
+   },
+   "marketBenchmark": null
+  }
+ ],
+ "pending": [
   {
    "canonicalEventId": "nfl-401873067",
    "matchup": "ARI @ KC",
@@ -94,24 +156,24 @@
  "recordElsewhere": [],
  "accounting": {
   "receipts": 13,
-  "settled": 0,
-  "pending": 13,
+  "settled": 1,
+  "pending": 12,
   "quarantined": 0,
   "recordElsewhere": 0,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 0,
-  "decisive": 0,
+  "settledForecasts": 1,
+  "decisive": 1,
   "ties": 0,
-  "winnerCorrect": 0,
-  "winnerAccuracy": null,
-  "marginMAE": null,
-  "totalMAE": null,
-  "marginInterval80Coverage": null,
-  "totalInterval80Coverage": null,
-  "brier": null,
-  "logLoss": null
+  "winnerCorrect": 1,
+  "winnerAccuracy": 1,
+  "marginMAE": 17,
+  "totalMAE": 18,
+  "marginInterval80Coverage": 1,
+  "totalInterval80Coverage": 0,
+  "brier": 0.0925,
+  "logLoss": 0.3627
  },
  "marketBenchmark": null,
  "comparison": null
