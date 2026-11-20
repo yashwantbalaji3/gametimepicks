@@ -4,7 +4,7 @@
  "dataClass": "PRIVATE_RESEARCH",
  "public": false,
  "competition": "epl",
- "generatedAt": "2026-11-20T02:14:55Z",
+ "generatedAt": "2026-11-20T23:28:42Z",
  "lookaheadHours": 96,
  "matchModel": {
   "modelId": "epl-model-v2-elo-poisson",
@@ -13,15 +13,16 @@
   "forwardState": "ACCUMULATING",
   "controlModelId": "epl-model-v1-split-poisson"
  },
- "oddsCapturedAt": "2026-11-07T00:39:09Z",
+ "oddsCapturedAt": "2026-11-20T23:28:31Z",
  "fixturesConsidered": 10,
  "counts": {
-  "READY_EXCEPT_ODDS": 10
+  "CURRENT_PRE_EVENT": 5,
+  "READY_EXCEPT_ODDS": 5
  },
  "kickoffSource": {
   "source": "ESPN eng.1 scheduled events",
   "scheduleState": "FRESH",
-  "scheduleCapturedAt": "2026-11-20T02:14:43Z"
+  "scheduleCapturedAt": "2026-11-20T23:28:31Z"
  },
  "unverifiedKickoffs": [],
  "gradedRecord": {
@@ -49,11 +50,11 @@
    "kickoffSource": "ESPN",
    "espnEventId": "401879236",
    "matchweek": 11,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.483102,
@@ -160,56 +161,6 @@
      "yes": 0.55292,
      "no": 0.44708
     },
-    "topScorelines": [
-     {
-      "score": "1-1",
-      "p": 0.115991
-     },
-     {
-      "score": "1-0",
-      "p": 0.099788
-     },
-     {
-      "score": "2-1",
-      "p": 0.09467
-     },
-     {
-      "score": "2-0",
-      "p": 0.081446
-     },
-     {
-      "score": "0-1",
-      "p": 0.071057
-     },
-     {
-      "score": "1-2",
-      "p": 0.067412
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "2-2",
-      "p": 0.055021
-     },
-     {
-      "score": "3-1",
-      "p": 0.051512
-     },
-     {
-      "score": "3-0",
-      "p": 0.044316
-     }
-    ],
-    "lambdas": {
-     "home": 1.6324,
-     "away": 1.1624
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.312744,
      "away": 0.195467
@@ -308,9 +259,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.115991
+     },
+     {
+      "score": "1-0",
+      "p": 0.099788
+     },
+     {
+      "score": "2-1",
+      "p": 0.09467
+     },
+     {
+      "score": "2-0",
+      "p": 0.081446
+     },
+     {
+      "score": "0-1",
+      "p": 0.071057
+     },
+     {
+      "score": "1-2",
+      "p": 0.067412
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "2-2",
+      "p": 0.055021
+     },
+     {
+      "score": "3-1",
+      "p": 0.051512
+     },
+     {
+      "score": "3-0",
+      "p": 0.044316
+     }
+    ],
     "topScorelinesMass": 0.742344,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.6324,
+     "away": 1.1624
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -389,7 +390,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.060243,
+    "noVig": [
+     {
+      "name": "Chelsea",
+      "prob": 0.483092
+     },
+     {
+      "name": "Leeds United",
+      "prob": 0.254913
+     },
+     {
+      "name": "Draw",
+      "prob": 0.261994
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
@@ -757,11 +775,11 @@
    "kickoffSource": "ESPN",
    "espnEventId": "401878756",
    "matchweek": 11,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.565921,
@@ -868,56 +886,6 @@
      "yes": 0.524633,
      "no": 0.475367
     },
-    "topScorelines": [
-     {
-      "score": "1-0",
-      "p": 0.110444
-     },
-     {
-      "score": "1-1",
-      "p": 0.109126
-     },
-     {
-      "score": "2-0",
-      "p": 0.099769
-     },
-     {
-      "score": "2-1",
-      "p": 0.098577
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "0-1",
-      "p": 0.060401
-     },
-     {
-      "score": "3-0",
-      "p": 0.060083
-     },
-     {
-      "score": "3-1",
-      "p": 0.059366
-     },
-     {
-      "score": "1-2",
-      "p": 0.053911
-     },
-     {
-      "score": "2-2",
-      "p": 0.0487
-     }
-    ],
-    "lambdas": {
-     "home": 1.8067,
-     "away": 0.9881
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.372299,
      "away": 0.164199
@@ -1016,9 +984,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-0",
+      "p": 0.110444
+     },
+     {
+      "score": "1-1",
+      "p": 0.109126
+     },
+     {
+      "score": "2-0",
+      "p": 0.099769
+     },
+     {
+      "score": "2-1",
+      "p": 0.098577
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "0-1",
+      "p": 0.060401
+     },
+     {
+      "score": "3-0",
+      "p": 0.060083
+     },
+     {
+      "score": "3-1",
+      "p": 0.059366
+     },
+     {
+      "score": "1-2",
+      "p": 0.053911
+     },
+     {
+      "score": "2-2",
+      "p": 0.0487
+     }
+    ],
     "topScorelinesMass": 0.761508,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.8067,
+     "away": 0.9881
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -1097,7 +1115,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.061481,
+    "noVig": [
+     {
+      "name": "Aston Villa",
+      "prob": 0.541195
+     },
+     {
+      "name": "Sunderland",
+      "prob": 0.214109
+     },
+     {
+      "name": "Draw",
+      "prob": 0.244696
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
@@ -1819,11 +1854,11 @@
    "kickoffSource": "ESPN",
    "espnEventId": "401879238",
    "matchweek": 11,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.512518,
@@ -1930,56 +1965,6 @@
      "yes": 0.544688,
      "no": 0.455312
     },
-    "topScorelines": [
-     {
-      "score": "1-1",
-      "p": 0.11398
-     },
-     {
-      "score": "1-0",
-      "p": 0.10357
-     },
-     {
-      "score": "2-1",
-      "p": 0.096554
-     },
-     {
-      "score": "2-0",
-      "p": 0.087736
-     },
-     {
-      "score": "0-1",
-      "p": 0.067275
-     },
-     {
-      "score": "1-2",
-      "p": 0.062718
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "3-1",
-      "p": 0.054528
-     },
-     {
-      "score": "2-2",
-      "p": 0.053129
-     },
-     {
-      "score": "3-0",
-      "p": 0.049548
-     }
-    ],
-    "lambdas": {
-     "home": 1.6942,
-     "away": 1.1005
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.332702,
      "away": 0.183741
@@ -2078,9 +2063,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.11398
+     },
+     {
+      "score": "1-0",
+      "p": 0.10357
+     },
+     {
+      "score": "2-1",
+      "p": 0.096554
+     },
+     {
+      "score": "2-0",
+      "p": 0.087736
+     },
+     {
+      "score": "0-1",
+      "p": 0.067275
+     },
+     {
+      "score": "1-2",
+      "p": 0.062718
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "3-1",
+      "p": 0.054528
+     },
+     {
+      "score": "2-2",
+      "p": 0.053129
+     },
+     {
+      "score": "3-0",
+      "p": 0.049548
+     }
+    ],
     "topScorelinesMass": 0.750168,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.6942,
+     "away": 1.1005
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -2159,7 +2194,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.054752,
+    "noVig": [
+     {
+      "name": "Bournemouth",
+      "prob": 0.496619
+     },
+     {
+      "name": "Nottingham Forest",
+      "prob": 0.240023
+     },
+     {
+      "name": "Draw",
+      "prob": 0.263358
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
@@ -2173,11 +2225,11 @@
    "kickoffSource": "ESPN",
    "espnEventId": "401878754",
    "matchweek": 11,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.496822,
@@ -2284,56 +2336,6 @@
      "yes": 0.549322,
      "no": 0.450678
     },
-    "topScorelines": [
-     {
-      "score": "1-1",
-      "p": 0.11511
-     },
-     {
-      "score": "1-0",
-      "p": 0.101553
-     },
-     {
-      "score": "2-1",
-      "p": 0.095613
-     },
-     {
-      "score": "2-0",
-      "p": 0.084352
-     },
-     {
-      "score": "0-1",
-      "p": 0.069292
-     },
-     {
-      "score": "1-2",
-      "p": 0.065239
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "2-2",
-      "p": 0.054189
-     },
-     {
-      "score": "3-1",
-      "p": 0.052945
-     },
-     {
-      "score": "3-0",
-      "p": 0.04671
-     }
-    ],
-    "lambdas": {
-     "home": 1.6612,
-     "away": 1.1335
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.321905,
      "away": 0.189904
@@ -2432,9 +2434,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.11511
+     },
+     {
+      "score": "1-0",
+      "p": 0.101553
+     },
+     {
+      "score": "2-1",
+      "p": 0.095613
+     },
+     {
+      "score": "2-0",
+      "p": 0.084352
+     },
+     {
+      "score": "0-1",
+      "p": 0.069292
+     },
+     {
+      "score": "1-2",
+      "p": 0.065239
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "2-2",
+      "p": 0.054189
+     },
+     {
+      "score": "3-1",
+      "p": 0.052945
+     },
+     {
+      "score": "3-0",
+      "p": 0.04671
+     }
+    ],
     "topScorelinesMass": 0.746134,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.6612,
+     "away": 1.1335
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -2513,7 +2565,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.044603,
+    "noVig": [
+     {
+      "name": "Ipswich Town",
+      "prob": 0.169434
+     },
+     {
+      "name": "Tottenham Hotspur",
+      "prob": 0.617833
+     },
+     {
+      "name": "Draw",
+      "prob": 0.212734
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
@@ -2881,11 +2950,11 @@
    "kickoffSource": "ESPN",
    "espnEventId": "401879235",
    "matchweek": 11,
-   "state": "READY_EXCEPT_ODDS",
+   "state": "CURRENT_PRE_EVENT",
    "rule": null,
-   "reason": "odds snapshot stale/post-start or carries no three-way rows for this fixture — no market comparison exists yet",
-   "model": null,
-   "modelOnly": {
+   "reason": null,
+   "model": {
+    "state": "PREDICTED",
     "modelId": "epl-model-v2-elo-poisson",
     "probs": {
      "home": 0.332193,
@@ -2992,56 +3061,6 @@
      "yes": 0.564525,
      "no": 0.435475
     },
-    "topScorelines": [
-     {
-      "score": "1-1",
-      "p": 0.118845
-     },
-     {
-      "score": "0-1",
-      "p": 0.09107
-     },
-     {
-      "score": "1-2",
-      "p": 0.088525
-     },
-     {
-      "score": "1-0",
-      "p": 0.079775
-     },
-     {
-      "score": "2-1",
-      "p": 0.077545
-     },
-     {
-      "score": "0-2",
-      "p": 0.067836
-     },
-     {
-      "score": "0-0",
-      "p": 0.061131
-     },
-     {
-      "score": "2-2",
-      "p": 0.057762
-     },
-     {
-      "score": "2-0",
-      "p": 0.052052
-     },
-     {
-      "score": "1-3",
-      "p": 0.04396
-     }
-    ],
-    "lambdas": {
-     "home": 1.305,
-     "away": 1.4898
-    },
-    "coldStart": {
-     "home": false,
-     "away": false
-    },
     "cleanSheet": {
      "home": 0.225427,
      "away": 0.271178
@@ -3140,9 +3159,59 @@
       }
      ]
     },
+    "topScorelines": [
+     {
+      "score": "1-1",
+      "p": 0.118845
+     },
+     {
+      "score": "0-1",
+      "p": 0.09107
+     },
+     {
+      "score": "1-2",
+      "p": 0.088525
+     },
+     {
+      "score": "1-0",
+      "p": 0.079775
+     },
+     {
+      "score": "2-1",
+      "p": 0.077545
+     },
+     {
+      "score": "0-2",
+      "p": 0.067836
+     },
+     {
+      "score": "0-0",
+      "p": 0.061131
+     },
+     {
+      "score": "2-2",
+      "p": 0.057762
+     },
+     {
+      "score": "2-0",
+      "p": 0.052052
+     },
+     {
+      "score": "1-3",
+      "p": 0.04396
+     }
+    ],
     "topScorelinesMass": 0.738502,
-    "note": "model-only pre-odds snapshot — no market comparison exists; refreshed until kickoff; never part of the paired model-vs-market evaluation"
+    "lambdas": {
+     "home": 1.305,
+     "away": 1.4898
+    },
+    "coldStart": {
+     "home": false,
+     "away": false
+    }
    },
+   "modelOnly": null,
    "control": {
     "modelId": "epl-model-v1-split-poisson",
     "probs": {
@@ -3221,7 +3290,24 @@
      ]
     }
    },
-   "market": null,
+   "market": {
+    "books": 1,
+    "impliedSum": 1.049351,
+    "noVig": [
+     {
+      "name": "Coventry City",
+      "prob": 0.381188
+     },
+     {
+      "name": "Crystal Palace",
+      "prob": 0.346535
+     },
+     {
+      "name": "Draw",
+      "prob": 0.272277
+     }
+    ]
+   },
    "publicActivation": "OFF"
   },
   {
