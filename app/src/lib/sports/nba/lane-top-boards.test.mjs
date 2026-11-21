@@ -201,7 +201,9 @@ test("PUBLICATION · amendment B records the founder decisions; public only thro
   assert.deepEqual(importers, ["src/app/nba/projections/page.tsx", "src/components/nba/lane-top-boards.tsx", "src/components/nba/projections-view.tsx"]);
   assert.match(strip("src/components/nba/projections-view.tsx"), /import NbaLaneTopBoards, \{ type LaneTopBoardsGate \} from "@\/components\/nba\/lane-top-boards";/);
   assert.doesNotMatch(strip("src/app/nba/projections/[date]/page.tsx"), /topBoards|lane-top-boards/);
-  assert.match(strip("src/app/nba/projections/page.tsx"), /ctx\.lane && ctx\.role === "current"\s*\? \(gateLaneTopBoards\(ctx\.lane, \{ dated: loadLaneForDate\(ctx\.lane\.date \?\? ""\), nowIso: now\.toISOString\(\), startedIds: ctx\.games\.filter\(\(g\) => g\.status !== "upcoming"\)\.map\(\(g\) => g\.id\) \}\)/);
+  assert.match(strip("src/app/nba/projections/page.tsx"), /ctx\.lane && ctx\.role === "current"\s*\? \(gateLaneTopBoards\(ctx\.lane, \{ dated: loadLaneForDate\(ctx\.lane\.date \?\? ""\), nowIso: now\.toISOString\(\), startedIds: ctx\.games\.filter\(\(g\) => g\.status !== "upcoming"\)\.map\(\(g\) => g\.id\), view: eligible\?\.snapshot \?\? ctx\.lane \}\)/);
+  /* the eligibility view (lane-eligibility.mjs) is the current slate's only, and the switch defaults OFF */
+  assert.match(strip("src/app/nba/projections/page.tsx"), /const eligible = ctx\.role === "current" \? loadEligibleLaneView\(ctx\.lane\) : null;/);
 });
 
 test("PROVENANCE · every committed date: each lane game's receipt re-derives from the official v0.1 forecast (the publisher's check) and the gate publishes", () => {

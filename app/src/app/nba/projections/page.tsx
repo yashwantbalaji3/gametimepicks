@@ -19,6 +19,7 @@ import { currentEtDate } from "@/lib/freshness";
 import { boardContext } from "@/components/nba/projection-board-context";
 import NbaProjectionsView from "@/components/nba/projections-view";
 import { loadPostFreezeNotes } from "@/components/nba/post-freeze-availability-data";
+import { loadEligibleLaneView } from "@/components/nba/player-eligibility-data";
 import { AMENDMENT_A } from "@/lib/sports/nba/experimental-public-lane.mjs";
 import { loadEloWinProbabilityContext } from "@/lib/sports/nba/elo-win-probability-context.mjs";
 import { nbaLineSummaryGameLinks } from "@/components/nba/prop-line-game-links";
@@ -39,8 +40,10 @@ export default async function NbaProjectionsPage() {
   // §13 amendment B (founder 2026-10-29/30): the daily Top Boards, CURRENT slate only, behind the provenance + cross-page
   // gate. The committed <date>.json must equal the latest.json this view reads; a game the schedule or finals record says
   // has started (or was postponed) is out of the pregame scope.
+  // One eligibility standard with the social cards (lane-eligibility.mjs), CURRENT slate only, switch default OFF.
+  const eligible = ctx.role === "current" ? loadEligibleLaneView(ctx.lane) : null;
   const topBoards = ctx.lane && ctx.role === "current"
-    ? (gateLaneTopBoards(ctx.lane, { dated: loadLaneForDate(ctx.lane.date ?? ""), nowIso: now.toISOString(), startedIds: ctx.games.filter((g) => g.status !== "upcoming").map((g) => g.id) }) as LaneTopBoardsGate | null)
+    ? (gateLaneTopBoards(ctx.lane, { dated: loadLaneForDate(ctx.lane.date ?? ""), nowIso: now.toISOString(), startedIds: ctx.games.filter((g) => g.status !== "upcoming").map((g) => g.id), view: eligible?.snapshot ?? ctx.lane }) as LaneTopBoardsGate | null)
     : null;
-  return <NbaProjectionsView topBoards={topBoards} postFreeze={loadPostFreezeNotes(ctx.lane?.date)} lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} eloCtx={loadEloWinProbabilityContext()} asOf={now.toISOString()} gameLinks={await nbaLineSummaryGameLinks(currentEtDate(now))} />;
+  return <NbaProjectionsView boardLane={eligible?.snapshot ?? null} topBoards={topBoards} postFreeze={loadPostFreezeNotes(ctx.lane?.date)} lane={ctx.lane} role={ctx.role} date={ctx.date} games={ctx.games} dates={ctx.dates} today={ctx.today} actuals={ctx.actuals} eloCtx={loadEloWinProbabilityContext()} asOf={now.toISOString()} gameLinks={await nbaLineSummaryGameLinks(currentEtDate(now))} />;
 }
