@@ -1,0 +1,133 @@
+{
+ "providerEventId": "401873074",
+ "canonicalEventId": "nfl-401873074",
+ "matchup": "NYJ @ LAC",
+ "home": {
+  "abbr": "LAC",
+  "name": "Los Angeles Chargers"
+ },
+ "away": {
+  "abbr": "NYJ",
+  "name": "New York Jets"
+ },
+ "kickoffUtc": "2026-11-22T21:05Z",
+ "seasonType": 2,
+ "week": 11,
+ "venue": "SoFi Stadium",
+ "state": "PUBLIC_EXPERIMENTAL",
+ "model": {
+  "id": "nfl-regular-season-public-v1",
+  "version": 2,
+  "launchState": "PUBLIC_EXPERIMENTAL",
+  "inputHash": "a2a5a2644652c7a7",
+  "simulations": 10000,
+  "derivedFrom": [
+   "nfl-win-elo-mov-v1@v1",
+   "nfl-margin-elo-hfa-v1@v1",
+   "nfl-model-v1-elo-analytic@v1",
+   "nfl-gamesim-v1-joint-normal@v1"
+  ],
+  "totalsHead": {
+   "id": "matchup-totals-v3-play-efficiency",
+   "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
+   "gamesFolded": 7427,
+   "foldedThrough": "2026-11-19",
+   "sigma": 13.32677
+  },
+  "winHead": {
+   "id": "nfl-win-elo-mov-v1",
+   "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
+   "gamesFolded": 7411,
+   "foldedThrough": "2026-11-19"
+  },
+  "marginHead": {
+   "id": "nfl-margin-elo-hfa-v1",
+   "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
+   "gamesFolded": 7411,
+   "sigma": 13.03176
+  }
+ },
+ "teamSignal": {
+  "state": "APPLIED",
+  "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
+ },
+ "generatedAt": "2026-11-21T01:59:30Z",
+ "evidence": {
+  "schedule": "2026-11-20T17:43:38Z",
+  "strengthCutoff": "2026-11-21T01:59:30Z",
+  "strengthGamesFolded": 869,
+  "regressedToSeason": null
+ },
+ "forecastSummary": {
+  "projectedScore": {
+   "home": 25,
+   "away": 18,
+   "convention": "scores-derived-from-total-and-margin-v1"
+  },
+  "winProbability": {
+   "home": 0.6277,
+   "away": 0.3476,
+   "tieMass": 0.0247,
+   "homeUnrounded": 0.6277428322217867,
+   "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
+  },
+  "margin": {
+   "median": 7,
+   "p10": -10,
+   "p90": 24
+  },
+  "total": {
+   "median": 43,
+   "p10": 26,
+   "p90": 60,
+   "head": "matchup-totals-v3-play-efficiency"
+  },
+  "scoreRange": {
+   "homeP10": 13,
+   "homeP90": 37,
+   "awayP10": 6,
+   "awayP90": 30
+  },
+  "distribution": {
+   "marginMean": 6.99,
+   "marginSigma": 13.03,
+   "totalMean": 43.0386,
+   "totalSigma": 13.33,
+   "source": "nfl-gamesim-v1-joint-normal"
+  }
+ },
+ "marketComparison": {
+  "state": "NO_MARKET",
+  "note": "No current sportsbook capture covers this game."
+ },
+ "teamInputs": {
+  "version": 1,
+  "consumedByModel": false,
+  "participationAsOf": "2026-11-21T01:59:30Z",
+  "state": "NO_STARTING_QB_ABSENCE",
+  "absences": [],
+  "comparisonWithheld": false,
+  "note": null
+ },
+ "settlementKey": {
+  "canonicalEventId": "nfl-401873074",
+  "settlesAgainst": "official final score",
+  "ledger": "experimental-forecast"
+ },
+ "disclaimer": "Educational and paper-only — not betting advice.",
+ "sideDecision": {
+  "schemaVersion": "side-decision@1",
+  "publishedSide": "HOME",
+  "rule": "MODEL_FAVORED_V1",
+  "abstention": null,
+  "frozenAt": "2026-11-21T01:59:30Z"
+ },
+ "inputs": {
+  "injuries": {
+   "sourceAsOf": "2026-11-21T02:00:01Z"
+  },
+  "rosters": {
+   "sourceAsOf": "2026-11-21T01:59:30Z"
+  }
+ }
+}
