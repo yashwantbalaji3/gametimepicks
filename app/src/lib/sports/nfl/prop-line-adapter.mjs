@@ -37,6 +37,7 @@
 import { chooseOffer, DIRECTION, USER_SIDE } from "../nba/line-comparison.mjs";
 import { isEligibleOperator } from "../odds/eligible-operators.mjs";
 import { bookmakerLabel } from "../../sportsbook-comparison.ts";
+import { isAmerican } from "./american-price.mjs";
 
 export const NFL_LINE_COMPARISON_RULE = "nfl-line-comparison@1";
 export const NFL_LINE_MAX_AGE_HOURS = 12;
@@ -71,7 +72,7 @@ export const NFL_STATE_OF_REASON = Object.freeze({
 
 const isNum = (v) => typeof v === "number" && Number.isFinite(v);
 const r1 = (v) => Math.round(v * 10) / 10;
-const isAmerican = (v) => isNum(v) && Number.isInteger(v) && Math.abs(v) >= 100;
+/* the shared rule (lib/sports/nfl/american-price.mjs): a finite integer with |price| ≥ 100 */
 
 /**
  * THE NFL comparison rule (nba-line-comparison@1 result shape). Order: official? → projection → line → identity →

@@ -232,6 +232,7 @@ export default function NflGameReport({ params }: { params: { eventId: string } 
       <details id="recent-form" className="mt-3" style={{ border: "1px solid var(--vault-rule)", borderRadius: 10, padding: "8px 12px", scrollMarginTop: 72 }}>
         <summary style={{ cursor: "pointer", fontSize: 14, fontWeight: 600, color: "var(--vault-text)", minHeight: 44, display: "flex", alignItems: "center" }}>Recent form · actual last 5 and last 10 games</summary>
         <NflPlayerEvidencePanel players={playerBoard.players as never} evidence={evidence as never} projections={evidenceProjections(view ? gameTabs(view) : null)} kickoffUtc={f.kickoffUtc ?? null} sourceNote="Box scores: ESPN public game summaries, 2026 regular season." lines={lines} />
+        <p style={{ fontSize: 12, margin: "8px 0 0" }}><Link href="/nfl/trends/">Every player&apos;s recent form on NFL Trends →</Link></p>
       </details>
     );
   })();
