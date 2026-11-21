@@ -162,3 +162,9 @@ test("PRICE SIDES REFUSE · two card fighters may never share one price", async 
   // One card name loosely matches two outcomes: ambiguity, no price.
   assert.deepEqual(resolveOutcomeNames(["alex hernandez", "rafael dos anjos"], ["alexander hernandez", "alexandre hernandez", "rafael dos anjos"]), [null, "rafael dos anjos"]);
 });
+
+test("UFC 334: card 'Bia Mesquita' joins provider 'beatriz mesquita' (given-name table), and only with the same family name", () => {
+  assert.equal(looselySameFighter("bia mesquita", "beatriz mesquita"), true);
+  assert.equal(looselySameFighter("bia mesquita", "beatriz ferreira"), false);
+  assert.equal(findLooseMatch(["macy chiasson", "bia mesquita"], ["beatriz mesquita|macy chiasson", "heili alateng|juan diaz"]), "beatriz mesquita|macy chiasson");
+});
