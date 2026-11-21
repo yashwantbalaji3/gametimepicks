@@ -24,10 +24,13 @@
  *     a started game read from its frozen pre-kickoff board exactly as committed (P320: a board is never rebuilt after its
  *     kickoff) and each of its rows marked `completed: true`. `fullWeek` is a record of the week's pre-kickoff projections,
  *     never a pregame ranking: surfaces label it so and keep `weekly` as the pregame view.
+ *   - ELIGIBILITY (row E/G, eligibility@1): the shared gate ranks only cleared players. Exclusions are recorded by reason
+ *     only (`availabilityExcludedByReason`, no names); a listed-questionable player who would have placed is shown in
+ *     `unfeatured` with the label, never ranked or featured.
  */
 import { estimateLabel, estimateStandard } from "./family-publication.mjs";
 
-import { BOARD_METRIC, familyStateAcross, poolWithheldTeams, rankFamily } from "./board-ranking.mjs";
+import { BOARD_METRIC, UNFEATURED_LABEL, exclusionCounts, familyStateAcross, poolWithheldTeams, rankFamily, unfeaturedRows } from "./board-ranking.mjs";
 import { opponentIn } from "./matchup.mjs";
 
 export const TOP_BOARDS_CONTRACT = "nfl-top-boards@1";
@@ -116,11 +119,33 @@ function scopeBoards(boards, { now, slotFor, forwardFor }) {
       ...(st.state === "ESTIMATE" ? {} : slotFor(b.providerEventId, p.playerId, spec.family, p.name)),
       ...(kickMs(b.kickoffUtc) > t ? {} : { completed: true }),
     }));
+    /* eligibility@1 (row G): exclusions by reason only — no names in a public file; listed-questionable players who would
+       have placed are shown un-featured with the label, never ranked */
+    const avail = { availabilityExcluded: blocked.length, availabilityExcludedByReason: exclusionCounts(blocked).byReason, unfeatured: unfeaturedRows(blocked, rows, TOP_BOARD_SIZE).map((x) => ({
+      playerId: x.playerId, name: x.name, team: x.team, opponent: opponentIn(x.board.matchup, x.team), providerEventId: String(x.providerEventId), kickoffUtc: x.board.kickoffUtc,
+      value: x.value, label: UNFEATURED_LABEL, reason: x.reason,
+    })) };
     if (st.state === "ESTIMATE") {
-      return { ...base, state: "ESTIMATE", estimate: { label: estimateLabel(st.reason), reason: st.reason ?? null, caveat: st.caveat ?? null }, rows, availabilityExcluded: blocked.length };
+      return { ...base, state: "ESTIMATE", estimate: { label: estimateLabel(st.reason), reason: st.reason ?? null, caveat: st.caveat ?? null }, rows, ...avail };
     }
-    return { ...base, state: "PUBLISHED", basis: st.basis ?? null, rows, availabilityExcluded: blocked.length };
+    return { ...base, state: "PUBLISHED", basis: st.basis ?? null, rows, ...avail };
   });
+}
+
+/**
+ * The listed-questionable players of a scope who would have placed on a board, once each, with the boards they would
+ * have placed on (display order) — for the one un-featured line under the boards. No value is shown: it is not a ranking.
+ */
+export function unfeaturedSummary(scope) {
+  const by = new Map();
+  for (const b of scope?.boards ?? []) {
+    for (const u of b.unfeatured ?? []) {
+      const cur = by.get(u.playerId) ?? { playerId: u.playerId, name: u.name, team: u.team, label: u.label, boards: [] };
+      cur.boards.push(b.label);
+      by.set(u.playerId, cur);
+    }
+  }
+  return [...by.values()].sort((a, b) => String(a.name).localeCompare(String(b.name)) || String(a.playerId).localeCompare(String(b.playerId)));
 }
 
 /** A board that ranks (official or estimate). Every surface asks this, never `state === "PUBLISHED"` alone. */
@@ -132,7 +157,7 @@ export const boardRanks = (b) => b?.state === "PUBLISHED" || b?.state === "ESTIM
  *   weekBoards = every per-game board of the forecast period; slotFor = prop-price-lookup's typed slot;
  *   forwardFor(family, modelVersion) = the forward-test entry for that model (family-gate.mjs forwardEvidenceFor).
  */
-export function buildTopBoards({ weekBoards, now, slotFor, forwardFor = () => null }) {
+export function buildTopBoards({ weekBoards, now, slotFor, forwardFor = () => null, provenance = null }) {
   if (!Number.isFinite(Date.parse(now ?? ""))) throw new Error("buildTopBoards: now (ISO) is required");
   const t = Date.parse(now);
   const ordered = [...weekBoards].sort((a, b) => kickMs(a.kickoffUtc) - kickMs(b.kickoffUtc) || String(a.providerEventId).localeCompare(String(b.providerEventId)));
@@ -184,6 +209,8 @@ export function buildTopBoards({ weekBoards, now, slotFor, forwardFor = () => nu
     weekly,
     daily,
     fullWeek,
+    // what the boards were built from: each event's official snapshot id and a chain hash (board-provenance.mjs)
+    ...(provenance ? { provenance } : {}),
   };
 }
 

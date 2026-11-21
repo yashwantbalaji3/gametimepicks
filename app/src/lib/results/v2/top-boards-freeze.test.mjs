@@ -69,7 +69,9 @@ function tmpApp(boards) {
   for (const b of boards) fs.writeFileSync(path.join(bd, `${b.providerEventId}.json`), JSON.stringify(b));
   return dir;
 }
-const run = (cwd, now) => execFileSync(process.execPath, [SCRIPT, "--now", now], { cwd, encoding: "utf8" });
+// tsx from app/, as the workflow runs it (the freeze records each event's official snapshot id; nflOfficialOfRecord
+// imports .ts with "@/" imports), the fixture tree passed as --app-root
+const run = (dir, now) => execFileSync("npx", ["tsx", SCRIPT, "--now", now, "--app-root", dir], { cwd: process.cwd(), encoding: "utf8" });
 const outFile = (dir, day) => path.join(dir, "public/data/results/top-boards", `${day}.json`);
 
 test("🔴 write-once, never retrospective, never early: the freeze window is [first kickoff − 24h, first kickoff)", () => {

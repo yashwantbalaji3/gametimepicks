@@ -62,7 +62,7 @@ import LiveShortcut from "@/components/live/live-shortcut";
 import FamilyTabs from "@/components/nfl/forecast/family-tabs";
 import EtTime from "@/components/ui/et-time";
 import { topBoardTabs } from "@/lib/sports/nfl/forecast-view.mjs";
-import { TOP_BOARD_METHOD, boardRanks, dailyFor, etDateOfKickoff, pregameScope } from "@/lib/sports/nfl/top-boards.mjs";
+import { TOP_BOARD_METHOD, boardRanks, dailyFor, etDateOfKickoff, pregameScope, unfeaturedSummary } from "@/lib/sports/nfl/top-boards.mjs";
 import { formatUpdatedEt } from "@/lib/format";
 import { plainCodes } from "@/lib/uiux/plain-codes.mjs";
 import { sanitizeVaultArtifact } from "@/lib/sports/odds/public-offer-sanitizer.mjs";
@@ -731,12 +731,18 @@ export default function NflHubPage() {
           <SectionHeader
             eyebrow={`This week · ${topBoardsBlock.weekly.scope.eventsIncluded} ${topBoardsBlock.weekly.scope.eventsIncluded === 1 ? "game" : "games"}${topBoardsBlock.weekly.scope.kind === "REMAINING_EVENTS" ? " still to kick off" : ""}`}
             title="Top boards"
-            sub="The official player board's top five in passing yards, rushing yards, receiving yards, receptions and anytime touchdown — the same numbers as each game page. Players listed as Questionable, Doubtful or Out are left out; a statistic marked Estimate has not yet met its calibration standard and is labelled so."
+            sub="The official player board's top five in passing yards, rushing yards, receiving yards, receptions and anytime touchdown — the same numbers as each game page. Players listed as Out, or whose availability is not verified, are left out; players listed Questionable or Doubtful are named below the boards and never ranked; a statistic marked Estimate has not yet met its calibration standard and is labelled so."
           />
           <FamilyTabs
             {...topBoardTabs(topBoardsBlock.weekly)} linkToGame label="hub-boards" listLabel="Weekly leaders by statistic" staticPanels="active" emptyText="No player is cleared for this list in the games still to kick off."
             filters={{ teamRefs: nflTeamRefsByAbbr((forecastArtifact?.forecasts ?? []).flatMap((x: { home?: { abbr?: string }; away?: { abbr?: string } }) => [x.home?.abbr, x.away?.abbr])) }}
           />
+          {unfeaturedSummary(topBoardsBlock.weekly).length ? (
+            <p data-top-boards-unfeatured style={{ margin: "8px 0 0", fontSize: 12, lineHeight: 1.5, color: "var(--vault-text-mute)", maxWidth: 720 }}>
+              <span className="font-mono" style={{ fontSize: 10.5, letterSpacing: "0.06em", textTransform: "uppercase" }}>Listed questionable · not featured</span>{" "}
+              {unfeaturedSummary(topBoardsBlock.weekly).map((u, i) => <span key={u.playerId} data-unfeatured-player={u.playerId}>{i ? "; " : ""}{u.name} ({u.team}: {u.boards.join(", ").toLowerCase()})</span>)}
+            </p>
+          ) : null}
           {todayLive ? (
             <div style={{ marginTop: 18 }} data-top-boards-day={todayLive.etDate}>
               <h3 style={{ margin: "0 0 2px", fontSize: 14, fontWeight: 700, color: "var(--vault-text)" }}>
