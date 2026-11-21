@@ -143,7 +143,7 @@ export interface SportHubModel {
   /** P250 · A05 — internal identity reconciliation for adapters that union two sources: schedule
    *  rows that could not state a canonical identity, and rows deferred to the next period's own
    *  surface. Counted, never silently dropped; not rendered to readers. */
-  identityReconciliation?: { unidentifiedScheduleRows: number; laterPeriodRows: number };
+  identityReconciliation?: { unidentifiedScheduleRows: number; laterPeriodRows: number; placeholderDuplicates?: number };
 }
 
 /** A started row whose schedule owner states the game is in play right now (never inferred from the clock). */

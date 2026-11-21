@@ -5,7 +5,7 @@
  * OPERATIONAL traps a live season supplies: kickoff moves, alias drift, in-play and abandoned
  * rows that carry scores, and score corrections between captures. Zero changes to grading
  * behavior — every assertion pins what the deployed path already does, so opening day cannot
- * surprise us with a case nobody wrote down.
+ * surprise us with a case nobody wrote down. (2026-11-12: the kickoff-move case changed by decision — see its test.)
  *
  * Run: npx tsx --test src/lib/soccer/epl-results-hardening.test.mjs
  */
@@ -21,16 +21,20 @@ const FIXTURES = { rows: [
 const ART = (rows) => ({ seasonStart: "2026-08-21", sourceAsOf: NOW, rows });
 const ROW = (over = {}) => ({ providerEventId: "espn-1", dateUtc: "2026-08-21T19:00:00Z", home: "Arsenal", away: "Coventry City", ftHome: 2, ftAway: 0, statusRaw: "STATUS_FULL_TIME", ...over });
 
-test("KICKOFF MOVE · a result at a moved kickoff quarantines as unjoined until the fixture capture refreshes", () => {
-  // The canonical identity is kickoff-based BY DESIGN: a moved match must re-enter through a fresh
-  // fixture capture (snapshot-per-capture), never settle against a stale kickoff identity. The
-  // quarantine clears on the next cadence run once both sides carry the new time — the runbook
-  // documents that flow (docs/EPL_CORRECTIONS_RUNBOOK.md).
-  const out = loadCurrentEplResults({ nowIso: NOW, artifact: ART([ROW({ dateUtc: "2026-08-22T19:00:00Z" })]), fixtures: FIXTURES });
-  assert.equal(out.results.length, 0, "nothing settles against a stale kickoff identity");
-  assert.equal(out.quarantined.length, 1);
-  assert.match(out.quarantined[0].reason, /unjoined|no scheduled fixture/);
-  assert.equal(out.reconciliation.exact, true);
+test("KICKOFF MOVE · a moved result joins its fixture on the stable key (club pair + home club + window); a move past the window still quarantines", () => {
+  // The canonical identity is kickoff-based, and the runbook used to rely on a fresh fixture capture to carry the new
+  // time. The only capture (openfootball) carries placeholder slots and never refreshes them, so MW10 (2026-11) sat
+  // unjoined for good. Since 2026-11-12 a result that misses the canonical id joins the ONE fixture with the same club
+  // pair and home club within PAIR_JOIN_WINDOW_DAYS (docs/EPL_CORRECTIONS_RUNBOOK.md, "Kickoff moves").
+  const moved = loadCurrentEplResults({ nowIso: NOW, artifact: ART([ROW({ dateUtc: "2026-08-22T19:00:00Z" })]), fixtures: FIXTURES });
+  assert.equal(moved.results.length, 1, JSON.stringify(moved.quarantined));
+  assert.equal(moved.results[0].joinedBy, "CLUB_PAIR_WINDOW");
+  assert.equal(moved.results[0].fixtureEventId, "soccer:epl:arsenal-v-coventry-city:20260821t1900");
+  assert.equal(moved.reconciliation.exact, true);
+  const far = loadCurrentEplResults({ nowIso: "2026-10-22T22:00:00Z", artifact: ART([ROW({ dateUtc: "2026-10-21T19:00:00Z" })]), fixtures: FIXTURES });
+  assert.equal(far.results.length, 0, "two months away is not the same match: nothing settles");
+  assert.match(far.quarantined[0].reason, /unjoined|no scheduled fixture/);
+  assert.equal(far.reconciliation.exact, true);
 });
 
 test("ALIAS DRIFT · committed variants resolve; anything outside the table refuses, never fuzzy-joins", () => {
