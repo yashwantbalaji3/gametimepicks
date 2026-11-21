@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { createContext, useContext, useEffect, useId, useRef, useState, type ReactNode } from "react";
 import { catalogLegStarted, registerSlipCatalog, useModelSlip } from "@/lib/products/level-a/slip-store";
-import { STARTED_UNAVAILABLE } from "@/lib/slip/slip-add-gate";
+import { cardHasStarted, STARTED_UNAVAILABLE } from "@/lib/slip/slip-add-gate";
 import { useReaderNowIso } from "@/components/slip/use-reader-now";
-import { MODEL_SLIP_LABEL, modelSlipText, modelSlipView, slipButtonText } from "@/lib/products/level-a/slip.mjs";
+import { CARD_STARTED_LINE, MODEL_SLIP_LABEL, modelSlipText, modelSlipView, slipButtonText } from "@/lib/products/level-a/slip.mjs";
 import { etStamp } from "@/lib/et-stamp.mjs";
 
 /* LEVEL A · THE MODEL-ONLY SLIP (client island). Buttons add the public slip legs the server prepared
@@ -21,14 +21,38 @@ type SlipView = { rows: SlipRow[]; combined: Combined; label: string };
 const BTN: React.CSSProperties = { minHeight: 44, minWidth: 44, whiteSpace: "nowrap", border: "1px solid var(--vault-border-strong)", color: "var(--vault-text)", fontSize: 12.5, fontWeight: 600, background: "transparent", borderRadius: 9999, padding: "0 14px" };
 const SPORT: Record<string, string> = { mlb: "MLB", nba: "NBA", epl: "Premier League", "ligue-1": "Ligue 1" };
 
+/* A served card is fixed at build time and its legs start at different times, so the reader's clock decides how long it
+   stays pre-game. The server render has no reader clock: the static HTML is always the build's card (the recorder reads
+   it), and these change it only after hydration. Children are server-rendered; only the start instants cross. */
+export const CardStarted = createContext(false);
+
+/** One card's scope: has any of its legs started on the reader's clock? One clock per card, read by the parts below. */
+export function CardStartScope({ starts, children }: { starts: ReadonlyArray<string | null>; children: ReactNode }) {
+  const started = cardHasStarted(starts, useReaderNowIso());
+  return <CardStarted.Provider value={started}>{children}</CardStarted.Provider>;
+}
+
+/** What a card offers only while it is pre-game: its joint estimate, and the copy text that prints it. */
+export function WhileCardPregame({ children }: { children: ReactNode }) {
+  return useContext(CardStarted) ? null : <>{children}</>;
+}
+
+/** The card's one line once it is no longer pre-game. */
+export function CardStartedLine() {
+  if (!useContext(CardStarted)) return null;
+  return <span role="note" data-level-a-card-started="" style={{ color: "var(--vault-text)", fontSize: 12.5 }}>{CARD_STARTED_LINE}</span>;
+}
+
 /** "Add to slip" for one leg, or "Add card to slip" for a card's legs (by key: the bar carries the page's legs once).
- *  Once every leg is in: "In slip · remove" for a leg, "Remove card (n legs)" for a card (slipButtonText). */
-export function AddToSlip({ keys, label = "Add to slip", name }: { keys: string[]; label?: string; name: string }) {
+ *  Once every leg is in: "In slip · remove" for a leg, "Remove card (n legs)" for a card (slipButtonText).
+ *  `wholeCard` is a card's button: one started leg ends the offer (CardStarted), and the store refuses a partial card. */
+export function AddToSlip({ keys, label = "Add to slip", name, wholeCard = false }: { keys: string[]; label?: string; name: string; wholeCard?: boolean }) {
   const { slip, add, remove } = useModelSlip();
   const inSlip = keys.length > 0 && keys.every((k) => slip.legs.some((x: { key: string }) => x.key === k));
   const nowIso = useReaderNowIso();
-  /* Every leg behind the button has started (shared slip-add gate): nothing left to add, and it says so. */
-  const started = !inSlip && nowIso != null && keys.length > 0 && keys.every((k) => catalogLegStarted(k, nowIso));
+  const cardStarted = useContext(CardStarted);
+  /* Every leg behind the button has started (shared slip-add gate), or a card's first has: nothing to add, and it says so. */
+  const started = !inSlip && (wholeCard ? cardStarted : nowIso != null && keys.length > 0 && keys.every((k) => catalogLegStarted(k, nowIso)));
   const words = slipButtonText({ inSlip, count: keys.length, label, name });
   if (started) {
     return (
@@ -41,7 +65,7 @@ export function AddToSlip({ keys, label = "Add to slip", name }: { keys: string[
   return (
     <button type="button" className="vault-press inline-flex items-center" style={BTN} aria-pressed={inSlip}
       aria-label={words.aria}
-      onClick={() => (inSlip ? keys.forEach(remove) : add(keys))}>
+      onClick={() => (inSlip ? keys.forEach(remove) : add(keys, { whole: wholeCard }))}>
       {words.text}
     </button>
   );

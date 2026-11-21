@@ -1,5 +1,5 @@
 import LevelACopy from "@/components/products/level-a-copy";
-import { AddToSlip } from "@/components/products/level-a-slip";
+import { AddToSlip, CardStartScope, CardStartedLine, WhileCardPregame } from "@/components/products/level-a-slip";
 import { slipLegOf } from "@/lib/products/level-a/slip-legs.mjs";
 import { nbaGameWinnerCardKey, nbaGameWinnerCopyText } from "@/lib/products/level-a/nba-game-winner-tiers.mjs";
 import { jointShownFor } from "@/lib/products/level-a/suggestions.mjs";
@@ -20,9 +20,10 @@ function GwCardBox({ title, slot }: { title: string; slot: GwSlot }) {
   const c = slot.card;
   return (
     <article className="flex flex-col gap-2 rounded-[10px] px-4 py-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={`NBA game winners · ${title}`} data-level-a-card={c ? nbaGameWinnerCardKey(c) : undefined}>
+      <CardStartScope starts={(c?.legs ?? []).map((l) => l.startUtc)}>
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <h4 className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 13.5 }}>{title}</h4>
-        {c ? <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>{c.tierLabel} · model joint probability {jointShownFor(c.jointProbability, c.tier)}</span> : null}
+        {c ? <><WhileCardPregame><span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>{c.tierLabel} · model joint probability {jointShownFor(c.jointProbability, c.tier)}</span></WhileCardPregame><CardStartedLine /></> : null}
       </header>
       {c ? (
         <>
@@ -40,13 +41,14 @@ function GwCardBox({ title, slot }: { title: string; slot: GwSlot }) {
           </ul>
           <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>{c.dependency} No sportsbook price. Settles on the official final.</p>
           <span className="flex flex-wrap items-center gap-2">
-            <AddToSlip keys={c.legs.map((l) => slipLegOf(l as never).key)} label="Add card to slip" name={`NBA game winners ${title} (${c.legs.length} legs)`} />
-            <LevelACopy text={nbaGameWinnerCopyText(c)} />
+            <AddToSlip keys={c.legs.map((l) => slipLegOf(l as never).key)} label="Add card to slip" name={`NBA game winners ${title} (${c.legs.length} legs)`} wholeCard />
+            <WhileCardPregame><LevelACopy text={nbaGameWinnerCopyText(c)} /></WhileCardPregame>
           </span>
         </>
       ) : (
         <p className="m-0 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>No card: {slot.reason}.</p>
       )}
+      </CardStartScope>
     </article>
   );
 }

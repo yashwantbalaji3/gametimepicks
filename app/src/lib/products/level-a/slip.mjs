@@ -43,6 +43,9 @@ export const LEG_FLAG = Object.freeze({
   INSIDE_CUTOFF: "Starts within 30 minutes: past the publication cutoff",
 });
 
+/** The one line a served card shows once any of its legs has started on the reader's clock (level-a-slip.tsx). */
+export const CARD_STARTED_LINE = `${LEG_FLAG.EXPIRED}. A leg has started, so this card cannot be added and no joint estimate is offered.`;
+
 const norm = (s) => String(s ?? "").trim().toLowerCase();
 export const slipLegKey = (l) => [norm(l?.sport), norm(l?.eventId), norm(l?.market), norm(l?.outcome?.code)].join("|");
 const eventKey = (l) => `${norm(l?.sport)}|${norm(l?.eventId)}`;

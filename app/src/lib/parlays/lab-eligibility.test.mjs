@@ -5,8 +5,11 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import fs from "node:fs";
 import path from "node:path";
+import os from "node:os";
 import { labEligibility } from "../../../scripts/parlays/lab-eligibility.mjs";
 import { SETTLEABLE_SPORTS } from "./multi-sport.mjs";
+import { parseAuthorizationReceipt, P171_LEDGER_RELPATH } from "../sports/odds/p171-authorization.mjs";
+import { MARKET_SCOPE } from "../sports/odds/market-scope.mjs";
 
 const APP = process.cwd();
 const ROOT = path.join(APP, "public", "data");
@@ -160,4 +163,54 @@ test("a stale-capture reason is a fixed fact: re-running hours or days later doe
   }
   // POSITIVE CONTROL — only meaningful when committed data holds a stale capture; say so when it does not.
   if (compared === 0) console.log("# note: no stale capture in the committed data at NOW; stability checked vacuously");
+});
+
+test("a stale NFL capture says prices are not being captured while the allowance is spent, and never prints it", () => {
+  /*
+   * "More than 3 days old" reads as a gap the next run closes. When the receipt's ceiling cannot cover the cheapest paid
+   * call, capture-nfl-odds stops before any call, so it will not close by itself. The state is the capture script's own
+   * test (ceilingExhausted) on a throwaway repo; budget figures are internal, so none reaches the sentence.
+   */
+  const receipt = read("../docs/receipts/ODDS_AUTHORIZATION_NFL_2026.md");
+  const { ceiling } = parseAuthorizationReceipt(receipt);
+  assert.ok(ceiling > 0, "the fixture reads the governing receipt's own ceiling");
+  const AT = "2026-11-02T18:00:00.000Z";
+  const repo = fs.mkdtempSync(path.join(os.tmpdir(), "lab-nfl-capture-"));
+  const data = path.join(repo, "app", "public", "data");
+  fs.mkdirSync(path.join(data, "nfl", "markets"), { recursive: true });
+  fs.writeFileSync(path.join(data, "nfl", "markets", "latest.json"), JSON.stringify({ capturedAt: "2026-10-11T11:41:55Z", rows: [] }));
+  const reasonFor = (cumulativeCredits) => {
+    fs.mkdirSync(path.join(repo, "docs", "receipts"), { recursive: true });
+    fs.writeFileSync(path.join(repo, "docs", "receipts", "ODDS_AUTHORIZATION_NFL_2026.md"), receipt);
+    fs.mkdirSync(path.join(repo, path.dirname(P171_LEDGER_RELPATH)), { recursive: true });
+    fs.writeFileSync(path.join(repo, P171_LEDGER_RELPATH), JSON.stringify({ cumulativeCredits, requests: [] }));
+    return labEligibility(data, AT.slice(0, 10), AT).find((s) => s.id === "nfl").blocked;
+  };
+  const STALE = "the last price capture (Oct 11) is more than 3 days old";
+  const HALTED = "prices are not being captured right now";
+  try {
+    const spent = reasonFor(ceiling).split("; ");
+    assert.ok(spent.includes(STALE), "the pinned sentence stands, unchanged");
+    const line = spent.find((r) => r.startsWith(HALTED));
+    assert.ok(line, "and the reason no longer implies a transient gap");
+    assert.doesNotMatch(line, /\d|credit|budget|ceiling|allowance|receipt/i, "nothing of the internal budget is printed");
+
+    const open = reasonFor(0);
+    assert.ok(open.split("; ").includes(STALE));
+    assert.ok(!open.includes(HALTED), "with allowance left a stale capture says only that it is stale");
+
+    fs.rmSync(path.join(repo, "docs"), { recursive: true });
+    fs.rmSync(path.join(repo, path.dirname(P171_LEDGER_RELPATH)), { recursive: true });
+    const unreadable = labEligibility(data, AT.slice(0, 10), AT).find((s) => s.id === "nfl").blocked;
+    assert.ok(!unreadable.includes(HALTED), "no evidence of a spent allowance, no claim of one");
+  } finally { fs.rmSync(repo, { recursive: true, force: true }); }
+});
+
+test("the gate's cheapest paid NFL call is the capture's own bulk team call", () => {
+  const capture = read("scripts/nfl/capture-nfl-odds.mjs");
+  assert.match(capture, /const REGIONS = \["us"\];/);
+  assert.match(capture, /const TEAM_MARKETS = MARKET_SCOPE\[SPORT\];/);
+  assert.match(capture, /const SPORT = "nfl";/);
+  assert.equal(MARKET_SCOPE.nfl.length, 3, "h2h, spreads, totals: 3 markets × 1 region");
+  assert.match(read("scripts/parlays/lab-eligibility.mjs"), /const NFL_CHEAPEST_PAID_CREDITS = 3;/);
 });

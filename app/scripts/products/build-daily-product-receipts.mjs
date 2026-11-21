@@ -35,6 +35,7 @@ import { LIFECYCLE_STATES, productWatchdog } from "../../src/lib/products/daily-
 import { deriveLifecycle } from "../../src/lib/products/daily-lifecycle-derive.mjs";
 import { CURRENT_POLICY } from "../../src/lib/products/selection-policy.mjs";
 import { PRODUCT_REGISTRY } from "../../src/lib/products/lifecycle-registry.mjs";
+import { noPlayReason } from "../../src/lib/products/daily-receipt-reason.mjs";
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -50,7 +51,7 @@ const hash = (p) => { try { return crypto.createHash("md5").update(fs.readFileSy
 /**
  * The closed state machine. NOT_RUN and INPUTS_MISSING are operational; NO_PLAY and ACTIVE are
  * product decisions; STALE and INCIDENT are failures. Nothing may reach NO_PLAY without a
- * completed evaluation over a real candidate pool.
+ * completed evaluation; its reason says whether the pool held any candidate (noPlayReason).
  */
 export const RECEIPT_STATES = Object.freeze([
   "NOT_RUN", "INPUTS_MISSING", "STALE", "INCIDENT", "NO_PLAY", "ACTIVE", "PENDING_RESULT", "SETTLED", "VOID",
@@ -165,7 +166,7 @@ function productEntry(product, label) {
   }
   return {
     product, label, state: "NO_PLAY",
-    reason: "the daily evaluation completed over a real candidate pool and nothing met policy — a hold is the product's answer, not an outage",
+    reason: noPlayReason(candidatesEvaluated),
     candidatesEvaluated, rejections, card: null,
   };
 }

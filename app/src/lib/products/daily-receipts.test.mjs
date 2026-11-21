@@ -9,6 +9,7 @@ import fs from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import { assertProtectedLedgerIntact } from "../mr-dub/protected-invariant.mjs";
+import { noPlayReason } from "./daily-receipt-reason.mjs";
 
 const APP = process.cwd();
 const ROOT = path.join(APP, "..");
@@ -34,6 +35,21 @@ test("MISSING INPUTS ARE NOT A NO-PLAY — the distinction the whole receipt exi
       assert.notEqual(p.state, "INPUTS_MISSING", "a present board must produce a real evaluation state");
     }
   }
+});
+
+test("a NO_PLAY's words match its count: 'real candidate pool' only when the pool held a candidate", () => {
+  assert.match(noPlayReason(6), /over a real candidate pool and nothing met policy/);
+  assert.match(noPlayReason(1), /real candidate pool/);
+  for (const none of [0, null, undefined]) {
+    const r = noPlayReason(none);
+    assert.doesNotMatch(r, /real candidate pool|nothing met policy/, "nothing was tested, so nothing failed policy");
+    assert.match(r, /no legs/);
+    assert.match(r, /rejections/, "it points at the policy's own lane reasons");
+    assert.ok(r.length > 20);
+  }
+  const src = fs.readFileSync(path.join(APP, "scripts/products/build-daily-product-receipts.mjs"), "utf8");
+  assert.match(src, /reason: noPlayReason\(candidatesEvaluated\),/, "the writer uses it");
+  assert.doesNotMatch(src, /reason: "the daily evaluation completed over a real candidate pool/, "no fixed sentence survives");
 });
 
 test("a NO_PLAY always carries a completed evaluation and a stated reason", () => {
