@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-21T16:49:08Z",
- "sourceGeneratedAt": "2026-11-21T16:49:08Z",
- "forecastInputHash": "97d1ac2b84620461",
+ "generatedAt": "2026-11-21T19:54:22Z",
+ "sourceGeneratedAt": "2026-11-21T19:54:22Z",
+ "forecastInputHash": "0b5f91b9f051a987",
  "providerEventId": "401873067",
  "matchup": "ARI @ KC",
  "kickoffUtc": "2026-11-22T18:00Z",
@@ -12,8 +12,8 @@
  "week": 11,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-21T16:49:08Z",
-  "roleEvidenceAt": "2026-11-21T16:49:08Z",
+  "injuriesCapturedAt": "2026-11-21T19:54:22Z",
+  "roleEvidenceAt": "2026-11-21T19:54:22Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -24,6 +24,14 @@
    "reason": "SECOND_LOOK_REJECTED — failed bar: threshold calibration (ECE 0.055 vs 0.05); beats both baselines on typical miss",
    "caveat": "the chance of going over a line is not yet well calibrated for this family — read the range, not a precise over/under chance.",
    "model": "nfl-player-share-level-v1",
+   "withheldPassers": [
+    {
+     "team": "ARI",
+     "playerId": "nfl-athlete-11394",
+     "name": "Josh Johnson",
+     "reason": "Josh Johnson starts for ARI (depth chart, past Carson Beck (unavailable)) — experimental projection in research (limited individual history: 248 verified NFL pass attempts, little of it as ARI's starter)"
+    }
+   ],
    "conservation": {
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
@@ -109,14 +117,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 47,
+  "absent": 45,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "ARI": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 6,
+    "PROJECTED": 8,
+    "EXCLUDED_UNAVAILABLE": 7,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -208,12 +216,8 @@
     {
      "playerId": "nfl-athlete-4430841",
      "name": "Carson Beck",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_pass_yds"
-     ],
-     "participation": "QUESTIONABLE"
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4038524",
@@ -255,7 +259,14 @@
      "playerId": "nfl-athlete-11394",
      "name": "Josh Johnson",
      "state": "WITHHELD_ROLE_UNCERTAIN",
-     "reason": "no game for ARI yet this season — role at ARI not yet observed"
+     "reason": "no game for ARI yet this season — role at ARI not yet observed",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "Josh Johnson starts for ARI (depth chart, past Carson Beck (unavailable)) — experimental projection in research (limited individual history: 248 verified NFL pass attempts, little of it as ARI's starter)"
+      }
+     ]
     }
    ]
   },
@@ -396,18 +407,24 @@
    {
     "team": "ARI",
     "snapshotAt": "2026-11-21T15:17:24Z",
-    "skipped": [],
-    "state": "APPLIED",
-    "tier": "A_CLUB_HISTORY",
-    "starter": {
-     "playerId": "nfl-athlete-4430841",
-     "name": "Carson Beck"
-    },
-    "source": "depth chart QB1",
-    "basis": "club share 1.00 ≥ 0.75",
-    "passers": [
-     "nfl-athlete-4430841"
+    "skipped": [
+     {
+      "playerId": "nfl-athlete-4430841",
+      "name": "Carson Beck",
+      "reason": "unavailable (Out)"
+     }
     ],
+    "state": "WITHHELD_STARTER_NOT_CONFIRMED",
+    "tier": "B_ALL_CLUB_HISTORY",
+    "starter": {
+     "playerId": "nfl-athlete-11394",
+     "name": "Josh Johnson"
+    },
+    "source": "depth chart, past Carson Beck (unavailable)",
+    "reason": "Josh Johnson starts for ARI (depth chart, past Carson Beck (unavailable)) — experimental projection in research (limited individual history: 248 verified NFL pass attempts, little of it as ARI's starter)",
+    "experimental": true,
+    "careerAttempts": 248,
+    "passers": [],
     "removed": []
    },
    {
@@ -518,11 +535,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-20T20:28Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -566,11 +583,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -612,11 +629,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-15T22:31Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -660,11 +677,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -706,11 +723,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-20T20:47Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -752,11 +769,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-15T22:53Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -798,11 +815,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T00:50Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -844,11 +861,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-18T01:10Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -890,11 +907,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-17T00:34Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -936,11 +953,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T02:45Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -983,11 +1000,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-15T22:08Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -1022,11 +1039,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -1061,11 +1078,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -1098,11 +1115,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-18T01:38Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -1128,11 +1145,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -1165,11 +1182,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-18T01:32Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -1193,52 +1210,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-19T00:50Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
-     }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4430841",
-   "name": "Carson Beck",
-   "team": "ARI",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 239.7098,
-     "p10": 129.8984,
-     "p25": 171.5106,
-     "median": 227.5501,
-     "p75": 294.7034,
-     "p90": 365.2389,
-     "tier": "A_CLUB_HISTORY",
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.0479,
-     "pricingState": "NOT_PROBED"
-    }
-   },
-   "eligibility": {
-    "state": "ELIGIBLE",
-    "reasons": [],
-    "flags": [
-     "QUESTIONABLE"
-    ],
-    "contractVersion": "eligibility@1",
-    "sources": {
-     "injuries": {
-      "status": "Questionable",
-      "statedAt": "2026-11-20T17:36Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
-     },
-     "roster": {
-      "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
@@ -1267,11 +1243,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-18T01:28Z",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-21T16:49:08Z"
+      "fetchedAt": "2026-11-21T19:54:22Z"
      }
     }
    }
