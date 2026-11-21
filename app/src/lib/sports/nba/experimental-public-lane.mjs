@@ -157,9 +157,38 @@ export const UNAVAILABLE_STATE = "PROJECTION_UNAVAILABLE";
  *   NO_EXPECTED_MINUTES  excluded from the pool for any other no-minutes basis
  * One entry per athlete (priority in that order). No minutes, medians or any other number travels.
  */
-export const UNAVAILABLE_REASONS = Object.freeze(["RULED_OUT", "BELOW_PUBLISH_CUT", "ROOKIE", "INSUFFICIENT_HISTORY", "NO_EXPECTED_MINUTES"]);
+export const UNAVAILABLE_REASONS = Object.freeze(["RULED_OUT", "BELOW_PUBLISH_CUT", "MINUTES_NOT_PLAUSIBLE", "ROOKIE", "INSUFFICIENT_HISTORY", "NO_EXPECTED_MINUTES"]);
+/*
+ * MINUTES PLAUSIBILITY (prepared 2026-11-13 for a founder decision — switch OFF; nothing published changes until it is
+ * turned on, and then only for slates not yet published).
+ *
+ * Why: v0.1 rescales a team's pool to 240 minutes (game-sim.mjs prepareRoster, bounded at 1.5x, capped at 48 per
+ * player). When the pool is thin — rookies and absentees it cannot project, players ruled out — the players it CAN
+ * project absorb the missing minutes. On 2026-11-13 the lane published two Cavaliers at 48.0 expected minutes.
+ *
+ * Evidence, from the committed grading ledger (experimental-v0.1/ledger.json, regular season, entries to seq 359 —
+ * 3,369 graded player rows; recomputed by minutes-plausibility.test.mjs):
+ *   - 40 minutes is the 99th percentile of minutes ACTUALLY played (36 of 3,369 rows reached it).
+ *   - 45 rows were projected at 40 or more expected minutes; 1 of those players played 40.
+ * So an expected-minutes figure of 40+ is a statement the model's own graded record does not support.
+ *
+ * What the rule does: a player whose frozen expected minutes are at or above the threshold is listed as
+ * "projection unavailable" (MINUTES_NOT_PLAUSIBLE) instead of shown with numbers. It withholds; it never edits a
+ * number. The frozen forecast, its receipt and every other player's figures are untouched, and the game records the
+ * rule it was published under (players.minutesRule), so a published slate always re-derives from its own receipt.
+ * What it does NOT do: it does not correct the inflated minutes of that team's other players — that needs a model
+ * change (the v0.3 challenger), which the preregistration governs.
+ */
+export const MINUTES_PLAUSIBILITY = Object.freeze({ id: "nba-lane-minutes-plausibility@1", enabled: false, maxExpectedMinutes: 40 });
+const minutesRuleOf = (on) => (on ? { id: MINUTES_PLAUSIBILITY.id, maxExpectedMinutes: MINUTES_PLAUSIBILITY.maxExpectedMinutes } : null);
+const overMax = (p, rule) => Boolean(rule) && Number.isFinite(p?.expectedMinutes) && p.expectedMinutes >= rule.maxExpectedMinutes;
+/** Does a rebuild of a slate apply the rule? A published slate: exactly what it was published with; otherwise the switch. */
+export function minutesPlausibilityForPublish(committedDay, { enabled = MINUTES_PLAUSIBILITY.enabled } = {}) {
+  if (committedDay && typeof committedDay === "object") return (committedDay.games ?? []).some((g) => g?.players && Object.prototype.hasOwnProperty.call(g.players, "minutesRule"));
+  return Boolean(enabled);
+}
 /** The lane's per-side list, copied from the receipt (+ the receipt's own roster capture for position / rookie). Pure. */
-export function laneUnavailable(forecast, facts = null) {
+export function laneUnavailable(forecast, facts = null, { minutesRule = null } = {}) {
   const side = (k) => {
     const av = forecast?.assumptions?.availability?.[k] ?? {};
     const byId = new Map();
@@ -172,6 +201,7 @@ export function laneUnavailable(forecast, facts = null) {
     for (const p of av.excludedOut ?? []) add(p, "RULED_OUT", { status: p.injuryStatus ?? null });
     for (const p of forecast?.players?.[k] ?? []) if (p?.availability === "out") add(p, "RULED_OUT", { status: p.injuryStatus ?? null });
     for (const p of forecast?.players?.[k] ?? []) if (p?.availability !== "out" && Number.isFinite(p?.expectedMinutes) && p.expectedMinutes < MIN_EXPECTED_MINUTES) add(p, "BELOW_PUBLISH_CUT");
+    for (const p of forecast?.players?.[k] ?? []) if (p?.availability !== "out" && overMax(p, minutesRule)) add(p, "MINUTES_NOT_PLAUSIBLE");
     for (const p of av.excludedNoMinutes ?? []) {
       const rookie = facts?.get(String(p?.providerAthleteId))?.experienceYears === 0;
       add(p, p?.basis === "insufficient" ? (rookie ? "ROOKIE" : "INSUFFICIENT_HISTORY") : "NO_EXPECTED_MINUTES");
@@ -198,9 +228,9 @@ export const WITHHELD = Object.freeze({
 
 const r1 = (x) => (Number.isFinite(x) ? Math.round(x * 10) / 10 : null);
 
-function sideRows(players, positions = null) {
+function sideRows(players, positions = null, minutesRule = null) {
   return (Array.isArray(players) ? players : [])
-    .filter((p) => p?.availability !== "out" && Number.isFinite(p?.expectedMinutes) && p.expectedMinutes >= MIN_EXPECTED_MINUTES)
+    .filter((p) => p?.availability !== "out" && Number.isFinite(p?.expectedMinutes) && p.expectedMinutes >= MIN_EXPECTED_MINUTES && !overMax(p, minutesRule))
     .sort((a, b) => b.expectedMinutes - a.expectedMinutes || String(a.providerAthleteId).localeCompare(String(b.providerAthleteId)))
     .map((p) => ({
       providerAthleteId: String(p.providerAthleteId),
@@ -237,7 +267,7 @@ export function comboReconciliation(player) {
  * @param {string|null} a.sourceCommit  the git commit that holds that file, when known
  * @param {string} a.generatedAt  when this snapshot was assembled (never a forecast time)
  */
-function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCommit = null, generatedAt, eloWinProbability = ELO_WIN_PROBABILITY.enabled, unavailablePlayers = UNAVAILABLE_PLAYERS.enabled, rosters = null }) {
+function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCommit = null, generatedAt, eloWinProbability = ELO_WIN_PROBABILITY.enabled, unavailablePlayers = UNAVAILABLE_PLAYERS.enabled, minutesPlausibility = MINUTES_PLAUSIBILITY.enabled, rosters = null }) {
   if (forecastDoc?.family !== LANE.sourceFamily) throw new Error(`REFUSED: lane reads family ${LANE.sourceFamily}, got ${JSON.stringify(forecastDoc?.family)}`);
   const games = [];
   const excluded = [];
@@ -261,6 +291,9 @@ function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCom
     // founder decision 2026-10-23: the receipt's own Elo pHome / pAway, verbatim, with provenance — only while switched on
     const wp = eloWinProbability ? laneEloWinProbability(f, r) : null;
     const pos = unavailablePlayers ? positionsFor(r, rosters) : null;
+    // The rule withholds a player INTO the unavailable list, so it applies only where that list is published: a
+    // withheld player is always accounted for with a reason, never silently dropped.
+    const minutesRule = minutesRuleOf(Boolean(minutesPlausibility) && Boolean(pos));
     // PRIVATE audit facts (never in the public snapshot): which side the withheld v0.1 team median favours, and the seed.
     audit.push({
       providerEventId: String(g.providerEventId),
@@ -290,9 +323,10 @@ function buildExperimentalSnapshotWithAudit({ forecastDoc, sourceFile, sourceCom
         source: `v0.1 roster-gated player simulation (${r.modelVersion}) — medians of ${f.simulations ?? "?"} simulated games`,
         ...(AMENDMENT_A.enabled ? { comboSource: `PRA, P+R and P+A: ${COMBO_LABEL}` } : {}),
         ...(pos ? { positionSource: pos.source } : {}),
-        away: sideRows(f.players?.away, pos?.positions ?? null),
-        home: sideRows(f.players?.home, pos?.positions ?? null),
-        ...(pos ? { unavailable: laneUnavailable(f, pos.facts) } : {}),
+        away: sideRows(f.players?.away, pos?.positions ?? null, minutesRule),
+        home: sideRows(f.players?.home, pos?.positions ?? null, minutesRule),
+        ...(pos ? { unavailable: laneUnavailable(f, pos.facts, { minutesRule }) } : {}),
+        ...(minutesRule ? { minutesRule } : {}),
       },
     });
   }
@@ -340,8 +374,15 @@ export function snapshotMatchesSource(snapshotGame, sourceGame, { rosters = null
   const detail = snapshotGame.players?.positionSource !== undefined;
   const pos = detail ? positionsFor(sourceGame?.receipt, rosters) : null;
   if (detail && JSON.stringify(snapshotGame.players.positionSource) !== JSON.stringify(pos.source)) return false;
+  // Minutes plausibility: a game published under the rule must carry exactly the rule this code implements, must hold
+  // no row at or over its threshold, and (below) must list each such player as unavailable for that reason.
+  const minutesRule = snapshotGame.players?.minutesRule;
+  if (minutesRule !== undefined && JSON.stringify(minutesRule) !== JSON.stringify(minutesRuleOf(true))) return false;
+  if (minutesRule !== undefined && snapshotGame.players?.unavailable === undefined) return false;
   for (const side of ["away", "home"]) {
     const src = new Map((f.players?.[side] ?? []).map((p) => [String(p.providerAthleteId), p]));
+    // The published rows are exactly the receipt's publishable players under the game's own rule — none added, none dropped.
+    if (JSON.stringify(snapshotGame.players[side].map((r) => r.providerAthleteId)) !== JSON.stringify(sideRows(f.players?.[side], null, minutesRule ?? null).map((r) => r.providerAthleteId))) return false;
     for (const row of snapshotGame.players[side]) {
       const p = src.get(row.providerAthleteId);
       if (!p) return false;
@@ -357,7 +398,7 @@ export function snapshotMatchesSource(snapshotGame, sourceGame, { rosters = null
     }
   }
   // P1(b): a published unavailable list must be exactly the receipt's own pregame record
-  if (snapshotGame.players?.unavailable !== undefined && JSON.stringify(snapshotGame.players.unavailable) !== JSON.stringify(laneUnavailable(f, detail ? pos.facts : null))) return false;
+  if (snapshotGame.players?.unavailable !== undefined && JSON.stringify(snapshotGame.players.unavailable) !== JSON.stringify(laneUnavailable(f, detail ? pos.facts : null, { minutesRule: minutesRule ?? null }))) return false;
   // founder decision 2026-10-23: a published Elo game-winner probability must be the receipt's own numbers and provenance
   const wp = snapshotGame.elo?.winProbability;
   if (wp !== undefined && JSON.stringify(wp) !== JSON.stringify(laneEloWinProbability(f, sourceGame.receipt))) return false;
