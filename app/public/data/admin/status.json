@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-11-21T15:15:29.146Z",
+  "generatedAt": "2026-11-21T16:12:19.833Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -105,15 +105,15 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-11-21",
-      "generatedAt": "2026-11-21T13:48:32Z",
+      "generatedAt": "2026-11-21T15:20:13Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 20,
-            "priced": 19,
-            "generated": 10,
+            "scheduled": 10,
+            "priced": 10,
+            "generated": 0,
             "frozen": 0,
             "started": 0
           },
@@ -123,15 +123,17 @@
         },
         {
           "sport": "ufc",
-          "state": "DERIVED",
+          "state": "STARTED",
           "counts": {
-            "scheduled": 12,
-            "priced": 11,
-            "generated": 11,
+            "scheduled": 0,
+            "priced": 0,
+            "generated": 0,
             "frozen": 0,
             "started": 0
           },
-          "findings": []
+          "findings": [
+            "CARD_STARTED:UFC Fight Night: Procházka vs. Stirling started 2026-11-21T15:00Z — no longer forward coverage"
+          ]
         },
         {
           "sport": "nfl",
@@ -166,12 +168,17 @@
     "dailyLifecycle": {
       "receiptDate": "2026-11-21",
       "present": true,
-      "generatedAt": "2026-11-21T09:48:27Z",
+      "generatedAt": "2026-11-21T15:20:12Z",
       "watchdog": [
         {
           "product": "homer-nukes",
           "kind": "INCIDENT_OPEN",
           "detail": "NOT_RUN: no Homer Nukes board exists for 2026-11-21"
+        },
+        {
+          "product": "epl-cards",
+          "kind": "STALE_ACTIVE_CARD",
+          "detail": "locked 2026-11-21T02:01:51Z, still ACTIVE"
         }
       ],
       "states": {
@@ -215,16 +222,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-11-21T15:15:28.565Z",
+    "lastRunAt": "2026-11-21T16:12:19.240Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
-    "phase": "mlb-daily-production"
+    "phase": "nightly-settle"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-11-21",
-    "etTime": "10:15",
+    "etTime": "11:12",
     "stages": [
       {
         "stage": "schedule",
