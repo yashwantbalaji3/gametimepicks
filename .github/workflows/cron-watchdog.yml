@@ -326,12 +326,15 @@ jobs:
       # must never be the reason that job fails.
       - name: Cron-slot coverage (pages, and recovers the NFL window)
         continue-on-error: true
+        # A hung observer must never eat the job's budget and skip every step after it (2026-11-08 → 11-11: the history
+        # deepen below it ran into the 10-minute job timeout on every run).
+        timeout-minutes: 4
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           set -euo pipefail
-          # Unshallow enough history to date each workflow file; the floor needs the ADD commit.
-          git fetch --deepen=1000 --quiet 2>/dev/null || true
+          # Each workflow file's ADD date comes from the commits API (cron-slot-watchdog.mjs createdAtFor), not from a
+          # `git fetch --deepen=1000` of this repository's history, which hung past the job timeout.
           OUT=app/public/data/ops/cron-slot-watchdog.json
           node app/scripts/ops/cron-slot-watchdog.mjs \
             --now "$(date -u +%Y-%m-%dT%H:%M:%SZ)" --json "$OUT" | tee /tmp/slots.txt || true

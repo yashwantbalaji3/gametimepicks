@@ -43,9 +43,26 @@ function cronsFor(wf) {
   return [...src.matchAll(/^\s*-\s*cron:\s*["']([^"']+)["']/gm)].map((m) => m[1]);
 }
 
-/** When the workflow file first landed, epoch ms, or NaN when git cannot date it. */
+/**
+ * When the workflow file first landed, epoch ms, or NaN when it cannot be dated.
+ *
+ * FROM THE GITHUB API, NOT LOCAL HISTORY (2026-11-12). This step used to `git fetch --deepen=1000` so `git log
+ * --diff-filter=A` could see the ADD commit. On this repository (hundreds of MB of data commits) that fetch ran past the
+ * job's 10-minute timeout from 2026-08-11 onwards, and every run was CANCELLED there, which skipped every step after it.
+ * And in a shallow clone `--diff-filter=A` answers the shallow boundary commit's date (every file "added" at the graft),
+ * a floor that is too late and hides misses. The commits API lists the file's commits, oldest last; one call per page.
+ * Local `git log` stays as the fallback only for a FULL clone; a shallow clone gets NaN (the floor is then unknown, as
+ * cron-slots windowFloor already handles), never a wrong date.
+ */
 function createdAtFor(wf) {
   try {
+    const out = execFileSync("gh", ["api", "--paginate", `repos/{owner}/{repo}/commits?path=.github/workflows/${wf}&per_page=100`, "--jq", ".[].commit.author.date"], { cwd: REPO, encoding: "utf8", timeout: 60_000 });
+    const oldest = out.trim().split("\n").filter(Boolean).pop();
+    if (oldest) return Date.parse(oldest);
+  } catch { /* fall through to local history */ }
+  try {
+    const shallow = execFileSync("git", ["rev-parse", "--is-shallow-repository"], { cwd: REPO, encoding: "utf8" }).trim() === "true";
+    if (shallow) return NaN;
     const out = execFileSync("git", ["log", "--diff-filter=A", "--format=%aI", "--", `.github/workflows/${wf}`], { cwd: REPO, encoding: "utf8" });
     const first = out.trim().split("\n").filter(Boolean).pop();
     return first ? Date.parse(first) : NaN;
