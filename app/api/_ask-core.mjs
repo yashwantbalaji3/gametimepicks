@@ -26,11 +26,13 @@ export { ASK_REQUIRED_ENV } from "../src/lib/ask/provider.mjs";
  *
  * Default-off is the deliberate choice: the route can ship, the page can render, and the endpoint
  * answers a clean "temporarily unavailable" until someone turns it on. Rollout is therefore flag-off →
- * canary → flag-on, and switching it off is one environment variable rather than a deployment.
+ * canary → flag-on. Switching it off is one environment variable — but on Vercel a changed variable reaches the
+ * functions only with the NEXT deployment, so turning Ask off means: set the variable, then redeploy (2026-10-17: the
+ * earlier "rather than a deployment" was wrong). Any of 0 / false / off / no / disabled (any case) is off.
  */
 export function askDisabled(env = process.env) {
-  const v = env.ASK_GAMETIME_ENABLED;
-  return v === undefined || v === "" || v === "0" || v === "false";
+  const v = String(env.ASK_GAMETIME_ENABLED ?? "").trim().toLowerCase();
+  return v === "" || v === "0" || v === "false" || v === "off" || v === "no" || v === "disabled";
 }
 
 /**
