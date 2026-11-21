@@ -128,3 +128,29 @@ test("🔴 F06: 7 days, Season and All time each list exactly the days their cou
   assert.match(h, /The newest 14 of 20 graded days in this window\./, "a capped list says it is capped");
   assert.match(render(many, "2031-08-30", "d7"), /No graded day in this window\./);
 });
+
+test("🔴 research and legacy records fold, but their block, label and 'not counted above' sentence stay on the page", () => {
+  /* 2026-11-13 phone pass: the two secondary blocks ran ~1,240px open, above the day-by-day list. Only the CARDS fold;
+     the label and the sentence saying they are not in the public records are outside the fold, and the cards stay in
+     the document (so every record is still on the page and still found by find-in-page). */
+  const html = render(split, "2031-07-14", "d7"); // the fixture that carries public, research AND legacy populations
+  for (const [name, label, sentence] of [
+    ["research", "Research / paused · graded, not public picks", "none is counted in the public records above"],
+    ["unknown", "Publication status unknown (legacy)", "counted in neither block above"],
+  ]) {
+    const fold = html.indexOf(`data-results-fold="${name}"`);
+    const head = html.indexOf(label);
+    assert.ok(head > -1 && fold > head, `${name}: the label precedes the fold`);
+    const sent = html.indexOf(sentence);
+    assert.ok(sent > head && sent < fold, `${name}: the not-counted sentence is outside the fold`);
+    const end = html.indexOf("</details>", fold);
+    const inside = html.slice(fold, end);
+    assert.match(inside, /<summary[^>]*>Show (this|these \d+) (research|legacy) records?<\/summary>/, `${name}: the summary says what opens`);
+    assert.match(inside, /min-height:44px/, `${name}: a 44px tap target`);
+    assert.doesNotMatch(html.slice(fold - 40, fold + 60), /<details[^>]* open/, `${name}: closed by default`);
+    assert.ok((inside.match(/<li/g) ?? []).length >= 1, `${name}: its cards are in the document, inside the fold`);
+  }
+  // the public cards are never folded
+  const pub = html.slice(html.indexOf("Public forecasts"), html.indexOf("Products · each its own record"));
+  assert.doesNotMatch(pub, /<details[^>]*data-results-fold/);
+});
