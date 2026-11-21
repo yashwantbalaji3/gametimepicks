@@ -6838,6 +6838,6632 @@
      "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
     }
    }
+  },
+  {
+   "edition": 2,
+   "frozenAt": "2026-11-21T16:31:14Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v1/forecasts/2026-11-21.json",
+    "sha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+    "artifactGeneratedAt": "2026-11-21T13:46:38Z",
+    "artifactInputAsOf": "2026-11-21T13:46:38Z",
+    "runs": 2,
+    "modelVersion": "nba-sim-v1-coherent"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401910023",
+     "tipoffUtc": "2026-11-21T18:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Philadelphia 76ers",
+      "abbr": "PHI",
+      "espnAbbr": "PHI",
+      "providerTeamId": "20"
+     },
+     "away": {
+      "name": "Milwaukee Bucks",
+      "abbr": "MIL",
+      "espnAbbr": "MIL",
+      "providerTeamId": "15"
+     },
+     "forecastGeneratedAt": "2026-11-21T13:46:38Z",
+     "forecastInputAsOf": "2026-11-21T13:46:38Z",
+     "gamePayloadSha256": "d060806c0476169513391f51aaca0412c3a83510c080a2951e21a79f9f0b664f",
+     "state": "ON_EARLIER_EDITION",
+     "flags": []
+    },
+    {
+     "eventId": "401910024",
+     "tipoffUtc": "2026-11-22T00:30Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "New York Knicks",
+      "abbr": "NYK",
+      "espnAbbr": "NY",
+      "providerTeamId": "18"
+     },
+     "away": {
+      "name": "Portland Trail Blazers",
+      "abbr": "POR",
+      "espnAbbr": "POR",
+      "providerTeamId": "22"
+     },
+     "forecastGeneratedAt": "2026-11-21T16:31:14Z",
+     "forecastInputAsOf": "2026-11-21T16:31:14Z",
+     "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-21|v1|e2|points|401910024|3934672",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Brunson",
+        "providerAthleteId": "3934672"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 25,
+        "mean": 25.27
+       },
+       "range": {
+        "p10": 15,
+        "p25": 19,
+        "p75": 31,
+        "p90": 37
+       },
+       "playRate": 0.974,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.49,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 25.27,
+        "expectedMinutes": 35.49,
+        "p90": 37
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-21|v1|e2|points|401910024|6606",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Damian Lillard",
+        "providerAthleteId": "6606"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.3
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.9652,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.91,
+       "minutesSd": 7.53,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.3,
+        "expectedMinutes": 30.91,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-21|v1|e2|points|401910024|3995",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.95
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 22
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.11,
+       "minutesSd": 6.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.95,
+        "expectedMinutes": 29.11,
+        "p90": 22
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-21|v1|e2|points|401910024|4431736",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.77
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 17,
+        "p90": 21
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.95,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.77,
+        "expectedMinutes": 32.95,
+        "p90": 21
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-21|v1|e2|points|401910024|4683678",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.31
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 15,
+        "p90": 19
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.4,
+       "minutesSd": 6.9,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.31,
+        "expectedMinutes": 24.4,
+        "p90": 19
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-21|v1|e2|points|401910024|3147657",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Mikal Bridges",
+        "providerAthleteId": "3147657"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 10,
+        "mean": 11.05
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 15,
+        "p90": 19
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.37,
+       "minutesSd": 8.14,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.05,
+        "expectedMinutes": 27.37,
+        "p90": 19
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-21|v1|e2|points|401910024|3062679",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Josh Hart",
+        "providerAthleteId": "3062679"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 10,
+        "mean": 10.54
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 14,
+        "p90": 18
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.39,
+       "minutesSd": 6.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 10.54,
+        "expectedMinutes": 29.39,
+        "p90": 18
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-21|v1|e2|points|401910024|5105565",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 10,
+        "mean": 10.43
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 14,
+        "p90": 18
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.65,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 10.43,
+        "expectedMinutes": 26.65,
+        "p90": 18
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-21|v1|e2|points|401910024|3914044",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Landry Shamet",
+        "providerAthleteId": "3914044"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 9,
+        "mean": 9.55
+       },
+       "range": {
+        "p10": 3,
+        "p25": 6,
+        "p75": 13,
+        "p90": 17
+       },
+       "playRate": 0.9759,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.3,
+       "minutesSd": 6.66,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 9.55,
+        "expectedMinutes": 24.3,
+        "p90": 17
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 25,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_EXPECTED_MINUTES": 15,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2528426",
+        "name": "Jordan Clarkson",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3136195",
+        "name": "Karl-Anthony Towns",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3934719",
+        "name": "OG Anunoby",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277869",
+        "name": "Jose Alvarado",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4431823",
+        "name": "Miles McBride",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432808",
+        "name": "James Wiseman",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433225",
+        "name": "Tyler Kolek",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683021",
+        "name": "Deni Avdija",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683730",
+        "name": "Jaden Akins",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4838721",
+        "name": "Tyler Nickel",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4897943",
+        "name": "Dalton Knecht",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5211983",
+        "name": "Pacome Dadiet",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5289900",
+        "name": "Mohamed Diawara",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6585",
+        "name": "Andre Drummond",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-21|v1|e2|rebounds|401910024|5105565",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 10,
+        "mean": 10.5
+       },
+       "range": {
+        "p10": 5,
+        "p25": 7,
+        "p75": 13,
+        "p90": 16
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.65,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 10.5,
+        "expectedMinutes": 26.65,
+        "p90": 16
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-21|v1|e2|rebounds|401910024|3062679",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Josh Hart",
+        "providerAthleteId": "3062679"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.44
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.39,
+       "minutesSd": 6.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.44,
+        "expectedMinutes": 29.39,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-21|v1|e2|rebounds|401910024|4431736",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.64
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.95,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.64,
+        "expectedMinutes": 32.95,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-21|v1|e2|rebounds|401910024|3995",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.23
+       },
+       "range": {
+        "p10": 1,
+        "p25": 3,
+        "p75": 6,
+        "p90": 7
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.11,
+       "minutesSd": 6.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.23,
+        "expectedMinutes": 29.11,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-21|v1|e2|rebounds|401910024|6606",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Damian Lillard",
+        "providerAthleteId": "6606"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.61
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9652,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.91,
+       "minutesSd": 7.53,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.61,
+        "expectedMinutes": 30.91,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-21|v1|e2|rebounds|401910024|3934672",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Brunson",
+        "providerAthleteId": "3934672"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.26
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.974,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.49,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.26,
+        "expectedMinutes": 35.49,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-21|v1|e2|rebounds|401910024|3147657",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Mikal Bridges",
+        "providerAthleteId": "3147657"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.18
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.37,
+       "minutesSd": 8.14,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.18,
+        "expectedMinutes": 27.37,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-21|v1|e2|rebounds|401910024|4683678",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.53
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.4,
+       "minutesSd": 6.9,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.53,
+        "expectedMinutes": 24.4,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-21|v1|e2|rebounds|401910024|3914044",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Landry Shamet",
+        "providerAthleteId": "3914044"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.9
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9759,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.3,
+       "minutesSd": 6.66,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.9,
+        "expectedMinutes": 24.3,
+        "p90": 4
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 25,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_EXPECTED_MINUTES": 15,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2528426",
+        "name": "Jordan Clarkson",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3136195",
+        "name": "Karl-Anthony Towns",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3934719",
+        "name": "OG Anunoby",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277869",
+        "name": "Jose Alvarado",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4431823",
+        "name": "Miles McBride",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432808",
+        "name": "James Wiseman",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433225",
+        "name": "Tyler Kolek",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683021",
+        "name": "Deni Avdija",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683730",
+        "name": "Jaden Akins",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4838721",
+        "name": "Tyler Nickel",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4897943",
+        "name": "Dalton Knecht",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5211983",
+        "name": "Pacome Dadiet",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5289900",
+        "name": "Mohamed Diawara",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6585",
+        "name": "Andre Drummond",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-21|v1|e2|assists|401910024|3934672",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Brunson",
+        "providerAthleteId": "3934672"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.59
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.974,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.49,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.59,
+        "expectedMinutes": 35.49,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-21|v1|e2|assists|401910024|3995",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.69
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.11,
+       "minutesSd": 6.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.69,
+        "expectedMinutes": 29.11,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-21|v1|e2|assists|401910024|3062679",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Josh Hart",
+        "providerAthleteId": "3062679"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.13
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.39,
+       "minutesSd": 6.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.13,
+        "expectedMinutes": 29.39,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-21|v1|e2|assists|401910024|6606",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Damian Lillard",
+        "providerAthleteId": "6606"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.61
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9652,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.91,
+       "minutesSd": 7.53,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.61,
+        "expectedMinutes": 30.91,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-21|v1|e2|assists|401910024|3147657",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Mikal Bridges",
+        "providerAthleteId": "3147657"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 2.81
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.37,
+       "minutesSd": 8.14,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.81,
+        "expectedMinutes": 27.37,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-21|v1|e2|assists|401910024|4683678",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.41
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.4,
+       "minutesSd": 6.9,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.41,
+        "expectedMinutes": 24.4,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-21|v1|e2|assists|401910024|4431736",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.96
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.95,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.96,
+        "expectedMinutes": 32.95,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-21|v1|e2|assists|401910024|5105565",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.85
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.65,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.85,
+        "expectedMinutes": 26.65,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-21|v1|e2|assists|401910024|3914044",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Landry Shamet",
+        "providerAthleteId": "3914044"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.64
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9759,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.3,
+       "minutesSd": 6.66,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.64,
+        "expectedMinutes": 24.3,
+        "p90": 3
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 25,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_EXPECTED_MINUTES": 15,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2528426",
+        "name": "Jordan Clarkson",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3136195",
+        "name": "Karl-Anthony Towns",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3934719",
+        "name": "OG Anunoby",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277869",
+        "name": "Jose Alvarado",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4431823",
+        "name": "Miles McBride",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432808",
+        "name": "James Wiseman",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433225",
+        "name": "Tyler Kolek",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683021",
+        "name": "Deni Avdija",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683730",
+        "name": "Jaden Akins",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4838721",
+        "name": "Tyler Nickel",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4897943",
+        "name": "Dalton Knecht",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5211983",
+        "name": "Pacome Dadiet",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5289900",
+        "name": "Mohamed Diawara",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6585",
+        "name": "Andre Drummond",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-21|v1|e2|threes|401910024|6606",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Damian Lillard",
+        "providerAthleteId": "6606"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.09
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 4,
+        "p90": 6
+       },
+       "playRate": 0.9652,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.91,
+       "minutesSd": 7.53,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.09,
+        "expectedMinutes": 30.91,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-21|v1|e2|threes|401910024|4431736",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.72
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.95,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.72,
+        "expectedMinutes": 32.95,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-21|v1|e2|threes|401910024|3934672",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Brunson",
+        "providerAthleteId": "3934672"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.61
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.974,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.49,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.61,
+        "expectedMinutes": 35.49,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-21|v1|e2|threes|401910024|3995",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.48
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 5
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.11,
+       "minutesSd": 6.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.48,
+        "expectedMinutes": 29.11,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-21|v1|e2|threes|401910024|3914044",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Landry Shamet",
+        "providerAthleteId": "3914044"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.9
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9759,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.3,
+       "minutesSd": 6.66,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.9,
+        "expectedMinutes": 24.3,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-21|v1|e2|threes|401910024|4683678",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.67
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 4
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.4,
+       "minutesSd": 6.9,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.67,
+        "expectedMinutes": 24.4,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-21|v1|e2|threes|401910024|3147657",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Mikal Bridges",
+        "providerAthleteId": "3147657"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.44
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.37,
+       "minutesSd": 8.14,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.44,
+        "expectedMinutes": 27.37,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-21|v1|e2|threes|401910024|3062679",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Josh Hart",
+        "providerAthleteId": "3062679"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.43
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.39,
+       "minutesSd": 6.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.43,
+        "expectedMinutes": 29.39,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-21|v1|e2|threes|401910024|5105565",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.13
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.65,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.13,
+        "expectedMinutes": 26.65,
+        "p90": 3
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 25,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_EXPECTED_MINUTES": 15,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2528426",
+        "name": "Jordan Clarkson",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3136195",
+        "name": "Karl-Anthony Towns",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3934719",
+        "name": "OG Anunoby",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277869",
+        "name": "Jose Alvarado",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4431823",
+        "name": "Miles McBride",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432808",
+        "name": "James Wiseman",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433225",
+        "name": "Tyler Kolek",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683021",
+        "name": "Deni Avdija",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683730",
+        "name": "Jaden Akins",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4838721",
+        "name": "Tyler Nickel",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4897943",
+        "name": "Dalton Knecht",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5211983",
+        "name": "Pacome Dadiet",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5289900",
+        "name": "Mohamed Diawara",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6585",
+        "name": "Andre Drummond",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "pra": {
+     "category": "pra",
+     "label": "PRA",
+     "stat": "pra",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-21|v1|e2|pra|401910024|3934672",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Brunson",
+        "providerAthleteId": "3934672"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 34,
+        "mean": 35.12
+       },
+       "range": {
+        "p10": 22,
+        "p25": 28,
+        "p75": 42,
+        "p90": 49
+       },
+       "playRate": 0.974,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.49,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 35.12,
+        "expectedMinutes": 35.49,
+        "p90": 49
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-21|v1|e2|pra|401910024|6606",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Damian Lillard",
+        "providerAthleteId": "6606"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 25,
+        "mean": 25.52
+       },
+       "range": {
+        "p10": 14,
+        "p25": 19,
+        "p75": 31,
+        "p90": 38
+       },
+       "playRate": 0.9652,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.91,
+       "minutesSd": 7.53,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 25.52,
+        "expectedMinutes": 30.91,
+        "p90": 38
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-21|v1|e2|pra|401910024|3995",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 22,
+        "mean": 22.88
+       },
+       "range": {
+        "p10": 13,
+        "p25": 17,
+        "p75": 28,
+        "p90": 34
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.11,
+       "minutesSd": 6.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.88,
+        "expectedMinutes": 29.11,
+        "p90": 34
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-21|v1|e2|pra|401910024|5105565",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 22,
+        "mean": 22.78
+       },
+       "range": {
+        "p10": 13,
+        "p25": 17,
+        "p75": 28,
+        "p90": 34
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.65,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.78,
+        "expectedMinutes": 26.65,
+        "p90": 34
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-21|v1|e2|pra|401910024|3062679",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Josh Hart",
+        "providerAthleteId": "3062679"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.11
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 26,
+        "p90": 31
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.39,
+       "minutesSd": 6.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.11,
+        "expectedMinutes": 29.39,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-21|v1|e2|pra|401910024|4431736",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.37
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 24,
+        "p90": 30
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.95,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.37,
+        "expectedMinutes": 32.95,
+        "p90": 30
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-21|v1|e2|pra|401910024|3147657",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Mikal Bridges",
+        "providerAthleteId": "3147657"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 16,
+        "mean": 17.03
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 22,
+        "p90": 27
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.37,
+       "minutesSd": 8.14,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.03,
+        "expectedMinutes": 27.37,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-21|v1|e2|pra|401910024|4683678",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.25
+       },
+       "range": {
+        "p10": 7,
+        "p25": 11,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.4,
+       "minutesSd": 6.9,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.25,
+        "expectedMinutes": 24.4,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-21|v1|e2|pra|401910024|3914044",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Landry Shamet",
+        "providerAthleteId": "3914044"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 12,
+        "mean": 13.09
+       },
+       "range": {
+        "p10": 6,
+        "p25": 8,
+        "p75": 17,
+        "p90": 22
+       },
+       "playRate": 0.9759,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.3,
+       "minutesSd": 6.66,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.09,
+        "expectedMinutes": 24.3,
+        "p90": 22
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 25,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_EXPECTED_MINUTES": 15,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2528426",
+        "name": "Jordan Clarkson",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3136195",
+        "name": "Karl-Anthony Towns",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3934719",
+        "name": "OG Anunoby",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277869",
+        "name": "Jose Alvarado",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4431823",
+        "name": "Miles McBride",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432808",
+        "name": "James Wiseman",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433225",
+        "name": "Tyler Kolek",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683021",
+        "name": "Deni Avdija",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683730",
+        "name": "Jaden Akins",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4838721",
+        "name": "Tyler Nickel",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4897943",
+        "name": "Dalton Knecht",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5211983",
+        "name": "Pacome Dadiet",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5289900",
+        "name": "Mohamed Diawara",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6585",
+        "name": "Andre Drummond",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsReb": {
+     "category": "ptsReb",
+     "label": "P+R",
+     "stat": "ptsReb",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-21|v1|e2|ptsReb|401910024|3934672",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Brunson",
+        "providerAthleteId": "3934672"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 28,
+        "mean": 28.53
+       },
+       "range": {
+        "p10": 17,
+        "p25": 22,
+        "p75": 34,
+        "p90": 41
+       },
+       "playRate": 0.974,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.49,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 28.53,
+        "expectedMinutes": 35.49,
+        "p90": 41
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-21|v1|e2|ptsReb|401910024|6606",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Damian Lillard",
+        "providerAthleteId": "6606"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.91
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.9652,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.91,
+       "minutesSd": 7.53,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.91,
+        "expectedMinutes": 30.91,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-21|v1|e2|ptsReb|401910024|5105565",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.93
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 32
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.65,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.93,
+        "expectedMinutes": 26.65,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-21|v1|e2|ptsReb|401910024|3995",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.18
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.11,
+       "minutesSd": 6.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.18,
+        "expectedMinutes": 29.11,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-21|v1|e2|ptsReb|401910024|4431736",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.41
+       },
+       "range": {
+        "p10": 9,
+        "p25": 12,
+        "p75": 22,
+        "p90": 27
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.95,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.41,
+        "expectedMinutes": 32.95,
+        "p90": 27
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-21|v1|e2|ptsReb|401910024|3062679",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Josh Hart",
+        "providerAthleteId": "3062679"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.98
+       },
+       "range": {
+        "p10": 9,
+        "p25": 12,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.39,
+       "minutesSd": 6.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.98,
+        "expectedMinutes": 29.39,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-21|v1|e2|ptsReb|401910024|3147657",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Mikal Bridges",
+        "providerAthleteId": "3147657"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.23
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 19,
+        "p90": 23
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.37,
+       "minutesSd": 8.14,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.23,
+        "expectedMinutes": 27.37,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-21|v1|e2|ptsReb|401910024|4683678",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.84
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.4,
+       "minutesSd": 6.9,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.84,
+        "expectedMinutes": 24.4,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-21|v1|e2|ptsReb|401910024|3914044",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Landry Shamet",
+        "providerAthleteId": "3914044"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.45
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 15,
+        "p90": 19
+       },
+       "playRate": 0.9759,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.3,
+       "minutesSd": 6.66,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.45,
+        "expectedMinutes": 24.3,
+        "p90": 19
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 25,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_EXPECTED_MINUTES": 15,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2528426",
+        "name": "Jordan Clarkson",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3136195",
+        "name": "Karl-Anthony Towns",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3934719",
+        "name": "OG Anunoby",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277869",
+        "name": "Jose Alvarado",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4431823",
+        "name": "Miles McBride",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432808",
+        "name": "James Wiseman",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433225",
+        "name": "Tyler Kolek",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683021",
+        "name": "Deni Avdija",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683730",
+        "name": "Jaden Akins",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4838721",
+        "name": "Tyler Nickel",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4897943",
+        "name": "Dalton Knecht",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5211983",
+        "name": "Pacome Dadiet",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5289900",
+        "name": "Mohamed Diawara",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6585",
+        "name": "Andre Drummond",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsAst": {
+     "category": "ptsAst",
+     "label": "P+A",
+     "stat": "ptsAst",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-21|v1|e2|ptsAst|401910024|3934672",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Brunson",
+        "providerAthleteId": "3934672"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 31,
+        "mean": 31.87
+       },
+       "range": {
+        "p10": 20,
+        "p25": 25,
+        "p75": 38,
+        "p90": 45
+       },
+       "playRate": 0.974,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 35.49,
+       "minutesSd": 6.85,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 31.87,
+        "expectedMinutes": 35.49,
+        "p90": 45
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-21|v1|e2|ptsAst|401910024|6606",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Damian Lillard",
+        "providerAthleteId": "6606"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.91
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.9652,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.91,
+       "minutesSd": 7.53,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.91,
+        "expectedMinutes": 30.91,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-21|v1|e2|ptsAst|401910024|3995",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jrue Holiday",
+        "providerAthleteId": "3995"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.64
+       },
+       "range": {
+        "p10": 10,
+        "p25": 13,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.11,
+       "minutesSd": 6.92,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.64,
+        "expectedMinutes": 29.11,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-21|v1|e2|ptsAst|401910024|4431736",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Toumani Camara",
+        "providerAthleteId": "4431736"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.73
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9748,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.95,
+       "minutesSd": 7.59,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.73,
+        "expectedMinutes": 32.95,
+        "p90": 24
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-21|v1|e2|ptsAst|401910024|3062679",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Josh Hart",
+        "providerAthleteId": "3062679"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.67
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.973,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 29.39,
+       "minutesSd": 6.61,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.67,
+        "expectedMinutes": 29.39,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-21|v1|e2|ptsAst|401910024|3147657",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Mikal Bridges",
+        "providerAthleteId": "3147657"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.86
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9749,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.37,
+       "minutesSd": 8.14,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.86,
+        "expectedMinutes": 27.37,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-21|v1|e2|ptsAst|401910024|4683678",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Scoot Henderson",
+        "providerAthleteId": "4683678"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.72
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 22
+       },
+       "playRate": 0.9737,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.4,
+       "minutesSd": 6.9,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.72,
+        "expectedMinutes": 24.4,
+        "p90": 22
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-21|v1|e2|ptsAst|401910024|5105565",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Donovan Clingan",
+        "providerAthleteId": "5105565"
+       },
+       "team": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "opponent": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "homeAway": "away",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.28
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 16,
+        "p90": 20
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.65,
+       "minutesSd": 6.64,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.28,
+        "expectedMinutes": 26.65,
+        "p90": 20
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-21|v1|e2|ptsAst|401910024|3914044",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Landry Shamet",
+        "providerAthleteId": "3914044"
+       },
+       "team": {
+        "name": "New York Knicks",
+        "abbr": "NYK",
+        "espnAbbr": "NY",
+        "providerTeamId": "18"
+       },
+       "opponent": {
+        "name": "Portland Trail Blazers",
+        "abbr": "POR",
+        "espnAbbr": "POR",
+        "providerTeamId": "22"
+       },
+       "homeAway": "home",
+       "eventId": "401910024",
+       "tipoffUtc": "2026-11-22T00:30Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.19
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 15,
+        "p90": 19
+       },
+       "playRate": 0.9759,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 24.3,
+       "minutesSd": 6.66,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-21T16:31:14Z",
+        "generatedAt": "2026-11-21T16:31:14Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "f8bbd7ef6cd18e4c24523bd8d499d6bfbc2ddf400639de6ad0bdd639d302125b",
+        "gamePayloadSha256": "38659697f9159d597e649e4f77d099ef59b295c8585b9b765b505cf7bc471325"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.19,
+        "expectedMinutes": 24.3,
+        "p90": 19
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 25,
+      "byPrimaryReason": {
+       "INJURY_DESIGNATION": 3,
+       "LOW_EXPECTED_MINUTES": 2,
+       "LOW_PLAY_RATE": 12,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "MINUTES_TOO_UNCERTAIN": 1
+      },
+      "byReason": {
+       "INJURY_DESIGNATION": 8,
+       "LOW_EXPECTED_MINUTES": 15,
+       "MINUTES_TOO_UNCERTAIN": 14,
+       "LOW_PLAY_RATE": 13,
+       "INSUFFICIENT_HISTORY": 2,
+       "AVAILABILITY_OUT": 5,
+       "NULL_MINUTES": 6,
+       "TEAM_POOL_FALLBACK_RATES": 6,
+       "MISSING_DISTRIBUTION": 6,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2528426",
+        "name": "Jordan Clarkson",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3136195",
+        "name": "Karl-Anthony Towns",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "3934719",
+        "name": "OG Anunoby",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4066211",
+        "name": "Robert Williams III",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4066399",
+        "name": "Micah Potter",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4277869",
+        "name": "Jose Alvarado",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4279888",
+        "name": "Ja Morant",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4431823",
+        "name": "Miles McBride",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4432808",
+        "name": "James Wiseman",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4433225",
+        "name": "Tyler Kolek",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4578893",
+        "name": "Vit Krejci",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4592435",
+        "name": "Branden Carlson",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4593043",
+        "name": "John Tonje",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683021",
+        "name": "Deni Avdija",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4683730",
+        "name": "Jaden Akins",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4703889",
+        "name": "Jayson Kent",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4706557",
+        "name": "Chris Youngblood",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4838721",
+        "name": "Tyler Nickel",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "4897943",
+        "name": "Dalton Knecht",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4914336",
+        "name": "Shaedon Sharpe",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5081727",
+        "name": "Sidy Cissoko",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "5211983",
+        "name": "Pacome Dadiet",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5217746",
+        "name": "Yang Hansen",
+        "team": "POR",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5289900",
+        "name": "Mohamed Diawara",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "6585",
+        "name": "Andre Drummond",
+        "team": "NYK",
+        "eventId": "401910024",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebAst": {
+     "category": "rebAst",
+     "label": "R+A",
+     "stat": null,
+     "marketBasis": "NOT_MODELLED",
+     "basisText": "not modelled — no family simulates it jointly, and adding marginal projections is not its distribution",
+     "components": [
+      "reb",
+      "ast"
+     ],
+     "state": "NOT_MODELLED",
+     "rankingMetric": null,
+     "rows": [],
+     "eligibleCount": 0,
+     "shownCount": 0,
+     "withheld": {
+      "count": 0,
+      "byPrimaryReason": {},
+      "byReason": {},
+      "players": []
+     },
+     "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
+    }
+   }
   }
  ]
 }
