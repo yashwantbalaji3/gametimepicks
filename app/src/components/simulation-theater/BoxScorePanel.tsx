@@ -59,7 +59,7 @@ function BoxScoreBody({ box, palette, manifest, hypothetical, runBoxes }: { box:
       <div className="stbx-panel" {...tabs.panelProps(side)}>
         <TeamCategoryTable box={box} side={side} idBase={uid} />
       </div>
-      {players ? <RunPlayerBox box={players.box} refusal={players.refusal} runIndex={box.header.runIndex} /> : <PlayerSections box={box} />}
+      {players ? <RunPlayerBox box={players.box} refusal={players.refusal} runIndex={box.header.runIndex} availability={players.availability} /> : <PlayerSections box={box} />}
       <p className="stbx-note">{NFL_PLAYERS_NOT_MODELED_NOTE}</p>
       <Composition box={box} />
       <Provenance box={box} />
