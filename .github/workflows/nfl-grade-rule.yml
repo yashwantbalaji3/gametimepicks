@@ -1,0 +1,98 @@
+# NFL GRADE RULE (founder 2026-11-09; CANON-01 Option B) — freeze before the protected window, decide after kickoff.
+#
+# freeze   before 21:30Z on every day of the season: one write-once freeze record per game kicking off in
+#          [today 21:30Z, tomorrow 21:30Z) — the official forecast of record, its content hash and snapshot id,
+#          eligibility@1 (R5 + starting QBs). Two scheduled tries (cron drops happen); the second is a no-op if the
+#          first wrote. A run at or after 21:30Z writes nothing.
+# decide   after nfl-event-window (and hourly as a fallback): captures the GitHub Production deployment record and, for
+#          each kicked-off game under the served rule, writes one write-once decision — GRADE (the frozen revision, or a
+#          valid late replacement) or HOLD. The week reconciliation (nfl-event-window) grades the decided revision.
+#
+# Internal records only (data/internal/nfl/grade-freeze/, data/internal/nfl/served-grade/), NOT build inputs: a commit
+# here triggers no Vercel build. Separate from nfl-event-window on purpose: a failure here goes red and blocks no
+# forecast, board or settlement — an undecided game is simply not graded yet.
+name: nfl-grade-rule
+
+on:
+  schedule:
+    - cron: "40 20 * 9-12,1,2 *"
+    - cron: "10 21 * 9-12,1,2 *"
+    - cron: "23 * * 9-12,1,2 *"
+  workflow_run:
+    workflows: [nfl-event-window]
+    types: [completed]
+  workflow_dispatch: {}
+
+concurrency:
+  group: nfl-grade-rule
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  deployments: read
+
+jobs:
+  grade-rule:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      # nflOfficialOfRecord imports a .ts module with "@/" imports: tsx, from app/
+      - name: Install app dependencies (tsx)
+        working-directory: app
+        run: npm ci
+      - name: Freeze upcoming games (before the 21:30Z protected window only)
+        working-directory: app
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          if [ "$(date -u +%H%M)" -lt 2130 ]; then
+            npx tsx scripts/nfl/freeze-official-forecasts.mjs --now "$NOW" --write
+          else
+            echo "after the 21:30Z deadline: no freeze this run"
+          fi
+      - name: Decide served revisions for kicked-off games
+        working-directory: app
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          NOW="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+          SINCE="$(date -u -d '10 days ago' +%Y-%m-%dT%H:%M:%SZ)"
+          node scripts/ops/capture-github-production-deployments.mjs --since "$SINCE" --out "$RUNNER_TEMP/production-deployments.json"
+          npx tsx scripts/nfl/decide-served-grade.mjs --now "$NOW" --deployments "$RUNNER_TEMP/production-deployments.json" --write
+      - name: Commit freeze records and decisions (add-only)
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          mkdir -p data/internal/nfl/grade-freeze data/internal/nfl/served-grade
+          git add data/internal/nfl/grade-freeze/ data/internal/nfl/served-grade/
+          if git diff --cached --quiet; then
+            echo "no new freeze record or decision"
+            exit 0
+          fi
+          if git diff --cached --name-status | grep -v '^A'; then
+            echo "::error::a freeze record or decision would be MODIFIED or deleted — write-once violated, refusing to commit"
+            exit 1
+          fi
+          git commit -m "auto: nfl grade rule $(date -u +%Y-%m-%dT%H:%MZ) [skip ci]"
+          for a in 1 2 3 4; do
+            if git push origin HEAD:main; then
+              exit 0
+            fi
+            echo "push rejected (attempt $a) — merging origin/main (never rebase)"
+            git fetch origin main
+            git merge --no-edit origin/main
+            sleep $((a * 5))
+          done
+          echo "::error::push never landed after 4 attempts"
+          exit 1

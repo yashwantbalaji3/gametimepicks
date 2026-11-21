@@ -2,7 +2,7 @@
 /**
  * PUBLICATION EVIDENCE · capture the Production deployment record from GitHub (TRUTH-001, founder decision 4).
  *
- *   node scripts/ops/capture-github-production-deployments.mjs --since 2026-09-01T00:00:00Z [--write]
+ *   node scripts/ops/capture-github-production-deployments.mjs --since 2026-09-01T00:00:00Z [--write | --out <file>]
  *
  * Vercel's GitHub integration records every Production deployment as a GitHub Deployment (creator vercel[bot],
  * environment "Production") with statuses. A `success` status means the deployment completed and serves. Validated
@@ -79,6 +79,13 @@ const doc = {
   deployments,
 };
 console.log(`[deployments] ${doc.count} Production deployments since ${doc.window.from} · ${doc.ready} reached READY`);
+const OUT = arg("--out");
+if (OUT) {
+  // a working copy for a job that embeds the evidence it uses in its own record (nfl-grade-freeze.yml); not committed
+  fs.mkdirSync(path.dirname(path.resolve(OUT)), { recursive: true });
+  fs.writeFileSync(path.resolve(OUT), JSON.stringify(doc, null, 1) + "\n");
+  console.log(`✓ wrote ${OUT}`);
+}
 if (WRITE) {
   const dir = path.join(ROOT, "data/internal/ops/production-deployments");
   fs.mkdirSync(dir, { recursive: true });
