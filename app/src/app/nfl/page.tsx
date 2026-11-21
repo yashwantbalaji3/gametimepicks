@@ -44,7 +44,7 @@ import FreshnessBadge from "@/components/ui/freshness-badge";
 import { currentEtDate } from "@/lib/freshness";
 import { deriveSlateAnchor } from "@/lib/sports/nfl/slate-anchor.mjs";
 import { loadNflEvents, currentPeriodKey, eventsInPeriod, periodCounts } from "@/lib/events/read-model";
-import { seasonContextFor } from "@/lib/sports/nfl/season-context.mjs";
+import { seasonContextFor, laterSectionTitle } from "@/lib/sports/nfl/season-context.mjs";
 import GradedPicksSection from "@/components/sports/graded-picks-section";
 import IntervalCalibrationPanel, { loadIntervalCalibration } from "@/components/nfl/interval-calibration-panel";
 import { loadGradedPicks } from "@/lib/sports/graded-picks-loader";
@@ -322,17 +322,7 @@ export default function NflHubPage() {
   // it was the literal "Later this preseason", which became a false label the day the regular
   // season arrived. One phase+week across every row earns the specific title; a mixed list stays
   // generic rather than guessing.
-  const laterContexts = laterGames.map((g) => seasonContextFor(g));
-  const laterTitle = (() => {
-    if (!laterGames.length) return "Coming up";
-    const first = laterContexts[0];
-    const uniform = laterContexts.every((c) => c.state === first.state && c.week === first.week);
-    if (!uniform) return "Coming up";
-    if (first.state === "REGULAR_SEASON" && first.week != null) return `The rest of Week ${first.week}`;
-    if (first.state === "PRESEASON") return "Later this preseason";
-    if (first.state === "POSTSEASON") return "Postseason schedule";
-    return "Coming up";
-  })();
+  const laterTitle = laterSectionTitle(laterGames, slateGames);
   const simulatedOnSlate = slateGames.filter((g) => eventById.get(g.providerEventId)?.projectedScore).length;
   /* P246 §6: "Sportsbook prices for this slate" must mean THIS slate. When this was written the
      newest authorized capture was an August one taken under a since-expired receipt, so its rows
