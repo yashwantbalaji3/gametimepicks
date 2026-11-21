@@ -26,7 +26,7 @@ const isUnavailable = (g) => g?.completeness?.level === "unavailable" || g?.stat
  *   games        this run's freshly simulated games (started ones are refusals from the adapter)
  *   priorArtifact the committed artifact for the same date, or null
  *   startedPks   gamePks whose first pitch is at or before this run's instant
- * @returns {{ games: object[], carriedPks: Set<any>, frozenPregame: Record<string, {forecastGeneratedAt: string, artifactHash: string}> }}
+ * @returns {{ games: object[], carriedPks: Set<any>, frozenPregame: Record<string, {forecastGeneratedAt: string, artifactHash: string, modelVersion?: string}> }}
  */
 export function carryFrozenPregame({ games, priorArtifact, startedPks }) {
   const carriedPks = new Set();
@@ -49,9 +49,16 @@ export function carryFrozenPregame({ games, priorArtifact, startedPks }) {
       && Date.parse(entry.forecastGeneratedAt) <= fp;
     if (!fileIsPregame && !ledgerIsPregame) return g;
     carriedPks.add(g.gamePk);
-    frozenPregame[String(g.gamePk)] = ledgerIsPregame
-      ? { forecastGeneratedAt: entry.forecastGeneratedAt, artifactHash: entry.artifactHash }
-      : { forecastGeneratedAt: priorArtifact.generatedAt, artifactHash: prior.artifactHash ?? null };
+    // MLB-001: the carried game keeps the model version that MADE it. Without this, the first pa-v3 file would
+    // carry pa-v2 forecasts under its own file-level modelVersion. First carry: the prior file's version; after that
+    // the entry's, copied forward. Omitted only when no version is known (never guessed).
+    const modelVersion = (ledgerIsPregame ? entry.modelVersion : undefined) ?? priorArtifact.modelVersion;
+    frozenPregame[String(g.gamePk)] = {
+      ...(ledgerIsPregame
+        ? { forecastGeneratedAt: entry.forecastGeneratedAt, artifactHash: entry.artifactHash }
+        : { forecastGeneratedAt: priorArtifact.generatedAt, artifactHash: prior.artifactHash ?? null }),
+      ...(modelVersion ? { modelVersion } : {}),
+    };
     return prior;
   });
   return { games: out, carriedPks, frozenPregame };

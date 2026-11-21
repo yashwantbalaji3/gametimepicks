@@ -1,0 +1,8 @@
+255c255
+<   if (isExtra) bases[1] = (orderPtr - 1 + n) % n;
+---
+>   if (isExtra && (globalThis as any).AUTO !== false) bases[1] = (orderPtr - 1 + n) % n;
+412c412
+<       if (homeRuns === awayRuns) homeRuns += 1;
+---
+>       if (homeRuns === awayRuns) { homeRuns += 1; (globalThis as any).CAP = ((globalThis as any).CAP||0)+1; }
