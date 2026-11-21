@@ -29,6 +29,9 @@ import { buildActivePool } from "../../src/lib/sports/nfl/participation.mjs";
 import { buildPlayerRegistry } from "../../src/lib/sports/nfl/player-identity.mjs";
 import { simulateNflGame } from "../../src/lib/sports/nfl/game-sim.mjs";
 import { simulatePlayerProps, loadPlayerPropsFit } from "../../src/lib/sports/nfl/player-props-v1.mjs";
+// N8-recyds-view:begin — every N8 addition sits between these markers; none touches a served-series fingerprint declaration
+import { composeReceivingYardsRoleRates, mergeReceivingYards, recydsAlertLine } from "../../src/lib/sports/nfl/receiving-yards-share-view.mjs";
+// N8-recyds-view:end
 import { buildScorerBoard, loadScoringBridgeMapping, loadTdCalibrationReceipt, flattenPoolShares } from "../../src/lib/sports/nfl/td-engine.mjs";
 import { buildVault, validateVaultLedgerAppend, appendVaultCorrection } from "../../src/lib/sports/nfl/end-zone-vault.mjs";
 import { checkFreshness } from "../../src/lib/sports/nfl/season-context.mjs";
@@ -55,6 +58,17 @@ const injuries = readMaybe(path.join(ROOT, "data/internal/research/injuries/nfl/
 const finals = read(path.join(ROOT, "data/internal/research/nfl/corpus-v1.json")).rows;
 const modelReceipt = read(path.join(ROOT, "data/internal/research/nfl/reports/model-v1-evaluation.json"));
 const currentShares = read(path.join(ROOT, "data/internal/research/nfl/role-shares-v1/current.json"));
+// N8-recyds-view:begin
+/* N8 parity fix: the receiving-yards share view build-nfl-recyds-share-view.mjs writes beside current.json, in the same run. */
+const recydsView = readMaybe(path.join(ROOT, "data/internal/research/nfl/role-shares-v1/receiving-yards-view.json"));
+const recydsViewReason = !recydsView
+  ? "receiving-yards share view missing — player_reception_yds withheld"
+  : (recydsView.pairedWith?.generatedAt !== currentShares.generatedAt || recydsView.pairedWith?.rosterAsOf !== currentShares.rosterAsOf)
+    ? `receiving-yards share view is paired with role shares ${recydsView.pairedWith?.generatedAt}, not ${currentShares.generatedAt} — player_reception_yds withheld`
+    : null;
+const recydsViewPaired = recydsViewReason == null;
+const recydsAlert = (code, detail) => { const line = recydsAlertLine(code, detail); console.log(`::error::${line}`); if (process.env.GTP_RECYDS_ALERTS) fs.appendFileSync(process.env.GTP_RECYDS_ALERTS, line + "\n"); };
+// N8-recyds-view:end
 const mapping = loadScoringBridgeMapping({ fs, path, cwd: APP });
 const calibration = loadTdCalibrationReceipt({ fs, path, cwd: APP });
 const propsFit = loadPlayerPropsFit({ fs, path, cwd: APP });
@@ -208,6 +222,27 @@ function eventTeamPlayerProps({ ev, teamAbbr, roleRates, evPropsFit, wrapped }) 
     : { state: "ABSTAIN", reason: "no corpus-backed role/rate evidence for this roster — mass belongs to OTHER, not to a guess" };
 }
 
+// N8-recyds-view:begin
+/* N8 parity fix — RECEIVING YARDS ONLY. A second run of the same engine, same seed and fit, whose target shares come
+   from the receiving-yards share view (the evaluated allocation rule, receiving-yards-share-view.mjs). Only its
+   player_reception_yds replaces the shared run's; every other market (passing, rushing, receptions) is the shared
+   run's own object, unchanged. Kept OUT of eventTeamPlayerProps (a served-series fingerprint declaration).
+   A missing, unpaired or unreproduced view withholds the market LOUDLY (::error:: line + typed reason on the
+   artifact, which the board turns into the family's withheldTeams entry) — never a silent fallback to the
+   normalised shares under the new pipeline's name. Mutates `props` in place (a fresh engine result). */
+function receivingYardsProps({ props, roleRates, teamAbbr, ev, evPropsFit, wrapped }) {
+  if (props.state !== "SIMULATED") return;
+  const recydsComposed = recydsViewPaired
+    ? composeReceivingYardsRoleRates({ base: roleRates, currentTeam: currentShares.teams[teamAbbr], viewTeam: recydsView.teams?.[teamAbbr], thresholds: THRESH })
+    : { state: "REFUSED", reason: recydsViewReason };
+  const recyds = recydsComposed.state === "READY"
+    ? simulatePlayerProps({ event: ev, teamAbbr, fit: evPropsFit, strengthState: wrapped, roleRates: recydsComposed.roleRates, artifactDate: DATE, runs: Math.min(RUNS, 5000) })
+    : null;
+  Object.assign(props, mergeReceivingYards({ base: props, composed: recydsComposed, recyds }));
+  if (props.receivingYards?.state !== "SIMULATED") recydsAlert("RECYDS_WITHHELD", `${ev.providerEventId} ${teamAbbr}: ${props.receivingYards?.reason}`);
+}
+// N8-recyds-view:end
+
 // ---------------------------------------------------------------- run the chain per event
 const outDir = path.join(ROOT, "data/internal/nfl/current", DATE);
 fs.mkdirSync(outDir, { recursive: true });
@@ -226,6 +261,9 @@ for (const ev of events) {
     const teamAbbr = ev[side].abbr;
     const roleRates = composeRoleRates(teamAbbr);
     const props = eventTeamPlayerProps({ ev, teamAbbr, roleRates, evPropsFit, wrapped });
+    // N8-recyds-view:begin
+    receivingYardsProps({ props, roleRates, teamAbbr, ev, evPropsFit, wrapped });
+    // N8-recyds-view:end
     if (props.state === "SIMULATED" && (ev.seasonType ?? 0) === 1) {
       props.preseasonCaveat = "volumes are regular-season-shaped: preseason snap scripting is unmodeled — one more reason these distributions stay RESEARCH-only and unpublishable in this window";
     }

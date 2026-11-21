@@ -135,6 +135,10 @@ export const PINNED_REGISTRATIONS = Object.freeze({
   // s1 (9fd523d6b4) and s2 (3f8ff69abb) were superseded before their first week: never pinned, never graded.
   // series s3 — registered 2026-11-16T01:28:14Z
   "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s3.json": "dd7c00ea75b150650de7934fe3c0ee0bc7f06dc1",
+  // series s4 — the corrected receiving-yards pipeline (N8 parity fix), registered 2026-11-16T02:07:48Z in a DRAFT
+  // branch on top of s3. Earlier s4 registrations (1952a1023f protocol-s4.json; e967b256f6 protocol-s4-r2.json) were
+  // superseded before their first week and are never pinned. Re-register if this merges after its first week started.
+  "data/internal/research/nfl/reports/player-props-v1-reception-yds-forward-protocol-s4-r3.json": "dca68d4732c3888d2dd34539c9c565c5b44e5da5",
 });
 
 /**
@@ -238,6 +242,10 @@ export function classifyEvent(ev, { asOf, model, series }) {
   if (rev.servedModel === model.shareLevelModelId) return EVENT_CODE.SHARE_LEVEL_SERVED;
   if (rev.servedModel !== model.servedModelId) return EVENT_CODE.NOT_PROPS_V1;
   if (rev.pipelineVersion !== series.pipelineVersion) return EVENT_CODE.OTHER_PIPELINE_VERSION;
+  /* The board's own record of the receiving-yards pipeline (family.pipelineVersion, written since the N8 parity fix)
+     must equal the series' boardPipelineLabel (absent = a board that names none, i.e. every pre-fix board). A second,
+     independent identity check: a series never counts a board that says it was computed another way. */
+  if ((rev.family?.pipelineVersion ?? null) !== (series.boardPipelineLabel ?? null)) return EVENT_CODE.OTHER_PIPELINE_VERSION;
   if (!ev.final) return EVENT_CODE.PENDING_NOT_FINAL;
   if ((ev.sheetMissing ?? []).length) return EVENT_CODE.PENDING_NO_SNAP_SHEET;
   if (!(ev.servedRows > 0)) return EVENT_CODE.NO_SERVED_ROWS;
