@@ -1,0 +1,162 @@
+{
+  "protocol": "mlb-runline-market-eval@1",
+  "gradedRunLineRows": 810,
+  "scored": 805,
+  "excluded": {
+    "NO_MARKET_QUOTE": 5
+  },
+  "all": {
+    "games": 805,
+    "homeCoverRate": 0.4956521739130435,
+    "scoring": {
+      "event": "home side covers its posted line",
+      "model": {
+        "logLoss": 0.6943773693480121,
+        "brier": 0.2490696621118012
+      },
+      "market": {
+        "logLoss": 0.665663474441921,
+        "brier": 0.23643253959006233
+      },
+      "modelMinusMarket": {
+        "logLoss": 0.028713894906091532,
+        "logLoss95": [
+          0.012441510344211813,
+          0.045311120816515206
+        ],
+        "brier": 0.012637122521739114,
+        "brier95": [
+          0.005227008161490683,
+          0.020090091565217384
+        ]
+      },
+      "note": "lower is better; an interval that excludes 0 is the only basis for calling a difference established"
+    },
+    "picks": {
+      "gradedPicksOnPostedSide": 489,
+      "rawHitRate": 0.6032719836400818,
+      "marketExpectedHitRate": 0.5640836400817995,
+      "plusSide": 441,
+      "minusSide": 48,
+      "meanModelMinusMarketOnPick": 0.03236830265848673,
+      "hitRateMinusMarketExpected95": [
+        -0.003547034764826177,
+        0.08183783231083844
+      ],
+      "hypotheticalFlatStakeReturnPerUnit": 0.02293752342486772,
+      "hypotheticalFlatStakeReturn95": [
+        -0.05145770341891153,
+        0.09790886560292768
+      ],
+      "gradedPicksOnUnpostedSide": 316,
+      "note": "descriptive; a hit rate above 50% at +1.5 is the base rate, the market-expected rate is the floor"
+    },
+    "marketCalibration": {
+      "meanMarketHome": 0.4881313043478262,
+      "observedHomeCover": 0.4956521739130435
+    }
+  },
+  "regularSeason": {
+    "games": 781,
+    "homeCoverRate": 0.499359795134443,
+    "scoring": {
+      "event": "home side covers its posted line",
+      "model": {
+        "logLoss": 0.6958350539299736,
+        "brier": 0.24972008962868109
+      },
+      "market": {
+        "logLoss": 0.6653479348834236,
+        "brier": 0.23628356952624854
+      },
+      "modelMinusMarket": {
+        "logLoss": 0.030487119046549858,
+        "logLoss95": [
+          0.013970573908880271,
+          0.04720893357372677
+        ],
+        "brier": 0.013436520102432768,
+        "brier95": [
+          0.005910385313700394,
+          0.021091994839948773
+        ]
+      },
+      "note": "lower is better; an interval that excludes 0 is the only basis for calling a difference established"
+    },
+    "picks": {
+      "gradedPicksOnPostedSide": 470,
+      "rawHitRate": 0.6042553191489362,
+      "marketExpectedHitRate": 0.5623706382978723,
+      "plusSide": 423,
+      "minusSide": 47,
+      "meanModelMinusMarketOnPick": 0.033361276595744706,
+      "hitRateMinusMarketExpected95": [
+        -0.0020314893617021275,
+        0.08534978723404259
+      ],
+      "hypotheticalFlatStakeReturnPerUnit": 0.026883132960119984,
+      "hypotheticalFlatStakeReturn95": [
+        -0.04974028313361446,
+        0.10372563360933923
+      ],
+      "gradedPicksOnUnpostedSide": 311,
+      "note": "descriptive; a hit rate above 50% at +1.5 is the base rate, the market-expected rate is the floor"
+    },
+    "marketCalibration": {
+      "meanMarketHome": 0.48912163892445576,
+      "observedHomeCover": 0.499359795134443
+    }
+  },
+  "postseason": {
+    "games": 24,
+    "homeCoverRate": 0.375,
+    "scoring": {
+      "event": "home side covers its posted line",
+      "model": {
+        "logLoss": 0.6469418835766897,
+        "brier": 0.22790366666666673
+      },
+      "market": {
+        "logLoss": 0.67593165757468,
+        "brier": 0.24128027375000002
+      },
+      "modelMinusMarket": {
+        "logLoss": -0.0289897739979902,
+        "logLoss95": [
+          -0.07184687720616696,
+          0.012426837609867377
+        ],
+        "brier": -0.01337660708333333,
+        "brier95": [
+          -0.03344369708333334,
+          0.0060867516666666685
+        ]
+      },
+      "note": "lower is better; an interval that excludes 0 is the only basis for calling a difference established"
+    },
+    "picks": {
+      "gradedPicksOnPostedSide": 19,
+      "rawHitRate": 0.5789473684210527,
+      "marketExpectedHitRate": 0.6064578947368421,
+      "plusSide": 18,
+      "minusSide": 1,
+      "meanModelMinusMarketOnPick": 0.0078052631578947014,
+      "hitRateMinusMarketExpected95": [
+        -0.24974736842105266,
+        0.19315263157894733
+      ],
+      "hypotheticalFlatStakeReturnPerUnit": -0.07466439665768829,
+      "hypotheticalFlatStakeReturn95": [
+        -0.4374430895054729,
+        0.28942962607035116
+      ],
+      "gradedPicksOnUnpostedSide": 5,
+      "note": "descriptive; a hit rate above 50% at +1.5 is the base rate, the market-expected rate is the floor"
+    },
+    "marketCalibration": {
+      "meanMarketHome": 0.4559041666666666,
+      "observedHomeCover": 0.375
+    }
+  },
+  "productEligibility": "NOT_DETERMINED — this protocol measures; it grants nothing and unpauses nothing"
+}
