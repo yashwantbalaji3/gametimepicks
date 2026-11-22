@@ -1,8 +1,8 @@
 {
   "kind": "daily-owner-slo",
   "date": "2026-11-21",
-  "checkedAt": "2026-11-22T02:24:43.768Z",
-  "treeHead": "8ee1b1363",
+  "checkedAt": "2026-11-22T03:25:32.427Z",
+  "treeHead": "2a15b7a7c",
   "state": "INCIDENT",
   "scheduleSource": "mlb-statsapi",
   "scheduledMlb": 0,
@@ -100,8 +100,8 @@
     },
     {
       "id": "ufc-card",
-      "state": "HEALTHY",
-      "reason": "receipt present",
+      "state": "STALE",
+      "reason": "receipt is 30.4h old against a 30h bound",
       "dueAtIso": "2026-11-21T13:00:00.000Z",
       "receiptAt": "2026-11-20T21:02:48Z",
       "label": "UFC card + model read",
@@ -111,8 +111,8 @@
     },
     {
       "id": "ufc-lane",
-      "state": "HEALTHY",
-      "reason": "receipt present",
+      "state": "STALE",
+      "reason": "receipt is 30.4h old against a 30h bound",
       "dueAtIso": "2026-11-21T13:00:00.000Z",
       "receiptAt": "2026-11-20T21:03:43Z",
       "label": "UFC lane status",
@@ -136,7 +136,7 @@
     {
       "id": "nfl-markets",
       "state": "STALE",
-      "reason": "receipt is 998.7h old against a 48h bound",
+      "reason": "receipt is 999.7h old against a 48h bound",
       "dueAtIso": "2026-11-21T15:00:00.000Z",
       "receiptAt": "2026-10-11T11:41:55Z",
       "label": "NFL market capture",
