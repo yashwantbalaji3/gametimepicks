@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-22T16:16:44Z",
- "sourceGeneratedAt": "2026-11-22T16:16:44Z",
+ "generatedAt": "2026-11-22T16:54:41Z",
+ "sourceGeneratedAt": "2026-11-22T16:54:41Z",
  "forecastInputHash": "15d311680be3f24e",
  "providerEventId": "401873073",
  "matchup": "TEN @ DAL",
@@ -12,8 +12,8 @@
  "week": 11,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-22T16:16:44Z",
-  "roleEvidenceAt": "2026-11-22T16:16:44Z",
+  "injuriesCapturedAt": "2026-11-22T16:54:41Z",
+  "roleEvidenceAt": "2026-11-22T16:54:41Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -109,14 +109,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 50,
+  "absent": 48,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "TEN": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 2,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -155,7 +155,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4883647",
@@ -176,16 +176,6 @@
       "anytime_td",
       "player_reception_yds",
       "player_receptions"
-     ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4685555",
-     "name": "Nicholas Singleton",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
@@ -252,6 +242,12 @@
      "name": "Tyjae Spears",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-4685555",
+     "name": "Nicholas Singleton",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     }
    ]
   },
@@ -433,6 +429,19 @@
     "state": "CONSERVED"
    },
    {
+    "team": "TEN",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.9008,
+    "originalSum": 0.9008,
+    "residualOther": 0.0992,
+    "joined": 8,
+    "missed": 0,
+    "state": "CONSERVED"
+   },
+   {
     "team": "DAL",
     "pool": "targets",
     "markets": [
@@ -444,19 +453,6 @@
     "joined": 5,
     "missed": 0,
     "state": "CONSERVED"
-   },
-   {
-    "team": "TEN",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.6326,
-    "originalSum": 0.6326,
-    "residualOther": 0.3674,
-    "joined": 7,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
    }
   ],
   "violations": 0
@@ -508,11 +504,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T04:06Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -565,11 +561,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -611,11 +607,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T04:01Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -657,11 +653,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T03:11Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -703,11 +699,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T01:44Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -716,7 +712,7 @@
    "playerId": "nfl-athlete-4871023",
    "name": "Carnell Tate",
    "team": "TEN",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 57.871,
@@ -744,19 +740,16 @@
    "eligibility": {
     "state": "ELIGIBLE",
     "reasons": [],
-    "flags": [
-     "QUESTIONABLE"
-    ],
     "contractVersion": "eligibility@1",
     "sources": {
      "injuries": {
-      "status": "Questionable",
-      "statedAt": "2026-11-22T12:40Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "status": "Active",
+      "statedAt": "2026-11-22T16:33Z",
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -792,17 +785,19 @@
    },
    "eligibility": {
     "state": "ELIGIBLE",
-    "reasons": [],
+    "reasons": [
+     "ROSTER_ACTIVE"
+    ],
     "contractVersion": "eligibility@1",
     "sources": {
      "injuries": {
-      "status": "Active",
-      "statedAt": "2026-11-16T02:17Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "status": null,
+      "statedAt": null,
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -847,11 +842,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -893,11 +888,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-18T01:54Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -921,11 +916,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-17T01:24Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -968,11 +963,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T03:58Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -1014,48 +1009,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T05:11Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
-     }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4685555",
-   "name": "Nicholas Singleton",
-   "team": "TEN",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
-   "markets": {
-    "player_rush_yds": {
-     "mean": 7.943,
-     "p10": 0,
-     "p25": 0,
-     "median": 3.38,
-     "p75": 11.76,
-     "p90": 23.24,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.099,
-     "pricingState": "NOT_PROBED"
-    }
-   },
-   "eligibility": {
-    "state": "ELIGIBLE",
-    "reasons": [],
-    "contractVersion": "eligibility@1",
-    "sources": {
-     "injuries": {
-      "status": "Active",
-      "statedAt": "2026-11-16T20:09Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
-     },
-     "roster": {
-      "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -1097,11 +1055,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-17T05:13Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -1143,11 +1101,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-17T05:09Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -1189,11 +1147,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-17T01:37Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -1226,11 +1184,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-18T15:25Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
@@ -1259,11 +1217,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-21T20:17Z",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-22T16:16:44Z"
+      "fetchedAt": "2026-11-22T16:54:41Z"
      }
     }
    }
