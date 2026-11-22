@@ -2,245 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-22T21:15:12Z",
+  "generatedAt": "2026-11-22T23:36:54Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 4,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 4,
-    "eventsWithAMaterialExclusion": 2,
+    "upcomingEvents": 2,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
+    "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873075",
-      "matchup": "LV @ DEN",
-      "kickoffUtc": "2026-11-22T21:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "d45f6b433d8d1eae",
-        "simulations": 10000,
-        "generatedAt": "2026-11-22T21:15:12Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-22T21:15:12Z",
-        "participationInputHash": "7aa8c5602f148de2",
-        "excludedCount": 9,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "RJ Harvey",
-            "team": "DEN",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Tyler Badie",
-            "team": "DEN",
-            "state": "roster day-to-day",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Lil'Jordan Humphrey",
-            "team": "DEN",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Lucas Krull",
-            "team": "DEN",
-            "state": "roster practice-squad",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Michael Bandy",
-            "team": "DEN",
-            "state": "roster practice-squad",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Frank Crum",
-            "team": "DEN",
-            "state": "roster day-to-day",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Brock Bowers",
-            "team": "LV",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Dont'e Thornton Jr.",
-            "team": "LV",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Malik Benson",
-            "team": "LV",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
-    {
-      "sport": "nfl",
-      "eventId": "401873069",
-      "matchup": "JAX @ NYG",
-      "kickoffUtc": "2026-11-22T21:25Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "80de57d658964e23",
-        "simulations": 10000,
-        "generatedAt": "2026-11-22T21:15:12Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-22T21:15:12Z",
-        "participationInputHash": "b78b75b8b210c7e3",
-        "excludedCount": 10,
-        "materialExclusions": [
-          {
-            "name": "Jaxson Dart",
-            "team": "NYG",
-            "state": "roster day-to-day",
-            "statedAt": "2026-11-22T21:15:12Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Gunner Olszewski",
-            "team": "NYG",
-            "state": "roster day-to-day",
-            "statedAt": "2026-11-22T21:15:12Z",
-            "families": [
-              "passAttempts",
-              "targets"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Jaxson Dart",
-            "team": "NYG",
-            "state": "roster day-to-day",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Gunner Olszewski",
-            "team": "NYG",
-            "state": "roster day-to-day",
-            "families": [
-              "passAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Tyrone Tracy Jr.",
-            "team": "NYG",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Greg Desrosiers Jr.",
-            "team": "NYG",
-            "state": "Out",
-            "families": [
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Eric Gray",
-            "team": "NYG",
-            "state": "roster practice-squad",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Thomas Fidone II",
-            "team": "NYG",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Braxton Berrios",
-            "team": "NYG",
-            "state": "roster day-to-day",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Charlie Jones",
-            "team": "NYG",
-            "state": "roster practice-squad",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Austin Trammell",
-            "team": "JAX",
-            "state": "roster practice-squad",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Tim Jones",
-            "team": "JAX",
-            "state": "roster practice-squad",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873077",
@@ -251,13 +23,13 @@
         "version": 2,
         "inputHash": "adbddc4069305d77",
         "simulations": 10000,
-        "generatedAt": "2026-11-22T21:15:12Z"
+        "generatedAt": "2026-11-22T23:36:54Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-22T21:15:12Z",
-        "participationInputHash": "c7859de9a1102f30",
+        "snapshotAsOf": "2026-11-22T23:36:54Z",
+        "participationInputHash": "07a3cf12d30eb24f",
         "excludedCount": 8,
         "materialExclusions": [
           {
@@ -353,13 +125,13 @@
         "version": 2,
         "inputHash": "40bacc571fc13f85",
         "simulations": 10000,
-        "generatedAt": "2026-11-22T21:15:12Z"
+        "generatedAt": "2026-11-22T23:36:54Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-22T21:15:12Z",
-        "participationInputHash": "8b8bb8b63a911193",
+        "snapshotAsOf": "2026-11-22T23:36:54Z",
+        "participationInputHash": "153dc00dcabb5a57",
         "excludedCount": 9,
         "materialExclusions": [],
         "excluded": [
