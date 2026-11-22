@@ -14,9 +14,9 @@
   },
   "NFL": {
    "nfl.espn-player-events": "2026-11-20T01:15Z",
-   "nfl.espn-results": "2026-11-20T17:43:45Z",
-   "nfl.espn-rosters": "2026-11-22T16:16:44Z",
-   "nfl.espn-schedule": "2026-11-21T16:45:01Z",
+   "nfl.espn-results": "2026-11-22T17:04:31Z",
+   "nfl.espn-rosters": "2026-11-22T17:08:18Z",
+   "nfl.espn-schedule": "2026-11-22T17:04:22Z",
    "nfl.nflverse-current-season": "2026-11-20T17:48:17Z",
    "nfl.nflverse-games-history": "2026-02-08",
    "nfl.nflverse-id-bridge": "2026-11-17T19:58:32Z"
@@ -24,7 +24,7 @@
   "UFC": {
    "ufc.espn-history": "2026-08-09T00:00Z",
    "ufc.espn-results": "2026-11-22T16:03:12Z",
-   "ufc.espn-schedule": "2026-11-21T16:45:02Z"
+   "ufc.espn-schedule": "2026-11-22T17:04:23Z"
   }
  },
  "note": "Every committed artifact the builder read, fingerprinted. Internal only — repository-relative paths never reach a public projection.",
@@ -5316,7 +5316,7 @@
     {
      "bytes": 22628186,
      "path": "app/public/data/mlb/results/settled_leans.jsonl",
-     "sha256": "ab3ab6c87ef753d6f04693d6315a00a4fd4b18c3b52cfecd3d42a94132582f98"
+     "sha256": "92d3f7384a74b7772ea5a57518b444f332b61995bef65af3cf64005a5b11c88b"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
@@ -5801,7 +5801,7 @@
     {
      "bytes": 962697,
      "path": "data/internal/research/nfl/player-events-v1/2026.json",
-     "sha256": "8d960d02da15063dd6ac702f11214ffe0c52e825c88ce93b5dfd0af690df2263"
+     "sha256": "ef76d927478a48e2ff1175cfbcae7d7a51c93875a88ddc8f164b432ae61ff93e"
     }
    ],
    "dataClass": "PRIVATE_RESEARCH",
@@ -5814,9 +5814,9 @@
    "artifactCount": 1,
    "artifacts": [
     {
-     "bytes": 7222,
+     "bytes": 11665,
      "path": "app/public/data/nfl/results/latest.json",
-     "sha256": "f8002284638abd49e3b5f683c6996740c0a3c89b833ba6b2ec9477aa27ebafb3"
+     "sha256": "9605ba6d01c6ee003a7415328053ced6a006603d80e2778669f492cb81b9a613"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
@@ -5826,7 +5826,7 @@
    "timeMeaning": "dateUtc = kickoff; capturedAt = fetch time; STATUS_FINAL rows only"
   },
   {
-   "artifactCount": 562,
+   "artifactCount": 564,
    "artifacts": [
     {
      "bytes": 355693,
@@ -8635,8 +8635,18 @@
     },
     {
      "bytes": 310485,
+     "path": "app/public/data/nfl/rosters/capture-2026-11-22T1654.json",
+     "sha256": "64a8cfb9eeec79eb21e4dbeda9dfb136078e230417ca6989fd67e7f441948501"
+    },
+    {
+     "bytes": 310485,
+     "path": "app/public/data/nfl/rosters/capture-2026-11-22T1708.json",
+     "sha256": "89c7933f1cf79fa8a969103525e8b7bdd7e74c60ebe7bff0c8633efc6eb2b7eb"
+    },
+    {
+     "bytes": 310485,
      "path": "app/public/data/nfl/rosters/latest.json",
-     "sha256": "c205a5f8156130caa0e5c14657d6303d30dc194d8d4474f4b02ece253a6956e3"
+     "sha256": "89c7933f1cf79fa8a969103525e8b7bdd7e74c60ebe7bff0c8633efc6eb2b7eb"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
@@ -8646,7 +8656,7 @@
    "timeMeaning": "generatedAt/sourceAsOf = capture time"
   },
   {
-   "artifactCount": 82,
+   "artifactCount": 83,
    "artifacts": [
     {
      "bytes": 7620,
@@ -9054,9 +9064,14 @@
      "sha256": "271893f3b564ac3296d3775fd3a4cf40352d11f00db005e9c0fa8652fd7210bf"
     },
     {
-     "bytes": 12520,
+     "bytes": 13067,
+     "path": "app/public/data/nfl/schedule/capture-2026-11-22T1704.json",
+     "sha256": "aab4283d75232be7727509f2a40b0097d3b2b999044b69a8094b16c5e15c79f6"
+    },
+    {
+     "bytes": 13067,
      "path": "app/public/data/nfl/schedule/latest.json",
-     "sha256": "271893f3b564ac3296d3775fd3a4cf40352d11f00db005e9c0fa8652fd7210bf"
+     "sha256": "aab4283d75232be7727509f2a40b0097d3b2b999044b69a8094b16c5e15c79f6"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
@@ -9156,7 +9171,7 @@
    "timeMeaning": "dateUtc = bout instant; capturedAt = fetch time; STATUS_FINAL only"
   },
   {
-   "artifactCount": 213,
+   "artifactCount": 214,
    "artifacts": [
     {
      "bytes": 31810,
@@ -10222,6 +10237,11 @@
      "bytes": 12865,
      "path": "app/public/data/ufc/schedule/capture-2026-11-21T1645.json",
      "sha256": "261382564399d97c5c3ebee64dc556910977eaad3a9f9094448b1ff988823974"
+    },
+    {
+     "bytes": 13205,
+     "path": "app/public/data/ufc/schedule/capture-2026-11-22T1704.json",
+     "sha256": "dd22bf243dadf62bbef25f3c088874fceef2260be71c9d484b4fb021379fa800"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
