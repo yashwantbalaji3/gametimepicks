@@ -2,135 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-22T21:02:39Z",
+  "generatedAt": "2026-11-22T21:15:12Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 5,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 5,
-    "eventsWithAMaterialExclusion": 3,
+    "upcomingEvents": 4,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 4,
+    "eventsWithAMaterialExclusion": 2,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873074",
-      "matchup": "NYJ @ LAC",
-      "kickoffUtc": "2026-11-22T21:05Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "a2a5a2644652c7a7",
-        "simulations": 10000,
-        "generatedAt": "2026-11-22T19:21:43Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-22T21:02:39Z",
-        "participationInputHash": "6cd67fdfcdd3d5e7",
-        "excludedCount": 10,
-        "materialExclusions": [
-          {
-            "name": "Trey Lance",
-            "team": "LAC",
-            "state": "roster day-to-day",
-            "statedAt": "2026-11-22T21:02:39Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Trey Lance",
-            "team": "LAC",
-            "state": "roster day-to-day",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Amar Johnson",
-            "team": "LAC",
-            "state": "roster practice-squad",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "KeAndre Lambert-Smith",
-            "team": "LAC",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Brenen Thompson",
-            "team": "LAC",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Alec Ingold",
-            "team": "LAC",
-            "state": "roster day-to-day",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Trevor Penning",
-            "team": "LAC",
-            "state": "roster day-to-day",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Isaiah Williams",
-            "team": "NYJ",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Omar Cooper Jr.",
-            "team": "NYJ",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Jelani Woods",
-            "team": "NYJ",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Arian Smith",
-            "team": "NYJ",
-            "state": "roster day-to-day",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873075",
@@ -141,13 +23,13 @@
         "version": 2,
         "inputHash": "d45f6b433d8d1eae",
         "simulations": 10000,
-        "generatedAt": "2026-11-22T19:21:43Z"
+        "generatedAt": "2026-11-22T21:15:12Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-22T21:02:39Z",
-        "participationInputHash": "a5d83b7c140f6429",
+        "snapshotAsOf": "2026-11-22T21:15:12Z",
+        "participationInputHash": "7aa8c5602f148de2",
         "excludedCount": 9,
         "materialExclusions": [],
         "excluded": [
@@ -240,20 +122,20 @@
         "version": 2,
         "inputHash": "80de57d658964e23",
         "simulations": 10000,
-        "generatedAt": "2026-11-22T19:21:43Z"
+        "generatedAt": "2026-11-22T21:15:12Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-22T21:02:39Z",
-        "participationInputHash": "ebe7eb71a28fca4e",
+        "snapshotAsOf": "2026-11-22T21:15:12Z",
+        "participationInputHash": "b78b75b8b210c7e3",
         "excludedCount": 10,
         "materialExclusions": [
           {
             "name": "Jaxson Dart",
             "team": "NYG",
             "state": "roster day-to-day",
-            "statedAt": "2026-11-22T21:02:39Z",
+            "statedAt": "2026-11-22T21:15:12Z",
             "families": [
               "passAttempts",
               "rushAttempts"
@@ -263,7 +145,7 @@
             "name": "Gunner Olszewski",
             "team": "NYG",
             "state": "roster day-to-day",
-            "statedAt": "2026-11-22T21:02:39Z",
+            "statedAt": "2026-11-22T21:15:12Z",
             "families": [
               "passAttempts",
               "targets"
@@ -369,13 +251,13 @@
         "version": 2,
         "inputHash": "adbddc4069305d77",
         "simulations": 10000,
-        "generatedAt": "2026-11-22T19:21:43Z"
+        "generatedAt": "2026-11-22T21:15:12Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-22T21:02:39Z",
-        "participationInputHash": "17b296b135115346",
+        "snapshotAsOf": "2026-11-22T21:15:12Z",
+        "participationInputHash": "c7859de9a1102f30",
         "excludedCount": 8,
         "materialExclusions": [
           {
@@ -471,13 +353,13 @@
         "version": 2,
         "inputHash": "40bacc571fc13f85",
         "simulations": 10000,
-        "generatedAt": "2026-11-22T19:21:43Z"
+        "generatedAt": "2026-11-22T21:15:12Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-22T21:02:39Z",
-        "participationInputHash": "e53c6d330de2fdc1",
+        "snapshotAsOf": "2026-11-22T21:15:12Z",
+        "participationInputHash": "8b8bb8b63a911193",
         "excludedCount": 9,
         "materialExclusions": [],
         "excluded": [

@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-22T21:02:39Z",
+ "generatedAt": "2026-11-22T21:15:12Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,23 +17,23 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 21,
+  "scheduledUpcoming": 20,
   "forecastsTotal": 13,
-  "forecastsUpcoming": 5,
-  "forecastsStarted": 8,
+  "forecastsUpcoming": 4,
+  "forecastsStarted": 9,
   "marketEvents": 14,
   "settled": 2
  },
- "nextKickoffUtc": "2026-11-22T21:05Z",
- "nextMatchup": "NYJ @ LAC",
- "nextForecastUtc": "2026-11-22T21:05Z",
- "nextForecastMatchup": "NYJ @ LAC",
+ "nextKickoffUtc": "2026-11-22T21:25Z",
+ "nextMatchup": "LV @ DEN",
+ "nextForecastUtc": "2026-11-22T21:25Z",
+ "nextForecastMatchup": "LV @ DEN",
  "marketCapturedAt": "2026-10-11T11:41:55Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-22T20:59:35Z",
+  "generatedAt": "2026-11-22T21:02:39Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -70,47 +70,6 @@
   "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: regular-season cohort; season types never share an aggregate."
  },
  "events": [
-  {
-   "providerEventId": "401873074",
-   "canonicalEventId": "nfl-401873074",
-   "matchup": "NYJ @ LAC",
-   "home": {
-    "abbr": "LAC",
-    "name": "Los Angeles Chargers"
-   },
-   "away": {
-    "abbr": "NYJ",
-    "name": "New York Jets"
-   },
-   "kickoffUtc": "2026-11-22T21:05Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 25,
-    "away": 18,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.6262,
-    "away": 0.3467
-   },
-   "total": {
-    "median": 43,
-    "p10": 26,
-    "p90": 60,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": false,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "a2a5a2644652c7a7",
-    "generatedAt": "2026-11-22T19:21:43Z"
-   }
-  },
   {
    "providerEventId": "401873075",
    "canonicalEventId": "nfl-401873075",
@@ -149,7 +108,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "d45f6b433d8d1eae",
-    "generatedAt": "2026-11-22T19:21:43Z"
+    "generatedAt": "2026-11-22T21:15:12Z"
    }
   },
   {
@@ -190,7 +149,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "80de57d658964e23",
-    "generatedAt": "2026-11-22T19:21:43Z"
+    "generatedAt": "2026-11-22T21:15:12Z"
    }
   },
   {
@@ -231,7 +190,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "adbddc4069305d77",
-    "generatedAt": "2026-11-22T19:21:43Z"
+    "generatedAt": "2026-11-22T21:15:12Z"
    }
   },
   {
@@ -272,7 +231,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "40bacc571fc13f85",
-    "generatedAt": "2026-11-22T19:21:43Z"
+    "generatedAt": "2026-11-22T21:15:12Z"
    }
   },
   {
@@ -600,6 +559,47 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "f6dfda5e6464f713",
+    "generatedAt": "2026-11-22T00:59:18Z"
+   }
+  },
+  {
+   "providerEventId": "401873074",
+   "canonicalEventId": "nfl-401873074",
+   "matchup": "NYJ @ LAC",
+   "home": {
+    "abbr": "LAC",
+    "name": "Los Angeles Chargers"
+   },
+   "away": {
+    "abbr": "NYJ",
+    "name": "New York Jets"
+   },
+   "kickoffUtc": "2026-11-22T21:05Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 25,
+    "away": 18,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.6262,
+    "away": 0.3467
+   },
+   "total": {
+    "median": 43,
+    "p10": 26,
+    "p90": 60,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "a2a5a2644652c7a7",
     "generatedAt": "2026-11-22T00:59:18Z"
    }
   }

@@ -2,14 +2,14 @@
   "schemaVersion": 1,
   "artifact": "nfl-weekly-boards",
   "dataClass": "PUBLIC",
-  "generatedAt": "2026-11-22T21:02:39Z",
+  "generatedAt": "2026-11-22T21:15:12Z",
   "period": {
     "seasonType": 2,
     "week": 11
   },
   "scope": {
     "kind": "FULL_WEEK",
-    "eventsIncluded": 5,
+    "eventsIncluded": 4,
     "eventsDroppedAfterKickoff": 0
   },
   "model": {
@@ -91,13 +91,6 @@
       ],
       "excludedForAvailability": [
         {
-          "playerId": "nfl-athlete-3134353",
-          "name": "Tim Patrick",
-          "team": "NYJ",
-          "providerEventId": "401873074",
-          "reason": "ELIGIBILITY_SOURCES_DISAGREE"
-        },
-        {
           "playerId": "nfl-athlete-4600981",
           "name": "Pat Bryant",
           "team": "DEN",
@@ -137,13 +130,8 @@
       "basis": "Share-level model: cleared every bar when re-tested on 2014–2021 (27,134 player-games) — a second look at seasons examined once before, not a blind test. Each week's forecast is frozen before the first kickoff and graded; its blind 2026 record is holding every bar (1680 graded player-games).",
       "conservation": {
         "version": "nfl-share-conservation-v1",
-        "teamsReconciled": 2,
+        "teamsReconciled": 1,
         "teams": [
-          {
-            "team": "LAC",
-            "factor": 0.8941,
-            "originalSum": 1.1185
-          },
           {
             "team": "SF",
             "factor": 0.9921,
@@ -201,20 +189,6 @@
           "opponent": "SF",
           "providerEventId": "401873077",
           "kickoffUtc": "2026-11-23T01:20Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 5,
-          "p10": 2,
-          "median": 5,
-          "p90": 11,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4569618",
-          "name": "Garrett Wilson",
-          "team": "NYJ",
-          "opponent": "LAC",
-          "providerEventId": "401873074",
-          "kickoffUtc": "2026-11-22T21:05Z",
           "participation": "AVAILABLE_ROLE_UNCERTAIN",
           "value": 5,
           "p10": 2,
@@ -291,16 +265,23 @@
           "median": 4,
           "p90": 8,
           "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4432620",
+          "name": "Parker Washington",
+          "team": "JAX",
+          "opponent": "NYG",
+          "providerEventId": "401873069",
+          "kickoffUtc": "2026-11-22T21:25Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 4,
+          "p10": 1,
+          "median": 4,
+          "p90": 8,
+          "pricingState": "NOT_PROBED"
         }
       ],
       "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-3134353",
-          "name": "Tim Patrick",
-          "team": "NYJ",
-          "providerEventId": "401873074",
-          "reason": "ELIGIBILITY_SOURCES_DISAGREE"
-        },
         {
           "playerId": "nfl-athlete-4600981",
           "name": "Pat Bryant",
@@ -377,20 +358,6 @@
           "pricingState": "NOT_PROBED"
         },
         {
-          "playerId": "nfl-athlete-4685247",
-          "name": "Braelon Allen",
-          "team": "NYJ",
-          "opponent": "LAC",
-          "providerEventId": "401873074",
-          "kickoffUtc": "2026-11-22T21:05Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 41.99,
-          "p10": 12,
-          "median": 42,
-          "p90": 90,
-          "pricingState": "NOT_PROBED"
-        },
-        {
           "playerId": "nfl-athlete-4696981",
           "name": "Cam Skattebo",
           "team": "NYG",
@@ -402,34 +369,6 @@
           "p10": 14,
           "median": 42,
           "p90": 84,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4685382",
-          "name": "Omarion Hampton",
-          "team": "LAC",
-          "opponent": "NYJ",
-          "providerEventId": "401873074",
-          "kickoffUtc": "2026-11-22T21:05Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 40.68,
-          "p10": 14,
-          "median": 41,
-          "p90": 83,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4427366",
-          "name": "Breece Hall",
-          "team": "NYJ",
-          "opponent": "LAC",
-          "providerEventId": "401873074",
-          "kickoffUtc": "2026-11-22T21:05Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 34.24,
-          "p10": 10,
-          "median": 34,
-          "p90": 72,
           "pricingState": "NOT_PROBED"
         },
         {
@@ -472,6 +411,48 @@
           "p10": 8,
           "median": 32,
           "p90": 70,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4241985",
+          "name": "J.K. Dobbins",
+          "team": "DEN",
+          "opponent": "LV",
+          "providerEventId": "401873075",
+          "kickoffUtc": "2026-11-22T21:25Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 30.82,
+          "p10": 9,
+          "median": 31,
+          "p90": 66,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4696044",
+          "name": "Kaelon Black",
+          "team": "SF",
+          "opponent": "MIN",
+          "providerEventId": "401873077",
+          "kickoffUtc": "2026-11-23T01:20Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 30.18,
+          "p10": 6,
+          "median": 30,
+          "p90": 71,
+          "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-4890973",
+          "name": "Ashton Jeanty",
+          "team": "LV",
+          "opponent": "DEN",
+          "providerEventId": "401873075",
+          "kickoffUtc": "2026-11-22T21:25Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 29.28,
+          "p10": 8,
+          "median": 29,
+          "p90": 61,
           "pricingState": "NOT_PROBED"
         }
       ],
@@ -586,20 +567,6 @@
           "pricingState": "NOT_PROBED"
         },
         {
-          "playerId": "nfl-athlete-4569618",
-          "name": "Garrett Wilson",
-          "team": "NYJ",
-          "opponent": "LAC",
-          "providerEventId": "401873074",
-          "kickoffUtc": "2026-11-22T21:05Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 44.92,
-          "p10": 11,
-          "median": 45,
-          "p90": 99,
-          "pricingState": "NOT_PROBED"
-        },
-        {
           "playerId": "nfl-athlete-3916433",
           "name": "Jakobi Meyers",
           "team": "JAX",
@@ -640,16 +607,23 @@
           "median": 32,
           "p90": 76,
           "pricingState": "NOT_PROBED"
+        },
+        {
+          "playerId": "nfl-athlete-2976212",
+          "name": "Stefon Diggs",
+          "team": "WSH",
+          "opponent": "CIN",
+          "providerEventId": "401873078",
+          "kickoffUtc": "2026-11-24T01:15Z",
+          "participation": "AVAILABLE_ROLE_UNCERTAIN",
+          "value": 30.41,
+          "p10": 4,
+          "median": 30,
+          "p90": 75,
+          "pricingState": "NOT_PROBED"
         }
       ],
       "excludedForAvailability": [
-        {
-          "playerId": "nfl-athlete-3134353",
-          "name": "Tim Patrick",
-          "team": "NYJ",
-          "providerEventId": "401873074",
-          "reason": "ELIGIBILITY_SOURCES_DISAGREE"
-        },
         {
           "playerId": "nfl-athlete-4600981",
           "name": "Pat Bryant",
@@ -754,20 +728,6 @@
           "pricingState": "NOT_PROBED"
         },
         {
-          "playerId": "nfl-athlete-15864",
-          "name": "Geno Smith",
-          "team": "NYJ",
-          "opponent": "LAC",
-          "providerEventId": "401873074",
-          "kickoffUtc": "2026-11-22T21:05Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 202.5137,
-          "p10": 109,
-          "median": 203,
-          "p90": 340,
-          "pricingState": "NOT_PROBED"
-        },
-        {
           "playerId": "nfl-athlete-4426338",
           "name": "Bo Nix",
           "team": "DEN",
@@ -779,20 +739,6 @@
           "p10": 106,
           "median": 193,
           "p90": 320,
-          "pricingState": "NOT_PROBED"
-        },
-        {
-          "playerId": "nfl-athlete-4038941",
-          "name": "Justin Herbert",
-          "team": "LAC",
-          "opponent": "NYJ",
-          "providerEventId": "401873074",
-          "kickoffUtc": "2026-11-22T21:05Z",
-          "participation": "AVAILABLE_ROLE_UNCERTAIN",
-          "value": 190.165,
-          "p10": 100,
-          "median": 190,
-          "p90": 323,
           "pricingState": "NOT_PROBED"
         }
       ],
@@ -808,10 +754,9 @@
     "weekly": {
       "scope": {
         "kind": "FULL_WEEK",
-        "eventsIncluded": 5,
+        "eventsIncluded": 4,
         "eventsDroppedAfterKickoff": 0,
         "events": [
-          "401873074",
           "401873069",
           "401873075",
           "401873077",
@@ -966,20 +911,6 @@
             },
             {
               "rank": 4,
-              "playerId": "nfl-athlete-4685247",
-              "name": "Braelon Allen",
-              "team": "NYJ",
-              "opponent": "LAC",
-              "providerEventId": "401873074",
-              "kickoffUtc": "2026-11-22T21:05Z",
-              "etDate": "2026-11-22",
-              "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 41.99,
-              "p10": 11.76,
-              "p90": 89.77
-            },
-            {
-              "rank": 5,
               "playerId": "nfl-athlete-4696981",
               "name": "Cam Skattebo",
               "team": "NYG",
@@ -991,6 +922,20 @@
               "value": 41.58,
               "p10": 13.94,
               "p90": 84.29
+            },
+            {
+              "rank": 5,
+              "playerId": "nfl-athlete-4702555",
+              "name": "Jonah Coleman",
+              "team": "DEN",
+              "opponent": "LV",
+              "providerEventId": "401873075",
+              "kickoffUtc": "2026-11-22T21:25Z",
+              "etDate": "2026-11-22",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 33.56,
+              "p10": 9.38,
+              "p90": 72.7
             }
           ],
           "availabilityExcluded": 2
@@ -1082,7 +1027,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 4
+          "availabilityExcluded": 3
         },
         {
           "id": "top5_receptions",
@@ -1157,21 +1102,21 @@
             },
             {
               "rank": 5,
-              "playerId": "nfl-athlete-4569618",
-              "name": "Garrett Wilson",
-              "team": "NYJ",
-              "opponent": "LAC",
-              "providerEventId": "401873074",
-              "kickoffUtc": "2026-11-22T21:05Z",
-              "etDate": "2026-11-22",
+              "playerId": "nfl-athlete-4239993",
+              "name": "Tee Higgins",
+              "team": "CIN",
+              "opponent": "WSH",
+              "providerEventId": "401873078",
+              "kickoffUtc": "2026-11-24T01:15Z",
+              "etDate": "2026-11-23",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
               "value": 5,
               "p10": 2,
-              "p90": 11,
+              "p90": 10,
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 4
+          "availabilityExcluded": 3
         },
         {
           "id": "top5_anytime_td",
@@ -1250,7 +1195,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 5
+          "availabilityExcluded": 4
         }
       ]
     },
@@ -1259,10 +1204,9 @@
         "etDate": "2026-11-22",
         "scope": {
           "kind": "FULL_DAY",
-          "eventsIncluded": 4,
+          "eventsIncluded": 3,
           "eventsDroppedAfterKickoff": 0,
           "events": [
-            "401873074",
             "401873069",
             "401873075",
             "401873077"
@@ -1328,20 +1272,6 @@
               },
               {
                 "rank": 4,
-                "playerId": "nfl-athlete-15864",
-                "name": "Geno Smith",
-                "team": "NYJ",
-                "opponent": "LAC",
-                "providerEventId": "401873074",
-                "kickoffUtc": "2026-11-22T21:05Z",
-                "etDate": "2026-11-22",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 202.5137,
-                "p10": 108.6423,
-                "p90": 339.5802
-              },
-              {
-                "rank": 5,
                 "playerId": "nfl-athlete-4426338",
                 "name": "Bo Nix",
                 "team": "DEN",
@@ -1402,20 +1332,6 @@
               },
               {
                 "rank": 3,
-                "playerId": "nfl-athlete-4685247",
-                "name": "Braelon Allen",
-                "team": "NYJ",
-                "opponent": "LAC",
-                "providerEventId": "401873074",
-                "kickoffUtc": "2026-11-22T21:05Z",
-                "etDate": "2026-11-22",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 41.99,
-                "p10": 11.76,
-                "p90": 89.77
-              },
-              {
-                "rank": 4,
                 "playerId": "nfl-athlete-4696981",
                 "name": "Cam Skattebo",
                 "team": "NYG",
@@ -1429,18 +1345,32 @@
                 "p90": 84.29
               },
               {
-                "rank": 5,
-                "playerId": "nfl-athlete-4685382",
-                "name": "Omarion Hampton",
-                "team": "LAC",
-                "opponent": "NYJ",
-                "providerEventId": "401873074",
-                "kickoffUtc": "2026-11-22T21:05Z",
+                "rank": 4,
+                "playerId": "nfl-athlete-4702555",
+                "name": "Jonah Coleman",
+                "team": "DEN",
+                "opponent": "LV",
+                "providerEventId": "401873075",
+                "kickoffUtc": "2026-11-22T21:25Z",
                 "etDate": "2026-11-22",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 40.68,
-                "p10": 14.39,
-                "p90": 82.79
+                "value": 33.56,
+                "p10": 9.38,
+                "p90": 72.7
+              },
+              {
+                "rank": 5,
+                "playerId": "nfl-athlete-4360569",
+                "name": "Jordan Mason",
+                "team": "MIN",
+                "opponent": "SF",
+                "providerEventId": "401873077",
+                "kickoffUtc": "2026-11-23T01:20Z",
+                "etDate": "2026-11-22",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 31.91,
+                "p10": 8.82,
+                "p90": 71.72
               }
             ],
             "availabilityExcluded": 1
@@ -1518,21 +1448,21 @@
               },
               {
                 "rank": 5,
-                "playerId": "nfl-athlete-4569618",
-                "name": "Garrett Wilson",
-                "team": "NYJ",
-                "opponent": "LAC",
-                "providerEventId": "401873074",
-                "kickoffUtc": "2026-11-22T21:05Z",
+                "playerId": "nfl-athlete-3916433",
+                "name": "Jakobi Meyers",
+                "team": "JAX",
+                "opponent": "NYG",
+                "providerEventId": "401873069",
+                "kickoffUtc": "2026-11-22T21:25Z",
                 "etDate": "2026-11-22",
                 "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 44.92,
-                "p10": 10.73,
-                "p90": 98.52,
+                "value": 37.34,
+                "p10": 5.62,
+                "p90": 89.63,
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 3
+            "availabilityExcluded": 2
           },
           {
             "id": "top5_receptions",
@@ -1592,21 +1522,6 @@
               },
               {
                 "rank": 4,
-                "playerId": "nfl-athlete-4569618",
-                "name": "Garrett Wilson",
-                "team": "NYJ",
-                "opponent": "LAC",
-                "providerEventId": "401873074",
-                "kickoffUtc": "2026-11-22T21:05Z",
-                "etDate": "2026-11-22",
-                "participation": "AVAILABLE_ROLE_UNCERTAIN",
-                "value": 5,
-                "p10": 2,
-                "p90": 11,
-                "pricingState": "NOT_PROBED"
-              },
-              {
-                "rank": 5,
                 "playerId": "nfl-athlete-3040151",
                 "name": "George Kittle",
                 "team": "SF",
@@ -1619,9 +1534,24 @@
                 "p10": 1.9841,
                 "p90": 9.9206,
                 "pricingState": "NOT_PROBED"
+              },
+              {
+                "rank": 5,
+                "playerId": "nfl-athlete-15818",
+                "name": "Keenan Allen",
+                "team": "SF",
+                "opponent": "MIN",
+                "providerEventId": "401873077",
+                "kickoffUtc": "2026-11-23T01:20Z",
+                "etDate": "2026-11-22",
+                "participation": "AVAILABLE_ROLE_UNCERTAIN",
+                "value": 4.9603,
+                "p10": 0.9921,
+                "p90": 9.9206,
+                "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 3
+            "availabilityExcluded": 2
           },
           {
             "id": "top5_anytime_td",
@@ -1700,7 +1630,7 @@
                 "pricingState": "NOT_PROBED"
               }
             ],
-            "availabilityExcluded": 4
+            "availabilityExcluded": 3
           }
         ]
       },
@@ -2112,10 +2042,9 @@
     "fullWeek": {
       "scope": {
         "kind": "FULL_WEEK_WITH_COMPLETED",
-        "eventsIncluded": 5,
+        "eventsIncluded": 4,
         "eventsCompleted": 0,
         "events": [
-          "401873074",
           "401873069",
           "401873075",
           "401873077",
@@ -2271,20 +2200,6 @@
             },
             {
               "rank": 4,
-              "playerId": "nfl-athlete-4685247",
-              "name": "Braelon Allen",
-              "team": "NYJ",
-              "opponent": "LAC",
-              "providerEventId": "401873074",
-              "kickoffUtc": "2026-11-22T21:05Z",
-              "etDate": "2026-11-22",
-              "participation": "AVAILABLE_ROLE_UNCERTAIN",
-              "value": 41.99,
-              "p10": 11.76,
-              "p90": 89.77
-            },
-            {
-              "rank": 5,
               "playerId": "nfl-athlete-4696981",
               "name": "Cam Skattebo",
               "team": "NYG",
@@ -2296,6 +2211,20 @@
               "value": 41.58,
               "p10": 13.94,
               "p90": 84.29
+            },
+            {
+              "rank": 5,
+              "playerId": "nfl-athlete-4702555",
+              "name": "Jonah Coleman",
+              "team": "DEN",
+              "opponent": "LV",
+              "providerEventId": "401873075",
+              "kickoffUtc": "2026-11-22T21:25Z",
+              "etDate": "2026-11-22",
+              "participation": "AVAILABLE_ROLE_UNCERTAIN",
+              "value": 33.56,
+              "p10": 9.38,
+              "p90": 72.7
             }
           ],
           "availabilityExcluded": 2
@@ -2387,7 +2316,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 4
+          "availabilityExcluded": 3
         },
         {
           "id": "top5_receptions",
@@ -2462,21 +2391,21 @@
             },
             {
               "rank": 5,
-              "playerId": "nfl-athlete-4569618",
-              "name": "Garrett Wilson",
-              "team": "NYJ",
-              "opponent": "LAC",
-              "providerEventId": "401873074",
-              "kickoffUtc": "2026-11-22T21:05Z",
-              "etDate": "2026-11-22",
+              "playerId": "nfl-athlete-4239993",
+              "name": "Tee Higgins",
+              "team": "CIN",
+              "opponent": "WSH",
+              "providerEventId": "401873078",
+              "kickoffUtc": "2026-11-24T01:15Z",
+              "etDate": "2026-11-23",
               "participation": "AVAILABLE_ROLE_UNCERTAIN",
               "value": 5,
               "p10": 2,
-              "p90": 11,
+              "p90": 10,
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 4
+          "availabilityExcluded": 3
         },
         {
           "id": "top5_anytime_td",
@@ -2555,7 +2484,7 @@
               "pricingState": "NOT_PROBED"
             }
           ],
-          "availabilityExcluded": 5
+          "availabilityExcluded": 4
         }
       ]
     }
