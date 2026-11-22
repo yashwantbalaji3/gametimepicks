@@ -2,12 +2,12 @@
  "schemaVersion": 1,
  "artifact": "model-health",
  "dataClass": "INTERNAL_OPS",
- "generatedAt": "2026-11-22T09:27:00Z",
+ "generatedAt": "2026-11-22T16:21:20Z",
  "worst": "BREACHED",
  "counts": {
   "INSUFFICIENT_SAMPLE": 4,
-  "HOLDING": 11,
-  "WATCH": 3,
+  "HOLDING": 12,
+  "WATCH": 2,
   "BREACHED": 4
  },
  "rules": {
@@ -215,51 +215,6 @@
      "coverageMidP": null,
      "onEndpoint": 0,
      "n": 0
-    }
-   }
-  },
-  {
-   "id": "ufc_winner",
-   "sport": "ufc",
-   "label": "UFC fight winner",
-   "baseline": "coin flip (log loss 0.6931)",
-   "state": "WATCH",
-   "n": 119,
-   "judgement": {
-    "state": "WATCH",
-    "n": 119,
-    "needed": 60,
-    "meanDiff": 0.0094,
-    "lo95": -0.0643,
-    "hi95": 0.0994
-   },
-   "context": {
-    "modelLogLoss": 0.7025,
-    "marketLogLoss": 0.6389,
-    "modelMinusMarket": 0.0636,
-    "pairedWithMarket": 119
-   },
-   "source": "data/internal/research/ufc/model-vs-market/graded.jsonl",
-   "bar": {
-    "verdict": "BELOW_BAR",
-    "checks": [
-     {
-      "measure": "logLossVsBaseline",
-      "value": 0.0094,
-      "bar": "≤ −0.005 vs a coin flip (0.6931)",
-      "pass": false
-     }
-    ],
-    "notComputable": [
-     "calibrationZ"
-    ],
-    "n": 119,
-    "needed": 60,
-    "model": null,
-    "modelsOnGradedBoards": null,
-    "source": "app/public/data/ufc/fight-model-evaluation.json#/bars/winnerGain",
-    "measures": {
-     "logLossVsBaseline": 0.0094
     }
    }
   },
@@ -690,6 +645,51 @@
    }
   },
   {
+   "id": "ufc_winner",
+   "sport": "ufc",
+   "label": "UFC fight winner",
+   "baseline": "coin flip (log loss 0.6931)",
+   "state": "HOLDING",
+   "n": 128,
+   "judgement": {
+    "state": "HOLDING",
+    "n": 128,
+    "needed": 60,
+    "meanDiff": -0.0071,
+    "lo95": -0.0812,
+    "hi95": 0.0716
+   },
+   "context": {
+    "modelLogLoss": 0.6861,
+    "marketLogLoss": 0.6447,
+    "modelMinusMarket": 0.0414,
+    "pairedWithMarket": 128
+   },
+   "source": "data/internal/research/ufc/model-vs-market/graded.jsonl",
+   "bar": {
+    "verdict": "ON_TRACK",
+    "checks": [
+     {
+      "measure": "logLossVsBaseline",
+      "value": -0.0071,
+      "bar": "≤ −0.005 vs a coin flip (0.6931)",
+      "pass": true
+     }
+    ],
+    "notComputable": [
+     "calibrationZ"
+    ],
+    "n": 128,
+    "needed": 60,
+    "model": null,
+    "modelsOnGradedBoards": null,
+    "source": "app/public/data/ufc/fight-model-evaluation.json#/bars/winnerGain",
+    "measures": {
+     "logLossVsBaseline": -0.0071
+    }
+   }
+  },
+  {
    "id": "epl_forward_match_model",
    "sport": "epl",
    "label": "EPL blind forward test · match model vs the one it replaced",
@@ -792,6 +792,14 @@
   }
  ],
  "changes": [
+  {
+   "id": "ufc_winner",
+   "sport": "ufc",
+   "label": "UFC fight winner",
+   "from": "WATCH",
+   "to": "HOLDING",
+   "at": "2026-11-22T16:21:20Z"
+  },
   {
    "id": "nfl_player_pass_yds",
    "sport": "nfl",
