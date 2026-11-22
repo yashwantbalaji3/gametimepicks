@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-11-22T09:27:02.912Z",
+  "generatedAt": "2026-11-22T09:48:29.459Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -16,13 +16,13 @@
     "pass": true
   },
   "slate": {
-    "date": "2026-11-21",
+    "date": "2026-11-22",
     "dailyPortfolioDate": "2026-11-22",
     "activeBankroll": 14065.4,
     "openExposure": 0,
     "worldCupGames": 0,
     "mlbGames": 0,
-    "mlbSlate": "2026-11-21"
+    "mlbSlate": "2026-11-22"
   },
   "sportsbook": {
     "note": "Artifact-level freshness only — the market feed carries no row-level timestamps, so no per-market recency can be claimed.",
@@ -103,118 +103,25 @@
       ]
     },
     "forwardCoverage": {
-      "present": true,
-      "date": "2026-11-21",
-      "generatedAt": "2026-11-21T18:25:49Z",
-      "sports": [
-        {
-          "sport": "epl",
-          "state": "DERIVED",
-          "counts": {
-            "scheduled": 10,
-            "priced": 10,
-            "generated": 0,
-            "frozen": 0,
-            "started": 0
-          },
-          "findings": [
-            "GENERATION_PENDING:10 priced future fixture(s) without live distributions (typed-refusal rows published for 0 of them — the odds-freshness bar re-prices night-before by design)"
-          ]
-        },
-        {
-          "sport": "ufc",
-          "state": "STARTED",
-          "counts": {
-            "scheduled": 0,
-            "priced": 0,
-            "generated": 0,
-            "frozen": 0,
-            "started": 0
-          },
-          "findings": [
-            "CARD_STARTED:UFC Fight Night: Procházka vs. Stirling started 2026-11-21T15:00Z — no longer forward coverage"
-          ]
-        },
-        {
-          "sport": "nfl",
-          "state": "SCHEDULE_ONLY",
-          "counts": {
-            "scheduled": 27,
-            "priced": 27,
-            "generated": 0,
-            "frozen": 0,
-            "started": 0
-          },
-          "findings": [
-            "MODEL_ABSENT_BY_DECISION:27 scheduled game(s) carry no forecast — team simulation is PUBLIC_EXPERIMENTAL (preseason models rejected on pre-declared bars; forecasts return under the regular-season contract)"
-          ]
-        },
-        {
-          "sport": "mlb",
-          "state": "DAILY_BY_CONTRACT",
-          "counts": {
-            "scheduled": 0,
-            "priced": 0,
-            "generated": 0,
-            "frozen": 0,
-            "started": 0
-          },
-          "findings": [
-            "FUTURE_STAGING_ABSENT_BY_DESIGN:game-specific inputs (probables, lineups, current odds) arrive per game day; a pre-series artifact would be dishonest for repeated matchups"
-          ]
-        }
-      ]
+      "present": false,
+      "date": "2026-11-22"
     },
     "dailyLifecycle": {
-      "receiptDate": "2026-11-21",
-      "present": true,
-      "generatedAt": "2026-11-21T18:25:48Z",
+      "receiptDate": "2026-11-22",
+      "present": false,
       "watchdog": [
         {
-          "product": "homer-nukes",
-          "kind": "INCIDENT_OPEN",
-          "detail": "NOT_RUN: no Homer Nukes board exists for 2026-11-21"
+          "product": "bank-builder",
+          "kind": "MISSING_DAILY_EVALUATION",
+          "detail": "no daily receipt exists for 2026-11-22"
         },
         {
-          "product": "epl-cards",
-          "kind": "STALE_ACTIVE_CARD",
-          "detail": "locked 2026-11-21T02:01:51Z, still ACTIVE"
+          "product": "moonshot",
+          "kind": "MISSING_DAILY_EVALUATION",
+          "detail": "no daily receipt exists for 2026-11-22"
         }
       ],
-      "states": {
-        "bank-builder": {
-          "state": "OFF_SEASON",
-          "policyVersion": "bank-builder@1"
-        },
-        "moonshot": {
-          "state": "OFF_SEASON",
-          "policyVersion": "moonshot@2"
-        },
-        "end-zone-vault": {
-          "state": "NO_PLAY",
-          "policyVersion": "end-zone-vault@1"
-        },
-        "homer-nukes": {
-          "state": "INCIDENT",
-          "policyVersion": "homer-nukes@1"
-        },
-        "ufc-cards": {
-          "state": "NO_PLAY",
-          "policyVersion": "ufc-cards@1"
-        },
-        "epl-cards": {
-          "state": "ACTIVE",
-          "policyVersion": "epl-cards@1"
-        },
-        "mlb-cards": {
-          "state": "OFF_SEASON",
-          "policyVersion": "mlb-cards@1"
-        },
-        "multi-cards": {
-          "state": "NO_PLAY",
-          "policyVersion": "multi-cards@1"
-        }
-      }
+      "states": null
     }
   },
   "counts": {
@@ -222,28 +129,28 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-11-22T09:27:02.408Z",
+    "lastRunAt": "2026-11-22T09:48:28.695Z",
     "ageHours": 0,
-    "ok": true,
-    "status": "pass",
-    "phase": "nightly-settle"
+    "ok": false,
+    "status": "partial",
+    "phase": "mlb-daily-production"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-11-22",
-    "etTime": "04:27",
+    "etTime": "04:48",
     "stages": [
       {
         "stage": "schedule",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "06:47",
         "producedBy": "morning-projections"
       },
       {
         "stage": "board",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "06:47",
         "producedBy": "morning-projections"
       },
@@ -263,24 +170,24 @@
       },
       {
         "stage": "simulations",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       },
       {
         "stage": "predictions",
-        "present": false,
-        "state": "pending",
+        "present": true,
+        "state": "ready",
         "dueEt": "07:17",
         "producedBy": "mlb-daily-production"
       }
     ],
-    "readyCount": 0,
+    "readyCount": 4,
     "totalStages": 6,
     "lateCount": 0,
     "signal": "YELLOW",
-    "summary": "0/6 produced; the rest are not due yet"
+    "summary": "4/6 produced; the rest are not due yet"
   },
   "learningLoop": {
     "signal": "GREEN",
@@ -313,8 +220,7 @@
     "World Cup board is empty (dormant or needs a refresh).",
     "Sportsbook source mlb/team-markets is STALE (25d old).",
     "Sportsbook source mlb/player-props is STALE (25d old).",
-    "MLB board is empty (dormant or needs a refresh).",
-    "Slate (2026-11-21) is behind today (2026-11-22) — refresh/roll forward."
+    "MLB board is empty (dormant or needs a refresh)."
   ],
   "dailyChecklist": [
     {
@@ -323,7 +229,7 @@
     },
     {
       "step": "Slate is current",
-      "done": false
+      "done": true
     },
     {
       "step": "Products generated (WC or MLB)",
