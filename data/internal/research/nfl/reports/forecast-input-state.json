@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-23T00:02:05Z",
+  "generatedAt": "2026-11-23T00:26:41Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
@@ -28,15 +28,25 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-23T00:02:05Z",
-        "participationInputHash": "1084695bbc888a8a",
-        "excludedCount": 8,
+        "snapshotAsOf": "2026-11-23T00:26:41Z",
+        "participationInputHash": "493f0e4cda3fc4f8",
+        "excludedCount": 10,
         "materialExclusions": [
           {
             "name": "Kyler Murray",
             "team": "MIN",
             "state": "Out",
-            "statedAt": "2026-11-20T19:49Z",
+            "statedAt": "2026-11-23T00:00Z",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Max Brosmer",
+            "team": "MIN",
+            "state": "Out",
+            "statedAt": "2026-11-23T00:06Z",
             "families": [
               "passAttempts",
               "rushAttempts"
@@ -61,6 +71,14 @@
             ]
           },
           {
+            "name": "Demarcus Robinson",
+            "team": "SF",
+            "state": "Out",
+            "families": [
+              "targets"
+            ]
+          },
+          {
             "name": "Jake Tonges",
             "team": "SF",
             "state": "roster day-to-day",
@@ -78,6 +96,15 @@
           },
           {
             "name": "Kyler Murray",
+            "team": "MIN",
+            "state": "Out",
+            "families": [
+              "passAttempts",
+              "rushAttempts"
+            ]
+          },
+          {
+            "name": "Max Brosmer",
             "team": "MIN",
             "state": "Out",
             "families": [
@@ -130,8 +157,8 @@
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-23T00:02:05Z",
-        "participationInputHash": "9fe5ea3dff533eab",
+        "snapshotAsOf": "2026-11-23T00:26:41Z",
+        "participationInputHash": "38947a1112859470",
         "excludedCount": 9,
         "materialExclusions": [],
         "excluded": [
