@@ -4,8 +4,8 @@
  "rule": "receipt of record = latest generatedAt < eventStart; projected QB = largest pass-attempt median; actuals = verified finals",
  "scoresSpec": "qb-props-scores@2",
  "inputs": {
-  "receiptsRead": 592,
-  "receiptsDigest": "288c451b73e1dbdd",
+  "receiptsRead": 593,
+  "receiptsDigest": "be99feba1b0a9e82",
   "actuals": [
    {
     "file": "data/internal/research/nfl/player-events-v1/2023.json",
@@ -21,10 +21,10 @@
    },
    {
     "file": "data/internal/research/nfl/player-events-v1/2026.json",
-    "contentHash": "2fc815627349edb4"
+    "contentHash": "f07b758797b5a932"
    }
   ],
-  "verifiedFinals": 161,
+  "verifiedFinals": 162,
   "r5": {
    "source": "nflOfficialOfRecord",
    "events": 100,
@@ -38,15 +38,15 @@
   "eventsWithReceipt": 99,
   "generatedAtOrAfterStart": 0,
   "beforeFromDate": 2,
-  "notFinal": 2,
+  "notFinal": 1,
   "unverifiedFinal": 0,
   "projectedQbDidNotPlay": 5,
-  "qbGames": 180,
+  "qbGames": 182,
   "confirmatoryQbGames": 0,
   "byWindow": {
    "CONFIRMATORY": 0,
    "EXPLORATORY_SEEN_WEEKS_5_9": 139,
-   "EXPLORATORY": 41
+   "EXPLORATORY": 43
   }
  },
  "confirmatory": {
@@ -103,204 +103,204 @@
  },
  "exploratory": {
   "passYds": {
-   "n": 41,
+   "n": 43,
    "noModelDistribution": 139,
-   "games": 25,
+   "games": 26,
    "primaryScore": "mean line log loss at 199.5 / 224.5 / 249.5",
    "model": {
-    "primary": 0.6321,
-    "cov80": 0.7561,
-    "width80": 180.2927,
-    "bias": 17.0976,
-    "intervalScore": 265.4146
+    "primary": 0.6424,
+    "cov80": 0.7674,
+    "width80": 180,
+    "bias": 18.4884,
+    "intervalScore": 261.1628
    },
-   "pairedN": 40,
+   "pairedN": 42,
    "noBaseline": 1,
    "baseline": {
-    "primary": 0.6427,
-    "cov80": 0.725
+    "primary": 0.6294,
+    "cov80": 0.7381
    },
-   "modelMinusBaseline": -0.0059,
+   "modelMinusBaseline": 0.0177,
    "modelMinusBaselineCi95": [
-    -0.1064,
-    0.0909
+    -0.0817,
+    0.1164
    ],
    "secondaryLeague": {
-    "n": 41,
-    "modelMinusLeague": -0.0374
+    "n": 43,
+    "modelMinusLeague": -0.0238
    },
    "ece": {
-    "199.5": 0.0847,
-    "224.5": 0.1271,
-    "249.5": 0.1358
+    "199.5": 0.0761,
+    "224.5": 0.1125,
+    "249.5": 0.1171
    }
   },
   "passCmp": {
-   "n": 41,
+   "n": 43,
    "noModelDistribution": 139,
-   "games": 25,
+   "games": 26,
    "primaryScore": "CRPS (integer grid)",
    "model": {
-    "primary": 3.973,
-    "cov80": 0.6829,
-    "width80": 14.2683,
-    "bias": -2.5122,
-    "intervalScore": 25.7317
+    "primary": 3.8783,
+    "cov80": 0.6977,
+    "width80": 14.3023,
+    "bias": -2.3488,
+    "intervalScore": 25.2326
    },
-   "pairedN": 40,
+   "pairedN": 42,
    "noBaseline": 1,
    "baseline": {
-    "primary": 3.4971,
-    "cov80": 0.725
+    "primary": 3.3971,
+    "cov80": 0.7381
    },
-   "modelMinusBaseline": 0.394,
+   "modelMinusBaseline": 0.4009,
    "modelMinusBaselineCi95": [
-    -0.3135,
-    1.0718
+    -0.2761,
+    1.0572
    ],
    "secondaryLeague": {
-    "n": 41,
-    "modelMinusLeague": 0.2552
+    "n": 43,
+    "modelMinusLeague": 0.2251
    }
   },
   "passAtt": {
-   "n": 41,
+   "n": 43,
    "noModelDistribution": 139,
-   "games": 25,
+   "games": 26,
    "primaryScore": "CRPS (integer grid)",
    "model": {
-    "primary": 5.5642,
-    "cov80": 0.6341,
-    "width80": 18.561,
-    "bias": -2,
-    "intervalScore": 36.6098
+    "primary": 5.4726,
+    "cov80": 0.6512,
+    "width80": 18.5349,
+    "bias": -1.9535,
+    "intervalScore": 35.7442
    },
-   "pairedN": 40,
+   "pairedN": 42,
    "noBaseline": 1,
    "baseline": {
-    "primary": 5.6036,
-    "cov80": 0.725
+    "primary": 5.4335,
+    "cov80": 0.7381
    },
-   "modelMinusBaseline": 0.0534,
+   "modelMinusBaseline": 0.1252,
    "modelMinusBaselineCi95": [
-    -0.9428,
-    1.1846
+    -0.8645,
+    1.1519
    ],
    "secondaryLeague": {
-    "n": 41,
-    "modelMinusLeague": 0.2048
+    "n": 43,
+    "modelMinusLeague": 0.1949
    }
   },
   "passTd": {
-   "n": 41,
+   "n": 43,
    "noModelDistribution": 139,
-   "games": 25,
+   "games": 26,
    "primaryScore": "count log loss (6+ pooled)",
    "model": {
-    "primary": 1.6389,
-    "cov80": 0.9024,
-    "width80": 3.0244,
-    "bias": 0.2927,
-    "intervalScore": 4.4878
+    "primary": 1.648,
+    "cov80": 0.907,
+    "width80": 3.0233,
+    "bias": 0.3023,
+    "intervalScore": 4.4186
    },
-   "pairedN": 41,
+   "pairedN": 43,
    "noBaseline": 0,
    "baseline": {
-    "primary": 1.5961,
-    "cov80": 0.9512
+    "primary": 1.5807,
+    "cov80": 0.9535
    },
-   "modelMinusBaseline": 0.0429,
+   "modelMinusBaseline": 0.0673,
    "modelMinusBaselineCi95": [
-    -0.0966,
-    0.174
+    -0.0761,
+    0.2018
    ],
    "secondaryLeague": {
-    "n": 41,
-    "modelMinusLeague": -0.0707
+    "n": 43,
+    "modelMinusLeague": -0.0653
    },
    "events": {
-    "eligibleQbGames": 41,
-    "total": 73,
+    "eligibleQbGames": 43,
+    "total": 76,
     "byLine": {
      "0.5": {
-      "events": 32,
-      "nonEvents": 9,
-      "eventFrequency": 0.7805,
-      "nonEventFrequency": 0.2195,
-      "modelMeanP": 0.8225
+      "events": 33,
+      "nonEvents": 10,
+      "eventFrequency": 0.7674,
+      "nonEventFrequency": 0.2326,
+      "modelMeanP": 0.8197
      },
      "1.5": {
-      "events": 22,
-      "nonEvents": 19,
-      "eventFrequency": 0.5366,
-      "nonEventFrequency": 0.4634,
-      "modelMeanP": 0.4939
+      "events": 23,
+      "nonEvents": 20,
+      "eventFrequency": 0.5349,
+      "nonEventFrequency": 0.4651,
+      "modelMeanP": 0.489
      },
      "2.5": {
-      "events": 13,
-      "nonEvents": 28,
-      "eventFrequency": 0.3171,
-      "nonEventFrequency": 0.6829,
-      "modelMeanP": 0.2126
+      "events": 14,
+      "nonEvents": 29,
+      "eventFrequency": 0.3256,
+      "nonEventFrequency": 0.6744,
+      "modelMeanP": 0.2086
      }
     }
    },
    "ece": {
-    "0.5": 0.1261,
-    "1.5": 0.1113,
-    "2.5": 0.1056
+    "0.5": 0.1324,
+    "1.5": 0.1286,
+    "2.5": 0.118
    }
   },
   "passInt": {
-   "n": 41,
+   "n": 43,
    "noModelDistribution": 139,
-   "games": 25,
+   "games": 26,
    "primaryScore": "count log loss (6+ pooled)",
    "model": {
-    "primary": 1.0885,
-    "cov80": 0.9756,
-    "width80": 1.878,
-    "bias": 0.122,
-    "intervalScore": 2.122
+    "primary": 1.0824,
+    "cov80": 0.9767,
+    "width80": 1.8837,
+    "bias": 0.093,
+    "intervalScore": 2.1163
    },
-   "pairedN": 41,
+   "pairedN": 43,
    "noBaseline": 0,
    "baseline": {
-    "primary": 1.2029,
-    "cov80": 0.9512
+    "primary": 1.1841,
+    "cov80": 0.9535
    },
-   "modelMinusBaseline": -0.1144,
+   "modelMinusBaseline": -0.1017,
    "modelMinusBaselineCi95": [
-    -0.3299,
-    0.0514
+    -0.3097,
+    0.0595
    ],
    "secondaryLeague": {
-    "n": 41,
-    "modelMinusLeague": 0.0575
+    "n": 43,
+    "modelMinusLeague": 0.0581
    },
    "events": {
-    "eligibleQbGames": 41,
-    "total": 28,
+    "eligibleQbGames": 43,
+    "total": 29,
     "byLine": {
      "0.5": {
-      "events": 23,
-      "nonEvents": 18,
-      "eventFrequency": 0.561,
-      "nonEventFrequency": 0.439,
-      "modelMeanP": 0.5176
+      "events": 24,
+      "nonEvents": 19,
+      "eventFrequency": 0.5581,
+      "nonEventFrequency": 0.4419,
+      "modelMeanP": 0.5215
      },
      "1.5": {
       "events": 5,
-      "nonEvents": 36,
-      "eventFrequency": 0.122,
-      "nonEventFrequency": 0.878,
-      "modelMeanP": 0.1821
+      "nonEvents": 38,
+      "eventFrequency": 0.1163,
+      "nonEventFrequency": 0.8837,
+      "modelMeanP": 0.1851
      }
     }
    },
    "ece": {
-    "0.5": 0.1316,
-    "1.5": 0.1424
+    "0.5": 0.1302,
+    "1.5": 0.1472
    }
   }
  },
@@ -313,11 +313,11 @@
    "passInt": 22
   },
   "2026-w11": {
-   "passYds": 19,
-   "passCmp": 19,
-   "passAtt": 19,
-   "passTd": 19,
-   "passInt": 19
+   "passYds": 21,
+   "passCmp": 21,
+   "passAtt": 21,
+   "passTd": 21,
+   "passInt": 21
   },
   "2026-w5": {
    "passYds": 0,
@@ -546,204 +546,204 @@
   },
   "true": {
    "passYds": {
-    "n": 40,
+    "n": 42,
     "noModelDistribution": 138,
-    "games": 25,
+    "games": 26,
     "primaryScore": "mean line log loss at 199.5 / 224.5 / 249.5",
     "model": {
-     "primary": 0.63,
-     "cov80": 0.775,
-     "width80": 180.225,
-     "bias": 21.9,
-     "intervalScore": 244.975
+     "primary": 0.6407,
+     "cov80": 0.7857,
+     "width80": 179.9286,
+     "bias": 23.0952,
+     "intervalScore": 241.5952
     },
-    "pairedN": 39,
+    "pairedN": 41,
     "noBaseline": 1,
     "baseline": {
-     "primary": 0.6251,
-     "cov80": 0.7436
+     "primary": 0.6124,
+     "cov80": 0.7561
     },
-    "modelMinusBaseline": 0.0097,
+    "modelMinusBaseline": 0.0332,
     "modelMinusBaselineCi95": [
-     -0.0944,
-     0.1099
+     -0.0703,
+     0.1306
     ],
     "secondaryLeague": {
-     "n": 40,
-     "modelMinusLeague": -0.0371
+     "n": 42,
+     "modelMinusLeague": -0.0232
     },
     "ece": {
-     "199.5": 0.1027,
-     "224.5": 0.1427,
-     "249.5": 0.1484
+     "199.5": 0.093,
+     "224.5": 0.1269,
+     "249.5": 0.1287
     }
    },
    "passCmp": {
-    "n": 40,
+    "n": 42,
     "noModelDistribution": 138,
-    "games": 25,
+    "games": 26,
     "primaryScore": "CRPS (integer grid)",
     "model": {
-     "primary": 3.6464,
-     "cov80": 0.7,
-     "width80": 14.25,
-     "bias": -2.075,
-     "intervalScore": 22.75
+     "primary": 3.565,
+     "cov80": 0.7143,
+     "width80": 14.2857,
+     "bias": -1.9286,
+     "intervalScore": 22.381
     },
-    "pairedN": 39,
+    "pairedN": 41,
     "noBaseline": 1,
     "baseline": {
-     "primary": 3.2329,
-     "cov80": 0.7436
+     "primary": 3.1434,
+     "cov80": 0.7561
     },
-    "modelMinusBaseline": 0.3211,
+    "modelMinusBaseline": 0.3318,
     "modelMinusBaselineCi95": [
-     -0.3851,
-     1.0034
+     -0.3641,
+     0.987
     ],
     "secondaryLeague": {
-     "n": 40,
-     "modelMinusLeague": 0.1928
+     "n": 42,
+     "modelMinusLeague": 0.165
     }
    },
    "passAtt": {
-    "n": 40,
+    "n": 42,
     "noModelDistribution": 138,
-    "games": 25,
+    "games": 26,
     "primaryScore": "CRPS (integer grid)",
     "model": {
-     "primary": 5.058,
-     "cov80": 0.65,
-     "width80": 18.55,
-     "bias": -1.325,
-     "intervalScore": 31.8
+     "primary": 4.9883,
+     "cov80": 0.6667,
+     "width80": 18.5238,
+     "bias": -1.3095,
+     "intervalScore": 31.1429
     },
-    "pairedN": 39,
+    "pairedN": 41,
     "noBaseline": 1,
     "baseline": {
-     "primary": 5.182,
-     "cov80": 0.7436
+     "primary": 5.0284,
+     "cov80": 0.7561
     },
-    "modelMinusBaseline": -0.0419,
+    "modelMinusBaseline": 0.0364,
     "modelMinusBaselineCi95": [
-     -1.05,
-     1.0931
+     -0.9388,
+     1.0943
     ],
     "secondaryLeague": {
-     "n": 40,
-     "modelMinusLeague": 0.1514
+     "n": 42,
+     "modelMinusLeague": 0.1438
     }
    },
    "passTd": {
-    "n": 40,
+    "n": 42,
     "noModelDistribution": 138,
-    "games": 25,
+    "games": 26,
     "primaryScore": "count log loss (6+ pooled)",
     "model": {
-     "primary": 1.6334,
-     "cov80": 0.9,
-     "width80": 3.025,
-     "bias": 0.35,
-     "intervalScore": 4.525
+     "primary": 1.643,
+     "cov80": 0.9048,
+     "width80": 3.0238,
+     "bias": 0.3571,
+     "intervalScore": 4.4524
     },
-    "pairedN": 40,
+    "pairedN": 42,
     "noBaseline": 0,
     "baseline": {
-     "primary": 1.5828,
-     "cov80": 0.95
+     "primary": 1.5677,
+     "cov80": 0.9524
     },
-    "modelMinusBaseline": 0.0506,
+    "modelMinusBaseline": 0.0752,
     "modelMinusBaselineCi95": [
-     -0.0924,
-     0.1871
+     -0.0708,
+     0.2112
     ],
     "secondaryLeague": {
-     "n": 40,
-     "modelMinusLeague": -0.0811
+     "n": 42,
+     "modelMinusLeague": -0.075
     },
     "events": {
-     "eligibleQbGames": 40,
-     "total": 73,
+     "eligibleQbGames": 42,
+     "total": 76,
      "byLine": {
       "0.5": {
-       "events": 32,
-       "nonEvents": 8,
-       "eventFrequency": 0.8,
-       "nonEventFrequency": 0.2,
-       "modelMeanP": 0.822
+       "events": 33,
+       "nonEvents": 9,
+       "eventFrequency": 0.7857,
+       "nonEventFrequency": 0.2143,
+       "modelMeanP": 0.8191
       },
       "1.5": {
-       "events": 22,
-       "nonEvents": 18,
-       "eventFrequency": 0.55,
-       "nonEventFrequency": 0.45,
-       "modelMeanP": 0.4933
+       "events": 23,
+       "nonEvents": 19,
+       "eventFrequency": 0.5476,
+       "nonEventFrequency": 0.4524,
+       "modelMeanP": 0.4882
       },
       "2.5": {
-       "events": 13,
-       "nonEvents": 27,
-       "eventFrequency": 0.325,
-       "nonEventFrequency": 0.675,
-       "modelMeanP": 0.2122
+       "events": 14,
+       "nonEvents": 28,
+       "eventFrequency": 0.3333,
+       "nonEventFrequency": 0.6667,
+       "modelMeanP": 0.2082
       }
      }
     },
     "ece": {
-     "0.5": 0.1503,
-     "1.5": 0.1271,
-     "2.5": 0.1139
+     "0.5": 0.1557,
+     "1.5": 0.1441,
+     "2.5": 0.1262
     }
    },
    "passInt": {
-    "n": 40,
+    "n": 42,
     "noModelDistribution": 138,
-    "games": 25,
+    "games": 26,
     "primaryScore": "count log loss (6+ pooled)",
     "model": {
-     "primary": 1.0988,
-     "cov80": 0.975,
-     "width80": 1.875,
-     "bias": 0.125,
-     "intervalScore": 2.125
+     "primary": 1.092,
+     "cov80": 0.9762,
+     "width80": 1.881,
+     "bias": 0.0952,
+     "intervalScore": 2.119
     },
-    "pairedN": 40,
+    "pairedN": 42,
     "noBaseline": 0,
     "baseline": {
-     "primary": 1.208,
-     "cov80": 0.95
+     "primary": 1.1885,
+     "cov80": 0.9524
     },
-    "modelMinusBaseline": -0.1093,
+    "modelMinusBaseline": -0.0965,
     "modelMinusBaselineCi95": [
-     -0.3306,
-     0.0544
+     -0.3089,
+     0.0601
     ],
     "secondaryLeague": {
-     "n": 40,
-     "modelMinusLeague": 0.0602
+     "n": 42,
+     "modelMinusLeague": 0.0607
     },
     "events": {
-     "eligibleQbGames": 40,
-     "total": 28,
+     "eligibleQbGames": 42,
+     "total": 29,
      "byLine": {
       "0.5": {
-       "events": 23,
-       "nonEvents": 17,
-       "eventFrequency": 0.575,
-       "nonEventFrequency": 0.425,
-       "modelMeanP": 0.5182
+       "events": 24,
+       "nonEvents": 18,
+       "eventFrequency": 0.5714,
+       "nonEventFrequency": 0.4286,
+       "modelMeanP": 0.5222
       },
       "1.5": {
        "events": 5,
-       "nonEvents": 35,
-       "eventFrequency": 0.125,
-       "nonEventFrequency": 0.875,
-       "modelMeanP": 0.1828
+       "nonEvents": 37,
+       "eventFrequency": 0.119,
+       "nonEventFrequency": 0.881,
+       "modelMeanP": 0.1858
       }
      }
     },
     "ece": {
-     "0.5": 0.1472,
-     "1.5": 0.1499
+     "0.5": 0.1451,
+     "1.5": 0.1544
     }
    }
   }
@@ -751,204 +751,204 @@
  "byEligibility": {
   "PENDING_ELIGIBILITY_CONTRACT": {
    "passYds": {
-    "n": 41,
+    "n": 43,
     "noModelDistribution": 139,
-    "games": 25,
+    "games": 26,
     "primaryScore": "mean line log loss at 199.5 / 224.5 / 249.5",
     "model": {
-     "primary": 0.6321,
-     "cov80": 0.7561,
-     "width80": 180.2927,
-     "bias": 17.0976,
-     "intervalScore": 265.4146
+     "primary": 0.6424,
+     "cov80": 0.7674,
+     "width80": 180,
+     "bias": 18.4884,
+     "intervalScore": 261.1628
     },
-    "pairedN": 40,
+    "pairedN": 42,
     "noBaseline": 1,
     "baseline": {
-     "primary": 0.6427,
-     "cov80": 0.725
+     "primary": 0.6294,
+     "cov80": 0.7381
     },
-    "modelMinusBaseline": -0.0059,
+    "modelMinusBaseline": 0.0177,
     "modelMinusBaselineCi95": [
-     -0.1064,
-     0.0909
+     -0.0817,
+     0.1164
     ],
     "secondaryLeague": {
-     "n": 41,
-     "modelMinusLeague": -0.0374
+     "n": 43,
+     "modelMinusLeague": -0.0238
     },
     "ece": {
-     "199.5": 0.0847,
-     "224.5": 0.1271,
-     "249.5": 0.1358
+     "199.5": 0.0761,
+     "224.5": 0.1125,
+     "249.5": 0.1171
     }
    },
    "passCmp": {
-    "n": 41,
+    "n": 43,
     "noModelDistribution": 139,
-    "games": 25,
+    "games": 26,
     "primaryScore": "CRPS (integer grid)",
     "model": {
-     "primary": 3.973,
-     "cov80": 0.6829,
-     "width80": 14.2683,
-     "bias": -2.5122,
-     "intervalScore": 25.7317
+     "primary": 3.8783,
+     "cov80": 0.6977,
+     "width80": 14.3023,
+     "bias": -2.3488,
+     "intervalScore": 25.2326
     },
-    "pairedN": 40,
+    "pairedN": 42,
     "noBaseline": 1,
     "baseline": {
-     "primary": 3.4971,
-     "cov80": 0.725
+     "primary": 3.3971,
+     "cov80": 0.7381
     },
-    "modelMinusBaseline": 0.394,
+    "modelMinusBaseline": 0.4009,
     "modelMinusBaselineCi95": [
-     -0.3135,
-     1.0718
+     -0.2761,
+     1.0572
     ],
     "secondaryLeague": {
-     "n": 41,
-     "modelMinusLeague": 0.2552
+     "n": 43,
+     "modelMinusLeague": 0.2251
     }
    },
    "passAtt": {
-    "n": 41,
+    "n": 43,
     "noModelDistribution": 139,
-    "games": 25,
+    "games": 26,
     "primaryScore": "CRPS (integer grid)",
     "model": {
-     "primary": 5.5642,
-     "cov80": 0.6341,
-     "width80": 18.561,
-     "bias": -2,
-     "intervalScore": 36.6098
+     "primary": 5.4726,
+     "cov80": 0.6512,
+     "width80": 18.5349,
+     "bias": -1.9535,
+     "intervalScore": 35.7442
     },
-    "pairedN": 40,
+    "pairedN": 42,
     "noBaseline": 1,
     "baseline": {
-     "primary": 5.6036,
-     "cov80": 0.725
+     "primary": 5.4335,
+     "cov80": 0.7381
     },
-    "modelMinusBaseline": 0.0534,
+    "modelMinusBaseline": 0.1252,
     "modelMinusBaselineCi95": [
-     -0.9428,
-     1.1846
+     -0.8645,
+     1.1519
     ],
     "secondaryLeague": {
-     "n": 41,
-     "modelMinusLeague": 0.2048
+     "n": 43,
+     "modelMinusLeague": 0.1949
     }
    },
    "passTd": {
-    "n": 41,
+    "n": 43,
     "noModelDistribution": 139,
-    "games": 25,
+    "games": 26,
     "primaryScore": "count log loss (6+ pooled)",
     "model": {
-     "primary": 1.6389,
-     "cov80": 0.9024,
-     "width80": 3.0244,
-     "bias": 0.2927,
-     "intervalScore": 4.4878
+     "primary": 1.648,
+     "cov80": 0.907,
+     "width80": 3.0233,
+     "bias": 0.3023,
+     "intervalScore": 4.4186
     },
-    "pairedN": 41,
+    "pairedN": 43,
     "noBaseline": 0,
     "baseline": {
-     "primary": 1.5961,
-     "cov80": 0.9512
+     "primary": 1.5807,
+     "cov80": 0.9535
     },
-    "modelMinusBaseline": 0.0429,
+    "modelMinusBaseline": 0.0673,
     "modelMinusBaselineCi95": [
-     -0.0966,
-     0.174
+     -0.0761,
+     0.2018
     ],
     "secondaryLeague": {
-     "n": 41,
-     "modelMinusLeague": -0.0707
+     "n": 43,
+     "modelMinusLeague": -0.0653
     },
     "events": {
-     "eligibleQbGames": 41,
-     "total": 73,
+     "eligibleQbGames": 43,
+     "total": 76,
      "byLine": {
       "0.5": {
-       "events": 32,
-       "nonEvents": 9,
-       "eventFrequency": 0.7805,
-       "nonEventFrequency": 0.2195,
-       "modelMeanP": 0.8225
+       "events": 33,
+       "nonEvents": 10,
+       "eventFrequency": 0.7674,
+       "nonEventFrequency": 0.2326,
+       "modelMeanP": 0.8197
       },
       "1.5": {
-       "events": 22,
-       "nonEvents": 19,
-       "eventFrequency": 0.5366,
-       "nonEventFrequency": 0.4634,
-       "modelMeanP": 0.4939
+       "events": 23,
+       "nonEvents": 20,
+       "eventFrequency": 0.5349,
+       "nonEventFrequency": 0.4651,
+       "modelMeanP": 0.489
       },
       "2.5": {
-       "events": 13,
-       "nonEvents": 28,
-       "eventFrequency": 0.3171,
-       "nonEventFrequency": 0.6829,
-       "modelMeanP": 0.2126
+       "events": 14,
+       "nonEvents": 29,
+       "eventFrequency": 0.3256,
+       "nonEventFrequency": 0.6744,
+       "modelMeanP": 0.2086
       }
      }
     },
     "ece": {
-     "0.5": 0.1261,
-     "1.5": 0.1113,
-     "2.5": 0.1056
+     "0.5": 0.1324,
+     "1.5": 0.1286,
+     "2.5": 0.118
     }
    },
    "passInt": {
-    "n": 41,
+    "n": 43,
     "noModelDistribution": 139,
-    "games": 25,
+    "games": 26,
     "primaryScore": "count log loss (6+ pooled)",
     "model": {
-     "primary": 1.0885,
-     "cov80": 0.9756,
-     "width80": 1.878,
-     "bias": 0.122,
-     "intervalScore": 2.122
+     "primary": 1.0824,
+     "cov80": 0.9767,
+     "width80": 1.8837,
+     "bias": 0.093,
+     "intervalScore": 2.1163
     },
-    "pairedN": 41,
+    "pairedN": 43,
     "noBaseline": 0,
     "baseline": {
-     "primary": 1.2029,
-     "cov80": 0.9512
+     "primary": 1.1841,
+     "cov80": 0.9535
     },
-    "modelMinusBaseline": -0.1144,
+    "modelMinusBaseline": -0.1017,
     "modelMinusBaselineCi95": [
-     -0.3299,
-     0.0514
+     -0.3097,
+     0.0595
     ],
     "secondaryLeague": {
-     "n": 41,
-     "modelMinusLeague": 0.0575
+     "n": 43,
+     "modelMinusLeague": 0.0581
     },
     "events": {
-     "eligibleQbGames": 41,
-     "total": 28,
+     "eligibleQbGames": 43,
+     "total": 29,
      "byLine": {
       "0.5": {
-       "events": 23,
-       "nonEvents": 18,
-       "eventFrequency": 0.561,
-       "nonEventFrequency": 0.439,
-       "modelMeanP": 0.5176
+       "events": 24,
+       "nonEvents": 19,
+       "eventFrequency": 0.5581,
+       "nonEventFrequency": 0.4419,
+       "modelMeanP": 0.5215
       },
       "1.5": {
        "events": 5,
-       "nonEvents": 36,
-       "eventFrequency": 0.122,
-       "nonEventFrequency": 0.878,
-       "modelMeanP": 0.1821
+       "nonEvents": 38,
+       "eventFrequency": 0.1163,
+       "nonEventFrequency": 0.8837,
+       "modelMeanP": 0.1851
       }
      }
     },
     "ece": {
-     "0.5": 0.1316,
-     "1.5": 0.1424
+     "0.5": 0.1302,
+     "1.5": 0.1472
     }
    }
   }
@@ -33119,6 +33119,456 @@
       "pOver": {
        "0.5": 0.5205421716519205,
        "1.5": 0.168093039554988
+      }
+     }
+    }
+   },
+   "window": "EXPLORATORY"
+  },
+  {
+   "eventId": "401873077",
+   "season": 2026,
+   "week": 11,
+   "team": "MIN",
+   "playerId": "nfl-athlete-14880",
+   "name": "Kirk Cousins",
+   "receipt": "data/internal/research/nfl/sim-v2/shadow/2026-11-22/401873077-905f9a891bf8999e.json",
+   "receiptGeneratedAt": "2026-11-22T01:02:15Z",
+   "eventStart": "2026-11-23T01:20Z",
+   "starterMatch": true,
+   "eligibility": "PENDING_ELIGIBILITY_CONTRACT",
+   "r5": true,
+   "confirmatory": false,
+   "families": {
+    "passYds": {
+     "actual": 235,
+     "model": {
+      "median": 194,
+      "q10": 115,
+      "q90": 289,
+      "width": 174,
+      "covered80": true,
+      "error": 41,
+      "intervalScore": 174,
+      "primary": 0.6994518007044523,
+      "pOver": {
+       "199.5": 0.4707,
+       "224.5": 0.3337,
+       "249.5": 0.2191
+      }
+     },
+     "baseline": {
+      "median": 267,
+      "q10": 198,
+      "q90": 335,
+      "width": 137,
+      "covered80": true,
+      "error": -32,
+      "intervalScore": 137,
+      "primary": 0.44560249329282,
+      "pOver": {
+       "199.5": 0.8955921522038799,
+       "224.5": 0.7851212072468426,
+       "249.5": 0.6264188967179788
+      }
+     },
+     "league": {
+      "median": 229,
+      "q10": 132,
+      "q90": 325,
+      "width": 193,
+      "covered80": true,
+      "error": 6,
+      "intervalScore": 193,
+      "primary": 0.5249316640392767,
+      "pOver": {
+       "199.5": 0.6509839834986162,
+       "224.5": 0.5220627066870885,
+       "249.5": 0.3907686397690857
+      }
+     }
+    },
+    "passCmp": {
+     "actual": 26,
+     "model": {
+      "median": 22,
+      "q10": 15,
+      "q90": 30,
+      "width": 15,
+      "covered80": true,
+      "error": 4,
+      "intervalScore": 15,
+      "primary": 2.25485605
+     },
+     "baseline": {
+      "median": 23,
+      "q10": 18,
+      "q90": 28,
+      "width": 10,
+      "covered80": true,
+      "error": 3,
+      "intervalScore": 10,
+      "primary": 1.8554836090958688
+     },
+     "league": {
+      "median": 21,
+      "q10": 13,
+      "q90": 28,
+      "width": 15,
+      "covered80": true,
+      "error": 5,
+      "intervalScore": 15,
+      "primary": 3.246853055995705
+     }
+    },
+    "passAtt": {
+     "actual": 38,
+     "model": {
+      "median": 33,
+      "q10": 25,
+      "q90": 43,
+      "width": 18,
+      "covered80": true,
+      "error": 5,
+      "intervalScore": 18,
+      "primary": 2.8413457699999998
+     },
+     "baseline": {
+      "median": 36,
+      "q10": 24,
+      "q90": 47,
+      "width": 23,
+      "covered80": true,
+      "error": 2,
+      "intervalScore": 23,
+      "primary": 2.285066973814349
+     },
+     "league": {
+      "median": 32,
+      "q10": 21,
+      "q90": 43,
+      "width": 22,
+      "covered80": true,
+      "error": 6,
+      "intervalScore": 22,
+      "primary": 3.508238503261948
+     }
+    },
+    "passTd": {
+     "actual": 0,
+     "model": {
+      "median": 1,
+      "q10": 0,
+      "q90": 3,
+      "width": 3,
+      "covered80": true,
+      "error": -1,
+      "intervalScore": 3,
+      "primary": 1.3907040696085906,
+      "pOver": {
+       "0.5": 0.7511,
+       "1.5": 0.37,
+       "2.5": 0.1199
+      }
+     },
+     "baseline": {
+      "median": 1,
+      "q10": 0,
+      "q90": 2,
+      "width": 2,
+      "covered80": true,
+      "error": -1,
+      "intervalScore": 2,
+      "primary": 0.875,
+      "pOver": {
+       "0.5": 0.5831379803214916,
+       "1.5": 0.2183837131027968,
+       "2.5": 0.05880372119461774
+      }
+     },
+     "league": {
+      "median": 1,
+      "q10": 0,
+      "q90": 3,
+      "width": 3,
+      "covered80": true,
+      "error": -1,
+      "intervalScore": 3,
+      "primary": 1.5341614906832297,
+      "pOver": {
+       "0.5": 0.7843635714614667,
+       "1.5": 0.453542466809183,
+       "2.5": 0.1997759672777727
+      }
+     }
+    },
+    "passInt": {
+     "actual": 1,
+     "model": {
+      "median": 1,
+      "q10": 0,
+      "q90": 2,
+      "width": 2,
+      "covered80": true,
+      "error": 0,
+      "intervalScore": 2,
+      "primary": 1.0305798782762827,
+      "pOver": {
+       "0.5": 0.6169,
+       "1.5": 0.2601
+      }
+     },
+     "baseline": {
+      "median": 0,
+      "q10": 0,
+      "q90": 2,
+      "width": 2,
+      "covered80": true,
+      "error": 1,
+      "intervalScore": 2,
+      "primary": 1.0950036292457355,
+      "pOver": {
+       "0.5": 0.4647385714810097,
+       "1.5": 0.1302001786566408
+      }
+     },
+     "league": {
+      "median": 1,
+      "q10": 0,
+      "q90": 2,
+      "width": 2,
+      "covered80": true,
+      "error": 0,
+      "intervalScore": 2,
+      "primary": 1.0471155764507574,
+      "pOver": {
+       "0.5": 0.5149981067635918,
+       "1.5": 0.1640495318440789
+      }
+     }
+    }
+   },
+   "window": "EXPLORATORY"
+  },
+  {
+   "eventId": "401873077",
+   "season": 2026,
+   "week": 11,
+   "team": "SF",
+   "playerId": "nfl-athlete-4361741",
+   "name": "Brock Purdy",
+   "receipt": "data/internal/research/nfl/sim-v2/shadow/2026-11-22/401873077-905f9a891bf8999e.json",
+   "receiptGeneratedAt": "2026-11-22T01:02:15Z",
+   "eventStart": "2026-11-23T01:20Z",
+   "starterMatch": true,
+   "eligibility": "PENDING_ELIGIBILITY_CONTRACT",
+   "r5": true,
+   "confirmatory": false,
+   "families": {
+    "passYds": {
+     "actual": 255,
+     "model": {
+      "median": 202,
+      "q10": 121,
+      "q90": 295,
+      "width": 174,
+      "covered80": true,
+      "error": 53,
+      "intervalScore": 174,
+      "primary": 1.0083696367055701,
+      "pOver": {
+       "199.5": 0.5168,
+       "224.5": 0.377,
+       "249.5": 0.2492
+      }
+     },
+     "baseline": {
+      "median": 270,
+      "q10": 192,
+      "q90": 349,
+      "width": 157,
+      "covered80": true,
+      "error": -15,
+      "intervalScore": 157,
+      "primary": 0.28110660415969935,
+      "pOver": {
+       "199.5": 0.8768764714078089,
+       "224.5": 0.7737441751370218,
+       "249.5": 0.6341836617080562
+      }
+     },
+     "league": {
+      "median": 229,
+      "q10": 132,
+      "q90": 325,
+      "width": 193,
+      "covered80": true,
+      "error": 26,
+      "intervalScore": 193,
+      "primary": 0.6729591396107963,
+      "pOver": {
+       "199.5": 0.6509839834986162,
+       "224.5": 0.5220627066870885,
+       "249.5": 0.3907686397690857
+      }
+     }
+    },
+    "passCmp": {
+     "actual": 21,
+     "model": {
+      "median": 23,
+      "q10": 16,
+      "q90": 31,
+      "width": 15,
+      "covered80": true,
+      "error": -2,
+      "intervalScore": 15,
+      "primary": 1.6205625399999992
+     },
+     "baseline": {
+      "median": 20,
+      "q10": 15,
+      "q90": 25,
+      "width": 10,
+      "covered80": true,
+      "error": 1,
+      "intervalScore": 10,
+      "primary": 0.9395641417718267
+     },
+     "league": {
+      "median": 21,
+      "q10": 13,
+      "q90": 28,
+      "width": 15,
+      "covered80": true,
+      "error": 0,
+      "intervalScore": 15,
+      "primary": 1.4105124224532108
+     }
+    },
+    "passAtt": {
+     "actual": 26,
+     "model": {
+      "median": 33,
+      "q10": 25,
+      "q90": 43,
+      "width": 18,
+      "covered80": true,
+      "error": -7,
+      "intervalScore": 18,
+      "primary": 4.3489120099999985
+     },
+     "baseline": {
+      "median": 29,
+      "q10": 22,
+      "q90": 35,
+      "width": 13,
+      "covered80": true,
+      "error": -3,
+      "intervalScore": 13,
+      "primary": 1.7806699069035126
+     },
+     "league": {
+      "median": 32,
+      "q10": 21,
+      "q90": 43,
+      "width": 22,
+      "covered80": true,
+      "error": -6,
+      "intervalScore": 22,
+      "primary": 3.700456312227846
+     }
+    },
+    "passTd": {
+     "actual": 3,
+     "model": {
+      "median": 1,
+      "q10": 0,
+      "q90": 3,
+      "width": 3,
+      "covered80": true,
+      "error": 2,
+      "intervalScore": 3,
+      "primary": 2.276917346245468,
+      "pOver": {
+       "0.5": 0.7726,
+       "1.5": 0.4044,
+       "2.5": 0.1345
+      }
+     },
+     "baseline": {
+      "median": 2,
+      "q10": 0,
+      "q90": 4,
+      "width": 4,
+      "covered80": true,
+      "error": 1,
+      "intervalScore": 4,
+      "primary": 1.6554440620989146,
+      "pOver": {
+       "0.5": 0.8805670317332803,
+       "1.5": 0.6267719741665012,
+       "2.5": 0.35711472550179835
+      }
+     },
+     "league": {
+      "median": 1,
+      "q10": 0,
+      "q90": 3,
+      "width": 3,
+      "covered80": true,
+      "error": 2,
+      "intervalScore": 3,
+      "primary": 2.041969044980742,
+      "pOver": {
+       "0.5": 0.7843635714614667,
+       "1.5": 0.453542466809183,
+       "2.5": 0.1997759672777727
+      }
+     }
+    },
+    "passInt": {
+     "actual": 0,
+     "model": {
+      "median": 1,
+      "q10": 0,
+      "q90": 2,
+      "width": 2,
+      "covered80": true,
+      "error": -1,
+      "intervalScore": 2,
+      "primary": 0.8828559557879176,
+      "pOver": {
+       "0.5": 0.5864,
+       "1.5": 0.2306
+      }
+     },
+     "baseline": {
+      "median": 0,
+      "q10": 0,
+      "q90": 1,
+      "width": 1,
+      "covered80": true,
+      "error": 0,
+      "intervalScore": 1,
+      "primary": 0.5,
+      "pOver": {
+       "0.5": 0.3934693402873666,
+       "1.5": 0.09020401043104986
+      }
+     },
+     "league": {
+      "median": 1,
+      "q10": 0,
+      "q90": 2,
+      "width": 2,
+      "covered80": true,
+      "error": -1,
+      "intervalScore": 2,
+      "primary": 0.7236024844720497,
+      "pOver": {
+       "0.5": 0.5149981067635918,
+       "1.5": 0.1640495318440789
       }
      }
     }
