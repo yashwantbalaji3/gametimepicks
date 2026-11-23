@@ -3,18 +3,18 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-11-23T20:12:30Z",
+ "generatedAt": "2026-11-23T21:46:33Z",
  "sport": "nfl",
  "label": "NFL",
  "what": "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
  "caveat": "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
  "counts": {
-  "counted": 201,
-  "hits": 122,
+  "counted": 202,
+  "hits": 123,
   "misses": 79,
   "voided": 3,
   "shown": 60,
-  "total": 204
+  "total": 205
  },
  "hitRate": null,
  "recordBasis": "MIXED",
@@ -28,15 +28,30 @@
   },
   {
    "basis": "PUBLISHED",
-   "counted": 96,
-   "hits": 61,
+   "counted": 97,
+   "hits": 62,
    "misses": 35,
-   "hitRate": 0.6354
+   "hitRate": 0.6392
   }
  ],
  "sampleState": "ASSESSABLE",
- "sampleNote": "201 graded picks. A hit rate is still not proof a model beats a price — that requires a preregistered comparison against the closing line, which is tracked separately per sport.",
+ "sampleNote": "202 graded picks. A hit rate is still not proof a model beats a price — that requires a preregistered comparison against the closing line, which is tracked separately per sport.",
  "picks": [
+  {
+   "eventId": "nfl-401873077",
+   "when": "2026-11-22",
+   "eventName": null,
+   "subject": "MIN @ SF",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "HOME",
+   "actual": "HOME",
+   "modelProbability": null,
+   "probabilityOfActual": 0.5161,
+   "marketProbabilityOfActual": null,
+   "hit": true
+  },
   {
    "eventId": "nfl-401873067",
    "when": "2026-11-22",
@@ -921,21 +936,6 @@
    "probabilityOfActual": 0.4211,
    "marketProbabilityOfActual": null,
    "hit": false
-  },
-  {
-   "eventId": "nfl-401873013",
-   "when": "2026-10-25",
-   "eventName": null,
-   "subject": "CLE @ TEN",
-   "market": "Winner",
-   "basis": "PUBLISHED",
-   "noPick": false,
-   "predicted": "AWAY",
-   "actual": "AWAY",
-   "modelProbability": null,
-   "probabilityOfActual": 0.6452,
-   "marketProbabilityOfActual": null,
-   "hit": true
   }
  ]
 }
