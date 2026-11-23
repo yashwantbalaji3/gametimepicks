@@ -4,7 +4,7 @@
  "dataClass": "PRIVATE_PAPER_RECORD",
  "ledger": "experimental-forecast",
  "date": "2026-11-22",
- "generatedAt": "2026-11-22T23:36:54Z",
+ "generatedAt": "2026-11-23T00:02:05Z",
  "modelVersion": "nfl-regular-season-public-v1",
  "scope": "Experimental FORECAST accuracy only. This ledger is separate from validated picks, the market benchmark, MLB, Bank Builder, Moonshot, and Mr. Dub, and can never move money.",
  "whatIsGraded": "A forecast is a distribution, not a wager: winner correctness, margin/total error, 80% interval coverage, Brier and log loss. There is no W-L or ROI here because nothing was staked.",
@@ -416,16 +416,77 @@
     }
    },
    "marketBenchmark": null
+  },
+  {
+   "canonicalEventId": "nfl-401873068",
+   "providerEventId": "401873068",
+   "matchup": "BAL @ CAR",
+   "kickoffUtc": "2026-11-22T18:00Z",
+   "seasonType": 2,
+   "week": 11,
+   "lineage": {
+    "receiptFile": "data/internal/nfl/forecast-receipts/2026-11-22/401873068.json",
+    "model": "nfl-regular-season-public-v1",
+    "modelVersion": 2,
+    "inputHash": "ba8a087b7ca72305",
+    "forecastGeneratedAt": "2026-11-22T00:59:18Z",
+    "revisionChain": [
+     {
+      "file": "401873068.json",
+      "generatedAt": "2026-11-22T00:59:18Z",
+      "inputHash": "ba8a087b7ca72305"
+     }
+    ],
+    "marketCapturedAt": null,
+    "resultSource": "espn_official_box_score",
+    "resultObservedAt": "2026-11-22T23:36:54Z",
+    "settledAt": "2026-11-23T00:02:05Z",
+    "settlementVersion": 1
+   },
+   "grade": {
+    "actual": {
+     "home": 35,
+     "away": 33,
+     "margin": 2,
+     "total": 68,
+     "tie": false
+    },
+    "winner": {
+     "outcome": "HOME",
+     "modelFavoured": "HOME",
+     "correct": true,
+     "sideBasis": "PUBLISHED",
+     "rule": null
+    },
+    "margin": {
+     "projected": 0,
+     "actual": 2,
+     "absError": 2,
+     "insideInterval80": true
+    },
+    "total": {
+     "projected": 47,
+     "actual": 68,
+     "absError": 21,
+     "insideInterval80": false
+    },
+    "score": {
+     "projected": {
+      "home": 24,
+      "away": 23,
+      "convention": "scores-derived-from-total-and-margin-v1"
+     },
+     "absError": 21
+    },
+    "probabilistic": {
+     "brier": 0.235225,
+     "logLoss": 0.663588
+    }
+   },
+   "marketBenchmark": null
   }
  ],
  "pending": [
-  {
-   "canonicalEventId": "nfl-401873068",
-   "matchup": "BAL @ CAR",
-   "state": "AWAITING_OFFICIAL_RESULT",
-   "kickoffUtc": "2026-11-22T18:00Z",
-   "observed": "STATUS_SCHEDULED"
-  },
   {
    "canonicalEventId": "nfl-401873069",
    "matchup": "JAX @ NYG",
@@ -446,42 +507,41 @@
    "state": "AWAITING_OFFICIAL_RESULT",
    "kickoffUtc": "2026-11-22T21:25Z",
    "observed": "STATUS_SCHEDULED"
-  },
-  {
-   "canonicalEventId": "nfl-401873077",
-   "matchup": "MIN @ SF",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-11-23T01:20Z"
-  },
-  {
-   "canonicalEventId": "nfl-401873078",
-   "matchup": "CIN @ WSH",
-   "state": "PRE_KICKOFF",
-   "kickoffUtc": "2026-11-24T01:15Z"
   }
  ],
  "quarantined": [],
- "recordElsewhere": [],
+ "recordElsewhere": [
+  {
+   "canonicalEventId": "nfl-401873077",
+   "recordFolder": "2026-11-23",
+   "reason": "the forecast of record lives in another receipt folder"
+  },
+  {
+   "canonicalEventId": "nfl-401873078",
+   "recordFolder": "2026-11-23",
+   "reason": "the forecast of record lives in another receipt folder"
+  }
+ ],
  "accounting": {
   "receipts": 12,
-  "settled": 6,
-  "pending": 6,
+  "settled": 7,
+  "pending": 3,
   "quarantined": 0,
-  "recordElsewhere": 0,
+  "recordElsewhere": 2,
   "reconciles": true
  },
  "metrics": {
-  "settledForecasts": 6,
-  "decisive": 6,
+  "settledForecasts": 7,
+  "decisive": 7,
   "ties": 0,
-  "winnerCorrect": 5,
-  "winnerAccuracy": 0.8333,
-  "marginMAE": 6.5,
-  "totalMAE": 11.6667,
+  "winnerCorrect": 6,
+  "winnerAccuracy": 0.8571,
+  "marginMAE": 5.8571,
+  "totalMAE": 13,
   "marginInterval80Coverage": 1,
-  "totalInterval80Coverage": 0.8333,
-  "brier": 0.1183,
-  "logLoss": 0.3939
+  "totalInterval80Coverage": 0.7143,
+  "brier": 0.135,
+  "logLoss": 0.4325
  },
  "marketBenchmark": null,
  "comparison": null
