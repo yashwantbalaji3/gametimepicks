@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-23T00:37:03Z",
+ "generatedAt": "2026-11-23T01:20:00Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,23 +17,23 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 18,
+  "scheduledUpcoming": 17,
   "forecastsTotal": 13,
-  "forecastsUpcoming": 2,
-  "forecastsStarted": 11,
+  "forecastsUpcoming": 1,
+  "forecastsStarted": 12,
   "marketEvents": 14,
   "settled": 9
  },
- "nextKickoffUtc": "2026-11-23T01:20Z",
- "nextMatchup": "MIN VS SF",
- "nextForecastUtc": "2026-11-23T01:20Z",
- "nextForecastMatchup": "MIN @ SF",
+ "nextKickoffUtc": "2026-11-24T01:15Z",
+ "nextMatchup": "CIN @ WSH",
+ "nextForecastUtc": "2026-11-24T01:15Z",
+ "nextForecastMatchup": "CIN @ WSH",
  "marketCapturedAt": "2026-10-11T11:41:55Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-23T00:26:41Z",
+  "generatedAt": "2026-11-23T00:37:03Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -70,47 +70,6 @@
   "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: regular-season cohort; season types never share an aggregate."
  },
  "events": [
-  {
-   "providerEventId": "401873077",
-   "canonicalEventId": "nfl-401873077",
-   "matchup": "MIN @ SF",
-   "home": {
-    "abbr": "SF",
-    "name": "San Francisco 49ers"
-   },
-   "away": {
-    "abbr": "MIN",
-    "name": "Minnesota Vikings"
-   },
-   "kickoffUtc": "2026-11-23T01:20Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 22,
-    "away": 20,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.5161,
-    "away": 0.4548
-   },
-   "total": {
-    "median": 42,
-    "p10": 25,
-    "p90": 59,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": false,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "adbddc4069305d77",
-    "generatedAt": "2026-11-23T00:02:05Z"
-   }
-  },
   {
    "providerEventId": "401873078",
    "canonicalEventId": "nfl-401873078",
@@ -149,7 +108,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "40bacc571fc13f85",
-    "generatedAt": "2026-11-23T00:02:05Z"
+    "generatedAt": "2026-11-23T01:20:00Z"
    }
   },
   {
@@ -601,6 +560,47 @@
     "version": 2,
     "inputHash": "d45f6b433d8d1eae",
     "generatedAt": "2026-11-22T00:59:18Z"
+   }
+  },
+  {
+   "providerEventId": "401873077",
+   "canonicalEventId": "nfl-401873077",
+   "matchup": "MIN @ SF",
+   "home": {
+    "abbr": "SF",
+    "name": "San Francisco 49ers"
+   },
+   "away": {
+    "abbr": "MIN",
+    "name": "Minnesota Vikings"
+   },
+   "kickoffUtc": "2026-11-23T01:20Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 22,
+    "away": 20,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.5161,
+    "away": 0.4548
+   },
+   "total": {
+    "median": 42,
+    "p10": 25,
+    "p90": 59,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "adbddc4069305d77",
+    "generatedAt": "2026-11-23T00:02:05Z"
    }
   }
  ],

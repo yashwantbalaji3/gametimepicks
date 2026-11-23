@@ -2,146 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-23T00:37:03Z",
+  "generatedAt": "2026-11-23T01:20:00Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 2,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
-    "eventsWithAMaterialExclusion": 1,
+    "upcomingEvents": 1,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 1,
+    "eventsWithAMaterialExclusion": 0,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873077",
-      "matchup": "MIN @ SF",
-      "kickoffUtc": "2026-11-23T01:20Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "adbddc4069305d77",
-        "simulations": 10000,
-        "generatedAt": "2026-11-23T00:02:05Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-23T00:37:03Z",
-        "participationInputHash": "f914a0d3b713b2c9",
-        "excludedCount": 10,
-        "materialExclusions": [
-          {
-            "name": "Kyler Murray",
-            "team": "MIN",
-            "state": "Out",
-            "statedAt": "2026-11-23T00:00Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Max Brosmer",
-            "team": "MIN",
-            "state": "Out",
-            "statedAt": "2026-11-23T00:06Z",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          }
-        ],
-        "excluded": [
-          {
-            "name": "Isaac Guerendo",
-            "team": "SF",
-            "state": "Out",
-            "families": [
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Ricky Pearsall",
-            "team": "SF",
-            "state": "roster day-to-day",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Demarcus Robinson",
-            "team": "SF",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Jake Tonges",
-            "team": "SF",
-            "state": "roster day-to-day",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Brandon Aiyuk",
-            "team": "SF",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Kyler Murray",
-            "team": "MIN",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Max Brosmer",
-            "team": "MIN",
-            "state": "Out",
-            "families": [
-              "passAttempts",
-              "rushAttempts"
-            ]
-          },
-          {
-            "name": "Demond Claiborne",
-            "team": "MIN",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Jordan Addison",
-            "team": "MIN",
-            "state": "Out",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Josh Oliver",
-            "team": "MIN",
-            "state": "roster day-to-day",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873078",
@@ -152,13 +23,13 @@
         "version": 2,
         "inputHash": "40bacc571fc13f85",
         "simulations": 10000,
-        "generatedAt": "2026-11-23T00:02:05Z"
+        "generatedAt": "2026-11-23T01:20:00Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-23T00:37:03Z",
-        "participationInputHash": "349357fd6a989dfa",
+        "snapshotAsOf": "2026-11-23T01:20:00Z",
+        "participationInputHash": "837f44400a76da2c",
         "excludedCount": 9,
         "materialExclusions": [],
         "excluded": [
