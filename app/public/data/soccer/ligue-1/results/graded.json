@@ -5,12 +5,12 @@
  "public": true,
  "league": "ligue-1",
  "competition": "Ligue 1",
- "generatedAt": "2026-11-22T17:11:40Z",
+ "generatedAt": "2026-11-23T21:29:01Z",
  "rule": "each match graded once, against the last forecast published before kickoff, from the official final score",
  "summary": {
-  "matches": 70,
-  "logLoss": 0.9087,
-  "brier": 0.5323,
+  "matches": 72,
+  "logLoss": 0.9289,
+  "brier": 0.5461,
   "uniformLogLoss": 1.0986,
   "sampleState": "ACCUMULATING"
  },
@@ -1484,6 +1484,48 @@
    "probabilityOfResult": 0.6194,
    "logLoss": 0.479,
    "brier": 0.2193
+  },
+  {
+   "eventId": "soccer:ligue-1:401876401",
+   "matchup": "Lorient v Stade Rennais",
+   "homeClub": "Lorient",
+   "awayClub": "Stade Rennais",
+   "kickoffUtc": "2026-11-22T16:15:00.000Z",
+   "forecastAt": "2026-11-21T16:49:38Z",
+   "probs": {
+    "home": 0.39549,
+    "draw": 0.232769,
+    "away": 0.371741
+   },
+   "final": {
+    "home": 1,
+    "away": 1
+   },
+   "result": "D",
+   "probabilityOfResult": 0.2328,
+   "logLoss": 1.4577,
+   "brier": 0.8832
+  },
+  {
+   "eventId": "soccer:ligue-1:401876400",
+   "matchup": "Marseille v Le Mans",
+   "homeClub": "Marseille",
+   "awayClub": "Le Mans",
+   "kickoffUtc": "2026-11-22T19:45:00.000Z",
+   "forecastAt": "2026-11-22T17:11:40Z",
+   "probs": {
+    "home": 0.67299,
+    "draw": 0.163515,
+    "away": 0.163495
+   },
+   "final": {
+    "home": 2,
+    "away": 3
+   },
+   "result": "A",
+   "probabilityOfResult": 0.1635,
+   "logLoss": 1.811,
+   "brier": 1.1794
   }
  ]
 }
