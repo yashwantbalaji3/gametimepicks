@@ -2,15 +2,15 @@
  "schemaVersion": 1,
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
- "date": "2026-11-22",
- "generatedAt": "2026-11-22T23:36:54Z",
+ "date": "2026-11-23",
+ "generatedAt": "2026-11-23T00:02:05Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "25 model candidates · no current comparable touchdown price is available",
+ "reason": "26 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -108,6 +108,27 @@
    "providerEventId": "401873077",
    "kickoffUtc": "2026-11-23T01:20Z",
    "tdProbability": 0.4499,
+   "probabilitySource": "the game's player board — the published anytime-touchdown family",
+   "probabilityRange": {
+    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
+   "modelVersion": "nfl-anytime-td-opportunity-v1"
+  },
+  {
+   "playerId": "nfl-athlete-16737",
+   "name": "Mike Evans",
+   "position": "WR",
+   "team": "SF",
+   "opponent": "MIN",
+   "event": "MIN @ SF",
+   "providerEventId": "401873077",
+   "kickoffUtc": "2026-11-23T01:20Z",
+   "tdProbability": 0.4162,
    "probabilitySource": "the game's player board — the published anytime-touchdown family",
    "probabilityRange": {
     "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
@@ -244,37 +265,10 @@
    "pricingState": "NOT_PROBED",
    "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
    "modelVersion": "nfl-anytime-td-opportunity-v1"
-  },
-  {
-   "playerId": "nfl-athlete-3042519",
-   "name": "Aaron Jones Sr.",
-   "position": "RB",
-   "team": "MIN",
-   "opponent": "SF",
-   "event": "MIN @ SF",
-   "providerEventId": "401873077",
-   "kickoffUtc": "2026-11-23T01:20Z",
-   "tdProbability": 0.2943,
-   "probabilitySource": "the game's player board — the published anytime-touchdown family",
-   "probabilityRange": {
-    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
-   "modelVersion": "nfl-anytime-td-opportunity-v1"
   }
  ],
- "candidateCount": 25,
+ "candidateCount": 26,
  "withheld": [
-  {
-   "event": "MIN @ SF",
-   "team": "SF",
-   "player": "Mike Evans",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
   {
    "event": "CIN @ WSH",
    "team": "WSH",
@@ -292,7 +286,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 25,
+  "roleReadyCandidates": 26,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."

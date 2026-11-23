@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-forecasts",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-22T23:36:54Z",
- "date": "2026-11-22",
+ "generatedAt": "2026-11-23T00:02:05Z",
+ "date": "2026-11-23",
  "model": {
   "id": "nfl-regular-season-public-v1",
   "version": 2,
@@ -70,10 +70,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-22T23:36:54Z",
+   "generatedAt": "2026-11-23T00:02:05Z",
    "evidence": {
     "schedule": "2026-11-22T17:04:22Z",
-    "strengthCutoff": "2026-11-22T23:36:54Z",
+    "strengthCutoff": "2026-11-23T00:02:05Z",
     "strengthGamesFolded": 869,
     "regressedToSeason": null
    },
@@ -84,15 +84,15 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.5168,
-     "away": 0.4553,
-     "tieMass": 0.0279,
-     "homeUnrounded": 0.5167504129809085,
+     "home": 0.5161,
+     "away": 0.4548,
+     "tieMass": 0.0291,
+     "homeUnrounded": 0.5161125151354429,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
      "median": 1,
-     "p10": -15,
+     "p10": -16,
      "p90": 18
     },
     "total": {
@@ -105,7 +105,7 @@
      "homeP10": 10,
      "homeP90": 34,
      "awayP10": 9,
-     "awayP90": 33
+     "awayP90": 32
     },
     "distribution": {
      "marginMean": 1.14,
@@ -122,7 +122,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-22T23:36:54Z",
+    "participationAsOf": "2026-11-23T00:02:05Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -139,7 +139,7 @@
     "publishedSide": "HOME",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-22T00:59:18Z"
+    "frozenAt": "2026-11-23T00:02:05Z"
    }
   },
   {
@@ -195,10 +195,10 @@
     "state": "APPLIED",
     "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
    },
-   "generatedAt": "2026-11-22T23:36:54Z",
+   "generatedAt": "2026-11-23T00:02:05Z",
    "evidence": {
     "schedule": "2026-11-22T17:04:22Z",
-    "strengthCutoff": "2026-11-22T23:36:54Z",
+    "strengthCutoff": "2026-11-23T00:02:05Z",
     "strengthGamesFolded": 869,
     "regressedToSeason": null
    },
@@ -209,14 +209,14 @@
      "convention": "scores-derived-from-total-and-margin-v1"
     },
     "winProbability": {
-     "home": 0.309,
-     "away": 0.6585,
-     "tieMass": 0.0325,
-     "homeUnrounded": 0.3089985889611471,
+     "home": 0.3097,
+     "away": 0.6601,
+     "tieMass": 0.0302,
+     "homeUnrounded": 0.3097331592501504,
      "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
     },
     "margin": {
-     "median": -2,
+     "median": -1,
      "p10": -18,
      "p90": 15
     },
@@ -229,7 +229,7 @@
     "scoreRange": {
      "homeP10": 13,
      "homeP90": 37,
-     "awayP10": 14,
+     "awayP10": 15,
      "awayP90": 38
     },
     "distribution": {
@@ -247,7 +247,7 @@
    "teamInputs": {
     "version": 1,
     "consumedByModel": false,
-    "participationAsOf": "2026-11-22T23:36:54Z",
+    "participationAsOf": "2026-11-23T00:02:05Z",
     "state": "NO_STARTING_QB_ABSENCE",
     "absences": [],
     "comparisonWithheld": false,
@@ -264,7 +264,7 @@
     "publishedSide": "AWAY",
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
-    "frozenAt": "2026-11-22T00:59:18Z"
+    "frozenAt": "2026-11-23T00:02:05Z"
    }
   }
  ],

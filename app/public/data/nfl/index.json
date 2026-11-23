@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-22T23:36:54Z",
+ "generatedAt": "2026-11-23T00:02:05Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -22,7 +22,7 @@
   "forecastsUpcoming": 2,
   "forecastsStarted": 11,
   "marketEvents": 14,
-  "settled": 2
+  "settled": 7
  },
  "nextKickoffUtc": "2026-11-23T01:20Z",
  "nextMatchup": "MIN VS SF",
@@ -33,17 +33,17 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-22T21:15:12Z",
+  "generatedAt": "2026-11-22T23:36:54Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
-  "settledForecasts": 152,
-  "decisive": 151,
-  "winnerAccuracy": 0.6225,
-  "marginMAE": 10.1908,
-  "totalMAE": 10.9474,
-  "marginInterval80Coverage": 0.7829,
-  "totalInterval80Coverage": 0.8158,
+  "settledForecasts": 157,
+  "decisive": 156,
+  "winnerAccuracy": 0.6282,
+  "marginMAE": 10.0064,
+  "totalMAE": 11.0191,
+  "marginInterval80Coverage": 0.7898,
+  "totalInterval80Coverage": 0.8153,
   "cohorts": {
    "preseason": {
     "label": "preseason",
@@ -57,13 +57,13 @@
    },
    "regular-season": {
     "label": "regular-season",
-    "settledForecasts": 152,
-    "decisive": 151,
-    "winnerAccuracy": 0.6225,
-    "marginMAE": 10.1908,
-    "totalMAE": 10.9474,
-    "marginInterval80Coverage": 0.7829,
-    "totalInterval80Coverage": 0.8158
+    "settledForecasts": 157,
+    "decisive": 156,
+    "winnerAccuracy": 0.6282,
+    "marginMAE": 10.0064,
+    "totalMAE": 11.0191,
+    "marginInterval80Coverage": 0.7898,
+    "totalInterval80Coverage": 0.8153
    }
   },
   "unknownSeasonTypeRows": 0,
@@ -94,8 +94,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.5168,
-    "away": 0.4553
+    "home": 0.5161,
+    "away": 0.4548
    },
    "total": {
     "median": 42,
@@ -108,7 +108,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "adbddc4069305d77",
-    "generatedAt": "2026-11-22T23:36:54Z"
+    "generatedAt": "2026-11-23T00:02:05Z"
    }
   },
   {
@@ -135,8 +135,8 @@
     "convention": "scores-derived-from-total-and-margin-v1"
    },
    "winProbability": {
-    "home": 0.309,
-    "away": 0.6585
+    "home": 0.3097,
+    "away": 0.6601
    },
    "total": {
     "median": 51,
@@ -149,7 +149,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "40bacc571fc13f85",
-    "generatedAt": "2026-11-22T23:36:54Z"
+    "generatedAt": "2026-11-23T00:02:05Z"
    }
   },
   {
@@ -288,10 +288,10 @@
     "name": "Miami Dolphins"
    },
    "kickoffUtc": "2026-11-22T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 31,
@@ -329,10 +329,10 @@
     "name": "New Orleans Saints"
    },
    "kickoffUtc": "2026-11-22T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 29,
@@ -370,10 +370,10 @@
     "name": "Tampa Bay Buccaneers"
    },
    "kickoffUtc": "2026-11-22T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 28,
@@ -411,10 +411,10 @@
     "name": "Tennessee Titans"
    },
    "kickoffUtc": "2026-11-22T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 31,
@@ -452,10 +452,10 @@
     "name": "Pittsburgh Steelers"
    },
    "kickoffUtc": "2026-11-22T18:00Z",
-   "lifecycle": "STARTED",
+   "lifecycle": "SETTLED",
    "locked": true,
-   "state": "STARTED",
-   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "state": "SETTLED",
+   "stateMeaning": "The official result is in and the original forecast has been graded.",
    "lean": null,
    "projectedScore": {
     "home": 21,
