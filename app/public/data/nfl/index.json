@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-24T23:37:54Z",
+ "generatedAt": "2026-11-24T23:50:01Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -33,7 +33,7 @@
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-24T20:11:25Z",
+  "generatedAt": "2026-11-24T23:37:54Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -735,8 +735,8 @@
   },
   {
    "label": "Rushing yards",
-   "state": "ESTIMATE_NEAR_BAR",
-   "headline": "Rushing yards: displayed as an unvalidated estimate"
+   "state": "PUBLISHED",
+   "headline": "Rushing yards: published this week by nfl-player-share-level-v1"
   },
   {
    "label": "Receiving yards",
@@ -746,7 +746,7 @@
   {
    "label": "Receptions",
    "state": "PUBLISHED",
-   "headline": "Receptions: published this week on every game"
+   "headline": "Receptions: published this week by nfl-player-share-level-v1"
   }
  ],
  "anytimeTd": {
