@@ -2,37 +2,37 @@
   "schemaVersion": 1,
   "artifact": "epl-lane-status",
   "dataClass": "INTERNAL_ADMIN",
-  "generatedAt": "2026-11-23T01:31:29Z",
+  "generatedAt": "2026-11-24T03:59:07Z",
   "nextCluster": {
     "kickoffUtc": "2026-11-28T15:00:00.000Z",
     "fixtures": 10,
-    "hoursAway": 133.48
+    "hoursAway": 107.01
   },
   "freshness": {
     "fixtures": {
       "state": "READ",
       "stampedAt": "2026-10-24T14:16:20Z",
-      "ageHours": 707.25
+      "ageHours": 733.71
     },
     "odds": {
       "state": "READ",
       "stampedAt": "2026-11-21T02:01:26Z",
-      "ageHours": 47.5
+      "ageHours": 73.96
     },
     "forecasts": {
       "state": "READ",
-      "stampedAt": "2026-11-23T01:31:27Z",
+      "stampedAt": "2026-11-24T03:58:58Z",
       "ageHours": 0
     },
     "playerProjections": {
       "state": "READ",
-      "stampedAt": "2026-11-23T01:31:28Z",
+      "stampedAt": "2026-11-24T03:59:05Z",
       "ageHours": 0
     },
     "results": {
       "state": "READ",
-      "stampedAt": "2026-11-23T01:31:12Z",
-      "ageHours": 0
+      "stampedAt": "2026-11-24T03:58:47Z",
+      "ageHours": 0.01
     }
   },
   "cadence": {
@@ -60,23 +60,23 @@
       "headroom": 64,
       "kickoffWindowHours": 30,
       "spendingFirings": 122,
-      "skippedFirings": 363
+      "skippedFirings": 361
     }
   },
   "forecastSet": {
-    "generatedAt": "2026-11-23T01:31:27Z",
+    "generatedAt": "2026-11-24T03:58:58Z",
     "counts": {
-      "READY_EXCEPT_ODDS": 1
+      "READY_EXCEPT_ODDS": 10
     },
-    "rows": 1
+    "rows": 10
   },
   "playerSet": {
-    "generatedAt": "2026-11-23T01:31:28Z",
+    "generatedAt": "2026-11-24T03:59:05Z",
     "validation": "VALIDATED_OUT_OF_SAMPLE",
     "counts": {
-      "fixtures": 1,
+      "fixtures": 10,
       "withLineup": 0,
-      "awaitingLineup": 1
+      "awaitingLineup": 10
     },
     "markets": [
       "anytime_goalscorer",
@@ -88,8 +88,8 @@
     "matches": 93,
     "hits": 42,
     "meanLogLoss": 1.0343430967741933,
-    "playerRows": 4956,
-    "playerVoided": 5456
+    "playerRows": 5000,
+    "playerVoided": 5518
   },
   "gate": {
     "maturity": "SCAFFOLDED",
@@ -111,14 +111,19 @@
     "all": true
   },
   "productLane": {
-    "live": true,
-    "blocked": null
+    "live": false,
+    "blocked": "the last price capture (Nov 20) is more than 3 days old"
   },
   "blockers": [
     {
       "id": "calibration-backtest",
       "state": "ENGINEERING",
       "detail": "82 matches are now paired with a market baseline, past the 30 the stopping rule needs. The sample no longer blocks this: the preregistered backtest has not been run."
+    },
+    {
+      "id": "product-lane-closed",
+      "state": "REALITY_GATED",
+      "detail": "the Lab gate has closed this lane: the last price capture (Nov 20) is more than 3 days old. It reopens by itself when the evidence returns."
     }
   ]
 }
