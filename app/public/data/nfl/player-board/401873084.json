@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-24T05:10:02Z",
- "sourceGeneratedAt": "2026-11-24T05:10:02Z",
- "forecastInputHash": "12693d1b43277f1f",
+ "generatedAt": "2026-11-24T20:11:25Z",
+ "sourceGeneratedAt": "2026-11-24T20:11:25Z",
+ "forecastInputHash": "73a3e8c133a4d0df",
  "providerEventId": "401873084",
  "matchup": "ATL @ MIN",
  "kickoffUtc": "2026-11-29T18:00Z",
@@ -12,8 +12,8 @@
  "week": 12,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-24T05:10:02Z",
-  "roleEvidenceAt": "2026-11-24T05:10:02Z",
+  "injuriesCapturedAt": "2026-11-24T20:11:25Z",
+  "roleEvidenceAt": "2026-11-24T20:11:25Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -65,7 +65,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 38,
+  "absent": 41,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -191,8 +191,8 @@
   },
   "MIN": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 11,
+    "EXCLUDED_UNAVAILABLE": 1,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -207,6 +207,22 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-3917315",
+     "name": "Kyler Murray",
+     "state": "PROJECTED",
+     "families": [
+      "player_rush_yds"
+     ],
+     "participation": "QUESTIONABLE",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not MIN's starting quarterback (Kirk Cousins, depth chart QB1) — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-3042519",
@@ -258,6 +274,16 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4429205",
+     "name": "Jordan Addison",
+     "state": "PROJECTED",
+     "families": [
+      "player_reception_yds",
+      "player_receptions"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
      "playerId": "nfl-athlete-4565185",
      "name": "Tai Felton",
      "state": "PROJECTED",
@@ -286,18 +312,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-3917315",
-     "name": "Kyler Murray",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
-     "playerId": "nfl-athlete-4429205",
-     "name": "Jordan Addison",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-3921690",
@@ -342,7 +356,13 @@
     "passers": [
      "nfl-athlete-14880"
     ],
-    "removed": []
+    "removed": [
+     {
+      "playerId": "nfl-athlete-3917315",
+      "name": "Kyler Murray",
+      "reason": "not MIN's starting quarterback (Kirk Cousins, depth chart QB1) — the team's passing projection belongs to the starter"
+     }
+    ]
    }
   ],
   "pools": [],
@@ -396,11 +416,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-15T22:00Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -443,11 +463,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-15T23:02Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -474,11 +494,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -521,11 +541,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T18:18Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -552,11 +572,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -599,11 +619,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-17T05:06Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -628,11 +648,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T18:51Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -661,11 +681,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T05:02Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -712,11 +732,47 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T05:01Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3917315",
+   "name": "Kyler Murray",
+   "team": "MIN",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_rush_yds": {
+     "mean": 19.777,
+     "p10": 0,
+     "p25": 3.21,
+     "median": 13.35,
+     "p75": 29.36,
+     "p90": 48.28,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "flags": [
+     "QUESTIONABLE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Questionable",
+      "statedAt": "2026-11-24T12:39Z",
+      "fetchedAt": "2026-11-24T20:11:25Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -755,11 +811,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-15T23:30Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -782,17 +838,19 @@
    },
    "eligibility": {
     "state": "ELIGIBLE",
-    "reasons": [],
+    "reasons": [
+     "ROSTER_ACTIVE"
+    ],
     "contractVersion": "eligibility@1",
     "sources": {
      "injuries": {
-      "status": "Active",
-      "statedAt": "2026-11-13T22:03Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "status": null,
+      "statedAt": null,
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -822,11 +880,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T04:55Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -864,11 +922,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T04:43Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -906,11 +964,56 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T05:00Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4429205",
+   "name": "Jordan Addison",
+   "team": "MIN",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_reception_yds": {
+     "mean": 33.837,
+     "p10": 0,
+     "p25": 11.06,
+     "median": 26.95,
+     "p75": 49.28,
+     "p90": 74.97,
+     "pricingState": "NOT_PROBED"
+    },
+    "player_receptions": {
+     "mean": 2.671,
+     "p10": 0,
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 5,
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "flags": [
+     "QUESTIONABLE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Doubtful",
+      "statedAt": "2026-11-23T20:30Z",
+      "fetchedAt": "2026-11-24T20:11:25Z"
+     },
+     "roster": {
+      "status": "day-to-day",
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -948,11 +1051,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T05:03Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -990,11 +1093,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T03:12Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -1032,11 +1135,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T04:56Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -1074,11 +1177,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-18T02:27Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -1116,11 +1219,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-18T02:23Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }

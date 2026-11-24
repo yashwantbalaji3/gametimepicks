@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-24T05:10:02Z",
- "sourceGeneratedAt": "2026-11-24T05:10:02Z",
- "forecastInputHash": "b809bcdac4e31532",
+ "generatedAt": "2026-11-24T20:11:25Z",
+ "sourceGeneratedAt": "2026-11-24T20:11:25Z",
+ "forecastInputHash": "37845d434691aafe",
  "providerEventId": "401873092",
  "matchup": "WSH @ ARI",
  "kickoffUtc": "2026-11-29T21:25Z",
@@ -12,8 +12,8 @@
  "week": 12,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-24T05:10:02Z",
-  "roleEvidenceAt": "2026-11-24T05:10:02Z",
+  "injuriesCapturedAt": "2026-11-24T20:11:25Z",
+  "roleEvidenceAt": "2026-11-24T20:11:25Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -87,14 +87,14 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 34,
+  "absent": 35,
   "referenceBook": "draftkings"
  },
  "coverage": {
   "WSH": {
    "counts": {
-    "PROJECTED": 11,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 12,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 1,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -110,6 +110,22 @@
       "player_rush_yds"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
+    },
+    {
+     "playerId": "nfl-athlete-4432722",
+     "name": "Athan Kaliakmanis",
+     "state": "PROJECTED",
+     "families": [
+      "player_rush_yds"
+     ],
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not WSH's starting quarterback (Jayden Daniels, depth chart QB1) — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4575131",
@@ -215,12 +231,6 @@
      "participation": "ACTIVE_PROJECTED"
     },
     {
-     "playerId": "nfl-athlete-4432722",
-     "name": "Athan Kaliakmanis",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
      "playerId": "nfl-athlete-3121422",
      "name": "Terry McLaurin",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -243,21 +253,21 @@
   "ARI": {
    "counts": {
     "PROJECTED": 6,
-    "EXCLUDED_UNAVAILABLE": 7,
+    "EXCLUDED_UNAVAILABLE": 6,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
-    "NOT_MODELED_BY_FAMILY": 0,
+    "NOT_MODELED_BY_FAMILY": 1,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
     {
-     "playerId": "nfl-athlete-11394",
-     "name": "Josh Johnson",
+     "playerId": "nfl-athlete-4430841",
+     "name": "Carson Beck",
      "state": "PROJECTED",
      "families": [
       "player_pass_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4373626",
@@ -308,12 +318,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4430841",
-     "name": "Carson Beck",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
-    },
-    {
      "playerId": "nfl-athlete-4038524",
      "name": "Gardner Minshew II",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -348,6 +352,19 @@
      "name": "Kendrick Bourne",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "designation: Injured Reserve"
+    },
+    {
+     "playerId": "nfl-athlete-11394",
+     "name": "Josh Johnson",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "not ARI's starting quarterback (Carson Beck, depth chart QB1) — the team's passing projection belongs to the starter",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not ARI's starting quarterback (Carson Beck, depth chart QB1) — the team's passing projection belongs to the starter"
+      }
+     ]
     }
    ]
   }
@@ -369,30 +386,36 @@
     "passers": [
      "nfl-athlete-4426348"
     ],
-    "removed": []
+    "removed": [
+     {
+      "playerId": "nfl-athlete-4432722",
+      "name": "Athan Kaliakmanis",
+      "reason": "not WSH's starting quarterback (Jayden Daniels, depth chart QB1) — the team's passing projection belongs to the starter"
+     }
+    ]
    },
    {
     "team": "ARI",
     "snapshotAt": "2026-11-23T19:11:07Z",
-    "skipped": [
-     {
-      "playerId": "nfl-athlete-4430841",
-      "name": "Carson Beck",
-      "reason": "unavailable (Out)"
-     }
-    ],
+    "skipped": [],
     "state": "APPLIED",
     "tier": "A_CLUB_HISTORY",
     "starter": {
-     "playerId": "nfl-athlete-11394",
-     "name": "Josh Johnson"
+     "playerId": "nfl-athlete-4430841",
+     "name": "Carson Beck"
     },
-    "source": "depth chart, past Carson Beck (unavailable)",
+    "source": "depth chart QB1",
     "basis": "club share not carried by the forecast",
     "passers": [
-     "nfl-athlete-11394"
+     "nfl-athlete-4430841"
     ],
-    "removed": []
+    "removed": [
+     {
+      "playerId": "nfl-athlete-11394",
+      "name": "Josh Johnson",
+      "reason": "not ARI's starting quarterback (Carson Beck, depth chart QB1) — the team's passing projection belongs to the starter"
+     }
+    ]
    }
   ],
   "pools": [],
@@ -427,12 +450,12 @@
     "sources": {
      "injuries": {
       "status": "Active",
-      "statedAt": "2026-11-23T23:52Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "statedAt": "2026-11-24T05:06Z",
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -477,11 +500,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -524,11 +547,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T04:52Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -562,11 +585,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T23:48Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -609,11 +632,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-21T21:46Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -638,11 +661,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-14T00:34Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -684,12 +707,12 @@
     "sources": {
      "injuries": {
       "status": "Active",
-      "statedAt": "2026-11-13T05:30Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "statedAt": "2026-11-24T05:10Z",
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -718,11 +741,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-22T23:47Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -761,11 +784,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T04:45Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -794,11 +817,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-22T23:51Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -845,11 +868,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-13T05:24Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -880,29 +903,28 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
   },
   {
-   "playerId": "nfl-athlete-11394",
-   "name": "Josh Johnson",
-   "team": "ARI",
+   "playerId": "nfl-athlete-4432722",
+   "name": "Athan Kaliakmanis",
+   "team": "WSH",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_pass_yds": {
-     "mean": 68.53,
+    "player_rush_yds": {
+     "mean": 7.272,
      "p10": 0,
-     "p25": 13.5,
-     "median": 49.46,
-     "p75": 108.21,
-     "p90": 166.35,
-     "tier": "A_CLUB_HISTORY",
+     "p25": 0,
+     "median": 1.63,
+     "p75": 10.03,
+     "p90": 21.77,
      "pricingState": "NOT_PROBED"
     }
    },
@@ -913,12 +935,49 @@
     "sources": {
      "injuries": {
       "status": "Active",
-      "statedAt": "2026-11-22T23:43Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "statedAt": "2026-11-24T12:38Z",
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-4430841",
+   "name": "Carson Beck",
+   "team": "ARI",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 76.203,
+     "p10": 0,
+     "p25": 14.93,
+     "median": 57.08,
+     "p75": 119.64,
+     "p90": 180.78,
+     "tier": "A_CLUB_HISTORY",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "flags": [
+     "QUESTIONABLE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Questionable",
+      "statedAt": "2026-11-24T12:39Z",
+      "fetchedAt": "2026-11-24T20:11:25Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -956,11 +1015,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-22T23:39Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -998,11 +1057,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T00:47Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -1040,11 +1099,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T03:07Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -1081,12 +1140,12 @@
     "sources": {
      "injuries": {
       "status": "Active",
-      "statedAt": "2026-11-13T04:38Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "statedAt": "2026-11-24T05:14Z",
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }

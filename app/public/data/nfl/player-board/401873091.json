@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-24T05:10:02Z",
- "sourceGeneratedAt": "2026-11-24T05:10:02Z",
- "forecastInputHash": "f7124f795dc0c34b",
+ "generatedAt": "2026-11-24T20:11:25Z",
+ "sourceGeneratedAt": "2026-11-24T20:11:25Z",
+ "forecastInputHash": "3e05b7f4fd186c33",
  "providerEventId": "401873091",
  "matchup": "SEA @ SF",
  "kickoffUtc": "2026-11-29T21:25Z",
@@ -12,8 +12,8 @@
  "week": 12,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-24T05:10:02Z",
-  "roleEvidenceAt": "2026-11-24T05:10:02Z",
+  "injuriesCapturedAt": "2026-11-24T20:11:25Z",
+  "roleEvidenceAt": "2026-11-24T20:11:25Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -71,8 +71,8 @@
  "coverage": {
   "SEA": {
    "counts": {
-    "PROJECTED": 9,
-    "EXCLUDED_UNAVAILABLE": 3,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -80,14 +80,29 @@
    },
    "players": [
     {
+     "playerId": "nfl-athlete-3912547",
+     "name": "Sam Darnold",
+     "state": "PROJECTED",
+     "families": [
+      "player_pass_yds"
+     ],
+     "participation": "QUESTIONABLE"
+    },
+    {
      "playerId": "nfl-athlete-3924327",
      "name": "Drew Lock",
      "state": "PROJECTED",
      "families": [
-      "player_pass_yds",
       "player_rush_yds"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "not SEA's starting quarterback (Sam Darnold, depth chart QB1) — the team's passing projection belongs to the starter"
+      }
+     ]
     },
     {
      "playerId": "nfl-athlete-4430878",
@@ -167,12 +182,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-3912547",
-     "name": "Sam Darnold",
-     "state": "EXCLUDED_UNAVAILABLE",
-     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-4429835",
@@ -333,25 +342,25 @@
    {
     "team": "SEA",
     "snapshotAt": "2026-11-23T19:11:07Z",
-    "skipped": [
-     {
-      "playerId": "nfl-athlete-3912547",
-      "name": "Sam Darnold",
-      "reason": "unavailable (Out)"
-     }
-    ],
+    "skipped": [],
     "state": "APPLIED",
     "tier": "A_CLUB_HISTORY",
     "starter": {
-     "playerId": "nfl-athlete-3924327",
-     "name": "Drew Lock"
+     "playerId": "nfl-athlete-3912547",
+     "name": "Sam Darnold"
     },
-    "source": "depth chart, past Sam Darnold (unavailable)",
+    "source": "depth chart QB1",
     "basis": "club share not carried by the forecast",
     "passers": [
-     "nfl-athlete-3924327"
+     "nfl-athlete-3912547"
     ],
-    "removed": []
+    "removed": [
+     {
+      "playerId": "nfl-athlete-3924327",
+      "name": "Drew Lock",
+      "reason": "not SEA's starting quarterback (Sam Darnold, depth chart QB1) — the team's passing projection belongs to the starter"
+     }
+    ]
    },
    {
     "team": "SF",
@@ -422,11 +431,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T04:41Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -469,11 +478,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T04:53Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -516,11 +525,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T04:44Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -572,11 +581,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T05:01Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -619,11 +628,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T00:12Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -648,11 +657,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T02:40Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -686,11 +695,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T05:07Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -719,11 +728,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-15T19:55Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -752,11 +761,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T01:48Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -803,11 +812,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T01:55Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -846,11 +855,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T04:52Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -879,11 +888,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T00:17Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -894,16 +903,6 @@
    "team": "SEA",
    "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
-    "player_pass_yds": {
-     "mean": 138.549,
-     "p10": 14.13,
-     "p25": 53.17,
-     "median": 124.07,
-     "p75": 207.41,
-     "p90": 282.92,
-     "tier": "A_CLUB_HISTORY",
-     "pricingState": "NOT_PROBED"
-    },
     "player_rush_yds": {
      "mean": 5.939,
      "p10": 0,
@@ -922,11 +921,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T02:02Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -964,11 +963,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T05:13Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -1006,11 +1005,48 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T02:22Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
+     }
+    }
+   }
+  },
+  {
+   "playerId": "nfl-athlete-3912547",
+   "name": "Sam Darnold",
+   "team": "SEA",
+   "participation": "QUESTIONABLE",
+   "markets": {
+    "player_pass_yds": {
+     "mean": 119.181,
+     "p10": 13.8,
+     "p25": 47.23,
+     "median": 108.22,
+     "p75": 176.62,
+     "p90": 239.55,
+     "tier": "A_CLUB_HISTORY",
+     "pricingState": "NOT_PROBED"
+    }
+   },
+   "eligibility": {
+    "state": "ELIGIBLE",
+    "reasons": [],
+    "flags": [
+     "QUESTIONABLE"
+    ],
+    "contractVersion": "eligibility@1",
+    "sources": {
+     "injuries": {
+      "status": "Questionable",
+      "statedAt": "2026-11-24T15:31Z",
+      "fetchedAt": "2026-11-24T20:11:25Z"
+     },
+     "roster": {
+      "status": "active",
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -1048,11 +1084,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T01:31Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -1090,11 +1126,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T05:29Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -1132,11 +1168,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-16T05:27Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -1174,11 +1210,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-17T02:59Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
@@ -1216,11 +1252,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-17T02:47Z",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-24T05:10:02Z"
+      "fetchedAt": "2026-11-24T20:11:25Z"
      }
     }
    }
