@@ -2,13 +2,13 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-24T00:45:40Z",
+  "generatedAt": "2026-11-24T01:13:16Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 1,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 1,
+    "upcomingEvents": 2,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 2,
     "eventsWithAMaterialExclusion": 1,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
@@ -23,13 +23,13 @@
         "version": 2,
         "inputHash": "0c91125a5eb25bd4",
         "simulations": 10000,
-        "generatedAt": "2026-11-24T00:11:34Z"
+        "generatedAt": "2026-11-24T01:13:16Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-24T00:45:40Z",
-        "participationInputHash": "8553fa77191f199e",
+        "snapshotAsOf": "2026-11-24T01:13:16Z",
+        "participationInputHash": "132e2ce583177dfb",
         "excludedCount": 11,
         "materialExclusions": [
           {
@@ -130,6 +130,106 @@
             "name": "Cam Grandy",
             "team": "CIN",
             "state": "Out",
+            "families": [
+              "targets"
+            ]
+          }
+        ]
+      },
+      "coherent": false
+    },
+    {
+      "sport": "nfl",
+      "eventId": "401873079",
+      "matchup": "GB @ LAR",
+      "kickoffUtc": "2026-11-26T01:00Z",
+      "forecastSnapshot": {
+        "model": "nfl-regular-season-public-v1",
+        "version": 2,
+        "inputHash": "079ceb8da1c1a054",
+        "simulations": 10000,
+        "generatedAt": "2026-11-24T01:13:16Z"
+      },
+      "availability": {
+        "consumedByTeamForecast": false,
+        "consumedByPlayerBoards": true,
+        "snapshotAsOf": "2026-11-24T01:13:16Z",
+        "participationInputHash": "9b3016563035a423",
+        "excludedCount": 9,
+        "materialExclusions": [],
+        "excluded": [
+          {
+            "name": "Puka Nacua",
+            "team": "LAR",
+            "state": "Injured Reserve",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Davante Adams",
+            "team": "LAR",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Terrance Ferguson",
+            "team": "LAR",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Jordan Whittington",
+            "team": "LAR",
+            "state": "Injured Reserve",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Josh Jacobs",
+            "team": "GB",
+            "state": "Out",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Pierre Strong Jr.",
+            "team": "GB",
+            "state": "roster practice-squad",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Jayden Reed",
+            "team": "GB",
+            "state": "roster day-to-day",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Luke Musgrave",
+            "team": "GB",
+            "state": "Out",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Josh Whyle",
+            "team": "GB",
+            "state": "Injured Reserve",
             "families": [
               "targets"
             ]
