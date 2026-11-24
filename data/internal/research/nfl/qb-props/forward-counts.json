@@ -1,26 +1,26 @@
 {
  "schema": "gtp.nfl.qb-props-forward-counts@1",
  "rule": "receipt of record = latest generatedAt < eventStart; projected QB = largest pass-attempt median; NOT joined to any final",
- "receiptsOfRecord": 99,
+ "receiptsOfRecord": 115,
  "excluded": {
   "generatedAtOrAfterStart": 0,
   "beforeFromDate": 2
  },
- "qbRows": 189,
- "withCountPmf": 45,
+ "qbRows": 219,
+ "withCountPmf": 75,
  "total": {
-  "passYds": 189,
-  "passCmp": 189,
-  "passAtt": 189,
-  "passTd": 189,
-  "passInt": 189
+  "passYds": 219,
+  "passCmp": 219,
+  "passAtt": 219,
+  "passTd": 219,
+  "passInt": 219
  },
  "withModelDistribution": {
-  "passYds": 45,
-  "passCmp": 45,
-  "passAtt": 45,
-  "passTd": 45,
-  "passInt": 45
+  "passYds": 75,
+  "passCmp": 75,
+  "passAtt": 75,
+  "passTd": 75,
+  "passInt": 75
  },
  "byKickoffDate": {
   "2026-10-09": {
@@ -218,15 +218,50 @@
    "passAtt": 2,
    "passTd": 2,
    "passInt": 2
+  },
+  "2026-11-26": {
+   "passYds": 6,
+   "passCmp": 6,
+   "passAtt": 6,
+   "passTd": 6,
+   "passInt": 6
+  },
+  "2026-11-27": {
+   "passYds": 4,
+   "passCmp": 4,
+   "passAtt": 4,
+   "passTd": 4,
+   "passInt": 4
+  },
+  "2026-11-29": {
+   "passYds": 16,
+   "passCmp": 16,
+   "passAtt": 16,
+   "passTd": 16,
+   "passInt": 16
+  },
+  "2026-11-30": {
+   "passYds": 2,
+   "passCmp": 2,
+   "passAtt": 2,
+   "passTd": 2,
+   "passInt": 2
+  },
+  "2026-12-01": {
+   "passYds": 2,
+   "passCmp": 2,
+   "passAtt": 2,
+   "passTd": 2,
+   "passInt": 2
   }
  },
  "byEligibility": {
   "PENDING_ELIGIBILITY_CONTRACT": {
-   "passYds": 189,
-   "passCmp": 189,
-   "passAtt": 189,
-   "passTd": 189,
-   "passInt": 189
+   "passYds": 219,
+   "passCmp": 219,
+   "passAtt": 219,
+   "passTd": 219,
+   "passInt": 219
   }
  }
 }
