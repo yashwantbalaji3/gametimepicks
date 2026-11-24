@@ -1,0 +1,6927 @@
+{
+ "schemaVersion": 2,
+ "artifact": "nba-top-boards",
+ "schema": "nba-top-board@2",
+ "dataClass": "PRIVATE_RESEARCH",
+ "productEligible": false,
+ "publicState": "PRIVATE",
+ "neverReadBy": "public routes under app/src/app/** — private artifact; sport-capability-registry keeps NBA HISTORICAL_ONLY",
+ "date": "2026-11-24",
+ "family": "v1",
+ "modelVersion": "nba-sim-v1-coherent",
+ "categories": [
+  {
+   "key": "points",
+   "stat": "pts",
+   "label": "Points",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "rebounds",
+   "stat": "reb",
+   "label": "Rebounds",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "assists",
+   "stat": "ast",
+   "label": "Assists",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "threes",
+   "stat": "threePm",
+   "label": "3PM",
+   "basis": "MARGINAL",
+   "modelled": true
+  },
+  {
+   "key": "pra",
+   "stat": "pra",
+   "label": "PRA",
+   "basis": "JOINT_SIMULATED_SUM",
+   "components": [
+    "pts",
+    "reb",
+    "ast"
+   ],
+   "modelled": true
+  },
+  {
+   "key": "ptsReb",
+   "stat": "ptsReb",
+   "label": "P+R",
+   "basis": "JOINT_SIMULATED_SUM",
+   "components": [
+    "pts",
+    "reb"
+   ],
+   "modelled": true
+  },
+  {
+   "key": "ptsAst",
+   "stat": "ptsAst",
+   "label": "P+A",
+   "basis": "JOINT_SIMULATED_SUM",
+   "components": [
+    "pts",
+    "ast"
+   ],
+   "modelled": true
+  },
+  {
+   "key": "rebAst",
+   "stat": null,
+   "label": "R+A",
+   "basis": "NOT_MODELLED",
+   "components": [
+    "reb",
+    "ast"
+   ],
+   "modelled": false
+  }
+ ],
+ "maxRows": 10,
+ "eligibility": {
+  "version": "nba-top-board-eligibility@1",
+  "minExpectedMinutes": 20,
+  "maxMinutesCv": 0.35,
+  "minPlayRate": 0.95,
+  "minGamesUsed": 3,
+  "playerRateBases": [
+   "player-window",
+   "v1-shrunk-to-league"
+  ],
+  "tradedHistoryPolicy": "INCLUDE_WITH_FLAG",
+  "rules": [
+   {
+    "id": "MISSING_ATHLETE_ID",
+    "scope": "player",
+    "description": "no providerAthleteId — the row could never be joined to a box score"
+   },
+   {
+    "id": "AVAILABILITY_OUT",
+    "scope": "player",
+    "description": "ruled Out by the injury feed at the forecast instant"
+   },
+   {
+    "id": "INJURY_DESIGNATION",
+    "scope": "player",
+    "description": "ANY injury designation, including Day-To-Day — an unresolved status is withheld (founder rule)"
+   },
+   {
+    "id": "INSUFFICIENT_HISTORY",
+    "scope": "player",
+    "description": "minutes basis \"insufficient\", or fewer than 3 appearances used (the minutes model's MIN_GAMES_FOR_RATES)"
+   },
+   {
+    "id": "NULL_MINUTES",
+    "scope": "player",
+    "description": "expected minutes absent (never read as zero)"
+   },
+   {
+    "id": "AVAILABILITY_UNVERIFIED",
+    "scope": "player",
+    "description": "availability not read from an injury feed (\"unknown\" or absent) — unknown is not active"
+   },
+   {
+    "id": "LOW_PLAY_RATE",
+    "scope": "player",
+    "description": "conditional-on-playing quantiles with playRate below 0.95 (or no playRate recorded)"
+   },
+   {
+    "id": "TEAM_POOL_FALLBACK_RATES",
+    "scope": "player",
+    "description": "per-minute rates not from the player's own history (team-pool fallback, or an unknown basis)"
+   },
+   {
+    "id": "LOW_EXPECTED_MINUTES",
+    "scope": "player",
+    "description": "expected minutes below 20 (the preregistered graded population)"
+   },
+   {
+    "id": "MINUTES_TOO_UNCERTAIN",
+    "scope": "player",
+    "description": "minutesSd / expectedMinutes above 0.35, or no measured minutes spread"
+   },
+   {
+    "id": "MISSING_DISTRIBUTION",
+    "scope": "category",
+    "description": "the category's frozen distribution (mean, p10, p50, p90) is incomplete"
+   }
+  ],
+  "flags": [
+   "TRADED_HISTORY_OTHER_TEAM",
+   "LEGACY_NO_RECEIPT"
+  ]
+ },
+ "ranking": {
+  "id": "nba-top-board-ranking@2",
+  "metric": "MODEL_MEDIAN_P50_OR_MEAN_WHEN_DISCRETE",
+  "metrics": {
+   "CONTINUOUS": "MODEL_MEDIAN_P50",
+   "DISCRETE": "MODEL_MEAN"
+  },
+  "rule": "per board: continuous quantile summaries → frozen p50 desc, then mean desc, then providerAthleteId asc; whole-number (discrete) summaries on every candidate → frozen mean desc, then providerAthleteId asc (deterministic, no clock)"
+ },
+ "market": {
+  "state": "NO_AUTHORIZED_PRICE",
+  "note": "no NBA odds authorization exists; no line, odds, edge or over/under probability is ever recorded"
+ },
+ "confidence": {
+  "value": null,
+  "reason": "no calibrated confidence until the preregistered bars are met"
+ },
+ "writeOnce": {
+  "rule": "an edition, once written, is never rewritten; a later freeze only adds a new edition for games on no earlier edition that have not tipped"
+ },
+ "editions": [
+  {
+   "edition": 1,
+   "frozenAt": "2026-11-24T16:20:30Z",
+   "source": {
+    "path": "data/internal/research/nba/experimental-v1/forecasts/2026-11-24.json",
+    "sha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+    "artifactGeneratedAt": "2026-11-24T16:20:30Z",
+    "artifactInputAsOf": "2026-11-24T16:20:30Z",
+    "runs": 1,
+    "modelVersion": "nba-sim-v1-coherent"
+   },
+   "gamesOnBoard": 1,
+   "games": [
+    {
+     "eventId": "401909314",
+     "tipoffUtc": "2026-11-25T00:00Z",
+     "label": "NBA REGULAR SEASON — SHADOW",
+     "home": {
+      "name": "Orlando Magic",
+      "abbr": "ORL",
+      "espnAbbr": "ORL",
+      "providerTeamId": "19"
+     },
+     "away": {
+      "name": "Detroit Pistons",
+      "abbr": "DET",
+      "espnAbbr": "DET",
+      "providerTeamId": "8"
+     },
+     "forecastGeneratedAt": "2026-11-24T16:20:30Z",
+     "forecastInputAsOf": "2026-11-24T16:20:30Z",
+     "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0",
+     "state": "ON_BOARD",
+     "flags": []
+    }
+   ],
+   "boards": {
+    "points": {
+     "category": "points",
+     "label": "Points",
+     "stat": "pts",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-24|v1|e1|points|401909314|4566434",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Franz Wagner",
+        "providerAthleteId": "4566434"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.76
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 31
+       },
+       "playRate": 0.9719,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 8.28,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.76,
+        "expectedMinutes": 33.26,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-24|v1|e1|points|401909314|4066320",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Desmond Bane",
+        "providerAthleteId": "4066320"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 17,
+        "mean": 18.03
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.9773,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.63,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.03,
+        "expectedMinutes": 33.63,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-24|v1|e1|points|401909314|5107199",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Daniss Jenkins",
+        "providerAthleteId": "5107199"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.35
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9679,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.1,
+       "minutesSd": 10.06,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.35,
+        "expectedMinutes": 32.1,
+        "p90": 24
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-24|v1|e1|points|401909314|4712849",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Anthony Black",
+        "providerAthleteId": "4712849"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.14
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 18,
+        "p90": 23
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.4,
+       "minutesSd": 9.09,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.14,
+        "expectedMinutes": 30.4,
+        "p90": 23
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-24|v1|e1|points|401909314|4432165",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Suggs",
+        "providerAthleteId": "4432165"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.28
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 16,
+        "p90": 20
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.12,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.28,
+        "expectedMinutes": 28.12,
+        "p90": 20
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-24|v1|e1|points|401909314|3908845",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "John Collins",
+        "providerAthleteId": "3908845"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.27
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 16,
+        "p90": 20
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.39,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.27,
+        "expectedMinutes": 26.39,
+        "p90": 20
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-24|v1|e1|points|401909314|4277847",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Wendell Carter Jr.",
+        "providerAthleteId": "4277847"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.52
+       },
+       "range": {
+        "p10": 5,
+        "p25": 7,
+        "p75": 15,
+        "p90": 19
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.2,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.52,
+        "expectedMinutes": 30.2,
+        "p90": 19
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-24|v1|e1|points|401909314|4684742",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ausar Thompson",
+        "providerAthleteId": "4684742"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 11,
+        "mean": 11.37
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 15,
+        "p90": 19
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.36,
+       "minutesSd": 8.75,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.37,
+        "expectedMinutes": 30.36,
+        "p90": 19
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-24|v1|e1|points|401909314|4702382",
+       "category": "points",
+       "stat": "pts",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tristan da Silva",
+        "providerAthleteId": "4702382"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 10,
+        "mean": 11.03
+       },
+       "range": {
+        "p10": 4,
+        "p25": 7,
+        "p75": 15,
+        "p90": 19
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.38,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 11.03,
+        "expectedMinutes": 27.38,
+        "p90": 19
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 26,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 12,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 1,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 12,
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 9,
+       "NULL_MINUTES": 9,
+       "TEAM_POOL_FALLBACK_RATES": 9,
+       "MISSING_DISTRIBUTION": 9,
+       "INSUFFICIENT_HISTORY": 1,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2596112",
+        "name": "Javonte Green",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2990962",
+        "name": "Taurean Prince",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133635",
+        "name": "Jevon Carter",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3157465",
+        "name": "Duncan Robinson",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065654",
+        "name": "Jonathan Isaac",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4066372",
+        "name": "Kevin Huerter",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278562",
+        "name": "Paul Reed",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4278572",
+        "name": "Jamal Cain",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4348700",
+        "name": "Goga Bitadze",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395702",
+        "name": "Isaiah Joe",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397204",
+        "name": "Colin Castleton",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397449",
+        "name": "Elijah Harkless",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397882",
+        "name": "Tolu Smith",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432166",
+        "name": "Cade Cunningham",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432573",
+        "name": "Paolo Banchero",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433621",
+        "name": "Jalen Duren",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4593034",
+        "name": "Alex Morales",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683771",
+        "name": "Ronald Holland II",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4700852",
+        "name": "Chaz Lanier",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5037878",
+        "name": "Ugonna Onyenso",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5107251",
+        "name": "Izaiyah Nelson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5107818",
+        "name": "Isaac Jones",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214637",
+        "name": "Noah Penda",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5239561",
+        "name": "Jase Richardson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5258459",
+        "name": "Ebuka Okorie",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "6478",
+        "name": "Nikola Vucevic",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebounds": {
+     "category": "rebounds",
+     "label": "Rebounds",
+     "stat": "reb",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-24|v1|e1|rebounds|401909314|4277847",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Wendell Carter Jr.",
+        "providerAthleteId": "4277847"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 7,
+        "mean": 7.31
+       },
+       "range": {
+        "p10": 3,
+        "p25": 5,
+        "p75": 9,
+        "p90": 12
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.2,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 7.31,
+        "expectedMinutes": 30.2,
+        "p90": 12
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-24|v1|e1|rebounds|401909314|4684742",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ausar Thompson",
+        "providerAthleteId": "4684742"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 6.86
+       },
+       "range": {
+        "p10": 3,
+        "p25": 4,
+        "p75": 9,
+        "p90": 12
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.36,
+       "minutesSd": 8.75,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 6.86,
+        "expectedMinutes": 30.36,
+        "p90": 12
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-24|v1|e1|rebounds|401909314|4566434",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Franz Wagner",
+        "providerAthleteId": "4566434"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 6,
+        "mean": 5.78
+       },
+       "range": {
+        "p10": 2,
+        "p25": 4,
+        "p75": 8,
+        "p90": 10
+       },
+       "playRate": 0.9719,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 8.28,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.78,
+        "expectedMinutes": 33.26,
+        "p90": 10
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-24|v1|e1|rebounds|401909314|3908845",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "John Collins",
+        "providerAthleteId": "3908845"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.29
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.39,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.29,
+        "expectedMinutes": 26.39,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-24|v1|e1|rebounds|401909314|4432165",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Suggs",
+        "providerAthleteId": "4432165"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.01
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.12,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.01,
+        "expectedMinutes": 28.12,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-24|v1|e1|rebounds|401909314|4712849",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Anthony Black",
+        "providerAthleteId": "4712849"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 3.99
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.4,
+       "minutesSd": 9.09,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.99,
+        "expectedMinutes": 30.4,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-24|v1|e1|rebounds|401909314|4066320",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Desmond Bane",
+        "providerAthleteId": "4066320"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 3.91
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9773,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.63,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.91,
+        "expectedMinutes": 33.63,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-24|v1|e1|rebounds|401909314|5107199",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Daniss Jenkins",
+        "providerAthleteId": "5107199"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 3.86
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9679,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.1,
+       "minutesSd": 10.06,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.86,
+        "expectedMinutes": 32.1,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-24|v1|e1|rebounds|401909314|4702382",
+       "category": "rebounds",
+       "stat": "reb",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tristan da Silva",
+        "providerAthleteId": "4702382"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.73
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.38,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.73,
+        "expectedMinutes": 27.38,
+        "p90": 7
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 26,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 12,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 1,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 12,
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 9,
+       "NULL_MINUTES": 9,
+       "TEAM_POOL_FALLBACK_RATES": 9,
+       "MISSING_DISTRIBUTION": 9,
+       "INSUFFICIENT_HISTORY": 1,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2596112",
+        "name": "Javonte Green",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2990962",
+        "name": "Taurean Prince",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133635",
+        "name": "Jevon Carter",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3157465",
+        "name": "Duncan Robinson",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065654",
+        "name": "Jonathan Isaac",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4066372",
+        "name": "Kevin Huerter",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278562",
+        "name": "Paul Reed",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4278572",
+        "name": "Jamal Cain",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4348700",
+        "name": "Goga Bitadze",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395702",
+        "name": "Isaiah Joe",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397204",
+        "name": "Colin Castleton",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397449",
+        "name": "Elijah Harkless",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397882",
+        "name": "Tolu Smith",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432166",
+        "name": "Cade Cunningham",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432573",
+        "name": "Paolo Banchero",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433621",
+        "name": "Jalen Duren",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4593034",
+        "name": "Alex Morales",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683771",
+        "name": "Ronald Holland II",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4700852",
+        "name": "Chaz Lanier",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5037878",
+        "name": "Ugonna Onyenso",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5107251",
+        "name": "Izaiyah Nelson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5107818",
+        "name": "Isaac Jones",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214637",
+        "name": "Noah Penda",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5239561",
+        "name": "Jase Richardson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5258459",
+        "name": "Ebuka Okorie",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "6478",
+        "name": "Nikola Vucevic",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "assists": {
+     "category": "assists",
+     "label": "Assists",
+     "stat": "ast",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-24|v1|e1|assists|401909314|5107199",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Daniss Jenkins",
+        "providerAthleteId": "5107199"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 5.34
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 7,
+        "p90": 9
+       },
+       "playRate": 0.9679,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.1,
+       "minutesSd": 10.06,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 5.34,
+        "expectedMinutes": 32.1,
+        "p90": 9
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-24|v1|e1|assists|401909314|4566434",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Franz Wagner",
+        "providerAthleteId": "4566434"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 4.99
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 7,
+        "p90": 8
+       },
+       "playRate": 0.9719,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 8.28,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.99,
+        "expectedMinutes": 33.26,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-24|v1|e1|assists|401909314|4432165",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Suggs",
+        "providerAthleteId": "4432165"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 5,
+        "mean": 4.73
+       },
+       "range": {
+        "p10": 2,
+        "p25": 3,
+        "p75": 6,
+        "p90": 8
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.12,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.73,
+        "expectedMinutes": 28.12,
+        "p90": 8
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-24|v1|e1|assists|401909314|4684742",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ausar Thompson",
+        "providerAthleteId": "4684742"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 4.21
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 6,
+        "p90": 7
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.36,
+       "minutesSd": 8.75,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 4.21,
+        "expectedMinutes": 30.36,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-24|v1|e1|assists|401909314|4712849",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Anthony Black",
+        "providerAthleteId": "4712849"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 4,
+        "mean": 3.79
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 7
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.4,
+       "minutesSd": 9.09,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.79,
+        "expectedMinutes": 30.4,
+        "p90": 7
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-24|v1|e1|assists|401909314|4066320",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Desmond Bane",
+        "providerAthleteId": "4066320"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 3,
+        "mean": 3.45
+       },
+       "range": {
+        "p10": 1,
+        "p25": 2,
+        "p75": 5,
+        "p90": 6
+       },
+       "playRate": 0.9773,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.63,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 3.45,
+        "expectedMinutes": 33.63,
+        "p90": 6
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-24|v1|e1|assists|401909314|4277847",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Wendell Carter Jr.",
+        "providerAthleteId": "4277847"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.79
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.2,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.79,
+        "expectedMinutes": 30.2,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-24|v1|e1|assists|401909314|4702382",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tristan da Silva",
+        "providerAthleteId": "4702382"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.77
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.38,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.77,
+        "expectedMinutes": 27.38,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-24|v1|e1|assists|401909314|3908845",
+       "category": "assists",
+       "stat": "ast",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "John Collins",
+        "providerAthleteId": "3908845"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.07
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 2
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.39,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.07,
+        "expectedMinutes": 26.39,
+        "p90": 2
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 26,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 12,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 1,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 12,
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 9,
+       "NULL_MINUTES": 9,
+       "TEAM_POOL_FALLBACK_RATES": 9,
+       "MISSING_DISTRIBUTION": 9,
+       "INSUFFICIENT_HISTORY": 1,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2596112",
+        "name": "Javonte Green",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2990962",
+        "name": "Taurean Prince",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133635",
+        "name": "Jevon Carter",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3157465",
+        "name": "Duncan Robinson",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065654",
+        "name": "Jonathan Isaac",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4066372",
+        "name": "Kevin Huerter",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278562",
+        "name": "Paul Reed",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4278572",
+        "name": "Jamal Cain",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4348700",
+        "name": "Goga Bitadze",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395702",
+        "name": "Isaiah Joe",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397204",
+        "name": "Colin Castleton",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397449",
+        "name": "Elijah Harkless",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397882",
+        "name": "Tolu Smith",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432166",
+        "name": "Cade Cunningham",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432573",
+        "name": "Paolo Banchero",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433621",
+        "name": "Jalen Duren",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4593034",
+        "name": "Alex Morales",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683771",
+        "name": "Ronald Holland II",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4700852",
+        "name": "Chaz Lanier",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5037878",
+        "name": "Ugonna Onyenso",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5107251",
+        "name": "Izaiyah Nelson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5107818",
+        "name": "Isaac Jones",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214637",
+        "name": "Noah Penda",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5239561",
+        "name": "Jase Richardson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5258459",
+        "name": "Ebuka Okorie",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "6478",
+        "name": "Nikola Vucevic",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "threes": {
+     "category": "threes",
+     "label": "3PM",
+     "stat": "threePm",
+     "marketBasis": "MARGINAL",
+     "basisText": "single simulated statistic",
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-24|v1|e1|threes|401909314|4066320",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Desmond Bane",
+        "providerAthleteId": "4066320"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.54
+       },
+       "range": {
+        "p10": 1,
+        "p25": 1,
+        "p75": 4,
+        "p90": 5
+       },
+       "playRate": 0.9773,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.63,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.54,
+        "expectedMinutes": 33.63,
+        "p90": 5
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-24|v1|e1|threes|401909314|4432165",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Suggs",
+        "providerAthleteId": "4432165"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 2.05
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.12,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 2.05,
+        "expectedMinutes": 28.12,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-24|v1|e1|threes|401909314|4702382",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tristan da Silva",
+        "providerAthleteId": "4702382"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.95
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.38,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.95,
+        "expectedMinutes": 27.38,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-24|v1|e1|threes|401909314|5107199",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Daniss Jenkins",
+        "providerAthleteId": "5107199"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 2,
+        "mean": 1.73
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9679,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.1,
+       "minutesSd": 10.06,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.73,
+        "expectedMinutes": 32.1,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-24|v1|e1|threes|401909314|4712849",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Anthony Black",
+        "providerAthleteId": "4712849"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.71
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 3,
+        "p90": 4
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.4,
+       "minutesSd": 9.09,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.71,
+        "expectedMinutes": 30.4,
+        "p90": 4
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-24|v1|e1|threes|401909314|4566434",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Franz Wagner",
+        "providerAthleteId": "4566434"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.52
+       },
+       "range": {
+        "p10": 0,
+        "p25": 1,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9719,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 8.28,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.52,
+        "expectedMinutes": 33.26,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-24|v1|e1|threes|401909314|3908845",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "John Collins",
+        "providerAthleteId": "3908845"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 1.26
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 3
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.39,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 1.26,
+        "expectedMinutes": 26.39,
+        "p90": 3
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-24|v1|e1|threes|401909314|4277847",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Wendell Carter Jr.",
+        "providerAthleteId": "4277847"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 1,
+        "mean": 0.97
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 2,
+        "p90": 2
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.2,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 0.97,
+        "expectedMinutes": 30.2,
+        "p90": 2
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-24|v1|e1|threes|401909314|4684742",
+       "category": "threes",
+       "stat": "threePm",
+       "marketBasis": "MARGINAL",
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ausar Thompson",
+        "providerAthleteId": "4684742"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 0,
+        "mean": 0.23
+       },
+       "range": {
+        "p10": 0,
+        "p25": 0,
+        "p75": 0,
+        "p90": 1
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.36,
+       "minutesSd": 8.75,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 0.23,
+        "expectedMinutes": 30.36,
+        "p90": 1
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 26,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 12,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 1,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 12,
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 9,
+       "NULL_MINUTES": 9,
+       "TEAM_POOL_FALLBACK_RATES": 9,
+       "MISSING_DISTRIBUTION": 9,
+       "INSUFFICIENT_HISTORY": 1,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2596112",
+        "name": "Javonte Green",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2990962",
+        "name": "Taurean Prince",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133635",
+        "name": "Jevon Carter",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3157465",
+        "name": "Duncan Robinson",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065654",
+        "name": "Jonathan Isaac",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4066372",
+        "name": "Kevin Huerter",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278562",
+        "name": "Paul Reed",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4278572",
+        "name": "Jamal Cain",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4348700",
+        "name": "Goga Bitadze",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395702",
+        "name": "Isaiah Joe",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397204",
+        "name": "Colin Castleton",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397449",
+        "name": "Elijah Harkless",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397882",
+        "name": "Tolu Smith",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432166",
+        "name": "Cade Cunningham",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432573",
+        "name": "Paolo Banchero",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433621",
+        "name": "Jalen Duren",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4593034",
+        "name": "Alex Morales",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683771",
+        "name": "Ronald Holland II",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4700852",
+        "name": "Chaz Lanier",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5037878",
+        "name": "Ugonna Onyenso",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5107251",
+        "name": "Izaiyah Nelson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5107818",
+        "name": "Isaac Jones",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214637",
+        "name": "Noah Penda",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5239561",
+        "name": "Jase Richardson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5258459",
+        "name": "Ebuka Okorie",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "6478",
+        "name": "Nikola Vucevic",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "pra": {
+     "category": "pra",
+     "label": "PRA",
+     "stat": "pra",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-24|v1|e1|pra|401909314|4566434",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Franz Wagner",
+        "providerAthleteId": "4566434"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 31,
+        "mean": 31.53
+       },
+       "range": {
+        "p10": 18,
+        "p25": 24,
+        "p75": 39,
+        "p90": 46
+       },
+       "playRate": 0.9719,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 8.28,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 31.53,
+        "expectedMinutes": 33.26,
+        "p90": 46
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-24|v1|e1|pra|401909314|4066320",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Desmond Bane",
+        "providerAthleteId": "4066320"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 25,
+        "mean": 25.39
+       },
+       "range": {
+        "p10": 15,
+        "p25": 19,
+        "p75": 31,
+        "p90": 37
+       },
+       "playRate": 0.9773,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.63,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 25.39,
+        "expectedMinutes": 33.63,
+        "p90": 37
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-24|v1|e1|pra|401909314|5107199",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Daniss Jenkins",
+        "providerAthleteId": "5107199"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 23,
+        "mean": 23.55
+       },
+       "range": {
+        "p10": 11,
+        "p25": 17,
+        "p75": 30,
+        "p90": 37
+       },
+       "playRate": 0.9679,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.1,
+       "minutesSd": 10.06,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 23.55,
+        "expectedMinutes": 32.1,
+        "p90": 37
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-24|v1|e1|pra|401909314|4684742",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ausar Thompson",
+        "providerAthleteId": "4684742"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 22,
+        "mean": 22.45
+       },
+       "range": {
+        "p10": 11,
+        "p25": 16,
+        "p75": 28,
+        "p90": 35
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.36,
+       "minutesSd": 8.75,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 22.45,
+        "expectedMinutes": 30.36,
+        "p90": 35
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-24|v1|e1|pra|401909314|4712849",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Anthony Black",
+        "providerAthleteId": "4712849"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.92
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 28,
+        "p90": 34
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.4,
+       "minutesSd": 9.09,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.92,
+        "expectedMinutes": 30.4,
+        "p90": 34
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-24|v1|e1|pra|401909314|4432165",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Suggs",
+        "providerAthleteId": "4432165"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 21.02
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 26,
+        "p90": 32
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.12,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.02,
+        "expectedMinutes": 28.12,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-24|v1|e1|pra|401909314|4277847",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Wendell Carter Jr.",
+        "providerAthleteId": "4277847"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 20,
+        "mean": 20.63
+       },
+       "range": {
+        "p10": 11,
+        "p25": 15,
+        "p75": 25,
+        "p90": 31
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.2,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 20.63,
+        "expectedMinutes": 30.2,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-24|v1|e1|pra|401909314|3908845",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "John Collins",
+        "providerAthleteId": "3908845"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.64
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 23,
+        "p90": 29
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.39,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.64,
+        "expectedMinutes": 26.39,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-24|v1|e1|pra|401909314|4702382",
+       "category": "pra",
+       "stat": "pra",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tristan da Silva",
+        "providerAthleteId": "4702382"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.53
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.38,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.53,
+        "expectedMinutes": 27.38,
+        "p90": 26
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 26,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 12,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 1,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 12,
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 9,
+       "NULL_MINUTES": 9,
+       "TEAM_POOL_FALLBACK_RATES": 9,
+       "MISSING_DISTRIBUTION": 9,
+       "INSUFFICIENT_HISTORY": 1,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2596112",
+        "name": "Javonte Green",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2990962",
+        "name": "Taurean Prince",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133635",
+        "name": "Jevon Carter",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3157465",
+        "name": "Duncan Robinson",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065654",
+        "name": "Jonathan Isaac",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4066372",
+        "name": "Kevin Huerter",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278562",
+        "name": "Paul Reed",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4278572",
+        "name": "Jamal Cain",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4348700",
+        "name": "Goga Bitadze",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395702",
+        "name": "Isaiah Joe",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397204",
+        "name": "Colin Castleton",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397449",
+        "name": "Elijah Harkless",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397882",
+        "name": "Tolu Smith",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432166",
+        "name": "Cade Cunningham",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432573",
+        "name": "Paolo Banchero",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433621",
+        "name": "Jalen Duren",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4593034",
+        "name": "Alex Morales",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683771",
+        "name": "Ronald Holland II",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4700852",
+        "name": "Chaz Lanier",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5037878",
+        "name": "Ugonna Onyenso",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5107251",
+        "name": "Izaiyah Nelson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5107818",
+        "name": "Isaac Jones",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214637",
+        "name": "Noah Penda",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5239561",
+        "name": "Jase Richardson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5258459",
+        "name": "Ebuka Okorie",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "6478",
+        "name": "Nikola Vucevic",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsReb": {
+     "category": "ptsReb",
+     "label": "P+R",
+     "stat": "ptsReb",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "reb"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-24|v1|e1|ptsReb|401909314|4566434",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Franz Wagner",
+        "providerAthleteId": "4566434"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 26,
+        "mean": 26.54
+       },
+       "range": {
+        "p10": 15,
+        "p25": 20,
+        "p75": 33,
+        "p90": 39
+       },
+       "playRate": 0.9719,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 8.28,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 26.54,
+        "expectedMinutes": 33.26,
+        "p90": 39
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-24|v1|e1|ptsReb|401909314|4066320",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Desmond Bane",
+        "providerAthleteId": "4066320"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.94
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 33
+       },
+       "playRate": 0.9773,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.63,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.94,
+        "expectedMinutes": 33.63,
+        "p90": 33
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-24|v1|e1|ptsReb|401909314|4277847",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Wendell Carter Jr.",
+        "providerAthleteId": "4277847"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.83
+       },
+       "range": {
+        "p10": 10,
+        "p25": 14,
+        "p75": 23,
+        "p90": 29
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.2,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.83,
+        "expectedMinutes": 30.2,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-24|v1|e1|ptsReb|401909314|4684742",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ausar Thompson",
+        "providerAthleteId": "4684742"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.24
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 23,
+        "p90": 29
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.36,
+       "minutesSd": 8.75,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.24,
+        "expectedMinutes": 30.36,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-24|v1|e1|ptsReb|401909314|5107199",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Daniss Jenkins",
+        "providerAthleteId": "5107199"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.21
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 24,
+        "p90": 29
+       },
+       "playRate": 0.9679,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.1,
+       "minutesSd": 10.06,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.21,
+        "expectedMinutes": 32.1,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-24|v1|e1|ptsReb|401909314|4712849",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Anthony Black",
+        "providerAthleteId": "4712849"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 18,
+        "mean": 18.13
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 23,
+        "p90": 29
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.4,
+       "minutesSd": 9.09,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 18.13,
+        "expectedMinutes": 30.4,
+        "p90": 29
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-24|v1|e1|ptsReb|401909314|3908845",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "John Collins",
+        "providerAthleteId": "3908845"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.57
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 22,
+        "p90": 28
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.39,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.57,
+        "expectedMinutes": 26.39,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-24|v1|e1|ptsReb|401909314|4432165",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Suggs",
+        "providerAthleteId": "4432165"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 16.29
+       },
+       "range": {
+        "p10": 8,
+        "p25": 11,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.12,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 16.29,
+        "expectedMinutes": 28.12,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-24|v1|e1|ptsReb|401909314|4702382",
+       "category": "ptsReb",
+       "stat": "ptsReb",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "reb"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tristan da Silva",
+        "providerAthleteId": "4702382"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 14,
+        "mean": 14.76
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 19,
+        "p90": 24
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.38,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 14.76,
+        "expectedMinutes": 27.38,
+        "p90": 24
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 26,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 12,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 1,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 12,
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 9,
+       "NULL_MINUTES": 9,
+       "TEAM_POOL_FALLBACK_RATES": 9,
+       "MISSING_DISTRIBUTION": 9,
+       "INSUFFICIENT_HISTORY": 1,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2596112",
+        "name": "Javonte Green",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2990962",
+        "name": "Taurean Prince",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133635",
+        "name": "Jevon Carter",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3157465",
+        "name": "Duncan Robinson",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065654",
+        "name": "Jonathan Isaac",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4066372",
+        "name": "Kevin Huerter",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278562",
+        "name": "Paul Reed",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4278572",
+        "name": "Jamal Cain",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4348700",
+        "name": "Goga Bitadze",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395702",
+        "name": "Isaiah Joe",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397204",
+        "name": "Colin Castleton",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397449",
+        "name": "Elijah Harkless",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397882",
+        "name": "Tolu Smith",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432166",
+        "name": "Cade Cunningham",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432573",
+        "name": "Paolo Banchero",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433621",
+        "name": "Jalen Duren",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4593034",
+        "name": "Alex Morales",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683771",
+        "name": "Ronald Holland II",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4700852",
+        "name": "Chaz Lanier",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5037878",
+        "name": "Ugonna Onyenso",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5107251",
+        "name": "Izaiyah Nelson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5107818",
+        "name": "Isaac Jones",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214637",
+        "name": "Noah Penda",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5239561",
+        "name": "Jase Richardson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5258459",
+        "name": "Ebuka Okorie",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "6478",
+        "name": "Nikola Vucevic",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "ptsAst": {
+     "category": "ptsAst",
+     "label": "P+A",
+     "stat": "ptsAst",
+     "marketBasis": "JOINT_SIMULATED_SUM",
+     "basisText": "joint sum of the player's own simulated components, draw by draw (same simulation, shared minutes kept)",
+     "components": [
+      "pts",
+      "ast"
+     ],
+     "state": "RANKED",
+     "rankingMetric": "MODEL_MEAN",
+     "rows": [
+      {
+       "rank": 1,
+       "rowId": "2026-11-24|v1|e1|ptsAst|401909314|4566434",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Franz Wagner",
+        "providerAthleteId": "4566434"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 25,
+        "mean": 25.75
+       },
+       "range": {
+        "p10": 14,
+        "p25": 19,
+        "p75": 32,
+        "p90": 38
+       },
+       "playRate": 0.9719,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.26,
+       "minutesSd": 8.28,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 25.75,
+        "expectedMinutes": 33.26,
+        "p90": 38
+       }
+      },
+      {
+       "rank": 2,
+       "rowId": "2026-11-24|v1|e1|ptsAst|401909314|4066320",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Desmond Bane",
+        "providerAthleteId": "4066320"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 21,
+        "mean": 21.48
+       },
+       "range": {
+        "p10": 12,
+        "p25": 16,
+        "p75": 27,
+        "p90": 32
+       },
+       "playRate": 0.9773,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 33.63,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 21.48,
+        "expectedMinutes": 33.63,
+        "p90": 32
+       }
+      },
+      {
+       "rank": 3,
+       "rowId": "2026-11-24|v1|e1|ptsAst|401909314|5107199",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Daniss Jenkins",
+        "providerAthleteId": "5107199"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 19,
+        "mean": 19.69
+       },
+       "range": {
+        "p10": 9,
+        "p25": 13,
+        "p75": 25,
+        "p90": 31
+       },
+       "playRate": 0.9679,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 32.1,
+       "minutesSd": 10.06,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 19.69,
+        "expectedMinutes": 32.1,
+        "p90": 31
+       }
+      },
+      {
+       "rank": 4,
+       "rowId": "2026-11-24|v1|e1|ptsAst|401909314|4712849",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Anthony Black",
+        "providerAthleteId": "4712849"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 17,
+        "mean": 17.93
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 23,
+        "p90": 28
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.4,
+       "minutesSd": 9.09,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17.93,
+        "expectedMinutes": 30.4,
+        "p90": 28
+       }
+      },
+      {
+       "rank": 5,
+       "rowId": "2026-11-24|v1|e1|ptsAst|401909314|4432165",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Jalen Suggs",
+        "providerAthleteId": "4432165"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 16,
+        "mean": 17
+       },
+       "range": {
+        "p10": 8,
+        "p25": 12,
+        "p75": 21,
+        "p90": 26
+       },
+       "playRate": 0.9743,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 28.12,
+       "minutesSd": 7.38,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 17,
+        "expectedMinutes": 28.12,
+        "p90": 26
+       }
+      },
+      {
+       "rank": 6,
+       "rowId": "2026-11-24|v1|e1|ptsAst|401909314|4684742",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Ausar Thompson",
+        "providerAthleteId": "4684742"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 15,
+        "mean": 15.58
+       },
+       "range": {
+        "p10": 7,
+        "p25": 10,
+        "p75": 20,
+        "p90": 25
+       },
+       "playRate": 0.9742,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.36,
+       "minutesSd": 8.75,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 15.58,
+        "expectedMinutes": 30.36,
+        "p90": 25
+       }
+      },
+      {
+       "rank": 7,
+       "rowId": "2026-11-24|v1|e1|ptsAst|401909314|3908845",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "John Collins",
+        "providerAthleteId": "3908845"
+       },
+       "team": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "opponent": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "homeAway": "away",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.35
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 17,
+        "p90": 22
+       },
+       "playRate": 0.9735,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 26.39,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.35,
+        "expectedMinutes": 26.39,
+        "p90": 22
+       }
+      },
+      {
+       "rank": 8,
+       "rowId": "2026-11-24|v1|e1|ptsAst|401909314|4277847",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Wendell Carter Jr.",
+        "providerAthleteId": "4277847"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 13,
+        "mean": 13.32
+       },
+       "range": {
+        "p10": 6,
+        "p25": 9,
+        "p75": 17,
+        "p90": 21
+       },
+       "playRate": 0.9734,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 30.2,
+       "minutesSd": 7.17,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 13.32,
+        "expectedMinutes": 30.2,
+        "p90": 21
+       }
+      },
+      {
+       "rank": 9,
+       "rowId": "2026-11-24|v1|e1|ptsAst|401909314|4702382",
+       "category": "ptsAst",
+       "stat": "ptsAst",
+       "marketBasis": "JOINT_SIMULATED_SUM",
+       "components": [
+        "pts",
+        "ast"
+       ],
+       "rankingMetric": "MODEL_MEAN",
+       "player": {
+        "name": "Tristan da Silva",
+        "providerAthleteId": "4702382"
+       },
+       "team": {
+        "name": "Orlando Magic",
+        "abbr": "ORL",
+        "espnAbbr": "ORL",
+        "providerTeamId": "19"
+       },
+       "opponent": {
+        "name": "Detroit Pistons",
+        "abbr": "DET",
+        "espnAbbr": "DET",
+        "providerTeamId": "8"
+       },
+       "homeAway": "home",
+       "eventId": "401909314",
+       "tipoffUtc": "2026-11-25T00:00Z",
+       "projection": {
+        "p50": 12,
+        "mean": 12.8
+       },
+       "range": {
+        "p10": 5,
+        "p25": 8,
+        "p75": 17,
+        "p90": 21
+       },
+       "playRate": 0.9747,
+       "quantileConditioning": "CONDITIONAL_ON_PLAYING",
+       "expectedMinutes": 27.38,
+       "minutesSd": 7.21,
+       "injuryStatus": null,
+       "marketLine": null,
+       "marketOdds": null,
+       "edge": null,
+       "marketReason": "NO_AUTHORIZED_PRICE",
+       "confidence": null,
+       "confidenceReason": "no calibrated confidence until the preregistered bars are met",
+       "updated": {
+        "inputAsOf": "2026-11-24T16:20:30Z",
+        "generatedAt": "2026-11-24T16:20:30Z"
+       },
+       "modelVersion": "nba-sim-v1-coherent",
+       "family": "v1",
+       "receipt": {
+        "forecastSha256": "4067d144b639fb490100e4493eb1d974a19868de250471f64d4997e057d5f58c",
+        "gamePayloadSha256": "9d34d494da37882d82664e71afe779fb037f8fc58f926eb553088cb8982ea3b0"
+       },
+       "flags": [],
+       "sortKeys": {
+        "projection": 12.8,
+        "expectedMinutes": 27.38,
+        "p90": 21
+       }
+      }
+     ],
+     "eligibleCount": 9,
+     "shownCount": 9,
+     "withheld": {
+      "count": 26,
+      "byPrimaryReason": {
+       "LOW_PLAY_RATE": 12,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 1,
+       "MINUTES_TOO_UNCERTAIN": 1,
+       "LOW_EXPECTED_MINUTES": 3,
+       "INSUFFICIENT_HISTORY": 1
+      },
+      "byReason": {
+       "LOW_PLAY_RATE": 12,
+       "LOW_EXPECTED_MINUTES": 14,
+       "MINUTES_TOO_UNCERTAIN": 15,
+       "AVAILABILITY_OUT": 8,
+       "INJURY_DESIGNATION": 9,
+       "NULL_MINUTES": 9,
+       "TEAM_POOL_FALLBACK_RATES": 9,
+       "MISSING_DISTRIBUTION": 9,
+       "INSUFFICIENT_HISTORY": 1,
+       "AVAILABILITY_UNVERIFIED": 1
+      },
+      "players": [
+       {
+        "providerAthleteId": "2596112",
+        "name": "Javonte Green",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "2990962",
+        "name": "Taurean Prince",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "3133635",
+        "name": "Jevon Carter",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "3157465",
+        "name": "Duncan Robinson",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4065654",
+        "name": "Jonathan Isaac",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4066372",
+        "name": "Kevin Huerter",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4278562",
+        "name": "Paul Reed",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "MINUTES_TOO_UNCERTAIN"
+       },
+       {
+        "providerAthleteId": "4278572",
+        "name": "Jamal Cain",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4348700",
+        "name": "Goga Bitadze",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4395702",
+        "name": "Isaiah Joe",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4397204",
+        "name": "Colin Castleton",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397449",
+        "name": "Elijah Harkless",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4397882",
+        "name": "Tolu Smith",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4432166",
+        "name": "Cade Cunningham",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INJURY_DESIGNATION"
+        ],
+        "primaryReason": "INJURY_DESIGNATION"
+       },
+       {
+        "providerAthleteId": "4432573",
+        "name": "Paolo Banchero",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4433621",
+        "name": "Jalen Duren",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "4593034",
+        "name": "Alex Morales",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "4683771",
+        "name": "Ronald Holland II",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_EXPECTED_MINUTES"
+       },
+       {
+        "providerAthleteId": "4700852",
+        "name": "Chaz Lanier",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5037878",
+        "name": "Ugonna Onyenso",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "INSUFFICIENT_HISTORY",
+         "NULL_MINUTES",
+         "AVAILABILITY_UNVERIFIED",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "INSUFFICIENT_HISTORY"
+       },
+       {
+        "providerAthleteId": "5107251",
+        "name": "Izaiyah Nelson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5107818",
+        "name": "Isaac Jones",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5214637",
+        "name": "Noah Penda",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "5239561",
+        "name": "Jase Richardson",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       },
+       {
+        "providerAthleteId": "5258459",
+        "name": "Ebuka Okorie",
+        "team": "DET",
+        "eventId": "401909314",
+        "reasons": [
+         "AVAILABILITY_OUT",
+         "INJURY_DESIGNATION",
+         "NULL_MINUTES",
+         "TEAM_POOL_FALLBACK_RATES",
+         "MISSING_DISTRIBUTION"
+        ],
+        "primaryReason": "AVAILABILITY_OUT"
+       },
+       {
+        "providerAthleteId": "6478",
+        "name": "Nikola Vucevic",
+        "team": "ORL",
+        "eventId": "401909314",
+        "reasons": [
+         "LOW_PLAY_RATE",
+         "LOW_EXPECTED_MINUTES",
+         "MINUTES_TOO_UNCERTAIN"
+        ],
+        "primaryReason": "LOW_PLAY_RATE"
+       }
+      ]
+     },
+     "emptyReason": null
+    },
+    "rebAst": {
+     "category": "rebAst",
+     "label": "R+A",
+     "stat": null,
+     "marketBasis": "NOT_MODELLED",
+     "basisText": "not modelled — no family simulates it jointly, and adding marginal projections is not its distribution",
+     "components": [
+      "reb",
+      "ast"
+     ],
+     "state": "NOT_MODELLED",
+     "rankingMetric": null,
+     "rows": [],
+     "eligibleCount": 0,
+     "shownCount": 0,
+     "withheld": {
+      "count": 0,
+      "byPrimaryReason": {},
+      "byReason": {},
+      "players": []
+     },
+     "emptyReason": "R+A is not modelled: no forecast family simulates reb + ast jointly, and adding marginal projections is not its distribution — it is never computed"
+    }
+   }
+  }
+ ]
+}
