@@ -3,18 +3,18 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-11-24T19:35:40Z",
+ "generatedAt": "2026-11-24T20:26:37Z",
  "sport": "nfl",
  "label": "NFL",
  "what": "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
  "caveat": "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
  "counts": {
-  "counted": 202,
+  "counted": 203,
   "hits": 123,
-  "misses": 79,
+  "misses": 80,
   "voided": 3,
   "shown": 60,
-  "total": 205
+  "total": 206
  },
  "hitRate": null,
  "recordBasis": "MIXED",
@@ -28,15 +28,30 @@
   },
   {
    "basis": "PUBLISHED",
-   "counted": 97,
+   "counted": 98,
    "hits": 62,
-   "misses": 35,
-   "hitRate": 0.6392
+   "misses": 36,
+   "hitRate": 0.6327
   }
  ],
  "sampleState": "ASSESSABLE",
- "sampleNote": "202 graded picks. A hit rate is still not proof a model beats a price — that requires a preregistered comparison against the closing line, which is tracked separately per sport.",
+ "sampleNote": "203 graded picks. A hit rate is still not proof a model beats a price — that requires a preregistered comparison against the closing line, which is tracked separately per sport.",
  "picks": [
+  {
+   "eventId": "nfl-401873078",
+   "when": "2026-11-23",
+   "eventName": null,
+   "subject": "CIN @ WSH",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "AWAY",
+   "actual": "HOME",
+   "modelProbability": null,
+   "probabilityOfActual": 0.3097,
+   "marketProbabilityOfActual": null,
+   "hit": false
+  },
   {
    "eventId": "nfl-401873077",
    "when": "2026-11-22",
@@ -919,21 +934,6 @@
    "actual": "AWAY",
    "modelProbability": null,
    "probabilityOfActual": 0.3695,
-   "marketProbabilityOfActual": null,
-   "hit": false
-  },
-  {
-   "eventId": "nfl-401873012",
-   "when": "2026-10-25",
-   "eventName": null,
-   "subject": "CIN @ BAL",
-   "market": "Winner",
-   "basis": "PUBLISHED",
-   "noPick": false,
-   "predicted": "HOME",
-   "actual": "AWAY",
-   "modelProbability": null,
-   "probabilityOfActual": 0.4211,
    "marketProbabilityOfActual": null,
    "hit": false
   }
