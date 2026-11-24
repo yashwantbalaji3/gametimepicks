@@ -1,5 +1,5 @@
 {
- "generatedAt": "2026-11-24T00:42:42Z",
+ "generatedAt": "2026-11-24T21:15:56Z",
  "sport": "ufc",
  "state": "SCHEDULED_CARD",
  "event": {
@@ -8,7 +8,7 @@
   "startUtc": "2026-12-05T15:00Z",
   "slateDate": "2026-12-05",
   "venue": "ANB Arena",
-  "boutCount": 13
+  "boutCount": 14
  },
  "skippedForCoverage": [],
  "model": {
@@ -1580,6 +1580,178 @@
    },
    "prediction": null,
    "unmodelledReason": "Neither fighter has enough UFC history in our corpus to build a read from."
+  },
+  {
+   "boutId": "401936473",
+   "weightClass": "Lightweight",
+   "scheduledRounds": 3,
+   "startUtc": "2026-12-05T15:00Z",
+   "titleFight": false,
+   "red": {
+    "athleteId": "4689965",
+    "name": "Mateusz Rębecki",
+    "record": "21-5-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/4689965.png",
+    "priorBoutsInCorpus": 9,
+    "profile": {
+     "bouts": 9,
+     "record": {
+      "wins": 5,
+      "losses": 4
+     },
+     "last5": [
+      {
+       "date": "2026-08-01",
+       "opponent": "Kyle Prepolec",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2026-05-09",
+       "opponent": "Grant Dawson",
+       "result": "L",
+       "method": "SUB",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2025-10-25",
+       "opponent": "Ludovit Klein",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2025-08-02",
+       "opponent": "Chris Duncan",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2024-10-26",
+       "opponent": "Myktybek Orolbai",
+       "result": "W",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Catch Weight"
+      }
+     ],
+     "strengths": [],
+     "weaknesses": [],
+     "tendencies": [
+      "Most wins come inside the distance — 3 of 5, mostly by KO/TKO (2 KO/TKO, 1 submission)"
+     ],
+     "unknowns": [
+      "Neither a strength nor a weakness: 56% win rate across 9 tracked bouts (5-4)"
+     ],
+     "summary": "2-3 in the last 5 tracked bouts. 3 of 5 wins came by finish (60%); 4 of 9 tracked fights reached the judges (44%)."
+    }
+   },
+   "blue": {
+    "athleteId": "5110006",
+    "name": "Elves Brener",
+    "record": "17-6-0",
+    "photoUrl": "https://a.espncdn.com/i/headshots/mma/players/full/5110006.png",
+    "priorBoutsInCorpus": 6,
+    "profile": {
+     "bouts": 6,
+     "record": {
+      "wins": 3,
+      "losses": 3
+     },
+     "last5": [
+      {
+       "date": "2025-08-02",
+       "opponent": "Esteban Ribovics",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2024-08-03",
+       "opponent": "Joel Alvarez",
+       "result": "L",
+       "method": "KO",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2024-05-04",
+       "opponent": "Myktybek Orolbai",
+       "result": "L",
+       "method": "DEC",
+       "round": 3,
+       "weightClass": "Lightweight"
+      },
+      {
+       "date": "2023-11-04",
+       "opponent": "Kaynan Kruschewsky",
+       "result": "W",
+       "method": "KO",
+       "round": 1,
+       "weightClass": "Catch Weight"
+      },
+      {
+       "date": "2023-07-01",
+       "opponent": "Guram Kutateladze",
+       "result": "W",
+       "method": "KO",
+       "round": 3,
+       "weightClass": "Lightweight"
+      }
+     ],
+     "strengths": [],
+     "weaknesses": [],
+     "tendencies": [
+      "Most wins come inside the distance — 2 of 3, mostly by KO/TKO (2 KO/TKO, 0 submission)"
+     ],
+     "unknowns": [
+      "Neither a strength nor a weakness: 50% win rate across 6 tracked bouts (3-3)"
+     ],
+     "summary": "2-3 in the last 5 tracked bouts. 2 of 3 wins came by finish (67%); 3 of 6 tracked fights reached the judges (50%)."
+    }
+   },
+   "prediction": {
+    "winner": {
+     "name": "Elves Brener",
+     "probability": 0.608,
+     "byFighter": {
+      "Elves Brener": 0.608,
+      "Mateusz Rębecki": 0.392
+     }
+    },
+    "method": {
+     "most": "DEC",
+     "probabilities": {
+      "ko": 0.3465,
+      "submission": 0.163,
+      "decision": 0.4905
+     }
+    },
+    "rounds": {
+     "endsIn": "3+",
+     "probabilities": {
+      "round1": 0.2633,
+      "round2": 0.1708,
+      "round3plus": 0.566
+     },
+     "goesTheDistance": 0.4905
+    },
+    "priorFights": {
+     "a": 6,
+     "b": 9
+    },
+    "basis": "BOTH_FIGHTERS",
+    "basisNote": null,
+    "reason": "From the tracked records (a summary, not the model's reasoning): Elves Brener has finished 2 of 3 wins (67%), and Rębecki has been finished in 2 of 4 losses (50%). The model's method read has a decision as the most likely of three endings (49%), short of a majority."
+   },
+   "unmodelledReason": null
   }
  ],
  "excludedBouts": []
