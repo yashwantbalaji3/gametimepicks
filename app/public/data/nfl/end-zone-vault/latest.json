@@ -2,15 +2,15 @@
  "schemaVersion": 1,
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
- "date": "2026-11-23",
- "generatedAt": "2026-11-23T23:32:02Z",
+ "date": "2026-11-24",
+ "generatedAt": "2026-11-24T00:11:34Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "14 model candidates · no current comparable touchdown price is available",
+ "reason": "15 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -141,6 +141,27 @@
    "modelVersion": "nfl-anytime-td-opportunity-v1"
   },
   {
+   "playerId": "nfl-athlete-4697815",
+   "name": "Rachaad White",
+   "position": "RB",
+   "team": "WSH",
+   "opponent": "CIN",
+   "event": "CIN @ WSH",
+   "providerEventId": "401873078",
+   "kickoffUtc": "2026-11-24T01:15Z",
+   "tdProbability": 0.2948,
+   "probabilitySource": "the game's player board — the published anytime-touchdown family",
+   "probabilityRange": {
+    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
+   "modelVersion": "nfl-anytime-td-opportunity-v1"
+  },
+  {
    "playerId": "nfl-athlete-3116164",
    "name": "Mike Gesicki",
    "position": "TE",
@@ -244,38 +265,10 @@
    "pricingState": "NOT_PROBED",
    "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
    "modelVersion": "nfl-anytime-td-opportunity-v1"
-  },
-  {
-   "playerId": "nfl-athlete-4384852",
-   "name": "Dohnte Meyers",
-   "position": "WR",
-   "team": "CIN",
-   "opponent": "WSH",
-   "event": "CIN @ WSH",
-   "providerEventId": "401873078",
-   "kickoffUtc": "2026-11-24T01:15Z",
-   "tdProbability": 0.1916,
-   "probabilitySource": "the game's player board — the published anytime-touchdown family",
-   "probabilityRange": {
-    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
-   "modelVersion": "nfl-anytime-td-opportunity-v1"
   }
  ],
- "candidateCount": 14,
- "withheld": [
-  {
-   "event": "CIN @ WSH",
-   "team": "WSH",
-   "player": "Rachaad White",
-   "reason": "designated Questionable — only players with no designation are listed"
-  }
- ],
+ "candidateCount": 15,
+ "withheld": [],
  "gates": {
   "required": [
    "calibrated TD probability",
@@ -286,7 +279,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 14,
+  "roleReadyCandidates": 15,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."
