@@ -1,0 +1,1680 @@
+{
+ "schema": "nba-experimental-public-snapshot@1",
+ "lane": "nba-experimental-public@1",
+ "label": "UNVALIDATED EXPERIMENTAL SIMULATION",
+ "amendment": "docs/V18_NBA_REGULAR_SEASON_PREREGISTRATION.md §12 look 5 + §13 (founder decision 2026-10-20)",
+ "dataClass": "PUBLIC_EXPERIMENTAL",
+ "validation": "NOT_VALIDATED — the preregistered shadow bars are unmet; this lane never counts toward them",
+ "productEligible": false,
+ "date": "2026-11-24",
+ "generatedAt": "2026-11-24T05:50:42Z",
+ "source": {
+  "family": "v0.1",
+  "file": "nba/experimental-v0.1/forecasts/2026-11-24.json",
+  "commit": "a0c34c8626655d787235f405a40e08bcd0074fe3"
+ },
+ "withheld": {
+  "teamScores": "Not shown: this model's team score is a sum of player simulations that ignores the opponent, can contradict the Elo side, and has not met its historical checks.",
+  "playerRanges": "Medians only: the model's ranges have not yet shown reliable coverage.",
+  "markets": "No sportsbook prices, lines, edges, picks or rankings: there is no authorized NBA price, and these figures are not betting recommendations."
+ },
+ "games": [
+  {
+   "providerEventId": "401909314",
+   "etDate": "2026-11-24",
+   "tipUtc": "2026-11-25T00:00Z",
+   "away": {
+    "abbr": "DET",
+    "name": "Detroit Pistons"
+   },
+   "home": {
+    "abbr": "ORL",
+    "name": "Orlando Magic"
+   },
+   "frozenAt": "2026-11-24T05:50:13Z",
+   "receipt": {
+    "schema": "nba-forecast-receipt@1",
+    "family": "v0.1",
+    "modelVersion": "nba-preseason-experimental-v0.1",
+    "payloadSha256": "55a8ccab0d3de028f9fbc966a6a29ef93a508e5b3b7ce3ec167fa27ccf310f39"
+   },
+   "engine": {
+    "simulation": "nba-preseason-experimental-v0",
+    "simulations": 10000
+   },
+   "elo": {
+    "favoured": "ORL",
+    "state": "FAVOURED",
+    "rule": "nba-winner-side@1",
+    "source": "Elo team rating — the published winner side (founder N2) and its Elo-derived game-winner estimate",
+    "winProbability": {
+     "home": 0.5119,
+     "away": 0.4881,
+     "provenance": {
+      "source": "nba-winner-side@1 Elo",
+      "rule": "nba-winner-side@1",
+      "field": "forecast.elo.pHome / forecast.elo.pAway",
+      "frozenAt": "2026-11-24T05:50:13Z",
+      "receiptPayloadSha256": "55a8ccab0d3de028f9fbc966a6a29ef93a508e5b3b7ce3ec167fa27ccf310f39"
+     }
+    }
+   },
+   "teamScores": {
+    "state": "WITHHELD",
+    "reason": "Not shown: this model's team score is a sum of player simulations that ignores the opponent, can contradict the Elo side, and has not met its historical checks."
+   },
+   "players": {
+    "source": "v0.1 roster-gated player simulation (nba-preseason-experimental-v0.1) — medians of 10000 simulated games",
+    "comboSource": "PRA, P+R and P+A: sum over the same simulated draws (v0 engine; components independent within a player)",
+    "positionSource": {
+     "file": "nba/rosters/2026-11-24.json",
+     "sha256": "db064e20da63f07009c8641fa853767541e20424c1f1857f26e3cc1d72df5437"
+    },
+    "away": [
+     {
+      "providerAthleteId": "4432166",
+      "name": "Cade Cunningham",
+      "position": "G",
+      "expectedMinutes": 45.3,
+      "injuryStatus": "Day-To-Day",
+      "medians": {
+       "pts": 29.9,
+       "reb": 5.1,
+       "ast": 8.1,
+       "threePm": 3.4
+      },
+      "comboMedians": {
+       "pra": 43.1,
+       "ptsReb": 34.9,
+       "ptsAst": 37.8
+      }
+     },
+     {
+      "providerAthleteId": "4397449",
+      "name": "Elijah Harkless",
+      "position": "G",
+      "expectedMinutes": 35.7,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 8.8,
+       "reb": 4.2,
+       "ast": 4.5,
+       "threePm": 1
+      },
+      "comboMedians": {
+       "pra": 17.7,
+       "ptsReb": 13,
+       "ptsAst": 13.4
+      }
+     },
+     {
+      "providerAthleteId": "4684742",
+      "name": "Ausar Thompson",
+      "position": "G",
+      "expectedMinutes": 33.5,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 7.7,
+       "reb": 8.3,
+       "ast": 3.9,
+       "threePm": 0.1
+      },
+      "comboMedians": {
+       "pra": 20.1,
+       "ptsReb": 16,
+       "ptsAst": 11.7
+      }
+     },
+     {
+      "providerAthleteId": "5107199",
+      "name": "Daniss Jenkins",
+      "position": "G",
+      "expectedMinutes": 28.9,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 11.3,
+       "reb": 2.9,
+       "ast": 3.6,
+       "threePm": 1.4
+      },
+      "comboMedians": {
+       "pra": 18.2,
+       "ptsReb": 14.5,
+       "ptsAst": 15
+      }
+     },
+     {
+      "providerAthleteId": "3908845",
+      "name": "John Collins",
+      "position": "F",
+      "expectedMinutes": 26.8,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 14.2,
+       "reb": 6.3,
+       "ast": 1.1,
+       "threePm": 1.1
+      },
+      "comboMedians": {
+       "pra": 21.9,
+       "ptsReb": 20.7,
+       "ptsAst": 15.5
+      }
+     },
+     {
+      "providerAthleteId": "4066372",
+      "name": "Kevin Huerter",
+      "position": "G",
+      "expectedMinutes": 20.3,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 7.1,
+       "reb": 2.5,
+       "ast": 2.2,
+       "threePm": 1
+      },
+      "comboMedians": {
+       "pra": 12.4,
+       "ptsReb": 9.8,
+       "ptsAst": 9.7
+      }
+     },
+     {
+      "providerAthleteId": "4278562",
+      "name": "Paul Reed",
+      "position": "F",
+      "expectedMinutes": 12.2,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 8.8,
+       "reb": 4.3,
+       "ast": 0.7,
+       "threePm": 0.3
+      },
+      "comboMedians": {
+       "pra": 14.5,
+       "ptsReb": 13.6,
+       "ptsAst": 9.7
+      }
+     },
+     {
+      "providerAthleteId": "4395702",
+      "name": "Isaiah Joe",
+      "position": "G",
+      "expectedMinutes": 10.9,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 3.2,
+       "reb": 1.3,
+       "ast": 1.2,
+       "threePm": 0.7
+      },
+      "comboMedians": {
+       "pra": 6.4,
+       "ptsReb": 4.9,
+       "ptsAst": 4.6
+      }
+     },
+     {
+      "providerAthleteId": "2596112",
+      "name": "Javonte Green",
+      "position": "G",
+      "expectedMinutes": 10.2,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 1.6,
+       "reb": 1,
+       "ast": 0.1,
+       "threePm": 0.4
+      },
+      "comboMedians": {
+       "pra": 3.2,
+       "ptsReb": 3,
+       "ptsAst": 1.7
+      }
+     }
+    ],
+    "home": [
+     {
+      "providerAthleteId": "4066320",
+      "name": "Desmond Bane",
+      "position": "G",
+      "expectedMinutes": 32.9,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 16.8,
+       "reb": 4.2,
+       "ast": 1.6,
+       "threePm": 2.8
+      },
+      "comboMedians": {
+       "pra": 22.7,
+       "ptsReb": 21,
+       "ptsAst": 18.5
+      }
+     },
+     {
+      "providerAthleteId": "4432165",
+      "name": "Jalen Suggs",
+      "position": "G",
+      "expectedMinutes": 32.6,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 11.1,
+       "reb": 4.2,
+       "ast": 3.9,
+       "threePm": 2.2
+      },
+      "comboMedians": {
+       "pra": 19.2,
+       "ptsReb": 15.3,
+       "ptsAst": 14.9
+      }
+     },
+     {
+      "providerAthleteId": "4277847",
+      "name": "Wendell Carter Jr.",
+      "position": "C",
+      "expectedMinutes": 31,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 9.4,
+       "reb": 6.9,
+       "ast": 2.2,
+       "threePm": 0.6
+      },
+      "comboMedians": {
+       "pra": 18.6,
+       "ptsReb": 16.3,
+       "ptsAst": 11.6
+      }
+     },
+     {
+      "providerAthleteId": "4566434",
+      "name": "Franz Wagner",
+      "position": "F",
+      "expectedMinutes": 27.4,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 15.7,
+       "reb": 5,
+       "ast": 3.2,
+       "threePm": 0.7
+      },
+      "comboMedians": {
+       "pra": 23.9,
+       "ptsReb": 20.7,
+       "ptsAst": 18.9
+      }
+     },
+     {
+      "providerAthleteId": "4712849",
+      "name": "Anthony Black",
+      "position": "G",
+      "expectedMinutes": 25,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 8.3,
+       "reb": 3.2,
+       "ast": 1.5,
+       "threePm": 0.8
+      },
+      "comboMedians": {
+       "pra": 13.3,
+       "ptsReb": 11.7,
+       "ptsAst": 9.9
+      }
+     },
+     {
+      "providerAthleteId": "6478",
+      "name": "Nikola Vucevic",
+      "position": "C",
+      "expectedMinutes": 18.7,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 6.9,
+       "reb": 4,
+       "ast": 2.3,
+       "threePm": 1.3
+      },
+      "comboMedians": {
+       "pra": 13.4,
+       "ptsReb": 10.9,
+       "ptsAst": 9.3
+      }
+     },
+     {
+      "providerAthleteId": "4278572",
+      "name": "Jamal Cain",
+      "position": "F",
+      "expectedMinutes": 15.8,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 4,
+       "reb": 2.5,
+       "ast": 0.4,
+       "threePm": 0.3
+      },
+      "comboMedians": {
+       "pra": 7.2,
+       "ptsReb": 6.7,
+       "ptsAst": 4.5
+      }
+     },
+     {
+      "providerAthleteId": "4702382",
+      "name": "Tristan da Silva",
+      "position": "F",
+      "expectedMinutes": 15.7,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 4,
+       "reb": 2.7,
+       "ast": 0.4,
+       "threePm": 0.5
+      },
+      "comboMedians": {
+       "pra": 7.3,
+       "ptsReb": 6.9,
+       "ptsAst": 4.5
+      }
+     },
+     {
+      "providerAthleteId": "4348700",
+      "name": "Goga Bitadze",
+      "position": "C",
+      "expectedMinutes": 13.7,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 3.1,
+       "reb": 3.8,
+       "ast": 0.5,
+       "threePm": 0
+      },
+      "comboMedians": {
+       "pra": 7.6,
+       "ptsReb": 7,
+       "ptsAst": 3.7
+      }
+     },
+     {
+      "providerAthleteId": "5239561",
+      "name": "Jase Richardson",
+      "position": "G",
+      "expectedMinutes": 10.1,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 3,
+       "reb": 0.8,
+       "ast": 0.6,
+       "threePm": 0.3
+      },
+      "comboMedians": {
+       "pra": 5.5,
+       "ptsReb": 4.1,
+       "ptsAst": 4.4
+      }
+     }
+    ],
+    "unavailable": {
+     "away": [
+      {
+       "providerAthleteId": "2990962",
+       "name": "Taurean Prince",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "3157465",
+       "name": "Duncan Robinson",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "4397882",
+       "name": "Tolu Smith",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "BELOW_PUBLISH_CUT"
+      },
+      {
+       "providerAthleteId": "4433621",
+       "name": "Jalen Duren",
+       "position": "C",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "4683771",
+       "name": "Ronald Holland II",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "BELOW_PUBLISH_CUT"
+      },
+      {
+       "providerAthleteId": "4700852",
+       "name": "Chaz Lanier",
+       "position": "G",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "BELOW_PUBLISH_CUT"
+      },
+      {
+       "providerAthleteId": "5037878",
+       "name": "Ugonna Onyenso",
+       "position": "C",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "ROOKIE"
+      },
+      {
+       "providerAthleteId": "5107818",
+       "name": "Isaac Jones",
+       "position": "C",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "BELOW_PUBLISH_CUT"
+      },
+      {
+       "providerAthleteId": "5258459",
+       "name": "Ebuka Okorie",
+       "position": "G",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      }
+     ],
+     "home": [
+      {
+       "providerAthleteId": "3133635",
+       "name": "Jevon Carter",
+       "position": "G",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "BELOW_PUBLISH_CUT"
+      },
+      {
+       "providerAthleteId": "4065654",
+       "name": "Jonathan Isaac",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "4397204",
+       "name": "Colin Castleton",
+       "position": "C",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "BELOW_PUBLISH_CUT"
+      },
+      {
+       "providerAthleteId": "4432573",
+       "name": "Paolo Banchero",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "4593034",
+       "name": "Alex Morales",
+       "position": "G",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "BELOW_PUBLISH_CUT"
+      },
+      {
+       "providerAthleteId": "5107251",
+       "name": "Izaiyah Nelson",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "5214637",
+       "name": "Noah Penda",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "providerEventId": "401909315",
+   "etDate": "2026-11-24",
+   "tipUtc": "2026-11-25T01:00Z",
+   "away": {
+    "abbr": "BOS",
+    "name": "Boston Celtics"
+   },
+   "home": {
+    "abbr": "WSH",
+    "name": "Washington Wizards"
+   },
+   "frozenAt": "2026-11-24T05:50:13Z",
+   "receipt": {
+    "schema": "nba-forecast-receipt@1",
+    "family": "v0.1",
+    "modelVersion": "nba-preseason-experimental-v0.1",
+    "payloadSha256": "7bdbba0a5855f83395d4695a404d42868f4aef58d0577fabf2fe13cebe252874"
+   },
+   "engine": {
+    "simulation": "nba-preseason-experimental-v0",
+    "simulations": 10000
+   },
+   "elo": {
+    "favoured": "BOS",
+    "state": "FAVOURED",
+    "rule": "nba-winner-side@1",
+    "source": "Elo team rating — the published winner side (founder N2) and its Elo-derived game-winner estimate",
+    "winProbability": {
+     "home": 0.2112,
+     "away": 0.7888,
+     "provenance": {
+      "source": "nba-winner-side@1 Elo",
+      "rule": "nba-winner-side@1",
+      "field": "forecast.elo.pHome / forecast.elo.pAway",
+      "frozenAt": "2026-11-24T05:50:13Z",
+      "receiptPayloadSha256": "7bdbba0a5855f83395d4695a404d42868f4aef58d0577fabf2fe13cebe252874"
+     }
+    }
+   },
+   "teamScores": {
+    "state": "WITHHELD",
+    "reason": "Not shown: this model's team score is a sum of player simulations that ignores the opponent, can contradict the Elo side, and has not met its historical checks."
+   },
+   "players": {
+    "source": "v0.1 roster-gated player simulation (nba-preseason-experimental-v0.1) — medians of 10000 simulated games",
+    "comboSource": "PRA, P+R and P+A: sum over the same simulated draws (v0 engine; components independent within a player)",
+    "positionSource": {
+     "file": "nba/rosters/2026-11-24.json",
+     "sha256": "db064e20da63f07009c8641fa853767541e20424c1f1857f26e3cc1d72df5437"
+    },
+    "away": [
+     {
+      "providerAthleteId": "4065648",
+      "name": "Jayson Tatum",
+      "position": "F",
+      "expectedMinutes": 29.2,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 18.4,
+       "reb": 8.6,
+       "ast": 5.5,
+       "threePm": 2.3
+      },
+      "comboMedians": {
+       "pra": 32.6,
+       "ptsReb": 27.1,
+       "ptsAst": 23.9
+      }
+     },
+     {
+      "providerAthleteId": "4251",
+      "name": "Paul George",
+      "position": "F",
+      "expectedMinutes": 29,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 12.6,
+       "reb": 3,
+       "ast": 2.4,
+       "threePm": 2.6
+      },
+      "comboMedians": {
+       "pra": 18.3,
+       "ptsReb": 15.8,
+       "ptsAst": 15.1
+      }
+     },
+     {
+      "providerAthleteId": "3078576",
+      "name": "Derrick White",
+      "position": "G",
+      "expectedMinutes": 27,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 8,
+       "reb": 2.4,
+       "ast": 2.4,
+       "threePm": 1.5
+      },
+      "comboMedians": {
+       "pra": 12.9,
+       "ptsReb": 10.4,
+       "ptsAst": 10.4
+      }
+     },
+     {
+      "providerAthleteId": "4066354",
+      "name": "Payton Pritchard",
+      "position": "G",
+      "expectedMinutes": 26.1,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 12.6,
+       "reb": 2.8,
+       "ast": 4.5,
+       "threePm": 2.2
+      },
+      "comboMedians": {
+       "pra": 19.9,
+       "ptsReb": 15.4,
+       "ptsAst": 17.2
+      }
+     },
+     {
+      "providerAthleteId": "4433188",
+      "name": "Devin Carter",
+      "position": "G",
+      "expectedMinutes": 22.8,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 10.7,
+       "reb": 3.8,
+       "ast": 3.2,
+       "threePm": 1.4
+      },
+      "comboMedians": {
+       "pra": 17.8,
+       "ptsReb": 14.6,
+       "ptsAst": 14
+      }
+     },
+     {
+      "providerAthleteId": "4065804",
+      "name": "Sam Hauser",
+      "position": "F",
+      "expectedMinutes": 19.7,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 7.3,
+       "reb": 3.3,
+       "ast": 1.1,
+       "threePm": 2.2
+      },
+      "comboMedians": {
+       "pra": 11.7,
+       "ptsReb": 10.5,
+       "ptsAst": 8.4
+      }
+     },
+     {
+      "providerAthleteId": "4397424",
+      "name": "Neemias Queta",
+      "position": "C",
+      "expectedMinutes": 16.7,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 6.6,
+       "reb": 6.6,
+       "ast": 0.6,
+       "threePm": 0.1
+      },
+      "comboMedians": {
+       "pra": 14.4,
+       "ptsReb": 13.6,
+       "ptsAst": 7.4
+      }
+     },
+     {
+      "providerAthleteId": "4593841",
+      "name": "Baylor Scheierman",
+      "position": "G",
+      "expectedMinutes": 15.2,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 6.3,
+       "reb": 2.2,
+       "ast": 0.8,
+       "threePm": 1.5
+      },
+      "comboMedians": {
+       "pra": 9.9,
+       "ptsReb": 8.9,
+       "ptsAst": 7.4
+      }
+     },
+     {
+      "providerAthleteId": "4683689",
+      "name": "Jordan Walsh",
+      "position": "G",
+      "expectedMinutes": 12.8,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 2.2,
+       "reb": 2.1,
+       "ast": 0.9,
+       "threePm": 0.4
+      },
+      "comboMedians": {
+       "pra": 5.6,
+       "ptsReb": 4.5,
+       "ptsAst": 3.2
+      }
+     },
+     {
+      "providerAthleteId": "3195",
+      "name": "Mike Conley",
+      "position": "G",
+      "expectedMinutes": 12.2,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 3.4,
+       "reb": 0.8,
+       "ast": 1.9,
+       "threePm": 0.8
+      },
+      "comboMedians": {
+       "pra": 6.9,
+       "ptsReb": 4.7,
+       "ptsAst": 5.6
+      }
+     },
+     {
+      "providerAthleteId": "4277951",
+      "name": "Luka Garza",
+      "position": "C",
+      "expectedMinutes": 10,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 5.3,
+       "reb": 1.3,
+       "ast": 0.5,
+       "threePm": 0.4
+      },
+      "comboMedians": {
+       "pra": 9,
+       "ptsReb": 8.1,
+       "ptsAst": 6.3
+      }
+     }
+    ],
+    "home": [
+     {
+      "providerAthleteId": "5144126",
+      "name": "Will Riley",
+      "position": "G",
+      "expectedMinutes": 25.9,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 14.2,
+       "reb": 3.2,
+       "ast": 2.6,
+       "threePm": 1.2
+      },
+      "comboMedians": {
+       "pra": 20.1,
+       "ptsReb": 17.4,
+       "ptsAst": 16.9
+      }
+     },
+     {
+      "providerAthleteId": "6583",
+      "name": "Anthony Davis",
+      "position": "F",
+      "expectedMinutes": 24.8,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 15.5,
+       "reb": 8.6,
+       "ast": 2.1,
+       "threePm": 0.4
+      },
+      "comboMedians": {
+       "pra": 26.4,
+       "ptsReb": 24.2,
+       "ptsAst": 17.7
+      }
+     },
+     {
+      "providerAthleteId": "2581184",
+      "name": "Anthony Gill",
+      "position": "F",
+      "expectedMinutes": 24.6,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 9.4,
+       "reb": 2.9,
+       "ast": 1.5,
+       "threePm": 0.5
+      },
+      "comboMedians": {
+       "pra": 14.1,
+       "ptsReb": 12.4,
+       "ptsAst": 11.1
+      }
+     },
+     {
+      "providerAthleteId": "5174563",
+      "name": "Kyshawn George",
+      "position": "F",
+      "expectedMinutes": 23,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 11.4,
+       "reb": 3.9,
+       "ast": 3.4,
+       "threePm": 1.6
+      },
+      "comboMedians": {
+       "pra": 18.8,
+       "ptsReb": 15.3,
+       "ptsAst": 14.8
+      }
+     },
+     {
+      "providerAthleteId": "4278129",
+      "name": "Deandre Ayton",
+      "position": "C",
+      "expectedMinutes": 22.6,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 7.7,
+       "reb": 7.4,
+       "ast": 0.7,
+       "threePm": 0
+      },
+      "comboMedians": {
+       "pra": 16,
+       "ptsReb": 15.2,
+       "ptsAst": 8.4
+      }
+     },
+     {
+      "providerAthleteId": "4845374",
+      "name": "Bub Carrington",
+      "position": "G",
+      "expectedMinutes": 22.1,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 11.1,
+       "reb": 1.4,
+       "ast": 4.3,
+       "threePm": 2.2
+      },
+      "comboMedians": {
+       "pra": 17,
+       "ptsReb": 12.6,
+       "ptsAst": 15.4
+      }
+     },
+     {
+      "providerAthleteId": "5160992",
+      "name": "Alex Sarr",
+      "position": "C",
+      "expectedMinutes": 21.6,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 12.5,
+       "reb": 5.8,
+       "ast": 2.1,
+       "threePm": 0.8
+      },
+      "comboMedians": {
+       "pra": 20.5,
+       "ptsReb": 18.4,
+       "ptsAst": 14.7
+      }
+     },
+     {
+      "providerAthleteId": "6609",
+      "name": "Khris Middleton",
+      "position": "F",
+      "expectedMinutes": 19.3,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 8,
+       "reb": 3.1,
+       "ast": 2.5,
+       "threePm": 0.8
+      },
+      "comboMedians": {
+       "pra": 13.7,
+       "ptsReb": 11.1,
+       "ptsAst": 10.5
+      }
+     },
+     {
+      "providerAthleteId": "5238230",
+      "name": "Tre Johnson",
+      "position": "G",
+      "expectedMinutes": 18.6,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 8.1,
+       "reb": 2.8,
+       "ast": 2,
+       "threePm": 1
+      },
+      "comboMedians": {
+       "pra": 12.8,
+       "ptsReb": 10.9,
+       "ptsAst": 10.1
+      }
+     },
+     {
+      "providerAthleteId": "5104155",
+      "name": "Bilal Coulibaly",
+      "position": "G",
+      "expectedMinutes": 17.6,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 12.2,
+       "reb": 3.1,
+       "ast": 1.6,
+       "threePm": 1.1
+      },
+      "comboMedians": {
+       "pra": 16.9,
+       "ptsReb": 15.4,
+       "ptsAst": 13.9
+      }
+     },
+     {
+      "providerAthleteId": "4277905",
+      "name": "Trae Young",
+      "position": "G",
+      "expectedMinutes": 16.3,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 11.9,
+       "reb": 2.3,
+       "ast": 4.9,
+       "threePm": 1.4
+      },
+      "comboMedians": {
+       "pra": 19.1,
+       "ptsReb": 14.3,
+       "ptsAst": 16.8
+      }
+     }
+    ],
+    "unavailable": {
+     "away": [
+      {
+       "providerAthleteId": "4351852",
+       "name": "Mitchell Robinson",
+       "position": "C",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "4397251",
+       "name": "Ron Harper Jr.",
+       "position": "G",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "BELOW_PUBLISH_CUT"
+      },
+      {
+       "providerAthleteId": "4702745",
+       "name": "Amari Williams",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "BELOW_PUBLISH_CUT"
+      },
+      {
+       "providerAthleteId": "5106283",
+       "name": "Dillon Mitchell",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "ROOKIE"
+      },
+      {
+       "providerAthleteId": "5142621",
+       "name": "Chris Cenac Jr.",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "ROOKIE"
+      },
+      {
+       "providerAthleteId": "5175647",
+       "name": "Hugo Gonzalez",
+       "position": "G",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "BELOW_PUBLISH_CUT"
+      }
+     ],
+     "home": [
+      {
+       "providerAthleteId": "4432187",
+       "name": "Reece Beekman",
+       "position": "G",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "4432819",
+       "name": "Tre Mann",
+       "position": "G",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "BELOW_PUBLISH_CUT"
+      },
+      {
+       "providerAthleteId": "4432907",
+       "name": "Justin Champagnie",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "4606840",
+       "name": "Jamir Watkins",
+       "position": "G",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "4997537",
+       "name": "Tristan Vukcevic",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "5105841",
+       "name": "Felix Okpara",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "ROOKIE"
+      },
+      {
+       "providerAthleteId": "5142718",
+       "name": "AJ Dybantsa",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "ROOKIE"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "providerEventId": "401909316",
+   "etDate": "2026-11-24",
+   "tipUtc": "2026-11-25T03:00Z",
+   "away": {
+    "abbr": "DAL",
+    "name": "Dallas Mavericks"
+   },
+   "home": {
+    "abbr": "DEN",
+    "name": "Denver Nuggets"
+   },
+   "frozenAt": "2026-11-24T05:50:13Z",
+   "receipt": {
+    "schema": "nba-forecast-receipt@1",
+    "family": "v0.1",
+    "modelVersion": "nba-preseason-experimental-v0.1",
+    "payloadSha256": "01ba1d02c9815cf395b69a649c8cfa48b09e16307c5536563e3086afe38cd057"
+   },
+   "engine": {
+    "simulation": "nba-preseason-experimental-v0",
+    "simulations": 10000
+   },
+   "elo": {
+    "favoured": "DEN",
+    "state": "FAVOURED",
+    "rule": "nba-winner-side@1",
+    "source": "Elo team rating — the published winner side (founder N2) and its Elo-derived game-winner estimate",
+    "winProbability": {
+     "home": 0.8195,
+     "away": 0.1805,
+     "provenance": {
+      "source": "nba-winner-side@1 Elo",
+      "rule": "nba-winner-side@1",
+      "field": "forecast.elo.pHome / forecast.elo.pAway",
+      "frozenAt": "2026-11-24T05:50:13Z",
+      "receiptPayloadSha256": "01ba1d02c9815cf395b69a649c8cfa48b09e16307c5536563e3086afe38cd057"
+     }
+    }
+   },
+   "teamScores": {
+    "state": "WITHHELD",
+    "reason": "Not shown: this model's team score is a sum of player simulations that ignores the opponent, can contradict the Elo side, and has not met its historical checks."
+   },
+   "players": {
+    "source": "v0.1 roster-gated player simulation (nba-preseason-experimental-v0.1) — medians of 10000 simulated games",
+    "comboSource": "PRA, P+R and P+A: sum over the same simulated draws (v0 engine; components independent within a player)",
+    "positionSource": {
+     "file": "nba/rosters/2026-11-24.json",
+     "sha256": "db064e20da63f07009c8641fa853767541e20424c1f1857f26e3cc1d72df5437"
+    },
+    "away": [
+     {
+      "providerAthleteId": "5041939",
+      "name": "Cooper Flagg",
+      "position": "F",
+      "expectedMinutes": 28.7,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 21.9,
+       "reb": 5.9,
+       "ast": 3.4,
+       "threePm": 1.1
+      },
+      "comboMedians": {
+       "pra": 31.6,
+       "ptsReb": 28,
+       "ptsAst": 25.5
+      }
+     },
+     {
+      "providerAthleteId": "4278078",
+      "name": "P.J. Washington",
+      "position": "F",
+      "expectedMinutes": 26.5,
+      "injuryStatus": "Day-To-Day",
+      "medians": {
+       "pts": 11.6,
+       "reb": 7.8,
+       "ast": 0.3,
+       "threePm": 1.5
+      },
+      "comboMedians": {
+       "pra": 19.8,
+       "ptsReb": 19.4,
+       "ptsAst": 12
+      }
+     },
+     {
+      "providerAthleteId": "4593125",
+      "name": "Santi Aldama",
+      "position": "F",
+      "expectedMinutes": 25.2,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 12.4,
+       "reb": 5.9,
+       "ast": 2.6,
+       "threePm": 1.4
+      },
+      "comboMedians": {
+       "pra": 21,
+       "ptsReb": 18.3,
+       "ptsAst": 15.1
+      }
+     },
+     {
+      "providerAthleteId": "4278594",
+      "name": "Naji Marshall",
+      "position": "F",
+      "expectedMinutes": 25.1,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 12.1,
+       "reb": 3.3,
+       "ast": 2.6,
+       "threePm": 0.3
+      },
+      "comboMedians": {
+       "pra": 18.2,
+       "ptsReb": 15.4,
+       "ptsAst": 14.8
+      }
+     },
+     {
+      "providerAthleteId": "4432582",
+      "name": "Max Christie",
+      "position": "G",
+      "expectedMinutes": 24.5,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 8.7,
+       "reb": 2.2,
+       "ast": 1.4,
+       "threePm": 1.8
+      },
+      "comboMedians": {
+       "pra": 12.3,
+       "ptsReb": 10.9,
+       "ptsAst": 10.1
+      }
+     },
+     {
+      "providerAthleteId": "4701208",
+      "name": "Moussa Cisse",
+      "position": "C",
+      "expectedMinutes": 23.5,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 9.5,
+       "reb": 11,
+       "ast": 0.2,
+       "threePm": 0
+      },
+      "comboMedians": {
+       "pra": 21.1,
+       "ptsReb": 20.8,
+       "ptsAst": 9.8
+      }
+     },
+     {
+      "providerAthleteId": "4896372",
+      "name": "Walter Clayton Jr.",
+      "position": "G",
+      "expectedMinutes": 23,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 10.2,
+       "reb": 1.9,
+       "ast": 4.7,
+       "threePm": 1.5
+      },
+      "comboMedians": {
+       "pra": 16.8,
+       "ptsReb": 12.1,
+       "ptsAst": 14.9
+      }
+     },
+     {
+      "providerAthleteId": "4278049",
+      "name": "Daniel Gafford",
+      "position": "F",
+      "expectedMinutes": 16.9,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 8.9,
+       "reb": 4.7,
+       "ast": 0.6,
+       "threePm": 0
+      },
+      "comboMedians": {
+       "pra": 14.5,
+       "ptsReb": 13.7,
+       "ptsAst": 9.6
+      }
+     },
+     {
+      "providerAthleteId": "3138160",
+      "name": "Caleb Martin",
+      "position": "F",
+      "expectedMinutes": 13.4,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 2.9,
+       "reb": 1.9,
+       "ast": 1,
+       "threePm": 0.2
+      },
+      "comboMedians": {
+       "pra": 6.5,
+       "ptsReb": 5.1,
+       "ptsAst": 4.3
+      }
+     },
+     {
+      "providerAthleteId": "5105806",
+      "name": "Jett Howard",
+      "position": "G",
+      "expectedMinutes": 11.2,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 3.8,
+       "reb": 1.1,
+       "ast": 0.5,
+       "threePm": 0.7
+      },
+      "comboMedians": {
+       "pra": 6.1,
+       "ptsReb": 5.2,
+       "ptsAst": 4.6
+      }
+     },
+     {
+      "providerAthleteId": "4432107",
+      "name": "Marcus Sasser",
+      "position": "G",
+      "expectedMinutes": 11,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 2,
+       "reb": 0.7,
+       "ast": 0,
+       "threePm": 0.5
+      },
+      "comboMedians": {
+       "pra": 5.7,
+       "ptsReb": 3.1,
+       "ptsAst": 4.8
+      }
+     },
+     {
+      "providerAthleteId": "5211175",
+      "name": "Zaccharie Risacher",
+      "position": "F",
+      "expectedMinutes": 10.8,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 3.5,
+       "reb": 1.8,
+       "ast": 0.4,
+       "threePm": 0.1
+      },
+      "comboMedians": {
+       "pra": 7.7,
+       "ptsReb": 7.1,
+       "ptsAst": 4.1
+      }
+     }
+    ],
+    "home": [
+     {
+      "providerAthleteId": "3936299",
+      "name": "Jamal Murray",
+      "position": "G",
+      "expectedMinutes": 28.3,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 17.2,
+       "reb": 3.5,
+       "ast": 4.2,
+       "threePm": 1.8
+      },
+      "comboMedians": {
+       "pra": 24.8,
+       "ptsReb": 20.6,
+       "ptsAst": 21.3
+      }
+     },
+     {
+      "providerAthleteId": "3112335",
+      "name": "Nikola Jokic",
+      "position": "C",
+      "expectedMinutes": 26.6,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 17.9,
+       "reb": 9.2,
+       "ast": 6.3,
+       "threePm": 0.7
+      },
+      "comboMedians": {
+       "pra": 33.6,
+       "ptsReb": 27.2,
+       "ptsAst": 24.3
+      }
+     },
+     {
+      "providerAthleteId": "4431767",
+      "name": "Christian Braun",
+      "position": "G",
+      "expectedMinutes": 23.2,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 6.3,
+       "reb": 2.6,
+       "ast": 1.1,
+       "threePm": 0.6
+      },
+      "comboMedians": {
+       "pra": 10.2,
+       "ptsReb": 9,
+       "ptsAst": 7.5
+      }
+     },
+     {
+      "providerAthleteId": "3138196",
+      "name": "Cameron Johnson",
+      "position": "F",
+      "expectedMinutes": 23.1,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 10.7,
+       "reb": 2.5,
+       "ast": 2.1,
+       "threePm": 1.2
+      },
+      "comboMedians": {
+       "pra": 15.3,
+       "ptsReb": 13.2,
+       "ptsAst": 12.8
+      }
+     },
+     {
+      "providerAthleteId": "3064290",
+      "name": "Aaron Gordon",
+      "position": "F",
+      "expectedMinutes": 20.7,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 8.7,
+       "reb": 3.7,
+       "ast": 2.5,
+       "threePm": 1
+      },
+      "comboMedians": {
+       "pra": 15.2,
+       "ptsReb": 12.5,
+       "ptsAst": 11.4
+      }
+     },
+     {
+      "providerAthleteId": "3978",
+      "name": "DeMar DeRozan",
+      "position": "G",
+      "expectedMinutes": 20,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 12.9,
+       "reb": 1.9,
+       "ast": 3.1,
+       "threePm": 0.4
+      },
+      "comboMedians": {
+       "pra": 18.3,
+       "ptsReb": 15,
+       "ptsAst": 16.3
+      }
+     },
+     {
+      "providerAthleteId": "4592427",
+      "name": "Spencer Jones",
+      "position": "F",
+      "expectedMinutes": 17.5,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 3.9,
+       "reb": 1.2,
+       "ast": 0.2,
+       "threePm": 0.9
+      },
+      "comboMedians": {
+       "pra": 5.6,
+       "ptsReb": 5.4,
+       "ptsAst": 4.2
+      }
+     },
+     {
+      "providerAthleteId": "4433629",
+      "name": "Ryan Nembhard",
+      "position": "G",
+      "expectedMinutes": 17.4,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 5.4,
+       "reb": 2.5,
+       "ast": 4.8,
+       "threePm": 0.4
+      },
+      "comboMedians": {
+       "pra": 13.2,
+       "ptsReb": 8.1,
+       "ptsAst": 10.4
+      }
+     },
+     {
+      "providerAthleteId": "4277848",
+      "name": "Marvin Bagley III",
+      "position": "F",
+      "expectedMinutes": 15.2,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 9.7,
+       "reb": 3.9,
+       "ast": 1.1,
+       "threePm": 0.9
+      },
+      "comboMedians": {
+       "pra": 15.1,
+       "ptsReb": 13.8,
+       "ptsAst": 10.9
+      }
+     },
+     {
+      "providerAthleteId": "4432181",
+      "name": "Julian Strawther",
+      "position": "G",
+      "expectedMinutes": 14.5,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 7.8,
+       "reb": 1.4,
+       "ast": 0.7,
+       "threePm": 1.2
+      },
+      "comboMedians": {
+       "pra": 10.4,
+       "ptsReb": 9.6,
+       "ptsAst": 8.6
+      }
+     },
+     {
+      "providerAthleteId": "5105592",
+      "name": "Cam Whitmore",
+      "position": "F",
+      "expectedMinutes": 12.3,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 6.1,
+       "reb": 1.8,
+       "ast": 0.5,
+       "threePm": 0.5
+      },
+      "comboMedians": {
+       "pra": 8.7,
+       "ptsReb": 8.2,
+       "ptsAst": 6.6
+      }
+     },
+     {
+      "providerAthleteId": "3135046",
+      "name": "Tyus Jones",
+      "position": "G",
+      "expectedMinutes": 10.8,
+      "injuryStatus": null,
+      "medians": {
+       "pts": 3.1,
+       "reb": 1.1,
+       "ast": 1.5,
+       "threePm": 0.5
+      },
+      "comboMedians": {
+       "pra": 6.1,
+       "ptsReb": 4.4,
+       "ptsAst": 4.8
+      }
+     }
+    ],
+    "unavailable": {
+     "away": [
+      {
+       "providerAthleteId": "4683688",
+       "name": "Dereck Lively II",
+       "position": "C",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "4873153",
+       "name": "Morez Johnson Jr.",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "ROOKIE"
+      },
+      {
+       "providerAthleteId": "5106040",
+       "name": "Tobi Lawal",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "5148538",
+       "name": "Tarik Biberovic",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "5279129",
+       "name": "Sergio de Larrea",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "RULED_OUT",
+       "status": "Out"
+      },
+      {
+       "providerAthleteId": "6442",
+       "name": "Kyrie Irving",
+       "position": "G",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "INSUFFICIENT_HISTORY"
+      }
+     ],
+     "home": [
+      {
+       "providerAthleteId": "4065813",
+       "name": "Alpha Diallo",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "ROOKIE"
+      },
+      {
+       "providerAthleteId": "4431690",
+       "name": "Zeke Nnaji",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "BELOW_PUBLISH_CUT"
+      },
+      {
+       "providerAthleteId": "4433607",
+       "name": "DaRon Holmes II",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "BELOW_PUBLISH_CUT"
+      },
+      {
+       "providerAthleteId": "4565698",
+       "name": "Bryce Hopkins",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "ROOKIE"
+      },
+      {
+       "providerAthleteId": "4698719",
+       "name": "Trevon Brazile",
+       "position": "F",
+       "state": "PROJECTION_UNAVAILABLE",
+       "reason": "ROOKIE"
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "excluded": []
+}
