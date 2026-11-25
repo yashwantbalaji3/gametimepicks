@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-11-25",
- "generatedAt": "2026-11-25T23:35:42Z",
+ "generatedAt": "2026-11-25T23:48:20Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "196 model candidates · no current comparable touchdown price is available",
+ "reason": "195 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -204,27 +204,6 @@
    "modelVersion": "nfl-anytime-td-opportunity-v1"
   },
   {
-   "playerId": "nfl-athlete-4430878",
-   "name": "Jaxon Smith-Njigba",
-   "position": "WR",
-   "team": "SEA",
-   "opponent": "SF",
-   "event": "SEA @ SF",
-   "providerEventId": "401873091",
-   "kickoffUtc": "2026-11-29T21:25Z",
-   "tdProbability": 0.5828,
-   "probabilitySource": "the game's player board — the published anytime-touchdown family",
-   "probabilityRange": {
-    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
-   "modelVersion": "nfl-anytime-td-opportunity-v1"
-  },
-  {
    "playerId": "nfl-athlete-4360238",
    "name": "Dameon Pierce",
    "position": "RB",
@@ -265,9 +244,30 @@
    "pricingState": "NOT_PROBED",
    "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
    "modelVersion": "nfl-anytime-td-opportunity-v1"
+  },
+  {
+   "playerId": "nfl-athlete-4430737",
+   "name": "Kyren Williams",
+   "position": "RB",
+   "team": "LAR",
+   "opponent": "GB",
+   "event": "GB @ LAR",
+   "providerEventId": "401873079",
+   "kickoffUtc": "2026-11-26T01:00Z",
+   "tdProbability": 0.5645,
+   "probabilitySource": "the game's player board — the published anytime-touchdown family",
+   "probabilityRange": {
+    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
+   "modelVersion": "nfl-anytime-td-opportunity-v1"
   }
  ],
- "candidateCount": 196,
+ "candidateCount": 195,
  "withheld": [
   {
    "event": "GB @ LAR",
@@ -414,6 +414,12 @@
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
+   "event": "SEA @ SF",
+   "team": "SEA",
+   "player": "Jaxon Smith-Njigba",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
    "event": "LV @ CLE",
    "team": "CLE",
    "player": "Harold Fannin Jr.",
@@ -448,7 +454,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 196,
+  "roleReadyCandidates": 195,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."
