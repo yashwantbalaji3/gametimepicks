@@ -14,17 +14,17 @@
   },
   "NFL": {
    "nfl.espn-player-events": "2026-11-24T01:15Z",
-   "nfl.espn-results": "2026-11-24T20:07:01Z",
-   "nfl.espn-rosters": "2026-11-25T03:58:23Z",
-   "nfl.espn-schedule": "2026-11-24T20:06:54Z",
-   "nfl.nflverse-current-season": "2026-11-24T20:11:25Z",
+   "nfl.espn-results": "2026-11-25T19:08:44Z",
+   "nfl.espn-rosters": "2026-11-25T19:12:58Z",
+   "nfl.espn-schedule": "2026-11-25T19:08:37Z",
+   "nfl.nflverse-current-season": "2026-11-25T19:12:58Z",
    "nfl.nflverse-games-history": "2026-02-08",
    "nfl.nflverse-id-bridge": "2026-11-24T21:27:40Z"
   },
   "UFC": {
    "ufc.espn-history": "2026-08-09T00:00Z",
    "ufc.espn-results": "2026-11-25T18:33:17Z",
-   "ufc.espn-schedule": "2026-11-24T21:15:55Z"
+   "ufc.espn-schedule": "2026-11-25T19:08:37Z"
   }
  },
  "note": "Every committed artifact the builder read, fingerprinted. Internal only — repository-relative paths never reach a public projection.",
@@ -5346,7 +5346,7 @@
     {
      "bytes": 22628186,
      "path": "app/public/data/mlb/results/settled_leans.jsonl",
-     "sha256": "5734c7ce151d7d253da9d5859112f0b6c68da66d8bb31b8dd883f4cf3f563c07"
+     "sha256": "5b8aeaa4a62bb66812b628755c0bd938597b0cbb48635a215a7a670a29320a2c"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
@@ -5846,7 +5846,7 @@
     {
      "bytes": 1039345,
      "path": "data/internal/research/nfl/player-events-v1/2026.json",
-     "sha256": "ca2fe5df4ecdb906ab1cf10b3eaa986fe9fd01fbaa3deabbd35c2d3927383126"
+     "sha256": "6629e4ed5aad058b8805ba211bc0218eef591b77d1561a664a0189272d9bb717"
     }
    ],
    "dataClass": "PRIVATE_RESEARCH",
@@ -5859,9 +5859,9 @@
    "artifactCount": 1,
    "artifacts": [
     {
-     "bytes": 12091,
+     "bytes": 7230,
      "path": "app/public/data/nfl/results/latest.json",
-     "sha256": "838b580067a6cc1f4cfaf090f0291efa5058c2e7ce745c485a50d3678a75af1a"
+     "sha256": "9809b3f95e3592e378c7c7821646f0ade1dd2b760bdc2d521888259ccd3c37ed"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
@@ -5871,7 +5871,7 @@
    "timeMeaning": "dateUtc = kickoff; capturedAt = fetch time; STATUS_FINAL rows only"
   },
   {
-   "artifactCount": 593,
+   "artifactCount": 594,
    "artifacts": [
     {
      "bytes": 355693,
@@ -8834,9 +8834,14 @@
      "sha256": "53dac0a04c0a0b77c0ac28d157a95053eb13ed018cbda8df303e8fce5b5d73f0"
     },
     {
-     "bytes": 308709,
+     "bytes": 308835,
+     "path": "app/public/data/nfl/rosters/capture-2026-11-25T1912.json",
+     "sha256": "b24f09f33298f5a176dca6e70eb478a5fb8756e0668332c6a5a485ae4ca43abc"
+    },
+    {
+     "bytes": 308835,
      "path": "app/public/data/nfl/rosters/latest.json",
-     "sha256": "53dac0a04c0a0b77c0ac28d157a95053eb13ed018cbda8df303e8fce5b5d73f0"
+     "sha256": "b24f09f33298f5a176dca6e70eb478a5fb8756e0668332c6a5a485ae4ca43abc"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
@@ -8846,7 +8851,7 @@
    "timeMeaning": "generatedAt/sourceAsOf = capture time"
   },
   {
-   "artifactCount": 85,
+   "artifactCount": 86,
    "artifacts": [
     {
      "bytes": 7620,
@@ -9269,9 +9274,14 @@
      "sha256": "f0648e7cbb43447d9658b2c84c812d7028e2c803d3c0b85721c9af13803931ca"
     },
     {
-     "bytes": 7718,
+     "bytes": 8159,
+     "path": "app/public/data/nfl/schedule/capture-2026-11-25T1908.json",
+     "sha256": "5f9f6c6f641cf142b6f28276a30c6a440ecf0b1c491eeb76f58daa4409721610"
+    },
+    {
+     "bytes": 8159,
      "path": "app/public/data/nfl/schedule/latest.json",
-     "sha256": "f0648e7cbb43447d9658b2c84c812d7028e2c803d3c0b85721c9af13803931ca"
+     "sha256": "5f9f6c6f641cf142b6f28276a30c6a440ecf0b1c491eeb76f58daa4409721610"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
@@ -9286,7 +9296,7 @@
     {
      "bytes": 48397,
      "path": "data/internal/research/nfl/replay/current-season.json",
-     "sha256": "8bd5f0c34a4d1f0314884107725bb43a85b335205d7ae82c67696f69221e8bb8"
+     "sha256": "f9b3ca8f1615eae8622520ba6f2624826695f76ccab304f3a785ae88355846e2"
     }
    ],
    "dataClass": "PRIVATE_RESEARCH",
@@ -9371,7 +9381,7 @@
    "timeMeaning": "dateUtc = bout instant; capturedAt = fetch time; STATUS_FINAL only"
   },
   {
-   "artifactCount": 219,
+   "artifactCount": 220,
    "artifacts": [
     {
      "bytes": 31810,
@@ -10467,6 +10477,11 @@
      "bytes": 14453,
      "path": "app/public/data/ufc/schedule/capture-2026-11-24T2115.json",
      "sha256": "e8005515378aee180fd14e7bde9930759f7e8d3a0916a765fcaf75633a792eda"
+    },
+    {
+     "bytes": 14456,
+     "path": "app/public/data/ufc/schedule/capture-2026-11-25T1908.json",
+     "sha256": "7494950e30f33192e33fc35b118b69dcb6a3952faa09e2f0e58c636c17cbe317"
     }
    ],
    "dataClass": "PUBLIC_PRODUCT",
