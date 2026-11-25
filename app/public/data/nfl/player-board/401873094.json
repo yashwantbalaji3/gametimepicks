@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-25T19:12:58Z",
- "sourceGeneratedAt": "2026-11-25T19:12:58Z",
+ "generatedAt": "2026-11-25T23:05:22Z",
+ "sourceGeneratedAt": "2026-11-25T23:05:22Z",
  "forecastInputHash": "6a1306b1333c3713",
  "providerEventId": "401873094",
  "matchup": "CAR @ TB",
@@ -12,8 +12,8 @@
  "week": 12,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-25T19:12:58Z",
-  "roleEvidenceAt": "2026-11-25T19:12:58Z",
+  "injuriesCapturedAt": "2026-11-25T23:05:22Z",
+  "roleEvidenceAt": "2026-11-25T23:05:22Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -77,24 +77,6 @@
     "version": "nfl-share-conservation-v1",
     "method": "proportional share normalisation per team pool over cleared players (mean exact; quantiles rescaled by the same factor)",
     "pools": [
-     {
-      "team": "CAR",
-      "pool": "targets",
-      "originalSum": 1.0729,
-      "normalizedSum": 1,
-      "factor": 0.9321,
-      "playerIds": [
-       "nfl-athlete-4685472",
-       "nfl-athlete-4695883",
-       "nfl-athlete-2576925",
-       "nfl-athlete-4241416",
-       "nfl-athlete-4372780",
-       "nfl-athlete-4567096",
-       "nfl-athlete-4430034",
-       "nfl-athlete-4683243",
-       "nfl-athlete-4431588"
-      ]
-     },
      {
       "team": "TB",
       "pool": "targets",
@@ -195,7 +177,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "AVAILABLE_ROLE_UNCERTAIN"
+     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-4695883",
@@ -509,19 +491,6 @@
     "state": "NORMALIZED"
    },
    {
-    "team": "CAR",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 1,
-    "originalSum": 1.0729,
-    "residualOther": 0,
-    "joined": 9,
-    "missed": 0,
-    "state": "NORMALIZED"
-   },
-   {
     "team": "TB",
     "pool": "targets",
     "markets": [
@@ -533,6 +502,19 @@
     "joined": 7,
     "missed": 0,
     "state": "NORMALIZED"
+   },
+   {
+    "team": "CAR",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.8182,
+    "originalSum": 0.8182,
+    "residualOther": 0.1818,
+    "joined": 8,
+    "missed": 0,
+    "state": "CONSERVED"
    }
   ],
   "violations": 0
@@ -554,16 +536,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.5799,
+     "mean": 2.768,
      "p10": 0,
-     "p25": 0.9321,
-     "median": 1.8641,
-     "p75": 3.7282,
-     "p90": 5.5923,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9321
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 6,
      "pricingState": "NOT_PROBED"
     },
     "player_rush_yds": {
@@ -592,11 +570,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T00:39Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -655,11 +633,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-22T23:02Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -668,7 +646,7 @@
    "playerId": "nfl-athlete-4685472",
    "name": "Tetairoa McMillan",
    "team": "CAR",
-   "participation": "AVAILABLE_ROLE_UNCERTAIN",
+   "participation": "QUESTIONABLE",
    "markets": {
     "player_reception_yds": {
      "mean": 54.008,
@@ -680,16 +658,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 5.0192,
-     "p10": 1.8641,
-     "p25": 2.7962,
-     "median": 4.6603,
-     "p75": 6.5244,
-     "p90": 9.3205,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9321
-     },
+     "mean": 5.3851,
+     "p10": 2,
+     "p25": 3,
+     "median": 5,
+     "p75": 7,
+     "p90": 10,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -700,16 +674,19 @@
    "eligibility": {
     "state": "ELIGIBLE",
     "reasons": [],
+    "flags": [
+     "QUESTIONABLE"
+    ],
     "contractVersion": "eligibility@1",
     "sources": {
      "injuries": {
-      "status": "Active",
-      "statedAt": "2026-11-25T18:50Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "status": "Questionable",
+      "statedAt": "2026-11-25T20:18Z",
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -730,16 +707,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 3.5722,
-     "p10": 0.9321,
-     "p25": 1.8641,
-     "median": 2.7962,
-     "p75": 4.6603,
-     "p90": 6.5244,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9321
-     },
+     "mean": 3.8326,
+     "p10": 1,
+     "p25": 2,
+     "median": 3,
+     "p75": 5,
+     "p90": 7,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -755,11 +728,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T18:42Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -818,11 +791,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T00:51Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -843,16 +816,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.6055,
+     "mean": 2.7954,
      "p10": 0,
-     "p25": 0.9321,
-     "median": 1.8641,
-     "p75": 3.7282,
-     "p90": 5.5923,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9321
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 4,
+     "p90": 6,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -868,11 +837,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T01:00Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -918,11 +887,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T00:37Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -968,11 +937,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T01:22Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -993,16 +962,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 2.2331,
+     "mean": 2.3959,
      "p10": 0,
-     "p25": 0.9321,
-     "median": 1.8641,
-     "p75": 2.7962,
-     "p90": 4.6603,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9321
-     },
+     "p25": 1,
+     "median": 2,
+     "p75": 3,
+     "p90": 5,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1018,11 +983,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T02:41Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -1068,11 +1033,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T02:55Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -1109,11 +1074,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T15:21Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -1150,11 +1115,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T02:40Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -1193,11 +1158,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -1218,16 +1183,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.649,
+     "mean": 1.7692,
      "p10": 0,
-     "p25": 0.9321,
-     "median": 0.9321,
-     "p75": 2.7962,
-     "p90": 3.7282,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9321
-     },
+     "p25": 1,
+     "median": 1,
+     "p75": 3,
+     "p90": 4,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1243,11 +1204,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T02:40Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -1294,11 +1255,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T00:01Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -1319,16 +1280,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.6081,
+     "mean": 1.7253,
      "p10": 0,
-     "p25": 0.9321,
-     "median": 0.9321,
-     "p75": 2.7962,
-     "p90": 3.7282,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9321
-     },
+     "p25": 1,
+     "median": 1,
+     "p75": 3,
+     "p90": 4,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1344,11 +1301,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T01:46Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -1394,11 +1351,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T04:18Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -1419,16 +1376,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.3898,
+     "mean": 1.4911,
      "p10": 0,
      "p25": 0,
-     "median": 0.9321,
-     "p75": 1.8641,
-     "p90": 2.7962,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9321
-     },
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1444,11 +1397,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T03:24Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -1494,11 +1447,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T02:17Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -1535,11 +1488,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T04:36Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -1560,16 +1513,12 @@
      "pricingState": "NOT_PROBED"
     },
     "player_receptions": {
-     "mean": 1.4614,
+     "mean": 1.5679,
      "p10": 0,
      "p25": 0,
-     "median": 0.9321,
-     "p75": 1.8641,
-     "p90": 2.7962,
-     "conservation": {
-      "version": "nfl-share-conservation-v1",
-      "factor": 0.9321
-     },
+     "median": 1,
+     "p75": 2,
+     "p90": 3,
      "pricingState": "NOT_PROBED"
     },
     "anytime_td": {
@@ -1585,11 +1534,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-22T17:25Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }
@@ -1636,11 +1585,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T00:55Z",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-25T19:12:58Z"
+      "fetchedAt": "2026-11-25T23:05:22Z"
      }
     }
    }

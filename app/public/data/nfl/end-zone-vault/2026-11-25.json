@@ -3,14 +3,14 @@
  "artifact": "nfl-end-zone-vault",
  "dataClass": "PUBLIC_DERIVED",
  "date": "2026-11-25",
- "generatedAt": "2026-11-25T19:12:58Z",
+ "generatedAt": "2026-11-25T23:05:22Z",
  "product": {
   "id": "end-zone-vault",
   "version": 2,
   "objective": "Surface the players our model thinks are most likely to score a touchdown, with honest uncertainty."
  },
  "state": "WATCHLIST_ONLY",
- "reason": "208 model candidates · no current comparable touchdown price is available",
+ "reason": "199 model candidates · no current comparable touchdown price is available",
  "isCard": false,
  "selections": [],
  "watchlist": [
@@ -87,27 +87,6 @@
    "providerEventId": "401873094",
    "kickoffUtc": "2026-12-01T01:15Z",
    "tdProbability": 0.6975,
-   "probabilitySource": "the game's player board — the published anytime-touchdown family",
-   "probabilityRange": {
-    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
-   },
-   "roleState": "ACTIVE_EXPECTED",
-   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
-   "marketPrice": null,
-   "pricingState": "NOT_PROBED",
-   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
-   "modelVersion": "nfl-anytime-td-opportunity-v1"
-  },
-  {
-   "playerId": "nfl-athlete-3043078",
-   "name": "Derrick Henry",
-   "position": "RB",
-   "team": "BAL",
-   "opponent": "HOU",
-   "event": "BAL @ HOU",
-   "providerEventId": "401873085",
-   "kickoffUtc": "2026-11-29T18:00Z",
-   "tdProbability": 0.6944,
    "probabilitySource": "the game's player board — the published anytime-touchdown family",
    "probabilityRange": {
     "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
@@ -265,27 +244,36 @@
    "pricingState": "NOT_PROBED",
    "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
    "modelVersion": "nfl-anytime-td-opportunity-v1"
+  },
+  {
+   "playerId": "nfl-athlete-4362628",
+   "name": "Ja'Marr Chase",
+   "position": "WR",
+   "team": "CIN",
+   "opponent": "NO",
+   "event": "NO @ CIN",
+   "providerEventId": "401873087",
+   "kickoffUtc": "2026-11-29T18:00Z",
+   "tdProbability": 0.5669,
+   "probabilitySource": "the game's player board — the published anytime-touchdown family",
+   "probabilityRange": {
+    "note": "the board's published anytime-touchdown probability, assuming the player plays; the visible list never sums to 100% because defence, special teams and unlisted players hold the residual"
+   },
+   "roleState": "ACTIVE_EXPECTED",
+   "roleNote": "on the roster with no blocking designation, but game-day actives are not carried by an authorized source",
+   "marketPrice": null,
+   "pricingState": "NOT_PROBED",
+   "shareBasis": "the game's player board (nfl-anytime-td-opportunity-v1)",
+   "modelVersion": "nfl-anytime-td-opportunity-v1"
   }
  ],
- "candidateCount": 208,
+ "candidateCount": 199,
  "withheld": [
   {
    "event": "GB @ LAR",
    "team": "GB",
    "player": "Josh Jacobs",
    "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "CHI @ DET",
-   "team": "CHI",
-   "player": "Roschon Johnson",
-   "reason": "designated Questionable — only players with no designation are listed"
-  },
-  {
-   "event": "PHI @ DAL",
-   "team": "DAL",
-   "player": "Jake Ferguson",
-   "reason": "designated Doubtful — only players with no designation are listed"
   },
   {
    "event": "KC @ BUF",
@@ -306,6 +294,12 @@
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
+   "event": "NYG @ IND",
+   "team": "NYG",
+   "player": "Isaiah Likely",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
    "event": "NYJ @ MIA",
    "team": "NYJ",
    "player": "Omar Cooper Jr.",
@@ -318,9 +312,21 @@
    "reason": "designated Doubtful — only players with no designation are listed"
   },
   {
+   "event": "ATL @ MIN",
+   "team": "ATL",
+   "player": "Jahan Dotson",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
    "event": "TEN @ JAX",
    "team": "JAX",
    "player": "Bhayshul Tuten",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "TEN @ JAX",
+   "team": "JAX",
+   "player": "Jakobi Meyers",
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
@@ -342,6 +348,12 @@
    "reason": "designated Questionable — only players with no designation are listed"
   },
   {
+   "event": "BAL @ HOU",
+   "team": "BAL",
+   "player": "Derrick Henry",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
    "event": "NE @ LAC",
    "team": "LAC",
    "player": "Keaton Mitchell",
@@ -360,6 +372,36 @@
    "reason": "designated Doubtful — only players with no designation are listed"
   },
   {
+   "event": "WSH @ ARI",
+   "team": "WSH",
+   "player": "Stefon Diggs",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "WSH @ ARI",
+   "team": "WSH",
+   "player": "Treylon Burks",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "SEA @ SF",
+   "team": "SF",
+   "player": "Mike Evans",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "SEA @ SF",
+   "team": "SF",
+   "player": "Brock Purdy",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "LV @ CLE",
+   "team": "CLE",
+   "player": "Harold Fannin Jr.",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
    "event": "LV @ CLE",
    "team": "CLE",
    "player": "Denzel Boston",
@@ -369,6 +411,12 @@
    "event": "LV @ CLE",
    "team": "LV",
    "player": "Brock Bowers",
+   "reason": "designated Questionable — only players with no designation are listed"
+  },
+  {
+   "event": "CAR @ TB",
+   "team": "CAR",
+   "player": "Tetairoa McMillan",
    "reason": "designated Questionable — only players with no designation are listed"
   }
  ],
@@ -382,7 +430,7 @@
   ],
   "tdMarketOffered": true,
   "pricedCandidates": 0,
-  "roleReadyCandidates": 208,
+  "roleReadyCandidates": 199,
   "cardActivation": "FOUNDER_DECISION_PENDING"
  },
  "disclaimer": "Model touchdown probabilities. Educational."
