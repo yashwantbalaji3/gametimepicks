@@ -3,18 +3,18 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-11-26T15:17:58Z",
+ "generatedAt": "2026-11-26T17:26:52Z",
  "sport": "nfl",
  "label": "NFL",
  "what": "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
  "caveat": "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
  "counts": {
-  "counted": 203,
-  "hits": 123,
+  "counted": 204,
+  "hits": 124,
   "misses": 80,
   "voided": 3,
   "shown": 60,
-  "total": 206
+  "total": 207
  },
  "hitRate": null,
  "recordBasis": "MIXED",
@@ -28,15 +28,30 @@
   },
   {
    "basis": "PUBLISHED",
-   "counted": 98,
-   "hits": 62,
+   "counted": 99,
+   "hits": 63,
    "misses": 36,
-   "hitRate": 0.6327
+   "hitRate": 0.6364
   }
  ],
  "sampleState": "ASSESSABLE",
- "sampleNote": "203 graded picks. A hit rate is still not proof a model beats a price — that requires a preregistered comparison against the closing line, which is tracked separately per sport.",
+ "sampleNote": "204 graded picks. A hit rate is still not proof a model beats a price — that requires a preregistered comparison against the closing line, which is tracked separately per sport.",
  "picks": [
+  {
+   "eventId": "nfl-401873079",
+   "when": "2026-11-25",
+   "eventName": null,
+   "subject": "GB @ LAR",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "HOME",
+   "actual": "HOME",
+   "modelProbability": null,
+   "probabilityOfActual": 0.6314,
+   "marketProbabilityOfActual": null,
+   "hit": true
+  },
   {
    "eventId": "nfl-401873078",
    "when": "2026-11-23",
@@ -921,21 +936,6 @@
    "probabilityOfActual": 0.7803,
    "marketProbabilityOfActual": null,
    "hit": true
-  },
-  {
-   "eventId": "nfl-401873018",
-   "when": "2026-10-25",
-   "eventName": null,
-   "subject": "TB @ CAR",
-   "market": "Winner",
-   "basis": "PUBLISHED",
-   "noPick": false,
-   "predicted": "HOME",
-   "actual": "AWAY",
-   "modelProbability": null,
-   "probabilityOfActual": 0.3695,
-   "marketProbabilityOfActual": null,
-   "hit": false
   }
  ]
 }
