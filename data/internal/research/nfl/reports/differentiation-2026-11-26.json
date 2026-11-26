@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation",
   "dataClass": "PRIVATE_RESEARCH",
-  "generatedAt": "2026-11-26T00:49:57Z",
+  "generatedAt": "2026-11-26T03:23:58Z",
   "slateDate": "2026-11-26",
-  "eventCount": 16,
+  "eventCount": 15,
   "engineVersion": "nfl-regular-season-public-v1@v2",
   "config": {
     "lambda": 0.25,
@@ -22,11 +22,11 @@
       "observedVariationIsNoise": false,
       "teamSignalState": "APPLIED",
       "tStatistic": -0.5746,
-      "distinctValues": 16,
+      "distinctValues": 15,
       "spread": 0.563158,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "win probability spans 31.76%-88.08% across 16 events, so the engine is consuming team-specific evidence"
+      "reading": "win probability spans 31.76%-88.08% across 15 events, so the engine is consuming team-specific evidence"
     },
     {
       "head": "total",
@@ -40,37 +40,10 @@
       "spread": 11,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "published totals span 40-51 across 16 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
+      "reading": "published totals span 40-51 across 15 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
     }
   ],
   "events": [
-    {
-      "canonicalEventId": "nfl-401873079",
-      "matchup": "GB @ LAR",
-      "kickoffUtc": "2026-11-26T01:00Z",
-      "inputHash": "b74632827f04d3ff",
-      "engineVersion": "nfl-regular-season-public-v1@v2",
-      "expected": {
-        "marginMean": 4,
-        "marginMedian": 4,
-        "totalMedian": 47,
-        "totalHead": "matchup-totals-v3-play-efficiency",
-        "winProbHome": 0.6313581653419298,
-        "winProbIsRounded": false,
-        "projected": {
-          "home": 26,
-          "away": 21,
-          "convention": "scores-derived-from-total-and-margin-v1"
-        }
-      },
-      "intervals": {
-        "marginP10": -13,
-        "marginP90": 21,
-        "totalP10": 30,
-        "totalP90": 64
-      },
-      "receiptGeneratedAt": "2026-11-26T00:03:02Z"
-    },
     {
       "canonicalEventId": "nfl-401873081",
       "matchup": "CHI @ DET",

@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-26T00:49:57Z",
+ "generatedAt": "2026-11-26T03:23:58Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,23 +17,23 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 17,
+  "scheduledUpcoming": 16,
   "forecastsTotal": 16,
-  "forecastsUpcoming": 16,
-  "forecastsStarted": 0,
+  "forecastsUpcoming": 15,
+  "forecastsStarted": 1,
   "marketEvents": 14,
   "settled": 0
  },
- "nextKickoffUtc": "2026-11-26T01:00Z",
- "nextMatchup": "GB @ LAR",
- "nextForecastUtc": "2026-11-26T01:00Z",
- "nextForecastMatchup": "GB @ LAR",
+ "nextKickoffUtc": "2026-11-26T18:00Z",
+ "nextMatchup": "CHI @ DET",
+ "nextForecastUtc": "2026-11-26T18:00Z",
+ "nextForecastMatchup": "CHI @ DET",
  "marketCapturedAt": "2026-10-11T11:41:55Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-26T00:37:42Z",
+  "generatedAt": "2026-11-26T00:49:57Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -70,47 +70,6 @@
   "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: regular-season cohort; season types never share an aggregate."
  },
  "events": [
-  {
-   "providerEventId": "401873079",
-   "canonicalEventId": "nfl-401873079",
-   "matchup": "GB @ LAR",
-   "home": {
-    "abbr": "LAR",
-    "name": "Los Angeles Rams"
-   },
-   "away": {
-    "abbr": "GB",
-    "name": "Green Bay Packers"
-   },
-   "kickoffUtc": "2026-11-26T01:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 26,
-    "away": 21,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.6314,
-    "away": 0.3396
-   },
-   "total": {
-    "median": 47,
-    "p10": 30,
-    "p90": 64,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": false,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "b74632827f04d3ff",
-    "generatedAt": "2026-11-26T00:03:02Z"
-   }
-  },
   {
    "providerEventId": "401873081",
    "canonicalEventId": "nfl-401873081",
@@ -149,7 +108,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "455fff1dceba792f",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -190,7 +149,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "1f69862aa2c8d073",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -231,7 +190,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "de4794d38a656dbc",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -272,7 +231,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "7836ffd001d12e46",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -313,7 +272,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "c12de1fceff1055b",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -354,7 +313,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "140fb265ebae2ead",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -395,7 +354,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "61ad8fbd8fd7a1bc",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -436,7 +395,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "c67bf15efde67610",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -477,7 +436,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "95e6076c12e390a3",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -518,7 +477,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "7e9626835d2a4df9",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -559,7 +518,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "aec6aafabdffcdb1",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -600,7 +559,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "9868b2d1fca23eff",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -641,7 +600,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "61855d357a83737d",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -682,7 +641,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "1a96772ae8552837",
-    "generatedAt": "2026-11-26T00:03:02Z"
+    "generatedAt": "2026-11-26T03:23:58Z"
    }
   },
   {
@@ -723,6 +682,47 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "6a1306b1333c3713",
+    "generatedAt": "2026-11-26T03:23:58Z"
+   }
+  },
+  {
+   "providerEventId": "401873079",
+   "canonicalEventId": "nfl-401873079",
+   "matchup": "GB @ LAR",
+   "home": {
+    "abbr": "LAR",
+    "name": "Los Angeles Rams"
+   },
+   "away": {
+    "abbr": "GB",
+    "name": "Green Bay Packers"
+   },
+   "kickoffUtc": "2026-11-26T01:00Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 26,
+    "away": 21,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.6314,
+    "away": 0.3396
+   },
+   "total": {
+    "median": 47,
+    "p10": 30,
+    "p90": 64,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "b74632827f04d3ff",
     "generatedAt": "2026-11-26T00:03:02Z"
    }
   }
