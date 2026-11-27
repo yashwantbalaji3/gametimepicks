@@ -20,114 +20,114 @@
   "sharpness": "A range can always be made to land 8 in 10 times by making it wider. So beside each success rate we show the typical miss (how far the middle of our range was from the final number) and the average width of the range. Getting better means both shrink while about 8 in 10 still land inside."
  },
  "summary": {
-  "gamesFinal": 4,
-  "gamesPending": 12,
+  "gamesFinal": 5,
+  "gamesPending": 11,
   "overall": {
-   "checks": 137,
-   "hits": 116,
-   "rate": 0.8467153284671532
+   "checks": 177,
+   "hits": 151,
+   "rate": 0.8531073446327684
   },
   "props": [
    {
     "id": "winner",
     "label": "Model-favored team won",
     "group": "team",
-    "checks": 4,
+    "checks": 5,
     "hits": 2,
     "voids": 0,
-    "rate": 0.5,
-    "expectedHits": 2.4
+    "rate": 0.4,
+    "expectedHits": 3
    },
    {
     "id": "total_range",
     "label": "Total points landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 4,
-    "hits": 1,
+    "checks": 5,
+    "hits": 2,
     "voids": 0,
-    "rate": 0.25,
-    "typicalMiss": 20.5,
-    "rangeWidth": 34.3,
-    "lean": -4.5
+    "rate": 0.4,
+    "typicalMiss": 18.6,
+    "rangeWidth": 34.2,
+    "lean": -1.4
    },
    {
     "id": "margin_range",
     "label": "Winning margin landed in our range",
     "group": "team",
     "target": 0.8,
-    "checks": 4,
+    "checks": 5,
     "hits": 4,
     "voids": 0,
-    "rate": 1,
-    "typicalMiss": 5.5,
-    "rangeWidth": 33.5,
-    "lean": 1
+    "rate": 0.8,
+    "typicalMiss": 9.2,
+    "rangeWidth": 33.4,
+    "lean": -4
    },
    {
     "id": "player_receptions",
     "label": "Receptions landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 44,
-    "hits": 40,
-    "voids": 6,
-    "rate": 0.9090909090909091,
+    "checks": 59,
+    "hits": 53,
+    "voids": 7,
+    "rate": 0.8983050847457628,
     "status": "PUBLISHED",
     "typicalMiss": 1.5,
-    "rangeWidth": 5.7,
-    "lean": 0
+    "rangeWidth": 5.5,
+    "lean": 0.1
    },
    {
     "id": "player_reception_yds",
     "label": "Receiving yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 41,
-    "hits": 35,
-    "voids": 4,
-    "rate": 0.8536585365853658,
+    "checks": 56,
+    "hits": 50,
+    "voids": 5,
+    "rate": 0.8928571428571429,
     "status": "PUBLISHED",
-    "typicalMiss": 23.2,
-    "rangeWidth": 65.2,
-    "lean": -11.8
+    "typicalMiss": 21.6,
+    "rangeWidth": 62,
+    "lean": -9.2
    },
    {
     "id": "player_rush_yds",
     "label": "Rushing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 28,
-    "hits": 25,
-    "voids": 8,
-    "rate": 0.8928571428571429,
+    "checks": 33,
+    "hits": 30,
+    "voids": 9,
+    "rate": 0.9090909090909091,
     "status": "PUBLISHED",
-    "typicalMiss": 23.6,
-    "rangeWidth": 59.2,
-    "lean": -19.5
+    "typicalMiss": 22.4,
+    "rangeWidth": 61.4,
+    "lean": -17.2
    },
    {
     "id": "player_pass_yds",
     "label": "Passing yards landed in our range",
     "group": "player",
     "target": 0.8,
-    "checks": 8,
-    "hits": 5,
+    "checks": 9,
+    "hits": 6,
     "voids": 0,
-    "rate": 0.625,
+    "rate": 0.6666666666666666,
     "status": "ESTIMATE",
-    "typicalMiss": 123.6,
-    "rangeWidth": 222.1,
-    "lean": -43.4
+    "typicalMiss": 111,
+    "rangeWidth": 220.1,
+    "lean": -39.7
    },
    {
     "id": "likeliest_scorer",
     "label": "Our likeliest touchdown scorer scored",
     "group": "player",
-    "checks": 4,
+    "checks": 5,
     "hits": 4,
     "voids": 0,
-    "rate": 1
+    "rate": 0.8
    }
   ],
   "context": {
@@ -135,12 +135,12 @@
     "oursCloser": 0,
     "booksCloser": 0,
     "even": 0,
-    "noLine": 4
+    "noLine": 5
    },
    "touchdowns": {
-    "playersGraded": 63,
-    "expectedScorers": 17.4,
-    "actualScorers": 15
+    "playersGraded": 80,
+    "expectedScorers": 21.2,
+    "actualScorers": 16
    }
   }
  },
@@ -2438,11 +2438,583 @@
     },
     "sportsbookTotal": null
    },
-   "state": "PENDING",
-   "final": null,
-   "team": [],
-   "players": [],
-   "touchdowns": [],
+   "state": "FINAL",
+   "final": {
+    "away": 5,
+    "home": 27,
+    "total": 32,
+    "margin": 22
+   },
+   "team": [
+    {
+     "prop": "winner",
+     "outcome": "MISS"
+    },
+    {
+     "prop": "total_range",
+     "outcome": "HIT",
+     "actual": 32
+    },
+    {
+     "prop": "margin_range",
+     "outcome": "MISS",
+     "actual": 22
+    },
+    {
+     "prop": "closer_than_sportsbook",
+     "outcome": "NO_LINE",
+     "oursOff": 11,
+     "booksOff": null
+    }
+   ],
+   "players": [
+    {
+     "name": "Jonah Coleman",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 6,
+     "actual": 8,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Jonah Coleman",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 16,
+     "low": 0,
+     "high": 51,
+     "actual": 46,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jonah Coleman",
+     "team": "DEN",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 43,
+     "low": 10,
+     "high": 115,
+     "actual": 26,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jaylen Warren",
+     "team": "PIT",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2.4,
+     "low": 0.8,
+     "high": 4.8,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jaylen Warren",
+     "team": "PIT",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 17,
+     "low": 0,
+     "high": 52,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jaylen Warren",
+     "team": "PIT",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 55,
+     "low": 13,
+     "high": 146,
+     "actual": 46,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Rico Dowdle",
+     "team": "PIT",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.6,
+     "low": 0,
+     "high": 4,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Rico Dowdle",
+     "team": "PIT",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 10,
+     "low": 0,
+     "high": 39,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Rico Dowdle",
+     "team": "PIT",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 21,
+     "low": 3,
+     "high": 73,
+     "actual": 71,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Max Hurleman",
+     "team": "PIT",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2.4,
+     "low": 0.8,
+     "high": 5.6,
+     "actual": 0,
+     "outcome": "MISS"
+    },
+    {
+     "name": "Max Hurleman",
+     "team": "PIT",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 16,
+     "low": 0,
+     "high": 52,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "DK Metcalf",
+     "team": "PIT",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2.4,
+     "low": 0.8,
+     "high": 5.6,
+     "actual": 3,
+     "outcome": "HIT"
+    },
+    {
+     "name": "DK Metcalf",
+     "team": "PIT",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 27,
+     "low": 1,
+     "high": 71,
+     "actual": 36,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Pat Freiermuth",
+     "team": "PIT",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2.4,
+     "low": 0,
+     "high": 4.8,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Pat Freiermuth",
+     "team": "PIT",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 16,
+     "low": 0,
+     "high": 53,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jaylen Waddle",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 1,
+     "high": 7,
+     "actual": 5,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jaylen Waddle",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 28,
+     "low": 2,
+     "high": 71,
+     "actual": 53,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Germie Bernard",
+     "team": "PIT",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3.2,
+     "low": 0.8,
+     "high": 6.5,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Germie Bernard",
+     "team": "PIT",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 24,
+     "low": 2,
+     "high": 61,
+     "actual": 58,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Courtland Sutton",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 0,
+     "high": 6,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Courtland Sutton",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 20,
+     "low": 0,
+     "high": 58,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Bo Nix",
+     "team": "DEN",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 9,
+     "low": 0,
+     "high": 43,
+     "actual": 7,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Bo Nix",
+     "team": "DEN",
+     "prop": "player_pass_yds",
+     "status": "ESTIMATE",
+     "median": 159,
+     "low": 60,
+     "high": 264,
+     "actual": 169,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Roman Wilson",
+     "team": "PIT",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.6,
+     "low": 0,
+     "high": 4,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Roman Wilson",
+     "team": "PIT",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 16,
+     "low": 0,
+     "high": 56,
+     "actual": 37,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Darnell Washington",
+     "team": "PIT",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.6,
+     "low": 0,
+     "high": 4,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Darnell Washington",
+     "team": "PIT",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 14,
+     "low": 0,
+     "high": 51,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Pat Bryant",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 5,
+     "actual": 4,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Pat Bryant",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 16,
+     "low": 0,
+     "high": 56,
+     "actual": 42,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Evan Engram",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 2,
+     "low": 0,
+     "high": 6,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Evan Engram",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 18,
+     "low": 0,
+     "high": 56,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Michael Pittman Jr.",
+     "team": "PIT",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1.6,
+     "low": 0,
+     "high": 4,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Michael Pittman Jr.",
+     "team": "PIT",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 13,
+     "low": 0,
+     "high": 49,
+     "actual": 7,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Marvin Mims Jr.",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 4,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Marvin Mims Jr.",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 10,
+     "low": 0,
+     "high": 43,
+     "actual": 0,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Jarrett Stidham",
+     "team": "DEN",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 3,
+     "low": 0,
+     "high": 31,
+     "actual": null,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Troy Franklin",
+     "team": "DEN",
+     "prop": "player_receptions",
+     "status": "PUBLISHED",
+     "median": 1,
+     "low": 0,
+     "high": 3,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Troy Franklin",
+     "team": "DEN",
+     "prop": "player_reception_yds",
+     "status": "PUBLISHED",
+     "median": 6,
+     "low": 0,
+     "high": 35,
+     "actual": 1,
+     "outcome": "HIT"
+    },
+    {
+     "name": "Lew Nichols III",
+     "team": "PIT",
+     "prop": "player_rush_yds",
+     "status": "PUBLISHED",
+     "median": 0,
+     "low": 0,
+     "high": 19,
+     "actual": 0,
+     "outcome": "HIT"
+    }
+   ],
+   "touchdowns": [
+    {
+     "name": "Jonah Coleman",
+     "team": "DEN",
+     "probability": 0.6605,
+     "outcome": "DID_NOT_SCORE",
+     "likeliest": true
+    },
+    {
+     "name": "Jaylen Warren",
+     "team": "PIT",
+     "probability": 0.3543,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Rico Dowdle",
+     "team": "PIT",
+     "probability": 0.2503,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Max Hurleman",
+     "team": "PIT",
+     "probability": 0.2488,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "DK Metcalf",
+     "team": "PIT",
+     "probability": 0.2474,
+     "outcome": "SCORED"
+    },
+    {
+     "name": "Pat Freiermuth",
+     "team": "PIT",
+     "probability": 0.2327,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jaylen Waddle",
+     "team": "DEN",
+     "probability": 0.2288,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Germie Bernard",
+     "team": "PIT",
+     "probability": 0.2091,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Courtland Sutton",
+     "team": "DEN",
+     "probability": 0.2034,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Bo Nix",
+     "team": "DEN",
+     "probability": 0.1987,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Roman Wilson",
+     "team": "PIT",
+     "probability": 0.1917,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Darnell Washington",
+     "team": "PIT",
+     "probability": 0.1749,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Pat Bryant",
+     "team": "DEN",
+     "probability": 0.1654,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Evan Engram",
+     "team": "DEN",
+     "probability": 0.1534,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Michael Pittman Jr.",
+     "team": "PIT",
+     "probability": 0.1512,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Marvin Mims Jr.",
+     "team": "DEN",
+     "probability": 0.1303,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Jarrett Stidham",
+     "team": "DEN",
+     "probability": 0.1006,
+     "outcome": "VOID"
+    },
+    {
+     "name": "Troy Franklin",
+     "team": "DEN",
+     "probability": 0.0888,
+     "outcome": "DID_NOT_SCORE"
+    },
+    {
+     "name": "Lew Nichols III",
+     "team": "PIT",
+     "probability": 0.0418,
+     "outcome": "DID_NOT_SCORE"
+    }
+   ],
    "boardNote": null
   },
   {
@@ -2704,7 +3276,7 @@
     "name": "Los Angeles Chargers"
    },
    "published": {
-    "generatedAt": "2026-11-27T18:56:13Z",
+    "generatedAt": "2026-11-27T22:54:01Z",
     "projectedScore": {
      "away": 23,
      "home": 21
@@ -2745,7 +3317,7 @@
     "name": "San Francisco 49ers"
    },
    "published": {
-    "generatedAt": "2026-11-27T18:17:04Z",
+    "generatedAt": "2026-11-27T22:54:01Z",
     "projectedScore": {
      "away": 21,
      "home": 25
@@ -2898,5 +3470,5 @@
   }
  ],
  "disclaimer": "Educational and paper-only — not betting advice. A range is not a bet: these are checks of how often what we published matched what happened.",
- "generatedAt": "2026-11-27T18:56:13Z"
+ "generatedAt": "2026-11-27T22:54:01Z"
 }
