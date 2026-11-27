@@ -2,9 +2,9 @@
   "schemaVersion": 1,
   "artifact": "nfl-model-differentiation",
   "dataClass": "PRIVATE_RESEARCH",
-  "generatedAt": "2026-11-27T01:08:23Z",
+  "generatedAt": "2026-11-27T03:30:54Z",
   "slateDate": "2026-11-27",
-  "eventCount": 13,
+  "eventCount": 12,
   "engineVersion": "nfl-regular-season-public-v1@v2",
   "config": {
     "lambda": 0.25,
@@ -22,11 +22,11 @@
       "observedVariationIsNoise": false,
       "teamSignalState": "APPLIED",
       "tStatistic": -0.5746,
-      "distinctValues": 13,
+      "distinctValues": 12,
       "spread": 0.564542,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "win probability spans 31.78%-88.24% across 13 events, so the engine is consuming team-specific evidence"
+      "reading": "win probability spans 31.78%-88.24% across 12 events, so the engine is consuming team-specific evidence"
     },
     {
       "head": "total",
@@ -40,37 +40,10 @@
       "spread": 8,
       "classification": "EVENT_SPECIFIC",
       "declaredSharedPrior": false,
-      "reading": "published totals span 40-48 across 13 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
+      "reading": "published totals span 40-48 across 12 events from each matchup's own ratings — a per-game scoring read, evaluated before it was allowed to move a number."
     }
   ],
   "events": [
-    {
-      "canonicalEventId": "nfl-401873082",
-      "matchup": "KC @ BUF",
-      "kickoffUtc": "2026-11-27T01:20Z",
-      "inputHash": "df5c7dc64de6e0a7",
-      "engineVersion": "nfl-regular-season-public-v1@v2",
-      "expected": {
-        "marginMean": 6,
-        "marginMedian": 6,
-        "totalMedian": 47,
-        "totalHead": "matchup-totals-v3-play-efficiency",
-        "winProbHome": 0.6779880232059086,
-        "winProbIsRounded": false,
-        "projected": {
-          "home": 27,
-          "away": 20,
-          "convention": "scores-derived-from-total-and-margin-v1"
-        }
-      },
-      "intervals": {
-        "marginP10": -11,
-        "marginP90": 23,
-        "totalP10": 30,
-        "totalP90": 64
-      },
-      "receiptGeneratedAt": "2026-11-27T00:02:22Z"
-    },
     {
       "canonicalEventId": "nfl-401873083",
       "matchup": "DEN @ PIT",
