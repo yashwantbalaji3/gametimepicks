@@ -2,7 +2,7 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-index",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-27T19:42:05Z",
+ "generatedAt": "2026-11-27T21:46:34Z",
  "note": "The ONE canonical NFL state. Every public surface consumes these counts and labels verbatim; a surface that computes its own is a defect.",
  "model": {
   "id": "nfl-regular-season-public-v1",
@@ -17,23 +17,23 @@
   }
  },
  "counts": {
-  "scheduledUpcoming": 20,
+  "scheduledUpcoming": 19,
   "forecastsTotal": 16,
-  "forecastsUpcoming": 12,
-  "forecastsStarted": 4,
+  "forecastsUpcoming": 11,
+  "forecastsStarted": 5,
   "marketEvents": 14,
   "settled": 4
  },
- "nextKickoffUtc": "2026-11-27T20:00Z",
- "nextMatchup": "DEN @ PIT",
- "nextForecastUtc": "2026-11-27T20:00Z",
- "nextForecastMatchup": "DEN @ PIT",
+ "nextKickoffUtc": "2026-11-29T18:00Z",
+ "nextMatchup": "NO @ CIN",
+ "nextForecastUtc": "2026-11-29T18:00Z",
+ "nextForecastMatchup": "NO @ CIN",
  "marketCapturedAt": "2026-10-11T11:41:55Z",
  "experimentalRecord": {
   "schemaVersion": 2,
   "artifact": "nfl-experimental-record",
   "dataClass": "PUBLIC_DERIVED",
-  "generatedAt": "2026-11-27T18:56:13Z",
+  "generatedAt": "2026-11-27T19:42:05Z",
   "ledger": "experimental-forecast",
   "modelVersion": "nfl-regular-season-public-v1",
   "seasonTypeScope": "regular-season",
@@ -70,47 +70,6 @@
   "note": "Experimental forecast accuracy only — not a betting record, and separate from every product ledger. Scope: regular-season cohort; season types never share an aggregate."
  },
  "events": [
-  {
-   "providerEventId": "401873083",
-   "canonicalEventId": "nfl-401873083",
-   "matchup": "DEN @ PIT",
-   "home": {
-    "abbr": "PIT",
-    "name": "Pittsburgh Steelers"
-   },
-   "away": {
-    "abbr": "DEN",
-    "name": "Denver Broncos"
-   },
-   "kickoffUtc": "2026-11-27T20:00Z",
-   "lifecycle": "UPCOMING",
-   "locked": false,
-   "state": "PUBLIC_EXPERIMENTAL",
-   "stateMeaning": "An early model forecast, not validated to out-predict the sportsbook market.",
-   "lean": null,
-   "projectedScore": {
-    "home": 21,
-    "away": 22,
-    "convention": "scores-derived-from-total-and-margin-v1"
-   },
-   "winProbability": {
-    "home": 0.3646,
-    "away": 0.6022
-   },
-   "total": {
-    "median": 43,
-    "p10": 27,
-    "p90": 61,
-    "head": "matchup-totals-v3-play-efficiency"
-   },
-   "hasMarket": false,
-   "receipt": {
-    "model": "nfl-regular-season-public-v1",
-    "version": 2,
-    "inputHash": "dd18998a264ea471",
-    "generatedAt": "2026-11-27T18:56:13Z"
-   }
-  },
   {
    "providerEventId": "401873087",
    "canonicalEventId": "nfl-401873087",
@@ -149,7 +108,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "55c98abaeb292c02",
-    "generatedAt": "2026-11-27T18:56:13Z"
+    "generatedAt": "2026-11-27T21:46:34Z"
    }
   },
   {
@@ -190,7 +149,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "48028009189dcbb8",
-    "generatedAt": "2026-11-27T18:56:13Z"
+    "generatedAt": "2026-11-27T21:46:34Z"
    }
   },
   {
@@ -231,7 +190,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "ca4cd2491eed70c8",
-    "generatedAt": "2026-11-27T18:56:13Z"
+    "generatedAt": "2026-11-27T21:46:34Z"
    }
   },
   {
@@ -272,7 +231,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "512d50541b732f63",
-    "generatedAt": "2026-11-27T18:56:13Z"
+    "generatedAt": "2026-11-27T21:46:34Z"
    }
   },
   {
@@ -313,7 +272,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "4a287152e9b16761",
-    "generatedAt": "2026-11-27T18:56:13Z"
+    "generatedAt": "2026-11-27T21:46:34Z"
    }
   },
   {
@@ -354,7 +313,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "6663f351c617549a",
-    "generatedAt": "2026-11-27T18:56:13Z"
+    "generatedAt": "2026-11-27T21:46:34Z"
    }
   },
   {
@@ -395,7 +354,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "b4b7343ce2a375ca",
-    "generatedAt": "2026-11-27T18:56:13Z"
+    "generatedAt": "2026-11-27T21:46:34Z"
    }
   },
   {
@@ -436,7 +395,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "6a66722d8dd1942c",
-    "generatedAt": "2026-11-27T18:56:13Z"
+    "generatedAt": "2026-11-27T21:46:34Z"
    }
   },
   {
@@ -477,7 +436,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "d0f0175128635c87",
-    "generatedAt": "2026-11-27T18:56:13Z"
+    "generatedAt": "2026-11-27T21:46:34Z"
    }
   },
   {
@@ -518,7 +477,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "80bf5530534e3ae5",
-    "generatedAt": "2026-11-27T18:56:13Z"
+    "generatedAt": "2026-11-27T21:46:34Z"
    }
   },
   {
@@ -559,7 +518,7 @@
     "model": "nfl-regular-season-public-v1",
     "version": 2,
     "inputHash": "86c75691d7f734e0",
-    "generatedAt": "2026-11-27T18:56:13Z"
+    "generatedAt": "2026-11-27T21:46:34Z"
    }
   },
   {
@@ -724,6 +683,47 @@
     "version": 2,
     "inputHash": "df5c7dc64de6e0a7",
     "generatedAt": "2026-11-27T00:02:22Z"
+   }
+  },
+  {
+   "providerEventId": "401873083",
+   "canonicalEventId": "nfl-401873083",
+   "matchup": "DEN @ PIT",
+   "home": {
+    "abbr": "PIT",
+    "name": "Pittsburgh Steelers"
+   },
+   "away": {
+    "abbr": "DEN",
+    "name": "Denver Broncos"
+   },
+   "kickoffUtc": "2026-11-27T20:00Z",
+   "lifecycle": "STARTED",
+   "locked": true,
+   "state": "STARTED",
+   "stateMeaning": "This game has kicked off. The pre-game forecast is locked as it was.",
+   "lean": null,
+   "projectedScore": {
+    "home": 21,
+    "away": 22,
+    "convention": "scores-derived-from-total-and-margin-v1"
+   },
+   "winProbability": {
+    "home": 0.3646,
+    "away": 0.6022
+   },
+   "total": {
+    "median": 43,
+    "p10": 27,
+    "p90": 61,
+    "head": "matchup-totals-v3-play-efficiency"
+   },
+   "hasMarket": false,
+   "receipt": {
+    "model": "nfl-regular-season-public-v1",
+    "version": 2,
+    "inputHash": "dd18998a264ea471",
+    "generatedAt": "2026-11-27T18:17:04Z"
    }
   }
  ],

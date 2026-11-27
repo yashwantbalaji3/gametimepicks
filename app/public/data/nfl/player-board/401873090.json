@@ -2,8 +2,8 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-27T19:42:05Z",
- "sourceGeneratedAt": "2026-11-27T19:42:05Z",
+ "generatedAt": "2026-11-27T21:46:34Z",
+ "sourceGeneratedAt": "2026-11-27T21:46:34Z",
  "forecastInputHash": "4a287152e9b16761",
  "providerEventId": "401873090",
  "matchup": "TEN @ JAX",
@@ -12,8 +12,8 @@
  "week": 12,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-27T19:42:05Z",
-  "roleEvidenceAt": "2026-11-27T19:42:05Z",
+  "injuriesCapturedAt": "2026-11-27T21:46:34Z",
+  "roleEvidenceAt": "2026-11-27T21:46:34Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -106,7 +106,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 57,
+  "absent": 53,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -245,8 +245,8 @@
   },
   "JAX": {
    "counts": {
-    "PROJECTED": 10,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 9,
+    "EXCLUDED_UNAVAILABLE": 2,
     "EXCLUDED_NO_CURRENT_ROLE": 0,
     "WITHHELD_ROLE_UNCERTAIN": 0,
     "NOT_MODELED_BY_FAMILY": 0,
@@ -265,18 +265,6 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
-     "playerId": "nfl-athlete-4882093",
-     "name": "Bhayshul Tuten",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
-    },
-    {
      "playerId": "nfl-athlete-3916433",
      "name": "Jakobi Meyers",
      "state": "PROJECTED",
@@ -285,7 +273,7 @@
       "player_reception_yds",
       "player_receptions"
      ],
-     "participation": "QUESTIONABLE"
+     "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
      "playerId": "nfl-athlete-4430539",
@@ -362,6 +350,12 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4882093",
+     "name": "Bhayshul Tuten",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4432620",
      "name": "Parker Washington",
      "state": "EXCLUDED_UNAVAILABLE",
@@ -436,6 +430,19 @@
    },
    {
     "team": "JAX",
+    "pool": "targets",
+    "markets": [
+     "player_receptions"
+    ],
+    "sum": 0.5394,
+    "originalSum": 0.5394,
+    "residualOther": 0.4606,
+    "joined": 5,
+    "missed": 0,
+    "state": "UNDER_ALLOCATED"
+   },
+   {
+    "team": "JAX",
     "pool": "carries",
     "markets": [
      "player_rush_yds"
@@ -443,19 +450,6 @@
     "sum": 0.5149,
     "originalSum": 0.5149,
     "residualOther": 0.4851,
-    "joined": 4,
-    "missed": 0,
-    "state": "UNDER_ALLOCATED"
-   },
-   {
-    "team": "JAX",
-    "pool": "targets",
-    "markets": [
-     "player_receptions"
-    ],
-    "sum": 0.3513,
-    "originalSum": 0.3513,
-    "residualOther": 0.6487,
     "joined": 4,
     "missed": 0,
     "state": "UNDER_ALLOCATED"
@@ -516,69 +510,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
-     }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4882093",
-   "name": "Bhayshul Tuten",
-   "team": "JAX",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 17.395,
-     "p10": 0,
-     "p25": 0,
-     "median": 11.19,
-     "p75": 26.92,
-     "p90": 44.8,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.8162,
-     "p10": 0,
-     "p25": 1,
-     "median": 2,
-     "p75": 3,
-     "p90": 4,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_rush_yds": {
-     "mean": 61.0277,
-     "p10": 13.6555,
-     "p25": 26.6435,
-     "median": 49.4989,
-     "p75": 83.0385,
-     "p90": 123.5589,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.5082,
-     "pricingState": "NOT_PROBED"
-    }
-   },
-   "eligibility": {
-    "state": "ELIGIBLE",
-    "reasons": [],
-    "flags": [
-     "QUESTIONABLE"
-    ],
-    "contractVersion": "eligibility@1",
-    "sources": {
-     "injuries": {
-      "status": "Questionable",
-      "statedAt": "2026-11-27T17:16Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
-     },
-     "roster": {
-      "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -605,17 +541,19 @@
    },
    "eligibility": {
     "state": "ELIGIBLE",
-    "reasons": [],
+    "reasons": [
+     "ROSTER_ACTIVE"
+    ],
     "contractVersion": "eligibility@1",
     "sources": {
      "injuries": {
-      "status": "Active",
-      "statedAt": "2026-11-23T03:11Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "status": null,
+      "statedAt": null,
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -624,7 +562,7 @@
    "playerId": "nfl-athlete-3916433",
    "name": "Jakobi Meyers",
    "team": "JAX",
-   "participation": "QUESTIONABLE",
+   "participation": "AVAILABLE_ROLE_UNCERTAIN",
    "markets": {
     "player_reception_yds": {
      "mean": 42.689,
@@ -652,19 +590,16 @@
    "eligibility": {
     "state": "ELIGIBLE",
     "reasons": [],
-    "flags": [
-     "QUESTIONABLE"
-    ],
     "contractVersion": "eligibility@1",
     "sources": {
      "injuries": {
-      "status": "Questionable",
-      "statedAt": "2026-11-25T21:19Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "status": "Active",
+      "statedAt": "2026-11-27T21:06Z",
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -706,11 +641,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-22T23:27Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -752,11 +687,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T03:18Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -797,12 +732,12 @@
     "sources": {
      "injuries": {
       "status": "Active",
-      "statedAt": "2026-11-23T02:40Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "statedAt": "2026-11-27T21:26Z",
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -843,12 +778,12 @@
     "sources": {
      "injuries": {
       "status": "Active",
-      "statedAt": "2026-11-24T02:20Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "statedAt": "2026-11-27T21:21Z",
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -895,11 +830,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-22T23:38Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -941,11 +876,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T00:39Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -987,11 +922,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T02:13Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -1033,11 +968,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T17:49Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -1079,11 +1014,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T01:41Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -1125,11 +1060,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T03:51Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -1168,11 +1103,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -1217,11 +1152,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -1258,11 +1193,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T01:19Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -1304,11 +1239,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T03:23Z",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -1343,11 +1278,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }
@@ -1382,11 +1317,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T19:42:05Z"
+      "fetchedAt": "2026-11-27T21:46:34Z"
      }
     }
    }

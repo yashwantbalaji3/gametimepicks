@@ -2,115 +2,17 @@
   "schemaVersion": 1,
   "artifact": "forecast-input-state",
   "dataClass": "INTERNAL_RESEARCH",
-  "generatedAt": "2026-11-27T19:42:05Z",
+  "generatedAt": "2026-11-27T21:46:34Z",
   "question": "Do the team forecast and the player board for one game share an availability world?",
   "nfl": {
     "teamForecastConsumesAvailability": false,
     "playerBoardsConsumeAvailability": true,
-    "upcomingEvents": 12,
-    "eventsWhereTeamForecastIsBlindToAnExclusion": 12,
+    "upcomingEvents": 11,
+    "eventsWhereTeamForecastIsBlindToAnExclusion": 11,
     "eventsWithAMaterialExclusion": 5,
     "note": "The team head is an Elo family with replay receipts and no availability term. Giving it one is a model change requiring its own evidence; this records the exposure rather than inventing an adjustment."
   },
   "events": [
-    {
-      "sport": "nfl",
-      "eventId": "401873083",
-      "matchup": "DEN @ PIT",
-      "kickoffUtc": "2026-11-27T20:00Z",
-      "forecastSnapshot": {
-        "model": "nfl-regular-season-public-v1",
-        "version": 2,
-        "inputHash": "dd18998a264ea471",
-        "simulations": 10000,
-        "generatedAt": "2026-11-27T18:56:13Z"
-      },
-      "availability": {
-        "consumedByTeamForecast": false,
-        "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-27T19:42:05Z",
-        "participationInputHash": "0c1a1063c6e485fc",
-        "excludedCount": 9,
-        "materialExclusions": [],
-        "excluded": [
-          {
-            "name": "Brandon Smith",
-            "team": "PIT",
-            "state": "roster practice-squad",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Brandon Johnson",
-            "team": "PIT",
-            "state": "roster practice-squad",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Ben Skowronek",
-            "team": "PIT",
-            "state": "Injured Reserve",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "J.K. Dobbins",
-            "team": "DEN",
-            "state": "Suspension",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "RJ Harvey",
-            "team": "DEN",
-            "state": "Injured Reserve",
-            "families": [
-              "rushAttempts",
-              "targets"
-            ]
-          },
-          {
-            "name": "Lil'Jordan Humphrey",
-            "team": "DEN",
-            "state": "Out",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Lucas Krull",
-            "team": "DEN",
-            "state": "roster practice-squad",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Michael Bandy",
-            "team": "DEN",
-            "state": "roster practice-squad",
-            "families": [
-              "targets"
-            ]
-          },
-          {
-            "name": "Frank Crum",
-            "team": "DEN",
-            "state": "roster day-to-day",
-            "families": [
-              "targets"
-            ]
-          }
-        ]
-      },
-      "coherent": false
-    },
     {
       "sport": "nfl",
       "eventId": "401873087",
@@ -121,14 +23,14 @@
         "version": 2,
         "inputHash": "55c98abaeb292c02",
         "simulations": 10000,
-        "generatedAt": "2026-11-27T18:56:13Z"
+        "generatedAt": "2026-11-27T21:46:34Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-27T19:42:05Z",
-        "participationInputHash": "8784f91d59f7f9c1",
-        "excludedCount": 9,
+        "snapshotAsOf": "2026-11-27T21:46:34Z",
+        "participationInputHash": "0c5e7c1c26ad6fe5",
+        "excludedCount": 10,
         "materialExclusions": [],
         "excluded": [
           {
@@ -181,6 +83,14 @@
             ]
           },
           {
+            "name": "Juwan Johnson",
+            "team": "NO",
+            "state": "Out",
+            "families": [
+              "targets"
+            ]
+          },
+          {
             "name": "Kevin Austin Jr.",
             "team": "NO",
             "state": "roster practice-squad",
@@ -218,20 +128,20 @@
         "version": 2,
         "inputHash": "48028009189dcbb8",
         "simulations": 10000,
-        "generatedAt": "2026-11-27T18:56:13Z"
+        "generatedAt": "2026-11-27T21:46:34Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-27T19:42:05Z",
-        "participationInputHash": "a8fa7d473a3a21d1",
+        "snapshotAsOf": "2026-11-27T21:46:34Z",
+        "participationInputHash": "f520fd6bdc06e6b4",
         "excludedCount": 9,
         "materialExclusions": [
           {
             "name": "Jaxson Dart",
             "team": "NYG",
             "state": "roster day-to-day",
-            "statedAt": "2026-11-27T19:42:05Z",
+            "statedAt": "2026-11-27T21:46:34Z",
             "families": [
               "passAttempts",
               "rushAttempts"
@@ -241,7 +151,7 @@
             "name": "Gunner Olszewski",
             "team": "NYG",
             "state": "roster day-to-day",
-            "statedAt": "2026-11-27T19:42:05Z",
+            "statedAt": "2026-11-27T21:46:34Z",
             "families": [
               "passAttempts",
               "targets"
@@ -338,14 +248,14 @@
         "version": 2,
         "inputHash": "ca4cd2491eed70c8",
         "simulations": 10000,
-        "generatedAt": "2026-11-27T18:56:13Z"
+        "generatedAt": "2026-11-27T21:46:34Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-27T19:42:05Z",
-        "participationInputHash": "968765cfd874fb8e",
-        "excludedCount": 4,
+        "snapshotAsOf": "2026-11-27T21:46:34Z",
+        "participationInputHash": "64bed8ddac17298d",
+        "excludedCount": 5,
         "materialExclusions": [
           {
             "name": "Malik Willis",
@@ -355,6 +265,15 @@
             "families": [
               "passAttempts",
               "rushAttempts"
+            ]
+          },
+          {
+            "name": "Bradley Pinion",
+            "team": "MIA",
+            "state": "Out",
+            "statedAt": "2026-11-27T21:28Z",
+            "families": [
+              "passAttempts"
             ]
           }
         ],
@@ -366,6 +285,14 @@
             "families": [
               "passAttempts",
               "rushAttempts"
+            ]
+          },
+          {
+            "name": "Bradley Pinion",
+            "team": "MIA",
+            "state": "Out",
+            "families": [
+              "passAttempts"
             ]
           },
           {
@@ -407,20 +334,29 @@
         "version": 2,
         "inputHash": "512d50541b732f63",
         "simulations": 10000,
-        "generatedAt": "2026-11-27T18:56:13Z"
+        "generatedAt": "2026-11-27T21:46:34Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-27T19:42:05Z",
-        "participationInputHash": "54d66603d70d945b",
-        "excludedCount": 6,
+        "snapshotAsOf": "2026-11-27T21:46:34Z",
+        "participationInputHash": "47efea4a13fb411a",
+        "excludedCount": 7,
         "materialExclusions": [],
         "excluded": [
           {
             "name": "Demond Claiborne",
             "team": "MIN",
             "state": "Injured Reserve",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
+          {
+            "name": "Jordan Addison",
+            "team": "MIN",
+            "state": "Out",
             "families": [
               "rushAttempts",
               "targets"
@@ -482,16 +418,25 @@
         "version": 2,
         "inputHash": "4a287152e9b16761",
         "simulations": 10000,
-        "generatedAt": "2026-11-27T18:56:13Z"
+        "generatedAt": "2026-11-27T21:46:34Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-27T19:42:05Z",
-        "participationInputHash": "da117c860fb10838",
-        "excludedCount": 5,
+        "snapshotAsOf": "2026-11-27T21:46:34Z",
+        "participationInputHash": "6ee5ab07f288bb8b",
+        "excludedCount": 6,
         "materialExclusions": [],
         "excluded": [
+          {
+            "name": "Bhayshul Tuten",
+            "team": "JAX",
+            "state": "Out",
+            "families": [
+              "rushAttempts",
+              "targets"
+            ]
+          },
           {
             "name": "Parker Washington",
             "team": "JAX",
@@ -548,14 +493,14 @@
         "version": 2,
         "inputHash": "6663f351c617549a",
         "simulations": 10000,
-        "generatedAt": "2026-11-27T18:56:13Z"
+        "generatedAt": "2026-11-27T21:46:34Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-27T19:42:05Z",
-        "participationInputHash": "001c318657c22ee9",
-        "excludedCount": 5,
+        "snapshotAsOf": "2026-11-27T21:46:34Z",
+        "participationInputHash": "035508443c1b16f5",
+        "excludedCount": 7,
         "materialExclusions": [
           {
             "name": "Lamar Jackson",
@@ -591,6 +536,22 @@
             "name": "Jayden Higgins",
             "team": "HOU",
             "state": "roster day-to-day",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Kayshon Boutte",
+            "team": "HOU",
+            "state": "Out",
+            "families": [
+              "targets"
+            ]
+          },
+          {
+            "name": "Brevin Jordan",
+            "team": "HOU",
+            "state": "Out",
             "families": [
               "targets"
             ]
@@ -635,20 +596,20 @@
         "version": 2,
         "inputHash": "b4b7343ce2a375ca",
         "simulations": 10000,
-        "generatedAt": "2026-11-27T18:56:13Z"
+        "generatedAt": "2026-11-27T21:46:34Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-27T19:42:05Z",
-        "participationInputHash": "8f977aafcac4a14c",
+        "snapshotAsOf": "2026-11-27T21:46:34Z",
+        "participationInputHash": "23f5827859faf673",
         "excludedCount": 10,
         "materialExclusions": [
           {
             "name": "Trey Lance",
             "team": "LAC",
             "state": "roster day-to-day",
-            "statedAt": "2026-11-27T19:42:05Z",
+            "statedAt": "2026-11-27T21:46:34Z",
             "families": [
               "passAttempts",
               "rushAttempts"
@@ -764,13 +725,13 @@
         "version": 2,
         "inputHash": "6a66722d8dd1942c",
         "simulations": 10000,
-        "generatedAt": "2026-11-27T18:56:13Z"
+        "generatedAt": "2026-11-27T21:46:34Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-27T19:42:05Z",
-        "participationInputHash": "a985488128101707",
+        "snapshotAsOf": "2026-11-27T21:46:34Z",
+        "participationInputHash": "9c69c25d9417fcc7",
         "excludedCount": 12,
         "materialExclusions": [
           {
@@ -912,13 +873,13 @@
         "version": 2,
         "inputHash": "d0f0175128635c87",
         "simulations": 10000,
-        "generatedAt": "2026-11-27T18:56:13Z"
+        "generatedAt": "2026-11-27T21:46:34Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-27T19:42:05Z",
-        "participationInputHash": "7df2b4d26848e606",
+        "snapshotAsOf": "2026-11-27T21:46:34Z",
+        "participationInputHash": "5108993d0eb2b4da",
         "excludedCount": 10,
         "materialExclusions": [],
         "excluded": [
@@ -1018,13 +979,13 @@
         "version": 2,
         "inputHash": "80bf5530534e3ae5",
         "simulations": 10000,
-        "generatedAt": "2026-11-27T18:56:13Z"
+        "generatedAt": "2026-11-27T21:46:34Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-27T19:42:05Z",
-        "participationInputHash": "713f5e1f88008431",
+        "snapshotAsOf": "2026-11-27T21:46:34Z",
+        "participationInputHash": "904f556cc10d449f",
         "excludedCount": 2,
         "materialExclusions": [],
         "excluded": [
@@ -1060,13 +1021,13 @@
         "version": 2,
         "inputHash": "86c75691d7f734e0",
         "simulations": 10000,
-        "generatedAt": "2026-11-27T18:56:13Z"
+        "generatedAt": "2026-11-27T21:46:34Z"
       },
       "availability": {
         "consumedByTeamForecast": false,
         "consumedByPlayerBoards": true,
-        "snapshotAsOf": "2026-11-27T19:42:05Z",
-        "participationInputHash": "f5626e229e2139b4",
+        "snapshotAsOf": "2026-11-27T21:46:34Z",
+        "participationInputHash": "2956f8e74f062ade",
         "excludedCount": 3,
         "materialExclusions": [],
         "excluded": [

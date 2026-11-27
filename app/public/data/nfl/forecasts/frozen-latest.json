@@ -2,13 +2,13 @@
  "schemaVersion": 1,
  "artifact": "nfl-public-forecasts-frozen",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-27T18:56:13Z",
+ "generatedAt": "2026-11-27T21:46:34Z",
  "period": {
   "seasonType": 2,
   "week": 12
  },
  "note": "This week's games that have kicked off — and an earlier week's game still in progress when the week rolls over — each shown exactly as its last pre-kickoff forecast was published. Frozen at kickoff and never regenerated.",
- "eventCount": 4,
+ "eventCount": 5,
  "forecasts": [
   {
    "providerEventId": "401873079",
@@ -508,6 +508,131 @@
     "rule": "MODEL_FAVORED_V1",
     "abstention": null,
     "frozenAt": "2026-11-27T00:02:22Z"
+   }
+  },
+  {
+   "providerEventId": "401873083",
+   "canonicalEventId": "nfl-401873083",
+   "matchup": "DEN @ PIT",
+   "home": {
+    "abbr": "PIT",
+    "name": "Pittsburgh Steelers"
+   },
+   "away": {
+    "abbr": "DEN",
+    "name": "Denver Broncos"
+   },
+   "kickoffUtc": "2026-11-27T20:00Z",
+   "seasonType": 2,
+   "week": 12,
+   "venue": "Acrisure Stadium",
+   "state": "PUBLIC_EXPERIMENTAL",
+   "model": {
+    "id": "nfl-regular-season-public-v1",
+    "version": 2,
+    "launchState": "PUBLIC_EXPERIMENTAL",
+    "inputHash": "dd18998a264ea471",
+    "simulations": 10000,
+    "derivedFrom": [
+     "nfl-win-elo-mov-v1@v1",
+     "nfl-margin-elo-hfa-v1@v1",
+     "nfl-model-v1-elo-analytic@v1",
+     "nfl-gamesim-v1-joint-normal@v1"
+    ],
+    "totalsHead": {
+     "id": "matchup-totals-v3-play-efficiency",
+     "receipt": "matchup-totals-historical-replay-evaluation@2026-09-13T21:50:00Z",
+     "gamesFolded": 7443,
+     "foldedThrough": "2026-11-26",
+     "sigma": 13.32677
+    },
+    "winHead": {
+     "id": "nfl-win-elo-mov-v1",
+     "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
+     "gamesFolded": 7427,
+     "foldedThrough": "2026-11-26"
+    },
+    "marginHead": {
+     "id": "nfl-margin-elo-hfa-v1",
+     "receipt": "win-margin-historical-replay-evaluation@2026-09-14T04:53:31Z",
+     "gamesFolded": 7427,
+     "sigma": 13.03176
+    }
+   },
+   "teamSignal": {
+    "state": "APPLIED",
+    "note": "Team strength moves this forecast: the win chance comes from a team rating that weights margin of victory, tested on 4,281 past games it had never seen (2006–2021) — log loss 0.629 against 0.642 for our previous rating and 0.610 for the sportsbooks' own odds. It has not been shown to beat the sportsbook market."
+   },
+   "generatedAt": "2026-11-27T18:17:04Z",
+   "evidence": {
+    "schedule": "2026-11-26T18:58:39Z",
+    "strengthCutoff": "2026-11-27T18:17:04Z",
+    "strengthGamesFolded": 869,
+    "regressedToSeason": null
+   },
+   "forecastSummary": {
+    "projectedScore": {
+     "home": 21,
+     "away": 22,
+     "convention": "scores-derived-from-total-and-margin-v1"
+    },
+    "winProbability": {
+     "home": 0.3646,
+     "away": 0.6022,
+     "tieMass": 0.0332,
+     "homeUnrounded": 0.36458483970538147,
+     "calibration": "From the margin-of-victory Elo win head, published exactly as evaluated on held-out 2006–2021 — no shrink toward 50% is applied, and no claim to out-predict the sportsbook market is made."
+    },
+    "margin": {
+     "median": -2,
+     "p10": -19,
+     "p90": 14
+    },
+    "total": {
+     "median": 43,
+     "p10": 27,
+     "p90": 61,
+     "head": "matchup-totals-v3-play-efficiency"
+    },
+    "scoreRange": {
+     "homeP10": 9,
+     "homeP90": 32,
+     "awayP10": 11,
+     "awayP90": 35
+    },
+    "distribution": {
+     "marginMean": -2.32,
+     "marginSigma": 13.03,
+     "totalMean": 43.5569,
+     "totalSigma": 13.33,
+     "source": "nfl-gamesim-v1-joint-normal"
+    }
+   },
+   "marketComparison": {
+    "state": "NO_MARKET",
+    "note": "No current sportsbook capture covers this game."
+   },
+   "teamInputs": {
+    "version": 1,
+    "consumedByModel": false,
+    "participationAsOf": "2026-11-27T18:17:04Z",
+    "state": "NO_STARTING_QB_ABSENCE",
+    "absences": [],
+    "comparisonWithheld": false,
+    "note": null
+   },
+   "settlementKey": {
+    "canonicalEventId": "nfl-401873083",
+    "settlesAgainst": "official final score",
+    "ledger": "experimental-forecast"
+   },
+   "disclaimer": "Educational and paper-only — not betting advice.",
+   "sideDecision": {
+    "schemaVersion": "side-decision@1",
+    "publishedSide": "AWAY",
+    "rule": "MODEL_FAVORED_V1",
+    "abstention": null,
+    "frozenAt": "2026-11-27T18:17:04Z"
    }
   }
  ]
