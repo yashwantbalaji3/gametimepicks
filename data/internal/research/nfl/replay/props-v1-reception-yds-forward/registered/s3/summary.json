@@ -35,9 +35,9 @@
    "week": 12,
    "state": "IN_PROGRESS",
    "pending": {
-    "PENDING_NO_SNAP_SHEET": 1,
+    "PENDING_NO_SNAP_SHEET": 2,
     "PENDING_NOT_FINAL": 2,
-    "PENDING_KICKOFF": 13
+    "PENDING_KICKOFF": 12
    },
    "pendingEvents": [
     {
@@ -51,8 +51,8 @@
      "eventId": "401873081",
      "matchup": "CHI @ DET",
      "kickoffUtc": "2026-11-26T18:00Z",
-     "code": "PENDING_NOT_FINAL",
-     "reason": "kicked off but not final in the committed ESPN corpus (postponed / cancelled / not yet captured)"
+     "code": "PENDING_NO_SNAP_SHEET",
+     "reason": "final, but a team's nflverse snap sheet is not committed (DET, CHI)"
     },
     {
      "eventId": "401873080",
@@ -65,8 +65,8 @@
      "eventId": "401873082",
      "matchup": "KC @ BUF",
      "kickoffUtc": "2026-11-27T01:20Z",
-     "code": "PENDING_KICKOFF",
-     "reason": "kickoff not yet passed at the grading commit"
+     "code": "PENDING_NOT_FINAL",
+     "reason": "kicked off but not final in the committed ESPN corpus (postponed / cancelled / not yet captured)"
     },
     {
      "eventId": "401873083",
