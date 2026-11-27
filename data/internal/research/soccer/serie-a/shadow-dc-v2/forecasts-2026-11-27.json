@@ -1,0 +1,163 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "serie-a",
+ "season": "2026-27",
+ "date": "2026-11-27",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-11-27T19:12:56.000Z",
+ "runs": [
+  {
+   "at": "2026-11-27T19:12:56.000Z",
+   "added": 2
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Como|Juventus",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401874994",
+   "providerEventId": "401874994",
+   "kickoffUtc": "2026-11-29T19:45:00.000Z",
+   "matchup": "Como v Juventus",
+   "homeClub": "Como",
+   "awayClub": "Juventus",
+   "historyNames": {
+    "home": "Como",
+    "away": "Juventus"
+   },
+   "espnTeamIds": {
+    "home": "2572",
+    "away": "111"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-27T19:12:56.000Z",
+   "probs": {
+    "home": 0.380988,
+    "draw": 0.282517,
+    "away": 0.336495
+   },
+   "over25": 0.420176,
+   "under25": 0.579824,
+   "expectedGoals": {
+    "home": 1.2263,
+    "away": 1.1351
+   },
+   "lambdas": {
+    "home": 1.2263,
+    "away": 1.1351
+   },
+   "rho": -0.013698,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 80,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-11-27T19:12:56.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 10
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.385773,
+     "draw": 0.276376,
+     "away": 0.337851
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  },
+  {
+   "pairingKey": "2026-27|Lecce|Atalanta",
+   "league": "serie-a",
+   "season": "2026-27",
+   "eventId": "soccer:serie-a:401875095",
+   "providerEventId": "401875095",
+   "kickoffUtc": "2026-11-30T17:30:00.000Z",
+   "matchup": "Lecce v Atalanta",
+   "homeClub": "Lecce",
+   "awayClub": "Atalanta",
+   "historyNames": {
+    "home": "Lecce",
+    "away": "Atalanta"
+   },
+   "espnTeamIds": {
+    "home": "113",
+    "away": "105"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-27T19:12:56.000Z",
+   "probs": {
+    "home": 0.153162,
+    "draw": 0.24622,
+    "away": 0.600618
+   },
+   "over25": 0.41057,
+   "under25": 0.58943,
+   "expectedGoals": {
+    "home": 0.6887,
+    "away": 1.6363
+   },
+   "lambdas": {
+    "home": 0.6887,
+    "away": 1.6363
+   },
+   "rho": -0.013698,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 156,
+    "away": 156
+   },
+   "fit": {
+    "cutoffIso": "2026-11-27T19:12:56.000Z",
+    "matchesFitted": 1560,
+    "lastFoldedUtc": "2026-09-20T18:45:00.000Z",
+    "sweeps": 21,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 10
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.113961,
+     "draw": 0.199276,
+     "away": 0.686763
+    },
+    "empirical": {
+     "home": 0.409469,
+     "draw": 0.274472,
+     "away": 0.316059
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 2
+ }
+}
