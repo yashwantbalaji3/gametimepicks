@@ -2,9 +2,9 @@
  "schemaVersion": 1,
  "artifact": "nfl-player-board",
  "dataClass": "PUBLIC_DERIVED",
- "generatedAt": "2026-11-27T21:46:34Z",
- "sourceGeneratedAt": "2026-11-27T21:46:34Z",
- "forecastInputHash": "b4b7343ce2a375ca",
+ "generatedAt": "2026-11-27T22:54:01Z",
+ "sourceGeneratedAt": "2026-11-27T22:54:01Z",
+ "forecastInputHash": "d567358c8e1319e9",
  "providerEventId": "401873093",
  "matchup": "NE @ LAC",
  "kickoffUtc": "2026-11-29T21:05Z",
@@ -12,8 +12,8 @@
  "week": 12,
  "participationBasis": "Availability refreshes until kickoff.",
  "availability": {
-  "injuriesCapturedAt": "2026-11-27T21:46:34Z",
-  "roleEvidenceAt": "2026-11-27T21:46:34Z",
+  "injuriesCapturedAt": "2026-11-27T22:54:01Z",
+  "roleEvidenceAt": "2026-11-27T22:54:01Z",
   "injuries": "FRESH",
   "rosters": "FRESH"
  },
@@ -29,6 +29,12 @@
      "playerId": "nfl-athlete-4240391",
      "name": "Tommy DeVito",
      "reason": "Tommy DeVito starts for NE (depth chart QB1) — experimental projection in research (limited individual history: 254 verified NFL pass attempts, little of it as NE's starter)"
+    },
+    {
+     "team": "LAC",
+     "playerId": "nfl-athlete-4429020",
+     "name": "DJ Uiagalelei",
+     "reason": "DJ Uiagalelei starts for LAC (depth chart, past Justin Herbert (unavailable)) — experimental projection in research (rookie/contextual fallback: DJ Uiagalelei: 7 NFL pass attempts in committed data (the projection needs 25 verified attempts; no tested rookie fallback exists))"
     }
    ]
   },
@@ -127,7 +133,7 @@
  "marketCoverage": {
   "probed": false,
   "priced": 0,
-  "absent": 65,
+  "absent": 58,
   "referenceBook": "draftkings"
  },
  "coverage": {
@@ -294,25 +300,14 @@
   },
   "LAC": {
    "counts": {
-    "PROJECTED": 12,
-    "EXCLUDED_UNAVAILABLE": 1,
+    "PROJECTED": 10,
+    "EXCLUDED_UNAVAILABLE": 3,
     "EXCLUDED_NO_CURRENT_ROLE": 1,
     "WITHHELD_ROLE_UNCERTAIN": 1,
-    "NOT_MODELED_BY_FAMILY": 0,
+    "NOT_MODELED_BY_FAMILY": 1,
     "WITHHELD_POOL_OVER_ALLOCATED": 0
    },
    "players": [
-    {
-     "playerId": "nfl-athlete-4038941",
-     "name": "Justin Herbert",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_pass_yds",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
-    },
     {
      "playerId": "nfl-athlete-4430968",
      "name": "Kimani Vidal",
@@ -346,18 +341,6 @@
       "player_receptions"
      ],
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
-    },
-    {
-     "playerId": "nfl-athlete-4596334",
-     "name": "Keaton Mitchell",
-     "state": "PROJECTED",
-     "families": [
-      "anytime_td",
-      "player_reception_yds",
-      "player_receptions",
-      "player_rush_yds"
-     ],
-     "participation": "QUESTIONABLE"
     },
     {
      "playerId": "nfl-athlete-3123076",
@@ -437,10 +420,22 @@
      "participation": "AVAILABLE_ROLE_UNCERTAIN"
     },
     {
+     "playerId": "nfl-athlete-4038941",
+     "name": "Justin Herbert",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
+    },
+    {
      "playerId": "nfl-athlete-4383351",
      "name": "Trey Lance",
      "state": "EXCLUDED_UNAVAILABLE",
      "reason": "availability not confirmed: not on the active roster (practice squad or injury list)"
+    },
+    {
+     "playerId": "nfl-athlete-4596334",
+     "name": "Keaton Mitchell",
+     "state": "EXCLUDED_UNAVAILABLE",
+     "reason": "designation: Out"
     },
     {
      "playerId": "nfl-athlete-3051738",
@@ -453,6 +448,19 @@
      "name": "Jake Browning",
      "state": "WITHHELD_ROLE_UNCERTAIN",
      "reason": "no game for LAC yet this season — role at LAC not yet observed"
+    },
+    {
+     "playerId": "nfl-athlete-4429020",
+     "name": "DJ Uiagalelei",
+     "state": "NOT_MODELED_BY_FAMILY",
+     "reason": "DJ Uiagalelei starts for LAC (depth chart, past Justin Herbert (unavailable)) — experimental projection in research (rookie/contextual fallback: DJ Uiagalelei: 7 NFL pass attempts in committed data (the projection needs 25 verified attempts; no tested rookie fallback exists))",
+     "notModeled": [
+      {
+       "family": "player_pass_yds",
+       "state": "NOT_MODELED_BY_FAMILY",
+       "reason": "DJ Uiagalelei starts for LAC (depth chart, past Justin Herbert (unavailable)) — experimental projection in research (rookie/contextual fallback: DJ Uiagalelei: 7 NFL pass attempts in committed data (the projection needs 25 verified attempts; no tested rookie fallback exists))"
+      }
+     ]
     }
    ]
   }
@@ -485,18 +493,24 @@
    {
     "team": "LAC",
     "snapshotAt": "2026-11-26T17:41:02Z",
-    "skipped": [],
-    "state": "APPLIED",
-    "tier": "A_CLUB_HISTORY",
-    "starter": {
-     "playerId": "nfl-athlete-4038941",
-     "name": "Justin Herbert"
-    },
-    "source": "depth chart QB1",
-    "basis": "club share 0.97 ≥ 0.75",
-    "passers": [
-     "nfl-athlete-4038941"
+    "skipped": [
+     {
+      "playerId": "nfl-athlete-4038941",
+      "name": "Justin Herbert",
+      "reason": "unavailable (Out)"
+     }
     ],
+    "state": "WITHHELD_STARTER_NOT_CONFIRMED",
+    "tier": "D_CONTEXTUAL_FALLBACK",
+    "starter": {
+     "playerId": "nfl-athlete-4429020",
+     "name": "DJ Uiagalelei"
+    },
+    "source": "depth chart, past Justin Herbert (unavailable)",
+    "reason": "DJ Uiagalelei starts for LAC (depth chart, past Justin Herbert (unavailable)) — experimental projection in research (rookie/contextual fallback: DJ Uiagalelei: 7 NFL pass attempts in committed data (the projection needs 25 verified attempts; no tested rookie fallback exists))",
+    "experimental": true,
+    "careerAttempts": 7,
+    "passers": [],
     "removed": []
    }
   ],
@@ -603,11 +617,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-26T18:31Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -649,11 +663,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T01:15Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -695,11 +709,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-27T20:18Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -741,11 +755,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-27T20:16Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -787,11 +801,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T01:20Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -833,11 +847,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-15T19:21Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -888,11 +902,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T01:29Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -934,11 +948,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-17T04:43Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -980,11 +994,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-18T02:02Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -1017,119 +1031,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-15T18:47Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
-     }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4596334",
-   "name": "Keaton Mitchell",
-   "team": "LAC",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_reception_yds": {
-     "mean": 12.544,
-     "p10": 0,
-     "p25": 0,
-     "median": 7.68,
-     "p75": 19.41,
-     "p90": 33.25,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_receptions": {
-     "mean": 1.8315,
-     "p10": 0,
-     "p25": 1,
-     "median": 1,
-     "p75": 3,
-     "p90": 4,
-     "pricingState": "NOT_PROBED"
-    },
-    "player_rush_yds": {
-     "mean": 15.9971,
-     "p10": 0.2285,
-     "p25": 1.7575,
-     "median": 7.6916,
-     "p75": 21.4982,
-     "p90": 42.8215,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1634,
-     "pricingState": "NOT_PROBED"
-    }
-   },
-   "eligibility": {
-    "state": "ELIGIBLE",
-    "reasons": [],
-    "flags": [
-     "QUESTIONABLE"
-    ],
-    "contractVersion": "eligibility@1",
-    "sources": {
-     "injuries": {
-      "status": "Questionable",
-      "statedAt": "2026-11-25T23:44Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
-     },
-     "roster": {
-      "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
-     }
-    }
-   }
-  },
-  {
-   "playerId": "nfl-athlete-4038941",
-   "name": "Justin Herbert",
-   "team": "LAC",
-   "participation": "QUESTIONABLE",
-   "markets": {
-    "player_pass_yds": {
-     "mean": 154.485,
-     "p10": 44.37,
-     "p25": 90.84,
-     "median": 148.93,
-     "p75": 211.99,
-     "p90": 269.63,
-     "tier": "A_CLUB_HISTORY",
-     "pricingState": "NOT_PROBED"
-    },
-    "player_rush_yds": {
-     "mean": 26.3935,
-     "p10": 1.0429,
-     "p25": 4.5889,
-     "median": 15.073,
-     "p75": 36.2586,
-     "p90": 66.8491,
-     "pricingState": "NOT_PROBED"
-    },
-    "anytime_td": {
-     "probability": 0.1539,
-     "pricingState": "NOT_PROBED"
-    }
-   },
-   "eligibility": {
-    "state": "ELIGIBLE",
-    "reasons": [],
-    "flags": [
-     "QUESTIONABLE"
-    ],
-    "contractVersion": "eligibility@1",
-    "sources": {
-     "injuries": {
-      "status": "Questionable",
-      "statedAt": "2026-11-27T21:10Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
-     },
-     "roster": {
-      "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -1171,11 +1077,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T01:23Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -1208,11 +1114,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-18T02:04Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -1254,11 +1160,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-23T03:15Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -1302,12 +1208,12 @@
     "sources": {
      "injuries": {
       "status": "Questionable",
-      "statedAt": "2026-11-26T21:33Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "statedAt": "2026-11-27T22:23Z",
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -1349,11 +1255,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T01:54Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -1386,11 +1292,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-18T02:08Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -1432,11 +1338,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T15:18Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -1480,11 +1386,11 @@
      "injuries": {
       "status": null,
       "statedAt": null,
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -1527,13 +1433,13 @@
     "contractVersion": "eligibility@1",
     "sources": {
      "injuries": {
-      "status": "Questionable",
-      "statedAt": "2026-11-26T02:24Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "status": "Doubtful",
+      "statedAt": "2026-11-27T22:30Z",
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
@@ -1566,11 +1472,11 @@
      "injuries": {
       "status": "Active",
       "statedAt": "2026-11-24T01:15Z",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      },
      "roster": {
       "status": "active",
-      "fetchedAt": "2026-11-27T21:46:34Z"
+      "fetchedAt": "2026-11-27T22:54:01Z"
      }
     }
    }
