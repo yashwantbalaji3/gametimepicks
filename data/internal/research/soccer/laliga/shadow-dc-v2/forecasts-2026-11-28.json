@@ -1,0 +1,94 @@
+{
+ "schemaVersion": 1,
+ "artifact": "soccer-dc-v2-shadow-forecasts",
+ "dataClass": "PRIVATE_RESEARCH",
+ "public": false,
+ "league": "laliga",
+ "season": "2026-27",
+ "date": "2026-11-28",
+ "modelId": "soccer-dixon-coles-v2",
+ "preregistration": "data/internal/research/soccer/preregistration-dixon-coles-v2.json",
+ "preregistrationSha256": "e670858640e70fc29deb1b117fcf7c0fb5046876ffe976265287fe06844171f0",
+ "rule": "one forecast per match, the first one written; never overwritten; scored only if the match kicked off after frozenAt",
+ "firstWrittenAt": "2026-11-28T17:50:45.000Z",
+ "runs": [
+  {
+   "at": "2026-11-28T17:50:45.000Z",
+   "added": 1
+  }
+ ],
+ "rows": [
+  {
+   "pairingKey": "2026-27|Espanol|Getafe",
+   "league": "laliga",
+   "season": "2026-27",
+   "eventId": "soccer:laliga:401882792",
+   "providerEventId": "401882792",
+   "kickoffUtc": "2026-11-30T20:00:00.000Z",
+   "matchup": "Espanyol v Getafe",
+   "homeClub": "Espanyol",
+   "awayClub": "Getafe",
+   "historyNames": {
+    "home": "Espanol",
+    "away": "Getafe"
+   },
+   "espnTeamIds": {
+    "home": "88",
+    "away": "2922"
+   },
+   "modelId": "soccer-dixon-coles-v2",
+   "forecastAt": "2026-11-28T17:50:45.000Z",
+   "probs": {
+    "home": 0.414236,
+    "draw": 0.322036,
+    "away": 0.263728
+   },
+   "over25": 0.275551,
+   "under25": 0.724449,
+   "expectedGoals": {
+    "home": 1.0504,
+    "away": 0.7726
+   },
+   "lambdas": {
+    "home": 1.0504,
+    "away": 0.7726
+   },
+   "rho": -0.001075,
+   "tauClamped": 0,
+   "coldStart": {
+    "home": false,
+    "away": false
+   },
+   "clubMatchesFitted": {
+    "home": 120,
+    "away": 158
+   },
+   "fit": {
+    "cutoffIso": "2026-11-28T17:50:45.000Z",
+    "matchesFitted": 1579,
+    "lastFoldedUtc": "2026-09-20T19:00:00.000Z",
+    "sweeps": 24,
+    "converged": true
+   },
+   "corpusLag": {
+    "espnFinalsLookbackDays": 14,
+    "espnFinalsMissingFromCorpus": 13
+   },
+   "comparators": {
+    "v1SplitPoisson": {
+     "home": 0.358458,
+     "draw": 0.293624,
+     "away": 0.347918
+    },
+    "empirical": {
+     "home": 0.462705,
+     "draw": 0.253477,
+     "away": 0.283818
+    }
+   }
+  }
+ ],
+ "counts": {
+  "forecasts": 1
+ }
+}
