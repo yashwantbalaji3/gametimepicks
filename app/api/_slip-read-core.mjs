@@ -40,7 +40,9 @@ export function pathBelongsTo(path, userId) {
  */
 export function decideSlipRead({ env = {}, authorization, body = {} } = {}) {
   const missing = missingConfig(env);
-  if (missing.length) return { status: 503, proceed: false, reason: `slip reading is not configured (${missing.join(", ")})` };
+  // The public reason never names configuration (variable names are not secrets, but they map the deployment);
+  // `missing` stays on the decision for tests and the server log.
+  if (missing.length) return { status: 503, proceed: false, reason: "slip reading is not available right now — enter the slip by hand and nothing is lost", missing };
 
   const token = typeof authorization === "string" && authorization.startsWith("Bearer ")
     ? authorization.slice(7).trim() : "";
