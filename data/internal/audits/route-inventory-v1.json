@@ -4,8 +4,8 @@
  "dataClass": "PRIVATE_AUDIT",
  "generatedAt": "2026-10-08T21:59:42Z",
  "totals": {
-  "routes": 106,
-  "public": 75,
+  "routes": 107,
+  "public": 76,
   "internal": 10,
   "redirects": 18,
   "archive": 1,
@@ -469,6 +469,16 @@
    "dataOwner": "nfl schedule/results captures (build-time reads)",
    "freshness": "absolute capture stamps in copy",
    "built": true
+  },
+  {
+   "route": "/nfl/builder",
+   "classification": "public",
+   "indexable": false,
+   "owner": "product",
+   "purpose": "NFL Bank Builder and Moonshot scenarios (founder directive 2026-11-15, P3/P4), evidence-first: every candidate leg on the upcoming boards goes through the leg screen; only legs with an observed line and price, a complete 5-of-5 record against it (4 of 5 only to fill), an ELIGIBLE player and a product-qualified market ship to the browser, with exact refusal counts for the rest; noindex until a slate yields qualifying legs and the founder clears it for discovery; not in the nav",
+   "dataOwner": "public/data/nfl/player-board/<eventId>.json + public/data/nfl/family-eligibility.json + data/internal/research/nfl/player-evidence/latest.json + the encrypted line artifact data/odds-display/nfl/lines/<eventId>.json.enc (or GTP_NFL_LINES_DIR, read only through line-display-open.mjs) + public/data/nfl/forecasts/latest.json and frozen-latest.json via forecast-view-load.mjs (build-time server reads in lib/sports/nfl/builder-inputs.mjs; only screened legs reach the client)",
+   "freshness": "static at build; covers only boards the evidence file covers (the upcoming slate)",
+   "built": "UNVERIFIED (no export provided)"
   },
   {
    "route": "/nfl/game/[eventId]",

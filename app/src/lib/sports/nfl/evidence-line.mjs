@@ -18,7 +18,9 @@
  *   WITHHELD           only an ineligible operator's line ⇒ withheld, no hit rate
  *   NOT_BEFORE_KICKOFF the only line was captured at/after kickoff ⇒ no hit rate
  *   UNUSABLE           a line exists but the section does not compare it (stale, ambiguous, suspended, invalid)
- *   OBSERVED           { line, lineText, book, sportsbook (label), capturedAt, captured (ET) } ⇒ a record may be computed
+ *   OBSERVED           { line, lineText, book, sportsbook (label), capturedAt, captured (ET), overPrice, underPrice } ⇒ a
+ *                      record may be computed; the prices are the chosen row's own (null when the row has none — never
+ *                      inferred), read by the scenario builder only
  */
 import { NFL_FAMILIES, NFL_PROP_LINE_ADAPTER, nflCompareToLine, nflPropLineInputs } from "./prop-line-adapter.mjs";
 import { lineText, quoteTimeEt } from "../../odds/prop-line-view.mjs";
@@ -42,7 +44,7 @@ export function nflEvidenceLines({ board, rows, asOf }) {
     const key = `${i.player.id}|${NFL_FAMILIES[i.marketKey].board}`;
     const c = nflCompareToLine(i);
     out[key] = c.direction !== "UNAVAILABLE"
-      ? { state: "OBSERVED", line: c.line, lineText: lineText(c.line), book: c.book, sportsbook: NFL_PROP_LINE_ADAPTER.bookLabel(c.book), capturedAt: c.capturedAt, captured: quoteTimeEt(c.capturedAt) }
+      ? { state: "OBSERVED", line: c.line, lineText: lineText(c.line), book: c.book, sportsbook: NFL_PROP_LINE_ADAPTER.bookLabel(c.book), capturedAt: c.capturedAt, captured: quoteTimeEt(c.capturedAt), overPrice: c.overPrice, underPrice: c.underPrice }
       : { state: STATE_OF_REASON[c.reason] ?? "UNUSABLE", reason: c.reason };
   }
   return out;
