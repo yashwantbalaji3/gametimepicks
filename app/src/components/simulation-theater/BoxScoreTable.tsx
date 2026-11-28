@@ -20,15 +20,15 @@ import {
 import { OFFICIAL_RUN_TITLE, WHAT_IF_BOX_TITLE, WHAT_IF_BOX_WATERMARK, WHAT_IF_TAG, NFL_PLAYERS_NOT_MODELED_NOTE, runRole } from "@/lib/simulation-theater/representative-labels.mjs";
 import { OfficialComparison } from "./RepresentativeParts";
 import RunPlayerBox from "./RunPlayerBox";
-import type { RunBoxRefusal, RunPlayerBoxData } from "./RunPlayerBox";
+import type { PlayerAvailability, RunBoxRefusal, RunPlayerBoxData } from "./RunPlayerBox";
 
 /** The verified player boxes of a receipt's stored runs (lib/simulation-theater/nfl-stored-run-box.mjs storedRunBoxes), keyed by run index. */
-export type RunBoxes = { boxes: Record<string, RunPlayerBoxData>; refusals: Record<string, RunBoxRefusal>; error: RunBoxRefusal };
+export type RunBoxes = { boxes: Record<string, RunPlayerBoxData>; refusals: Record<string, RunBoxRefusal>; error: RunBoxRefusal; availability?: PlayerAvailability | null };
 /** The player box (or its refusal) of one run; null box ⇒ "Player box score unavailable for this run". */
-export function runBoxFor(runBoxes: RunBoxes | null | undefined, runIndex: number): { box: RunPlayerBoxData | null; refusal: RunBoxRefusal } {
-  if (!runBoxes) return { box: null, refusal: { code: "NOT_DERIVED", reason: "player lines were not derived for this page" } };
+export function runBoxFor(runBoxes: RunBoxes | null | undefined, runIndex: number): { box: RunPlayerBoxData | null; refusal: RunBoxRefusal; availability: PlayerAvailability | null } {
+  if (!runBoxes) return { box: null, refusal: { code: "NOT_DERIVED", reason: "player lines were not derived for this page" }, availability: null };
   const box = runBoxes.boxes[String(runIndex)] ?? null;
-  return { box, refusal: box ? null : runBoxes.refusals[String(runIndex)] ?? runBoxes.error ?? { code: "NOT_DERIVED", reason: "no verified player lines for this run" } };
+  return { box, refusal: box ? null : runBoxes.refusals[String(runIndex)] ?? runBoxes.error ?? { code: "NOT_DERIVED", reason: "no verified player lines for this run" }, availability: runBoxes.availability ?? null };
 }
 
 export type BoxStatus = "MODELED" | "DERIVED" | "NOT_MODELED";
@@ -210,7 +210,7 @@ export function Provenance({ box }: { box: BoxScore }) {
  */
 export function BoxScoreStatic({ box, error, manifest = null, players = null }: {
   box: BoxScore | null; error?: { code: string; reason: string } | null; manifest?: TheaterManifest | null;
-  players?: { box: RunPlayerBoxData | null; refusal: RunBoxRefusal } | null;
+  players?: { box: RunPlayerBoxData | null; refusal: RunBoxRefusal; availability?: PlayerAvailability | null } | null;
 }) {
   if (!box) {
     return (
@@ -230,7 +230,7 @@ export function BoxScoreStatic({ box, error, manifest = null, players = null }: 
       {manifest ? <OfficialComparison manifest={manifest} final={box.header.final} teams={box.header.teams} hypothetical={hypothetical} /> : null}
       <CompareCategoryTable box={box} />
       {players
-        ? <RunPlayerBox box={players.box} refusal={players.refusal} runIndex={box.header.runIndex} />
+        ? <RunPlayerBox box={players.box} refusal={players.refusal} runIndex={box.header.runIndex} availability={players.availability} />
         : <PlayerSections box={box} />}
       <p className="stbx-note">{NFL_PLAYERS_NOT_MODELED_NOTE}</p>
       <Composition box={box} />
