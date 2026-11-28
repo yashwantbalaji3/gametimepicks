@@ -1,0 +1,468 @@
+{
+ "definitions": "First touchdown scorer.\n\nCOMPETING-RISKS (CR) model on the official opportunityTd chain. Assumptions, stated:\n  every touchdown source is an independent Poisson process with a constant hazard over game time, so the first\n  event is source j with probability rate_j / M and no touchdown happens with probability e^-M:\n    candidate i (played): rate mu_i - c   (mu_i = the official per-player Poisson mean, c = the model's constant\n                                           other-TD term 0.00296, which is moved into DEF/ST)\n    other offensive players, per team: max(0, lamRush + lamRec - sum_i(mu_i - c))  (the team's own pregame\n                                           TD form lambda minus what the played candidates hold)\n    DEF/ST (both teams): d = mean non-offensive TDs per game over all seasons before the scored one (pbp)\n  P(i first) = (rate_i / M) (1 - e^-M),  P(none) = e^-M.  This partition is complete; no floor is needed.\nNAIVE baseline: P(i first) = p_i / sum(p) x (1 - qNone - qDefSt - qOtherOff) with the q's the walk-forward historical\n  frequencies (this is the 'normalise the anytime percentages' derivation, used only as a baseline).\nScored: 2015-2025 games (pbp first TD, nflverse), walk-forward. 2026: only 4 games have a scoring-order source on\ndisk (live ESPN summary captures under ~/gtp-evidence/live-v2-*), descriptive only.\nUsage: python3 -I 05_first_td.py <resultsDir> <worktreeRoot>\n",
+ "historical": {
+  "population": "2015-2025 REG+POST games in both nflverse pbp and the P301 replay (played candidates; DNP voids)",
+  "dropped": {},
+  "CR": {
+   "games": 3028,
+   "multinomialLogLoss": 2.772905997366845,
+   "top1Hit": 0.13474240422721268,
+   "top1Expected": 0.14834069138494968,
+   "top5Hit": 0.4739101717305152,
+   "top5Expected": 0.4796438007645248,
+   "candidateMassPredOverObs": 0.9978869710136877,
+   "classes": {
+    "NONE": {
+     "meanPred": 0.005709706922870193,
+     "obs": 0.005614266842800529
+    },
+    "DEF_ST": {
+     "meanPred": 0.06639054698490442,
+     "obs": 0.05746367239101717
+    },
+    "OTHER_OFF": {
+     "meanPred": 0.08358454802846568,
+     "obs": 0.09081902245706737
+    }
+   },
+   "playerReliability": [
+    {
+     "bin": [
+      0,
+      0.02
+     ],
+     "n": 8565,
+     "meanPred": 0.0149,
+     "obs": 0.0154
+    },
+    {
+     "bin": [
+      0.02,
+      0.04
+     ],
+     "n": 15377,
+     "meanPred": 0.0292,
+     "obs": 0.0293
+    },
+    {
+     "bin": [
+      0.04,
+      0.06
+     ],
+     "n": 10125,
+     "meanPred": 0.0493,
+     "obs": 0.0531
+    },
+    {
+     "bin": [
+      0.06,
+      0.08
+     ],
+     "n": 6471,
+     "meanPred": 0.069,
+     "obs": 0.0688
+    },
+    {
+     "bin": [
+      0.08,
+      0.1
+     ],
+     "n": 3729,
+     "meanPred": 0.0891,
+     "obs": 0.0845
+    },
+    {
+     "bin": [
+      0.1,
+      0.13
+     ],
+     "n": 2800,
+     "meanPred": 0.113,
+     "obs": 0.1104
+    },
+    {
+     "bin": [
+      0.13,
+      0.17
+     ],
+     "n": 1485,
+     "meanPred": 0.1466,
+     "obs": 0.1461
+    },
+    {
+     "bin": [
+      0.17,
+      1
+     ],
+     "n": 825,
+     "meanPred": 0.2028,
+     "obs": 0.1891
+    }
+   ]
+  },
+  "NAIVE": {
+   "games": 3028,
+   "multinomialLogLoss": 2.7433917615925383,
+   "top1Hit": 0.13474240422721268,
+   "top1Expected": 0.11948668528348641,
+   "top5Hit": 0.4739101717305152,
+   "top5Expected": 0.4349000191541312,
+   "candidateMassPredOverObs": 0.9771214901685563,
+   "classes": {
+    "NONE": {
+     "meanPred": 0.004494470256888703,
+     "obs": 0.005614266842800529
+    },
+    "DEF_ST": {
+     "meanPred": 0.07251425097827591,
+     "obs": 0.05746367239101717
+    },
+    "OTHER_OFF": {
+     "meanPred": 0.0962458171361076,
+     "obs": 0.09081902245706737
+    }
+   },
+   "playerReliability": [
+    {
+     "bin": [
+      0,
+      0.02
+     ],
+     "n": 5948,
+     "meanPred": 0.0155,
+     "obs": 0.0148
+    },
+    {
+     "bin": [
+      0.02,
+      0.04
+     ],
+     "n": 16121,
+     "meanPred": 0.0294,
+     "obs": 0.0259
+    },
+    {
+     "bin": [
+      0.04,
+      0.06
+     ],
+     "n": 11747,
+     "meanPred": 0.0495,
+     "obs": 0.0498
+    },
+    {
+     "bin": [
+      0.06,
+      0.08
+     ],
+     "n": 7588,
+     "meanPred": 0.0691,
+     "obs": 0.0725
+    },
+    {
+     "bin": [
+      0.08,
+      0.1
+     ],
+     "n": 4259,
+     "meanPred": 0.0888,
+     "obs": 0.0909
+    },
+    {
+     "bin": [
+      0.1,
+      0.13
+     ],
+     "n": 2706,
+     "meanPred": 0.1123,
+     "obs": 0.1364
+    },
+    {
+     "bin": [
+      0.13,
+      0.17
+     ],
+     "n": 905,
+     "meanPred": 0.1435,
+     "obs": 0.1602
+    },
+    {
+     "bin": [
+      0.17,
+      1
+     ],
+     "n": 103,
+     "meanPred": 0.1856,
+     "obs": 0.2039
+    }
+   ]
+  },
+  "paired": {
+   "games": 3028,
+   "dLogLoss_CR_minus_NAIVE": 0.02951423577430248,
+   "ci95": [
+    0.007207436075577595,
+    0.05327824085201327
+   ]
+  },
+  "residualShareOfTeamLambda": 0.08494301405609316,
+  "gapDiagnostic": {
+   "DEF_ST": {
+    "games": 174,
+    "meanLossCR": 2.6905288011993216,
+    "meanLossNAIVE": 2.618794911654124,
+    "sumDiffPerAllGames": 0.0041220927281586375
+   },
+   "CANDIDATE": {
+    "games": 2562,
+    "meanLossCR": 2.7504276419070206,
+    "meanLossNAIVE": 2.7768718542875863,
+    "sumDiffPerAllGames": -0.02237452844088805
+   },
+   "OTHER_OFF": {
+    "games": 275,
+    "meanLossCR": 2.8897379526641425,
+    "meanLossNAIVE": 2.3421024759290847,
+    "sumDiffPerAllGames": 0.049735718659888004
+   },
+   "NONE": {
+    "games": 17,
+    "meanLossCR": 5.113752533511635,
+    "meanLossNAIVE": 5.464474582888523,
+    "sumDiffPerAllGames": -0.0019690471728557183
+   },
+   "conditionalOnCandidateFirst": {
+    "games": 2562,
+    "meanLossCR": 2.581988772142312,
+    "meanLossNAIVE": 2.5866063953819616
+   }
+  },
+  "CR2_posthoc": {
+   "games": 3028,
+   "multinomialLogLoss": 2.7387263464603486,
+   "top1Hit": 0.13474240422721268,
+   "top1Expected": 0.14554315965995654,
+   "top5Hit": 0.4739101717305152,
+   "top5Expected": 0.47105903543624233,
+   "candidateMassPredOverObs": 0.9759426752010444,
+   "classes": {
+    "NONE": {
+     "meanPred": 0.005709706922870193,
+     "obs": 0.005614266842800529
+    },
+    "DEF_ST": {
+     "meanPred": 0.0724174215165772,
+     "obs": 0.05746367239101717
+    },
+    "OTHER_OFF": {
+     "meanPred": 0.09612480885742238,
+     "obs": 0.09081902245706737
+    }
+   },
+   "playerReliability": [
+    {
+     "bin": [
+      0,
+      0.02
+     ],
+     "n": 9136,
+     "meanPred": 0.0147,
+     "obs": 0.0166
+    },
+    {
+     "bin": [
+      0.02,
+      0.04
+     ],
+     "n": 15391,
+     "meanPred": 0.0292,
+     "obs": 0.03
+    },
+    {
+     "bin": [
+      0.04,
+      0.06
+     ],
+     "n": 10109,
+     "meanPred": 0.0493,
+     "obs": 0.0515
+    },
+    {
+     "bin": [
+      0.06,
+      0.08
+     ],
+     "n": 6183,
+     "meanPred": 0.069,
+     "obs": 0.0736
+    },
+    {
+     "bin": [
+      0.08,
+      0.1
+     ],
+     "n": 3690,
+     "meanPred": 0.0891,
+     "obs": 0.093
+    },
+    {
+     "bin": [
+      0.1,
+      0.13
+     ],
+     "n": 2716,
+     "meanPred": 0.1131,
+     "obs": 0.1042
+    },
+    {
+     "bin": [
+      0.13,
+      0.17
+     ],
+     "n": 1429,
+     "meanPred": 0.147,
+     "obs": 0.1512
+    },
+    {
+     "bin": [
+      0.17,
+      1
+     ],
+     "n": 723,
+     "meanPred": 0.2006,
+     "obs": 0.1798
+    }
+   ]
+  },
+  "paired_CR2_vs_NAIVE_posthoc": {
+   "games": 3028,
+   "dLogLoss_cr2_minus_nv": -0.004665415132187172,
+   "ci95": [
+    -0.009400008139433197,
+    5.460916238601346e-06
+   ]
+  }
+ },
+ "simv2Structure2026": {
+  "games": 74,
+  "sumPlusNoneRange": [
+   1.0,
+   1.0
+  ],
+  "bySchema": {
+   "simulation-receipt@2": {
+    "games": 73,
+    "withDefStRow": 0,
+    "withOtherRow": 48
+   },
+   "simulation-receipt@2.2": {
+    "games": 1,
+    "withDefStRow": 1,
+    "withOtherRow": 1
+   }
+  },
+  "firstLeAnytime": {
+   "checked": 2098,
+   "violations": 8
+  }
+ },
+ "games2026WithScoringOrder": [
+  {
+   "eventId": "401872995",
+   "truth": {
+    "class": "OFF",
+    "text": "J.K. Dobbins 4 Yd Rush (Wil Lutz Kick)",
+    "type": "Rushing Touchdown",
+    "team": "DEN"
+   },
+   "truthSource": "gtp-evidence/live-v2-401872995/captures/20261016T130958Z-espn.json",
+   "simv2": {
+    "receipt": "data/internal/research/nfl/sim-v2/shadow/2026-10-15/401872995-f7da5af26da4b93e.json",
+    "generatedAt": "2026-10-15T23:16:53Z",
+    "eventStart": "2026-10-16T00:15Z",
+    "pActual": 0.1017,
+    "matched": "J.K. Dobbins",
+    "rankOfActual": 2
+   },
+   "competingRisks": {
+    "pActual": 0.07734988398598824,
+    "matched": "J.K. Dobbins",
+    "rankOfActual": 3,
+    "candidates": 17
+   }
+  },
+  {
+   "eventId": "401872996",
+   "truth": {
+    "class": "OFF",
+    "text": "Foster Moreau 6 Yd pass from C.J. Stroud (Ka'imi Fairbairn Kick)",
+    "type": "Passing Touchdown",
+    "team": "HOU"
+   },
+   "truthSource": "gtp-evidence/live-v2-sun-1018/captures/20261019T170944Z-espn-401872996.json",
+   "simv2": {
+    "receipt": "data/internal/research/nfl/sim-v2/shadow/2026-10-17/401872996-dec4680410c2d908.json",
+    "generatedAt": "2026-10-17T14:24:56Z",
+    "eventStart": "2026-10-18T13:30Z",
+    "pActual": 0.0187,
+    "matched": "Foster Moreau",
+    "rankOfActual": 18
+   },
+   "competingRisks": {
+    "pActual": 0.021247564389138385,
+    "matched": "Foster Moreau",
+    "rankOfActual": 16,
+    "candidates": 18
+   }
+  },
+  {
+   "eventId": "401873000",
+   "truth": {
+    "class": "OFF",
+    "text": "Tyrone Tracy Jr. 17 Yd pass from Jameis Winston (Dominic Zvada Kick)",
+    "type": "Passing Touchdown",
+    "team": "NYG"
+   },
+   "truthSource": "gtp-evidence/live-v2-sun-1018/captures/20261019T170944Z-espn-401873000.json",
+   "simv2": {
+    "receipt": "data/internal/research/nfl/sim-v2/shadow/2026-10-16/401873000-4f50840c8761efbc.json",
+    "generatedAt": "2026-10-16T23:18:10Z",
+    "eventStart": "2026-10-18T17:00Z",
+    "pActual": 0.0264,
+    "matched": "Tyrone Tracy Jr.",
+    "rankOfActual": 16
+   },
+   "competingRisks": {
+    "pActual": 0.01971368326934838,
+    "matched": "Tyrone Tracy Jr.",
+    "rankOfActual": 18,
+    "candidates": 20
+   }
+  },
+  {
+   "eventId": "401873005",
+   "truth": {
+    "class": "OFF",
+    "text": "Ashton Jeanty 1 Yd Rush (Matt Gay Kick)",
+    "type": "Rushing Touchdown",
+    "team": "LV"
+   },
+   "truthSource": "gtp-evidence/live-v2-sun-1018/captures/20261019T170944Z-espn-401873005.json",
+   "simv2": {
+    "receipt": "data/internal/research/nfl/sim-v2/shadow/2026-10-18/401873005-3951d5992642d372.json",
+    "generatedAt": "2026-10-18T19:40:04Z",
+    "eventStart": "2026-10-18T20:25Z",
+    "pActual": 0.1225,
+    "matched": "Ashton Jeanty",
+    "rankOfActual": 2
+   },
+   "competingRisks": {
+    "pActual": 0.07470539592789753,
+    "matched": "Ashton Jeanty",
+    "rankOfActual": 4,
+    "candidates": 19
+   }
+  }
+ ],
+ "scoringOrderSourceNote": "No committed 2026 source carries scoring order: player-events-v1/2026 has per-player rush/rec TD totals only; results/official-periods have quarter scores; live-props keep final stats. Only the ESPN summary captures in ~/gtp-evidence/live-v2-401872995 and live-v2-sun-1018 carry scoringPlays."
+}
