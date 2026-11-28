@@ -14,7 +14,7 @@
  * (read only) · data/internal/research/injuries/nba/latest.json.
  *
  * Run (from app/):
- *   npx tsx scripts/nba/build-nba-experimental-forecasts.mjs --date 2026-10-03 --now 2026-09-22T12:00:00Z [--write] [--simulations N] [--family v0|v0.1|v0.2|v1|v0.3] [--schedule-file F --rosters-file F --injuries-file F (with --out outside the repo)] [--out <file>] [--horizon-hours H]
+ *   npx tsx scripts/nba/build-nba-experimental-forecasts.mjs --date 2026-10-03 --now 2026-09-22T12:00:00Z [--write] [--simulations N] [--family v0|v0.1|v0.2|v1|v0.3|v0.5 (candidate, --out only)] [--schedule-file F --rosters-file F --injuries-file F (with --out outside the repo)] [--out <file>] [--horizon-hours H]
  *
  * FAMILIES (v1.8 A1): --family v0 (default) is the frozen preregistered pool (box-score history) and writes
  * experimental/forecasts/; --family v0.1 is the ROSTER-GATED pool and writes experimental-v0.1/forecasts/.
@@ -28,7 +28,7 @@
  * data rule folds the fetched 2026-27 box scores but not the finals record (its Elo is v0.1's), and it ALIGNS WITH v0.1:
  * a game is frozen only where v0.1's receipt was generated at this --now from the same roster / injury / schedule
  * inputs (NOT_ALIGNED otherwise, exit 0) — so it must run after v0.1 in the same run, with the same --now.
- * CANDIDATE families (experimental-forecast.mjs CANDIDATE_FAMILIES, armed: false; none today) are resolvable by name only
+ * CANDIDATE families (experimental-forecast.mjs CANDIDATE_FAMILIES, armed: false; v0.5 today) are resolvable by name only
  * and never walked by the pipeline; --write without --out, or an --out inside a forecasts/ directory, is REFUSED for them.
  * --schedule-file / --rosters-file / --injuries-file (research replay of a past instant's exact inputs) require --out
  * outside the repository.
