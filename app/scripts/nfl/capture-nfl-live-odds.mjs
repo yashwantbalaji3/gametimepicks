@@ -190,7 +190,7 @@ const resultClass = classifyProviderResult({ status: res.status, body });
 ledger = recordRequest(ledger, {
   at: NOW, purpose: `${PURPOSE_PREFIX} pilot (${live.length} live game(s))`, endpoint,
   events: Array.isArray(body) ? body.length : null, markets, regions: ["us"],
-  status: res.status, headers, charged: true, resultClass: resultClass.class,
+  status: res.status, headers, charged: true, worstCaseCredits: WORST_CASE, resultClass: resultClass.class,
 });
 const charged = ledger.requests[ledger.requests.length - 1].creditsUsed;
 console.log(`provider ${res.status} (${resultClass.class}) · charged ${charged} · Phase H now ${spent + charged}/${budget}`);

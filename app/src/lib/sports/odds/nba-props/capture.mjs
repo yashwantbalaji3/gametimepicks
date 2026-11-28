@@ -197,7 +197,7 @@ export async function runNbaPropCapture({
          the failure mode (the 2026-09-27 Phase H lesson), so it is recorded as charged at the default cost. */
       book = recordRequest(book, { receiptId: auth.receiptId ?? null,
         at: now, purpose: `nba props · ${t.espnEventId} (transport error)`, endpoint: `/sports/${PROVIDER_SPORT_KEY}/events/{id}/odds`, events: 1,
-        markets, regions: null, status: 0, headers: {}, charged: true, fingerprint, resultClass: "TRANSPORT_ERROR",
+        markets, regions: null, status: 0, headers: {}, charged: true, worstCaseCredits: worst, fingerprint, resultClass: "TRANSPORT_ERROR",
       });
       calls.push({ endpoint: "event-odds", oddsEventId: t.oddsEventId, status: 0, resultClass: "TRANSPORT_ERROR" });
       return finish(CAPTURE_STATE.STOPPED, `transport error (${r.transportError}) on ${t.oddsEventId}; not retried`);
@@ -205,7 +205,7 @@ export async function runNbaPropCapture({
     const cls = classifyProviderResult({ status: r.status, body: Array.isArray(r.body?.bookmakers) && r.body.bookmakers.length === 0 ? [] : r.body }).class;
     book = recordRequest(book, { receiptId: auth.receiptId ?? null,
       at: now, purpose: `nba props · ${t.espnEventId}`, endpoint: `/sports/${PROVIDER_SPORT_KEY}/events/{id}/odds`, events: 1,
-      markets, regions: null, status: r.status, headers: r.headers, charged: r.status === 200, fingerprint, resultClass: cls,
+      markets, regions: null, status: r.status, headers: r.headers, charged: r.status === 200, worstCaseCredits: worst, fingerprint, resultClass: cls,
     });
     calls.push({ endpoint: "event-odds", oddsEventId: t.oddsEventId, espnEventId: t.espnEventId, status: r.status, resultClass: cls, providerLast: r.headers["x-requests-last"] });
     if (STOP_CLASSES.has(cls)) return finish(CAPTURE_STATE.STOPPED, `${cls} on ${t.oddsEventId}`);

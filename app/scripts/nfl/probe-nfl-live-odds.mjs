@@ -195,7 +195,7 @@ try { body = await res.json(); } catch { body = null; }
 const resultClass = classifyProviderResult({ status: res.status, body });
 ledger = recordRequest(ledger, {
   at: NOW, purpose: `${PURPOSE_PREFIX} probe on ${target.matchup}`, endpoint, events: Array.isArray(body) ? body.length : null,
-  markets, regions: ["us"], status: res.status, headers, charged: true, resultClass: resultClass.class,
+  markets, regions: ["us"], status: res.status, headers, charged: true, worstCaseCredits: WORST_CASE, resultClass: resultClass.class,
 });
 
 const spent = ledger.requests[ledger.requests.length - 1].creditsUsed;

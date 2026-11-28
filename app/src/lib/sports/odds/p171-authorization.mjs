@@ -433,14 +433,63 @@ export function ceilingExhausted({ authorization, ledger, cheapestPaidCredits })
 }
 
 /**
- * Append one provider response to the ledger. `headers` is a plain object of the usage headers
- * (x-requests-last / x-requests-used / x-requests-remaining) — parsed here, defaulting a paid
- * call with unreadable headers to cost 1 (never 0: unaccounted spend is the failure mode).
+ * A usage-header value as a number, or null when the provider did not report one. fetch's `headers.get()` returns
+ * null for an absent header and `Number(null)` is 0, so a bare `Number(v)` would read "no header" as "costs 0" — the
+ * defect this exists to prevent. Absent, empty and non-numeric values are all "unknown", never zero; a provider that
+ * actually sends `x-requests-last: 0` still reads 0.
  */
-export function recordRequest(ledger, { at, purpose, endpoint, events = null, markets = null, regions = null, status, headers = {}, charged = true, fingerprint = null, resultClass = null, receiptId = null }) {
-  const num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : null; };
-  const lastCost = num(headers["x-requests-last"]);
-  const creditsUsed = charged ? (lastCost ?? 1) : (lastCost ?? 0);
+export function usageHeaderNumber(v) {
+  if (v == null) return null;
+  if (typeof v === "string" && v.trim() === "") return null;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : null;
+}
+
+/**
+ * The provider's documented "market not offered" answer: a 422 that carries no usage headers is booked at 0 (the
+ * capture scripts treat it as typed NOT_OFFERED evidence, never a charge). A 422 that DOES report a cost is booked at
+ * that cost like any other response.
+ */
+export const NOT_OFFERED_STATUS = 422;
+
+/**
+ * What ONE per-event prop-probe response means for a sweep. Pure.
+ *   ANSWER       a 200 — consume it (classifyProviderResult's class rides along: OK / NO_MARKET / QUARANTINED)
+ *   NOT_OFFERED  the documented 422 — typed evidence that the books do not offer these markets; never retried
+ *   STOP         anything else (transport failure, 401/403, 429, 5xx, an unmodelled status) — it says nothing about the
+ *                books and may have been charged, so the sweep stops and the event is left unreached; it is NEVER
+ *                recorded as markets NOT_OFFERED
+ */
+export function classifyProbeOutcome({ status, body = null, transportError = null }) {
+  if (transportError) return { outcome: "STOP", class: "TRANSPORT_ERROR", action: `transport failure (${transportError}) — the call may have been charged; booked at worst case, sweep stopped, not retried` };
+  if (status === NOT_OFFERED_STATUS) return { outcome: "NOT_OFFERED", class: "NOT_OFFERED", action: "the provider does not offer these markets for this event — typed evidence, never retried" };
+  const cls = classifyProviderResult({ status, body });
+  if (status === 200) return { outcome: "ANSWER", ...cls };
+  return { outcome: "STOP", ...cls };
+}
+
+/**
+ * Append one provider response to the ledger. `headers` is a plain object of the usage headers
+ * (x-requests-last / x-requests-used / x-requests-remaining).
+ *
+ * CONSERVATIVE ACCOUNTING (founder rule). A provider-reported `x-requests-last` is booked exactly, 0 included. When it
+ * is missing (absent header, transport failure — pass `status: null` and `headers: {}`) on a call that may have
+ * consumed credits (`charged`), the call is booked at its planned `worstCaseCredits` (default 1) and flagged
+ * `creditsEstimated: true` — never 0: unaccounted spend is the failure mode. Two answers stay 0 without a header: a
+ * call the caller declares free (`charged: false`, e.g. the documented-free index endpoints) and a 422 (the
+ * not-offered answer, `NOT_OFFERED_STATUS`).
+ *
+ * NO AUTOMATIC RECONCILIATION. An estimate stays at its worst case until a human reconciles it out of band
+ * (recordReconciledCharge). The provider's x-requests-used counter cannot attribute it: the counter resets with the
+ * billing cycle and the same ledger is written from more than one key (CI and local), so a delta can read low.
+ */
+export function recordRequest(ledger, { at, purpose, endpoint, events = null, markets = null, regions = null, status, headers = {}, charged = true, fingerprint = null, resultClass = null, receiptId = null, worstCaseCredits = null }) {
+  const h = headers ?? {};
+  const lastCost = usageHeaderNumber(h["x-requests-last"]);
+  const planned = Number.isFinite(Number(worstCaseCredits)) && worstCaseCredits != null && Number(worstCaseCredits) > 0 ? Number(worstCaseCredits) : 1;
+  const mayHaveCharged = charged && status !== NOT_OFFERED_STATUS;
+  const estimated = lastCost == null && mayHaveCharged;
+  const creditsUsed = lastCost ?? (estimated ? planned : 0);
   const entry = {
     at,
     purpose,
@@ -452,8 +501,10 @@ export function recordRequest(ledger, { at, purpose, endpoint, events = null, ma
     resultClass,
     fingerprint,
     creditsUsed,
-    providerRequestsUsed: num(headers["x-requests-used"]),
-    providerRequestsRemaining: num(headers["x-requests-remaining"]),
+    // Only an estimate carries the flag, so entries booked from a provider-reported cost are unchanged.
+    ...(estimated ? { creditsEstimated: true } : {}),
+    providerRequestsUsed: usageHeaderNumber(h["x-requests-used"]),
+    providerRequestsRemaining: usageHeaderNumber(h["x-requests-remaining"]),
     // A receipt whose ceiling is scoped to its own ID (credits consumed UNDER that receipt) tags each call; others add nothing.
     ...(receiptId ? { receiptId } : {}),
   };

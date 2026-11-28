@@ -33,7 +33,7 @@ import { fileURLToPath } from "node:url";
 import { ODDS_SPORT_KEYS, classifyOddsSecret, validateOddsSnapshot } from "../../src/lib/sports/odds/snapshot-contract.mjs";
 import { MARKET_SCOPE, normalizeScopedOddsEvent } from "../../src/lib/sports/odds/market-scope.mjs";
 import { joinOddsBatch } from "../../src/lib/sports/odds/event-join.mjs";
-import { parseAuthorizationReceipt, emptyLedger, assertCallAllowed, ceilingExhausted, recordRequest, assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, P171_LEDGER_RELPATH } from "../../src/lib/sports/odds/p171-authorization.mjs";
+import { parseAuthorizationReceipt, emptyLedger, assertCallAllowed, ceilingExhausted, recordRequest, assertNoSecretLeak, classifyProviderResult, isDuplicateRequest, classifyProbeOutcome, P171_LEDGER_RELPATH } from "../../src/lib/sports/odds/p171-authorization.mjs";
 import { buildPlayerRegistry, resolvePlayerRef } from "../../src/lib/sports/nfl/player-identity.mjs";
 import { twoWayConsensus, medianOf } from "../../src/lib/sports/odds/consensus.mjs";
 import { mergeCaptureRows, carryPropsForward, carryUnreachedProps, unreachedTargets } from "../../src/lib/sports/odds/capture-merge.mjs";
@@ -191,8 +191,19 @@ const secretState = classifyOddsSecret(process.env);
 if (secretState.state !== "PRESENT") { console.error(`${secretState.state}: ${secretState.reason} — no key, no call`); process.exit(3); }
 const KEY = process.env.ODDS_API_KEY.trim();
 
+/*
+ * Absent usage headers come back from headers.get() as null; recordRequest reads null as UNKNOWN (never as 0), so a
+ * charged call without them is booked at its planned worst case and flagged creditsEstimated. A transport failure
+ * (timeout, reset) may still have reached the provider and been charged, so it returns status null instead of
+ * throwing past the ledger write; callers book it the same conservative way.
+ */
 const get = async (pathAndQuery) => {
-  const res = await fetch(`${BASE}${pathAndQuery}${pathAndQuery.includes("?") ? "&" : "?"}apiKey=${KEY}`, { signal: AbortSignal.timeout(25_000), headers: { accept: "application/json" } });
+  let res;
+  try {
+    res = await fetch(`${BASE}${pathAndQuery}${pathAndQuery.includes("?") ? "&" : "?"}apiKey=${KEY}`, { signal: AbortSignal.timeout(25_000), headers: { accept: "application/json" } });
+  } catch (e) {
+    return { status: null, headers: {}, body: null, transportError: e?.name ?? "Error" };
+  }
   const headers = { "x-requests-last": res.headers.get("x-requests-last"), "x-requests-used": res.headers.get("x-requests-used"), "x-requests-remaining": res.headers.get("x-requests-remaining") };
   let body = null;
   try { body = await res.json(); } catch { body = null; }
@@ -240,11 +251,12 @@ for (const plan of livePlan) {
   const fingerprint = `bulk:${plan.key}:${TEAM_MARKETS.join(",")}:${REGIONS.join(",")}`;
   const dup = isDuplicateRequest(ledger, { fingerprint, nowIso: NOW, freshnessMinutes: REFRESH_MINUTES });
   if (dup.duplicate) { console.log(`${plan.label}: ${dup.reason} — keeping the existing capture`); continue; }
-  const gateBulk = assertCallAllowed({ authorization, ledger, worstCaseCredits: TEAM_MARKETS.length * REGIONS.length, purpose: `bulk team markets (${plan.label})` });
+  const bulkWorstCase = TEAM_MARKETS.length * REGIONS.length;
+  const gateBulk = assertCallAllowed({ authorization, ledger, worstCaseCredits: bulkWorstCase, purpose: `bulk team markets (${plan.label})` });
   if (!gateBulk.ok) { console.error(gateBulk.errors.join("; ")); fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1)); process.exit(5); }
   const bulkRes = await get(`/sports/${plan.key}/odds?regions=${REGIONS.join(",")}&markets=${TEAM_MARKETS.join(",")}&oddsFormat=american`);
-  const cls = classifyProviderResult(bulkRes);
-  ledger = recordRequest(ledger, { at: NOW, purpose: `bulk team ML/spread/total (${plan.label})`, endpoint: `/sports/${plan.key}/odds`, events: Array.isArray(bulkRes.body) ? bulkRes.body.length : null, markets: TEAM_MARKETS, regions: REGIONS, status: bulkRes.status, headers: bulkRes.headers, charged: true, fingerprint, resultClass: cls.class });
+  const cls = bulkRes.transportError ? { class: "TRANSPORT_ERROR", action: `transport failure (${bulkRes.transportError}) — the call may have been charged; booked at worst case, not retried` } : classifyProviderResult(bulkRes);
+  ledger = recordRequest(ledger, { at: NOW, purpose: `bulk team ML/spread/total (${plan.label})`, endpoint: `/sports/${plan.key}/odds`, events: Array.isArray(bulkRes.body) ? bulkRes.body.length : null, markets: TEAM_MARKETS, regions: REGIONS, status: bulkRes.status, headers: bulkRes.headers, charged: true, worstCaseCredits: bulkWorstCase, fingerprint, resultClass: cls.class });
   if (cls.class !== "OK") {
     fs.writeFileSync(ledgerPath, JSON.stringify(ledger, null, 1));
     // last-known-good is preserved by construction: a failed run writes NO public artifact, so
@@ -308,11 +320,13 @@ if (PROBE) {
   const lineAll = { rows: [], quarantined: [] };
   const seenUnion = new Map();
   let refusal = null;
+  let probeStop = null; // a non-422 provider failure that stopped the sweep (never a NOT_OFFERED answer)
   if (!targets.length) {
     propProbe = { state: "NO_TARGET", reason: "no joined pre-start event to probe" };
   } else {
    for (const target of targets) {
-    const gateProbe = assertCallAllowed({ authorization, ledger, worstCaseCredits: PROP_PROBE_MARKETS.length * REGIONS.length, purpose: "player-prop probe" });
+    const probeWorstCase = PROP_PROBE_MARKETS.length * REGIONS.length;
+    const gateProbe = assertCallAllowed({ authorization, ledger, worstCaseCredits: probeWorstCase, purpose: "player-prop probe" });
     if (!gateProbe.ok) {
       /* Stop the WHOLE sweep at the first refusal — continuing would spend the rest of the slate
          against a ceiling the gate has already declined. */
@@ -321,8 +335,35 @@ if (PROBE) {
     }
     {
       const probeRes = await get(`/sports/${target.sportKey}/events/${target.providerEventId}/odds?regions=${REGIONS.join(",")}&markets=${PROP_PROBE_MARKETS.join(",")}&oddsFormat=american`);
-      ledger = recordRequest(ledger, { at: NOW, purpose: `player-prop probe on ${target.away} @ ${target.home}`, endpoint: `/sports/${target.sportKey}/events/${target.providerEventId}/odds`, events: 1, markets: PROP_PROBE_MARKETS, regions: REGIONS, status: probeRes.status, headers: probeRes.headers, charged: probeRes.status === 200 });
-      if (probeRes.status !== 200) {
+      const probeClass = classifyProbeOutcome(probeRes);
+      ledger = recordRequest(ledger, { at: NOW, purpose: `player-prop probe on ${target.away} @ ${target.home}`, endpoint: `/sports/${target.sportKey}/events/${target.providerEventId}/odds`, events: 1, markets: PROP_PROBE_MARKETS, regions: REGIONS, status: probeRes.status, headers: probeRes.headers,
+        /* Every answer except the documented 422 "market not offered" may have consumed credits (5xx, 401, 429, a
+           transport failure, a 200 without usage headers): without a provider-reported cost it is booked at this
+           call's worst case, flagged creditsEstimated. recordRequest books a headerless 422 at 0 itself. */
+        charged: true, worstCaseCredits: probeWorstCase, resultClass: probeClass.class });
+      if (probeClass.outcome === "STOP") {
+        /*
+         * ⚠ A FAILED CALL IS NOT AN ANSWER, AND IT STOPS THE SWEEP.
+         *
+         * Only the documented 422 means "the books do not offer props here". A transport failure, a 401/403, a 429 or a
+         * 5xx tells us nothing about the books — recording it as five families NOT_OFFERED would publish a confident,
+         * wrong statement about a third party — and it may have been charged, so continuing would spend the rest of the
+         * slate against a provider that is failing. The event is left UNREACHED (its prior answer is carried forward),
+         * the sweep stops, and the classifier's class is kept on the ledger line and on the probe.
+         */
+        const joinRowStopped = joinedByOddsId.get(target.providerEventId);
+        probeStop = {
+          oddsEventId: target.providerEventId,
+          canonicalEventId: joinRowStopped?.canonicalEventId ?? null,
+          matchup: `${target.away} @ ${target.home}`,
+          providerStatus: probeRes.status,
+          resultClass: probeClass.class,
+          action: probeClass.action,
+        };
+        refusal = `${probeClass.class} on ${probeStop.matchup} (status ${probeRes.status ?? "none"}): ${probeClass.action}`;
+        break;
+      }
+      if (probeClass.outcome === "NOT_OFFERED") {
         /*
          * ⚠ A REFUSED EVENT IS STILL A PROBED EVENT, AND IT MUST SURVIVE THE SWEEP.
          *
@@ -342,12 +383,12 @@ if (PROBE) {
           canonicalEventId: joinRowFailed.canonicalEventId,
           matchup: `${target.away} @ ${target.home}`,
           providerStatus: probeRes.status,
-          providerResultClass: classifyProviderResult({ status: probeRes.status, body: probeRes.body }).class,
+          providerResultClass: probeClass.class,
           marketsSeen: {},
           absentMarkets: [...PROP_PROBE_MARKETS],
           atdRows: 0,
           lineRows: 0,
-          note: "provider returned no prop markets for this event (422/absent) — typed evidence, never retried",
+          note: "provider returned 422 (markets not offered for this event) — typed evidence, never retried",
         });
       } else {
         const marketsSeen = new Map();
@@ -486,6 +527,7 @@ if (PROBE) {
        eventsProbed: perEvent.length,
        eventsRequested: targets.length,
        ...(refusal ? { stoppedEarly: refusal } : {}),
+       ...(probeStop ? { stoppedBy: probeStop } : {}),
        /* The targets this sweep never reached (a refusal stopped it) — their prior answers are carried below. */
        unreachedEventIds: unreachedTargets(targets, perEvent, (id) => joinedByOddsId.get(id)?.canonicalEventId),
        marketsSeen: Object.fromEntries([...seenUnion.entries()].map(([k, v]) => [k, { bookmakers: v }])),
@@ -493,7 +535,9 @@ if (PROBE) {
        anytimeTd: atdAll,
        lineProps: lineAll,
      }
-     : { state: refusal ? "REFUSED_BUDGET" : "NO_MARKET", reason: refusal ?? "no event returned a prop market" };
+     : probeStop
+       ? { state: "PROVIDER_FAILURE", resultClass: probeStop.resultClass, stoppedBy: probeStop, reason: refusal }
+       : { state: refusal ? "REFUSED_BUDGET" : "NO_MARKET", reason: refusal ?? "no event returned a prop market" };
   }
 }
 
@@ -696,6 +740,7 @@ const publicArtifact = {
 };
 
 /* A sweep cut short keeps the prior answer for the events it never reached (capture-merge.mjs, 2026-10-11). */
+if (propProbe?.state === "PROVIDER_FAILURE") console.log(`::warning::prop sweep stopped by a provider failure before any event answered: ${propProbe.reason}`);
 if (propProbe?.stoppedEarly) console.log(`::warning::prop sweep stopped early after ${propProbe.eventsProbed} of ${propProbe.eventsRequested} event(s): ${propProbe.stoppedEarly}`);
 {
   const kept = carryUnreachedProps(priorPublic, publicArtifact, propProbe?.unreachedEventIds ?? []);
