@@ -22,6 +22,27 @@ export function seasonContextFor(row) {
   return { state: label, code, week: row?.week ?? null };
 }
 
+/**
+ * Title for the NFL hub's list of games AFTER the lead week's, derived from the rows' own phase and week.
+ *  - One phase+week across every later row earns a specific title; a mixed list stays "Coming up" rather than guessing.
+ *  - "The rest of Week N" only when the later rows share a week with the lead rows. On 2026-11-13 the lead was Week 10
+ *    and the one later game was Week 11's Thursday opener; the page called it "The rest of Week 11", a week of which
+ *    nothing had been shown. A later week that is not the lead week is just "Week N".
+ */
+export function laterSectionTitle(laterRows, leadRows = []) {
+  const later = (laterRows ?? []).map((r) => seasonContextFor(r));
+  if (!later.length) return "Coming up";
+  const first = later[0];
+  if (!later.every((c) => c.state === first.state && c.week === first.week)) return "Coming up";
+  if (first.state === "REGULAR_SEASON" && first.week != null) {
+    const leadWeeks = new Set((leadRows ?? []).map((r) => seasonContextFor(r)).filter((c) => c.state === "REGULAR_SEASON").map((c) => c.week));
+    return leadWeeks.has(first.week) ? `The rest of Week ${first.week}` : `Week ${first.week}`;
+  }
+  if (first.state === "PRESEASON") return "Later this preseason";
+  if (first.state === "POSTSEASON") return "Postseason schedule";
+  return "Coming up";
+}
+
 /** Forward-window statement: OFFSEASON only when the committed window is truly empty. */
 export function forwardWindowState(rows, nowIso) {
   const now = Date.parse(nowIso ?? "");
