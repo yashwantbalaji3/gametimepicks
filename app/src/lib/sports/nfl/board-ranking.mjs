@@ -90,6 +90,32 @@ export function publicBoardEligibility(player, board, asOf) {
 /** @param {any} player @param {any} board @param {string} asOf */
 export const isPublicNflBoardEligible = (player, board, asOf) => publicBoardEligibility(player, board, asOf).eligible;
 
+/**
+ * Gate reasons that mean LISTED QUESTIONABLE (R6: Questionable / Doubtful / Day-To-Day) or the R3a source disagreement:
+ * the player is modelled and may be SHOWN un-featured with a label, never ranked or featured. Every other reason
+ * (INELIGIBLE, UNKNOWN, missing or stale availability, inactive) keeps the player off the board entirely.
+ */
+export const UNFEATURED_REASONS = Object.freeze(["QUESTIONABLE", "ELIGIBILITY_QUESTIONABLE", "ELIGIBILITY_SOURCES_DISAGREE"]);
+/** Exclusions by reason only — no player names or ids — for a public board file. */
+export function exclusionCounts(blocked) {
+  const byReason = {};
+  for (const b of blocked ?? []) byReason[b.reason] = (byReason[b.reason] ?? 0) + 1;
+  return { total: (blocked ?? []).length, byReason: Object.fromEntries(Object.entries(byReason).sort(([a], [b]) => (a < b ? -1 : 1))) };
+}
+/**
+ * The R6 players who would have placed inside a top-N had they been cleared: shown below the board, un-featured, with
+ * the label. Same order as the ranking (value, then the model's mean, then playerId). A maximum of `size`.
+ */
+export function unfeaturedRows(blocked, rows, size, valueOf = (r) => r.value) {
+  const cut = rows.length >= size ? valueOf(rows[rows.length - 1]) : -Infinity;
+  const mean = (m) => (typeof m?.mean === "number" && Number.isFinite(m.mean) ? m.mean : -Infinity);
+  return (blocked ?? [])
+    .filter((b) => UNFEATURED_REASONS.includes(b.reason) && typeof b.value === "number" && b.value >= cut)
+    .sort((a, b) => b.value - a.value || mean(b.market) - mean(a.market) || String(a.playerId).localeCompare(String(b.playerId)))
+    .slice(0, size);
+}
+export const UNFEATURED_LABEL = "Listed questionable · not featured";
+
 /** The board families and the metric each ranks on. */
 export const BOARD_METRIC = Object.freeze({
   anytime_td: "probability",
@@ -118,7 +144,8 @@ export function rankFamily(boards, family, metric, { asOf, blocked } = /** @type
       if (!market || typeof market[metric] !== "number" || !Number.isFinite(market[metric])) continue;
       const gate = publicBoardEligibility(player, board, asOf);
       if (!gate.eligible) {
-        blocked?.push({ playerId: player.playerId, name: player.name, team: player.team, providerEventId: board.providerEventId, reason: gate.reason });
+        // board / player / market ride NON-ENUMERABLE (for unfeaturedRows), so a serialized `blocked` list stays as small as before
+        blocked?.push(Object.defineProperties({ playerId: player.playerId, name: player.name, team: player.team, providerEventId: board.providerEventId, reason: gate.reason }, { value: { value: market[metric] }, board: { value: board }, player: { value: player }, market: { value: market } }));
         continue;
       }
       out.push({ board, player, market, value: market[metric] });

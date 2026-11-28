@@ -2,7 +2,7 @@
 /**
  * FROZEN DAILY TOP-5 BOARDS (Results V2 · B-4a). $0 — reads committed public boards, spends nothing.
  *
- *   node scripts/results/freeze-daily-top-boards.mjs --now <ISO> [--dry-run]
+ *   npx tsx scripts/results/freeze-daily-top-boards.mjs --now <ISO> [--dry-run]   (tsx: provenance reads nflOfficialOfRecord)
  *
  * For each ET day whose FIRST kickoff is still ahead (and at most 24h away), freeze that day's Top-5 per
  * PUBLISHED player-prop family into app/public/data/results/top-boards/<day>.json — ONCE:
@@ -14,6 +14,10 @@
  *   - A MAXIMUM, NOT A QUOTA. Fewer than five qualifying players freeze fewer rows; none freezes none.
  *   - The ranking is the shared rule (lib/sports/nfl/board-ranking.mjs) the weekly boards use.
  *   - `line` is a captured book line or null with its typed pricing state — never invented.
+ *   - ELIGIBILITY (row G): exclusions by reason only (`excludedForAvailability`, no names); a listed-questionable player
+ *     who would have placed is listed in `unfeatured` with the label, never ranked.
+ *   - PROVENANCE (row G): each event's official snapshot id and the per-game board sha256, folded into a chain hash
+ *     (board-provenance.mjs) — a frozen day names exactly what it was built from, and its bytes never change after.
  *
  * Sports: NFL is the only sport with a published player-prop family today. MLB props are market context
  * (every market demoted), EPL and UFC have no player-prop model — the Results page states that per sport
@@ -22,11 +26,16 @@
 import fs from "node:fs";
 import path from "node:path";
 
-import { BOARD_METRIC, familyStateAcross, poolWithheldTeams, rankFamily } from "../../src/lib/sports/nfl/board-ranking.mjs";
+import { BOARD_METRIC, UNFEATURED_LABEL, exclusionCounts, familyStateAcross, poolWithheldTeams, rankFamily, unfeaturedRows } from "../../src/lib/sports/nfl/board-ranking.mjs";
+import { boardProvenance, sha256 } from "../../src/lib/sports/nfl/board-provenance.mjs";
 import { opponentIn } from "../../src/lib/sports/nfl/matchup.mjs";
 import { buildPropPriceIndex } from "../../src/lib/sports/nfl/prop-price-lookup.mjs";
+import { officialSnapshotIds } from "../../src/lib/sports/nfl/official-snapshot-ids.mjs";
 
-const APP = process.cwd();
+// the data root (app/): the working directory, or --app-root (tests point it at a fixture tree while tsx runs from app/,
+// where the "@/" alias the snapshot lookup reaches resolves)
+const rootArg = process.argv.indexOf("--app-root");
+const APP = rootArg >= 0 && process.argv[rootArg + 1] ? path.resolve(process.argv[rootArg + 1]) : process.cwd();
 const BOARD_DIR = path.join(APP, "public/data/nfl/player-board");
 const OUT_DIR = path.join(APP, "public/data/results/top-boards");
 const TOP_N = 5;
@@ -44,7 +53,7 @@ const propPrices = (() => {
 })();
 
 /** Pure: the frozen board document for one day's per-game boards. Exported shape is pinned by tests. */
-export function freezeDay(day, boards, frozenAt, prices = propPrices) {
+export function freezeDay(day, boards, frozenAt, prices = propPrices, { provenance = null } = {}) {
   const families = Object.keys(BOARD_METRIC);
   const boardsOut = [];
   const ineligible = [];
@@ -57,7 +66,8 @@ export function freezeDay(day, boards, frozenAt, prices = propPrices) {
     if (withheldTeams.length) { ineligible.push({ sport: "nfl", propFamily: family, label: st.label, state: "WITHHELD", reason: `team pool withheld for ${withheldTeams.join(", ")}` }); continue; }
     const metric = BOARD_METRIC[family];
     /* Session 11: the shared availability gate judges each row at the freeze instant (write-once days already frozen are untouched). */
-    const rows = rankFamily(boards, family, metric, { asOf: frozenAt }).slice(0, TOP_N).map(({ board: b, player: p, market: m }, i) => {
+    const blocked = [];
+    const rows = rankFamily(boards, family, metric, { asOf: frozenAt, blocked }).slice(0, TOP_N).map(({ board: b, player: p, market: m }, i) => {
       const slot = prices.slotFor(b.providerEventId, p.playerId, family, p.name);
       return {
         rank: i + 1,
@@ -80,7 +90,9 @@ export function freezeDay(day, boards, frozenAt, prices = propPrices) {
         boardGeneratedAt: b.generatedAt ?? null,
       };
     });
-    boardsOut.push({ sport: "nfl", propFamily: family, label: st.label, metric, model: st.model, modelVersion: null, rows });
+    const unfeatured = unfeaturedRows(blocked, rows, TOP_N, (r) => (metric === "probability" ? r.projection.probability : r.projection.median))
+      .map((x) => ({ playerId: x.playerId, name: x.name, team: x.team, providerEventId: String(x.providerEventId), value: x.value, label: UNFEATURED_LABEL, reason: x.reason }));
+    boardsOut.push({ sport: "nfl", propFamily: family, label: st.label, metric, model: st.model, modelVersion: null, rows, excludedForAvailability: exclusionCounts(blocked), unfeatured });
   }
   return {
     schemaVersion: 1,
@@ -93,6 +105,7 @@ export function freezeDay(day, boards, frozenAt, prices = propPrices) {
     rule: "Frozen once, before the day's first kickoff. Top 5 per published family (a maximum, not a quota), ranked by the model's median (touchdowns: probability); ties by the model's mean. Never revised.",
     boards: boardsOut,
     ineligible,
+    ...(provenance ? { provenance } : {}),
   };
 }
 
@@ -112,7 +125,9 @@ function main() {
     if (!(nowMs < first && first - nowMs <= WINDOW_MS)) continue;
     const file = path.join(OUT_DIR, `${day}.json`);
     if (fs.existsSync(file)) { console.log(`${day}: already frozen — write-once, left untouched`); continue; }
-    const doc = freezeDay(day, dayBoards, NOW);
+    const official = officialSnapshotIds(path.join(APP, "public"), dayBoards.map((b) => b.providerEventId));
+    const provenance = boardProvenance(dayBoards.map((b) => ({ eventId: b.providerEventId, official: official[String(b.providerEventId)], boardSha256: sha256(fs.readFileSync(path.join(BOARD_DIR, `${b.providerEventId}.json`))), boardGeneratedAt: b.generatedAt ?? null })));
+    const doc = freezeDay(day, dayBoards, NOW, propPrices, { provenance });
     const raw = JSON.stringify(doc, null, 2) + "\n";
     for (const banned of ["data/internal", "PRIVATE_RESEARCH", "apiKey"]) {
       if (raw.includes(banned)) { console.error(`REFUSED: banned payload "${banned}" in ${day}`); process.exit(1); }

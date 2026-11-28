@@ -80,7 +80,7 @@ test("every public top list reads the ONE allowlist (no INACTIVE-only filter sur
   const APP = process.cwd();
   const src = (rel) => fs.readFileSync(path.join(APP, rel), "utf8");
   assert.match(src("scripts/nfl/build-nfl-weekly-boards.mjs"), /rankFamily\(scoped, family, metric, \{ asOf: NOW, blocked \}\)/);
-  assert.match(src("scripts/results/freeze-daily-top-boards.mjs"), /rankFamily\(boards, family, metric, \{ asOf: frozenAt \}\)/);
+  assert.match(src("scripts/results/freeze-daily-top-boards.mjs"), /rankFamily\(boards, family, metric, \{ asOf: frozenAt, blocked \}\)/);
   for (const rel of ["src/components/nfl/player-board.tsx", "src/app/nfl/game/[eventId]/page.tsx"]) {
     const s = src(rel);
     assert.match(s, /PUBLIC_BOARD_CLEARED\.includes\(p\.participation\)/, `${rel} must filter with the shared allowlist`);
