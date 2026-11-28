@@ -1,6 +1,6 @@
 {
   "_note": "Machine-readable ops status derived from CANONICAL data. Read-only; never a source of truth for money. Regenerate with build-admin-status.mjs.",
-  "generatedAt": "2026-11-28T16:16:36.673Z",
+  "generatedAt": "2026-11-28T16:56:24.463Z",
   "canonical": {
     "record": "47-52",
     "bankroll": 14065.4,
@@ -105,20 +105,20 @@
     "forwardCoverage": {
       "present": true,
       "date": "2026-11-28",
-      "generatedAt": "2026-11-28T14:42:08Z",
+      "generatedAt": "2026-11-28T16:20:06Z",
       "sports": [
         {
           "sport": "epl",
           "state": "DERIVED",
           "counts": {
-            "scheduled": 30,
-            "priced": 19,
-            "generated": 2,
+            "scheduled": 20,
+            "priced": 10,
+            "generated": 0,
             "frozen": 0,
             "started": 0
           },
           "findings": [
-            "GENERATION_PENDING:17 priced future fixture(s) without live distributions (typed-refusal rows published for 0 of them — the odds-freshness bar re-prices night-before by design)"
+            "GENERATION_PENDING:10 priced future fixture(s) without live distributions (typed-refusal rows published for 0 of them — the odds-freshness bar re-prices night-before by design)"
           ]
         },
         {
@@ -166,12 +166,17 @@
     "dailyLifecycle": {
       "receiptDate": "2026-11-28",
       "present": true,
-      "generatedAt": "2026-11-28T09:52:19Z",
+      "generatedAt": "2026-11-28T16:20:05Z",
       "watchdog": [
         {
           "product": "homer-nukes",
           "kind": "INCIDENT_OPEN",
           "detail": "NOT_RUN: no Homer Nukes board exists for 2026-11-28"
+        },
+        {
+          "product": "epl-cards",
+          "kind": "STALE_ACTIVE_CARD",
+          "detail": "locked 2026-11-28T03:07:48Z, still ACTIVE"
         }
       ],
       "states": {
@@ -215,16 +220,16 @@
     "pendingApprovals": 4
   },
   "workflowHealth": {
-    "lastRunAt": "2026-11-28T16:16:35.882Z",
+    "lastRunAt": "2026-11-28T16:56:23.976Z",
     "ageHours": 0,
     "ok": true,
     "status": "pass",
-    "phase": "mlb-daily-production"
+    "phase": "nightly-settle"
   },
   "todayReadiness": {
     "_note": "Answers 'is TODAY's slate ready?' — distinct from workflowHealth, which answers 'did the last workflow finish?'.",
     "etDate": "2026-11-28",
-    "etTime": "11:16",
+    "etTime": "11:56",
     "stages": [
       {
         "stage": "schedule",
