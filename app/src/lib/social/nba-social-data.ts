@@ -15,6 +15,7 @@ import { nbaForecastVsActualView } from "@/lib/results/nba-level-a-readers";
 import { currentEtDate } from "@/lib/freshness";
 import { unavailableReasonText } from "@/components/nba/official-predictions";
 import { nbaSocialLineBoard } from "@/lib/sports/nba/public-line-records.mjs";
+import { loadEligibilityAudit } from "@/components/nba/player-eligibility-data";
 import { buildNbaSocialDay, nbaSocialToday, NBA_SOCIAL_BASE, NBA_SOCIAL_SCHEMA } from "./nba-social.mjs";
 
 /** How many dated day files ship (bytes stay bounded; the index lists exactly these). */
@@ -42,6 +43,8 @@ export function nbaSocialDay(date: string) {
     reasonText: (reason: string | null, status: string | null) => unavailableReasonText(reason, status),
     // Model-versus-line rows from the published artifact; null (and nothing read) unless the "social" surface is authorized.
     lineBoard: nbaSocialLineBoard(date),
+    // switch default OFF → null → no eligibility block, the day file byte-identical
+    eligibility: loadEligibilityAudit(lane),
   });
 }
 

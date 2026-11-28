@@ -197,15 +197,17 @@ export const NBA_TOP_BOARDS_UNAVAILABLE_TEXT = Object.freeze({
  * THE ONE ENTRY a page uses. null = no section (switch off, or no current lane: the page already says the forecast is
  * unavailable). Otherwise PUBLISHED with the boards, or UNAVAILABLE with one reason — all boards or none.
  * @param {any} lane     the current view's snapshot (latest.json through loadCurrentLane)
- * @param {{ dated: any, nowIso: string, startedIds?: Iterable<string>, enabled?: boolean }} o
+ * @param {{ dated: any, nowIso: string, startedIds?: Iterable<string>, enabled?: boolean, view?: any }} o
+ *   view: the eligibility VIEW of the same lane (lane-eligibility.mjs, switch GTP_NBA_SITE_SHARED_ELIGIBILITY) that
+ *   /nba/projections shows; the boards are ranked over it and cross-checked against it. Provenance always reads `lane`.
  */
-export function gateLaneTopBoards(lane, { dated, nowIso, startedIds = [], enabled = NBA_LANE_TOP_BOARDS_PUBLICATION.public && AMENDMENT_A.enabled } = /** @type {any} */ ({})) {
+export function gateLaneTopBoards(lane, { dated, nowIso, startedIds = [], enabled = NBA_LANE_TOP_BOARDS_PUBLICATION.public && AMENDMENT_A.enabled, view = lane } = /** @type {any} */ ({})) {
   if (!enabled || !lane || !(lane.games?.length)) return null;
   const provenance = laneProvenance(lane, dated);
   if (provenance.length) return { state: "UNAVAILABLE", reason: "PROVENANCE", text: NBA_TOP_BOARDS_UNAVAILABLE_TEXT.PROVENANCE, problems: provenance };
-  const doc = buildLaneTopBoards(lane, { nowIso, startedIds });
+  const doc = buildLaneTopBoards(view, { nowIso, startedIds });
   if (!doc.scope.eventsIncluded) return { state: "UNAVAILABLE", reason: "NO_PREGAME_GAMES", text: NBA_TOP_BOARDS_UNAVAILABLE_TEXT.NO_PREGAME_GAMES, problems: [] };
-  const cross = crossPageProblems(doc, lane);
+  const cross = crossPageProblems(doc, view);
   if (cross.length) return { state: "UNAVAILABLE", reason: "CROSS_PAGE", text: NBA_TOP_BOARDS_UNAVAILABLE_TEXT.CROSS_PAGE, problems: cross };
   return { state: "PUBLISHED", doc };
 }

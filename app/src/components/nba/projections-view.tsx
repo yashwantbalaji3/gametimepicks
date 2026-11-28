@@ -205,7 +205,7 @@ function TodaySlate({ today }: { today: BoardToday }) {
 type GameLinks = { current?: readonly string[]; pages?: readonly string[]; lines: readonly string[] };
 const NO_GAME_LINKS: GameLinks = { lines: [] };
 
-export default function NbaProjectionsView({ lane, role = "current", date = null, games = [], dates = [], dated = false, today = null, actuals = null, eloCtx = ELO_OFF, asOf = "", lineDisplay = NBA_LINE_DISPLAY, priceRecords = null, gameLinks = NO_GAME_LINKS, topBoards = null, postFreeze = null }: {
+export default function NbaProjectionsView({ lane, role = "current", date = null, games = [], dates = [], dated = false, today = null, actuals = null, eloCtx = ELO_OFF, asOf = "", lineDisplay = NBA_LINE_DISPLAY, priceRecords = null, gameLinks = NO_GAME_LINKS, topBoards = null, postFreeze = null, boardLane = null }: {
   lane: Snapshot | null;
   /** "past" = a slate before the build's ET date: labelled as a past frozen slate, never as current. */
   role?: SlateRole;
@@ -237,13 +237,16 @@ export default function NbaProjectionsView({ lane, role = "current", date = null
   /** Players ruled out after the freeze ("<eventId>:<athleteId>" → the note), post-freeze-availability-data.ts: kept as
       recorded, demoted to the end of the default order, with the note. null → the board is unchanged. */
   postFreeze?: Record<string, string> | null;
+  /** The eligibility VIEW of `lane` (player-eligibility-data.ts, switch GTP_NBA_SITE_SHARED_ELIGIBILITY): the board's
+      rows come from it; everything else (no-projection rows, actuals, receipts) still reads `lane`. null → `lane`. */
+  boardLane?: Snapshot | null;
 }) {
   const live = lane && lane.games.length > 0 ? lane : null;
   const past = role === "past";
   const slate = date ?? live?.date ?? null;
   const meta = new Map(games.map((g) => [g.id, g]));
   const stats = PROJECTION_BOARD_STATS.map(([k, l]) => [k, l] as const);
-  const rows = live ? boardRows(live, PROJECTION_BOARD_STATS, postFreeze) : [];
+  const rows = live ? boardRows(boardLane ?? live, PROJECTION_BOARD_STATS, postFreeze) : [];
   const { matchups, teams } = boardOptions(live);
   const groups = statGroups(PROJECTION_BOARD_STATS, COMBO_STATS.map(([k]) => k));
   // Postgame mode only when at least one game's actuals are recorded; otherwise the board is exactly the pregame one.
