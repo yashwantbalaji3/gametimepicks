@@ -166,9 +166,11 @@ test("PARTICIPATION: a v0.3 side's team total counts each player's points with p
   assert.equal(a.modelVersion, NBA_SIM_V03_MODEL_VERSION);
 });
 
-test("FAMILY: v0.3 is an ARMED forward-shadow CHALLENGER in FAMILIES (founder 2026-10-22), aligned with v0.1; CANDIDATE_FAMILIES is empty", () => {
+test("FAMILY: v0.3 is an ARMED forward-shadow CHALLENGER in FAMILIES (founder 2026-10-22), aligned with v0.1; v0.3 is not a candidate and every candidate is unarmed", () => {
   assert.deepEqual(Object.keys(FAMILIES), ["v0", "v0.1", "v0.2", "v1", "v0.3"]);
-  assert.deepEqual(Object.keys(CANDIDATE_FAMILIES), []);
+  // v0.4 (minutes-model-v04.test.mjs) is the only candidate today; it is unarmed and never iterated by the pipeline
+  assert.ok(!("v0.3" in CANDIDATE_FAMILIES), "v0.3 left CANDIDATE_FAMILIES when it was armed");
+  for (const c of Object.values(CANDIDATE_FAMILIES)) assert.equal(c.armed, false, `${c.family} is a candidate, so it is NOT ARMED`);
   const f = familySpec("v0.3");
   assert.equal(f, FAMILIES["v0.3"]);
   assert.equal(f.role, "CHALLENGER");
