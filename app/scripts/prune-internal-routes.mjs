@@ -63,7 +63,10 @@ if (NBA_THEATER_ROUTES.length === 0) console.log("[prune-internal-routes] NBA Th
    placeholder, removed here, and then the empty out/nba/lines/ with its chunks (below), so such a build ships no lines
    route. (A literal: a test pins it to NBA_LINES_PLACEHOLDER in components/nba/nba-prop-lines.tsx.) */
 const NBA_LINES_PLACEHOLDER_ROUTE = "nba/lines/nba-lines-none";
-const INTERNAL_ROUTES = ["ops", "preview", "launch", ...DEV_ROUTES, ...NBA_THEATER_ROUTES, NBA_LINES_PLACEHOLDER_ROUTE, ...GATED_LEGAL_ROUTES];
+/* /trends (NBA player trends, trends slice 2026-11-09) ships only when the build sets GTP_NBA_TRENDS_PUBLIC=1; otherwise
+   its page is a 404 and this sweep removes it with its chunks. */
+const TRENDS_ROUTES = process.env.GTP_NBA_TRENDS_PUBLIC === "1" ? [] : ["trends"];
+const INTERNAL_ROUTES = ["ops", "preview", "launch", ...DEV_ROUTES, ...NBA_THEATER_ROUTES, NBA_LINES_PLACEHOLDER_ROUTE, ...GATED_LEGAL_ROUTES, ...TRENDS_ROUTES];
 
 /**
  * Data files the public site serves even though no page links them. Kept deliberately, not by accident.

@@ -41,6 +41,10 @@ const covered = (ref) => INPUTS.some((i) => (i.endsWith("/") ? `${ref}/`.startsW
  *   "label"   the module performs no file I/O at all (no fs import, no read call) — its paths are provenance text.
  *   "allow"   public modules may import ONLY these names from it; those names were verified not to reach the paths.
  *   "forbid"  the named reader is defined once in the module and referenced nowhere else in any public closure.
+ *   "gated"   every public importer reaches the module ONLY by a dynamic import inside the literal build-flag branch
+ *             (`if (process.env.FLAG === "1")`), next.config.mjs defines the flag "1" only when the build sets it (default
+ *             OFF, so the default build never bundles the read), and the module reads nothing beyond `reads`. Turning
+ *             the flag on for a public build means making `reads` BUILD_INPUTS and deleting the exemption.
  */
 const EXEMPTIONS = [
   { module: "src/lib/launch/runbook-registry.mjs", kind: "label", why: "runbook receipt descriptions; no I/O" },
@@ -51,6 +55,11 @@ const EXEMPTIONS = [
     why: "/markets reads only the exported lineage artifact under app/public/data/research/row-lineage; the pregame-archive / quarantine / alias readers are used by the emit script, not by a page",
   },
   { module: "src/lib/sports/nfl/player-props-v1.mjs", kind: "forbid", forbid: ["loadPlayerPropsFit"], why: "public pages import only the sampling helpers; the fit-receipt loader has no public caller" },
+  {
+    module: "src/lib/sports/nba/trends.ts", kind: "gated", flag: "GTP_NBA_TRENDS_PUBLIC",
+    reads: ["data/internal/research", "data/internal/research/injuries/nba/latest.json", "data/internal/research/nba/rosters/latest.json"],
+    why: "NBA Trends (gated OFF, /trends internal): eligibility@1 reads the PRIVATE_RESEARCH NBA injury + roster captures; /data/nba-trends.json imports the loader only inside the flag branch",
+  },
   /*
    * LAGS BY DESIGN — a public read that must NOT rebuild on its own commits. The Level A suggestions record is written
    * per Production deployment; if its commits built, every record commit would deploy and re-trigger the recorder. Its
@@ -237,6 +246,24 @@ function exemptionHolds(ex) {
     }
     const refs = [...MAP.readers].filter(([, byMod]) => byMod.has(ex.module)).map(([ref]) => ref);
     const stray = refs.filter((r) => !ex.reads.some((x) => r === x || r.startsWith(`${x}/`)));
+    return stray.length === 0 || `${ex.module} also reads ${stray.join(", ")} — not covered by this exemption`;
+  }
+  if (ex.kind === "gated") {
+    const cfg = read(path.join(APP, "next.config.mjs"));
+    if (!new RegExp(`${ex.flag}: process\\.env\\.${ex.flag} === "1" \\? "1" : "0"`).test(cfg)) return `next.config.mjs no longer defines ${ex.flag} as "1" only when set`;
+    const flagAt = (t) => t.search(new RegExp(`if \\(process\\.env\\.${ex.flag} === "1"\\) \\{`));
+    for (const f of importers) {
+      if (!importedNames(f, abs).length) continue;
+      const t = stripComments(read(f));
+      const statics = [...t.matchAll(/^import\s+(?!type\b)[^;]*?from\s+["']([^"']+)["']/gm)].filter((m) => resolve(f, m[1]) === abs);
+      if (statics.length) return `${rel(f)} imports ${ex.module} statically — its read is public whatever ${ex.flag} says`;
+      const at = flagAt(t);
+      const dyn = [...t.matchAll(/import\(\s*["']([^"']+)["']\s*\)/g)].filter((m) => resolve(f, m[1]) === abs);
+      const dynCount = dyn.length, gated = at < 0 ? 0 : dyn.filter((m) => m.index > at).length;
+      if (dynCount === 0 || gated !== dynCount) return `${rel(f)} reaches ${ex.module} outside the ${ex.flag} branch`;
+    }
+    const refs = [...MAP.readers].filter(([, byMod]) => byMod.has(ex.module)).map(([ref]) => ref);
+    const stray = refs.filter((r) => !ex.reads.includes(r));
     return stray.length === 0 || `${ex.module} also reads ${stray.join(", ")} — not covered by this exemption`;
   }
   return `unknown exemption kind ${ex.kind}`;
