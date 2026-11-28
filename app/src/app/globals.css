@@ -5269,6 +5269,17 @@ body {
 .gtp-ev-bar > span:first-child { margin-left: 0; }
 .gtp-ev-bar > span[data-fav] { background: var(--vault-accent); opacity: 1; }
 .gtp-ev-fav { color: var(--vault-text); font-weight: 600; }
+/* Phone density (2026-11-14): 13 NFL cards ran 372px each. Tighter rhythm on every hub; where both sides are
+   abbreviations the crest and name share one line, mirrored around the separator. Layout only. */
+@media (max-width: 639px) {
+  li.gtp-ev { gap: 0.625rem; }
+  li.gtp-ev .gtp-ev-read { padding-top: 0.625rem; padding-bottom: 0.625rem; }
+  .gtp-ev-sides[data-short] { align-items: center; }
+  .gtp-ev-sides[data-short] > span { padding-top: 0; }
+  .gtp-ev-sides[data-short] .gtp-ev-side { flex-direction: row; justify-content: flex-end; }
+  .gtp-ev-sides[data-short] .gtp-ev-side:last-child { flex-direction: row-reverse; }
+  .gtp-ev-sides[data-short] .gtp-team-logo { --gtp-tl-size: 40px !important; --gtp-tl-img: 32px !important; flex-shrink: 0; }
+}
 .gtp-ev-cta { min-height: 44px; color: var(--vault-text); border: 1px solid var(--vault-border-strong); }
 /* components/nba/experimental-lane.tsx + hub-overview.tsx — the NBA matchup card and hub overview (UI parity 2026-10-22).
    Same panel/status/read/CTA classes as the hub event card above; the NBA-only layout lives here once, not per card. */
