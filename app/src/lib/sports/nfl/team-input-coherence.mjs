@@ -18,19 +18,41 @@
  * artifact's own family) AND is his team's depth-chart QB1 at the forecast's generation time. A backup on
  * IR is not material; no name enters by opinion. An unreadable chart or participation record yields
  * UNKNOWN, which withholds nothing and says so.
+ *
+ * VERSION 2 (2026-11-15, founder P0 "QB-dependent forecasts"): the depth chart alone missed MIN on 11-15 (Kyler Murray,
+ * MIN's passer in 3 of its last 4 games, listed Out while the chart still named Cousins QB1). An excluded passer is now
+ * also material when he is the team's PRIMARY PASSER: the most pass attempts over the team's last 4 games before the
+ * forecast (actual box scores, `primaryPasserOf`). Either basis suffices; each absence records which one fired. With no
+ * `primaryPasserOf` the function behaves exactly as version 1. A primary passer who is now on ANOTHER team's roster
+ * (`currentTeamOf`, the roster capture) is a departure (LV and ARI on 11-15: Cousins to MIN, Brissett to BAL) and is
+ * material too: the team ratings were earned with him.
  */
 
-export const TEAM_INPUT_COHERENCE_VERSION = 1;
+export const TEAM_INPUT_COHERENCE_VERSION = 2; // the version this module implements; a forecast records the version applied
+export const TEAM_INPUT_COHERENCE_V1 = 1;
+
+/** PURE. The team's primary passer before `beforeIso`: most pass attempts over its last `n` games (ties → most recent game). */
+export function primaryPasserFrom(games, team, beforeIso, n = 4) {
+  const t = Date.parse(beforeIso);
+  const abbr = (x) => { const a = typeof x === "string" ? x : x?.abbr; return a === "LA" ? "LAR" : a === "WAS" ? "WSH" : a ?? null; };
+  const mine = (games ?? []).filter((g) => Date.parse(g.dateUtc) < t && (abbr(g.home) === team || abbr(g.away) === team)).sort((a, b) => Date.parse(b.dateUtc) - Date.parse(a.dateUtc)).slice(0, n);
+  const att = new Map(), last = new Map(), names = new Map();
+  mine.forEach((g, i) => { for (const p of g.players ?? []) if (p.teamAbbr === team && (p.passAtt ?? 0) > 0) { names.set(p.playerId, p.name ?? null); att.set(p.playerId, (att.get(p.playerId) ?? 0) + p.passAtt); if (!last.has(p.playerId)) last.set(p.playerId, i); } });
+  const best = [...att.entries()].sort((a, b) => b[1] - a[1] || last.get(a[0]) - last.get(b[0]))[0];
+  return best ? { playerId: best[0], name: names.get(best[0]) ?? null, attempts: best[1], games: mine.length } : null;
+}
 
 /**
  * @param {object} a
  * @param {{excludedIneligible?: Array<{playerId: string, name: string, team: string, market: string, status: string, statedAt?: string}>, injuriesAsOf?: string|null}|null} a.participation
  * @param {string[]} a.teams the game's two teams (board/ESPN spelling)
  * @param {(team: string) => {state: string, starter?: {playerId: string|number, name?: string}, snapshotAt?: string}|null} a.qb1Of
+ * @param {((team: string) => {playerId: string, name?: string|null, attempts: number, games: number}|null)|null} [a.primaryPasserOf] version 2
+ * @param {((playerId: string) => string|null)|null} [a.currentTeamOf] version 2: the player's team on the roster capture
  * @returns {{version: number, consumedByModel: false, state: "BLIND_TO_STARTING_QB_ABSENCE"|"NO_STARTING_QB_ABSENCE"|"UNKNOWN", absences: object[], participationAsOf: string|null, comparisonWithheld: boolean, note: string|null}}
  */
-export function teamInputCoherence({ participation, teams, qb1Of }) {
-  const base = { version: TEAM_INPUT_COHERENCE_VERSION, consumedByModel: false, participationAsOf: participation?.injuriesAsOf ?? null };
+export function teamInputCoherence({ participation, teams, qb1Of, primaryPasserOf = null, currentTeamOf = null }) {
+  const base = { version: primaryPasserOf ? TEAM_INPUT_COHERENCE_VERSION : TEAM_INPUT_COHERENCE_V1, consumedByModel: false, participationAsOf: participation?.injuriesAsOf ?? null };
   if (!participation || !Array.isArray(participation.excludedIneligible)) {
     return { ...base, state: "UNKNOWN", absences: [], comparisonWithheld: false, note: null, reason: "no participation record for this game" };
   }
@@ -43,9 +65,21 @@ export function teamInputCoherence({ participation, teams, qb1Of }) {
   const unread = [];
   for (const e of passers.values()) {
     const chart = qb1Of(e.team);
-    if (!chart || chart.state !== "RESOLVED" || chart.starter?.playerId == null) { unread.push(e.team); continue; }
-    if (`nfl-athlete-${chart.starter.playerId}` !== e.playerId) continue;
-    absences.push({ playerId: e.playerId, name: e.name, team: e.team, status: e.status, statedAt: e.statedAt ?? null, depthChartAt: chart.snapshotAt ?? null });
+    const primary = primaryPasserOf ? primaryPasserOf(e.team) : null;
+    const isPrimary = primary != null && primary.playerId === e.playerId;
+    const chartRead = chart && chart.state === "RESOLVED" && chart.starter?.playerId != null;
+    const isQb1 = chartRead && `nfl-athlete-${chart.starter.playerId}` === e.playerId;
+    if (!isQb1 && !isPrimary) { if (!chartRead) unread.push(e.team); continue; }
+    absences.push({ playerId: e.playerId, name: e.name, team: e.team, status: e.status, statedAt: e.statedAt ?? null, depthChartAt: chart?.snapshotAt ?? null, ...(primaryPasserOf ? { basis: [isQb1 ? "DEPTH_CHART_QB1" : null, isPrimary ? `PRIMARY_PASSER_${primary.attempts}_ATT_LAST_${primary.games}` : null].filter(Boolean) } : {}) });
+  }
+  if (primaryPasserOf && currentTeamOf) {
+    for (const team of teams) {
+      const primary = primaryPasserOf(team);
+      if (!primary || absences.some((a) => a.playerId === primary.playerId)) continue;
+      const now = currentTeamOf(primary.playerId);
+      if (now == null || now === team) continue;
+      absences.push({ playerId: primary.playerId, name: primary.name ?? primary.playerId, team, status: `no longer on the roster (now ${now})`, statedAt: null, depthChartAt: null, basis: [`PRIMARY_PASSER_${primary.attempts}_ATT_LAST_${primary.games}`, "DEPARTED"] });
+    }
   }
   if (absences.length) {
     const who = absences.map((x) => `${x.name} (${x.team}, ${x.status})`).join(" and ");
