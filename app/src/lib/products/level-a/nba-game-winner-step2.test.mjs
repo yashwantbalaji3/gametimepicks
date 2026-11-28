@@ -13,7 +13,7 @@ import { renderToString } from "react-dom/server";
 
 import { ELO_WIN_PROBABILITY_LABEL, eloWinProbabilityOf, eloWinProbabilityText, laneEloWinProbability } from "../../sports/nba/elo-win-probability.mjs";
 import { nbaGameWinnerDisplay } from "./nba-game-winner-source.mjs";
-import { NBA_GW_POLICY, NBA_GW_POLICIES, NBA_GAME_WINNER_TIERS_PUBLIC, nbaGameWinnerCardKey, recordableNbaGameWinnerCards } from "./nba-game-winner-tiers.mjs";
+import { NBA_GW_POLICY, nbaGameWinnerLeg, NBA_GW_POLICIES, NBA_GAME_WINNER_TIERS_PUBLIC, nbaGameWinnerCardKey, recordableNbaGameWinnerCards } from "./nba-game-winner-tiers.mjs";
 import { NBA_GW_LEG_NOTE, buildLevelAModel, LEVEL_A_SERVED_SCHEMA, modelSha256 } from "./model.mjs";
 import { recordEntries } from "./record.mjs";
 import { jointShownFor } from "./suggestions.mjs";
@@ -243,4 +243,12 @@ test("SWITCH FALSE ON AN ELO SLATE (H1 lands before the 10-24 publish): untiered
     }
     assert.ok(nba.some((l) => l.uncertainty?.kind === "elo-win-probability"), "the Elo field reached the rows");
   }
+});
+
+test("NOTE: a leg on an NBA or mixed card never says it does not tier (2026-11-02)", () => {
+  const leg = { sport: "nba", market: "winner", eventId: "1", selection: { code: "home" }, forecast: { stampedAt: "t" }, probabilityNote: "Untiered: does not tier this leg." };
+  const d = { pHome: 0.9, eventId: "1", frozenAt: "t", payloadSha256: "s", shown: { home: "90%", away: "10%" } };
+  const out = nbaGameWinnerLeg(leg, d, { payloadSha256: "s" });
+  assert.equal(out.ok, true);
+  assert.equal(out.leg.probabilityNote, null);
 });

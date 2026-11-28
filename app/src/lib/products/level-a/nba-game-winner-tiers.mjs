@@ -73,7 +73,8 @@ export function nbaGameWinnerLeg(leg, d, receipt) {
   if (typeof shown !== "string") return { ok: false, code: "BAD_PROBABILITY", leg };
   return {
     ok: true,
-    leg: { ...leg, probability: p, shownPct: shown, decimals: d.decimals, label: d.label, display: { source: d.source, frozenAt: d.frozenAt, payloadSha256: d.payloadSha256 }, tierable: true, priced: false, price: null },
+    /* The leg now carries a published estimate and can sit on a card, so the untiered note would be false beside it. */
+    leg: { ...leg, probability: p, probabilityNote: null, shownPct: shown, decimals: d.decimals, label: d.label, display: { source: d.source, frozenAt: d.frozenAt, payloadSha256: d.payloadSha256 }, tierable: true, priced: false, price: null },
   };
 }
 
