@@ -10,8 +10,9 @@
  *   R5        the teamInputs.state of the game's official forecast of record — nflOfficialOfRecord (CANON-01, the one
  *             selector: the live union, or after the week rolls the revision the graded record names). No record or no
  *             team-input state ⇒ not allowed (unknown ≠ allowed).
- *   eligibility@1 at freeze: not on this branch — `eligibilityAt` stays null (every row PENDING ⇒ none confirmatory)
- *             until the contract is on main and wired here.
+ *   eligibility@1 at freeze: data/internal/research/nfl/qb-props/eligibility-at-freeze.json (qb-props-eligibility.mjs):
+ *             the projected QB resolved against the injuries + roster captures the receipt itself pins, asOf = the
+ *             receipt's generatedAt. A key the record lacks ⇒ null ⇒ PENDING_ELIGIBILITY_CONTRACT (never confirmatory).
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -19,6 +20,7 @@ import crypto from "node:crypto";
 import { readShadowReceipts } from "./sim-v2/public-receipt.mjs";
 import { nflOfficialOfRecord } from "./official-of-record.mjs";
 import { r5Allows } from "./qb-props-markets.mjs";
+import { ELIGIBILITY_AT_FREEZE_REL, eligibilityAtFrom, loadEligibilityRecord } from "./qb-props-eligibility.mjs";
 import { APPROVED_PREREG_SHA256, PREREG_APPROVED_AT, buildLedger, gradeQbProps, gradeRefusal } from "./qb-props-grade.mjs";
 
 export const PLAYER_EVENTS_DIR = "data/internal/research/nfl/player-events-v1";
@@ -66,15 +68,18 @@ export function loadGradeInputs(root) {
   const verified = readVerifiedFinals(root);
   const { r5At, states } = r5FromRecord(root);
   for (const e of entries) r5At({ eventId: e.receipt?.eventId });
+  const record = loadEligibilityRecord(root);
   const inputs = {
     receiptsRead: entries.length,
     receiptsDigest: sha(entries.map((e) => `${e.file}:${e.receipt?.artifactHash ?? ""}`).join("\n")).slice(0, 16),
     actuals: files,
     verifiedFinals: verified.size,
     r5: { source: "nflOfficialOfRecord", events: states.size, withTeamInputs: [...states.values()].filter(Boolean).length },
-    eligibility: "PENDING_ELIGIBILITY_CONTRACT",
+    eligibility: record
+      ? { source: ELIGIBILITY_AT_FREEZE_REL, contractVersion: record.contractVersion ?? null, entries: Object.keys(record.entries ?? {}).length, digest: sha(JSON.stringify(record.entries ?? {})).slice(0, 16) }
+      : "PENDING_ELIGIBILITY_CONTRACT",
   };
-  return { entries, games, verified, r5At, eligibilityAt: null, inputs };
+  return { entries, games, verified, r5At, eligibilityAt: record ? eligibilityAtFrom(record) : null, inputs };
 }
 
 export const LEDGER_REL = "data/internal/research/nfl/qb-props/ledger.json";
