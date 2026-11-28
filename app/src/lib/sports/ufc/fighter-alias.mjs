@@ -91,6 +91,9 @@ const GIVEN_NAME_FORMS = [
   ["stephen", "steve"],
   // Seen 2026-10-06: card "Loopy Godínez" ↔ provider "lupita godinez" (the Oct 10 Fight Night).
   ["lupita", "loopy"],
+  // Seen 2026-11-14: card "Bia Mesquita" ↔ provider "beatriz mesquita" (UFC 334). "Bia" is the usual Portuguese short
+  // form of Beatriz; no prefix rule reaches it (b-i-a vs b-e-a). The bout published unpriced with a market on the book.
+  ["beatriz", "bia"],
 ];
 const SAME_GIVEN = new Map();
 for (const row of GIVEN_NAME_FORMS) for (const n of row) {
