@@ -142,6 +142,7 @@ export const NO_PROJECTION_LABEL = Object.freeze({
   ROOKIE: "Projection unavailable — rookie, no NBA minutes yet",
   RULED_OUT: "Projection unavailable — ruled out before the freeze",
   BELOW_PUBLISH_CUT: "Projection unavailable — under 10 expected minutes, not published",
+  MINUTES_NOT_PLAUSIBLE: "Projection unavailable — the model's expected minutes for this game are not reliable",
   P: "Played, no projection",
 });
 export const noProjectionLabel = (code) => NO_PROJECTION_LABEL[code] ?? "Projection unavailable";
@@ -152,6 +153,7 @@ export const NO_PROJECTION_SHORT = Object.freeze({
   ROOKIE: "Projection unavailable — rookie",
   RULED_OUT: "Projection unavailable — ruled out before the freeze",
   BELOW_PUBLISH_CUT: "Projection unavailable — under 10 min, not published",
+  MINUTES_NOT_PLAUSIBLE: "Projection unavailable — expected minutes not reliable",
   P: "Played, no projection",
 });
 export const noProjectionShort = (code) => NO_PROJECTION_SHORT[code] ?? "Projection unavailable";
