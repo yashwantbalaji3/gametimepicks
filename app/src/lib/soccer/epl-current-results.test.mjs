@@ -92,3 +92,40 @@ test("one malformed row never throws the slate — the adapter is total", () => 
   assert.equal(out.results.length, 0);
   assert.equal(out.quarantined.length, 1);
 });
+
+/*
+ * MW10 GRADING BREAK (2026-11-12): the only fixture capture carries placeholder 15:00Z kickoffs, so a match ESPN played
+ * at another minute has a different canonical id on the result. The result still reaches its fixture on the stable key
+ * — the club pair, the same home club, a kickoff within PAIR_JOIN_WINDOW_DAYS — and says how it joined.
+ */
+const PLACEHOLDER = { rows: [
+  { eventId: "soccer:epl:coventry-city-v-everton:20261107t1500", homeClub: "Everton", awayClub: "Coventry City", kickoffIso: "2026-11-07T15:00:00Z", matchweek: 10 },
+  { eventId: "soccer:epl:coventry-city-v-everton:20270410t1400", homeClub: "Coventry City", awayClub: "Everton", kickoffIso: "2027-04-10T14:00:00Z", matchweek: 32 },
+] };
+const NOW_MW10 = "2026-11-07T02:00:00Z";
+const mw10 = (row) => loadCurrentEplResults({ nowIso: NOW_MW10, artifact: { seasonStart: "2026-08-21", sourceAsOf: NOW_MW10, rows: [{ providerEventId: "espn-mw10", ftHome: 1, ftAway: 2, statusRaw: "STATUS_FULL_TIME", ...row }] }, fixtures: PLACEHOLDER });
+
+test("PLACEHOLDER KICKOFF · a result at the real time joins its fixture by club pair + home club + window, and names the fixture id forecasts used", () => {
+  const out = mw10({ dateUtc: "2026-11-06T20:00Z", home: "Everton", away: "Coventry City" });
+  assert.equal(out.results.length, 1, JSON.stringify(out.quarantined));
+  const r = out.results[0];
+  assert.equal(r.canonicalEventId, "soccer:epl:coventry-city-v-everton:20261106t2000", "the result keeps its own canonical id");
+  assert.equal(r.fixtureEventId, "soccer:epl:coventry-city-v-everton:20261107t1500", "the id the forecast was published under");
+  assert.equal(r.joinedBy, "CLUB_PAIR_WINDOW");
+  assert.equal(r.kickoffUtc, "2026-11-06T20:00:00Z", "the REAL kickoff travels to the grader's pre-kickoff check");
+  assert.deepEqual([r.home, r.away, r.ftHome, r.ftAway], ["Everton", "Coventry City", 1, 2]);
+});
+
+test("PLACEHOLDER KICKOFF · a reversed fixture, a match outside the window, or two candidates never join (no swapped goals, no guess)", () => {
+  assert.equal(mw10({ dateUtc: "2026-11-06T20:00Z", home: "Coventry City", away: "Everton" }).results.length, 0, "reversed orientation: the other meeting is months away and the near one names the other home club");
+  assert.equal(mw10({ dateUtc: "2026-12-06T20:00Z", home: "Everton", away: "Coventry City" }).results.length, 0, "30 days off: outside the window");
+  const two = loadCurrentEplResults({ nowIso: NOW_MW10, artifact: { seasonStart: "2026-08-21", sourceAsOf: NOW_MW10, rows: [{ providerEventId: "e", dateUtc: "2026-11-06T20:00Z", home: "Everton", away: "Coventry City", ftHome: 1, ftAway: 2, statusRaw: "STATUS_FULL_TIME" }] }, fixtures: { rows: [PLACEHOLDER.rows[0], { ...PLACEHOLDER.rows[0], eventId: "soccer:epl:coventry-city-v-everton:20261108t1500", kickoffIso: "2026-11-08T15:00:00Z" }] } });
+  assert.equal(two.results.length, 0, "two same-pair fixtures in the window: ambiguous, quarantined");
+  assert.equal(two.reconciliation.exact, true);
+});
+
+test("CANONICAL join unchanged: an exact-id result still joins as CANONICAL with fixtureEventId = its own id", () => {
+  const out = mw10({ dateUtc: "2026-11-07T15:00Z", home: "Everton", away: "Coventry City" });
+  assert.equal(out.results[0].joinedBy, "CANONICAL");
+  assert.equal(out.results[0].fixtureEventId, out.results[0].canonicalEventId);
+});

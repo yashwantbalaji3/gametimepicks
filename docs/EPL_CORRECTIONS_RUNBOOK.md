@@ -36,20 +36,35 @@ corrections are safe by construction.
 
 ## Kickoff moves / rescheduled matches
 
-The canonical event identity is kickoff-based by design. When a match moves:
+The canonical event identity is kickoff-based. The only fixture capture (openfootball) carries placeholder kickoffs
+(for example 15:00Z Saturday slots) and does not refresh them. So a match ESPN plays at another minute has a different
+canonical id on its result than on its fixture and on the forecast published for it. That broke grading for 8 of 10
+MW10 fixtures (epl-settle REFUSED, 2026-11-11 02:31Z).
 
-1. The result row (new kickoff) no longer matches the committed fixture identity → it
-   **quarantines as unjoined**. Nothing settles against a stale kickoff. This is correct, not a
-   defect.
-2. The next scheduled fixture capture re-captures 380 fixtures; the changed kickoff produces a
-   changed snapshot (snapshot-per-capture commits it).
-3. The following results capture then joins cleanly and the quarantine clears — **no manual step**.
+Since 2026-11-12 the join has two steps (`app/src/lib/soccer/epl-current-results.mjs`):
+1. **Canonical id.** The result's id equals the fixture's id, or its ESPN-confirmed id (`confirmFixtureKickoffs`).
+2. **Stable key.** Otherwise, the ONE fixture with the same club pair **and the same home club**, kicking off within
+   `PAIR_JOIN_WINDOW_DAYS` (14) of the result, joins with `joinedBy: "CLUB_PAIR_WINDOW"`.
+   - Several candidates, a reversed fixture (which would swap the goals), or a move beyond the window still
+     **quarantine as unjoined**.
+   - Nothing settles on a guess.
 
-If the same quarantine persists **more than one full cadence day**, inspect in order: the fixture
-capture actually committed (workflow log), the club names against `EPL_CLUB_ALIASES`
-(committed variants resolve; anything outside the table refuses — that refusal is membership
-protection, never to be "fixed" by loosening the table without a receipt), and whether the match
-was postponed rather than moved.
+The bridged result carries `fixtureEventId`, the id the forecast was published under, and the real `kickoffUtc`. The
+grader (`scripts/epl/grade-epl-forecasts.mjs`):
+- finds the forecast by either id;
+- re-checks "forecast before kickoff" against the **real** kickoff, so a placeholder later than the real time cannot
+  admit a post-kickoff forecast;
+- records the published id, with `resultEventId` / `joinedBy` / `forecastKickoffUtc` when they differ.
+
+**Frozen forecasts are never rewritten.**
+
+The /epl hub drops a schedule row that is the same match as a forecast row by the same key, and counts it in
+`identityReconciliation.placeholderDuplicates`.
+
+If a quarantine persists **more than one full cadence day**, inspect in order:
+- the club names against `EPL_CLUB_ALIASES` (committed variants resolve; anything outside the table refuses);
+- whether the match was postponed beyond the window;
+- whether two same-pair fixtures fall in the window.
 
 ## Postponed / abandoned / delayed / in-play rows
 

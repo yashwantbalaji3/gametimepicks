@@ -185,3 +185,13 @@ test("LIVE · every EPL hub row belongs to the ONE selected matchweek; later wee
   assert.equal(typeof e.identityReconciliation.laterPeriodRows, "number");
   assert.equal(e.identityReconciliation.unidentifiedScheduleRows, 0, "every schedule row states its canonical identity");
 });
+
+test("LIVE · no EPL fixture renders twice under a placeholder kickoff (same club pair within the join window)", async () => {
+  const { samePairNear } = await import("../sports/epl/kickoff-truth.mjs");
+  const e = eplHub(NOW);
+  for (let i = 0; i < e.rows.length; i += 1) for (let j = i + 1; j < e.rows.length; j += 1) {
+    const a = e.rows[i], b = e.rows[j];
+    assert.ok(!samePairNear(a.id, String(a.startUtc), b.id, String(b.startUtc)), `${a.id} and ${b.id} are the same match`);
+  }
+  assert.equal(typeof e.identityReconciliation.placeholderDuplicates, "number", "dropped duplicates are counted, not hidden");
+});
