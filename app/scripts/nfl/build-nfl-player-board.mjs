@@ -49,6 +49,8 @@ import { SHARE_LEVEL_MODEL_ID, SHARE_LEVEL_TD_MODEL_ID, shareLevelAdoptedMarkets
 import { postKickoffInputs, refusalLine } from "../../src/lib/sports/nfl/input-stamps.mjs";
 import { createQbState, tierBProjection } from "../../src/lib/sports/nfl/qb-starter-projection.mjs";
 import zlib from "node:zlib";
+import { receivingYardsPipelineOf, receivingYardsFamilyAnnotation, recydsAlertLine } from "../../src/lib/sports/nfl/receiving-yards-share-view.mjs";
+const recydsAlert = (code, detail) => { const line = recydsAlertLine(code, detail); console.log(`::error::${line}`); if (process.env.GTP_RECYDS_ALERTS) fs.appendFileSync(process.env.GTP_RECYDS_ALERTS, line + "\n"); };
 
 const APP = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..", "..");
 const ROOT = path.join(APP, "..");
@@ -379,15 +381,25 @@ for (const doc of events.sort((a, b) => a.kickoffUtc.localeCompare(b.kickoffUtc)
     return true;
   };
 
+  /* N8 parity fix: receiving yards computed through the receiving-yards share view name their pipeline version on
+     the family and on every row; artifacts from before the fix carry none and their boards are unchanged. A team
+     whose view was missing or unreproduced is NEVER a silent blank: it is named in withheldTeams with the standard
+     "withheld for <team>: …" reason, and a family with no team left is WITHHELD with that reason. */
+  if (families.player_reception_yds && !shareLevel?.markets.has("player_reception_yds")) {
+    Object.assign(families.player_reception_yds, receivingYardsFamilyAnnotation({ family: families.player_reception_yds, perTeam: doc.research?.perTeam }));
+    for (const w of (families.player_reception_yds.withheldTeams ?? []).filter((x) => x.sum === null)) recydsAlert("RECYDS_WITHHELD", `player board ${doc.providerEventId} ${w.team}: ${w.detail ?? w.reason}`);
+  }
   for (const [abbr, tv] of Object.entries(doc.research?.perTeam ?? {})) {
     const props = tv.props;
     if (props?.state === "SIMULATED") {
+      const recydsPipeline = receivingYardsPipelineOf(props);
       for (const pl of props.players ?? []) {
         if (gate(pl.playerId, pl.name, abbr)) continue;
         const markets = {};
         for (const [m, dist] of Object.entries(pl.markets ?? {})) {
           if (!publishedMarkets.has(m) || shareLevel?.markets.has(m)) continue;
           markets[m] = { mean: dist.mean, p10: dist.p10, p25: dist.p25, median: dist.median, p75: dist.p75, p90: dist.p90 };
+          if (m === "player_reception_yds" && recydsPipeline) markets[m].pipelineVersion = recydsPipeline;
         }
         if (Object.keys(markets).length === 0) continue;
         players.push({ playerId: pl.playerId, name: pl.name, team: abbr, participation: pl.participation ?? "AVAILABLE_ROLE_UNCERTAIN", markets });
