@@ -3,18 +3,18 @@
  "artifact": "graded-picks",
  "dataClass": "PUBLIC_DERIVED",
  "moneyClass": "NON_MONEY",
- "generatedAt": "2026-11-27T19:17:06Z",
+ "generatedAt": "2026-11-28T09:26:26Z",
  "sport": "nfl",
  "label": "NFL",
  "what": "Game forecasts: the model-favored team (the higher frozen win probability), graded against the official final. This is historical model-favored winner accuracy, not a record of published picks.",
  "caveat": "EXPERIMENTAL. The NFL team model has not cleared a preregistered bar and is not promoted into any paper product. A tie is recorded as void, not a miss.",
  "counts": {
-  "counted": 207,
+  "counted": 208,
   "hits": 125,
-  "misses": 82,
+  "misses": 83,
   "voided": 3,
   "shown": 60,
-  "total": 210
+  "total": 211
  },
  "hitRate": null,
  "recordBasis": "MIXED",
@@ -28,14 +28,14 @@
   },
   {
    "basis": "PUBLISHED",
-   "counted": 102,
+   "counted": 103,
    "hits": 64,
-   "misses": 38,
-   "hitRate": 0.6275
+   "misses": 39,
+   "hitRate": 0.6214
   }
  ],
  "sampleState": "ASSESSABLE",
- "sampleNote": "207 graded picks. A hit rate is still not proof a model beats a price — that requires a preregistered comparison against the closing line, which is tracked separately per sport.",
+ "sampleNote": "208 graded picks. A hit rate is still not proof a model beats a price — that requires a preregistered comparison against the closing line, which is tracked separately per sport.",
  "picks": [
   {
    "eventId": "nfl-401873082",
@@ -51,6 +51,21 @@
    "probabilityOfActual": 0.678,
    "marketProbabilityOfActual": null,
    "hit": true
+  },
+  {
+   "eventId": "nfl-401873083",
+   "when": "2026-11-27",
+   "eventName": null,
+   "subject": "DEN @ PIT",
+   "market": "Winner",
+   "basis": "PUBLISHED",
+   "noPick": false,
+   "predicted": "AWAY",
+   "actual": "HOME",
+   "modelProbability": null,
+   "probabilityOfActual": 0.3646,
+   "marketProbabilityOfActual": null,
+   "hit": false
   },
   {
    "eventId": "nfl-401873079",
@@ -919,21 +934,6 @@
    "actual": "AWAY",
    "modelProbability": null,
    "probabilityOfActual": 0.7373,
-   "marketProbabilityOfActual": null,
-   "hit": true
-  },
-  {
-   "eventId": "nfl-401873023",
-   "when": "2026-10-29",
-   "eventName": null,
-   "subject": "CAR @ GB",
-   "market": "Winner",
-   "basis": "PUBLISHED",
-   "noPick": false,
-   "predicted": "HOME",
-   "actual": "HOME",
-   "modelProbability": null,
-   "probabilityOfActual": 0.6377,
    "marketProbabilityOfActual": null,
    "hit": true
   }
