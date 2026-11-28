@@ -59,6 +59,14 @@ test("policy constants are the documented ones (pinned to their owners)", () => 
   for (const t of REQUIRED_LEG_TYPES) assert.equal(CALIBRATION_STATUS[t].calibrated, false, `${t} has no accepted calibrated probability today`);
 });
 
+test("a calibration detail states no count frozen from one slate: 'this week' and '0 of 13' go stale on their own", () => {
+  for (const t of REQUIRED_LEG_TYPES) {
+    assert.doesNotMatch(CALIBRATION_STATUS[t].detail, /\b\d+ of \d+\b/, `${t}: a slate count belongs to the run that measured it`);
+    assert.doesNotMatch(CALIBRATION_STATUS[t].detail, /this week/i, `${t}`);
+  }
+  assert.match(CALIBRATION_STATUS.nfl_game_winner.detail, /only a validated pick may become a product leg/, "the rule itself stands");
+});
+
 test("payout math: full-precision decimal, example stake, gross payout and net profit", () => {
   const m = parlayMath([{ american: -110 }, { american: 150 }]);
   const dec = (1 + 100 / 110) * 2.5;

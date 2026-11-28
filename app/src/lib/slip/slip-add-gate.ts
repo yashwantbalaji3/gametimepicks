@@ -39,6 +39,15 @@ export function slipLegStarted(leg: SlipStartFacts | null | undefined, nowIso: s
   return legHasStarted(start, nowIso);
 }
 
+/**
+ * Has a served card stopped being pre-game? A card is one suggestion: its joint and its "add the card" offer rest on
+ * every leg being ahead, so the FIRST started leg ends them, even with other legs still to come. `nowIso` null is the
+ * pre-hydration render (no reader clock yet): nothing is decided and the static card stands.
+ */
+export function cardHasStarted(starts: ReadonlyArray<string | null | undefined>, nowIso: string | null): boolean {
+  return nowIso != null && starts.some((startUtc) => slipLegStarted({ startUtc }, nowIso));
+}
+
 /** May this leg be added to a slip now? The inverse of `slipLegStarted`, named for the add path. */
 export function canAddToSlip(leg: SlipStartFacts | null | undefined, nowIso: string): boolean {
   return !slipLegStarted(leg, nowIso);

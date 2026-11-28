@@ -45,9 +45,11 @@ export function useModelSlip() {
   const slip = useSyncExternalStore(subscribe, get, () => SERVER);
   return {
     slip,
-    /* A started game is not added (lib/slip/slip-add-gate) — the same rule the paper slip applies. */
-    add: (keys: string[]) => {
+    /* A started game is not added (lib/slip/slip-add-gate) — the same rule the paper slip applies. `whole` is a card's
+       button: one started leg refuses the card, never a partial card (the button may be up to a minute behind the clock). */
+    add: (keys: string[], { whole = false }: { whole?: boolean } = {}) => {
       const now = new Date().toISOString();
+      if (whole && keys.some((k) => catalogLegStarted(k, now))) return;
       set(addSlipLegs(get(), keys.filter((k) => !catalogLegStarted(k, now)).map((k) => catalog.get(k)).filter(Boolean)) as Slip);
     },
     remove: (key: string) => set(removeSlipLeg(get(), key) as Slip),

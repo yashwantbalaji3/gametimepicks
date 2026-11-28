@@ -78,7 +78,7 @@ export const CALIBRATION_STATUS = Object.freeze({
   }),
   nfl_game_winner: Object.freeze({
     calibrated: false,
-    detail: "The NFL win head was evaluated on past seasons, but every game this week is classified experimental and only a validated pick may become a product leg (0 of 13 qualify).",
+    detail: "The NFL win head was evaluated on past seasons, but NFL games are classified experimental and only a validated pick may become a product leg, so no NFL game qualifies while that holds.",
   }),
 });
 

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import LevelACopy from "@/components/products/level-a-copy";
-import { AddToSlip, ModelSlipBar } from "@/components/products/level-a-slip";
+import { AddToSlip, CardStartScope, CardStartedLine, ModelSlipBar, WhileCardPregame } from "@/components/products/level-a-slip";
 import { slipCatalogFor, slipLegOf } from "@/lib/products/level-a/slip-legs.mjs";
 import NbaGameWinners, { type NbaGameWinnersBlock } from "@/components/products/nba-game-winners";
 import MoreDisclosure from "@/components/ui/more-disclosure";
@@ -70,9 +70,10 @@ function CardBox({ title, slot }: { title: string; slot: Slot }) {
   const c = slot.card;
   return (
     <article className="flex flex-col gap-2 rounded-[10px] px-4 py-3" style={{ border: "1px solid var(--vault-border)" }} aria-label={title} data-level-a-card={c && c.policy.startsWith("level-a-mixed@1") ? levelACardKey(c) : undefined}>
+      <CardStartScope starts={(c?.legs ?? []).map((l) => l.startUtc)}>
       <header className="flex flex-wrap items-baseline justify-between gap-2">
         <h3 className="m-0 font-semibold" style={{ color: "var(--vault-text)", fontSize: 14 }}>{title}</h3>
-        {c ? <span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>{c.tierLabel} · model joint probability {jointShownFor(c.jointProbability, c.tier)}</span> : null}
+        {c ? <><WhileCardPregame><span style={{ color: "var(--vault-text-mute)", fontSize: 12.5 }}>{c.tierLabel} · model joint probability {jointShownFor(c.jointProbability, c.tier)}</span></WhileCardPregame><CardStartedLine /></> : null}
       </header>
       {c ? (
         <>
@@ -80,13 +81,14 @@ function CardBox({ title, slot }: { title: string; slot: Slot }) {
           <ul className="m-0 flex flex-col gap-1 p-0" role="list">{c.legs.map((l) => <LegRow key={`${l.sport}:${l.eventId}`} l={l} />)}</ul>
           <p className="m-0 text-[11.5px]" style={{ color: "var(--vault-text-faint)" }}>{c.dependency} Unpriced: no sportsbook price, so no payout is shown.</p>
           <span className="flex flex-wrap items-center gap-2">
-            <AddToSlip keys={c.legs.map((l) => slipLegOf(l).key)} label="Add card to slip" name={`${title} (${c.legs.length} legs)`} />
-            <LevelACopy text={cardCopyText(c)} />
+            <AddToSlip keys={c.legs.map((l) => slipLegOf(l).key)} label="Add card to slip" name={`${title} (${c.legs.length} legs)`} wholeCard />
+            <WhileCardPregame><LevelACopy text={cardCopyText(c)} /></WhileCardPregame>
           </span>
         </>
       ) : (
         <p className="m-0 text-[12.5px]" style={{ color: "var(--vault-text-mute)" }}>No suggestion: {slot.reason}.</p>
       )}
+      </CardStartScope>
     </article>
   );
 }

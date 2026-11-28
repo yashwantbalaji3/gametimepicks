@@ -19,7 +19,7 @@
  */
 
 /** The canonical sport key carried on a `ModelPick`. Absent means World Cup, per ModelPick's own contract. */
-export type LegSportKey = "WORLD_CUP" | "MLB" | "NFL" | "NBA" | "UFC";
+export type LegSportKey = "WORLD_CUP" | "MLB" | "NFL" | "NBA" | "UFC" | "EPL" | "LIGUE_1";
 
 export interface SportLegRule {
   sport: LegSportKey;
@@ -85,6 +85,33 @@ export const SPORT_LEG_RULES: Readonly<Record<LegSportKey, SportLegRule>> = Obje
     eligible: false,
     reason: "the UFC surface is a settled archive; no current fight output is produced",
     whatWouldQualify: ["a current UFC board", "a validated UFC model version"],
+  },
+  /* EPL and Ligue 1 were refused only by omission (UNREGISTERED). This pool is the priced paper Bank Builder and Moonshot;
+     their Level A model suggestions and EPL's Parlay Lab cards are separate lanes with their own gates, unaffected here. */
+  EPL: {
+    sport: "EPL",
+    label: "Premier League",
+    eligible: false,
+    reason:
+      "Premier League forecasts and Parlay Lab cards publish under an experimental banner, but no EPL loader feeds this pool, the model has not beaten the market out of sample, and the capability registry keeps EPL out of prediction products",
+    whatWouldQualify: [
+      "a forward-graded comparison showing the EPL model beats the market, with an interval that excludes 0",
+      "the capability registry moving EPL to FULL_MODEL",
+      "an EPL leg loader for this pool, added deliberately",
+    ],
+  },
+  LIGUE_1: {
+    sport: "LIGUE_1",
+    label: "Ligue 1",
+    eligible: false,
+    reason:
+      "Ligue 1 forecasts are model-only: there are no odds or player markets to price a leg, forward grading has too few matches to assess, no loader feeds this pool, and the capability registry keeps Ligue 1 out of prediction products",
+    whatWouldQualify: [
+      "an authorized Ligue 1 price capture",
+      "enough forward-graded matches to measure calibration",
+      "the capability registry moving Ligue 1 to FULL_MODEL",
+      "a Ligue 1 leg loader for this pool, added deliberately",
+    ],
   },
 });
 
